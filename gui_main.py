@@ -3,9 +3,12 @@ from tkinter import ttk, filedialog, messagebox
 import threading
 import re
 import subprocess
-import re
+import os
 from tkinter import ttk
+from ip2region_master.binding.python.iptest import searchWithContent, load_xdb_file
 
+# 初始化IP数据库（只在服务启动时执行一次）
+_ = load_xdb_file()
 
 def test_link_with_ffmpeg(url):
     try:
@@ -48,7 +51,7 @@ def test_link_with_ffmpeg(url):
             ['curl', '-s', '-o', '/dev/null', '-L', '-w', '%{time_connect},%{time_starttransfer}', url],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=10  # 设置超时时间为10秒
+            timeout=20  # 设置超时时间为10秒
         )
         
         if curl_result.returncode != 0:
@@ -83,7 +86,7 @@ class StreamTester(ttk.Frame):
         self.test_btn = ttk.Button(self.input_frame, text='测试链接', command=self.start_test)
         
         # 结果显示
-        self.result_tree = ttk.Treeview(self, columns=('分辨率', '编码', '响应时间'), show='headings')
+        self.result_tree = ttk.Treeview(self, columns=('分辨率', '编码', '响应时间', '归属地'), show='headings')
         
         # 布局
         self.url_entry.grid(row=0, column=0, padx=5)
@@ -91,9 +94,13 @@ class StreamTester(ttk.Frame):
         self.input_frame.pack(pady=10)
         self.result_tree.pack(expand=True, fill='both')
         
+        # 添加作者信息
+        self.add_author_info()          
         # 初始化表格
-        for col in ('分辨率', '编码', '响应时间'):
+        for col in ('分辨率', '编码', '响应时间', '归属地'):
             self.result_tree.heading(col, text=col)
+
+          
 
     def start_test(self):
         url = self.url_entry.get().strip()
@@ -126,7 +133,7 @@ class IPTVTesterGUI:
         self.import_btn.pack(side='left', padx=5)
         
         # 过滤条件区域
-        self.filter_frame = ttk.LabelFrame(master, text='过滤条件')
+        self.filter_frame = ttk.LabelFrame(master, text='参数设置')
         self.filter_frame.pack(fill='x', padx=10, pady=5)
         
         self.resolution_var = tk.BooleanVar()
@@ -138,6 +145,13 @@ class IPTVTesterGUI:
             state='readonly',
             width=15)
         self.res_combobox.current(2)
+        self.res_combobox.grid(row=0, column=1, padx=5)
+        
+        # 归属地分组复选框
+        self.location_group_var = tk.BooleanVar()
+        self.location_cb = ttk.Checkbutton(self.filter_frame, text='归属地分组', variable=self.location_group_var)
+        self.location_cb.grid(row=0, column=2, padx=5)
+        
         self.res_combobox.grid(row=0, column=1, padx=5)
         
         # 保存路径选择按钮
@@ -181,64 +195,95 @@ class IPTVTesterGUI:
         try:
             with open(filename, 'r', encoding='utf-8') as f:
                 content = f.read()
-
-            # 判断文件类型
+    
+         # 判断文件类型
             if '#EXTM3U' in content:
                 channels = self.parse_m3u(content)
+                total = len(channels)
+                # 只统计包含#EXTINF:的行数
+                lines = len([line for line in content.split('\n') if '#EXTINF:' in line])
+
+
             else:
                 channels = self.parse_txt(content)
+                # TXT文件计算总有效行数
+                total = len(channels)
+                lines = len(content.split('\n'))
+                genre_lines = content.count('#genre#')
+                valid_lines = lines - genre_lines  # 实际有效行数 = 总行数 - 含#genre#的行数
+                lines = valid_lines  # 最终显示实际解析成功的频道数
 
-            self.append_log(f'成功解析到 {len(channels)} 个频道')
+            self.append_log(f'解析完成: 共发现{lines}个频道')
             return channels
         except Exception as e:
             messagebox.showerror('解析错误', f'文件解析失败: {str(e)}')
 
     def parse_m3u(self, content):
-        """解析M3U格式文件"""
         channels = []
-        current_group = '默认分组'
+        valid_count = 0
+        invalid_count = 0
+        current_channel = {}
         
         for line in content.split('\n'):
             line = line.strip()
             if line.startswith('#EXTINF'):
-                # 提取频道名和分组
+                invalid_count += 1 if current_channel else 0
                 match = re.search(r'group-title="(.*?)",(.*)', line)
                 if match:
-                    current_group = match.group(1)
-                    channel_name = match.group(2).split(',')[-1]
+                    current_channel = {
+                        'group': match.group(1),
+                        'name': match.group(2).split(',')[-1],
+                        'url': None
+                    }
+                else:
+                    current_channel = None
             elif line and not line.startswith('#'):
-                channels.append({
-                    'group': current_group,
-                    'name': channel_name,
-                    'url': line
-                })
+                if current_channel and not current_channel.get('url'):
+                    current_channel['url'] = line.split(' ')[0]
+                    if re.match(r'^https?:\/\/\S+$', current_channel['url']):
+                        channels.append(current_channel)
+                        valid_count += 1
+                    else:
+                        invalid_count += 1
+                    current_channel = {}
+        self.append_log(f'M3U解析结果:')
         return channels
 
     def parse_txt(self, content):
-        """解析TXT格式文件"""
         channels = []
-        pattern = r'^(.*?),(.*?),(.*?)$'
+        current_group = '默认分组'
+        group_pattern = r'^\s*([^#]+?)\s*,\s*#genre#\s*$'
+        channel_pattern = r'^\s*([^,]+?)\s*,\s*(https?://\S+)\s*$'
         
         for line in content.split('\n'):
             line = line.strip()
-            if line and not line.startswith('#'):
-                match = re.match(pattern, line)
-                if match:
-                    channels.append({
-                        'group': match.group(1),
-                        'name': match.group(2),
-                        'url': match.group(3)
-                    })
-        return channels
+            if not line:
+                continue
             
-    def append_log(self, message):
-        self.console_text.configure(state='normal')
-        self.console_text.insert('end', message + '\n')
-        self.console_text.configure(state='disabled')
-        
+            # 匹配分组行
+            group_match = re.match(group_pattern, line)
+            if group_match:
+                current_group = group_match.group(1).strip()
+                continue
+            
+            # 匹配频道行
+            channel_match = re.match(channel_pattern, line)
+            if channel_match:
+                channels.append({
+                    'group': current_group,
+                    'name': channel_match.group(1).strip(),
+                    'url': channel_match.group(2).strip()
+                })
+            else:
+                self.append_log(f"跳过无效行: {line}")
+        return channels
+
     def start_testing(self):
+        if not self.channels:
+            messagebox.showwarning("警告", "没有可测试的频道，请检查文件格式")
+            return
         threading.Thread(target=self.run_tests, daemon=True).start()
-        
+
     def run_tests(self):
         self.append_log('开始测试...')
         
@@ -263,27 +308,34 @@ class IPTVTesterGUI:
                 
                 # 执行测试
                 result = test_link_with_ffmpeg(channel['url'])
-                is_valid, width, height, speed, codec = result
+                is_valid, width, height, response_time_str, codec = result
                 
                 # 检查有效值
                 if None in (width, height):
-                    raise ValueError("无效的分辨率数据")
+                    raise ValueError("无法获取分辨率或不满足要求")
+                
+                # 获取IP归属地
+                try:
+                    location = searchWithContent(channel['url'])
+                except Exception as e:
+                    location = "归属地查询失败"
                 
                 # 应用过滤条件
                 if is_valid and int(width) >= min_width and int(height) >= min_height:
                     valid_channels.append({
                         **channel,
                         'resolution': f'{width}x{height}',
-                        'speed': speed,
-                        'codec': codec
+                        'speed': response_time_str,
+                        'codec': codec,
+                        'location': location
                     })
                     
                 # 更新日志
-                log_msg = f"测试 {channel['name']}: 分辨率{width}x{height} 速度{speed}"
+                log_msg = f"有效频道： {channel['name']},{channel['url']} | 分辨率：{width}x{height} | 响应速度：{response_time_str} | 视频格式：{codec} | 归属地：{location}"
                 self.master.after(0, self.append_log, f"[{idx+1}/{total}] {log_msg}")
                 
             except (ValueError, TypeError) as e:
-                error_msg = f"测试失败 [{channel['url']}]: {str(e)}"
+                error_msg = f"无效数据 [{channel['url']}]: {str(e)}"
                 self.master.after(0, self.append_log, error_msg)
                 continue
             except Exception as e:
@@ -296,27 +348,38 @@ class IPTVTesterGUI:
         self.master.after(0, messagebox.showinfo, '完成', f'测试完成，有效频道数: {len(valid_channels)}')
 
     def set_save_path(self):
+        # 获取程序根目录路径
+        default_dir = os.getcwd()
+        
         self.save_path = filedialog.asksaveasfilename(
             defaultextension='.m3u',
-            filetypes=[('M3U Playlist', '*.m3u'), ('All Files', '*.*')]
+            filetypes=[('M3U Playlist', '*.m3u'), ('All Files', '*.*')],
+            initialdir=default_dir  # 添加默认路径设置
         )
         if self.save_path:
             self.append_log(f'结果将保存至：{self.save_path}')
 
     def export_m3u(self, channels):
+        # 设置默认保存路径（当用户从未点击过保存路径按钮时）
         if not self.save_path:
-            messagebox.showwarning('保存路径', '请先选择保存路径')
-            return
-
+            self.save_path = os.path.join(os.getcwd(), 'default_playlist.m3u')  # 自动生成默认路径
+            
         try:
             with open(self.save_path, 'w', encoding='utf-8') as f:
                 f.write('#EXTM3U\n')
                 for channel in channels:
-                    f.write(f'#EXTINF:-1 group-title="{channel["group"]}",{channel["name"]}\n')
+                    group_title = channel['location'] if self.location_group_var.get() else channel['group']
+                    f.write(f'#EXTINF:-1 group-title="{group_title}",{channel["name"]}\n')
                     f.write(f'{channel["url"]}\n')
             messagebox.showinfo('保存成功', f'已保存{len(channels)}个频道到{self.save_path}')
         except Exception as e:
             messagebox.showerror('保存失败', str(e))
+
+    def append_log(self, message):
+        self.console_text.configure(state='normal')
+        self.console_text.insert('end', message + '\n')
+        self.console_text.configure(state='disabled')
+        self.console_text.see('end')
 
 if __name__ == '__main__':
     root = tk.Tk()
