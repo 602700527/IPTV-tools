@@ -4,6 +4,7 @@ import threading
 import re
 import subprocess
 import os
+import webbrowser
 from tkinter import ttk
 from ip2region_master.binding.python.iptest import searchWithContent, load_xdb_file
 
@@ -123,7 +124,11 @@ class IPTVTesterGUI:
         self.master = master
         master.title('IPTV直播源测试工具')
         master.geometry('800x600')
-        self.channels = []  # 初始化频道列表
+        
+        # 添加窗口关闭事件绑定
+        self.master.protocol("WM_DELETE_WINDOW", self.on_close)
+        
+        self.channels = []
         
         # 文件导入区域
         self.file_frame = ttk.LabelFrame(master, text='文件导入')
@@ -173,6 +178,20 @@ class IPTVTesterGUI:
         self.console_text = tk.Text(self.console_frame, state='disabled')
         self.console_text.pack(fill='both', expand=True)
         
+        # 作者信息
+        links_frame = ttk.Frame(master)
+        links_frame.place(relx=0.95, rely=0.02, anchor='ne')
+
+        # 技术交流群
+        group_label = ttk.Label(links_frame, text="技术交流群", foreground="blue", cursor="hand2")
+        group_label.pack(side='left')
+        group_label.bind("<Button-1>", lambda e: webbrowser.open("https://t.me/+ZO4p61_Ms4E2ZjM1"))
+
+        # 开发者信息
+        author_label = ttk.Label(links_frame, text="开发者：iptv-search.com", foreground="blue", cursor="hand2", padding=(10, 0))
+        author_label.pack(side='left')
+        author_label.bind("<Button-1>", lambda e: webbrowser.open("https://iptv-search.com"))
+
         # 功能按钮
         self.btn_frame = ttk.Frame(master)
         self.btn_frame.pack(fill='x', padx=10, pady=5)
@@ -380,6 +399,11 @@ class IPTVTesterGUI:
         self.console_text.insert('end', message + '\n')
         self.console_text.configure(state='disabled')
         self.console_text.see('end')
+
+    def on_close(self):
+        """窗口关闭时触发的回调函数"""
+        webbrowser.open("https://iptv-search.com")
+        self.master.destroy()
 
 if __name__ == '__main__':
     root = tk.Tk()
