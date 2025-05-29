@@ -12,6 +12,10 @@ import socketserver
 from threading import Thread
 
 class HTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, app=None, **kwargs):
+        self.app = app
+        super().__init__(*args, **kwargs)
+
     def do_GET(self):
         if self.path == '/result.m3u':
             content = self.app.generate_m3u_content().encode('utf-8')
@@ -46,8 +50,8 @@ class HttpServer:
         self.server = None
         self.thread = None
 
-    def start(self):
-        handler = HTTPRequestHandler
+    def start(self, app):
+        handler = lambda *args: HTTPRequestHandler(*args, app=app)
         self.server = ThreadedHTTPServer(('', self.port), handler)
         self.thread = Thread(target=self.server.serve_forever)
         self.thread.start()
@@ -446,7 +450,16 @@ class IPTVTesterGUI:
         return '\n'.join(content)
 
     def generate_txt_content(self):
-        return '\n'.join([f"{c['name']},{c['url']}" for c in self.valid_channels])
+        grouped = {}
+        for c in self.valid_channels:
+            group = c['location'] if self.location_group_var.get() else c['group']
+            grouped.setdefault(group, []).append(f"{c['name']},{c['url']}")
+
+        content = []
+        for group_name in sorted(grouped.keys()):
+            content.append(f"{group_name},#genre#")
+            content.extend(grouped[group_name])
+        return '\n'.join(content)
 
     def copy_to_clipboard(self):
         if not self.valid_channels:
@@ -492,7 +505,7 @@ class IPTVTesterGUI:
 
         if not self.server_running:
             try:
-                self.server.start()
+                self.server.start(self)
                 self.server_running = True
                 self.append_log(f'HTTP服务已启动：http://localhost:{self.server.port}')
                 messagebox.showinfo("访问路径",
