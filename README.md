@@ -55,7 +55,11 @@
    python source_scanning.py
    ```
 
-## 直接下载exe文件使用
+## 或直接下载exe文件使用
+
+https://github.com/602700527/IPTV-tools/raw/refs/heads/main/dist/IPTVtester.exe
+
+https://github.com/602700527/IPTV-tools/raw/refs/heads/main/dist/source_scanning.exe
 
 ## 配置文件说明
 
