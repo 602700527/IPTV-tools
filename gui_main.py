@@ -13,12 +13,22 @@ from threading import Thread
 
 class HTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
-        if self.path == '/':
-            self.path = '/result.m3u'
-        if not self.valid_file(self.path[1:]):
-            self.send_error(404, "File not found or empty")
-            return
-        return super().do_GET()
+        if self.path == '/result.m3u':
+            content = self.app.generate_m3u_content().encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-type', 'application/octet-stream')
+            self.send_header('Content-Length', len(content))
+            self.end_headers()
+            self.wfile.write(content)
+        elif self.path == '/result.txt':
+            content = self.app.generate_txt_content().encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.send_header('Content-Length', len(content))
+            self.end_headers()
+            self.wfile.write(content)
+        else:
+            self.send_error(404, "File not found")
 
     def valid_file(self, filename):
         valid_files = ['result.m3u', 'result.txt']
@@ -81,7 +91,7 @@ def test_link_with_ffmpeg(url):
             print("无法获取有效的分辨率信息。")
             return False, "", "", "",""
 
-        # 打印识别到的分辨率和编码格式
+        # 打印识别到的分辨率为：{width}*{height}")
         print(f"识别到的分辨率为：{width}*{height}")
         print(f"视频编码格式为：{codec_name}")
 
@@ -162,6 +172,7 @@ class StreamTester(ttk.Frame):
 
 class IPTVTesterGUI:
     def __init__(self, master):
+        self.valid_channels = []  # 存储测试结果的内存缓存
         self.master = master
         master.title('IPTV直播源测试工具')
         master.geometry('800x600')
@@ -197,7 +208,6 @@ class IPTVTesterGUI:
         self.location_group_var = tk.BooleanVar()
         self.location_cb = ttk.Checkbutton(self.filter_frame, text='归属地分组', variable=self.location_group_var)
         self.location_cb.grid(row=0, column=2, padx=5)
-        
         self.res_combobox.grid(row=0, column=1, padx=5)
         
         # 保存路径选择按钮
@@ -237,7 +247,11 @@ class IPTVTesterGUI:
         self.start_btn = ttk.Button(self.btn_frame, text='开始测试', command=self.start_testing)
         self.start_btn.pack(side='left', padx=5)
         
+        self.save_btn = ttk.Button(self.btn_frame, text='保存结果', command=self.save_file)
+        self.copy_btn = ttk.Button(self.btn_frame, text='复制结果', command=self.copy_to_clipboard)
         self.http_btn = ttk.Button(self.btn_frame, text='启动HTTP服务', command=self.toggle_http_server)
+        self.save_btn.pack(side='left', padx=5)
+        self.copy_btn.pack(side='left', padx=5)
         self.http_btn.pack(side='left', padx=5)
         self.server = HttpServer()
         self.server_running = False
@@ -385,7 +399,7 @@ class IPTVTesterGUI:
                 
                 # 应用过滤条件
                 if is_valid and int(width) >= min_width and int(height) >= min_height:
-                    valid_channels.append({
+                    self.valid_channels.append({
                         **channel,
                         'resolution': f'{width}x{height}',
                         'speed': response_time_str,
@@ -406,9 +420,10 @@ class IPTVTesterGUI:
                 self.master.after(0, self.append_log, error_msg + "\n" + traceback.format_exc())
                 continue
         
-        # 保存结果
-        self.export_m3u(valid_channels)
-        self.master.after(0, messagebox.showinfo, '完成', f'测试完成，有效频道数: {len(valid_channels)}')
+        # 显示完成提示
+        # 自动保存结果
+        self.master.after(0, self.save_file)
+        self.master.after(0, messagebox.showinfo, '完成', f'测试完成，有效频道数: {len(self.valid_channels)}')
 
     def set_save_path(self):
         # 获取程序根目录路径
@@ -422,28 +437,47 @@ class IPTVTesterGUI:
         if self.save_path:
             self.append_log(f'结果将保存至：{self.save_path}')
 
-    def export_m3u(self, channels):
+    def generate_m3u_content(self):
+        content = ['#EXTM3U']
+        for channel in self.valid_channels:
+            group_title = channel['location'] if self.location_group_var.get() else channel['group']
+            content.append(f'#EXTINF:-1 group-title="{group_title}",{channel["name"]}')
+            content.append(channel['url'])
+        return '\n'.join(content)
+
+    def generate_txt_content(self):
+        return '\n'.join([f"{c['name']},{c['url']}" for c in self.valid_channels])
+
+    def copy_to_clipboard(self):
+        if not self.valid_channels:
+            messagebox.showwarning("警告", "没有可复制的测试结果")
+            return
+        
+        content = self.generate_m3u_content()
         try:
-            # 自动生成到根目录
-            m3u_path = os.path.join(os.getcwd(), 'result.m3u')
-            txt_path = os.path.join(os.getcwd(), 'result.txt')
-            
-            # 生成M3U文件
-            with open(m3u_path, 'w', encoding='utf-8') as f:
-                f.write('#EXTM3U\n')
-                for channel in channels:
-                    group_title = channel['location'] if self.location_group_var.get() else channel['group']
-                    f.write(f'#EXTINF:-1 group-title="{group_title}",{channel["name"]}\n')
-                    f.write(f'{channel["url"]}\n')
-            
-            # 生成TXT文件
-            with open(txt_path, 'w', encoding='utf-8') as f:
-                for channel in channels:
-                    f.write(f'{channel["name"]},{channel["url"]}\n')
-            
-            messagebox.showinfo('保存成功', f'已生成{len(channels)}个频道文件到程序根目录')
+            pyperclip.copy(content)
+            messagebox.showinfo('复制成功', 'M3U格式内容已复制到剪贴板')
         except Exception as e:
-            messagebox.showerror('保存失败', str(e))
+            messagebox.showerror('复制失败', str(e))
+
+    def toggle_http_server(self):
+        if not self.valid_channels:
+            messagebox.showwarning("警告", "内存中没有有效测试结果，请先执行测试")
+            return
+
+        if not self.server_running:
+            try:
+                self.server.start(self)
+                self.server_running = True
+                self.append_log(f'HTTP服务已启动：http://localhost:{self.server.port}/result.m3u')
+                self.append_log(f'实时访问链接：http://localhost:{self.server.port}/result.txt')
+            except Exception as e:
+                messagebox.showerror("启动失败", str(e))
+        else:
+            self.server.stop()
+            self.server_running = False
+            self.append_log('HTTP服务已停止')
+        self.update_http_button()
 
     def append_log(self, message):
         self.console_text.configure(state='normal')
@@ -453,7 +487,7 @@ class IPTVTesterGUI:
 
     def toggle_http_server(self):
         if not self.check_result_files():
-            messagebox.showwarning("警告", "结果文件不存在或为空，请先执行测试")
+            messagebox.showwarning("警告", "请先执行测试")
             return
 
         if not self.server_running:
@@ -461,6 +495,9 @@ class IPTVTesterGUI:
                 self.server.start()
                 self.server_running = True
                 self.append_log(f'HTTP服务已启动：http://localhost:{self.server.port}')
+                messagebox.showinfo("访问路径",
+                    f"M3U格式访问地址:\nhttp://localhost:{self.server.port}/result.m3u\n\n"
+                    f"TXT格式访问地址:\nhttp://localhost:{self.server.port}/result.txt")
             except Exception as e:
                 messagebox.showerror("启动失败", str(e))
         else:
@@ -470,9 +507,7 @@ class IPTVTesterGUI:
         self.update_http_button()
 
     def check_result_files(self):
-        m3u = os.path.exists('result.m3u') and os.path.getsize('result.m3u') > 0
-        txt = os.path.exists('result.txt') and os.path.getsize('result.txt') > 0
-        return m3u or txt
+        return len(self.valid_channels) > 0
 
     def update_http_button(self):
         text = '停止HTTP服务' if self.server_running else '启动HTTP服务'
@@ -484,6 +519,38 @@ class IPTVTesterGUI:
             self.server.stop()
         webbrowser.open("https://iptv-search.com")
         self.master.destroy()
+
+    def save_file(self):
+        if not self.valid_channels:
+            messagebox.showwarning("警告", "没有可保存的测试结果")
+            return
+
+        filetypes = [
+            ('M3U播放列表', '*.m3u'),
+            ('文本文件', '*.txt'),
+            ('所有文件', '*.*')
+        ]
+
+        filename = filedialog.asksaveasfilename(
+            defaultextension='.m3u',
+            filetypes=filetypes,
+            title='保存测试结果'
+        )
+
+        if filename:
+            try:
+                if filename.endswith('.m3u'):
+                    content = self.generate_m3u_content()
+                else:
+                    content = self.generate_txt_content()
+
+                with open(filename, 'w', encoding='utf-8') as f:
+                    f.write(content)
+
+                self.append_log(f'结果已保存至：{filename}')
+                messagebox.showinfo('保存成功', '文件保存成功')
+            except Exception as e:
+                messagebox.showerror('保存失败', str(e))
 
 if __name__ == '__main__':
     root = tk.Tk()
