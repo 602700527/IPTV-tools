@@ -386,6 +386,11 @@ class StreamTesterGUI:
 
 
 if __name__ == "__main__":
+    import ctypes
+    # 隐藏控制台窗口
+    if hasattr(ctypes, 'windll'):
+        ctypes.windll.kernel32.FreeConsole()
+    
     root = Tk()
     app = StreamTesterGUI(root)
     root.protocol("WM_DELETE_WINDOW", app.on_closing)

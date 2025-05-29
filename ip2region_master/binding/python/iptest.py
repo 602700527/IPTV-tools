@@ -35,7 +35,15 @@ def load_xdb_file():
     if xdb_content is None or searcher is None:  # 添加判断避免重复加载
         print("正在初始化IP数据库...")
         try:
-            xdb_content = XdbSearcher.loadContentFromFile(dbfile=xdb)
+            # 获取当前脚本所在目录的绝对路径
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            # 构建到数据库文件的绝对路径
+            db_path = os.path.join(current_dir, '..', '..', 'data', 'ip2region.xdb')
+            
+            if not os.path.exists(db_path):
+                raise FileNotFoundError(f"IP数据库文件未找到: {db_path}")
+            
+            xdb_content = XdbSearcher.loadContentFromFile(dbfile=db_path)
             searcher = XdbSearcher(contentBuff=xdb_content)
             print("IP数据库加载成功")
         except Exception as e:

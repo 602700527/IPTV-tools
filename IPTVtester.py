@@ -73,6 +73,7 @@ def test_link_with_ffmpeg(url):
             ['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height,codec_name', '-of', 'csv=p=0', '-i', url],
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
+            startupinfo=subprocess.STARTUPINFO(dwFlags=subprocess.STARTF_USESHOWWINDOW, wShowWindow=subprocess.SW_HIDE),
             timeout=6  # 设置超时时间为6秒
         )
         
@@ -107,6 +108,7 @@ def test_link_with_ffmpeg(url):
             ['curl', '-s', '-o', '/dev/null', '-L', '-w', '%{time_connect},%{time_starttransfer}', url],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            startupinfo=subprocess.STARTUPINFO(dwFlags=subprocess.STARTF_USESHOWWINDOW, wShowWindow=subprocess.SW_HIDE),
             timeout=20  # 设置超时时间为10秒
         )
         
@@ -566,6 +568,9 @@ class IPTVTesterGUI:
                 messagebox.showerror('保存失败', str(e))
 
 if __name__ == '__main__':
+    import ctypes
+    ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
+    
     root = tk.Tk()
     app = IPTVTesterGUI(root)
     root.mainloop()
