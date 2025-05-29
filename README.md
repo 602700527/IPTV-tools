@@ -2,7 +2,7 @@
 
 ## 项目简介
 
-本工具由两个核心组件构成：
+本工具由两个核心组件构成，非专业开发者，在AI帮助下完成。
 
 ### 脚本组成
 
@@ -36,7 +36,7 @@
 1. 安装FFmpeg：
    - Windows: [下载地址](https://www.gyan.dev/ffmpeg/builds/)
    - Mac: `brew install ffmpeg`
-2. 安装Python依赖：
+2. 安装Python依赖（实际上可能会缺其他的依赖，缺什么装什么即可）：
    ```bash
    pip install tkinter tqdm
    ```
@@ -46,7 +46,7 @@
 1. **直播源测试工具**：
 
 ```bash
-   python IPTVtester.py [流媒体URL] [--timeout 10] [--output result.json]
+   python IPTVtester.py
 ```
 
 2. **扫源神器**：
@@ -88,6 +88,10 @@ https://github.com/602700527/IPTV-tools/raw/refs/heads/main/dist/source_scanning
 - Tkinter 图形界面框架
 - tqdm 进度可视化
 - configparser 配置管理
+
+## 开发者
+
+[直播源搜索引擎](https://iptv-search.com)-最新2025全球电视频道直播源在线搜索，包含CCTV、卫视、港澳台、海外频道
 
 ## 开源协议
 
