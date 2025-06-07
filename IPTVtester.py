@@ -206,6 +206,14 @@ class IPTVTesterGUI:
         # URL输入框
         self.url_entry = tk.Text(self.file_frame, width=40, height=3)
         self.url_entry.pack(side='left', padx=5, fill='both', expand=True)
+       
+        # 调整提示标签布局和样式
+        self.format_hint = ttk.Label(self.file_frame, 
+            text='多链接格式：每个链接一行，或用逗号分隔',
+            foreground='#808080',
+            font=('微软雅黑', 9))
+        self.format_hint.pack(side='bottom', fill='x', padx=5, pady=2)
+       
         self.online_btn = ttk.Button(self.file_frame, text='在线导入', command=self.fetch_online_content)
         self.online_btn.pack(side='left')
         self.import_btn = ttk.Button(self.file_frame, text='文件导入', command=self.import_file)
@@ -254,6 +262,10 @@ class IPTVTesterGUI:
         ttk.Label(self.log_filter_frame, text='日志级别:').pack(side='left')
         self.log_level.pack(side='left', padx=5)
         
+        # 添加清空日志按钮
+        self.clear_btn = ttk.Button(self.log_filter_frame, text='清空日志', command=self.clear_logs)
+        self.clear_btn.pack(side='right', padx=5)
+        
         # 控制台文本区域
         self.console_text = tk.Text(self.console_frame, state='disabled')
         
@@ -298,6 +310,7 @@ class IPTVTesterGUI:
         self.update_http_button()
         
     def import_file(self):
+        self.clear_logs()
         filetypes = (
             ('直播源文件', '*.txt;*.m3u'),
             ('所有文件', '*.*')
@@ -308,11 +321,13 @@ class IPTVTesterGUI:
             self.channels = self.parse_source_file(filename)
 
     def fetch_online_content(self):
+        self.clear_logs()
         urls = self.url_entry.get('1.0', 'end-1c').strip().split(',')
         if not urls:
             return
         
         self.channels = []
+        total_channels = 0  # 新增总计数器
         for url in urls:
             url = url.strip()
             if not url:
@@ -327,14 +342,20 @@ class IPTVTesterGUI:
                 response = requests.get(url, headers=headers, timeout=10)
                 response.raise_for_status()
                 content = response.text
-                self.channels.extend(self.parse_source_file(None, content=content))
-                self.append_log(f'成功从URL {url} 导入内容，发现{len(self.channels)}个频道')
+                parsed_channels = self.parse_source_file(None, content=content)
+                channel_count = len(parsed_channels)
+                total_channels += channel_count  # 累加频道数
+                self.channels.extend(parsed_channels)
+                self.append_log(f'成功从URL {url} 导入内容，发现{channel_count}个频道')
             except requests.exceptions.RequestException as e:
                 self.append_log(f'链接 {url} 请求失败: {str(e)}')
             except Exception as e:
                 import traceback
                 error_info = traceback.format_exc()
                 self.append_log(f'链接 {url} 解析失败:\n{error_info}')
+        # 添加总数量显示
+        self.append_log(f'所有链接处理完成，共导入{total_channels}个频道')
+        messagebox.showinfo("导入完成", f"成功导入{total_channels}个频道")
 
     def parse_source_file(self, filename, content=None):
         """智能解析直播源文件"""
@@ -564,6 +585,11 @@ class IPTVTesterGUI:
             self.append_log('HTTP服务已停止')
         self.update_http_button()
 
+    def clear_logs(self):
+        self.console_text.configure(state='normal')
+        self.console_text.delete(1.0, 'end')
+        self.console_text.configure(state='disabled')
+        
     def append_log(self, message):
         self.console_text.configure(state='normal')
         self.console_text.insert('end', message + '\n')
