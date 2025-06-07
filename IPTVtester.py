@@ -189,21 +189,36 @@ class IPTVTesterGUI:
         self.channels = []
         
         # 文件导入区域
-        self.file_frame = ttk.LabelFrame(master, text='数据导入')
-        self.file_frame.pack(fill='x', padx=10, pady=5)
-        
+        # 主界面布局
+        self.notebook = ttk.Notebook(master)
+        self.notebook.pack(fill='both', expand=True, padx=10, pady=5)
 
+        # 数据导入标签页
+        self.data_tab = ttk.Frame(self.notebook)
+        # 主界面容器
+        self.notebook = ttk.Notebook(master)
         
+        # 数据导入标签页
+        self.data_tab = ttk.Frame(self.notebook)
+        self.file_frame = ttk.LabelFrame(self.data_tab, text='数据导入')
+        self.file_frame.pack(fill='both', expand=True, padx=10, pady=5)
+        
+        # URL输入框
         self.url_entry = tk.Text(self.file_frame, width=40, height=3)
-        self.url_entry.pack(side='left', padx=5)
+        self.url_entry.pack(side='left', padx=5, fill='both', expand=True)
         self.online_btn = ttk.Button(self.file_frame, text='在线导入', command=self.fetch_online_content)
         self.online_btn.pack(side='left')
         self.import_btn = ttk.Button(self.file_frame, text='文件导入', command=self.import_file)
         self.import_btn.pack(side='left', padx=5)
-        # 过滤条件区域
-        self.filter_frame = ttk.LabelFrame(master, text='参数设置')
-        self.filter_frame.pack(fill='x', padx=10, pady=5)
+
+        # 参数设置标签页
+        self.settings_tab = ttk.Frame(self.notebook)
+        # 参数设置标签页
+        self.settings_tab = ttk.Frame(self.notebook)
+        self.filter_frame = ttk.LabelFrame(self.settings_tab, text='基本设置')
+        self.filter_frame.pack(fill='both', padx=10, pady=5, expand=True)
         
+        # 参数组件布局
         self.resolution_var = tk.BooleanVar()
         self.resolution_cb = ttk.Checkbutton(self.filter_frame, text='分辨率要求', variable=self.resolution_var)
         self.resolution_cb.grid(row=0, column=0, padx=5)
@@ -215,27 +230,41 @@ class IPTVTesterGUI:
         self.res_combobox.current(2)
         self.res_combobox.grid(row=0, column=1, padx=5)
         
-        # 归属地分组复选框
         self.location_group_var = tk.BooleanVar()
         self.location_cb = ttk.Checkbutton(self.filter_frame, text='归属地分组', variable=self.location_group_var)
         self.location_cb.grid(row=0, column=2, padx=5)
-        self.res_combobox.grid(row=0, column=1, padx=5)
-        
-        # 保存路径选择按钮
-        
-        # 进度条区域
-        self.progress_frame = ttk.Frame(master)
-        self.progress_frame.pack(fill='x', padx=10, pady=5)
-        
-        self.progress = ttk.Progressbar(self.progress_frame, orient='horizontal', mode='determinate')
-        self.progress.pack(fill='x')
-        
-        # 控制台输出
+
+        # 状态栏区域
+        # 状态栏区域
+        # 控制台框架初始化
         self.console_frame = ttk.LabelFrame(master, text='运行日志')
-        self.console_frame.pack(fill='both', expand=True, padx=10, pady=5)
         
+        # 状态栏初始化
+        self.status_bar = ttk.Frame(master)
+        self.progress = ttk.Progressbar(self.status_bar, orient='horizontal', mode='determinate')
+        self.progress.pack(fill='x', padx=5)
+        
+        # 日志过滤组件
+        self.log_filter_frame = ttk.Frame(self.console_frame)
+        self.log_level = ttk.Combobox(self.log_filter_frame, 
+            values=['全部', '信息', '警告', '错误'],
+            state='readonly',
+            width=8)
+        self.log_level.current(0)
+        ttk.Label(self.log_filter_frame, text='日志级别:').pack(side='left')
+        self.log_level.pack(side='left', padx=5)
+        
+        # 控制台文本区域
         self.console_text = tk.Text(self.console_frame, state='disabled')
+        
+        # 最终布局顺序
+        self.notebook.add(self.data_tab, text='📁 数据导入')
+        self.notebook.add(self.settings_tab, text='⚙ 参数设置')
+        self.notebook.pack(fill='both', expand=True, padx=10, pady=5)
+        self.console_frame.pack(fill='both', expand=True, padx=10, pady=5)
+        self.log_filter_frame.pack(fill='x', pady=5)
         self.console_text.pack(fill='both', expand=True)
+        self.status_bar.pack(side='bottom', fill='x')
         
         # 作者信息
         links_frame = ttk.Frame(master)
