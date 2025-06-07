@@ -194,7 +194,7 @@ class IPTVTesterGUI:
         
 
         
-        self.url_entry = ttk.Entry(self.file_frame, width=40)
+        self.url_entry = tk.Text(self.file_frame, width=40, height=3)
         self.url_entry.pack(side='left', padx=5)
         self.online_btn = ttk.Button(self.file_frame, text='在线导入', command=self.fetch_online_content)
         self.online_btn.pack(side='left')
@@ -279,23 +279,33 @@ class IPTVTesterGUI:
             self.channels = self.parse_source_file(filename)
 
     def fetch_online_content(self):
-        url = self.url_entry.get().strip()
-        if not url:
+        urls = self.url_entry.get('1.0', 'end-1c').strip().split(',')
+        if not urls:
             return
         
-        try:
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-            content = response.text
-            self.channels = self.parse_source_file(None, content=content)
-            self.append_log(f'成功从URL导入内容，共发现{len(self.channels)}个频道')
-        except requests.exceptions.RequestException as e:
-            messagebox.showerror('网络错误', f'无法获取在线内容: {str(e)}')
-        except Exception as e:
-            import traceback
-            error_info = traceback.format_exc()
-            self.append_log(f'解析失败详细原因:\n{error_info}')
-            messagebox.showerror('解析错误', f'内容解析失败: {str(e)}')
+        self.channels = []
+        for url in urls:
+            url = url.strip()
+            if not url:
+                continue
+            try:
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
+                    'Accept-Encoding': 'gzip, deflate, br'
+                }
+                response = requests.get(url, headers=headers, timeout=10)
+                response.raise_for_status()
+                content = response.text
+                self.channels.extend(self.parse_source_file(None, content=content))
+                self.append_log(f'成功从URL {url} 导入内容，发现{len(self.channels)}个频道')
+            except requests.exceptions.RequestException as e:
+                self.append_log(f'链接 {url} 请求失败: {str(e)}')
+            except Exception as e:
+                import traceback
+                error_info = traceback.format_exc()
+                self.append_log(f'链接 {url} 解析失败:\n{error_info}')
 
     def parse_source_file(self, filename, content=None):
         """智能解析直播源文件"""
