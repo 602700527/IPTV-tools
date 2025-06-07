@@ -3,7 +3,7 @@ from tkinter import ttk, filedialog, messagebox
 import threading
 import re
 import subprocess
-import os
+import os,requests,time,random
 import webbrowser
 from tkinter import ttk
 from ip2region_master.binding.python.iptest import searchWithContent, load_xdb_file
@@ -189,12 +189,17 @@ class IPTVTesterGUI:
         self.channels = []
         
         # 文件导入区域
-        self.file_frame = ttk.LabelFrame(master, text='文件导入')
+        self.file_frame = ttk.LabelFrame(master, text='数据导入')
         self.file_frame.pack(fill='x', padx=10, pady=5)
         
-        self.import_btn = ttk.Button(self.file_frame, text='导入文件', command=self.import_file)
-        self.import_btn.pack(side='left', padx=5)
+
         
+        self.url_entry = ttk.Entry(self.file_frame, width=40)
+        self.url_entry.pack(side='left', padx=5)
+        self.online_btn = ttk.Button(self.file_frame, text='在线导入', command=self.fetch_online_content)
+        self.online_btn.pack(side='left')
+        self.import_btn = ttk.Button(self.file_frame, text='文件导入', command=self.import_file)
+        self.import_btn.pack(side='left', padx=5)
         # 过滤条件区域
         self.filter_frame = ttk.LabelFrame(master, text='参数设置')
         self.filter_frame.pack(fill='x', padx=10, pady=5)
@@ -273,30 +278,46 @@ class IPTVTesterGUI:
             self.append_log(f'已选择文件：{filename}')
             self.channels = self.parse_source_file(filename)
 
-    def parse_source_file(self, filename):
+    def fetch_online_content(self):
+        url = self.url_entry.get().strip()
+        if not url:
+            return
+        
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            content = response.text
+            self.channels = self.parse_source_file(None, content=content)
+            self.append_log(f'成功从URL导入内容，共发现{len(self.channels)}个频道')
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror('网络错误', f'无法获取在线内容: {str(e)}')
+        except Exception as e:
+            import traceback
+            error_info = traceback.format_exc()
+            self.append_log(f'解析失败详细原因:\n{error_info}')
+            messagebox.showerror('解析错误', f'内容解析失败: {str(e)}')
+
+    def parse_source_file(self, filename, content=None):
         """智能解析直播源文件"""
         try:
-            with open(filename, 'r', encoding='utf-8') as f:
-                content = f.read()
-    
-         # 判断文件类型
+            if content is None:
+                with open(filename, 'r', encoding='utf-8') as f:
+                    content = f.read()
+            
+            # 判断文件类型
             if '#EXTM3U' in content:
                 channels = self.parse_m3u(content)
                 total = len(channels)
-                # 只统计包含#EXTINF:的行数
                 lines = len([line for line in content.split('\n') if '#EXTINF:' in line])
-
-
             else:
                 channels = self.parse_txt(content)
-                # TXT文件计算总有效行数
-                total = len(channels)
                 lines = len(content.split('\n'))
                 genre_lines = content.count('#genre#')
-                valid_lines = lines - genre_lines  # 实际有效行数 = 总行数 - 含#genre#的行数
-                lines = valid_lines  # 最终显示实际解析成功的频道数
+                valid_lines = lines - genre_lines
+                lines = valid_lines
 
-            self.append_log(f'解析完成: 共发现{lines}个频道')
+            self.append_log(f'解析完成: 共发现{lines}个频道（有效行数）')
+            self.append_log(f'实际解析成功频道数: {len(channels)}')
             return channels
         except Exception as e:
             messagebox.showerror('解析错误', f'文件解析失败: {str(e)}')
@@ -311,14 +332,18 @@ class IPTVTesterGUI:
             line = line.strip()
             if line.startswith('#EXTINF'):
                 invalid_count += 1 if current_channel else 0
-                match = re.search(r'group-title="(.*?)",(.*)', line)
-                if match:
+                match = re.search(r'group-title="(.+?)",(.+)', line)
+                if match and len(match.groups()) == 2:
                     current_channel = {
-                        'group': match.group(1),
-                        'name': match.group(2).split(',')[-1],
+                        'group': match.group(1).strip(),
+                        'name': match.group(2).split(',')[-1].strip(),
                         'url': None
                     }
+                    if not current_channel['name']:
+                        self.append_log(f'无效EXTINF行: {line}')
+                        current_channel = None
                 else:
+                    self.append_log(f'格式错误EXTINF行[{content.splitlines().index(line)+1}]: {line}')
                     current_channel = None
             elif line and not line.startswith('#'):
                 if current_channel and not current_channel.get('url'):
@@ -338,10 +363,14 @@ class IPTVTesterGUI:
         group_pattern = r'^\s*([^#]+?)\s*,\s*#genre#\s*$'
         channel_pattern = r'^\s*([^,]+?)\s*,\s*(https?://\S+)\s*$'
         
-        for line in content.split('\n'):
+        for line_num, line in enumerate(content.split('\n'), 1):
+            raw_line = line
             line = line.strip()
             if not line:
                 continue
+            # 格式预检
+            if line_num == 1 and not ('#EXTM3U' in raw_line or '#genre#' in raw_line):
+                self.append_log('⚠ 文件开头缺少标准标识（#EXTM3U或#genre#）')
             
             # 匹配分组行
             group_match = re.match(group_pattern, line)
@@ -358,7 +387,9 @@ class IPTVTesterGUI:
                     'url': channel_match.group(2).strip()
                 })
             else:
-                self.append_log(f"跳过无效行: {line}")
+                self.append_log(f"第{line_num}行无效: {line}")
+                self.append_log("要求格式：频道名称,http地址 或 分组名称,#genre#")
+                self.append_log(f"该行格式不符合要求，正确格式应为：频道名称,http://地址")
         return channels
 
     def start_testing(self):
