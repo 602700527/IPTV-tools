@@ -4,14 +4,15 @@ from tkinter import ttk, filedialog, messagebox
 import threading
 import re
 import subprocess
-import os,requests,time,random
+import os,requests,time,random,concurrent.futures
 import webbrowser
 from tkinter import ttk
 from ip2region_master.binding.python.iptest import searchWithContent, load_xdb_file
 import http.server
 import socketserver
 from threading import Thread
-
+import pyperclip
+import socket
 class HTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, app=None, **kwargs):
         self.app = app
@@ -191,7 +192,8 @@ class IPTVTesterGUI:
             'resolution': self.res_combobox.current(),
             'require_resolution': self.resolution_var.get(),
             'group_by_location': self.location_group_var.get(),
-            'url_list': urls
+            'url_list': urls,
+            'thread_count': self.thread_spinbox.get()
         }
 
     def save_config(self):
@@ -216,6 +218,7 @@ class IPTVTesterGUI:
             self.res_combobox.current(config.get('resolution', 2))
             self.resolution_var.set(config.get('require_resolution', False))
             self.location_group_var.set(config.get('group_by_location', False))
+            self.thread_spinbox.set(config.get('thread_count', '4'))
             self.url_entry.delete('1.0', 'end')
             self.url_entry.insert('end', '\n'.join(config.get('url_list', [])))
             
@@ -286,7 +289,17 @@ class IPTVTesterGUI:
         self.res_combobox.grid(row=0, column=1, padx=5)
         
         self.location_group_var = tk.BooleanVar()
-        self.location_cb = ttk.Checkbutton(self.filter_frame, text='归属地分组', variable=self.location_group_var)
+        self.location_cb = ttk.Checkbutton(self.filter_frame, text='使用归属地分组', variable=self.location_group_var)
+        self.location_cb.grid(row=0, column=2, padx=5)
+
+        # 线程数配置
+        ttk.Label(self.filter_frame, text='测试线程数:').grid(row=0, column=3, padx=5)
+        self.thread_spinbox = ttk.Spinbox(self.filter_frame, from_=1, to=100, width=5)
+        self.thread_spinbox.set('4')
+        self.thread_spinbox.grid(row=0, column=4, padx=5)
+
+        self.location_group_var = tk.BooleanVar()
+        self.location_cb = ttk.Checkbutton(self.filter_frame, text='使用归属地分组', variable=self.location_group_var)
         self.location_cb.grid(row=0, column=2, padx=5)
 
         # 配置管理按钮
@@ -376,11 +389,12 @@ class IPTVTesterGUI:
     def fetch_online_content(self):
         self.clear_logs()
         urls = self.url_entry.get('1.0', 'end-1c').strip().split(',')
-        if not urls:
+        if not urls or all(url.strip() == '' for url in urls):
+            messagebox.showwarning('输入错误', '请先输入在线链接')
             return
         
         self.channels = []
-        total_channels = 0  # 新增总计数器
+        total_channels = 0  
         for url in urls:
             url = url.strip()
             if not url:
@@ -511,10 +525,7 @@ class IPTVTesterGUI:
             return
         threading.Thread(target=self.run_tests, daemon=True).start()
 
-    def run_tests(self):
-        self.append_log('开始测试...')
-        
-        # 获取过滤条件
+    def check_resolution(self, width, height):
         selected_res = self.res_combobox.get()
         res_map = {
             '4K (3840x2160)': (3840, 2160),
@@ -523,55 +534,59 @@ class IPTVTesterGUI:
             'SD (720x576)': (720, 576)
         }
         min_width, min_height = res_map[selected_res] if self.resolution_var.get() else (0, 0)
-        # 执行测试
-        valid_channels = []
-        total = len(self.channels)
-        
-        for idx, channel in enumerate(self.channels):
+        return int(width) >= min_width and int(height) >= min_height
+
+    def update_progress(self):
+        progress = len(self.valid_channels)/len(self.channels)*100
+        self.progress.configure(value=progress)
+
+    def test_single_url(self, channel):
+        try:
+            url = channel['url']
+            result = test_link_with_ffmpeg(url)
+            is_valid, width, height, response_time_str, codec = result
+
+            if None in (width, height):
+                return None
+
             try:
-                # 更新进度
-                progress = (idx+1)/total*100
-                self.master.after(0, lambda: self.progress.configure(value=progress))
-                
-                # 执行测试
-                result = test_link_with_ffmpeg(channel['url'])
-                is_valid, width, height, response_time_str, codec = result
-                
-                # 检查有效值
-                if None in (width, height):
-                    raise ValueError("无法获取分辨率或不满足要求")
-                
-                # 获取IP归属地
-                try:
-                    location = searchWithContent(channel['url'])
-                except Exception as e:
-                    location = "归属地查询失败"
-                
-                # 应用过滤条件
-                if is_valid and int(width) >= min_width and int(height) >= min_height:
-                    self.valid_channels.append({
-                        **channel,
-                        'resolution': f'{width}x{height}',
-                        'speed': response_time_str,
-                        'codec': codec,
-                        'location': location
-                    })
-                    
-                # 更新日志
-                log_msg = f"有效频道： {channel['name']},{channel['url']} | 分辨率：{width}x{height} | 响应速度：{response_time_str} | 视频格式：{codec} | 归属地：{location}"
-                self.master.after(0, self.append_log, f"[{idx+1}/{total}] {log_msg}")
-                
-            except (ValueError, TypeError) as e:
-                error_msg = f"无效数据 [{channel['url']}]: {str(e)}"
-                self.master.after(0, self.append_log, error_msg)
-                continue
+                location = searchWithContent(url)
             except Exception as e:
-                import traceback
-                self.master.after(0, self.append_log, error_msg + "\n" + traceback.format_exc())
-                continue
-        
-        # 显示完成提示
-        # 自动保存结果
+                location = "归属地查询失败"
+
+            if is_valid and self.check_resolution(width, height):
+                return {
+                    **channel,
+                    'resolution': f'{width}x{height}',
+                    'speed': response_time_str,
+                    'codec': codec,
+                    'location': location
+                }
+            return None
+        except Exception as e:
+            return None
+
+    def run_tests(self):
+        self.append_log('开始测试...')
+        self.valid_channels = []
+        total = len(self.channels)
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=int(self.thread_spinbox.get())) as executor:
+            futures = {executor.submit(self.test_single_url, channel): channel for channel in self.channels}
+            
+            for idx, future in enumerate(concurrent.futures.as_completed(futures), 1):
+                channel = futures[future]
+                try:
+                    result = future.result()
+                    if result:
+                        self.valid_channels.append(result)
+                        log_msg = f"有效频道： {result['name']},{result['url']} | 分辨率：{result['resolution']} | 响应速度：{result['speed']} | 视频格式：{result['codec']} | 归属地：{result['location']}"
+                        self.master.after(0, self.append_log, f"[{idx}/{total}] {log_msg}")
+                except Exception as e:
+                    self.master.after(0, self.append_log, f"测试出错: {str(e)}")
+                finally:
+                    self.master.after(0, self.update_progress)
+
         self.master.after(0, self.save_file)
         self.master.after(0, messagebox.showinfo, '完成', f'测试完成，有效频道数: {len(self.valid_channels)}')
 
