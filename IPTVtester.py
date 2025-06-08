@@ -1,4 +1,5 @@
 import tkinter as tk
+import json
 from tkinter import ttk, filedialog, messagebox
 import threading
 import re
@@ -134,6 +135,10 @@ def test_link_with_ffmpeg(url):
 
 class StreamTester(ttk.Frame):
     def __init__(self, master):
+        self.valid_channels = []  # 存储测试结果的内存缓存
+        self.master = master
+        master.title('IPTV直播源测试工具v1.0.1')
+        master.geometry('800x600')
         super().__init__(master)
         self.create_widgets()
 
@@ -177,10 +182,52 @@ class StreamTester(ttk.Frame):
 
 
 class IPTVTesterGUI:
+    CONFIG_PATH = os.path.expanduser('~/.iptvtools/config.json')
+    LAST_CONFIG = ''
+
+    def get_config_data(self):
+        urls = [url.strip() for url in self.url_entry.get('1.0', 'end-1c').split('\n') if url.strip()]
+        return {
+            'resolution': self.res_combobox.current(),
+            'require_resolution': self.resolution_var.get(),
+            'group_by_location': self.location_group_var.get(),
+            'url_list': urls
+        }
+
+    def save_config(self):
+        try:
+            os.makedirs(os.path.dirname(self.CONFIG_PATH), exist_ok=True)
+            with open(self.CONFIG_PATH, 'w', encoding='utf-8') as f:
+                json.dump(self.get_config_data(), f)
+            messagebox.showinfo('保存成功', '配置已保存至: {}'.format(self.CONFIG_PATH))
+            self.LAST_CONFIG = self.CONFIG_PATH
+        except Exception as e:
+            messagebox.showerror('保存失败', str(e))
+
+    def load_config(self, config_path=None):
+        try:
+            path = config_path or self.LAST_CONFIG or self.CONFIG_PATH
+            if not os.path.exists(path):
+                return
+            
+            with open(path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+                
+            self.res_combobox.current(config.get('resolution', 2))
+            self.resolution_var.set(config.get('require_resolution', False))
+            self.location_group_var.set(config.get('group_by_location', False))
+            self.url_entry.delete('1.0', 'end')
+            self.url_entry.insert('end', '\n'.join(config.get('url_list', [])))
+            
+            self.LAST_CONFIG = path
+            messagebox.showinfo('加载成功', '配置已从 {} 加载'.format(path))
+        except Exception as e:
+            messagebox.showerror('加载失败', str(e))
+
     def __init__(self, master):
         self.valid_channels = []  # 存储测试结果的内存缓存
         self.master = master
-        master.title('IPTV直播源测试工具')
+        master.title('IPTV直播源测试工具v1.0.1')
         master.geometry('800x600')
         
         # 添加窗口关闭事件绑定
@@ -200,7 +247,7 @@ class IPTVTesterGUI:
         
         # 数据导入标签页
         self.data_tab = ttk.Frame(self.notebook)
-        self.file_frame = ttk.LabelFrame(self.data_tab, text='数据导入')
+        self.file_frame = ttk.LabelFrame(self.data_tab, text='')
         self.file_frame.pack(fill='both', expand=True, padx=10, pady=5)
         
         # URL输入框
@@ -214,16 +261,16 @@ class IPTVTesterGUI:
             font=('微软雅黑', 9))
         self.format_hint.pack(side='bottom', fill='x', padx=5, pady=2)
        
-        self.online_btn = ttk.Button(self.file_frame, text='在线导入', command=self.fetch_online_content)
+        self.online_btn = ttk.Button(self.file_frame, text='📡 在线导入', command=self.fetch_online_content)
         self.online_btn.pack(side='left')
-        self.import_btn = ttk.Button(self.file_frame, text='文件导入', command=self.import_file)
+        self.import_btn = ttk.Button(self.file_frame, text='📁 文件导入', command=self.import_file)
         self.import_btn.pack(side='left', padx=5)
 
         # 参数设置标签页
         self.settings_tab = ttk.Frame(self.notebook)
         # 参数设置标签页
         self.settings_tab = ttk.Frame(self.notebook)
-        self.filter_frame = ttk.LabelFrame(self.settings_tab, text='基本设置')
+        self.filter_frame = ttk.LabelFrame(self.settings_tab, text='')
         self.filter_frame.pack(fill='both', padx=10, pady=5, expand=True)
         
         # 参数组件布局
@@ -241,6 +288,12 @@ class IPTVTesterGUI:
         self.location_group_var = tk.BooleanVar()
         self.location_cb = ttk.Checkbutton(self.filter_frame, text='归属地分组', variable=self.location_group_var)
         self.location_cb.grid(row=0, column=2, padx=5)
+
+        # 配置管理按钮
+        self.config_frame = ttk.Frame(self.file_frame)
+        self.config_frame.pack(side='right', padx=10)
+        ttk.Button(self.config_frame, text='💾 保存配置', command=self.save_config).pack(side='left', padx=2)
+        ttk.Button(self.config_frame, text='📂 加载配置', command=self.load_config).pack(side='left', padx=2)
 
         # 状态栏区域
         # 状态栏区域
@@ -271,7 +324,7 @@ class IPTVTesterGUI:
         
         # 最终布局顺序
         self.notebook.add(self.data_tab, text='📁 数据导入')
-        self.notebook.add(self.settings_tab, text='⚙ 参数设置')
+        self.notebook.add(self.settings_tab, text='⚙测试设置')
         self.notebook.pack(fill='both', expand=True, padx=10, pady=5)
         self.console_frame.pack(fill='both', expand=True, padx=10, pady=5)
         self.log_filter_frame.pack(fill='x', pady=5)

@@ -5,7 +5,7 @@ a = Analysis(
     ['IPTVtester.py'],
     pathex=[],
     binaries=[],
-    datas=[('ip2region_master/data/ip2region.xdb', 'ip2region_master/data')],
+    datas=[],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -35,4 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=['app_icon.ico'],
 )
