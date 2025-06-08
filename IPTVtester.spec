@@ -5,7 +5,7 @@ a = Analysis(
     ['IPTVtester.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('ip2region_master/data/ip2region.xdb', 'ip2region_master/data')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
