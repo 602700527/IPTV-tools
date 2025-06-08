@@ -13,11 +13,39 @@
 - ⚙️ 配置持久化：自动保存/加载测试参数配置
 - 📁 结果导出：自动保存有效源到指定文本文件
 - 🖥 支持启用Http服务器
+- 
 
-## 环境要求
+## 🛠️ 环境配置
 
-- Python 3.8+
-- FFmpeg (需包含ffprobe)
+Python 3.8+
+
+### 必备组件
+
+- **FFmpeg 安装** （必须配置到系统PATH）：
+
+```bash
+# Windows
+choco install ffmpeg # 或手动下载 https://www.gyan.dev/ffmpeg/builds/
+
+# macOS
+brew install ffmpeg
+
+# Linux
+sudoaptinstall ffmpeg
+```
+
+* Python依赖安装：
+
+```bash
+pip install -r requirements.txt
+```
+
+```requirements
+requests==2.28.1
+python-magic==0.4.27
+geoip2==4.2.0
+tqdm==4.64.1
+```
 
 ## 安装步骤
 
@@ -29,43 +57,55 @@
    pip install tkinter tqdm
    ```
 
-## 使用说明
-
 1. **直播源测试工具**：
 
+## 🚀 快速开始
+
+
+
+### 图形界面模式
+
+
 ```bash
-   python IPTVtester.py
+# 启动主检测工具（推荐）
+python IPTVtester.py
+
+# 启动高级扫描器
+python source_scanning.py
 ```
 
-2. **扫源神器**：
 
-   ```bash
-   python source_scanning.py
-   ```
+### 命令行模式
 
-## 或直接下载exe文件使用
 
-https://github.com/602700527/IPTV-tools/raw/refs/heads/main/dist/IPTVtester.exe
+```bash
+# 批量检测m3u列表
+python IPTVtester.py --input playlist.m3u --output valid_channels.csv
 
-## 技术引用声明
+# 自定义检测参数
+python IPTVtester.py --timeout 10 --threads 8 --min-bitrate 2000
+```
 
-**检测引擎组件**：
 
-- FFmpeg ffprobe 流媒体分析
-- requests 网络请求库
-- python-magic 文件类型识别
-- iP2range 地址范围解析
+### 直接下载可执行版
 
-**扫描控制组件**：
+[📥 Windows便携版下载](https://github.com/602700527/IPTV-tools/raw/main/dist/IPTVtester.exe)（包含所有依赖项）
 
-- Tkinter 图形界面框架
-- tqdm 进度可视化
-- configparser 配置管理
 
-## 开发者
+## 📖 使用指南
 
-[直播源搜索引擎](https://iptv-search.com)-最新2025全球电视频道直播源在线搜索，包含CCTV、卫视、港澳台、海外频道
+
+1. **主界面操作流程** ： ![GUI界面截图](https://via.placeholder.com/800x500.png?text=GUI+Demo)
+2. 点击 "导入直播源" 选择m3u/txt文件
+3. 设置检测参数（或使用预设配置）
+4. 开始检测并观察实时进度
+5. 导出有效源或启用http服务
+
 
 ## 开源协议
 
-本项目基于MIT协议开源，欢迎二次开发。使用请遵守FFmpeg的LGPL协议要求。
+本项目采用 [MIT License](https://file+.vscode-resource.vscode-cdn.net/c%3A/Users/acer/.vscode/extensions/marscode.marscode-extension-1.2.16/LICENSE)，使用时请遵守FFmpeg的[LGPL v2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)协议要求。商业使用需自行解决版权授权问题。
+
+---
+
+由 [直播源搜索引擎](https://iptv-search.com/) 提供技术支持 | 数据更新于2025年6月
