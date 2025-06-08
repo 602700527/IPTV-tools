@@ -1,5 +1,5 @@
 import tkinter as tk
-import json
+import json,pyperclip
 from tkinter import ttk, filedialog, messagebox
 import threading
 import re
@@ -11,8 +11,6 @@ from ip2region_master.binding.python.iptest import searchWithContent, load_xdb_f
 import http.server
 import socketserver
 from threading import Thread
-import pyperclip
-import socket
 class HTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, app=None, **kwargs):
         self.app = app

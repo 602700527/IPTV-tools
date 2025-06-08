@@ -1,30 +1,18 @@
-# IPTV流媒体源扫描测试工具
+# IPTV流媒体源测试工具
 
 ## 项目简介
 
-本工具由两个核心组件构成，非专业开发者，在AI帮助下完成。
-
-### 脚本组成
-
-1. **IPTVtester.py** - 直播源测试工具
-
-   - 实现实时流媒体有效性验证
-   - 支持HLS/RTMP/HTTP-FLV协议检测
-   - 自动识别视频编码格式
-   - 支持视频源归属地检测
-2. **source_scanning.py** - 扫源神器
-
-   - 管理自动化扫描任务队列
-   - 生成连续测试链接模式
-   - 集成图形化操作界面
+本工具是IPTV直播源测试工具，支持在线文件导入，源归属地识别，启用本地http服务器等等功能，由AI辅助开发。
 
 ## 主要功能特性
 
-- 🚀 自动URL范围解析：支持 `http://example.com/stream001-005.m3u8`格式自动生成连续测试链接
+- 🚀 在线文件导入，自动识别m3u或txt格式
+- 🌍源IP归属地查询
 - 🔍 智能质量检测：实时检测视频分辨率(支持自定义阈值)和编码格式
 - 📋 结果可视化：图形界面实时展示有效流媒体源及技术参数
 - ⚙️ 配置持久化：自动保存/加载测试参数配置
 - 📁 结果导出：自动保存有效源到指定文本文件
+- 🖥 支持启用Http服务器
 
 ## 环境要求
 
@@ -58,21 +46,6 @@
 ## 或直接下载exe文件使用
 
 https://github.com/602700527/IPTV-tools/raw/refs/heads/main/dist/IPTVtester.exe
-
-https://github.com/602700527/IPTV-tools/raw/refs/heads/main/dist/source_scanning.exe
-
-## 配置文件说明
-
-程序根目录下 `stream_tester_config.json`保存以下配置项：
-
-```json
-{
-  "url": "测试URL模板",
-  "output_file": "输出文件路径",
-  "width_threshold": 860,
-  "height_threshold": 480
-}
-```
 
 ## 技术引用声明
 
