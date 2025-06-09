@@ -1,1 +1,0 @@
-频道13,rtmp://f13h.mine.nu/sat/tv051?$1280x720
