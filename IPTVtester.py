@@ -1,5 +1,5 @@
 import tkinter as tk
-import json,pyperclip
+import json
 from tkinter import ttk, filedialog, messagebox
 import threading
 import re
@@ -20,7 +20,7 @@ class HTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         if self.path == '/result.m3u':
             content = self.app.generate_m3u_content().encode('utf-8')
             self.send_response(200)
-            self.send_header('Content-type', 'application/octet-stream')
+            self.send_header('Content-type', 'application/vnd.apple.mpegur')
             self.send_header('Content-Length', len(content))
             self.end_headers()
             self.wfile.write(content)
@@ -34,12 +34,7 @@ class HTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         else:
             self.send_error(404, "File not found")
 
-    def valid_file(self, filename):
-        valid_files = ['result.m3u', 'result.txt']
-        if filename not in valid_files:
-            return False
-        filepath = os.path.join(os.getcwd(), filename)
-        return os.path.exists(filepath) and os.path.getsize(filepath) > 0
+
 
 class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     daemon_threads = True
