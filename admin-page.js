@@ -318,7 +318,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <td><span class="badge badge-warning">\${escapeHtml(source.type)}</span></td>
             <td>\${escapeHtml(source.parse_mode)}</td>
             <td>\${source.channelCount}</td>
-            <td>\${source.last_updated ? new Date(source.last_updated).toLocaleString() : '-'}</td>
+            <td>\${source.last_updated ? new Date(source.last_updated).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '-'}</td>
             <td>
               <div class="action-buttons">
                 <button class="btn btn-sm btn-primary" onclick="syncSource(\${source.id})">同步</button>
@@ -558,8 +558,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
                 <td><span class="badge \${status.class}">\${status.text}</span></td>
                 <td>\${code.duration_days}</td>
                 <td>\${code.max_ips || 3}</td>
-                <td>\${code.activated_at ? new Date(code.activated_at).toLocaleString() : '-'}</td>
-                <td>\${code.expired_at ? new Date(code.expired_at).toLocaleString() : '-'}</td>
+                <td>\${code.activated_at ? new Date(code.activated_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '-'}</td>
+                <td>\${code.expired_at ? new Date(code.expired_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '-'}</td>
                 <td>\${escapeHtml(code.remark || '-')}</td>
                 <td>
                   <div class="action-buttons">

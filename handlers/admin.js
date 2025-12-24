@@ -80,7 +80,7 @@ export async function handleAdminRequest(request, env, ctx) {
             db.prepare('DELETE FROM channels WHERE source_id = ?').bind(sourceId),
             db.prepare('DELETE FROM sources WHERE id = ?').bind(sourceId)
           ];
-          await db.batch(stmts).all();
+          await db.batch(stmts);
 
           return new Response(JSON.stringify({
             success: true,
