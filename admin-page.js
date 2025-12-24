@@ -122,14 +122,14 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     </div>
     <div id="channels" class="tab-content">
       <div class="card">
-        <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="resetChannelPage()"><option value="">全部源</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="resetChannelPage()"><select class="filter-select" id="channelPageSize" onchange="resetChannelPage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100" selected>100条/页</option></select></div></div>
+        <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="resetChannelPage()"><option value="">全部源</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="resetChannelPage()"><select class="filter-select" id="channelPageSize" onchange="resetChannelPage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="30" selected>30条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select><button class="btn btn-danger" onclick="clearChannels()">清空数据</button></div></div>
         <table><thead><tr><th>频道名称</th><th>分组</th><th>直播源</th><th>状态</th><th>操作</th></tr></thead><tbody id="channelsTable"></tbody></table>
         <div id="channelPagination" class="pagination"></div>
       </div>
     </div>
     <div id="codes" class="tab-content">
       <div class="card">
-        <div class="toolbar"><h3>卡密列表</h3><div><select class="filter-select" id="codeStatusFilter" onchange="resetCodePage()"><option value="">全部状态</option><option value="unused">未使用</option><option value="active">活跃</option><option value="disabled">禁用</option></select><select class="filter-select" id="codePageSize" onchange="resetCodePage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100" selected>100条/页</option></select><button class="btn btn-primary" onclick="showGenerateCodeModal()">生成卡密</button></div></div>
+        <div class="toolbar"><h3>卡密列表</h3><div><select class="filter-select" id="codeStatusFilter" onchange="resetCodePage()"><option value="">全部状态</option><option value="unused">未使用</option><option value="active">活跃</option><option value="disabled">禁用</option></select><select class="filter-select" id="codePageSize" onchange="resetCodePage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="30" selected>30条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select><button class="btn btn-primary" onclick="showGenerateCodeModal()">生成卡密</button></div></div>
         <table><thead><tr><th>卡密</th><th>状态</th><th>有效期(天)</th><th>最大IP数</th><th>激活时间</th><th>过期时间</th><th>备注</th><th>操作</th></tr></thead><tbody id="codesTable"></tbody></table>
         <div id="codePagination" class="pagination"></div>
       </div>
@@ -510,6 +510,19 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
     async function toggleChannel(id, isActive) {
       showToast('功能开发中', 'error');
+    }
+
+    async function clearChannels() {
+      if (!confirm('确定要清空所有频道数据吗？此操作不可恢复！')) return;
+
+      try {
+        const result = await apiRequest('/channels', { method: 'DELETE' });
+        showToast(result.message || '清空成功', 'success');
+        loadChannels();
+        loadSources(); // 更新源中的频道数统计
+      } catch (error) {
+        showToast('清空失败: ' + error.error, 'error');
+      }
     }
 
     async function loadCodes() {

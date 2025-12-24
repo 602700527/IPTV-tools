@@ -226,15 +226,37 @@ export async function handleAdminRequest(request, env, ctx) {
           // 生成新卡密
           const data = await request.json();
           const codes = [];
+          const db = getDB();
 
           // 生成指定数量的卡密
           for (let i = 0; i < data.count; i++) {
-            const code = generateCode();
+            let code;
+            let isUnique = false;
+            let attempts = 0;
+            const maxAttempts = 100;
+
+            // 生成唯一卡密，确保不重复
+            while (!isUnique && attempts < maxAttempts) {
+              code = generateCode();
+              const existing = await db.prepare('SELECT code FROM codes WHERE code = ?').bind(code).first();
+              if (!existing) {
+                isUnique = true;
+              }
+              attempts++;
+            }
+
+            if (!isUnique) {
+              return new Response(JSON.stringify({ success: false, error: 'Failed to generate unique code' }), {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' }
+              });
+            }
+
             const now = new Date().toISOString();
             const expiredAt = new Date();
             expiredAt.setDate(expiredAt.getDate() + data.duration_days);
 
-            await getDB().prepare(`
+            await db.prepare(`
               INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, remark)
               VALUES (?, 'unused', ?, ?, ?, ?, ?)
             `).bind(
@@ -280,6 +302,25 @@ export async function handleAdminRequest(request, env, ctx) {
         const page = parseInt(url.searchParams.get('page')) || 1;
         const pageSize = parseInt(url.searchParams.get('page_size')) || 100;
         const search = url.searchParams.get('search') || '';
+
+        if (request.method === 'DELETE') {
+          // 清空所有频道数据
+          const db = getDB();
+
+          // 获取清空前的频道数量
+          const countResult = await db.prepare('SELECT COUNT(*) as count FROM channels').first();
+          const channelCount = countResult?.count || 0;
+
+          // 清空频道表
+          await db.prepare('DELETE FROM channels').run();
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: `已清空 ${channelCount} 个频道数据`
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
 
         let channelsQuery = 'SELECT c.*, s.name as source_name FROM channels c LEFT JOIN sources s ON c.source_id = s.id';
         const countQuery = 'SELECT COUNT(*) as total FROM channels c LEFT JOIN sources s ON c.source_id = s.id';
@@ -351,10 +392,9 @@ export async function handleAdminRequest(request, env, ctx) {
 
 // 生成随机卡密
 function generateCode() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let code = '';
-  for (let i = 0; i < 16; i++) {
-    if (i > 0 && i % 4 === 0) code += '-';
+  for (let i = 0; i < 8; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return code;
