@@ -51,9 +51,9 @@ export async function handleSubRequest(request, env, ctx) {
 
   // 3.2 获取所有频道
   const channels = await db.prepare(`
-    SELECT channel_name, group_title, logo, channel_hash 
-    FROM channels 
-    WHERE is_active = 1 
+    SELECT channel_name, group_title, logo, channel_hash
+    FROM channels
+    WHERE is_active = 1
     ORDER BY group_title, channel_name
   `).all();
 
@@ -66,33 +66,34 @@ export async function handleSubRequest(request, env, ctx) {
     return response;
   }
 
-  // 3.3 生成M3U内容
+  // 3.3 生成M3U内容（优化：使用数组join代替字符串拼接）
   const host = url.origin;
-  let m3uContent = '#EXTM3U\n';
+  const m3uLines = ['#EXTM3U'];
 
   for (const channel of channels.results) {
-    const channelInfo = [
-      '#EXTINF:-1',
-      channel.group_title ? `group-title="${channel.group_title}"` : '',
-      channel.logo ? `tvg-logo="${channel.logo}"` : '',
-      channel.channel_name
-    ].filter(Boolean).join(' ');
+    const infoParts = ['#EXTINF:-1'];
+    if (channel.group_title) infoParts.push(`group-title="${channel.group_title}"`);
+    if (channel.logo) infoParts.push(`tvg-logo="${channel.logo}"`);
+    infoParts.push(channel.channel_name);
 
-    m3uContent += `${channelInfo}\n`;
-    m3uContent += `${host}/live/${code}/${channel.channel_hash}\n`;
+    m3uLines.push(infoParts.join(' '));
+    m3uLines.push(`${host}/live/${code}/${channel.channel_hash}`);
   }
+
+  const m3uContent = m3uLines.join('\n');
 
   // 4. 创建响应
   response = new Response(m3uContent, {
     headers: {
       'Content-Type': 'application/vnd.apple.mpegurl; charset=utf-8',
-      'Content-Disposition': `attachment; filename="${filename}"`
+      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Cache-Control': 'public, max-age=3600'
     }
   });
 
-  // 5. 设置1小时缓存并写入缓存
-  response.headers.set("Cache-Control", "public, max-age=3600");
+  // 5. 写入缓存
   ctx.waitUntil(cache.put(cacheKey, response.clone()));
 
   return response;
 }
+
