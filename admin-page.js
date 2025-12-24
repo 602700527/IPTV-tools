@@ -75,6 +75,12 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     .generated-codes h4{margin-bottom:12px}
     .generated-codes-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #e5e5ea}
     .generated-codes-item:last-child{border-bottom:none}
+    .pagination{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:20px}
+    .pagination button{padding:6px 12px;border:1px solid #d2d2d7;background:white;border-radius:6px;cursor:pointer;font-size:14px}
+    .pagination button:hover:not(:disabled){background:#f5f5f7}
+    .pagination button:disabled{color:#86868b;cursor:not-allowed}
+    .pagination button.active{background:#0071e3;color:white;border-color:#0071e3}
+    .pagination-info{color:#86868b;font-size:14px;margin-right:12px}
   </style>
 </head>
 <body>
@@ -116,8 +122,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     </div>
     <div id="channels" class="tab-content">
       <div class="card">
-        <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="loadChannels()"><option value="">全部源</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="loadChannels()"></div></div>
+        <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="resetChannelPage()"><option value="">全部源</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="resetChannelPage()"></div></div>
         <table><thead><tr><th>频道名称</th><th>分组</th><th>直播源</th><th>状态</th><th>操作</th></tr></thead><tbody id="channelsTable"></tbody></table>
+        <div id="channelPagination" class="pagination"></div>
       </div>
     </div>
     <div id="codes" class="tab-content">
@@ -164,6 +171,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     const API_BASE='/admin';
     const STORAGE_KEY = 'admin_auth_key';
     let adminKey = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
+    let currentChannelPage = 1;
+    const CHANNEL_PAGE_SIZE = 100;
+    let totalChannelPages = 1;
+    let totalChannels = 0;
 
     // 页面加载时自动检查登录状态
     if (adminKey) {
@@ -417,47 +428,85 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         let url = '/channels';
         const sourceId = document.getElementById('channelSourceFilter').value;
         const search = document.getElementById('channelSearch').value.trim();
-        if (sourceId) url += '?source_id=' + sourceId;
+        const params = new URLSearchParams({
+          page: currentChannelPage,
+          page_size: CHANNEL_PAGE_SIZE
+        });
+        if (sourceId) params.append('source_id', sourceId);
+        if (search) params.append('search', search);
+        url += '?' + params.toString();
         const data = await apiRequest(url);
-        let channels = data.results || [];
-        if (search) {
-          const searchLower = search.toLowerCase();
-          channels = channels.filter(c =>
-            c.channel_name?.toLowerCase().includes(searchLower) ||
-            c.group_title?.toLowerCase().includes(searchLower)
-          );
-        }
+        const channels = data.results || [];
+        const pagination = data.pagination || {};
+        totalChannelPages = pagination.total_pages || 1;
+        totalChannels = pagination.total || 0;
         const tbody = document.getElementById('channelsTable');
         if (channels.length === 0) {
           tbody.innerHTML = '<tr><td colspan="5" class="empty-state">暂无频道</td></tr>';
-          return;
+        } else {
+          tbody.innerHTML = channels.map(channel => \`
+            <tr>
+              <td>
+                \${channel.logo ? \`<img src="\${escapeHtml(channel.logo)}" style="width:24px;height:24px;margin-right:8px;vertical-align:middle;">\` : ''}
+                \${escapeHtml(channel.channel_name)}
+              </td>
+              <td>\${escapeHtml(channel.group_title || '-')}</td>
+              <td>\${escapeHtml(channel.source_name || '-')}</td>
+              <td>
+                <span class="badge \${channel.is_active ? 'badge-success' : 'badge-danger'}">
+                  \${channel.is_active ? '启用' : '禁用'}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn btn-sm \${channel.is_active ? 'btn-danger' : 'btn-success'}"
+                    onclick="toggleChannel(\${channel.id}, \${!channel.is_active})">
+                    \${channel.is_active ? '禁用' : '启用'}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          \`).join('');
         }
-        tbody.innerHTML = channels.map(channel => \`
-          <tr>
-            <td>
-              \${channel.logo ? \`<img src="\${escapeHtml(channel.logo)}" style="width:24px;height:24px;margin-right:8px;vertical-align:middle;">\` : ''}
-              \${escapeHtml(channel.channel_name)}
-            </td>
-            <td>\${escapeHtml(channel.group_title || '-')}</td>
-            <td>\${escapeHtml(channel.source_name || '-')}</td>
-            <td>
-              <span class="badge \${channel.is_active ? 'badge-success' : 'badge-danger'}">
-                \${channel.is_active ? '启用' : '禁用'}
-              </span>
-            </td>
-            <td>
-              <div class="action-buttons">
-                <button class="btn btn-sm \${channel.is_active ? 'btn-danger' : 'btn-success'}"
-                  onclick="toggleChannel(\${channel.id}, \${!channel.is_active})">
-                  \${channel.is_active ? '禁用' : '启用'}
-                </button>
-              </div>
-            </td>
-          </tr>
-        \`).join('');
+        renderChannelPagination();
       } catch (error) {
         console.error('加载频道失败:', error);
       }
+    }
+
+    function resetChannelPage() {
+      currentChannelPage = 1;
+      loadChannels();
+    }
+
+    function goToChannelPage(page) {
+      if (page >= 1 && page <= totalChannelPages) {
+        currentChannelPage = page;
+        loadChannels();
+      }
+    }
+
+    function renderChannelPagination() {
+      const container = document.getElementById('channelPagination');
+      if (totalChannelPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+      let html = \`<span class="pagination-info">共 \${totalChannels} 个频道，第 \${currentChannelPage}/\${totalChannelPages} 页</span>\`;
+      html += \`<button onclick="goToChannelPage(1)" \${currentChannelPage === 1 ? 'disabled' : ''}>首页</button>\`;
+      html += \`<button onclick="goToChannelPage(\${currentChannelPage - 1})" \${currentChannelPage === 1 ? 'disabled' : ''}>上一页</button>\`;
+      const maxButtons = 5;
+      let startPage = Math.max(1, currentChannelPage - Math.floor(maxButtons / 2));
+      let endPage = Math.min(totalChannelPages, startPage + maxButtons - 1);
+      if (endPage - startPage + 1 < maxButtons) {
+        startPage = Math.max(1, endPage - maxButtons + 1);
+      }
+      for (let i = startPage; i <= endPage; i++) {
+        html += \`<button onclick="goToChannelPage(\${i})" class="\${i === currentChannelPage ? 'active' : ''}">\${i}</button>\`;
+      }
+      html += \`<button onclick="goToChannelPage(\${currentChannelPage + 1})" \${currentChannelPage === totalChannelPages ? 'disabled' : ''}>下一页</button>\`;
+      html += \`<button onclick="goToChannelPage(\${totalChannelPages})" \${currentChannelPage === totalChannelPages ? 'disabled' : ''}>末页</button>\`;
+      container.innerHTML = html;
     }
 
     async function toggleChannel(id, isActive) {

@@ -202,18 +202,41 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'channels':
-        // 获取频道列表
+        // 获取频道列表（支持分页）
         const sourceIdFilter = url.searchParams.get('source_id');
+        const page = parseInt(url.searchParams.get('page')) || 1;
+        const pageSize = parseInt(url.searchParams.get('page_size')) || 100;
+        const search = url.searchParams.get('search') || '';
+
         let channelsQuery = 'SELECT c.*, s.name as source_name FROM channels c LEFT JOIN sources s ON c.source_id = s.id';
+        const countQuery = 'SELECT COUNT(*) as total FROM channels c LEFT JOIN sources s ON c.source_id = s.id';
         const params = [];
+        const whereConditions = [];
 
         if (sourceIdFilter) {
-          channelsQuery += ' WHERE c.source_id = ?';
+          whereConditions.push('c.source_id = ?');
           params.push(sourceIdFilter);
         }
 
-        channelsQuery += ' ORDER BY c.group_title, c.channel_name';
-        const channels = await getDB().prepare(channelsQuery).bind(...params).all();
+        if (search) {
+          whereConditions.push('(c.channel_name LIKE ? OR c.group_title LIKE ?)');
+          const searchPattern = `%${search}%`;
+          params.push(searchPattern, searchPattern);
+        }
+
+        if (whereConditions.length > 0) {
+          const whereClause = ' WHERE ' + whereConditions.join(' AND ');
+          channelsQuery += whereClause;
+        }
+
+        // 获取总数
+        const totalResult = await getDB().prepare(countQuery + (whereConditions.length > 0 ? ' WHERE ' + whereConditions.join(' AND ') : '')).bind(...params).first();
+        const total = totalResult.total;
+
+        // 获取分页数据
+        const offset = (page - 1) * pageSize;
+        channelsQuery += ' ORDER BY c.group_title, c.channel_name LIMIT ? OFFSET ?';
+        const channels = await getDB().prepare(channelsQuery).bind(...params, pageSize, offset).all();
 
         // 格式化结果，确保所有字段都包含在内
         const formattedResults = channels.results.map(channel => ({
@@ -229,7 +252,15 @@ export async function handleAdminRequest(request, env, ctx) {
           source_name: channel.source_name
         }));
 
-        return new Response(JSON.stringify({ results: formattedResults }), {
+        return new Response(JSON.stringify({ 
+          results: formattedResults,
+          pagination: {
+            page,
+            page_size: pageSize,
+            total,
+            total_pages: Math.ceil(total / pageSize)
+          }
+        }), {
           headers: { 'Content-Type': 'application/json' }
         });
 
