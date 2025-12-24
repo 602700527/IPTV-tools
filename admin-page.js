@@ -69,7 +69,16 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     .toast{position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:8px;color:white;font-size:14px;z-index:1000;animation:slideIn .3s ease}
     .toast.success{background:#34c759}
     .toast.error{background:#ff3b30}
+    .toast.info{background:#0071e3}
     @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.8);display:none;align-items:center;justify-content:center;z-index:2000}
+    .loading-overlay.active{display:flex}
+    .loading-spinner{width:40px;height:40px;border:3px solid #e5e5ea;border-top-color:#0071e3;border-radius:50%;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-text{margin-top:16px;color:#86868b;font-size:14px}
+    .sync-indicator{position:fixed;top:80px;right:20px;padding:12px 16px;background:#fff3e0;border:1px solid #ff9800;border-radius:8px;z-index:1500;display:none;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .sync-indicator.active{display:flex}
+    .sync-spinner{width:16px;height:16px;border:2px solid #ffe0b2;border-top-color:#ff9800;border-radius:50%;animation:spin 1s linear infinite}
     .code-display{font-family:'Courier New',monospace;background:#f5f5f7;padding:8px;border-radius:4px;font-size:13px}
     .generated-codes{background:#f5f5f7;padding:16px;border-radius:8px;margin-top:16px}
     .generated-codes h4{margin-bottom:12px}
@@ -81,10 +90,15 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     .pagination button:disabled{color:#86868b;cursor:not-allowed}
     .pagination button.active{background:#0071e3;color:white;border-color:#0071e3}
     .pagination-info{color:#86868b;font-size:14px;margin-right:12px}
+    .hidden{display:none!important}
+    .play-url-cell{max-width:300px;padding:8px}
+    .play-url{display:inline-block;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#0071e3;font-size:12px}
+    .btn-copy{padding:2px 8px;font-size:11px;margin-left:6px;background:#f5f5f7}
+    .btn-copy:hover{background:#e8e8ed}
   </style>
 </head>
 <body>
-  <div id="loginOverlay" class="login-overlay">
+  <div id="loginOverlay" class="login-overlay hidden">
     <div class="login-box">
       <h2>管理后台登录</h2>
       <div id="loginError" class="login-error" style="display:none;"></div>
@@ -123,7 +137,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     <div id="channels" class="tab-content">
       <div class="card">
         <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="resetChannelPage()"><option value="">全部源</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="resetChannelPage()"><select class="filter-select" id="channelPageSize" onchange="resetChannelPage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="30" selected>30条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select><button class="btn btn-danger" onclick="clearChannels()">清空数据</button></div></div>
-        <table><thead><tr><th>频道名称</th><th>分组</th><th>直播源</th><th>状态</th><th>操作</th></tr></thead><tbody id="channelsTable"></tbody></table>
+        <table><thead><tr><th>频道名称</th><th>分组</th><th>直播源</th><th>播放地址</th><th>状态</th><th>操作</th></tr></thead><tbody id="channelsTable"></tbody></table>
         <div id="channelPagination" class="pagination"></div>
       </div>
     </div>
@@ -134,6 +148,13 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         <div id="codePagination" class="pagination"></div>
       </div>
     </div>
+  </div>
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+  </div>
+  <div id="syncIndicator" class="sync-indicator">
+    <div class="sync-spinner"></div>
+    <span id="syncText">正在同步中...</span>
   </div>
   <div id="sourceModal" class="modal">
     <div class="modal-content">
@@ -171,6 +192,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
   <script>
     const API_BASE='/admin';
     const STORAGE_KEY = 'admin_auth_key';
+    const SYNC_KEY = 'admin_sync_status';
     let adminKey = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
     let currentChannelPage = 1;
     let totalChannelPages = 1;
@@ -179,10 +201,63 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     let totalCodePages = 1;
     let totalCodes = 0;
 
+    // Loading控制
+    function showLoading() {
+      document.getElementById('loadingOverlay').classList.add('active');
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingOverlay').classList.remove('active');
+    }
+
+    // 同步状态管理
+    function setSyncStatus(status) {
+      localStorage.setItem(SYNC_KEY, JSON.stringify({
+        status,
+        timestamp: Date.now()
+      }));
+      updateSyncIndicator();
+    }
+
+    function getSyncStatus() {
+      const data = localStorage.getItem(SYNC_KEY);
+      if (!data) return null;
+      try {
+        return JSON.parse(data);
+      } catch {
+        return null;
+      }
+    }
+
+    function clearSyncStatus() {
+      localStorage.removeItem(SYNC_KEY);
+      updateSyncIndicator();
+    }
+
+    function updateSyncIndicator() {
+      const syncStatus = getSyncStatus();
+      const indicator = document.getElementById('syncIndicator');
+      if (syncStatus && syncStatus.status === 'syncing') {
+        const elapsed = Math.floor((Date.now() - syncStatus.timestamp) / 1000);
+        document.getElementById('syncText').textContent = \`正在同步中... (\${elapsed}秒)\`;
+        indicator.classList.add('active');
+      } else {
+        indicator.classList.remove('active');
+      }
+    }
+
+    // 定期更新同步状态显示
+    setInterval(updateSyncIndicator, 1000);
+
     // 页面加载时自动检查登录状态
     if (adminKey) {
       autoLogin();
+    } else {
+      document.getElementById('loginOverlay').classList.remove('hidden');
     }
+
+    // 页面加载时更新同步指示器
+    updateSyncIndicator();
 
     function autoLogin() {
       fetch(API_BASE + '/init', {
@@ -191,15 +266,16 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       })
       .then(res => {
         if (res.ok) {
-          document.getElementById('loginOverlay').style.display = 'none';
           document.getElementById('mainContent').style.display = 'block';
           loadDashboard();
         } else {
           clearAuth();
+          document.getElementById('loginOverlay').classList.remove('hidden');
         }
       })
       .catch(() => {
         // 静默失败，让用户手动登录
+        document.getElementById('loginOverlay').classList.remove('hidden');
       });
     }
 
@@ -219,7 +295,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       })
       .then(res => {
         if (res.ok) {
-          document.getElementById('loginOverlay').style.display = 'none';
+          document.getElementById('loginOverlay').classList.add('hidden');
           document.getElementById('mainContent').style.display = 'block';
           loadDashboard();
         } else {
@@ -243,7 +319,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       clearAuth();
       adminKey = null;
       document.getElementById('mainContent').style.display = 'none';
-      document.getElementById('loginOverlay').style.display = 'flex';
+      document.getElementById('loginOverlay').classList.remove('hidden');
       document.getElementById('adminKey').value = '';
       document.getElementById('loginError').style.display = 'none';
     }
@@ -254,15 +330,31 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     }
 
     function apiRequest(url, options = {}) {
+      const showLoadingIndicator = options.showLoading !== false;
+      delete options.showLoading;
+
+      if (showLoadingIndicator) {
+        showLoading();
+      }
+
       options.headers = options.headers || {};
       options.headers['X-Admin-Key'] = adminKey;
       options.headers['Content-Type'] = 'application/json';
+
       return fetch(API_BASE + url, options).then(res => {
+        if (showLoadingIndicator) {
+          hideLoading();
+        }
         if (res.status === 401) {
           logout();
           throw new Error('Unauthorized');
         }
         return res.json();
+      }).catch(error => {
+        if (showLoadingIndicator) {
+          hideLoading();
+        }
+        throw error;
       });
     }
 
@@ -279,23 +371,27 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
     async function loadDashboard() {
       try {
-        const sources = await apiRequest('/sources');
+        showLoading();
+        const sources = await apiRequest('/sources', { showLoading: false });
         const sourceList = sources.results || sources;
         document.getElementById('statSources').textContent = sourceList.length || 0;
-        const channels = await apiRequest('/channels?page=1&page_size=1');
+        const channels = await apiRequest('/channels?page=1&page_size=1', { showLoading: false });
         document.getElementById('statChannels').textContent = channels.pagination?.total || 0;
-        const codes = await apiRequest('/codes?page=1&page_size=1000');
+        const codes = await apiRequest('/codes?page=1&page_size=1000', { showLoading: false });
         const codeList = codes.results || [];
         document.getElementById('statActiveCodes').textContent = codeList.filter(c => c.status === 'active').length;
         document.getElementById('statUnusedCodes').textContent = codeList.filter(c => c.status === 'unused').length;
       } catch (error) {
         showToast('加载仪表盘失败', 'error');
+      } finally {
+        hideLoading();
       }
     }
 
     async function loadSources() {
       try {
-        const sources = await apiRequest('/sources');
+        showLoading();
+        const sources = await apiRequest('/sources', { showLoading: false });
         const sourceList = sources.results || sources;
         const tbody = document.getElementById('sourcesTable');
         if (!sourceList || sourceList.length === 0) {
@@ -304,7 +400,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         }
         const sourcesWithCounts = await Promise.all(sourceList.map(async source => {
           try {
-            const channels = await apiRequest('/channels?source_id=' + source.id + '&page=1&page_size=1');
+            const channels = await apiRequest('/channels?source_id=' + source.id + '&page=1&page_size=1', { showLoading: false });
             source.channelCount = channels.pagination?.total || 0;
           } catch (e) {
             source.channelCount = 0;
@@ -332,6 +428,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         filterSelect.innerHTML = '<option value="">全部源</option>' + sourceList.map(s => \`<option value="\${s.id}">\${escapeHtml(s.name)}</option>\`).join('');
       } catch (error) {
         console.error('加载源失败:', error);
+      } finally {
+        hideLoading();
       }
     }
 
@@ -405,24 +503,48 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     }
 
     async function syncSource(id) {
-      try {
-        const result = await apiRequest('/sync/' + id, { method: 'POST' });
+      // 设置同步状态
+      setSyncStatus('syncing');
+      showToast('同步任务已开始，可以在后台继续执行', 'info');
+
+      // 后台执行同步，不等待结果
+      const syncUrl = API_BASE + '/sync/' + id;
+      const syncId = Date.now();
+
+      fetch(syncUrl, {
+        method: 'POST',
+        headers: {
+          'X-Admin-Key': adminKey,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => res.json())
+      .then(result => {
         if (result.success) {
           const message = result.deletedChannels
             ? '同步成功：删除了 ' + result.deletedChannels + ' 个旧频道，新增 ' + result.channelCount + ' 个频道'
             : '同步成功，共 ' + result.channelCount + ' 个频道';
           showToast(message, 'success');
-          loadSources();
+          // 如果用户还在源列表页，刷新数据
+          if (document.getElementById('sources').classList.contains('active')) {
+            loadSources();
+          }
         } else {
           showToast('同步失败: ' + result.error, 'error');
         }
-      } catch (error) {
+      })
+      .catch(error => {
         showToast('同步失败: ' + error.error, 'error');
-      }
+      })
+      .finally(() => {
+        // 清除同步状态
+        clearSyncStatus();
+      });
     }
 
     async function loadChannels() {
       try {
+        showLoading();
         let url = '/channels';
         const sourceId = document.getElementById('channelSourceFilter').value;
         const search = document.getElementById('channelSearch').value.trim();
@@ -434,14 +556,14 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         if (sourceId) params.append('source_id', sourceId);
         if (search) params.append('search', search);
         url += '?' + params.toString();
-        const data = await apiRequest(url);
+        const data = await apiRequest(url, { showLoading: false });
         const channels = data.results || [];
         const pagination = data.pagination || {};
         totalChannelPages = pagination.total_pages || 1;
         totalChannels = pagination.total || 0;
         const tbody = document.getElementById('channelsTable');
         if (channels.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="5" class="empty-state">暂无频道</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" class="empty-state">暂无频道</td></tr>';
         } else {
           tbody.innerHTML = channels.map(channel => \`
             <tr>
@@ -451,6 +573,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               </td>
               <td>\${escapeHtml(channel.group_title || '-')}</td>
               <td>\${escapeHtml(channel.source_name || '-')}</td>
+              <td class="play-url-cell">
+                <span class="play-url" title="\${escapeHtml(channel.play_url)}">\${escapeHtml(channel.play_url)}</span>
+                <button class="btn btn-sm btn-copy" onclick="copyToClipboard('\${escapeHtml(channel.play_url)}')" title="复制地址">复制</button>
+              </td>
               <td>
                 <span class="badge \${channel.is_active ? 'badge-success' : 'badge-danger'}">
                   \${channel.is_active ? '启用' : '禁用'}
@@ -470,6 +596,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         renderChannelPagination();
       } catch (error) {
         console.error('加载频道失败:', error);
+      } finally {
+        hideLoading();
       }
     }
 
@@ -527,6 +655,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
     async function loadCodes() {
       try {
+        showLoading();
         let url = '/codes';
         const statusFilter = document.getElementById('codeStatusFilter').value;
         const pageSize = Math.min(parseInt(document.getElementById('codePageSize').value) || 100, 100);
@@ -536,7 +665,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         });
         if (statusFilter) params.append('status', statusFilter);
         url += '?' + params.toString();
-        const data = await apiRequest(url);
+        const data = await apiRequest(url, { showLoading: false });
         const codeList = data.results || [];
         const pagination = data.pagination || {};
         totalCodePages = pagination.total_pages || 1;
@@ -573,6 +702,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         renderCodePagination();
       } catch (error) {
         console.error('加载卡密失败:', error);
+      } finally {
+        hideLoading();
       }
     }
 
@@ -708,6 +839,21 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       toast.textContent = message;
       document.body.appendChild(toast);
       setTimeout(() => toast.remove(), 3000);
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('已复制到剪贴板', 'success');
+      }).catch(err => {
+        // 备用方案：使用 textarea
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast('已复制到剪贴板', 'success');
+      });
     }
 
     function escapeHtml(text) {

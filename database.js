@@ -161,23 +161,31 @@ export async function parseM3UContent(content, sourceId) {
     }
   }
 
-  // 批量插入频道
+  // 批量插入频道，使用 batch 减少API调用
   if (channels.length > 0) {
-    const stmt = db.prepare(`
-      INSERT INTO channels (source_id, channel_name, group_title, logo, play_url, headers, channel_hash, is_active)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 1)
-    `);
+    const BATCH_SIZE = 500; // 每批500条
+    let processedCount = 0;
 
-    for (const channel of channels) {
-      await stmt.bind(
-        channel.source_id,
-        channel.channel_name,
-        channel.group_title || '',
-        channel.logo || '',
-        channel.play_url,
-        channel.headers,
-        channel.channel_hash
-      ).run();
+    for (let i = 0; i < channels.length; i += BATCH_SIZE) {
+      const batch = channels.slice(i, i + BATCH_SIZE);
+      const statements = batch.map(channel =>
+        db.prepare(`
+          INSERT INTO channels (source_id, channel_name, group_title, logo, play_url, headers, channel_hash, is_active)
+          VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+        `).bind(
+          channel.source_id,
+          channel.channel_name,
+          channel.group_title || '',
+          channel.logo || '',
+          channel.play_url,
+          channel.headers,
+          channel.channel_hash
+        )
+      );
+
+      await db.batch(statements);
+      processedCount += batch.length;
+      console.log(`Batch processed: ${processedCount}/${channels.length}`);
     }
   }
 
@@ -197,7 +205,7 @@ export async function fetchAndParseM3U(sourceUrl, sourceId) {
 
     // 更新源的最后更新时间
     const db = getDB();
-    await db.prepare(`
+    db.prepare(`
       UPDATE sources SET last_updated = datetime('now') WHERE id = ?
     `).bind(sourceId).run();
 
