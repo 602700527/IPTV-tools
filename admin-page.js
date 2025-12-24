@@ -396,8 +396,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     async function deleteSource(id) {
       if (!confirm('确定要删除这个源吗？所有关联的频道也会被删除。')) return;
       try {
-        await apiRequest('/sources/' + id, { method: 'DELETE' });
-        showToast('源删除成功', 'success');
+        const result = await apiRequest('/sources/' + id, { method: 'DELETE' });
+        showToast(result.message || '源删除成功', 'success');
         loadSources();
       } catch (error) {
         showToast('删除失败: ' + error.error, 'error');
@@ -408,7 +408,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       try {
         const result = await apiRequest('/sync/' + id, { method: 'POST' });
         if (result.success) {
-          showToast('同步成功，共 ' + result.channelCount + ' 个频道', 'success');
+          const message = result.deletedChannels
+            ? '同步成功：删除了 ' + result.deletedChannels + ' 个旧频道，新增 ' + result.channelCount + ' 个频道'
+            : '同步成功，共 ' + result.channelCount + ' 个频道';
+          showToast(message, 'success');
           loadSources();
         } else {
           showToast('同步失败: ' + result.error, 'error');

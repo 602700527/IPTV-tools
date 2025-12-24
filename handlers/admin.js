@@ -69,10 +69,23 @@ export async function handleAdminRequest(request, env, ctx) {
             return new Response('Missing source ID', { status: 400 });
           }
 
-          await getDB().prepare('DELETE FROM sources WHERE id = ?').bind(sourceId).run();
-          await getDB().prepare('DELETE FROM channels WHERE source_id = ?').bind(sourceId).run();
+          const db = getDB();
 
-          return new Response(JSON.stringify({ success: true }), {
+          // 先获取该源关联的频道数量
+          const countResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(sourceId).first();
+          const channelCount = countResult?.count || 0;
+
+          // 使用事务删除，确保数据一致性
+          const stmts = [
+            db.prepare('DELETE FROM channels WHERE source_id = ?').bind(sourceId),
+            db.prepare('DELETE FROM sources WHERE id = ?').bind(sourceId)
+          ];
+          await db.batch(stmts).all();
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: `已删除源及其关联的 ${channelCount} 个频道`
+          }), {
             headers: { 'Content-Type': 'application/json' }
           });
         }
@@ -85,17 +98,27 @@ export async function handleAdminRequest(request, env, ctx) {
           return new Response('Missing source ID', { status: 400 });
         }
 
-        // 先删除该源的旧频道
-        await getDB().prepare('DELETE FROM channels WHERE source_id = ?').bind(sourceId).run();
+        const db = getDB();
+
+        // 先获取该源关联的频道数量（用于返回统计信息）
+        const oldCountResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(sourceId).first();
+        const oldChannelCount = oldCountResult?.count || 0;
+
+        // 删除该源的旧频道
+        await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(sourceId).run();
 
         // 获取源信息
-        const source = await getDB().prepare('SELECT url FROM sources WHERE id = ?').bind(sourceId).first();
+        const source = await db.prepare('SELECT url FROM sources WHERE id = ?').bind(sourceId).first();
         if (!source) {
           return new Response('Source not found', { status: 404 });
         }
 
         // 获取并解析M3U内容
         const result = await fetchAndParseM3U(source.url, sourceId);
+
+        // 添加删除统计信息
+        result.deletedChannels = oldChannelCount;
+
         return new Response(JSON.stringify(result), {
           headers: { 'Content-Type': 'application/json' }
         });
