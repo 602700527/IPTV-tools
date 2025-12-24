@@ -103,9 +103,9 @@ export async function handleAdminRequest(request, env, ctx) {
       case 'codes':
         // 处理卡密管理
         if (request.method === 'GET') {
-          // 获取卡密列表
-          const codes = await getDB().prepare('SELECT * FROM codes ORDER BY created_at DESC').all();
-          return new Response(JSON.stringify(codes), {
+          // 获取卡密列表（使用code主键排序，因为表没有created_at字段）
+          const codes = await getDB().prepare('SELECT * FROM codes ORDER BY code DESC').all();
+          return new Response(JSON.stringify({ results: codes.results }), {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST' && url.searchParams.get('action') === 'activate') {

@@ -3,6 +3,7 @@ import { initDB } from './database.js';
 import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest } from './handlers/sub.js';
 import { handleAdminRequest } from './handlers/admin.js';
+import { ADMIN_HTML } from './admin-page.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -31,6 +32,11 @@ export default {
           </html>
         `, {
           headers: { 'Content-Type': 'text/html' }
+        });
+      } else if (path === '/admin' || path === '/admin/' || path === '/admin/index' || path === '/admin/index.html') {
+        // 管理后台页面
+        return new Response(ADMIN_HTML, {
+          headers: { 'Content-Type': 'text/html; charset=utf-8' }
         });
       } else if (path.startsWith('/live/')) {
         // 播放请求处理: /live/{code}/{hash}
