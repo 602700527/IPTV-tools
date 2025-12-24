@@ -122,15 +122,16 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     </div>
     <div id="channels" class="tab-content">
       <div class="card">
-        <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="resetChannelPage()"><option value="">全部源</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="resetChannelPage()"></div></div>
+        <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="resetChannelPage()"><option value="">全部源</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="resetChannelPage()"><select class="filter-select" id="channelPageSize" onchange="resetChannelPage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100" selected>100条/页</option></select></div></div>
         <table><thead><tr><th>频道名称</th><th>分组</th><th>直播源</th><th>状态</th><th>操作</th></tr></thead><tbody id="channelsTable"></tbody></table>
         <div id="channelPagination" class="pagination"></div>
       </div>
     </div>
     <div id="codes" class="tab-content">
       <div class="card">
-        <div class="toolbar"><h3>卡密列表</h3><button class="btn btn-primary" onclick="showGenerateCodeModal()">生成卡密</button></div>
+        <div class="toolbar"><h3>卡密列表</h3><div><select class="filter-select" id="codeStatusFilter" onchange="resetCodePage()"><option value="">全部状态</option><option value="unused">未使用</option><option value="active">活跃</option><option value="disabled">禁用</option></select><select class="filter-select" id="codePageSize" onchange="resetCodePage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100" selected>100条/页</option></select><button class="btn btn-primary" onclick="showGenerateCodeModal()">生成卡密</button></div></div>
         <table><thead><tr><th>卡密</th><th>状态</th><th>有效期(天)</th><th>最大IP数</th><th>激活时间</th><th>过期时间</th><th>备注</th><th>操作</th></tr></thead><tbody id="codesTable"></tbody></table>
+        <div id="codePagination" class="pagination"></div>
       </div>
     </div>
   </div>
@@ -172,9 +173,11 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     const STORAGE_KEY = 'admin_auth_key';
     let adminKey = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
     let currentChannelPage = 1;
-    const CHANNEL_PAGE_SIZE = 100;
     let totalChannelPages = 1;
     let totalChannels = 0;
+    let currentCodePage = 1;
+    let totalCodePages = 1;
+    let totalCodes = 0;
 
     // 页面加载时自动检查登录状态
     if (adminKey) {
@@ -274,23 +277,15 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       else if (tabName === 'codes') loadCodes();
     }
 
-    // 辅助函数：处理API响应，支持数组格式和 {results: [...]} 格式
-    function getResults(data) {
-      if (Array.isArray(data)) {
-        return data;
-      }
-      return data.results || [];
-    }
-
     async function loadDashboard() {
       try {
         const sources = await apiRequest('/sources');
-        const sourceList = getResults(sources);
-        const codes = await apiRequest('/codes');
+        const sourceList = sources.results || sources;
         document.getElementById('statSources').textContent = sourceList.length || 0;
-        const channels = await apiRequest('/channels');
-        document.getElementById('statChannels').textContent = channels.results?.length || 0;
-        const codeList = getResults(codes);
+        const channels = await apiRequest('/channels?page=1&page_size=1');
+        document.getElementById('statChannels').textContent = channels.pagination?.total || 0;
+        const codes = await apiRequest('/codes?page=1&page_size=1000');
+        const codeList = codes.results || [];
         document.getElementById('statActiveCodes').textContent = codeList.filter(c => c.status === 'active').length;
         document.getElementById('statUnusedCodes').textContent = codeList.filter(c => c.status === 'unused').length;
       } catch (error) {
@@ -301,7 +296,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     async function loadSources() {
       try {
         const sources = await apiRequest('/sources');
-        const sourceList = getResults(sources);
+        const sourceList = sources.results || sources;
         const tbody = document.getElementById('sourcesTable');
         if (!sourceList || sourceList.length === 0) {
           tbody.innerHTML = '<tr><td colspan="7" class="empty-state">暂无直播源</td></tr>';
@@ -309,8 +304,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         }
         const sourcesWithCounts = await Promise.all(sourceList.map(async source => {
           try {
-            const channels = await apiRequest('/channels?source_id=' + source.id);
-            source.channelCount = channels.results?.length || 0;
+            const channels = await apiRequest('/channels?source_id=' + source.id + '&page=1&page_size=1');
+            source.channelCount = channels.pagination?.total || 0;
           } catch (e) {
             source.channelCount = 0;
           }
@@ -389,7 +384,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
     function editSource(id) {
       apiRequest('/sources').then(data => {
-        const sources = getResults(data);
+        const sources = data.results || data;
         const source = sources.find(s => s.id === id);
         if (source) {
           document.getElementById('sourceModal').dataset.editId = id;
@@ -428,9 +423,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         let url = '/channels';
         const sourceId = document.getElementById('channelSourceFilter').value;
         const search = document.getElementById('channelSearch').value.trim();
+        const pageSize = Math.min(parseInt(document.getElementById('channelPageSize').value) || 100, 100);
         const params = new URLSearchParams({
           page: currentChannelPage,
-          page_size: CHANNEL_PAGE_SIZE
+          page_size: pageSize
         });
         if (sourceId) params.append('source_id', sourceId);
         if (search) params.append('search', search);
@@ -515,40 +511,88 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
     async function loadCodes() {
       try {
-        const codes = await apiRequest('/codes');
-        const codeList = getResults(codes);
+        let url = '/codes';
+        const statusFilter = document.getElementById('codeStatusFilter').value;
+        const pageSize = Math.min(parseInt(document.getElementById('codePageSize').value) || 100, 100);
+        const params = new URLSearchParams({
+          page: currentCodePage,
+          page_size: pageSize
+        });
+        if (statusFilter) params.append('status', statusFilter);
+        url += '?' + params.toString();
+        const data = await apiRequest(url);
+        const codeList = data.results || [];
+        const pagination = data.pagination || {};
+        totalCodePages = pagination.total_pages || 1;
+        totalCodes = pagination.total || 0;
         const tbody = document.getElementById('codesTable');
         if (!codeList || codeList.length === 0) {
           tbody.innerHTML = '<tr><td colspan="8" class="empty-state">暂无卡密</td></tr>';
-          return;
+        } else {
+          const statusMap = {
+            'unused': { text: '未使用', class: 'badge-warning' },
+            'active': { text: '活跃', class: 'badge-success' },
+            'disabled': { text: '禁用', class: 'badge-danger' }
+          };
+          tbody.innerHTML = codeList.map(code => {
+            const status = statusMap[code.status] || { text: code.status, class: 'badge-warning' };
+            return \`
+              <tr>
+                <td><span class="code-display">\${escapeHtml(code.code)}</span></td>
+                <td><span class="badge \${status.class}">\${status.text}</span></td>
+                <td>\${code.duration_days}</td>
+                <td>\${code.max_ips || 3}</td>
+                <td>\${code.activated_at ? new Date(code.activated_at).toLocaleString() : '-'}</td>
+                <td>\${code.expired_at ? new Date(code.expired_at).toLocaleString() : '-'}</td>
+                <td>\${escapeHtml(code.remark || '-')}</td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn btn-sm" onclick="editCode('\${code.code}')">编辑</button>
+                  </div>
+                </td>
+              </tr>
+            \`;
+          }).join('');
         }
-        const statusMap = {
-          'unused': { text: '未使用', class: 'badge-warning' },
-          'active': { text: '活跃', class: 'badge-success' },
-          'disabled': { text: '禁用', class: 'badge-danger' }
-        };
-        tbody.innerHTML = codeList.map(code => {
-          const status = statusMap[code.status] || { text: code.status, class: 'badge-warning' };
-          return \`
-            <tr>
-              <td><span class="code-display">\${escapeHtml(code.code)}</span></td>
-              <td><span class="badge \${status.class}">\${status.text}</span></td>
-              <td>\${code.duration_days}</td>
-              <td>\${code.max_ips || 3}</td>
-              <td>\${code.activated_at ? new Date(code.activated_at).toLocaleString() : '-'}</td>
-              <td>\${code.expired_at ? new Date(code.expired_at).toLocaleString() : '-'}</td>
-              <td>\${escapeHtml(code.remark || '-')}</td>
-              <td>
-                <div class="action-buttons">
-                  <button class="btn btn-sm" onclick="editCode('\${code.code}')">编辑</button>
-                </div>
-              </td>
-            </tr>
-          \`;
-        }).join('');
+        renderCodePagination();
       } catch (error) {
         console.error('加载卡密失败:', error);
       }
+    }
+
+    function resetCodePage() {
+      currentCodePage = 1;
+      loadCodes();
+    }
+
+    function goToCodePage(page) {
+      if (page >= 1 && page <= totalCodePages) {
+        currentCodePage = page;
+        loadCodes();
+      }
+    }
+
+    function renderCodePagination() {
+      const container = document.getElementById('codePagination');
+      if (totalCodePages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+      let html = \`<span class="pagination-info">共 \${totalCodes} 个卡密，第 \${currentCodePage}/\${totalCodePages} 页</span>\`;
+      html += \`<button onclick="goToCodePage(1)" \${currentCodePage === 1 ? 'disabled' : ''}>首页</button>\`;
+      html += \`<button onclick="goToCodePage(\${currentCodePage - 1})" \${currentCodePage === 1 ? 'disabled' : ''}>上一页</button>\`;
+      const maxButtons = 5;
+      let startPage = Math.max(1, currentCodePage - Math.floor(maxButtons / 2));
+      let endPage = Math.min(totalCodePages, startPage + maxButtons - 1);
+      if (endPage - startPage + 1 < maxButtons) {
+        startPage = Math.max(1, endPage - maxButtons + 1);
+      }
+      for (let i = startPage; i <= endPage; i++) {
+        html += \`<button onclick="goToCodePage(\${i})" class="\${i === currentCodePage ? 'active' : ''}">\${i}</button>\`;
+      }
+      html += \`<button onclick="goToCodePage(\${currentCodePage + 1})" \${currentCodePage === totalCodePages ? 'disabled' : ''}>下一页</button>\`;
+      html += \`<button onclick="goToCodePage(\${totalCodePages})" \${currentCodePage === totalCodePages ? 'disabled' : ''}>末页</button>\`;
+      container.innerHTML = html;
     }
 
     function showGenerateCodeModal() {
@@ -610,9 +654,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     }
 
     function editCode(code) {
-      apiRequest('/codes').then(data => {
-        const codes = getResults(data);
-        const targetCode = codes.find(c => c.code === code);
+      apiRequest('/codes?code=' + encodeURIComponent(code)).then(targetCode => {
         if (targetCode) {
           document.getElementById('editCode').value = targetCode.code;
           document.getElementById('editStatus').value = targetCode.status;

@@ -103,9 +103,59 @@ export async function handleAdminRequest(request, env, ctx) {
       case 'codes':
         // 处理卡密管理
         if (request.method === 'GET') {
-          // 获取卡密列表（使用code主键排序，因为表没有created_at字段）
-          const codes = await getDB().prepare('SELECT * FROM codes ORDER BY code DESC').all();
-          return new Response(JSON.stringify({ results: codes.results }), {
+          const codeQuery = url.searchParams.get('code');
+          // 如果指定了code参数，返回单个卡密
+          if (codeQuery) {
+            const code = await getDB().prepare('SELECT * FROM codes WHERE code = ?').bind(codeQuery).first();
+            if (!code) {
+              return new Response(JSON.stringify({ success: false, error: 'Code not found' }), {
+                status: 404,
+                headers: { 'Content-Type': 'application/json' }
+              });
+            }
+            return new Response(JSON.stringify(code), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+
+          // 获取卡密列表（支持分页）
+          const page = parseInt(url.searchParams.get('page')) || 1;
+          const pageSize = Math.min(parseInt(url.searchParams.get('page_size')) || 100, 100);
+          const statusFilter = url.searchParams.get('status') || '';
+
+          let codesQuery = 'SELECT * FROM codes';
+          const countQuery = 'SELECT COUNT(*) as total FROM codes';
+          const params = [];
+          const whereConditions = [];
+
+          if (statusFilter) {
+            whereConditions.push('status = ?');
+            params.push(statusFilter);
+          }
+
+          if (whereConditions.length > 0) {
+            const whereClause = ' WHERE ' + whereConditions.join(' AND ');
+            codesQuery += whereClause;
+          }
+
+          // 获取总数
+          const totalResult = await getDB().prepare(countQuery + (whereConditions.length > 0 ? ' WHERE ' + whereConditions.join(' AND ') : '')).bind(...params).first();
+          const total = totalResult.total;
+
+          // 获取分页数据
+          const offset = (page - 1) * pageSize;
+          codesQuery += ' ORDER BY code DESC LIMIT ? OFFSET ?';
+          const codes = await getDB().prepare(codesQuery).bind(...params, pageSize, offset).all();
+
+          return new Response(JSON.stringify({
+            results: codes.results,
+            pagination: {
+              page,
+              page_size: pageSize,
+              total,
+              total_pages: Math.ceil(total / pageSize)
+            }
+          }), {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST' && url.searchParams.get('action') === 'activate') {
@@ -142,8 +192,8 @@ export async function handleAdminRequest(request, env, ctx) {
             data.code
           ).run();
 
-          return new Response(JSON.stringify({ 
-            success: true, 
+          return new Response(JSON.stringify({
+            success: true,
             activated_at: now,
             expired_at: expiredAt.toISOString()
           }), {
@@ -162,7 +212,7 @@ export async function handleAdminRequest(request, env, ctx) {
             expiredAt.setDate(expiredAt.getDate() + data.duration_days);
 
             await getDB().prepare(`
-              INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, remark) 
+              INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, remark)
               VALUES (?, 'unused', ?, ?, ?, ?, ?)
             `).bind(
               code,
@@ -187,7 +237,7 @@ export async function handleAdminRequest(request, env, ctx) {
           // 更新卡密状态
           const data = await request.json();
           await getDB().prepare(`
-            UPDATE codes SET status = ?, remark = ? 
+            UPDATE codes SET status = ?, remark = ?
             WHERE code = ?
           `).bind(
             data.status,
