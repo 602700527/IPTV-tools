@@ -35,8 +35,13 @@ export default {
           headers: { 'Content-Type': 'text/html' }
         });
       } else if (path === '/admin' || path === '/admin/' || path === '/admin/index' || path === '/admin/index.html') {
-        // 管理后台页面
-        return new Response(ADMIN_HTML, {
+        // 管理后台页面（注入时区配置）
+        const timezone = env.TIMEZONE || 'Asia/Shanghai';
+        const htmlWithConfig = ADMIN_HTML.replace(
+          '<script>',
+          `<script>window.TIMEZONE = '${timezone}';\n`
+        );
+        return new Response(htmlWithConfig, {
           headers: { 'Content-Type': 'text/html; charset=utf-8' }
         });
       } else if (path.startsWith('/live/')) {

@@ -343,11 +343,12 @@ export async function fetchAndParseM3U(sourceUrl, sourceId) {
     const content = await response.text();
     const channelCount = await parseM3UContent(content, sourceId);
 
-    // 更新源的最后更新时间
+    // 更新源的最后更新时间（使用 JavaScript 生成当前时间）
     const db = getDB();
+    const now = new Date().toISOString();
     db.prepare(`
-      UPDATE sources SET last_updated = datetime('now') WHERE id = ?
-    `).bind(sourceId).run();
+      UPDATE sources SET last_updated = ? WHERE id = ?
+    `).bind(now, sourceId).run();
 
     return { success: true, channelCount };
   } catch (error) {

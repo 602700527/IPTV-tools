@@ -576,7 +576,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               </span>
             </td>
             <td>\${source.channelCount}</td>
-            <td>\${source.last_updated ? new Date(source.last_updated).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '-'}</td>
+            <td>\${source.last_updated ? new Date(source.last_updated).toLocaleString('zh-CN', { timeZone: window.TIMEZONE || 'Asia/Shanghai' }) : '-'}</td>
             <td>
               <div class="action-buttons">
                 <button class="btn btn-sm \${source.is_active ? 'btn-danger' : 'btn-success'}" onclick="toggleSource(\${source.id}, \${!source.is_active})">
@@ -919,8 +919,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
                 <td><span class="badge \${status.class}">\${status.text}</span></td>
                 <td>\${code.duration_days}</td>
                 <td>\${code.max_ips || 3}</td>
-                <td>\${code.activated_at ? new Date(code.activated_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '-'}</td>
-                <td>\${code.expired_at ? new Date(code.expired_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '-'}</td>
+                <td>\${code.activated_at ? new Date(code.activated_at).toLocaleString('zh-CN', { timeZone: window.TIMEZONE || 'Asia/Shanghai' }) : '-'}</td>
+                <td>\${code.expired_at ? new Date(code.expired_at).toLocaleString('zh-CN', { timeZone: window.TIMEZONE || 'Asia/Shanghai' }) : '-'}</td>
                 <td>\${escapeHtml(code.remark || '-')}</td>
                 <td>
                   <div class="action-buttons">
@@ -1234,14 +1234,15 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
         if (data.is_banned) {
           banStatus.innerHTML = '<div class="stat-value" style="color:#ff3b30;">已封禁</div><div class="stat-label">状态</div>';
-          const banInfo = data.banned_until ? ' 至 ' + new Date(data.banned_until).toLocaleString('zh-CN') : '';
-          banTimeEl.textContent = (data.banned_at ? new Date(data.banned_at).toLocaleString('zh-CN') : '-') + banInfo;
+          const timezone = window.TIMEZONE || 'Asia/Shanghai';
+          const banInfo = data.banned_until ? ' 至 ' + new Date(data.banned_until).toLocaleString('zh-CN', { timeZone: timezone }) : '';
+          banTimeEl.textContent = (data.banned_at ? new Date(data.banned_at).toLocaleString('zh-CN', { timeZone: timezone }) : '-') + banInfo;
           banAlert.style.display = 'block';
 
           // 更新封禁详细信息
           document.getElementById('banLimitText').textContent = data.channel_daily_limit || '未知';
           document.getElementById('banDurationText').textContent = data.ban_duration_days === 0 ? '永久' : (data.ban_duration_days + '天');
-          document.getElementById('banUntilText').textContent = data.banned_until ? new Date(data.banned_until).toLocaleString('zh-CN') : '永久';
+          document.getElementById('banUntilText').textContent = data.banned_until ? new Date(data.banned_until).toLocaleString('zh-CN', { timeZone: timezone }) : '永久';
         } else {
           banStatus.innerHTML = '<div class="stat-value" style="color:#34c759;">正常</div><div class="stat-label">状态</div>';
           banTimeEl.textContent = '-';

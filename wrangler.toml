@@ -18,6 +18,8 @@ database_id = "9c7c22f1-fa0e-48da-8874-19731483c550"
 [vars]
 # 在生产环境中应该设置为安全值
 ADMIN_KEY = "admin-key-please-change-in-production"
+# 时区设置（东八区）
+TIMEZONE = "Asia/Shanghai"
 
 # 定时触发器 (用于自动同步启用的数据源)
 # Cron表达式格式: 分 时 日 月 周

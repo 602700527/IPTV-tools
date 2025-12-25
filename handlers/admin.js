@@ -178,7 +178,11 @@ export async function handleAdminRequest(request, env, ctx) {
           return new Response('Source not found', { status: 404 });
         }
 
-        // 获取并解析M3U内容
+        // 先更新源的同步时间（使用 JavaScript 生成当前时间）
+        const now = new Date().toISOString();
+        await db.prepare(`UPDATE sources SET last_updated = ? WHERE id = ?`).bind(now, sourceId).run();
+
+        // 获取并解析M3U内容（注意：fetchAndParseM3U也会更新时间，所以这里更新两次）
         const result = await fetchAndParseM3U(source.url, sourceId);
 
         // 添加删除统计信息
