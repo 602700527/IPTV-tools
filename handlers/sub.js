@@ -49,12 +49,13 @@ export async function handleSubRequest(request, env, ctx) {
     return response;
   }
 
-  // 3.2 获取所有频道（包含 headers）
+  // 3.2 获取所有频道（包含 headers，只获取启用源的频道）
   const channels = await db.prepare(`
-    SELECT channel_name, group_title, logo, channel_hash, headers
-    FROM channels
-    WHERE is_active = 1
-    ORDER BY group_title, channel_name
+    SELECT c.channel_name, c.group_title, c.logo, c.channel_hash, c.headers
+    FROM channels c
+    INNER JOIN sources s ON c.source_id = s.id
+    WHERE c.is_active = 1 AND s.is_active = 1
+    ORDER BY c.group_title, c.channel_name
   `).all();
 
   if (!channels.results || channels.results.length === 0) {

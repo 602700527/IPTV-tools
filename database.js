@@ -33,6 +33,17 @@ export async function createTables(env) {
     )
   `).run();
 
+  // 迁移：添加 is_active 字段（如果不存在）
+  try {
+    await db.prepare('ALTER TABLE sources ADD COLUMN is_active BOOLEAN DEFAULT 1').run();
+    console.log('Migrated sources table: added is_active column');
+  } catch (e) {
+    // 字段已存在，忽略错误
+    if (!e.message.includes('duplicate column name')) {
+      console.error('Migration error:', e);
+    }
+  }
+
   // 创建频道表
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS channels (

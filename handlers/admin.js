@@ -1,5 +1,6 @@
 // 管理后台API处理器
 import { getDB, createTables, fetchAndParseM3U } from '../database.js';
+import { manualSyncAll } from './scheduler.js';
 
 export async function handleAdminRequest(request, env, ctx) {
   const url = new URL(request.url);
@@ -20,6 +21,21 @@ export async function handleAdminRequest(request, env, ctx) {
         return new Response(JSON.stringify({ success: true, message: 'Database tables initialized' }), {
           headers: { 'Content-Type': 'application/json' }
         });
+
+      case 'migrate':
+        // 执行数据库迁移
+        try {
+          await createTables(env);
+          return new Response(JSON.stringify({ success: true, message: 'Database migration completed' }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } catch (error) {
+          return new Response(JSON.stringify({ success: false, error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        break;
 
       case 'sources':
         // 处理源管理
@@ -62,6 +78,44 @@ export async function handleAdminRequest(request, env, ctx) {
           return new Response(JSON.stringify({ success: true }), {
             headers: { 'Content-Type': 'application/json' }
           });
+        } else if (request.method === 'PATCH' && pathParts[3] === 'toggle') {
+          // 切换源的启用/禁用状态
+          const sourceId = pathParts[4];
+          if (!sourceId) {
+            return new Response('Missing source ID', { status: 400 });
+          }
+
+          const data = await request.json();
+          const isActive = data.is_active !== undefined ? (data.is_active ? 1 : 0) : null;
+          
+          if (isActive === null) {
+            // 如果没有指定状态，则切换状态
+            const source = await getDB().prepare('SELECT is_active FROM sources WHERE id = ?').bind(sourceId).first();
+            if (!source) {
+              return new Response('Source not found', { status: 404 });
+            }
+            const newStatus = source.is_active ? 0 : 1;
+            await getDB().prepare('UPDATE sources SET is_active = ? WHERE id = ?').bind(newStatus, sourceId).run();
+            
+            return new Response(JSON.stringify({ 
+              success: true, 
+              is_active: newStatus === 1,
+              message: newStatus === 1 ? '源已启用' : '源已禁用'
+            }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } else {
+            // 设置指定状态
+            await getDB().prepare('UPDATE sources SET is_active = ? WHERE id = ?').bind(isActive, sourceId).run();
+            
+            return new Response(JSON.stringify({ 
+              success: true, 
+              is_active: isActive === 1,
+              message: isActive === 1 ? '源已启用' : '源已禁用'
+            }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
         } else if (request.method === 'DELETE') {
           // 删除源
           const sourceId = pathParts[3];
@@ -93,7 +147,18 @@ export async function handleAdminRequest(request, env, ctx) {
 
       case 'sync':
         // 同步源数据
-        const sourceId = pathParts[3];
+        const syncSubAction = pathParts[3];
+        
+        // 同步所有启用的源
+        if (syncSubAction === 'all' && request.method === 'POST') {
+          const result = await manualSyncAll(env);
+          return new Response(JSON.stringify(result), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+
+        // 同步单个源
+        const sourceId = syncSubAction;
         if (!sourceId) {
           return new Response('Missing source ID', { status: 400 });
         }

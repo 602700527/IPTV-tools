@@ -3,6 +3,7 @@ import { initDB } from './database.js';
 import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest } from './handlers/sub.js';
 import { handleAdminRequest } from './handlers/admin.js';
+import { handleScheduledEvent } from './handlers/scheduler.js';
 import { ADMIN_HTML } from './admin-page.js';
 
 export default {
@@ -55,5 +56,10 @@ export default {
       console.error('Worker error:', error);
       return new Response('Internal Server Error', { status: 500 });
     }
+  },
+
+  // 定时任务处理
+  async scheduled(event, env, ctx) {
+    await handleScheduledEvent(event, env, ctx);
   }
 };

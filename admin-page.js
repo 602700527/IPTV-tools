@@ -121,7 +121,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     </div>
     <div id="dashboard" class="tab-content active">
       <div class="card">
-        <h3>系统概览</h3>
+        <div class="toolbar"><h3>系统概览</h3><button class="btn btn-success" onclick="migrateDatabase()" title="升级数据库结构">升级数据库</button></div>
         <div class="stats-grid">
           <div class="stat-item"><div class="stat-value" id="statSources">0</div><div class="stat-label">直播源</div></div>
           <div class="stat-item"><div class="stat-value" id="statChannels">0</div><div class="stat-label">频道总数</div></div>
@@ -132,8 +132,25 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     </div>
     <div id="sources" class="tab-content">
       <div class="card">
-        <div class="toolbar"><h3>直播源列表</h3><button class="btn btn-primary" onclick="showSourceModal()">添加源</button></div>
-        <table><thead><tr><th>ID</th><th>名称</th><th>类型</th><th>解析模式</th><th>频道数</th><th>最后更新</th><th>操作</th></tr></thead><tbody id="sourcesTable"></tbody></table>
+        <div class="toolbar"><h3>直播源列表</h3><div><button class="btn btn-success" onclick="syncAllSources()">同步全部</button><button class="btn btn-primary" onclick="showSourceModal()">添加源</button></div></div>
+        <table><thead><tr><th>ID</th><th>名称</th><th>类型</th><th>解析模式</th><th>状态</th><th>频道数</th><th>最后更新</th><th>操作</th></tr></thead><tbody id="sourcesTable"></tbody></table>
+      </div>
+      <div class="card">
+        <h3>定时任务控制</h3>
+        <p style="margin-bottom:16px;color:#86868b;font-size:14px;">自动同步所有已启用的数据源（需在wrangler.toml中配置cron表达式）</p>
+        <div style="display:flex;gap:16px;align-items:center;">
+          <div>
+            <label style="display:block;margin-bottom:8px;font-weight:500;font-size:14px;">Cron表达式</label>
+            <input type="text" id="cronExpression" value="0 2 * * *" style="padding:8px 12px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;width:200px;" placeholder="0 2 * * *">
+          </div>
+          <div>
+            <label style="display:block;margin-bottom:8px;font-weight:500;font-size:14px;">说明</label>
+            <span style="font-size:14px;color:#86868b;">示例: 0 2 * * * 表示每天凌晨2点执行</span>
+          </div>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn btn-primary" onclick="saveCronConfig()">保存定时任务配置</button>
+        </div>
       </div>
     </div>
     <div id="channels" class="tab-content">
@@ -413,6 +430,27 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       }
     }
 
+    async function migrateDatabase() {
+      if (!confirm('确定要升级数据库结构吗？此操作将为sources表添加is_active字段。')) {
+        return;
+      }
+      try {
+        showLoading();
+        const result = await apiRequest('/migrate');
+        if (result.success) {
+          showToast('数据库升级成功', 'success');
+          loadDashboard();
+          loadSources();
+        } else {
+          showToast('数据库升级失败: ' + result.error, 'error');
+        }
+      } catch (error) {
+        showToast('数据库升级失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
     async function loadSources() {
       try {
         showLoading();
@@ -438,10 +476,18 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <td>\${escapeHtml(source.name)}</td>
             <td><span class="badge badge-warning">\${escapeHtml(source.type)}</span></td>
             <td>\${escapeHtml(source.parse_mode)}</td>
+            <td>
+              <span class="badge \${source.is_active ? 'badge-success' : 'badge-danger'}">
+                \${source.is_active ? '启用' : '禁用'}
+              </span>
+            </td>
             <td>\${source.channelCount}</td>
             <td>\${source.last_updated ? new Date(source.last_updated).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '-'}</td>
             <td>
               <div class="action-buttons">
+                <button class="btn btn-sm \${source.is_active ? 'btn-danger' : 'btn-success'}" onclick="toggleSource(\${source.id}, \${!source.is_active})">
+                  \${source.is_active ? '禁用' : '启用'}
+                </button>
                 <button class="btn btn-sm btn-primary" onclick="syncSource(\${source.id})">同步</button>
                 <button class="btn btn-sm" onclick="editSource(\${source.id})">编辑</button>
                 <button class="btn btn-sm btn-danger" onclick="deleteSource(\${source.id})">删除</button>
@@ -525,6 +571,56 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       } catch (error) {
         showToast('删除失败: ' + error.error, 'error');
       }
+    }
+
+    async function toggleSource(id, isActive) {
+      try {
+        const result = await apiRequest('/sources/toggle/' + id, {
+          method: 'PATCH',
+          body: JSON.stringify({ is_active: isActive })
+        });
+        showToast(result.message || '操作成功', 'success');
+        loadSources();
+      } catch (error) {
+        showToast('操作失败: ' + error.error, 'error');
+      }
+    }
+
+    async function syncAllSources() {
+      if (!confirm('确定要同步所有已启用的源吗？这将删除所有旧频道数据并重新获取。')) return;
+      showLoading();
+      showToast('开始同步所有源，这可能需要几分钟...', 'info');
+      try {
+        const result = await apiRequest('/sync/all', { method: 'POST' });
+        if (result.success) {
+          const summary = \`同步完成：\${result.success_count}个成功，\${result.fail_count}个失败\`;
+          showToast(summary, result.fail_count > 0 ? 'error' : 'success');
+          // 显示详细结果
+          if (result.results && result.results.length > 0) {
+            const details = result.results.map(r => {
+              const status = r.success ? '✓' : '✗';
+              return \`\${status} \${r.source_name}: \${r.success ? r.new_channels + '个频道' : r.error}\`;
+            }).join('\\n');
+            alert(summary + '\\n\\n详细结果:\\n' + details);
+          }
+          loadSources();
+        } else {
+          showToast('同步失败: ' + result.error, 'error');
+        }
+      } catch (error) {
+        showToast('同步失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function saveCronConfig() {
+      const cronExpression = document.getElementById('cronExpression').value.trim();
+      if (!cronExpression) {
+        showToast('请输入Cron表达式', 'error');
+        return;
+      }
+      showToast('请手动在 wrangler.toml 中配置cron表达式: ' + cronExpression + '\\n然后在Cloudflare控制台重新部署Worker', 'info');
     }
 
     async function syncSource(id) {
