@@ -1,4 +1,4 @@
-// 订阅请求处理器: /sub/{code}.m3u
+// 订阅请求处理器: /sub/{code}.m3u（简化版）
 import { getDB } from '../database.js';
 
 export async function handleSubRequest(request, env, ctx) {
@@ -94,6 +94,7 @@ export async function handleSubRequest(request, env, ctx) {
     infoParts.push(',' + channel.channel_name);
 
     m3uLines.push(infoParts.join(' '));
+    // 播放地址格式：/live/{code}/{hash}
     m3uLines.push(`${host}/live/${code}/${channel.channel_hash}`);
   }
 

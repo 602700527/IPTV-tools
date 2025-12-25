@@ -68,13 +68,14 @@ export async function createTables(env) {
   // 创建卡密表
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS codes (
-      code TEXT PRIMARY KEY, 
+      code TEXT PRIMARY KEY,
       status TEXT DEFAULT 'unused',
-      duration_days INTEGER, 
-      activated_at DATETIME, 
+      duration_days INTEGER,
+      activated_at DATETIME,
       expired_at DATETIME,
       max_ips INTEGER DEFAULT 3,
-      remark TEXT
+      remark TEXT,
+      banned_until DATETIME
     )
   `).run();
 
@@ -83,7 +84,88 @@ export async function createTables(env) {
     CREATE INDEX IF NOT EXISTS idx_code_status ON codes(status)
   `).run();
 
+  // 迁移：添加 banned_until 字段（如果不存在）
+  try {
+    await db.prepare('ALTER TABLE codes ADD COLUMN banned_until DATETIME').run();
+    console.log('Migrated codes table: added banned_until column');
+  } catch (e) {
+    if (!e.message.includes('duplicate column name')) {
+      console.error('Migration error:', e);
+    }
+  }
+
+  // 创建配置表
+  await db.prepare(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    )
+  `).run();
+
+  // 初始化默认配置（如果不存在）
+  const defaultSettings = {
+    'channel_daily_limit': '100',
+    'ban_duration_days': '7',
+    'auto_ban_on_exceed': 'true'
+  };
+
+  for (const [key, value] of Object.entries(defaultSettings)) {
+    const existing = await db.prepare('SELECT value FROM settings WHERE key = ?').bind(key).first();
+    if (!existing) {
+      await db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').bind(key, value).run();
+    }
+  }
+
   console.log('Tables created successfully');
+}
+
+// 获取安全配置
+export async function getSecurityConfig() {
+  const db = getDB();
+  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?)')
+    .bind('channel_daily_limit', 'ban_duration_days', 'auto_ban_on_exceed')
+    .all();
+
+  const config = {
+    channel_daily_limit: 100,
+    ban_duration_days: 7,
+    auto_ban_on_exceed: true
+  };
+
+  settings.results?.forEach(row => {
+    if (row.key === 'channel_daily_limit') {
+      config.channel_daily_limit = parseInt(row.value) || 100;
+    } else if (row.key === 'ban_duration_days') {
+      config.ban_duration_days = parseInt(row.value) || 7;
+    } else if (row.key === 'auto_ban_on_exceed') {
+      config.auto_ban_on_exceed = row.value === 'true';
+    }
+  });
+
+  return config;
+}
+
+// 更新安全配置
+export async function updateSecurityConfig(config) {
+  const db = getDB();
+
+  if (config.channel_daily_limit !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.channel_daily_limit.toString(), 'channel_daily_limit')
+      .run();
+  }
+
+  if (config.ban_duration_days !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.ban_duration_days.toString(), 'ban_duration_days')
+      .run();
+  }
+
+  if (config.auto_ban_on_exceed !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.auto_ban_on_exceed.toString(), 'auto_ban_on_exceed')
+      .run();
+  }
 }
 
 // 解析M3U内容并提取频道信息

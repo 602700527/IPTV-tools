@@ -1,5 +1,5 @@
 // 管理后台API处理器
-import { getDB, createTables, fetchAndParseM3U } from '../database.js';
+import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig } from '../database.js';
 import { manualSyncAll } from './scheduler.js';
 
 export async function handleAdminRequest(request, env, ctx) {
@@ -492,7 +492,7 @@ export async function handleAdminRequest(request, env, ctx) {
           source_name: channel.source_name
         }));
 
-        return new Response(JSON.stringify({ 
+        return new Response(JSON.stringify({
           results: formattedResults,
           pagination: {
             page,
@@ -503,6 +503,185 @@ export async function handleAdminRequest(request, env, ctx) {
         }), {
           headers: { 'Content-Type': 'application/json' }
         });
+
+      case 'security':
+        // 安全监控和管理
+        const securitySubAction = pathParts[3];
+
+        if (request.method === 'GET' && securitySubAction === 'config') {
+          // 获取安全配置
+          const config = await getSecurityConfig();
+          return new Response(JSON.stringify({
+            success: true,
+            config: {
+              channel_daily_limit: config.channel_daily_limit,
+              ban_duration_days: config.ban_duration_days,
+              auto_ban_on_exceed: config.auto_ban_on_exceed
+            }
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'POST' && securitySubAction === 'config') {
+          // 更新安全配置
+          const data = await request.json();
+
+          const config = {};
+          if (data.channel_daily_limit !== undefined && data.channel_daily_limit > 0) {
+            config.channel_daily_limit = data.channel_daily_limit;
+          }
+          if (data.ban_duration_days !== undefined && data.ban_duration_days >= 0) {
+            config.ban_duration_days = data.ban_duration_days;
+          }
+          if (data.auto_ban_on_exceed !== undefined) {
+            config.auto_ban_on_exceed = data.auto_ban_on_exceed;
+          }
+
+          await updateSecurityConfig(config);
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: '配置已更新',
+            config
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'GET' && securitySubAction === 'quota') {
+          // 查看卡密额度使用情况
+          const code = url.searchParams.get('code');
+          if (!code) {
+            return new Response('Missing code parameter', { status: 400 });
+          }
+
+          const today = new Date().toISOString().split('T')[0];
+          // 列出该卡密今日所有频道的播放记录
+          const quotaRecords = [];
+
+          // 由于KV不支持通配符查询，这里简化处理
+          // 返回汇总信息
+          const quotaKey = `code_quota:${today}:${code}`;
+          const quotaData = await env.KV.get(quotaKey, { type: "json" }) || {
+            totalPlays: 0,
+            bannedChannels: [],
+            exceededChannels: []
+          };
+
+          // 获取卡密封禁信息
+          const codeInfo = await getDB().prepare("SELECT banned_until FROM codes WHERE code = ?").bind(code).first();
+          const isBanned = codeInfo?.banned_until && codeInfo.banned_until > new Date().toISOString();
+
+          return new Response(JSON.stringify({
+            success: true,
+            date: today,
+            total_plays: quotaData.totalPlays || 0,
+            exceeded_channels_count: quotaData.exceededChannels?.length || 0,
+            is_banned: isBanned,
+            banned_at: quotaData.bannedAt || null,
+            banned_until: quotaData.bannedUntil || (isBanned ? codeInfo.banned_until : null),
+            ban_duration_days: quotaData.banDurationDays || null,
+            details: quotaData
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'POST' && securitySubAction === 'unban') {
+          // 手动解封卡密
+          const data = await request.json();
+          const code = data.code;
+          if (!code) {
+            return new Response('Missing code parameter', { status: 400 });
+          }
+
+          const codeInfo = await getDB().prepare("SELECT status, remark FROM codes WHERE code = ?").bind(code).first();
+          if (!codeInfo) {
+            return new Response('Code not found', { status: 404 });
+          }
+
+          // 清除封禁备注
+          const newRemark = codeInfo.remark
+            ? codeInfo.remark.replace(/系统自动封禁：[^\n]*/g, '').trim()
+            : '';
+
+          await getDB().prepare("UPDATE codes SET status = 'active', remark = ?, banned_until = NULL WHERE code = ?")
+            .bind(newRemark, code)
+            .run();
+
+          // 清除额度记录
+          const today = new Date().toISOString().split('T')[0];
+          await env.KV.delete(`code_quota:${today}:${code}`);
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: '卡密已解封'
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'GET' && securitySubAction === 'stats') {
+          // 获取安全统计
+          const code = url.searchParams.get('code');
+          if (!code) {
+            return new Response('Missing code parameter', { status: 400 });
+          }
+
+          const today = new Date().toISOString().split('T')[0];
+          const accessData = await env.KV.get(`access:${code}:${today}`, { type: "json" }) || {
+            totalPlays: 0,
+            channels: {},
+            ips: [],
+            lastAccess: 0
+          };
+
+          const abuseFlag = await env.KV.get(`abuse_flag:${code}`, { type: "json" });
+          const suspiciousFlag = await env.KV.get(`suspicious:${code}`, { type: "json" });
+
+          return new Response(JSON.stringify({
+            success: true,
+            date: today,
+            total_plays: accessData.totalPlays || 0,
+            unique_ips: accessData.ips ? accessData.ips.length : 0,
+            channel_count: Object.keys(accessData.channels || {}).length,
+            top_channels: Object.entries(accessData.channels || {})
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 10)
+              .map(([hash, count]) => ({ channel_hash: hash, play_count: count })),
+            abuse_detected: !!abuseFlag,
+            suspicious_detected: !!suspiciousFlag,
+            abuse_details: abuseFlag,
+            suspicious_details: suspiciousFlag
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'DELETE' && securitySubAction === 'reset') {
+          // 重置安全计数
+          const code = url.searchParams.get('code');
+          if (!code) {
+            return new Response('Missing code parameter', { status: 400 });
+          }
+
+          // 删除所有安全相关数据
+          const keysToDelete = [
+            `access:${code}:*`,
+            `limit:play:*:${code}`,
+            `abuse:${code}`,
+            `abuse_flag:${code}`,
+            `suspicious:${code}`
+          ];
+
+          // KV不支持通配符删除，需要逐个删除已知键
+          const today = new Date().toISOString().split('T')[0];
+          await env.KV.delete(`access:${code}:${today}`);
+          await env.KV.delete(`abuse:${code}`);
+          await env.KV.delete(`abuse_flag:${code}`);
+          await env.KV.delete(`suspicious:${code}`);
+
+          // 删除令牌（需要列出所有令牌，这里简化处理）
+          // 实际中可以使用KV list API
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: '安全计数已重置'
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
 
       default:
         return new Response('Invalid admin action', { status: 400 });

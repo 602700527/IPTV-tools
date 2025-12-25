@@ -1,5 +1,5 @@
-// 播放请求处理器: /live/{code}/{hash}
-import { getDB } from '../database.js';
+// 播放请求处理器: /live/{code}/{hash}（简化安全版）
+import { getDB, getSecurityConfig } from '../database.js';
 
 export async function handleLiveRequest(request, env, ctx) {
   try {
@@ -28,19 +28,92 @@ export async function handleLiveRequest(request, env, ctx) {
 
     // 2.1 校验卡密
     const db = getDB();
-    const auth = await db.prepare("SELECT status, expired_at, max_ips FROM codes WHERE code = ?").bind(code).first();
+    const auth = await db.prepare("SELECT status, expired_at, max_ips, banned_until FROM codes WHERE code = ?").bind(code).first();
 
     const now = new Date().toISOString();
     if (!auth || auth.status !== 'active' || auth.expired_at < now) {
       // 卡密无效或已过期
       response = new Response("Forbidden: Invalid or Expired Code", { status: 403 });
-      // 缓存5分钟，减少无效请求对数据库的压力
       response.headers.set("Cache-Control", "public, max-age=300");
       ctx.waitUntil(cache.put(cacheKey, response.clone()));
       return response;
     }
 
-    // 2.2 IP 并发检测 (KV)
+    // 检查是否被封禁（临时封禁）
+    if (auth.banned_until && auth.banned_until > now) {
+      response = new Response(`Forbidden: Code is banned until ${new Date(auth.banned_until).toLocaleString('zh-CN')}`, { status: 403 });
+      response.headers.set("Cache-Control", "public, max-age=60");
+      ctx.waitUntil(cache.put(cacheKey, response.clone()));
+      return response;
+    }
+
+    // 获取安全配置
+    const securityConfig = await getSecurityConfig();
+
+    // 2.2 检查每日播放额度（每个频道）
+    const today = new Date().toISOString().split('T')[0];
+    const channelLimitKey = `channel_limit:${today}:${code}:${hash}`;
+
+    // 获取今日该频道播放次数
+    const todayPlays = parseInt(await env.KV.get(channelLimitKey) || '0');
+
+    if (todayPlays >= securityConfig.channel_daily_limit) {
+      // 超过额度，自动封禁卡密
+      if (securityConfig.auto_ban_on_exceed) {
+        const existingRemark = await db.prepare("SELECT remark FROM codes WHERE code = ?").bind(code).first();
+
+        // 计算封禁到期时间
+        const bannedUntil = new Date();
+        bannedUntil.setDate(bannedUntil.getDate() + securityConfig.ban_duration_days);
+
+        const banReason = `系统自动封禁：频道每日播放次数超出${securityConfig.channel_daily_limit}次，封禁${securityConfig.ban_duration_days}天 (${today})`;
+
+        const newRemark = existingRemark?.remark
+          ? `${existingRemark.remark}\n${banReason}`
+          : banReason;
+
+        await db.prepare("UPDATE codes SET status = 'disabled', remark = ?, banned_until = ? WHERE code = ?")
+          .bind(newRemark, bannedUntil.toISOString(), code)
+          .run();
+
+        // 记录封禁信息到KV
+        const quotaKey = `code_quota:${today}:${code}`;
+        await env.KV.put(quotaKey, JSON.stringify({
+          totalPlays: todayPlays,
+          exceededChannels: [hash],
+          isBanned: true,
+          bannedAt: new Date().toISOString(),
+          bannedUntil: bannedUntil.toISOString(),
+          banDurationDays: securityConfig.ban_duration_days,
+          channelDailyLimit: securityConfig.channel_daily_limit
+        }), { expirationTtl: 86400 * securityConfig.ban_duration_days + 86400 });
+
+        console.warn(`Code ${code} auto-banned due to exceeding limit: ${todayPlays} plays for channel ${hash}`);
+      }
+
+      response = new Response(`Forbidden: Daily play limit (${securityConfig.channel_daily_limit}) exceeded for this channel`, { status: 403 });
+      response.headers.set("Cache-Control", "public, max-age=300");
+      ctx.waitUntil(cache.put(cacheKey, response.clone()));
+      return response;
+    }
+
+    // 增加播放计数
+    const newPlays = todayPlays + 1;
+    await env.KV.put(channelLimitKey, newPlays.toString(), { expirationTtl: 86400 }); // 24小时过期
+
+    // 记录总播放次数
+    const quotaKey = `code_quota:${today}:${code}`;
+    const quotaData = await env.KV.get(quotaKey, { type: "json" }) || {
+      totalPlays: 0,
+      exceededChannels: [],
+      isBanned: false,
+      bannedAt: null
+    };
+
+    quotaData.totalPlays = (quotaData.totalPlays || 0) + 1;
+    await env.KV.put(quotaKey, JSON.stringify(quotaData), { expirationTtl: 86400 });
+
+    // 2.3 IP 并发检测 (KV)
     const clientIP = request.headers.get("CF-Connecting-IP");
     const ipKey = `ips:${code}`;
     const ipData = await env.KV.get(ipKey, { type: "json" });
@@ -83,13 +156,11 @@ export async function handleLiveRequest(request, env, ctx) {
     }
 
     // 4. 重定向到真实播放地址
-    // 准备响应头
     const headers = new Headers({
       "Location": channel.play_url,
       "Cache-Control": "public, max-age=300, s-maxage=300"
     });
 
-    // 创建重定向响应
     response = new Response(null, { status: 302, headers });
 
     // 5. 写入缓存
@@ -97,7 +168,8 @@ export async function handleLiveRequest(request, env, ctx) {
 
     return response;
   } catch (error) {
-    return new Response(`Internal Server Error`, { status: 500 });
+    console.error('Live request error:', error);
+    return new Response('Internal Server Error', { status: 500 });
   }
 }
 
