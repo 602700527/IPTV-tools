@@ -78,87 +78,134 @@ export async function createTables(env) {
 // 解析M3U内容并提取频道信息
 export async function parseM3UContent(content, sourceId) {
   const db = getDB();
-  const lines = content.split('\n');
   const channels = [];
-  let currentChannel = {};
   let globalHeaders = {};
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
+  // 提取全局头部信息（User-Agent等）
+  const extm3uMatch = content.match(/^#EXTM3U\s*(.*)$/m);
+  if (extm3uMatch) {
+    const extm3uLine = extm3uMatch[1];
+    // 匹配 user-agent="..."
+    const uaMatch = extm3uLine.match(/user-agent\s*=\s*"([^"]+)"/i);
+    if (uaMatch) {
+      globalHeaders['User-Agent'] = uaMatch[1];
+    }
+  }
 
-    // 解析全局头部信息
-    if (line.startsWith('#EXTM3U')) {
-      // 提取全局UA等
-      const uaMatch = line.match(/user-agent="([^"]+)"/i);
-      if (uaMatch) {
-        globalHeaders['User-Agent'] = uaMatch[1];
-      }
-      continue;
+  // 基于 #EXTINF 块进行分割
+  const blocks = content.split(/^#EXTINF:/m);
+
+  // 跳过第一个空块（#EXTM3U之前的部分）
+  for (const block of blocks) {
+    if (!block.trim()) continue;
+
+    const lines = block.trim().split('\n');
+    if (lines.length === 0) continue;
+
+    const currentChannel = {
+      source_id: sourceId,
+      headers: {...globalHeaders}
+    };
+
+    // 解析 EXTINF 行
+    const extinfLine = '#EXTINF:' + lines[0];
+
+    // 提取频道名称
+    const nameMatch = extinfLine.match(/,(.+)$/);
+    if (nameMatch) {
+      currentChannel.channel_name = nameMatch[1].trim();
     }
 
-    // 解析频道信息
-    if (line.startsWith('#EXTINF:')) {
-      // 重置当前频道
-      currentChannel = {
-        source_id: sourceId,
-        headers: {...globalHeaders}
-      };
-
-      // 提取频道名称
-      const nameMatch = line.match(/,(.+)$/);
-      if (nameMatch) {
-        currentChannel.channel_name = nameMatch[1];
-      }
-
-      // 提取组名
-      const groupMatch = line.match(/group-title="([^"]+)"/i);
-      if (groupMatch) {
-        currentChannel.group_title = groupMatch[1];
-      }
-
-      // 提取logo
-      const logoMatch = line.match(/tvg-logo="([^"]+)"/i);
-      if (logoMatch) {
-        currentChannel.logo = logoMatch[1];
-      }
-
-      // 检查下一行是否有EXTVLCOPT
-      if (i + 1 < lines.length && lines[i + 1].startsWith('#EXTVLCOPT:')) {
-        const vlcOptMatch = lines[i + 1].match(/http-user-agent=([^\s]+)/i);
-        if (vlcOptMatch) {
-          currentChannel.headers['User-Agent'] = vlcOptMatch[1];
-        }
-        i++; // 跳过已处理的EXTVLCOPT行
-      }
-    } 
-    // 处理URL行
-    else if (line && !line.startsWith('#') && currentChannel.channel_name) {
-      currentChannel.play_url = line;
-
-      // 提取URL中的参数
-      try {
-        const urlObj = new URL(line);
-        if (urlObj.searchParams.has('User-Agent')) {
-          currentChannel.headers['User-Agent'] = urlObj.searchParams.get('User-Agent');
-        }
-      } catch (e) {
-        // 忽略URL解析错误
-      }
-
-      // 生成channel_hash (MD5)
-      const encoder = new TextEncoder();
-      const data = encoder.encode(line);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      currentChannel.channel_hash = hashHex.substring(0, 8); // 取前8位
-
-      // 将headers转为JSON字符串
-      currentChannel.headers = JSON.stringify(currentChannel.headers);
-
-      channels.push(currentChannel);
-      currentChannel = {};
+    // 提取组名
+    const groupMatch = extinfLine.match(/group-title\s*=\s*"([^"]+)"/i);
+    if (groupMatch) {
+      currentChannel.group_title = groupMatch[1];
     }
+
+    // 提取logo
+    const logoMatch = extinfLine.match(/tvg-logo\s*=\s*"([^"]+)"/i);
+    if (logoMatch) {
+      currentChannel.logo = logoMatch[1];
+    }
+
+    // 提取 EXTINF 行内的 http-user-agent、ua、user_agent
+    const uaMatch = extinfLine.match(/http-user-agent\s*=\s*"([^"]+)"/i);
+    if (uaMatch) {
+      currentChannel.headers['User-Agent'] = uaMatch[1];
+    }
+    const uaMatch2 = extinfLine.match(/ua\s*=\s*"([^"]+)"/i);
+    if (uaMatch2) {
+      currentChannel.headers['User-Agent'] = uaMatch2[1];
+    }
+    const uaMatch3 = extinfLine.match(/user_agent\s*=\s*"([^"]+)"/i);
+    if (uaMatch3) {
+      currentChannel.headers['User-Agent'] = uaMatch3[1];
+    }
+
+    // 提取 Referer
+    const refererMatch = extinfLine.match(/referer\s*=\s*"([^"]+)"/i);
+    if (refererMatch) {
+      currentChannel.headers['Referer'] = refererMatch[1];
+    }
+
+    // 查找 URL 行（第一个非 # 开头的行）
+    let urlLine = null;
+    let vlcOptProcessed = false;
+
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      // 处理 EXTVLCOPT 行（在 URL 之前）
+      if (!vlcOptProcessed && line.startsWith('#EXTVLCOPT:')) {
+        // 提取 http-user-agent
+        const vlcUAMatch = line.match(/http-user-agent\s*=\s*([^\s]+)/i);
+        if (vlcUAMatch) {
+          currentChannel.headers['User-Agent'] = vlcUAMatch[1];
+        }
+        // 提取 Referer
+        const vlcRefererMatch = line.match(/http-referrer\s*=\s*([^\s]+)/i);
+        if (vlcRefererMatch) {
+          currentChannel.headers['Referer'] = vlcRefererMatch[1];
+        }
+        vlcOptProcessed = true;
+        continue;
+      }
+
+      // 找到 URL 行
+      if (!line.startsWith('#') && line) {
+        urlLine = line;
+        break;
+      }
+    }
+
+    if (!urlLine) continue;
+
+    currentChannel.play_url = urlLine;
+
+    // 提取URL中的参数（User-Agent等）
+    try {
+      const urlObj = new URL(urlLine);
+      if (urlObj.searchParams.has('User-Agent')) {
+        currentChannel.headers['User-Agent'] = urlObj.searchParams.get('User-Agent');
+      }
+    } catch (e) {
+      // 忽略URL解析错误
+    }
+
+    // 生成channel_hash (SHA-256)
+    const encoder = new TextEncoder();
+    const data = encoder.encode(urlLine);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    currentChannel.channel_hash = hashHex.substring(0, 8); // 取前8位
+
+    // 将headers转为JSON字符串（如果为空则存空对象）
+    currentChannel.headers = Object.keys(currentChannel.headers).length > 0
+      ? JSON.stringify(currentChannel.headers)
+      : JSON.stringify({});
+
+    channels.push(currentChannel);
   }
 
   // 批量插入频道，使用 batch 减少API调用

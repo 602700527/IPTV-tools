@@ -95,6 +95,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     .play-url{display:inline-block;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#0071e3;font-size:12px}
     .btn-copy{padding:2px 8px;font-size:11px;margin-left:6px;background:#f5f5f7}
     .btn-copy:hover{background:#e8e8ed}
+    .headers-cell{max-width:200px;padding:8px;font-size:11px;color:#86868b}
+    .headers-tag{display:inline-block;padding:2px 6px;background:#f5f5f7;border-radius:4px;margin:2px;font-size:10px}
   </style>
 </head>
 <body>
@@ -137,7 +139,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     <div id="channels" class="tab-content">
       <div class="card">
         <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="resetChannelPage()"><option value="">全部源</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="resetChannelPage()"><select class="filter-select" id="channelPageSize" onchange="resetChannelPage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="30" selected>30条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select><button class="btn btn-danger" onclick="clearChannels()">清空数据</button></div></div>
-        <table><thead><tr><th>频道名称</th><th>分组</th><th>直播源</th><th>播放地址</th><th>状态</th><th>操作</th></tr></thead><tbody id="channelsTable"></tbody></table>
+        <table><thead><tr><th>频道名称</th><th>分组</th><th>直播源</th><th>播放地址</th><th>请求头</th><th>状态</th><th>操作</th></tr></thead><tbody id="channelsTable"></tbody></table>
         <div id="channelPagination" class="pagination"></div>
       </div>
     </div>
@@ -563,7 +565,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         totalChannels = pagination.total || 0;
         const tbody = document.getElementById('channelsTable');
         if (channels.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" class="empty-state">暂无频道</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" class="empty-state">暂无频道</td></tr>';
         } else {
           tbody.innerHTML = channels.map(channel => \`
             <tr>
@@ -576,6 +578,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               <td class="play-url-cell">
                 <span class="play-url" title="\${escapeHtml(channel.play_url)}">\${escapeHtml(channel.play_url)}</span>
                 <button class="btn btn-sm btn-copy" onclick="copyToClipboard('\${escapeHtml(channel.play_url)}')" title="复制地址">复制</button>
+              </td>
+              <td class="headers-cell">
+                \${formatHeaders(channel.headers)}
               </td>
               <td>
                 <span class="badge \${channel.is_active ? 'badge-success' : 'badge-danger'}">
@@ -854,6 +859,35 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         document.body.removeChild(textarea);
         showToast('已复制到剪贴板', 'success');
       });
+    }
+
+    function formatHeaders(headersStr) {
+      if (!headersStr || headersStr === '{}') return '-';
+
+      try {
+        const headers = JSON.parse(headersStr);
+        const tags = [];
+
+        if (headers['User-Agent']) {
+          let ua = headers['User-Agent'];
+          if (ua.length > 20) {
+            ua = ua.substring(0, 20) + '...';
+          }
+          tags.push(\`<span class="headers-tag" title="\${escapeHtml(headers['User-Agent'])}">UA: \${escapeHtml(ua)}</span>\`);
+        }
+
+        if (headers['Referer']) {
+          let referer = headers['Referer'];
+          if (referer.length > 20) {
+            referer = referer.substring(0, 20) + '...';
+          }
+          tags.push(\`<span class="headers-tag" title="\${escapeHtml(headers['Referer'])}">Ref: \${escapeHtml(referer)}</span>\`);
+        }
+
+        return tags.join('');
+      } catch (e) {
+        return headersStr;
+      }
     }
 
     function escapeHtml(text) {

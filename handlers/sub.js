@@ -49,9 +49,9 @@ export async function handleSubRequest(request, env, ctx) {
     return response;
   }
 
-  // 3.2 获取所有频道
+  // 3.2 获取所有频道（包含 headers）
   const channels = await db.prepare(`
-    SELECT channel_name, group_title, logo, channel_hash
+    SELECT channel_name, group_title, logo, channel_hash, headers
     FROM channels
     WHERE is_active = 1
     ORDER BY group_title, channel_name
@@ -66,7 +66,7 @@ export async function handleSubRequest(request, env, ctx) {
     return response;
   }
 
-  // 3.3 生成M3U内容（优化：使用数组join代替字符串拼接）
+    // 3.3 生成M3U内容（包含请求头信息）
   const host = url.origin;
   const m3uLines = ['#EXTM3U'];
 
@@ -74,7 +74,23 @@ export async function handleSubRequest(request, env, ctx) {
     const infoParts = ['#EXTINF:-1'];
     if (channel.group_title) infoParts.push(`group-title="${channel.group_title}"`);
     if (channel.logo) infoParts.push(`tvg-logo="${channel.logo}"`);
-    infoParts.push(channel.channel_name);
+
+    // 添加请求头信息
+    try {
+      const headers = JSON.parse(channel.headers || '{}');
+      if (headers['User-Agent']) {
+        const ua = headers['User-Agent'].replace(/"/g, '\\"');
+        infoParts.push(`http-user-agent="${ua}"`);
+      }
+      if (headers['Referer']) {
+        const referer = headers['Referer'].replace(/"/g, '\\"');
+        infoParts.push(`referer="${referer}"`);
+      }
+    } catch (e) {
+      // headers 解析失败，忽略
+    }
+
+    infoParts.push(',' + channel.channel_name);
 
     m3uLines.push(infoParts.join(' '));
     m3uLines.push(`${host}/live/${code}/${channel.channel_hash}`);

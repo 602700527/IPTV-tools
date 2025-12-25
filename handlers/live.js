@@ -82,24 +82,12 @@ export async function handleLiveRequest(request, env, ctx) {
       return response;
     }
 
-    // 4. 构建重定向响应
+    // 4. 重定向到真实播放地址
     // 准备响应头
     const headers = new Headers({
       "Location": channel.play_url,
       "Cache-Control": "public, max-age=300, s-maxage=300"
     });
-
-    // 如果有自定义headers，添加到响应中
-    if (channel.headers) {
-      try {
-        const customHeaders = JSON.parse(channel.headers);
-        for (const [key, value] of Object.entries(customHeaders)) {
-          headers.set(key, value);
-        }
-      } catch (e) {
-        // 静默忽略headers解析错误
-      }
-    }
 
     // 创建重定向响应
     response = new Response(null, { status: 302, headers });
