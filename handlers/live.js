@@ -78,8 +78,11 @@ export async function handleLiveRequest(request, env, ctx) {
 
         // 记录封禁信息到KV
         const quotaKey = `code_quota:${today}:${code}`;
+        const existingQuotaData = await env.KV.get(quotaKey, { type: "json" }) || {};
+
         await env.KV.put(quotaKey, JSON.stringify({
           totalPlays: todayPlays,
+          channelPlays: existingQuotaData.channelPlays || {},
           exceededChannels: [hash],
           isBanned: true,
           bannedAt: new Date().toISOString(),
@@ -101,16 +104,22 @@ export async function handleLiveRequest(request, env, ctx) {
     const newPlays = todayPlays + 1;
     await env.KV.put(channelLimitKey, newPlays.toString(), { expirationTtl: 86400 }); // 24小时过期
 
-    // 记录总播放次数
+    // 记录总播放次数和频道播放详情
     const quotaKey = `code_quota:${today}:${code}`;
     const quotaData = await env.KV.get(quotaKey, { type: "json" }) || {
       totalPlays: 0,
+      channelPlays: {},
       exceededChannels: [],
       isBanned: false,
       bannedAt: null
     };
 
     quotaData.totalPlays = (quotaData.totalPlays || 0) + 1;
+
+    // 记录该频道的播放次数
+    quotaData.channelPlays = quotaData.channelPlays || {};
+    quotaData.channelPlays[hash] = (quotaData.channelPlays[hash] || 0) + 1;
+
     await env.KV.put(quotaKey, JSON.stringify(quotaData), { expirationTtl: 86400 });
 
     // 2.3 IP 并发检测 (KV)

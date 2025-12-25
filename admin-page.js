@@ -243,6 +243,20 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               <li>联系管理员获取新卡密</li>
             </ul>
           </div>
+          <div id="channelPlaysSection" style="margin-top:20px;display:none;">
+            <h4 style="margin-bottom:12px;">频道播放详情</h4>
+            <table style="width:100%;border-collapse:collapse;">
+              <thead>
+                <tr>
+                  <th>频道名称</th>
+                  <th>播放次数</th>
+                  <th>状态</th>
+                </tr>
+              </thead>
+              <tbody id="channelPlaysTable">
+              </tbody>
+            </table>
+          </div>
         </div>
         <div id="noQuotaData" class="empty-state">请输入卡密查看额度使用情况</div>
       </div>
@@ -1232,6 +1246,49 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           banStatus.innerHTML = '<div class="stat-value" style="color:#34c759;">正常</div><div class="stat-label">状态</div>';
           banTimeEl.textContent = '-';
           banAlert.style.display = 'none';
+        }
+
+        // 显示频道播放详情
+        const channelPlaysSection = document.getElementById('channelPlaysSection');
+        const channelPlaysTable = document.getElementById('channelPlaysTable');
+
+        console.log('Quota data:', data);
+        console.log('Channel plays section:', channelPlaysSection);
+        console.log('Channel plays table:', channelPlaysTable);
+        console.log('Channel plays:', data.details?.channelPlays);
+
+        if (!channelPlaysSection || !channelPlaysTable) {
+          console.error('DOM elements not found');
+          return;
+        }
+
+        const channelPlays = data.details?.channelPlays || {};
+        const channelNames = data.channel_names || {};
+
+        if (Object.keys(channelPlays).length > 0) {
+          channelPlaysSection.style.display = 'block';
+
+          // 获取当前配置的播放次数限制
+          const dailyLimit = data.channel_daily_limit || 100;
+
+          const tableRows = Object.entries(channelPlays)
+            .sort((a, b) => b[1] - a[1]) // 按播放次数降序排列
+            .map(([hash, count]) => {
+              const isExceeded = count >= dailyLimit;
+              const statusBadge = isExceeded
+                ? '<span class="badge badge-danger">超限</span>'
+                : '<span class="badge badge-success">正常</span>';
+              const channelName = channelNames[hash] || hash; // 如果找不到名称，显示hash
+              return '<tr>' +
+                '<td>' + escapeHtml(channelName) + '</td>' +
+                '<td>' + count + '</td>' +
+                '<td>' + statusBadge + '</td>' +
+                '</tr>';
+            }).join('');
+
+          channelPlaysTable.innerHTML = tableRows || '<tr><td colspan="3" class="empty-state">暂无播放数据</td></tr>';
+        } else {
+          channelPlaysSection.style.display = 'none';
         }
       } catch (error) {
         showToast('加载额度信息失败: ' + error.error, 'error');

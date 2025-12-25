@@ -561,9 +561,26 @@ export async function handleAdminRequest(request, env, ctx) {
           const quotaKey = `code_quota:${today}:${code}`;
           const quotaData = await env.KV.get(quotaKey, { type: "json" }) || {
             totalPlays: 0,
+            channelPlays: {},
             bannedChannels: [],
             exceededChannels: []
           };
+
+          // 获取频道名称
+          const channelHashes = Object.keys(quotaData.channelPlays || {});
+          const channelNames = {};
+          if (channelHashes.length > 0) {
+            // 批量查询频道名称
+            const channels = await getDB().prepare(
+              'SELECT channel_hash, channel_name FROM channels WHERE channel_hash IN (' + channelHashes.map(() => '?').join(',') + ')'
+            ).bind(...channelHashes).all();
+
+            if (channels.results) {
+              channels.results.forEach(channel => {
+                channelNames[channel.channel_hash] = channel.channel_name;
+              });
+            }
+          }
 
           // 获取卡密封禁信息
           const codeInfo = await getDB().prepare("SELECT banned_until FROM codes WHERE code = ?").bind(code).first();
@@ -578,6 +595,7 @@ export async function handleAdminRequest(request, env, ctx) {
             banned_at: quotaData.bannedAt || null,
             banned_until: quotaData.bannedUntil || (isBanned ? codeInfo.banned_until : null),
             ban_duration_days: quotaData.banDurationDays || null,
+            channel_names: channelNames,
             details: quotaData
           }), {
             headers: { 'Content-Type': 'application/json' }
