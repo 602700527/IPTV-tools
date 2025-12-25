@@ -126,6 +126,32 @@ export async function handleAdminRequest(request, env, ctx) {
       case 'codes':
         // 处理卡密管理
         if (request.method === 'GET') {
+          // 导出CSV功能
+          if (url.searchParams.get('action') === 'export') {
+            const codes = await getCodesForExport(url.searchParams);
+            
+            // 生成CSV内容
+            let csv = '卡密,状态,有效期(天),最大IP数,激活时间,过期时间,备注\n';
+            codes.forEach(code => {
+              const statusMap = { 'unused': '未使用', 'active': '活跃', 'disabled': '禁用' };
+              const status = statusMap[code.status] || code.status;
+              const activatedAt = code.activated_at ? formatDateTime(code.activated_at) : '-';
+              const expiredAt = code.expired_at ? formatDateTime(code.expired_at) : '-';
+              const remark = code.remark || '-';
+              // 处理CSV中的特殊字符
+              const cleanCode = escapeCsvField(code.code);
+              const cleanRemark = escapeCsvField(remark);
+              csv += `${cleanCode},${status},${code.duration_days},${code.max_ips || 3},${activatedAt},${expiredAt},${cleanRemark}\n`;
+            });
+            
+            return new Response(csv, {
+              headers: {
+                'Content-Type': 'text/csv; charset=utf-8',
+                'Content-Disposition': 'attachment; filename="codes_export_' + new Date().toISOString().slice(0, 10) + '.csv"'
+              }
+            });
+          }
+          
           const codeQuery = url.searchParams.get('code');
           // 如果指定了code参数，返回单个卡密
           if (codeQuery) {
@@ -141,10 +167,17 @@ export async function handleAdminRequest(request, env, ctx) {
             });
           }
 
-          // 获取卡密列表（支持分页）
+          // 获取卡密列表（支持分页和查询）
           const page = parseInt(url.searchParams.get('page')) || 1;
           const pageSize = Math.min(parseInt(url.searchParams.get('page_size')) || 100, 100);
           const statusFilter = url.searchParams.get('status') || '';
+          const expiredFrom = url.searchParams.get('expired_from') || '';
+          const expiredTo = url.searchParams.get('expired_to') || '';
+          const activatedFrom = url.searchParams.get('activated_from') || '';
+          const activatedTo = url.searchParams.get('activated_to') || '';
+          const durationMin = url.searchParams.get('duration_min') || '';
+          const durationMax = url.searchParams.get('duration_max') || '';
+          const remark = url.searchParams.get('remark') || '';
 
           let codesQuery = 'SELECT * FROM codes';
           const countQuery = 'SELECT COUNT(*) as total FROM codes';
@@ -154,6 +187,34 @@ export async function handleAdminRequest(request, env, ctx) {
           if (statusFilter) {
             whereConditions.push('status = ?');
             params.push(statusFilter);
+          }
+          if (expiredFrom) {
+            whereConditions.push('expired_at >= ?');
+            params.push(expiredFrom);
+          }
+          if (expiredTo) {
+            whereConditions.push('expired_at <= ?');
+            params.push(expiredTo);
+          }
+          if (activatedFrom) {
+            whereConditions.push('activated_at >= ?');
+            params.push(activatedFrom);
+          }
+          if (activatedTo) {
+            whereConditions.push('activated_at <= ?');
+            params.push(activatedTo);
+          }
+          if (durationMin) {
+            whereConditions.push('duration_days >= ?');
+            params.push(parseInt(durationMin));
+          }
+          if (durationMax) {
+            whereConditions.push('duration_days <= ?');
+            params.push(parseInt(durationMax));
+          }
+          if (remark) {
+            whereConditions.push('remark LIKE ?');
+            params.push('%' + remark + '%');
           }
 
           if (whereConditions.length > 0) {
@@ -398,4 +459,88 @@ function generateCode() {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return code;
+}
+
+// 获取符合查询条件的卡密用于导出
+async function getCodesForExport(params) {
+  const db = getDB();
+  let codesQuery = 'SELECT * FROM codes';
+  const queryParams = [];
+  const whereConditions = [];
+
+  const statusFilter = params.get('status') || '';
+  const expiredFrom = params.get('expired_from') || '';
+  const expiredTo = params.get('expired_to') || '';
+  const activatedFrom = params.get('activated_from') || '';
+  const activatedTo = params.get('activated_to') || '';
+  const durationMin = params.get('duration_min') || '';
+  const durationMax = params.get('duration_max') || '';
+  const remark = params.get('remark') || '';
+
+  if (statusFilter) {
+    whereConditions.push('status = ?');
+    queryParams.push(statusFilter);
+  }
+  if (expiredFrom) {
+    whereConditions.push('expired_at >= ?');
+    queryParams.push(expiredFrom);
+  }
+  if (expiredTo) {
+    whereConditions.push('expired_at <= ?');
+    queryParams.push(expiredTo);
+  }
+  if (activatedFrom) {
+    whereConditions.push('activated_at >= ?');
+    queryParams.push(activatedFrom);
+  }
+  if (activatedTo) {
+    whereConditions.push('activated_at <= ?');
+    queryParams.push(activatedTo);
+  }
+  if (durationMin) {
+    whereConditions.push('duration_days >= ?');
+    queryParams.push(parseInt(durationMin));
+  }
+  if (durationMax) {
+    whereConditions.push('duration_days <= ?');
+    queryParams.push(parseInt(durationMax));
+  }
+  if (remark) {
+    whereConditions.push('remark LIKE ?');
+    queryParams.push('%' + remark + '%');
+  }
+
+  if (whereConditions.length > 0) {
+    codesQuery += ' WHERE ' + whereConditions.join(' AND ');
+  }
+
+  codesQuery += ' ORDER BY code DESC';
+  const codes = await db.prepare(codesQuery).bind(...queryParams).all();
+  return codes.results || [];
+}
+
+// 格式化日期时间
+function formatDateTime(dateStr) {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr);
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+}
+
+// 转义CSV字段
+function escapeCsvField(field) {
+  if (!field) return '';
+  const str = String(field);
+  // 如果包含逗号、引号或换行，需要用引号包裹并转义引号
+  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
 }

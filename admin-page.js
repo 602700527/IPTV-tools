@@ -145,7 +145,30 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     </div>
     <div id="codes" class="tab-content">
       <div class="card">
-        <div class="toolbar"><h3>卡密列表</h3><div><select class="filter-select" id="codeStatusFilter" onchange="resetCodePage()"><option value="">全部状态</option><option value="unused">未使用</option><option value="active">活跃</option><option value="disabled">禁用</option></select><select class="filter-select" id="codePageSize" onchange="resetCodePage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="30" selected>30条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select><button class="btn btn-primary" onclick="showGenerateCodeModal()">生成卡密</button></div></div>
+        <div class="toolbar">
+          <h3>卡密列表</h3>
+          <div>
+            <button class="btn btn-success" onclick="toggleAdvancedFilter()">高级查询</button>
+            <button class="btn btn-primary" onclick="exportCodesCSV()">导出CSV</button>
+            <button class="btn btn-primary" onclick="showGenerateCodeModal()">生成卡密</button>
+          </div>
+        </div>
+        <div id="advancedFilterPanel" class="card" style="display:none;margin-bottom:16px;padding:16px;background:#f9f9fb;">
+          <div class="form-row" style="margin-bottom:12px;">
+            <div class="form-group"><label>状态</label><select class="filter-select" id="codeStatusFilter" onchange="resetCodePage()"><option value="">全部</option><option value="unused">未使用</option><option value="active">活跃</option><option value="disabled">禁用</option></select></div>
+            <div class="form-group"><label>有效期(天)</label><div style="display:flex;gap:8px;"><input type="number" id="durationMin" placeholder="最小" class="search-box" style="width:80px;"><span>-</span><input type="number" id="durationMax" placeholder="最大" class="search-box" style="width:80px;"></div></div>
+            <div class="form-group"><label>过期时间</label><div style="display:flex;gap:8px;"><input type="date" id="expiredFrom" class="search-box"><span>-</span><input type="date" id="expiredTo" class="search-box"></div></div>
+          </div>
+          <div class="form-row" style="margin-bottom:12px;">
+            <div class="form-group"><label>激活时间</label><div style="display:flex;gap:8px;"><input type="date" id="activatedFrom" class="search-box"><span>-</span><input type="date" id="activatedTo" class="search-box"></div></div>
+            <div class="form-group"><label>备注</label><input type="text" id="remarkFilter" placeholder="备注关键词" class="search-box" style="width:200px;"></div>
+            <div class="form-group"><label>每页条数</label><select class="filter-select" id="codePageSize" onchange="resetCodePage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="30" selected>30条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="resetCodePage()">查询</button>
+            <button class="btn" onclick="clearCodeFilters()">重置</button>
+          </div>
+        </div>
         <table><thead><tr><th>卡密</th><th>状态</th><th>有效期(天)</th><th>最大IP数</th><th>激活时间</th><th>过期时间</th><th>备注</th><th>操作</th></tr></thead><tbody id="codesTable"></tbody></table>
         <div id="codePagination" class="pagination"></div>
       </div>
@@ -663,12 +686,26 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         showLoading();
         let url = '/codes';
         const statusFilter = document.getElementById('codeStatusFilter').value;
+        const durationMin = document.getElementById('durationMin').value;
+        const durationMax = document.getElementById('durationMax').value;
+        const expiredFrom = document.getElementById('expiredFrom').value;
+        const expiredTo = document.getElementById('expiredTo').value;
+        const activatedFrom = document.getElementById('activatedFrom').value;
+        const activatedTo = document.getElementById('activatedTo').value;
+        const remarkFilter = document.getElementById('remarkFilter').value.trim();
         const pageSize = Math.min(parseInt(document.getElementById('codePageSize').value) || 100, 100);
         const params = new URLSearchParams({
           page: currentCodePage,
           page_size: pageSize
         });
         if (statusFilter) params.append('status', statusFilter);
+        if (durationMin) params.append('duration_min', durationMin);
+        if (durationMax) params.append('duration_max', durationMax);
+        if (expiredFrom) params.append('expired_from', expiredFrom);
+        if (expiredTo) params.append('expired_to', expiredTo);
+        if (activatedFrom) params.append('activated_from', activatedFrom);
+        if (activatedTo) params.append('activated_to', activatedTo);
+        if (remarkFilter) params.append('remark', remarkFilter);
         url += '?' + params.toString();
         const data = await apiRequest(url, { showLoading: false });
         const codeList = data.results || [];
@@ -745,6 +782,76 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       html += \`<button onclick="goToCodePage(\${currentCodePage + 1})" \${currentCodePage === totalCodePages ? 'disabled' : ''}>下一页</button>\`;
       html += \`<button onclick="goToCodePage(\${totalCodePages})" \${currentCodePage === totalCodePages ? 'disabled' : ''}>末页</button>\`;
       container.innerHTML = html;
+    }
+
+    function toggleAdvancedFilter() {
+      const panel = document.getElementById('advancedFilterPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function clearCodeFilters() {
+      document.getElementById('codeStatusFilter').value = '';
+      document.getElementById('durationMin').value = '';
+      document.getElementById('durationMax').value = '';
+      document.getElementById('expiredFrom').value = '';
+      document.getElementById('expiredTo').value = '';
+      document.getElementById('activatedFrom').value = '';
+      document.getElementById('activatedTo').value = '';
+      document.getElementById('remarkFilter').value = '';
+      resetCodePage();
+    }
+
+    async function exportCodesCSV() {
+      try {
+        showLoading();
+        let url = '/codes?action=export';
+        const params = new URLSearchParams();
+        const statusFilter = document.getElementById('codeStatusFilter').value;
+        const durationMin = document.getElementById('durationMin').value;
+        const durationMax = document.getElementById('durationMax').value;
+        const expiredFrom = document.getElementById('expiredFrom').value;
+        const expiredTo = document.getElementById('expiredTo').value;
+        const activatedFrom = document.getElementById('activatedFrom').value;
+        const activatedTo = document.getElementById('activatedTo').value;
+        const remarkFilter = document.getElementById('remarkFilter').value.trim();
+
+        if (statusFilter) params.append('status', statusFilter);
+        if (durationMin) params.append('duration_min', durationMin);
+        if (durationMax) params.append('duration_max', durationMax);
+        if (expiredFrom) params.append('expired_from', expiredFrom);
+        if (expiredTo) params.append('expired_to', expiredTo);
+        if (activatedFrom) params.append('activated_from', activatedFrom);
+        if (activatedTo) params.append('activated_to', activatedTo);
+        if (remarkFilter) params.append('remark', remarkFilter);
+
+        if (params.toString()) {
+          url += '&' + params.toString();
+        }
+
+        const response = await fetch(API_BASE + url, {
+          headers: { 'X-Admin-Key': adminKey }
+        });
+
+        if (!response.ok) {
+          throw new Error('导出失败');
+        }
+
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = 'codes_export_' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(downloadUrl);
+        showToast('导出成功', 'success');
+      } catch (error) {
+        console.error('导出失败:', error);
+        showToast('导出失败: ' + error.message, 'error');
+      } finally {
+        hideLoading();
+      }
     }
 
     function showGenerateCodeModal() {
