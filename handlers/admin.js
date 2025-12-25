@@ -548,7 +548,26 @@ export async function handleAdminRequest(request, env, ctx) {
         // 安全监控和管理
         const securitySubAction = pathParts[3];
 
-        if (request.method === 'GET' && securitySubAction === 'config') {
+        if (request.method === 'GET' && securitySubAction === 'banned-codes') {
+          // 获取所有被封禁的卡密列表
+          const db = getDB();
+          const now = new Date().toISOString();
+          const bannedCodes = await db.prepare(`
+            SELECT code, status, duration_days, activated_at, expired_at, max_ips, remark, banned_until
+            FROM codes
+            WHERE banned_until IS NOT NULL AND banned_until > ?
+            ORDER BY banned_until DESC
+          `).bind(now).all();
+
+          const results = bannedCodes.results || [];
+          return new Response(JSON.stringify({
+            success: true,
+            count: results.length,
+            codes: results
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'GET' && securitySubAction === 'config') {
           // 获取安全配置
           const config = await getSecurityConfig();
           return new Response(JSON.stringify({

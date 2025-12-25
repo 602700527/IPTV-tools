@@ -263,9 +263,31 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         <div id="noQuotaData" class="empty-state">请输入卡密查看额度使用情况</div>
       </div>
       <div class="card" style="margin-top:20px;">
+        <div class="toolbar">
+          <h3>卡密封禁列表</h3>
+          <button class="btn btn-primary" onclick="loadBannedCodes()">刷新列表</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>卡密</th>
+              <th>状态</th>
+              <th>有效期(天)</th>
+              <th>激活时间</th>
+              <th>过期时间</th>
+              <th>封禁到期</th>
+              <th>备注</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="bannedCodesTable"></tbody>
+        </table>
+        <div id="noBannedCodes" class="empty-state">暂无封禁卡密</div>
+      </div>
+      <div class="card" style="margin-top:20px;">
         <h3>额度说明</h3>
         <div style="line-height:1.8;color:#86868b;font-size:14px;">
-          <p><strong>📊 额度规则：</strong></p>
+          <p><strong>📊 额度规则[限制用户分享或二次代理]：</strong></p>
           <ul style="margin-left:20px;margin-bottom:16px;">
             <li>每个频道每天播放次数限制可在上方配置中设置</li>
             <li>超过额度会根据配置自动封禁卡密（可设置封禁时长）</li>
@@ -369,7 +391,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <div class="card">
         <h3>封禁说明</h3>
         <div style="line-height:1.8;color:#86868b;font-size:14px;">
-          <p><strong>🔒 自动封禁规则：</strong></p>
+          <p><strong>🔒 自动封禁规则[限制攻击者撞库]：</strong></p>
           <ul style="margin-left:20px;margin-bottom:16px;">
             <li>订阅地址（/sub）：根据配置限制请求频率</li>
             <li>播放地址（/live）：根据配置限制请求频率</li>
@@ -607,6 +629,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         loadSecurityConfig();
         document.getElementById('quotaInfo').style.display = 'none';
         document.getElementById('noQuotaData').style.display = 'block';
+        loadBannedCodes(); // 加载封禁卡密列表
       }
       else if (tabName === 'ip-blacklist') {
         loadIPBlacklistConfig();
@@ -1435,6 +1458,90 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           loadQuotaInfo();
           // 刷新卡密列表以更新状态
           loadCodes();
+        } else {
+          showToast('解封失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        showToast('解封失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // 加载封禁卡密列表
+    async function loadBannedCodes() {
+      try {
+        showLoading();
+        const data = await apiRequest('/security/banned-codes', { showLoading: false });
+        const tbody = document.getElementById('bannedCodesTable');
+        const noDataDiv = document.getElementById('noBannedCodes');
+
+        if (!data.codes || data.codes.length === 0) {
+          tbody.innerHTML = '';
+          noDataDiv.style.display = 'block';
+          return;
+        }
+
+        noDataDiv.style.display = 'none';
+        const timezone = window.TIMEZONE || 'Asia/Shanghai';
+        const statusMap = {
+          'active': { text: '活跃', class: 'badge-success' },
+          'disabled': { text: '禁用', class: 'badge-danger' }
+        };
+
+        tbody.innerHTML = data.codes.map(code => {
+          const status = statusMap[code.status] || { text: code.status, class: 'badge-warning' };
+          const isExpired = code.banned_until && new Date(code.banned_until) <= new Date();
+          return \`
+            <tr>
+              <td><span class="code-display">\${escapeHtml(code.code)}</span></td>
+              <td><span class="badge \${status.class}">\${status.text}</span></td>
+              <td>\${code.duration_days}</td>
+              <td>\${code.activated_at ? new Date(code.activated_at).toLocaleString('zh-CN', { timeZone: timezone }) : '-'}</td>
+              <td>\${code.expired_at ? new Date(code.expired_at).toLocaleString('zh-CN', { timeZone: timezone }) : '-'}</td>
+              <td>
+                \${code.banned_until
+                  ? (isExpired
+                    ? '<span style="color:#ff3b30;">已过期</span>'
+                    : new Date(code.banned_until).toLocaleString('zh-CN', { timeZone: timezone })
+                  )
+                  : '-'}
+              </td>
+              <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="\${escapeHtml(code.remark || '')}">
+                \${escapeHtml(code.remark || '-')}
+              </td>
+              <td>
+                <button class="btn btn-sm btn-success" onclick="unbanCodeFromList('\${escapeHtml(code.code)}')">解封</button>
+              </td>
+            </tr>
+          \`;
+        }).join('');
+      } catch (error) {
+        console.error('加载封禁卡密失败:', error);
+        showToast('加载失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // 从列表解封卡密
+    async function unbanCodeFromList(code) {
+      if (!confirm('确定要解封卡密 ' + code + ' 吗？')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/security/unban', {
+          method: 'POST',
+          body: JSON.stringify({ code }),
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('卡密已解封', 'success');
+          loadBannedCodes(); // 刷新封禁列表
+          loadCodes(); // 刷新卡密列表
         } else {
           showToast('解封失败: ' + (result.error || '未知错误'), 'error');
         }
