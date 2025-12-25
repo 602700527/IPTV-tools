@@ -106,7 +106,15 @@ export async function createTables(env) {
   const defaultSettings = {
     'channel_daily_limit': '100',
     'ban_duration_days': '7',
-    'auto_ban_on_exceed': 'true'
+    'auto_ban_on_exceed': 'true',
+    // IP黑名单配置
+    'sub_rate_min': '1',
+    'sub_rate_hour': '60',
+    'sub_rate_day': '500',
+    'live_rate_min': '5',
+    'live_rate_hour': '300',
+    'live_rate_day': '2000',
+    'admin_rate_hour': '10'
   };
 
   for (const [key, value] of Object.entries(defaultSettings)) {
@@ -143,6 +151,47 @@ export async function getSecurityConfig() {
   });
 
   return config;
+}
+
+// 获取IP黑名单配置
+export async function getIPBlacklistConfig() {
+  const db = getDB();
+  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?)')
+    .bind('sub_rate_min', 'sub_rate_hour', 'sub_rate_day', 'live_rate_min', 'live_rate_hour', 'live_rate_day', 'admin_rate_hour')
+    .all();
+
+  const config = {
+    sub_rate_min: 1,
+    sub_rate_hour: 60,
+    sub_rate_day: 500,
+    live_rate_min: 5,
+    live_rate_hour: 300,
+    live_rate_day: 2000,
+    admin_rate_hour: 10
+  };
+
+  settings.results?.forEach(row => {
+    if (config.hasOwnProperty(row.key)) {
+      config[row.key] = parseInt(row.value) || config[row.key];
+    }
+  });
+
+  return config;
+}
+
+// 更新IP黑名单配置
+export async function updateIPBlacklistConfig(config) {
+  const db = getDB();
+
+  const fields = ['sub_rate_min', 'sub_rate_hour', 'sub_rate_day', 'live_rate_min', 'live_rate_hour', 'live_rate_day', 'admin_rate_hour'];
+  
+  for (const field of fields) {
+    if (config[field] !== undefined && config[field] > 0) {
+      await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+        .bind(config[field].toString(), field)
+        .run();
+    }
+  }
 }
 
 // 更新安全配置

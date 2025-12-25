@@ -119,6 +119,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab" onclick="showTab('channels')">频道管理</button>
       <button class="nav-tab" onclick="showTab('codes')">卡密管理</button>
       <button class="nav-tab" onclick="showTab('security')">安全监控</button>
+      <button class="nav-tab" onclick="showTab('ip-blacklist')">IP黑名单</button>
     </div>
     <div id="dashboard" class="tab-content active">
       <div class="card">
@@ -128,6 +129,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <div class="stat-item"><div class="stat-value" id="statChannels">0</div><div class="stat-label">频道总数</div></div>
           <div class="stat-item"><div class="stat-value" id="statActiveCodes">0</div><div class="stat-label">活跃卡密</div></div>
           <div class="stat-item"><div class="stat-value" id="statUnusedCodes">0</div><div class="stat-label">未使用卡密</div></div>
+          <div class="stat-item"><div class="stat-value" id="statBannedIPs" style="color:#ff3b30">0</div><div class="stat-label">封禁IP</div></div>
         </div>
       </div>
     </div>
@@ -276,6 +278,109 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <p><strong>❌ 异常行为：</strong></p>
           <p>使用脚本或代理刷播放地址，短时间内大量播放</p>
           <p>会触发自动封禁机制（临时或永久，取决于配置）</p>
+        </div>
+      </div>
+    </div>
+    <div id="ip-blacklist" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>IP黑名单配置</h3>
+          <button class="btn btn-primary" onclick="loadIPBlacklistConfig()">刷新配置</button>
+        </div>
+        <div id="ipBlacklistConfigForm" style="display:none;padding:16px;background:#f9f9fb;border-radius:8px;">
+          <h4 style="margin-bottom:16px;">订阅地址（/sub）限制</h4>
+          <div class="form-row" style="margin-bottom:16px;">
+            <div class="form-group">
+              <label>每分钟最大请求</label>
+              <input type="number" id="subRateMin" min="1" value="1">
+            </div>
+            <div class="form-group">
+              <label>每小时最大请求</label>
+              <input type="number" id="subRateHour" min="1" value="60">
+            </div>
+            <div class="form-group">
+              <label>每天最大请求</label>
+              <input type="number" id="subRateDay" min="1" value="500">
+            </div>
+          </div>
+
+          <h4 style="margin-bottom:16px;">播放地址（/live）限制</h4>
+          <div class="form-row" style="margin-bottom:16px;">
+            <div class="form-group">
+              <label>每分钟最大请求</label>
+              <input type="number" id="liveRateMin" min="1" value="5">
+            </div>
+            <div class="form-group">
+              <label>每小时最大请求</label>
+              <input type="number" id="liveRateHour" min="1" value="300">
+            </div>
+            <div class="form-group">
+              <label>每天最大请求</label>
+              <input type="number" id="liveRateDay" min="1" value="2000">
+            </div>
+          </div>
+
+          <h4 style="margin-bottom:16px;">管理地址（/admin）限制</h4>
+          <div class="form-row" style="margin-bottom:16px;">
+            <div class="form-group">
+              <label>每小时最大请求</label>
+              <input type="number" id="adminRateHour" min="1" value="10">
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="saveIPBlacklistConfig()">保存配置</button>
+            <button class="btn" onclick="resetIPBlacklistConfig()">重置为默认</button>
+          </div>
+        </div>
+        <div id="noIPBlacklistConfig" class="empty-state">点击"刷新配置"按钮加载当前配置</div>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <h3>IP黑名单管理</h3>
+          <button class="btn btn-primary" onclick="loadIPBlacklist()">刷新列表</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>IP地址</th>
+              <th>封禁时间</th>
+              <th>封禁原因</th>
+              <th>详情</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="ipBlacklistTable"></tbody>
+        </table>
+        <div id="noIPBlacklist" class="empty-state">暂无封禁IP</div>
+      </div>
+      <div class="card">
+        <h3>手动封禁IP</h3>
+        <div class="form-group">
+          <label>IP地址</label>
+          <input type="text" id="manualBanIP" placeholder="输入要封禁的IP地址">
+        </div>
+        <div class="form-group">
+          <label>封禁原因</label>
+          <input type="text" id="manualBanReason" placeholder="输入封禁原因">
+        </div>
+        <button class="btn btn-danger" onclick="manualBanIP()">封禁</button>
+      </div>
+      <div class="card">
+        <h3>封禁说明</h3>
+        <div style="line-height:1.8;color:#86868b;font-size:14px;">
+          <p><strong>🔒 自动封禁规则：</strong></p>
+          <ul style="margin-left:20px;margin-bottom:16px;">
+            <li>订阅地址（/sub）：根据配置限制请求频率</li>
+            <li>播放地址（/live）：根据配置限制请求频率</li>
+            <li>管理地址（/admin）：根据配置限制请求频率</li>
+            <li>超出限制会永久封禁该IP</li>
+          </ul>
+          <p><strong>⚠️ 防撞库保护：</strong></p>
+          <p>防止攻击者通过大量尝试订阅地址来破解有效卡密</p>
+          <p style="margin-bottom:16px;">超出访问频率会自动封禁IP，保护系统安全</p>
+          <p><strong>✅ 管理员操作：</strong></p>
+          <p>可以在上方配置调整限制阈值，手动封禁可疑IP或解封误封的IP</p>
         </div>
       </div>
     </div>
@@ -503,6 +608,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         document.getElementById('quotaInfo').style.display = 'none';
         document.getElementById('noQuotaData').style.display = 'block';
       }
+      else if (tabName === 'ip-blacklist') {
+        loadIPBlacklistConfig();
+        loadIPBlacklist();
+      }
     }
 
     async function loadDashboard() {
@@ -517,6 +626,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         const codeList = codes.results || [];
         document.getElementById('statActiveCodes').textContent = codeList.filter(c => c.status === 'active').length;
         document.getElementById('statUnusedCodes').textContent = codeList.filter(c => c.status === 'unused').length;
+        
+        // 加载封禁IP数量
+        const ipBlacklist = await apiRequest('/ip-blacklist', { showLoading: false });
+        document.getElementById('statBannedIPs').textContent = ipBlacklist.count || 0;
       } catch (error) {
         showToast('加载仪表盘失败', 'error');
       } finally {
@@ -1389,6 +1502,231 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
+    }
+
+    // IP黑名单管理
+    async function loadIPBlacklist() {
+      try {
+        showLoading();
+        const data = await apiRequest('/ip-blacklist', { showLoading: false });
+        const tbody = document.getElementById('ipBlacklistTable');
+        const noDataDiv = document.getElementById('noIPBlacklist');
+
+        if (!data.ips || data.ips.length === 0) {
+          tbody.innerHTML = '';
+          noDataDiv.style.display = 'block';
+          return;
+        }
+
+        noDataDiv.style.display = 'none';
+        const timezone = window.TIMEZONE || 'Asia/Shanghai';
+
+        tbody.innerHTML = data.ips.map(item => \`
+          <tr>
+            <td><span class="code-display">\${escapeHtml(item.ip)}</span></td>
+            <td>\${item.bannedAt ? new Date(item.bannedAt).toLocaleString('zh-CN', { timeZone: timezone }) : '-'}</td>
+            <td>\${escapeHtml(item.reason)}</td>
+            <td>\${item.details ? '<button class="btn btn-sm" onclick="showIPDetails(\\\`' + JSON.stringify(item).replace(/"/g, '&quot;') + '\\\`)">查看</button>' : '-'}</td>
+            <td>
+              <button class="btn btn-sm btn-success" onclick="unbanIP('\${escapeHtml(item.ip)}')">解封</button>
+            </td>
+          </tr>
+        \`).join('');
+
+        document.getElementById('statBannedIPs').textContent = data.count || 0;
+      } catch (error) {
+        console.error('加载IP黑名单失败:', error);
+        showToast('加载失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function unbanIP(ip) {
+      if (!confirm('确定要解封IP ' + ip + ' 吗？')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/ip-blacklist/remove?ip=' + encodeURIComponent(ip), {
+          method: 'DELETE',
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('IP已解封', 'success');
+          loadIPBlacklist();
+        } else {
+          showToast('解封失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        showToast('解封失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function manualBanIP() {
+      const ip = document.getElementById('manualBanIP').value.trim();
+      const reason = document.getElementById('manualBanReason').value.trim();
+
+      if (!ip) {
+        showToast('请输入IP地址', 'error');
+        return;
+      }
+
+      if (!reason) {
+        showToast('请输入封禁原因', 'error');
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/ip-blacklist/ban', {
+          method: 'POST',
+          body: JSON.stringify({ ip, reason }),
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('IP已封禁', 'success');
+          document.getElementById('manualBanIP').value = '';
+          document.getElementById('manualBanReason').value = '';
+          loadIPBlacklist();
+        } else {
+          showToast('封禁失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        showToast('封禁失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function showIPDetails(item) {
+      const details = item.details || {};
+      let detailsText = '封禁IP：' + item.ip + '\\n';
+      detailsText += '封禁时间：' + (item.bannedAt || '-') + '\\n';
+      detailsText += '封禁原因：' + item.reason + '\\n\\n';
+      detailsText += '详细信息：\\n';
+      for (const [key, value] of Object.entries(details)) {
+        detailsText += key + ': ' + value + '\\n';
+      }
+      alert(detailsText);
+    }
+
+    // IP黑名单配置管理
+    async function loadIPBlacklistConfig() {
+      try {
+        showLoading();
+        const data = await apiRequest('/ip-blacklist-config', { showLoading: false });
+
+        if (data.success && data.config) {
+          document.getElementById('ipBlacklistConfigForm').style.display = 'block';
+          document.getElementById('noIPBlacklistConfig').style.display = 'none';
+
+          document.getElementById('subRateMin').value = data.config.sub_rate_min || 1;
+          document.getElementById('subRateHour').value = data.config.sub_rate_hour || 60;
+          document.getElementById('subRateDay').value = data.config.sub_rate_day || 500;
+          document.getElementById('liveRateMin').value = data.config.live_rate_min || 5;
+          document.getElementById('liveRateHour').value = data.config.live_rate_hour || 300;
+          document.getElementById('liveRateDay').value = data.config.live_rate_day || 2000;
+          document.getElementById('adminRateHour').value = data.config.admin_rate_hour || 10;
+        } else {
+          showToast('加载配置失败', 'error');
+        }
+      } catch (error) {
+        showToast('加载配置失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function saveIPBlacklistConfig() {
+      try {
+        showLoading();
+        const config = {
+          sub_rate_min: parseInt(document.getElementById('subRateMin').value),
+          sub_rate_hour: parseInt(document.getElementById('subRateHour').value),
+          sub_rate_day: parseInt(document.getElementById('subRateDay').value),
+          live_rate_min: parseInt(document.getElementById('liveRateMin').value),
+          live_rate_hour: parseInt(document.getElementById('liveRateHour').value),
+          live_rate_day: parseInt(document.getElementById('liveRateDay').value),
+          admin_rate_hour: parseInt(document.getElementById('adminRateHour').value)
+        };
+
+        // 验证配置值
+        if (config.sub_rate_min < 1 || config.sub_rate_min > 60) {
+          showToast('订阅每分钟限制必须在1-60之间', 'error');
+          hideLoading();
+          return;
+        }
+        if (config.sub_rate_hour < 1 || config.sub_rate_hour > 10000) {
+          showToast('订阅每小时限制必须在1-10000之间', 'error');
+          hideLoading();
+          return;
+        }
+        if (config.sub_rate_day < 1 || config.sub_rate_day > 100000) {
+          showToast('订阅每天限制必须在1-100000之间', 'error');
+          hideLoading();
+          return;
+        }
+
+        if (config.live_rate_min < 1 || config.live_rate_min > 60) {
+          showToast('播放每分钟限制必须在1-60之间', 'error');
+          hideLoading();
+          return;
+        }
+        if (config.live_rate_hour < 1 || config.live_rate_hour > 10000) {
+          showToast('播放每小时限制必须在1-10000之间', 'error');
+          hideLoading();
+          return;
+        }
+        if (config.live_rate_day < 1 || config.live_rate_day > 100000) {
+          showToast('播放每天限制必须在1-100000之间', 'error');
+          hideLoading();
+          return;
+        }
+
+        if (config.admin_rate_hour < 1 || config.admin_rate_hour > 1000) {
+          showToast('管理每小时限制必须在1-1000之间', 'error');
+          hideLoading();
+          return;
+        }
+
+        const result = await apiRequest('/ip-blacklist-config', {
+          method: 'POST',
+          body: JSON.stringify(config),
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('配置已保存', 'success');
+        } else {
+          showToast('保存配置失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        showToast('保存配置失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function resetIPBlacklistConfig() {
+      if (!confirm('确定要重置为默认配置吗？\\n订阅：每分钟1次，每小时60次，每天500次\\n播放：每分钟5次，每小时300次，每天2000次\\n管理：每小时10次')) {
+        return;
+      }
+
+      document.getElementById('subRateMin').value = 1;
+      document.getElementById('subRateHour').value = 60;
+      document.getElementById('subRateDay').value = 500;
+      document.getElementById('liveRateMin').value = 5;
+      document.getElementById('liveRateHour').value = 300;
+      document.getElementById('liveRateDay').value = 2000;
+      document.getElementById('adminRateHour').value = 10;
+
+      await saveIPBlacklistConfig();
     }
   </script>
 </body>

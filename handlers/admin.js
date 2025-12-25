@@ -1,6 +1,7 @@
 // 管理后台API处理器
-import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig } from '../database.js';
+import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig } from '../database.js';
 import { manualSyncAll } from './scheduler.js';
+import { getBlacklistedIPs, unbanIP, getIPAccessStats, banIP } from '../security/ip-blacklist.js';
 
 export async function handleAdminRequest(request, env, ctx) {
   const url = new URL(request.url);
@@ -508,6 +509,41 @@ export async function handleAdminRequest(request, env, ctx) {
           headers: { 'Content-Type': 'application/json' }
         });
 
+      case 'ip-blacklist-config':
+        // IP黑名单配置管理
+        if (request.method === 'GET') {
+          const config = await getIPBlacklistConfig();
+          return new Response(JSON.stringify({
+            success: true,
+            config
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'POST') {
+          const data = await request.json();
+
+          // 验证配置值
+          const fields = ['sub_rate_min', 'sub_rate_hour', 'sub_rate_day', 'live_rate_min', 'live_rate_hour', 'live_rate_day', 'admin_rate_hour'];
+          const validConfig = {};
+          
+          for (const field of fields) {
+            if (data[field] !== undefined && data[field] > 0) {
+              validConfig[field] = parseInt(data[field]);
+            }
+          }
+
+          await updateIPBlacklistConfig(validConfig);
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: 'IP黑名单配置已更新',
+            config: validConfig
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        break;
+
       case 'security':
         // 安全监控和管理
         const securitySubAction = pathParts[3];
@@ -704,6 +740,66 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         }
+
+      case 'ip-blacklist':
+        // IP黑名单管理
+        const blacklistSubAction = pathParts[3];
+
+        if (request.method === 'GET' && !blacklistSubAction) {
+          // 获取所有封禁的IP列表（默认返回前100条）
+          const result = await getBlacklistedIPs(env, 100, 0);
+          return new Response(JSON.stringify({
+            success: true,
+            count: result.total,
+            ips: result.data
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'DELETE' && blacklistSubAction === 'remove') {
+          // 解封IP
+          const ip = url.searchParams.get('ip');
+          if (!ip) {
+            return new Response('Missing IP parameter', { status: 400 });
+          }
+
+          await unbanIP(env, ip);
+          return new Response(JSON.stringify({
+            success: true,
+            message: `IP ${ip} has been unbanned`
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'GET' && blacklistSubAction === 'stats') {
+          // 查看IP访问统计
+          const ip = url.searchParams.get('ip');
+          if (!ip) {
+            return new Response('Missing IP parameter', { status: 400 });
+          }
+
+          const stats = await getIPAccessStats(env, ip);
+          return new Response(JSON.stringify({
+            success: true,
+            ip,
+            stats
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'POST' && blacklistSubAction === 'ban') {
+          // 手动封禁IP
+          const data = await request.json();
+          if (!data.ip) {
+            return new Response('Missing IP parameter', { status: 400 });
+          }
+
+          await banIP(env, data.ip, data.reason || 'Manual ban', data.details || {});
+          return new Response(JSON.stringify({
+            success: true,
+            message: `IP ${data.ip} has been banned`
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        break;
 
       default:
         return new Response('Invalid admin action', { status: 400 });

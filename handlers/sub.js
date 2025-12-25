@@ -1,9 +1,20 @@
 // 订阅请求处理器: /sub/{code}.m3u（简化版）
 import { getDB } from '../database.js';
+import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
 
 export async function handleSubRequest(request, env, ctx) {
   const url = new URL(request.url);
   const pathParts = url.pathname.split('/');
+
+  // 0. IP黑名单检查（防止撞库）
+  const clientIP = getClientIP(request);
+  const ipCheck = await checkIPRateLimit(env, ctx, clientIP, '/sub');
+  
+  if (!ipCheck.allowed) {
+    const response = new Response(ipCheck.message, { status: 403 });
+    response.headers.set('X-IP-Blacklisted', 'true');
+    return response;
+  }
   const filename = pathParts[pathParts.length - 1]; // 获取文件名部分，如 "abc123.m3u"
 
   // 从文件名中提取卡密

@@ -1,10 +1,19 @@
 // 播放请求处理器: /live/{code}/{hash}（简化安全版）
 import { getDB, getSecurityConfig } from '../database.js';
+import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
 
 export async function handleLiveRequest(request, env, ctx) {
   try {
     const url = new URL(request.url);
     const pathParts = url.pathname.split('/');
+
+    // 0. IP黑名单检查
+    const clientIP = getClientIP(request);
+    const ipCheck = await checkIPRateLimit(env, ctx, clientIP, '/live');
+    
+    if (!ipCheck.allowed) {
+      return new Response(ipCheck.message, { status: 403 });
+    }
 
     // 验证URL格式
     if (pathParts.length < 4) {
@@ -123,7 +132,6 @@ export async function handleLiveRequest(request, env, ctx) {
     await env.KV.put(quotaKey, JSON.stringify(quotaData), { expirationTtl: 86400 });
 
     // 2.3 IP 并发检测 (KV)
-    const clientIP = request.headers.get("CF-Connecting-IP");
     const ipKey = `ips:${code}`;
     const ipData = await env.KV.get(ipKey, { type: "json" });
     const ipList = ipData || [];
