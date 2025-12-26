@@ -350,24 +350,47 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     // 发送headers到扩展
     function sendHeadersToExtension(url, headers) {
       return new Promise((resolve, reject) => {
-        if (!window.chrome || !window.chrome.runtime) {
-          console.warn('[Extension] Chrome Runtime不可用');
-          reject(new Error('Chrome Runtime不可用'));
+        console.log('[Extension] 尝试发送headers:', headers);
+
+        // 使用 window.IPTVHelper API（由扩展 main-world.js 注入）
+        if (window.IPTVHelper && typeof window.IPTVHelper.addHeaders === 'function') {
+          console.log('[Extension] 使用 IPTVHelper API');
+          window.IPTVHelper.addHeaders(headers, url)  // 传递视频URL
+            .then(() => {
+              console.log('[Extension] Headers已通过 IPTVHelper 发送');
+              resolve();
+            })
+            .catch(error => {
+              console.error('[Extension] IPTVHelper 发送失败:', error);
+              reject(error);
+            });
           return;
         }
 
-        window.chrome.runtime.sendMessage({
-          action: 'autoAddHeaders',
-          url: url,
-          headers: headers
-        }, (response) => {
-          if (response && response.success) {
-            console.log('[Extension] Headers已发送');
-            resolve();
-          } else {
-            reject(new Error('扩展响应失败'));
-          }
-        });
+        // 备用方案：直接使用 chrome.runtime（仅在扩展环境中）
+        if (window.chrome && window.chrome.runtime && window.chrome.runtime.sendMessage) {
+          console.log('[Extension] 使用 chrome.runtime API');
+          window.chrome.runtime.sendMessage({
+            action: 'autoAddHeaders',
+            url: url,
+            headers: headers
+          }, (response) => {
+            if (chrome.runtime.lastError) {
+              console.error('[Extension] chrome.runtime error:', chrome.runtime.lastError);
+              reject(new Error(chrome.runtime.lastError.message));
+            } else if (response && response.success) {
+              console.log('[Extension] Headers已发送');
+              resolve();
+            } else {
+              reject(new Error('扩展响应失败'));
+            }
+          });
+          return;
+        }
+
+        // 两种方式都不可用
+        console.warn('[Extension] 扩展API不可用');
+        reject(new Error('扩展不可用，请安装 IPTV Helper 扩展'));
       });
     }
 
@@ -381,34 +404,38 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     // 检查扩展是否可用
     function checkExtensionAvailable() {
-      // 方法1: 检测 window 标志
+      // 方法1: 检测 IPTVHelper API（最可靠）
+      if (window.IPTVHelper && typeof window.IPTVHelper.addHeaders === 'function') {
+        console.log('[PlayStation] 扩展检测通过: IPTVHelper API 可用');
+        return true;
+      }
+
+      // 方法2: 检测 window 标志
       if (typeof window.EXTENSION_AVAILABLE !== 'undefined' && window.EXTENSION_AVAILABLE) {
+        console.log('[PlayStation] 扩展检测通过: EXTENSION_AVAILABLE 标志');
         return true;
       }
 
-      // 方法2: 检测 DOM 属性
+      // 方法3: 检测 IPTVHelperReady 事件标志
+      if (window.IPTVHelperReady) {
+        console.log('[PlayStation] 扩展检测通过: IPTVHelperReady 标志');
+        return true;
+      }
+
+      // 方法4: 检测 DOM 属性
       if (document.documentElement.getAttribute('data-iptv-extension') === 'available') {
+        console.log('[PlayStation] 扩展检测通过: DOM 属性');
         return true;
       }
 
-      // 方法3: 检测 chrome.runtime
-      if (typeof chrome !== 'undefined' && chrome.runtime) {
-        try {
-          // 尝试发送 ping 消息
-          chrome.runtime.sendMessage({ action: 'ping' }, (response) => {
-            if (response && response.success) {
-              console.log('[PlayStation] 扩展响应 ping:', response);
-              // 设置标志供后续使用
-              window.EXTENSION_AVAILABLE = true;
-            }
-          });
-          // 假设扩展存在（ping 是异步的）
-          return true;
-        } catch (e) {
-          console.log('[PlayStation] Chrome runtime 错误:', e);
-        }
+      // 方法5: 检测 chrome.runtime（备用）
+      if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+        console.log('[PlayStation] chrome.runtime API 存在（异步检查）');
+        // 不在这里发送 ping，因为它是同步检查函数
+        return true;
       }
 
+      console.log('[PlayStation] 扩展检测失败：未找到扩展API');
       return false;
     }
 
@@ -564,6 +591,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       video.pause();
       video.src = '';
       video.load(); // 强制重置
+      
+      // 销毁HLS播放器，停止所有网络请求
+      if (currentHls) {
+        console.log('[Player] Destroying HLS instance');
+        currentHls.destroy();
+        currentHls = null;
+      }
+      
       modal.classList.remove('active');
     }
     
@@ -582,6 +617,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closePlayer();
+      }
+    });
+
+    // 页面卸载时清理资源
+    window.addEventListener('beforeunload', () => {
+      console.log('[Player] Page unloading, cleaning up');
+      if (currentHls) {
+        currentHls.destroy();
+        currentHls = null;
       }
     });
   </script>

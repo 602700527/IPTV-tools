@@ -4,8 +4,14 @@
 // 存储多个源站的headers配置
 let sourceHeaders = [];
 
+// 跟踪已注入的标签页，避免重复注入
+const injectedTabs = new Set();
+
 // 监听扩展安装
 chrome.runtime.onInstalled.addListener((details) => {
+  // 清空注入状态（扩展重新加载后重新注入）
+  injectedTabs.clear();
+
   if (details.reason === 'install') {
     console.log('[IPTV Helper] Extension installed');
     // 初始化默认配置
@@ -36,6 +42,12 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 // 注入 content script 到指定标签页
 function injectContentScript(tabId, url) {
+  // 检查是否已经注入过
+  if (injectedTabs.has(tabId)) {
+    console.log('[Inject] Tab already injected, skipping:', tabId);
+    return;
+  }
+
   console.log('[Inject] Attempting to inject content scripts to tab:', tabId, url);
 
   // 注入 MAIN world 脚本
@@ -61,34 +73,47 @@ function injectContentScript(tabId, url) {
       console.log('[Inject] Failed (ISOLATED):', tabId, url, '-', chrome.runtime.lastError.message);
     } else {
       console.log('[Inject] Success (ISOLATED):', tabId, url);
+      // 标记为已注入
+      injectedTabs.add(tabId);
     }
   });
 }
 
 // 监听来自popup和content script的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('[IPTV Helper] Message received:', request.action);
+  console.log('[Background] Message received:', request.action);
 
   if (request.action === 'updateHeaders') {
     sourceHeaders = request.sources || [];
     updateRules(sourceHeaders);
     sendResponse({ success: true });
+    return true;
   } else if (request.action === 'getHeaders') {
     sendResponse({ sources: sourceHeaders });
+    return true;
   } else if (request.action === 'autoAddHeaders') {
+    console.log('[Background] Processing autoAddHeaders');
+    console.log('[Background] Headers:', request.headers);
+    console.log('[Background] URL:', request.url);
+
     // 网页播放时自动添加headers配置
-    autoAddHeaders(request.headers, request.url);
-    sendResponse({ success: true });
+    const result = autoAddHeaders(request.headers, request.url);
+    sendResponse(result);
+
+    console.log('[Background] autoAddHeaders response sent:', result);
+    return true;
   } else if (request.action === 'addSingleConfig') {
     // 添加单个配置
     addSingleConfig(request.domain, request.headers);
     sendResponse({ success: true });
+    return true;
   } else if (request.action === 'handleRequest') {
     // 处理跨域请求
     handleCorsRequest(request.url, request.init).then(sendResponse);
     return true; // 保持消息通道打开
   } else if (request.action === 'ping') {
-    sendResponse({ success: true, version: '2.1' });
+    sendResponse({ success: true, version: '2.7' });
+    return true;
   } else if (request.action === 'injectHere') {
     // 手动注入到当前标签页
     if (sender.tab && sender.tab.id) {
@@ -108,6 +133,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       return true; // 保持消息通道打开
     } else {
       sendResponse({ success: false, error: 'No tab information' });
+      return true;
     }
   }
 });
@@ -118,7 +144,7 @@ function autoAddHeaders(headers, url) {
     const urlObj = new URL(url);
     const domain = urlObj.hostname;
 
-    console.log('[AutoAdd] 接收到headers for:', domain, headers);
+    console.log('[AutoAdd] Processing headers for:', domain);
 
     // 检查是否已存在
     const existingIndex = sourceHeaders.findIndex(s =>
@@ -126,33 +152,44 @@ function autoAddHeaders(headers, url) {
     );
 
     if (existingIndex >= 0) {
-      console.log('[AutoAdd] 域名已存在，更新配置');
+      // 检查headers是否相同，避免重复更新
+      const existingHeaders = JSON.stringify(sourceHeaders[existingIndex].headers);
+      const newHeadersStr = JSON.stringify(headers);
+
+      if (existingHeaders === newHeadersStr) {
+        console.log('[AutoAdd] Headers unchanged, skipping update');
+        return { success: true, updated: false };
+      }
+
+      console.log('[AutoAdd] Updating existing domain config');
       sourceHeaders[existingIndex].headers = { ...headers };
     } else {
       // 自动添加新配置
       const newSource = {
         domain: domain,
         headers: headers,
-        autoAdded: true, // 标记为自动添加
+        autoAdded: true,
         addedAt: Date.now()
       };
 
       sourceHeaders.push(newSource);
-      console.log('[AutoAdd] 自动添加新源站:', domain);
+      console.log('[AutoAdd] Added new domain:', domain);
     }
 
     updateRules(sourceHeaders);
 
     // 保存到存储
     chrome.storage.local.set({ sources: sourceHeaders }, () => {
-      console.log('[AutoAdd] 已保存到存储');
+      // 静默保存，不输出日志
     });
 
     // 通知content scripts更新
     notifyContentScripts(headers, url);
 
+    return { success: true, updated: true };
   } catch (e) {
-    console.error('[AutoAdd] 错误:', e);
+    console.error('[AutoAdd] Error:', e);
+    return { success: false, error: e.message };
   }
 }
 
@@ -354,12 +391,23 @@ chrome.storage.local.get(['sources'], (result) => {
 
 // 监听标签页更新，确保content script加载
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  // 当页面URL改变时，清除注入状态
+  if (changeInfo.status === 'loading' && tab.url) {
+    injectedTabs.delete(tabId);
+  }
+
   if (changeInfo.status === 'complete' && tab.url) {
     // 注入到所有支持的协议
     if (tab.url.startsWith('http://') || tab.url.startsWith('https://') || tab.url.startsWith('file://')) {
       injectContentScript(tabId, tab.url);
     }
   }
+});
+
+// 监听标签页关闭，清理注入状态
+chrome.tabs.onRemoved.addListener((tabId) => {
+  injectedTabs.delete(tabId);
+  console.log('[TabRemoved] Tab closed:', tabId);
 });
 
 // 监听扩展图标点击

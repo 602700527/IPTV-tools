@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "IPTV Helper",
-  "version": "2.2",
+  "version": "2.7",
   "description": "IPTV播放助手 - 自动添加请求头并解决CORS跨域问题",
   "permissions": [
     "declarativeNetRequest",
