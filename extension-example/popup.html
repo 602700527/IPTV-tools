@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>IPTV Helper</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 400px;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #f5f5f5;
+    }
+    h3 { margin: 0 0 20px 0; color: #333; font-size: 18px; }
+    .version {
+      font-size: 11px;
+      color: #999;
+      margin-left: 10px;
+    }
+    .info-box {
+      background: #e3f2fd;
+      border: 1px solid #2196F3;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      color: #333;
+    }
+    .info-box.success {
+      background: #d4edda;
+      border-color: #28a745;
+    }
+    .cors-box {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      color: #856404;
+    }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .btn:hover { background: #45a049; }
+    .btn.blue { background: #2196F3; }
+    .btn.blue:hover { background: #0b5ed7; }
+    .source-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .source-item {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .source-item:hover { border-color: #4CAF50; }
+    .source-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .source-domain {
+      font-weight: 600;
+      color: #333;
+      font-size: 15px;
+      word-break: break-all;
+    }
+    .auto-badge {
+      margin-left: 8px;
+      padding: 4px 8px;
+      background: #4CAF50;
+      color: white;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    .source-actions button {
+      padding: 6px 12px;
+      margin-left: 6px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .source-actions button:hover { background: #f0f0f0; }
+    .source-actions .edit { color: #2196F3; }
+    .source-actions .delete { color: #dc3545; }
+    .header-item {
+      margin: 8px 0;
+      padding: 8px 10px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .header-item label {
+      display: block;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .header-item input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+    .header-item input:focus {
+      outline: none;
+      border-color: #4CAF50;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+      font-size: 14px;
+    }
+    .status {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 13px;
+      display: none;
+    }
+    .status.success { background: #d4edda; color: #155724; }
+    .status.error { background: #f8d7da; color: #721c24; }
+    .test-section {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #e0e0e0;
+    }
+    .test-input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <h3>IPTV Headers Helper <span class="version">v2.0</span></h3>
+
+  <div class="cors-box">
+    <strong>🛡️ CORS跨域问题已修复</strong>
+    <br><br>
+    插件现在会自动处理CORS跨域问题，确保视频流可以正常播放。
+    <br>
+    支持 fetch、XMLHttpRequest 和 Hls.js。
+  </div>
+
+  <div class="info-box success">
+    <strong>✨ 自动识别功能已启用</strong>
+    <br><br>
+    播放频道时，扩展会自动识别并添加所需的Headers。
+    <br>
+    无需手动配置，首次播放后自动保存！
+  </div>
+
+  <div class="test-section">
+    <button id="addSource" class="btn">➕ 手动添加源站</button>
+  </div>
+
+  <div id="sourceList" class="source-list"></div>
+
+  <div id="emptyState" class="empty-state" style="display: none;">
+    暂无配置的源站<br>
+    <small>播放频道后会自动添加</small>
+  </div>
+
+  <div class="test-section">
+    <h4>测试连接</h4>
+    <input type="text" id="testUrl" class="test-input" placeholder="输入测试URL（如：https://example.com/stream.m3u8）">
+    <button id="testBtn" class="btn blue">🔍 测试Headers</button>
+  </div>
+
+  <button id="saveAll" class="btn blue">🔄 刷新配置列表</button>
+
+  <div id="status" class="status"></div>
+
+  <script>
+    let sources = [];
+
+    // 加载已保存的配置
+    function loadSources() {
+      chrome.storage.local.get(['sources'], (result) => {
+        sources = result.sources || [];
+        renderSources();
+      });
+    }
+
+    // 渲染源站列表
+    function renderSources() {
+      const listEl = document.getElementById('sourceList');
+      const emptyEl = document.getElementById('emptyState');
+
+      if (sources.length === 0) {
+        listEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+        return;
+      }
+
+      emptyEl.style.display = 'none';
+      listEl.innerHTML = sources.map((source, index) =>
+        '<div class="source-item" data-index="' + index + '">' +
+          '<div class="source-header">' +
+            '<span class="source-domain">' + escapeHtml(source.domain) + '</span>' +
+            (source.autoAdded ? '<span class="auto-badge">自动添加</span>' : '') +
+            '<div class="source-actions">' +
+              '<button class="edit" onclick="editSource(' + index + ')">编辑</button>' +
+              '<button class="delete" onclick="deleteSource(' + index + ')">删除</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="headers-list">' +
+            Object.entries(source.headers).map(([key, value]) =>
+              '<div class="header-item">' +
+                '<label>' + escapeHtml(key) + '</label>' +
+                '<input type="text" value="' + escapeHtml(value) + '" readonly>' +
+              '</div>'
+            ).join('') +
+          '</div>' +
+        '</div>'
+      ).join('');
+    }
+
+    // 添加新源站
+    document.getElementById('addSource').onclick = function() {
+      const domain = prompt('请输入源站域名或IP（如：101.35.240.114 或 example.com）:');
+
+      if (domain && domain.trim()) {
+        const headers = prompt(
+          '请输入JSON格式的Headers配置（留空使用默认）:\n默认: {"User-Agent":"iPhone","Referer":"","Accept":"*/*"}',
+          ''
+        );
+
+        let finalHeaders = {
+          'User-Agent': 'iPhone',
+          'Referer': '',
+          'Accept': '*/*'
+        };
+
+        if (headers && headers.trim()) {
+          try {
+            finalHeaders = JSON.parse(headers);
+          } catch (e) {
+            alert('JSON格式错误，使用默认配置');
+          }
+        }
+
+        sources.push({
+          domain: domain.trim(),
+          headers: finalHeaders,
+          autoAdded: false
+        });
+        renderSources();
+      }
+    };
+
+    // 编辑源站
+    window.editSource = function(index) {
+      const source = sources[index];
+      const domain = prompt('修改源站域名/IP:', source.domain);
+
+      if (domain && domain.trim()) {
+        source.domain = domain.trim();
+        renderSources();
+      }
+    };
+
+    // 删除源站
+    window.deleteSource = function(index) {
+      if (confirm('确定删除此源站配置？')) {
+        sources.splice(index, 1);
+        renderSources();
+      }
+    };
+
+    // 测试URL
+    document.getElementById('testBtn').onclick = function() {
+      const testUrl = document.getElementById('testUrl').value.trim();
+
+      if (!testUrl) {
+        showStatus('请输入测试URL', 'error');
+        return;
+      }
+
+      // 检查是否有匹配的配置
+      let matched = false;
+      let matchedHeaders = null;
+
+      try {
+        const urlObj = new URL(testUrl);
+        const hostname = urlObj.hostname;
+
+        matched = sources.some(source => {
+          const sourceDomain = source.domain.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+          if (hostname.includes(sourceDomain) || sourceDomain.includes(hostname)) {
+            matchedHeaders = source.headers;
+            return true;
+          }
+          return false;
+        });
+      } catch (e) {
+        showStatus('URL格式错误', 'error');
+        return;
+      }
+
+      if (matched) {
+        showStatus('✅ 找到匹配配置: ' + JSON.stringify(matchedHeaders), 'success');
+      } else {
+        showStatus('❌ 未找到匹配的配置', 'error');
+      }
+    };
+
+    // 保存所有配置
+    document.getElementById('saveAll').onclick = function() {
+      chrome.storage.local.set({ sources: sources }, function() {
+        showStatus('配置已更新！', 'success');
+        // 通知background更新规则
+        chrome.runtime.sendMessage({
+          action: 'updateHeaders',
+          sources: sources
+        }, function(response) {
+          if (response && response.success) {
+            console.log('Headers updated for', sources.length, 'sources');
+          }
+        });
+      });
+    };
+
+    // 显示状态
+    function showStatus(message, type) {
+      const statusEl = document.getElementById('status');
+      statusEl.innerHTML = message;
+      statusEl.className = 'status ' + type;
+      statusEl.style.display = 'block';
+
+      setTimeout(function() {
+        statusEl.style.display = 'none';
+      }, 3000);
+    }
+
+    // HTML转义
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // 初始化
+    loadSources();
+
+    // 测试扩展连接
+    chrome.runtime.sendMessage({ action: 'ping' }, (response) => {
+      if (response && response.success) {
+        console.log('[Popup] Extension is working, version:', response.version);
+      } else {
+        console.error('[Popup] Extension not responding');
+      }
+    });
+  </script>
+</body>
+</html>

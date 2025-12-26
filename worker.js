@@ -5,9 +5,10 @@ import { handleSubRequest } from './handlers/sub.js';
 import { handleAdminRequest } from './handlers/admin.js';
 import { handleScheduledEvent } from './handlers/scheduler.js';
 import { handleUserActivate } from './handlers/user.js';
+import { handlePublicChannels, handlePublicPlay, handleChannelDebug } from './handlers/public.js';
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
-import { LANDING_HTML } from './landing-page.js';
+import { PLAYSTATION_HTML } from './playstation-page.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -18,12 +19,33 @@ export default {
       const url = new URL(request.url);
       const path = url.pathname;
 
+    // CORS预检请求处理
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': '*',
+          'Access-Control-Max-Age': '86400'
+        }
+      });
+    }
+
     // 路由处理
     if (path === '/' || path === '') {
-      // 首页 - 显示门户页面
-      return new Response(LANDING_HTML, {
+      // 首页 - 显示交互式播放站
+      return new Response(PLAYSTATION_HTML, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
+    } else if (path === '/api/channels') {
+      // 公开频道列表API（无需卡密）
+      return await handlePublicChannels(request, env, ctx);
+    } else if (path === '/api/debug') {
+      // 调试接口 - 查看频道headers信息
+      return await handleChannelDebug(request, env, ctx);
+    } else if (path.startsWith('/api/play/')) {
+      // 公开播放API（无需卡密）
+      return await handlePublicPlay(request, env, ctx);
     } else if (path === '/activate' || path === '/activate/' || path === '/activate/index' || path === '/activate/index.html') {
       // 用户激活页面
       const timezone = env.TIMEZONE || 'Asia/Shanghai';
