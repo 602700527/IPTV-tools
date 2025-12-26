@@ -2,6 +2,7 @@
 import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig } from '../database.js';
 import { manualSyncAll } from './scheduler.js';
 import { getBlacklistedIPs, unbanIP, getIPAccessStats, banIP } from '../security/ip-blacklist.js';
+import { getBannedCodesFromCache, removeBannedCodeFromCache, syncBannedCodesToCache } from '../security/code-ban-cache.js';
 
 export async function handleAdminRequest(request, env, ctx) {
   const url = new URL(request.url);
@@ -549,21 +550,23 @@ export async function handleAdminRequest(request, env, ctx) {
         const securitySubAction = pathParts[3];
 
         if (request.method === 'GET' && securitySubAction === 'banned-codes') {
-          // 获取所有被封禁的卡密列表
-          const db = getDB();
-          const now = new Date().toISOString();
-          const bannedCodes = await db.prepare(`
-            SELECT code, status, duration_days, activated_at, expired_at, max_ips, remark, banned_until
-            FROM codes
-            WHERE banned_until IS NOT NULL AND banned_until > ?
-            ORDER BY banned_until DESC
-          `).bind(now).all();
+          // 获取所有被封禁的卡密列表 - 优先从KV缓存读取
+          let codes = [];
+          const cacheResult = await getBannedCodesFromCache(env, 100, 0);
+          codes = cacheResult.data;
 
-          const results = bannedCodes.results || [];
+          // 如果KV缓存为空，从数据库同步
+          if (codes.length === 0) {
+            const db = getDB();
+            await syncBannedCodesToCache(env, db);
+            const cacheResult2 = await getBannedCodesFromCache(env, 100, 0);
+            codes = cacheResult2.data;
+          }
+
           return new Response(JSON.stringify({
             success: true,
-            count: results.length,
-            codes: results
+            count: cacheResult.total,
+            codes
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
@@ -680,6 +683,9 @@ export async function handleAdminRequest(request, env, ctx) {
           await getDB().prepare("UPDATE codes SET status = 'active', remark = ?, banned_until = NULL WHERE code = ?")
             .bind(newRemark, code)
             .run();
+
+          // 从KV缓存中移除
+          await removeBannedCodeFromCache(env, code);
 
           // 清除额度记录
           const today = new Date().toISOString().split('T')[0];

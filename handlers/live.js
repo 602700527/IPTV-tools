@@ -1,6 +1,7 @@
 // 播放请求处理器: /live/{code}/{hash}（简化安全版）
 import { getDB, getSecurityConfig } from '../database.js';
 import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
+import { addBannedCodeToCache } from '../security/code-ban-cache.js';
 
 export async function handleLiveRequest(request, env, ctx) {
   try {
@@ -84,6 +85,12 @@ export async function handleLiveRequest(request, env, ctx) {
         await db.prepare("UPDATE codes SET status = 'disabled', remark = ?, banned_until = ? WHERE code = ?")
           .bind(newRemark, bannedUntil.toISOString(), code)
           .run();
+
+        // 添加到封禁卡密KV缓存
+        const codeInfo = await db.prepare("SELECT code, status, duration_days, activated_at, expired_at, max_ips, remark, banned_until FROM codes WHERE code = ?").bind(code).first();
+        if (codeInfo) {
+          await addBannedCodeToCache(env, codeInfo);
+        }
 
         // 记录封禁信息到KV
         const quotaKey = `code_quota:${today}:${code}`;
