@@ -223,6 +223,12 @@ export async function parseM3UContent(content, sourceId) {
   const channels = [];
   let globalHeaders = {};
 
+  // 确保 sourceId 是整数
+  sourceId = parseInt(sourceId);
+  if (isNaN(sourceId) || sourceId <= 0) {
+    throw new Error('Invalid source ID');
+  }
+
   // 提取全局头部信息（User-Agent等）
   const extm3uMatch = content.match(/^#EXTM3U\s*(.*)$/m);
   if (extm3uMatch) {
@@ -252,10 +258,20 @@ export async function parseM3UContent(content, sourceId) {
     // 解析 EXTINF 行
     const extinfLine = '#EXTINF:' + lines[0];
 
-    // 提取频道名称
-    const nameMatch = extinfLine.match(/,(.+)$/);
+    // 提取频道名称 - 改进：从最后一个逗号后提取，避免误匹配 URL 中的逗号
+    const nameMatch = extinfLine.match(/,([^,\n]+)$/);
     if (nameMatch) {
       currentChannel.channel_name = nameMatch[1].trim();
+    } else {
+      // 如果没有找到频道名，尝试提取 tvg-id 作为备用
+      const idMatch = extinfLine.match(/tvg-id="([^"]+)"/i);
+      if (idMatch) {
+        currentChannel.channel_name = idMatch[1].trim();
+      } else {
+        // 完全没有频道名，使用 "Unknown" 避免把 URL 当成频道名
+        currentChannel.channel_name = 'Unknown';
+        console.warn('[Sync] No channel name found for line:', extinfLine.substring(0, 100));
+      }
     }
 
     // 提取组名
@@ -342,10 +358,27 @@ export async function parseM3UContent(content, sourceId) {
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     currentChannel.channel_hash = hashHex.substring(0, 8); // 取前8位
 
+    // 确保所有字段都有值，避免 null/undefined 导致类型错误
+    currentChannel.channel_name = currentChannel.channel_name || 'Unknown';
+    currentChannel.group_title = currentChannel.group_title || '';
+    currentChannel.logo = currentChannel.logo || '';
+
     // 将headers转为JSON字符串（如果为空则存空对象）
     currentChannel.headers = Object.keys(currentChannel.headers).length > 0
       ? JSON.stringify(currentChannel.headers)
       : JSON.stringify({});
+
+    // 数据验证：限制字段长度（D1 单行限制约 1MB）
+    if (currentChannel.channel_name && currentChannel.channel_name.length > 500) {
+      currentChannel.channel_name = currentChannel.channel_name.substring(0, 500);
+    }
+    if (currentChannel.play_url && currentChannel.play_url.length > 2000) {
+      console.warn(`[Sync] URL too long, truncating: ${currentChannel.play_url.substring(0, 50)}...`);
+      continue; // 跳过过长的URL
+    }
+    if (currentChannel.logo && currentChannel.logo.length > 500) {
+      currentChannel.logo = currentChannel.logo.substring(0, 500);
+    }
 
     channels.push(currentChannel);
   }
@@ -360,7 +393,7 @@ export async function parseM3UContent(content, sourceId) {
       const statements = batch.map(channel =>
         db.prepare(`
           INSERT INTO channels (source_id, channel_name, group_title, logo, play_url, headers, channel_hash, is_active)
-          VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `).bind(
           channel.source_id,
           channel.channel_name,
@@ -368,13 +401,23 @@ export async function parseM3UContent(content, sourceId) {
           channel.logo || '',
           channel.play_url,
           channel.headers,
-          channel.channel_hash
+          channel.channel_hash,
+          1  // is_active 使用数字1
         )
       );
 
-      await db.batch(statements);
-      processedCount += batch.length;
-      console.log(`Batch processed: ${processedCount}/${channels.length}`);
+      try {
+        await db.batch(statements);
+        processedCount += batch.length;
+        console.log(`[Sync] Batch processed: ${processedCount}/${channels.length}`);
+      } catch (batchError) {
+        console.error(`[Sync] Batch insert error at batch ${i}:`, batchError);
+        // 记录第一个失败的数据用于调试
+        if (batch.length > 0) {
+          console.error('[Sync] First channel data:', batch[0]);
+        }
+        throw batchError;
+      }
     }
   }
 
@@ -384,12 +427,15 @@ export async function parseM3UContent(content, sourceId) {
 // 从远程URL获取M3U内容并解析
 export async function fetchAndParseM3U(sourceUrl, sourceId) {
   try {
+    console.log(`[Sync] Fetching M3U from: ${sourceUrl}`);
     const response = await fetch(sourceUrl);
     if (!response.ok) {
-      throw new Error(`Failed to fetch M3U: ${response.status}`);
+      throw new Error(`Failed to fetch M3U: ${response.status} ${response.statusText}`);
     }
 
     const content = await response.text();
+    console.log(`[Sync] M3U content size: ${content.length} bytes`);
+
     const channelCount = await parseM3UContent(content, sourceId);
 
     // 更新源的最后更新时间（使用 JavaScript 生成当前时间）
@@ -399,9 +445,11 @@ export async function fetchAndParseM3U(sourceUrl, sourceId) {
       UPDATE sources SET last_updated = ? WHERE id = ?
     `).bind(now, sourceId).run();
 
+    console.log(`[Sync] Successfully parsed ${channelCount} channels`);
     return { success: true, channelCount };
   } catch (error) {
-    console.error('Error fetching and parsing M3U:', error);
+    console.error(`[Sync] Error fetching and parsing M3U: ${error.message}`);
+    console.error(`[Sync] Stack:`, error.stack);
     return { success: false, error: error.message };
   }
 }
