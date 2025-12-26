@@ -3,16 +3,20 @@
 
 'use strict';
 
-console.log('[IPTV Helper] Main world script loaded at', new Date().toISOString());
+// 防止重复加载
+if (window.IPTVHelperReady) {
+  console.log('[IPTV Helper] ⚠️ Script already loaded, skipping initialization');
+} else {
+  console.log('[IPTV Helper] Main world script loaded at', new Date().toISOString());
 
-// 设置扩展可用标志
-window.EXTENSION_AVAILABLE = true;
-window.IPTVHelperReady = true;
-console.log('[IPTV Helper] ✅ EXTENSION_AVAILABLE flag set in MAIN world');
+  // 设置扩展可用标志
+  window.EXTENSION_AVAILABLE = true;
+  window.IPTVHelperReady = true;
+  console.log('[IPTV Helper] ✅ EXTENSION_AVAILABLE flag set in MAIN world');
 
-// 创建与 ISOLATED world 的通信
-const BRIDGE_ID = 'iptv-helper-bridge-' + Date.now();
-let requestId = 0;
+  // 创建与 ISOLATED world 的通信
+  const BRIDGE_ID = 'iptv-helper-bridge-' + Date.now();
+  let requestId = 0;
 
 // 暴露 API 给页面使用
 window.IPTVHelper = {
@@ -33,7 +37,7 @@ window.IPTVHelper = {
       // 通过 postMessage 发送到 ISOLATED world
       window.postMessage(message, '*');
 
-      // 监听响应
+          // 监听响应
       const handler = function(event) {
         if (event.data &&
             event.data.bridgeId === BRIDGE_ID &&
@@ -108,3 +112,4 @@ window.dispatchEvent(new CustomEvent('iptvExtensionReady', {
 }));
 
 console.log('[IPTV Helper] ✅ Extension ready event dispatched');
+}
