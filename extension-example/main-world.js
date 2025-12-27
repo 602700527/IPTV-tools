@@ -55,16 +55,16 @@
         const handler = function(event) {
           console.log('[IPTV Helper MAIN] proxyRequest handler received:', event.data);
 
+          // 过滤请求消息（有url字段），只处理响应消息（没有url字段）
+          if (event.data.url) {
+            console.log('[IPTV Helper MAIN] proxyRequest handler: Skipping request message (has url field)');
+            return;
+          }
+
           if (!event.data ||
               event.data.bridgeId !== BRIDGE_ID ||
               event.data.requestId !== id) {
             console.log('[IPTV Helper MAIN] proxyRequest handler: message mismatch');
-            return;
-          }
-
-          // 过滤请求消息（有url字段），只处理响应消息（没有url字段）
-          if (event.data.url !== undefined) {
-            console.log('[IPTV Helper MAIN] proxyRequest handler: Skipping request message (has url field)');
             return;
           }
 
@@ -121,9 +121,9 @@
             return;
           }
 
-          // 忽略请求消息（请求有headers，响应没有headers）
-          if (event.data.headers) {
-            console.log('[IPTV Helper MAIN] ⏭ Skipping request message (has headers)');
+          // 忽略请求消息（响应消息有 error 或 success 字段，或者 headers 但没有 url）
+          if (event.data.url) {
+            console.log('[IPTV Helper MAIN] ⏭ Skipping request message (has url field)');
             return;
           }
 

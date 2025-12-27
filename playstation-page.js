@@ -149,6 +149,21 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let searchTimeout = null;
     let currentHls = null;
 
+    // 对URL中的查询参数进行编码（处理中文等非ASCII字符）
+    function encodeUrlParams(url) {
+      try {
+        const urlObj = new URL(url);
+        // 只编码查询参数，不编码整个URL
+        const params = new URLSearchParams(urlObj.search);
+        // 重新构建查询参数（URLSearchParams会自动编码）
+        urlObj.search = params.toString();
+        return urlObj.toString();
+      } catch (e) {
+        console.error('URL编码失败:', e);
+        return url;
+      }
+    }
+
     // 页面加载时获取频道列表
     window.addEventListener('DOMContentLoaded', () => {
       loadChannels();
@@ -529,6 +544,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     // 启动HLS播放
     function startHlsPlay(playUrl, video, headers) {
       console.log('开始播放:', playUrl);
+
+      // 暂时不编码URL中的查询参数，因为某些服务器可能不支持编码后的中文
+      // playUrl = encodeUrlParams(playUrl);
+      // console.log('编码后的URL:', playUrl);
 
       // 检测源类型
       const isHls = playUrl.includes('.m3u8') ||

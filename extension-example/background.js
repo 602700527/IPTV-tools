@@ -266,51 +266,119 @@ function addSingleConfig(domain, headers) {
 
 // 处理代理请求（解决Mixed Content问题）
 async function handleProxyRequest(url, headers) {
-  console.log('[Proxy] Handling proxy request for:', url);
-  console.log('[Proxy] Headers:', headers);
-  console.log('[Proxy] Headers JSON:', JSON.stringify(headers));
+  console.log('[Proxy] V4 - Handling proxy request for:', url);
+  console.log('[Proxy] V4 - Headers:', headers);
+  console.log('[Proxy] V4 - Headers JSON:', JSON.stringify(headers));
 
+  // 根据抓包信息分析，不设置 Referer 或者设为空
+  const adjustedHeaders = { ...headers };
+  if (adjustedHeaders['Referer']) {
+    console.log('[Proxy] V4 - 原始 Referer:', adjustedHeaders['Referer']);
+    // 尝试移除 Referer（某些服务器可能会检查 Referer）
+    delete adjustedHeaders['Referer'];
+    console.log('[Proxy] V4 - 已移除 Referer');
+  }
+
+  // 提取 URL 的查询部分，手动重新编码中文参数
+  let finalUrl = url;
   try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: headers || {},
-      mode: 'cors'
-    });
+    const [baseUrl, queryString] = url.split('?');
 
-    console.log('[Proxy] Response status:', response.status);
+    if (queryString) {
+      console.log('[Proxy] V4 - 查询字符串:', queryString);
 
-    // 检查HTTP状态码，只有2xx才视为成功
-    if (!response.ok) {
+      // 检查是否包含中文
+      const hasChinese = /[\u4e00-\u9fa5]/.test(queryString);
+      console.log('[Proxy] V4 - 是否包含中文:', hasChinese);
+
+      if (hasChinese) {
+        // 使用 URLSearchParams 重新编码
+        const params = new URLSearchParams(queryString);
+        const newQueryString = params.toString();
+        finalUrl = `${baseUrl}?${newQueryString}`;
+        console.log('[Proxy] V4 - 重新编码后的 URL:', finalUrl);
+      } else {
+        console.log('[Proxy] V4 - 查询参数不包含中文，保持原样');
+      }
+    }
+  } catch (e) {
+    console.error('[Proxy] V4 - URL 编码处理失败:', e);
+    finalUrl = url;
+  }
+
+  console.log('[Proxy] V4 - 最终 URL:', finalUrl);
+
+  let lastError = null;
+
+  // 只尝试 GET 方法（根据抓包信息，成功的请求是 GET）
+  const methods = ['GET'];
+
+  for (const method of methods) {
+    console.log(`[Proxy] 尝试 ${method} URL:`, finalUrl);
+    console.log(`[Proxy] ${method} Headers:`, JSON.stringify(adjustedHeaders));
+
+    try {
+      let fetchOptions = {
+        method: method,
+        headers: adjustedHeaders || {},
+        redirect: 'follow',  // 重要：跟随重定向
+        credentials: 'omit'
+      };
+
+      const response = await fetch(finalUrl, fetchOptions);
+      console.log(`[Proxy] ${method} Response status:`, response.status);
+
+      // 302 也会被 fetch 跟随重定向
+      if (response.ok || response.status === 302 || response.status === 301 || response.status === 307 || response.status === 308) {
+        // 获取响应体为ArrayBuffer
+        const arrayBuffer = await response.arrayBuffer();
+
+        // 将ArrayBuffer转为base64字符串
+        const base64 = btoa(String.fromCharCode.apply(null, new Uint8Array(arrayBuffer)));
+
+        console.log(`[Proxy] ${method} 成功! 状态码: ${response.status}`);
+        return {
+          success: true,
+          data: base64,
+          mimeType: response.headers.get('Content-Type') || 'video/mp2t',
+          status: response.status,
+          headers: Object.fromEntries(response.headers.entries())
+        };
+      }
+
       const mimeType = response.headers.get('Content-Type') || 'unknown';
-      console.error('[Proxy] HTTP error:', response.status, mimeType);
-      return {
+      console.error(`[Proxy] ${method} HTTP error:`, response.status, mimeType);
+
+      // 读取响应内容用于调试
+      let errorContent = '';
+      try {
+        errorContent = await response.text();
+        if (errorContent.length > 500) {
+          errorContent = errorContent.substring(0, 500) + '...';
+        }
+        console.error(`[Proxy] ${method} Response body:`, errorContent);
+      } catch (e) {
+        console.error('[Proxy] Failed to read response body:', e);
+      }
+
+      lastError = {
         success: false,
         error: `HTTP ${response.status} - ${mimeType}`,
         status: response.status,
         mimeType: mimeType
       };
+
+    } catch (error) {
+      console.error(`[Proxy] ${method} Request failed:`, error);
+      lastError = {
+        success: false,
+        error: error.message
+      };
     }
-
-    // 获取响应体为ArrayBuffer（可以在ISOLATED world中创建Blob）
-    const arrayBuffer = await response.arrayBuffer();
-
-    // 将ArrayBuffer转为base64字符串
-    const base64 = btoa(String.fromCharCode.apply(null, new Uint8Array(arrayBuffer)));
-
-    return {
-      success: true,
-      data: base64,
-      mimeType: response.headers.get('Content-Type') || 'video/mp2t',
-      status: response.status,
-      headers: Object.fromEntries(response.headers.entries())
-    };
-  } catch (error) {
-    console.error('[Proxy] Request failed:', error);
-    return {
-      success: false,
-      error: error.message
-    };
   }
+
+  // 所有方法都失败了，返回最后一个错误
+  return lastError;
 }
 
 // 处理CORS请求
