@@ -137,7 +137,39 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     </div>
     <div id="sources" class="tab-content">
       <div class="card">
-        <div class="toolbar"><h3>直播源列表</h3><div><button class="btn btn-success" onclick="syncAllSources()">同步全部</button><button class="btn btn-primary" onclick="showSourceModal()">添加源</button></div></div>
+        <div class="toolbar">
+          <h3>直播源列表</h3>
+          <div style="display:flex;gap:16px;">
+            <button class="btn btn-success" onclick="syncAllSources()">同步全部</button>
+            <button class="btn btn-primary" onclick="showSourceModal()">添加源</button>
+            <button class="btn" onclick="toggleSyncFilter()">同步过滤</button>
+          </div>
+        </div>
+        <div id="syncFilterPanel" class="card" style="display:none;padding:16px;background:#f9f9fb;">
+          <h4 style="margin-bottom:12px;font-weight:600;">同步过滤规则</h4>
+          <p style="margin-bottom:16px;color:#86868b;font-size:14px;">在同步源时，可以根据分组名、播放地址或频道名排除不需要的频道。留空则不过滤。</p>
+          <div class="form-row">
+            <div class="form-group">
+              <label>排除分组名（包含以下关键字的分组将不被同步）</label>
+              <textarea id="syncExcludeGroups" rows="3" placeholder="例如：电影, 电视剧, 体育&#10;或者每行一个：&#10;电影&#10;电视剧&#10;体育" style="font-family:monospace;font-size:13px;"></textarea>
+            </div>
+            <div class="form-group">
+              <label>排除播放地址（包含以下关键字的URL将不被同步）</label>
+              <textarea id="syncExcludeUrls" rows="3" placeholder="例如：example.com, test.com, ads" style="font-family:monospace;font-size:13px;"></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>排除频道名（包含以下关键字的频道将不被同步）</label>
+              <textarea id="syncExcludeNames" rows="3" placeholder="例如：测试, 预告, 广告" style="font-family:monospace;font-size:13px;"></textarea>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="btn btn-primary" onclick="saveSyncFilters()">保存规则</button>
+            <button class="btn" onclick="clearSyncFilters()">清空规则</button>
+            <button class="btn" onclick="toggleSyncFilter()">收起</button>
+          </div>
+        </div>
         <table><thead><tr><th>ID</th><th>名称</th><th>类型</th><th>解析模式</th><th>状态</th><th>频道数</th><th>最后更新</th><th>操作</th></tr></thead><tbody id="sourcesTable"></tbody></table>
       </div>
       <div class="card">
@@ -778,6 +810,9 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
     async function loadSources() {
       try {
         showLoading();
+        // 加载之前保存的过滤规则
+        loadSyncFilters();
+
         const sources = await apiRequest('/sources', { showLoading: false });
         const sourceList = sources.results || sources;
         const tbody = document.getElementById('sourcesTable');
@@ -915,7 +950,32 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
       showLoading();
       showToast('开始同步所有源，这可能需要几分钟...', 'info');
       try {
-        const result = await apiRequest('/sync/all', { method: 'POST' });
+        // 获取过滤规则（支持逗号和换行符分隔）
+        const excludeGroups = document.getElementById('syncExcludeGroups').value
+          .split(new RegExp('[\\n,]+'))
+          .map(s => s.trim())
+          .filter(s => s.length > 0);
+        const excludeUrls = document.getElementById('syncExcludeUrls').value
+          .split(new RegExp('[\\n,]+'))
+          .map(s => s.trim())
+          .filter(s => s.length > 0);
+        const excludeNames = document.getElementById('syncExcludeNames').value
+          .split(new RegExp('[\\n,]+'))
+          .map(s => s.trim())
+          .filter(s => s.length > 0);
+
+        const filter = {
+          excludeGroups,
+          excludeUrls,
+          excludeNames
+        };
+
+        console.log('Sync filter:', filter); // 调试日志
+
+        const result = await apiRequest('/sync/all', {
+          method: 'POST',
+          body: JSON.stringify(filter)
+        });
         if (result.success) {
           const summary = \`同步完成：\${result.success_count}个成功，\${result.fail_count}个失败\`;
           showToast(summary, result.fail_count > 0 ? 'error' : 'success');
@@ -947,10 +1007,68 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
       showToast('请手动在 wrangler.toml 中配置cron表达式: ' + cronExpression + '\\n然后在Cloudflare控制台重新部署Worker', 'info');
     }
 
+    function toggleSyncFilter() {
+      const panel = document.getElementById('syncFilterPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function clearSyncFilters() {
+      document.getElementById('syncExcludeGroups').value = '';
+      document.getElementById('syncExcludeUrls').value = '';
+      document.getElementById('syncExcludeNames').value = '';
+      showToast('已清空同步过滤规则', 'success');
+    }
+
+    function saveSyncFilters() {
+      const filters = {
+        excludeGroups: document.getElementById('syncExcludeGroups').value,
+        excludeUrls: document.getElementById('syncExcludeUrls').value,
+        excludeNames: document.getElementById('syncExcludeNames').value
+      };
+      localStorage.setItem('syncFilters', JSON.stringify(filters));
+      showToast('过滤规则已保存', 'success');
+    }
+
+    function loadSyncFilters() {
+      const saved = localStorage.getItem('syncFilters');
+      if (saved) {
+        try {
+          const filters = JSON.parse(saved);
+          document.getElementById('syncExcludeGroups').value = filters.excludeGroups || '';
+          document.getElementById('syncExcludeUrls').value = filters.excludeUrls || '';
+          document.getElementById('syncExcludeNames').value = filters.excludeNames || '';
+        } catch (e) {
+          console.error('Failed to load sync filters:', e);
+        }
+      }
+    }
+
     async function syncSource(id) {
       // 设置同步状态
       setSyncStatus('syncing');
       showToast('同步任务已开始，可以在后台继续执行', 'info');
+
+      // 获取过滤规则（支持逗号和换行符分隔）
+      const excludeGroups = document.getElementById('syncExcludeGroups').value
+        .split(new RegExp('[\\n,]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      const excludeUrls = document.getElementById('syncExcludeUrls').value
+        .split(new RegExp('[\\n,]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      const excludeNames = document.getElementById('syncExcludeNames').value
+        .split(new RegExp('[\\n,]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      const filter = {
+        excludeGroups,
+        excludeUrls,
+        excludeNames
+      };
+
+      console.log('Sync filter:', filter); // 调试日志
 
       // 后台执行同步，不等待结果
       const syncUrl = API_BASE + '/sync/' + id;
@@ -961,7 +1079,8 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
         headers: {
           'X-Admin-Key': adminKey,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify(filter)
       })
       .then(res => res.json())
       .then(result => {

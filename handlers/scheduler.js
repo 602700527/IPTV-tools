@@ -92,12 +92,12 @@ export async function handleScheduledEvent(event, env, ctx) {
 }
 
 // 手动触发同步（用于测试或立即同步）
-export async function manualSyncAll(env) {
+export async function manualSyncAll(env, filter = null) {
   try {
     // 获取所有启用的数据源
     const sources = await getDB().prepare(`
-      SELECT id, name, url, type, parse_mode 
-      FROM sources 
+      SELECT id, name, url, type, parse_mode
+      FROM sources
       WHERE is_active = 1
       ORDER BY id
     `).all();
@@ -116,7 +116,7 @@ export async function manualSyncAll(env) {
         const oldChannelCount = oldCountResult?.count || 0;
 
         await getDB().prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
-        const syncResult = await fetchAndParseM3U(source.url, source.id);
+        const syncResult = await fetchAndParseM3U(source.url, source.id, filter);
 
         if (syncResult.success) {
           results.push({

@@ -266,7 +266,7 @@ export async function updateSecurityConfig(config) {
 }
 
 // 解析M3U内容并提取频道信息
-export async function parseM3UContent(content, sourceId) {
+export async function parseM3UContent(content, sourceId, filter = {}) {
   const db = getDB();
   const channels = [];
   let globalHeaders = {};
@@ -418,6 +418,39 @@ export async function parseM3UContent(content, sourceId) {
       // 忽略URL解析错误
     }
 
+    // 应用过滤条件（如果提供了）
+    if (filter) {
+      // 过滤分组名
+      if (filter.excludeGroups && filter.excludeGroups.length > 0) {
+        if (currentChannel.group_title && filter.excludeGroups.some(keyword =>
+          currentChannel.group_title.toLowerCase().includes(keyword.toLowerCase())
+        )) {
+          console.log(`[Filter] Excluding group: "${currentChannel.group_title}" (matched keyword: ${filter.excludeGroups.find(k => currentChannel.group_title.toLowerCase().includes(k.toLowerCase()))})`);
+          continue;
+        }
+      }
+
+      // 过滤播放地址
+      if (filter.excludeUrls && filter.excludeUrls.length > 0) {
+        if (currentChannel.play_url && filter.excludeUrls.some(keyword =>
+          currentChannel.play_url.toLowerCase().includes(keyword.toLowerCase())
+        )) {
+          console.log(`[Filter] Excluding URL: "${currentChannel.play_url}" (matched keyword: ${filter.excludeUrls.find(k => currentChannel.play_url.toLowerCase().includes(k.toLowerCase()))})`);
+          continue;
+        }
+      }
+
+      // 过滤频道名
+      if (filter.excludeNames && filter.excludeNames.length > 0) {
+        if (currentChannel.channel_name && filter.excludeNames.some(keyword =>
+          currentChannel.channel_name.toLowerCase().includes(keyword.toLowerCase())
+        )) {
+          console.log(`[Filter] Excluding channel: "${currentChannel.channel_name}" (matched keyword: ${filter.excludeNames.find(k => currentChannel.channel_name.toLowerCase().includes(k.toLowerCase()))})`);
+          continue;
+        }
+      }
+    }
+
     // 生成channel_hash (SHA-256)
     const encoder = new TextEncoder();
     const data = encoder.encode(urlLine);
@@ -493,9 +526,12 @@ export async function parseM3UContent(content, sourceId) {
 }
 
 // 从远程URL获取M3U内容并解析
-export async function fetchAndParseM3U(sourceUrl, sourceId) {
+export async function fetchAndParseM3U(sourceUrl, sourceId, filter = null) {
   try {
     console.log(`[Sync] Fetching M3U from: ${sourceUrl}`);
+    if (filter) {
+      console.log(`[Sync] Filters:`, filter);
+    }
     const response = await fetch(sourceUrl);
     if (!response.ok) {
       throw new Error(`Failed to fetch M3U: ${response.status} ${response.statusText}`);
@@ -504,7 +540,7 @@ export async function fetchAndParseM3U(sourceUrl, sourceId) {
     const content = await response.text();
     console.log(`[Sync] M3U content size: ${content.length} bytes`);
 
-    const channelCount = await parseM3UContent(content, sourceId);
+    const channelCount = await parseM3UContent(content, sourceId, filter);
 
     // 更新源的最后更新时间（使用 JavaScript 生成当前时间）
     const db = getDB();
