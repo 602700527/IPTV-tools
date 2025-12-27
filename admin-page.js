@@ -2154,6 +2154,19 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
 
         if (data.success) {
           homepageConfig = data.config;
+
+          // 兼容旧数据：将字符串的hasHeaders转换为布尔值
+          if (typeof homepageConfig.hasHeaders === 'string') {
+            if (homepageConfig.hasHeaders === 'null') {
+              homepageConfig.hasHeaders = null;
+            } else if (homepageConfig.hasHeaders === 'true') {
+              homepageConfig.hasHeaders = true;
+            } else if (homepageConfig.hasHeaders === 'false') {
+              homepageConfig.hasHeaders = false;
+            }
+            console.log('[loadHomepageDisplayConfig] 兼容旧数据，hasHeaders从字符串转换:', homepageConfig.hasHeaders);
+          }
+
           // 保存系统识别的域名，用于区分手动添加的域名
           homepageConfig.systemHosts = data.options.hosts || [];
 
@@ -2242,7 +2255,17 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
 
     function updateHomepageConfig(type, value, checked) {
       if (type === 'hasHeaders') {
-        homepageConfig.hasHeaders = value;
+        // 将字符串转换为布尔值
+        if (value === 'null') {
+          homepageConfig.hasHeaders = null;
+        } else if (value === 'true') {
+          homepageConfig.hasHeaders = true;
+        } else if (value === 'false') {
+          homepageConfig.hasHeaders = false;
+        } else {
+          homepageConfig.hasHeaders = value;
+        }
+        console.log('[updateHomepageConfig] hasHeaders更新为:', homepageConfig.hasHeaders, '原始值:', value);
       } else if (type === 'hosts') {
         if (checked) {
           if (!homepageConfig.hosts.includes(value)) {

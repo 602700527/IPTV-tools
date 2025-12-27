@@ -206,12 +206,17 @@ export async function handlePublicChannels(request, env, ctx) {
 
     // 如果配置了请求头过滤
     if (displayConfig.hasHeaders !== null && displayConfig.hasHeaders !== undefined) {
+      console.log('[PublicChannels] hasHeaders过滤配置:', displayConfig.hasHeaders);
       if (displayConfig.hasHeaders === true) {
         // 只显示有请求头的频道（headers不为空且不为'{}'）
-        whereConditions.push(`(c.headers IS NOT NULL AND c.headers != '{}' AND c.headers != '')`);
+        const condition = `(c.headers IS NOT NULL AND c.headers <> '{}' AND c.headers <> '')`;
+        console.log('[PublicChannels] 只显示有请求头:', condition);
+        whereConditions.push(condition);
       } else {
         // 只显示没有请求头的频道（headers为空、'{}'或NULL）
-        whereConditions.push(`(c.headers IS NULL OR c.headers = '{}' OR c.headers = '')`);
+        const condition = `(c.headers IS NULL OR c.headers = '{}' OR c.headers = '')`;
+        console.log('[PublicChannels] 只显示无请求头:', condition);
+        whereConditions.push(condition);
       }
     }
 
@@ -227,9 +232,12 @@ export async function handlePublicChannels(request, env, ctx) {
 
     const whereClause = whereConditions.join(' AND ');
 
+    console.log('[PublicChannels] WHERE条件:', whereClause);
+    console.log('[PublicChannels] 查询参数:', params);
+
     // 获取所有频道（不限制数量）
     const channelsResult = await db.prepare(`
-      SELECT c.id, c.channel_name, c.group_title, c.logo, c.channel_hash, c.source_id, s.name as source_name
+      SELECT c.id, c.channel_name, c.group_title, c.logo, c.channel_hash, c.source_id, s.name as source_name, c.headers
       FROM channels c
       INNER JOIN sources s ON c.source_id = s.id
       WHERE ${whereClause}

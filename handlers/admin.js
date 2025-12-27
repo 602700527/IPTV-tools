@@ -631,8 +631,10 @@ export async function handleAdminRequest(request, env, ctx) {
           const validConfig = {
             sources: Array.isArray(data.sources) ? data.sources : [],
             groups: Array.isArray(data.groups) ? data.groups : [],
-            hosts: Array.isArray(data.hosts) ? data.hosts : []
+            hosts: Array.isArray(data.hosts) ? data.hosts : [],
+            hasHeaders: data.hasHeaders !== undefined ? data.hasHeaders : null
           };
+          console.log('[admin/homepage-display] 保存配置，hasHeaders:', validConfig.hasHeaders);
 
           await updateHomepageDisplayConfig(validConfig);
 
