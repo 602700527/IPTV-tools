@@ -4,7 +4,7 @@
 (function() {
   'use strict';
 
-  const CURRENT_VERSION = '2.7';
+  const CURRENT_VERSION = '3.8';
 
   // 使用 UUID 而不是 Date.now() 避免冲突
   const BRIDGE_ID = 'iptv-helper-' + crypto.randomUUID();
@@ -35,6 +35,66 @@
 
   // 暴露 API 给页面使用
   window.IPTVHelper = {
+    // 代理HTTP请求（解决Mixed Content问题）
+    proxyRequest: async function(url, headers) {
+      console.log('[IPTV Helper] proxyRequest called:', url);
+      console.log('[IPTV Helper] proxyRequest headers:', headers);
+      console.log('[IPTV Helper] proxyRequest headers JSON:', JSON.stringify(headers));
+
+      return new Promise((resolve, reject) => {
+        const id = ++requestId;
+
+        const message = {
+          bridgeId: BRIDGE_ID,
+          requestId: id,
+          action: 'proxyRequest',
+          url: url,
+          headers: headers
+        };
+
+        const handler = function(event) {
+          console.log('[IPTV Helper MAIN] proxyRequest handler received:', event.data);
+
+          if (!event.data ||
+              event.data.bridgeId !== BRIDGE_ID ||
+              event.data.requestId !== id) {
+            console.log('[IPTV Helper MAIN] proxyRequest handler: message mismatch');
+            return;
+          }
+
+          // 过滤请求消息（有url字段），只处理响应消息（没有url字段）
+          if (event.data.url !== undefined) {
+            console.log('[IPTV Helper MAIN] proxyRequest handler: Skipping request message (has url field)');
+            return;
+          }
+
+          console.log('[IPTV Helper MAIN] proxyRequest handler: MATCHED, success:', event.data.success, 'error:', event.data.error);
+
+          clearTimeout(timer);
+          window.removeEventListener('message', handler);
+          pendingRequests.delete(id);
+
+          if (event.data.success) {
+            resolve(event.data);
+          } else {
+            reject(new Error(event.data.error || 'Proxy request failed'));
+          }
+        };
+
+        const timer = setTimeout(() => {
+          window.removeEventListener('message', handler);
+          pendingRequests.delete(id);
+          reject(new Error('Proxy request timeout'));
+        }, 30000); // 30秒超时（视频流可能需要更长时间）
+
+        pendingRequests.set(id, { resolve, reject, handler, timer });
+
+        // 通过ISOLATED world发送（因为MAIN world无法访问chrome.runtime）
+        window.addEventListener('message', handler);
+        window.postMessage(message, '*');
+      });
+    },
+
     addHeaders: async function(headers, targetUrl) {
       const id = ++requestId;
       console.log('[IPTV Helper] addHeaders called, request ID:', id, 'targetUrl:', targetUrl);

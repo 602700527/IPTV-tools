@@ -14,7 +14,7 @@ export async function handleChannelDebug(request, env, ctx) {
   try {
     const db = getDB();
     const channel = await db.prepare(`
-      SELECT channel_name, group_title, logo, play_url, headers
+      SELECT channel_name, group_title, logo, play_url, headers, id, source_id
       FROM channels
       WHERE channel_hash = ? AND is_active = 1
     `).bind(hash).first();

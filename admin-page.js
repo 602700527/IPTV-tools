@@ -120,6 +120,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab" onclick="showTab('codes')">卡密管理</button>
       <button class="nav-tab" onclick="showTab('security')">安全监控</button>
       <button class="nav-tab" onclick="showTab('ip-blacklist')">IP黑名单</button>
+      <button class="nav-tab" onclick="showTab('sql')">SQL Query</button>
     </div>
     <div id="dashboard" class="tab-content active">
       <div class="card">
@@ -403,6 +404,29 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <p style="margin-bottom:16px;">超出访问频率会自动封禁IP，保护系统安全</p>
           <p><strong>✅ 管理员操作：</strong></p>
           <p>可以在上方配置调整限制阈值，手动封禁可疑IP或解封误封的IP</p>
+        </div>
+      </div>
+    </div>
+    <div id="sql" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>SQL Query</h3>
+        </div>
+        <div class="form-group">
+          <label>SQL Statement</label>
+          <textarea id="sqlQuery" rows="6" placeholder="Enter SQL query, e.g.:
+SELECT channel_name, headers, play_url 
+FROM channels 
+WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:20px;">
+          <button class="btn btn-primary" onclick="executeSQL()">Execute</button>
+          <button class="btn" onclick="clearSQLResult()">Clear</button>
+        </div>
+        <div id="sqlResult" style="display:none;">
+          <h4 style="margin-bottom:10px;">Query Results</h4>
+          <div id="sqlResultCount" style="margin-bottom:10px;color:#666;"></div>
+          <div id="sqlResultTable" style="overflow-x:auto;"></div>
         </div>
       </div>
     </div>
@@ -1834,6 +1858,83 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       document.getElementById('adminRateHour').value = 10;
 
       await saveIPBlacklistConfig();
+    }
+
+    // SQL Query Function
+    async function executeSQL() {
+      const sql = document.getElementById('sqlQuery').value.trim();
+      if (!sql) {
+        showToast('Please enter SQL query', 'error');
+        return;
+      }
+
+      showLoading();
+
+      try {
+        const result = await apiRequest('/sql', {
+          method: 'POST',
+          body: JSON.stringify({ sql: sql }),
+          showLoading: false
+        });
+
+        if (result.success) {
+          displaySQLResult(result.results, result.meta);
+        } else {
+          showToast('Query failed: ' + (result.error || 'Unknown error'), 'error');
+        }
+      } catch (error) {
+        showToast('Query failed: ' + error.message, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function displaySQLResult(results, meta) {
+      const container = document.getElementById('sqlResult');
+      const countDiv = document.getElementById('sqlResultCount');
+      const tableDiv = document.getElementById('sqlResultTable');
+
+      if (!results || results.length === 0) {
+        container.style.display = 'none';
+        return;
+      }
+
+      container.style.display = 'block';
+      countDiv.textContent = 'Total: ' + results.length + ' records';
+
+      // Generate table headers
+      const columns = Object.keys(results[0]);
+      let tableHTML = '<table><thead><tr>';
+      columns.forEach(col => {
+        tableHTML += '<th>' + escapeHtml(col) + '</th>';
+      });
+      tableHTML += '</tr></thead><tbody>';
+
+      // 生成数据行
+      results.forEach(row => {
+        tableHTML += '<tr>';
+        columns.forEach(col => {
+          let value = row[col];
+          // Format JSON object
+          if (typeof value === 'object' && value !== null) {
+            value = '<pre style="margin:0;padding:5px;background:#f5f5f5;font-size:12px;">' + escapeHtml(JSON.stringify(value, null, 2)) + '</pre>';
+          } else if (value === null || value === undefined) {
+            value = '<span style="color:#999;">NULL</span>';
+          } else {
+            value = escapeHtml(String(value));
+          }
+          tableHTML += '<td>' + value + '</td>';
+        });
+        tableHTML += '</tr>';
+      });
+
+      tableHTML += '</tbody></table>';
+      tableDiv.innerHTML = tableHTML;
+    }
+
+    function clearSQLResult() {
+      document.getElementById('sqlResult').style.display = 'none';
+      document.getElementById('sqlQuery').value = '';
     }
   </script>
 </body>

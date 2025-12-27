@@ -1,8 +1,8 @@
 // IPTV Helper - Content Script (ISOLATED World)
-// Version: 2.7 - Fixed handler receiving request messages instead of responses
+// Version: 3.8 - Added detailed logs for headers in main-world.js
 // 简化版本，只保留最新实例
 
-console.log('[IPTV Helper] Content script loaded, version: 2.7');
+console.log('[IPTV Helper] Content script loaded, version: 3.8');
 
 // 检查是否有旧实例，如果有则清理
 if (window.IPTV_HELPER_CLEANUP && typeof window.IPTV_HELPER_CLEANUP === 'function') {
@@ -60,10 +60,10 @@ window.iptvMessageHandler = function(event) {
   const { bridgeId, requestId } = event.data;
   const uid = `${bridgeId}-${requestId}`;
 
-  // 忽略响应消息（响应只有bridgeId/requestId/action/success字段，没有headers）
+  // 忽略响应消息（响应没有url字段，只有请求才有url）
   // 只有请求消息才需要处理
-  if (!event.data.headers && event.data.action === 'addHeaders') {
-    console.log('[IPTV Helper ISOLATED] ⏭ Skipping response message (not a request)');
+  if (!event.data.url) {
+    console.log('[IPTV Helper ISOLATED] ⏭ Skipping response message (no url field)');
     return; // 这是一个响应，不是请求
   }
 
@@ -80,6 +80,92 @@ window.iptvMessageHandler = function(event) {
     }
   }
   window.iptvProcessedRequests.set(uid, Date.now());
+
+  // 处理 proxyRequest 请求（从MAIN world转发）
+  if (event.data.action === 'proxyRequest') {
+    const { url, headers } = event.data;
+
+    console.log('[IPTV Helper ISOLATED] Processing proxyRequest for:', url);
+
+    // 调用background处理代理请求
+    chrome.runtime.sendMessage({
+      action: 'proxyRequest',
+      url: url,
+      headers: headers
+    }, (response) => {
+      console.log('[IPTV Helper ISOLATED] Background proxy response:', response);
+
+      const error = chrome.runtime.lastError;
+      let blobUrl = null;
+
+      // ISOLATED world可以创建blob URL
+      if (response?.success && response?.data) {
+        // 检查HTTP状态码和内容类型
+        const status = response?.status || 0;
+        const mimeType = response?.mimeType || '';
+
+        // 只处理成功的视频响应（status=200且是视频类型）
+        if (status === 200 && (mimeType.startsWith('video/') || mimeType.startsWith('application/'))) {
+          try {
+            // 将base64转回ArrayBuffer
+            const binaryString = atob(response.data);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            // 创建Blob和URL
+            const blob = new Blob([bytes], { type: mimeType });
+            blobUrl = URL.createObjectURL(blob);
+            console.log('[IPTV Helper ISOLATED] Created blob URL:', blobUrl, 'mimeType:', mimeType);
+          } catch (e) {
+            console.error('[IPTV Helper ISOLATED] Failed to create blob:', e);
+          }
+        } else {
+          // HTTP错误或非视频类型
+          console.error('[IPTV Helper ISOLATED] Invalid response - Status:', status, 'MimeType:', mimeType);
+        }
+      }
+
+      const responseData = {
+        bridgeId: event.data.bridgeId,
+        requestId: event.data.requestId,
+        action: 'proxyRequest',
+        success: response?.success && blobUrl !== null && !error,
+        blobUrl: blobUrl,
+        status: response?.status || null,
+        headers: response?.headers || null,
+        error: null
+      };
+
+      // 设置错误信息
+      if (error) {
+        responseData.error = error.message;
+        responseData.success = false;
+      } else if (!response?.success) {
+        responseData.error = response?.error || 'Proxy request failed';
+        responseData.success = false;
+      } else if (!blobUrl) {
+        // 没有创建blob URL（可能是404或非视频内容）
+        const status = response?.status || 0;
+        const mimeType = response?.mimeType || '';
+        if (status >= 400) {
+          responseData.error = `HTTP ${status} - ${mimeType || 'Server Error'}`;
+        } else if (mimeType && !mimeType.startsWith('video/')) {
+          responseData.error = `Invalid content type: ${mimeType}`;
+        } else {
+          responseData.error = 'Failed to create blob URL';
+        }
+        responseData.success = false;
+      }
+
+      console.log('[IPTV Helper ISOLATED] 📤 Posting response to MAIN world:', responseData);
+
+      // 发送响应回MAIN world
+      window.postMessage(responseData, '*');
+    });
+    return;
+  }
 
   // 处理 addHeaders 请求
   if (event.data.action === 'addHeaders') {

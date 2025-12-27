@@ -300,8 +300,28 @@ export async function parseM3UContent(content, sourceId) {
       currentChannel.headers['User-Agent'] = uaMatch3[1];
     }
 
-    // 提取 Referer
-    const refererMatch = extinfLine.match(/referer\s*=\s*"([^"]+)"/i);
+    // 提取 http-header (格式: http-header="Key=Value" 或 http-header="Key: Value")
+    const httpHeaderMatch = extinfLine.match(/http-header\s*=\s*"([^"]+)"/i);
+    if (httpHeaderMatch) {
+      // 先尝试用 = 分割（APTV格式）
+      let parts = httpHeaderMatch[1].split('=', 2);
+      // 如果 = 分割不成功或值包含多个等号，尝试用 : 分割
+      if (parts.length !== 2 || parts[0].trim() === '') {
+        parts = httpHeaderMatch[1].split(':', 2);
+      }
+      if (parts.length === 2) {
+        const headerKey = parts[0].trim();
+        const headerValue = parts[1].trim();
+        currentChannel.headers[headerKey] = headerValue;
+      }
+    }
+
+    // 提取 Referer（支持 http-referer 和 referer 两种格式）
+    const httpRefererMatch = extinfLine.match(/http-referer\s*=\s*"([^"]+)"/i);
+    if (httpRefererMatch) {
+      currentChannel.headers['Referer'] = httpRefererMatch[1];
+    }
+    const refererMatch = extinfLine.match(/(?:^|[^-])referer\s*=\s*"([^"]+)"/i);
     if (refererMatch) {
       currentChannel.headers['Referer'] = refererMatch[1];
     }

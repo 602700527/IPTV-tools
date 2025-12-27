@@ -111,8 +111,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // 处理跨域请求
     handleCorsRequest(request.url, request.init).then(sendResponse);
     return true; // 保持消息通道打开
+  } else if (request.action === 'proxyRequest') {
+    // 代理HTTP请求（解决Mixed Content问题）
+    handleProxyRequest(request.url, request.headers).then(sendResponse);
+    return true; // 保持消息通道打开
   } else if (request.action === 'ping') {
-    sendResponse({ success: true, version: '2.7' });
+    sendResponse({ success: true, version: '3.1' });
     return true;
   } else if (request.action === 'injectHere') {
     // 手动注入到当前标签页
@@ -257,6 +261,55 @@ function addSingleConfig(domain, headers) {
 
   } catch (e) {
     console.error('[AddConfig] 错误:', e);
+  }
+}
+
+// 处理代理请求（解决Mixed Content问题）
+async function handleProxyRequest(url, headers) {
+  console.log('[Proxy] Handling proxy request for:', url);
+  console.log('[Proxy] Headers:', headers);
+  console.log('[Proxy] Headers JSON:', JSON.stringify(headers));
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: headers || {},
+      mode: 'cors'
+    });
+
+    console.log('[Proxy] Response status:', response.status);
+
+    // 检查HTTP状态码，只有2xx才视为成功
+    if (!response.ok) {
+      const mimeType = response.headers.get('Content-Type') || 'unknown';
+      console.error('[Proxy] HTTP error:', response.status, mimeType);
+      return {
+        success: false,
+        error: `HTTP ${response.status} - ${mimeType}`,
+        status: response.status,
+        mimeType: mimeType
+      };
+    }
+
+    // 获取响应体为ArrayBuffer（可以在ISOLATED world中创建Blob）
+    const arrayBuffer = await response.arrayBuffer();
+
+    // 将ArrayBuffer转为base64字符串
+    const base64 = btoa(String.fromCharCode.apply(null, new Uint8Array(arrayBuffer)));
+
+    return {
+      success: true,
+      data: base64,
+      mimeType: response.headers.get('Content-Type') || 'video/mp2t',
+      status: response.status,
+      headers: Object.fromEntries(response.headers.entries())
+    };
+  } catch (error) {
+    console.error('[Proxy] Request failed:', error);
+    return {
+      success: false,
+      error: error.message
+    };
   }
 }
 

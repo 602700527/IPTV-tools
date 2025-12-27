@@ -90,13 +90,24 @@ export async function handleSubRequest(request, env, ctx) {
     // 添加请求头信息
     try {
       const headers = JSON.parse(channel.headers || '{}');
+      // 处理User-Agent
       if (headers['User-Agent']) {
         const ua = headers['User-Agent'].replace(/"/g, '\\"');
         infoParts.push(`http-user-agent="${ua}"`);
       }
+      // 处理Referer（支持多种变体）
       if (headers['Referer']) {
         const referer = headers['Referer'].replace(/"/g, '\\"');
+        infoParts.push(`http-header="Referer: ${referer}"`);
         infoParts.push(`referer="${referer}"`);
+      }
+      // 处理其他自定义headers
+      for (const [key, value] of Object.entries(headers)) {
+        if (key !== 'User-Agent' && key !== 'Referer') {
+          const safeKey = key.replace(/"/g, '\\"');
+          const safeValue = value.replace(/"/g, '\\"');
+          infoParts.push(`http-header="${safeKey}: ${safeValue}"`);
+        }
       }
     } catch (e) {
       // headers 解析失败，忽略
