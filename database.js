@@ -114,7 +114,9 @@ export async function createTables(env) {
     'live_rate_min': '5',
     'live_rate_hour': '300',
     'live_rate_day': '2000',
-    'admin_rate_hour': '10'
+    'admin_rate_hour': '10',
+    // 首页展示配置（JSON格式）
+    'homepage_display_config': '{}'
   };
 
   for (const [key, value] of Object.entries(defaultSettings)) {
@@ -184,7 +186,7 @@ export async function updateIPBlacklistConfig(config) {
   const db = getDB();
 
   const fields = ['sub_rate_min', 'sub_rate_hour', 'sub_rate_day', 'live_rate_min', 'live_rate_hour', 'live_rate_day', 'admin_rate_hour'];
-  
+
   for (const field of fields) {
     if (config[field] !== undefined && config[field] > 0) {
       await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
@@ -192,6 +194,52 @@ export async function updateIPBlacklistConfig(config) {
         .run();
     }
   }
+}
+
+// 获取首页展示配置
+export async function getHomepageDisplayConfig() {
+  const db = getDB();
+  const result = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('homepage_display_config').first();
+
+  if (!result) {
+    // 返回默认配置（空，表示展示所有）
+    return {
+      sources: [], // 启用的数据源ID列表，空表示全部
+      groups: [],  // 启用的分类列表，空表示全部
+      hosts: [],    // 启用的host列表，空表示全部
+      hasHeaders: null, // null=全部, true=有请求头, false=无请求头
+      manualHosts: [] // 手动添加的域名列表
+    };
+  }
+
+  try {
+    const config = JSON.parse(result.value);
+    return {
+      sources: config.sources || [],
+      groups: config.groups || [],
+      hosts: config.hosts || [],
+      hasHeaders: config.hasHeaders !== undefined ? config.hasHeaders : null,
+      manualHosts: config.manualHosts || []
+    };
+  } catch (e) {
+    console.error('Failed to parse homepage_display_config:', e);
+    return {
+      sources: [],
+      groups: [],
+      hosts: [],
+      hasHeaders: null,
+      manualHosts: []
+    };
+  }
+}
+
+// 更新首页展示配置
+export async function updateHomepageDisplayConfig(config) {
+  const db = getDB();
+  const configJson = JSON.stringify(config);
+  await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+    .bind(configJson, 'homepage_display_config')
+    .run();
 }
 
 // 更新安全配置

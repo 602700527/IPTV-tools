@@ -120,6 +120,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab" onclick="showTab('codes')">卡密管理</button>
       <button class="nav-tab" onclick="showTab('security')">安全监控</button>
       <button class="nav-tab" onclick="showTab('ip-blacklist')">IP黑名单</button>
+      <button class="nav-tab" onclick="showTab('homepage-display')">首页展示</button>
       <button class="nav-tab" onclick="showTab('sql')">SQL Query</button>
     </div>
     <div id="dashboard" class="tab-content active">
@@ -407,6 +408,74 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
       </div>
     </div>
+    <div id="homepage-display" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>首页展示配置</h3>
+          <button class="btn btn-primary" onclick="saveHomepageDisplayConfig()">保存配置</button>
+        </div>
+        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            配置首页展示哪些数据源、分类、host或请求头。留空表示展示全部数据。
+          </p>
+          <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius:4px;">
+            <strong style="color:#e65100;">注意：</strong>
+            <ul style="margin:8px 0 0 20px;color:#666;">
+              <li>数据源、分类、host、请求头四个条件是"或(OR)"关系，只要满足任一条件就会展示</li>
+              <li>例如：选择了数据源1和分类A，那么数据源1的所有频道和分类A的所有频道都会展示</li>
+              <li>"只显示有请求头"：只展示配置了 User-Agent、Referer 等请求头的频道</li>
+              <li>"只显示无请求头"：只展示未配置请求头的频道</li>
+              <li>域名部分会自动显示系统识别的域名，也支持手动输入域名</li>
+              <li>手动添加的域名可以点击"删除"按钮移除</li>
+              <li>清空所有选项后会展示所有频道数据</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <h4 style="margin-bottom:12px;font-weight:600;">数据源</h4>
+          <div id="sourceCheckboxes" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
+            <div style="color:#86868b;">加载中...</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <h4 style="margin-bottom:12px;font-weight:600;">分类</h4>
+          <div id="groupCheckboxes" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
+            <div style="color:#86868b;">加载中...</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <h4 style="margin-bottom:12px;font-weight:600;">Host（域名）</h4>
+          <div style="margin-bottom:12px;display:flex;gap:8px;">
+            <input type="text" id="manualHostInput" placeholder="输入域名，例如：example.com" style="flex:1;padding:8px 12px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;">
+            <button class="btn btn-primary" onclick="addManualHost()">添加域名</button>
+          </div>
+          <div id="hostCheckboxes" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
+            <div style="color:#86868b;">加载中...</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <h4 style="margin-bottom:12px;font-weight:600;">是否含有请求头</h4>
+          <div style="display:flex;gap:16px;align-items:center;">
+            <label style="display:flex;align-items:center;padding:10px 20px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+              <input type="radio" name="hasHeaders" value="null" checked onchange="updateHomepageConfig('hasHeaders', null)" style="margin-right:8px;">
+              <span style="font-size:14px;">全部</span>
+            </label>
+            <label style="display:flex;align-items:center;padding:10px 20px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+              <input type="radio" name="hasHeaders" value="true" onchange="updateHomepageConfig('hasHeaders', true)" style="margin-right:8px;">
+              <span style="font-size:14px;">只显示有请求头</span>
+            </label>
+            <label style="display:flex;align-items:center;padding:10px 20px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+              <input type="radio" name="hasHeaders" value="false" onchange="updateHomepageConfig('hasHeaders', false)" style="margin-right:8px;">
+              <span style="font-size:14px;">只显示无请求头</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
     <div id="sql" class="tab-content">
       <div class="card">
         <div class="toolbar">
@@ -659,6 +728,7 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
         loadIPBlacklistConfig();
         loadIPBlacklist();
       }
+      else if (tabName === 'homepage-display') loadHomepageDisplayConfig();
     }
 
     async function loadDashboard() {
@@ -1935,6 +2005,217 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
     function clearSQLResult() {
       document.getElementById('sqlResult').style.display = 'none';
       document.getElementById('sqlQuery').value = '';
+    }
+
+    // 首页展示配置管理
+    let homepageConfig = {
+      sources: [],
+      groups: [],
+      hosts: [],
+      hasHeaders: null,
+      manualHosts: [] // 跟踪手动添加的域名
+    };
+
+    async function loadHomepageDisplayConfig() {
+      try {
+        showLoading();
+        const data = await apiRequest('/homepage-display', { showLoading: false });
+
+        if (data.success) {
+          homepageConfig = data.config;
+          // 保存系统识别的域名，用于区分手动添加的域名
+          homepageConfig.systemHosts = data.options.hosts || [];
+
+          // 确保 manualHosts 数组存在
+          if (!homepageConfig.manualHosts) {
+            homepageConfig.manualHosts = [];
+          }
+
+          // 合并系统识别的域名和手动添加的域名（去重）
+          const allHosts = [...new Set([...homepageConfig.systemHosts, ...homepageConfig.manualHosts])];
+          const optionsWithHosts = { ...data.options, hosts: allHosts };
+          renderHomepageOptions(optionsWithHosts);
+        } else {
+          showToast('加载配置失败', 'error');
+        }
+      } catch (error) {
+        showToast('加载配置失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function renderHomepageOptions(options) {
+      // 渲染数据源选项
+      const sourcesContainer = document.getElementById('sourceCheckboxes');
+      if (options.sources && options.sources.length > 0) {
+        sourcesContainer.innerHTML = options.sources.map(source => {
+          const isChecked = homepageConfig.sources.includes(source.id) ? 'checked' : '';
+          return \`
+            <label style="display:flex;align-items:center;padding:8px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;transition:all .2s;">
+              <input type="checkbox" value="\${source.id}" \${isChecked} onchange="updateHomepageConfig('sources', \${source.id}, this.checked)" style="margin-right:8px;">
+              <span style="font-size:14px;">\${escapeHtml(source.name)}</span>
+            </label>
+          \`;
+        }).join('');
+      } else {
+        sourcesContainer.innerHTML = '<div style="color:#86868b;">暂无数据源</div>';
+      }
+
+      // 渲染分类选项
+      const groupsContainer = document.getElementById('groupCheckboxes');
+      if (options.groups && options.groups.length > 0) {
+        groupsContainer.innerHTML = options.groups.map(group => {
+          const isChecked = homepageConfig.groups.includes(group) ? 'checked' : '';
+          return \`
+            <label style="display:flex;align-items:center;padding:8px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;transition:all .2s;">
+              <input type="checkbox" value="\${escapeHtml(group)}" \${isChecked} onchange="updateHomepageConfig('groups', '\${escapeHtml(group)}', this.checked)" style="margin-right:8px;">
+              <span style="font-size:14px;">\${escapeHtml(group)}</span>
+            </label>
+          \`;
+        }).join('');
+      } else {
+        groupsContainer.innerHTML = '<div style="color:#86868b;">暂无分类</div>';
+      }
+
+      // 渲染host选项（只渲染选中的域名）
+      const hostsContainer = document.getElementById('hostCheckboxes');
+      if (homepageConfig.hosts && homepageConfig.hosts.length > 0) {
+        hostsContainer.innerHTML = homepageConfig.hosts.map(host => {
+          const isChecked = true; // 都在 homepageConfig.hosts 中，所以都是选中状态
+          const isManual = !homepageConfig.systemHosts || !homepageConfig.systemHosts.includes(host);
+          return \`
+            <label style="display:flex;align-items:center;padding:8px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;transition:all .2s;position:relative;">
+              <input type="checkbox" value="\${escapeHtml(host)}" checked onchange="updateHomepageConfig('hosts', '\${escapeHtml(host)}', this.checked)" style="margin-right:8px;">
+              <span style="font-size:14px;flex:1;">\${escapeHtml(host)}</span>
+              \${isManual ? '<button onclick="event.stopPropagation();removeManualHost(\\\`' + escapeHtml(host) + '\\\`)" style="padding:2px 8px;font-size:11px;margin-left:8px;border:1px solid #ff3b30;background:white;color:#ff3b30;border-radius:4px;cursor:pointer;">删除</button>' : ''}
+            </label>
+          \`;
+        }).join('');
+      } else {
+        hostsContainer.innerHTML = '<div style="color:#86868b;">暂无选中的Host，请从下方添加或手动输入</div>';
+      }
+
+      // 渲染"是否含有请求头"选项
+      const hasHeadersRadios = document.getElementsByName('hasHeaders');
+      for (const radio of hasHeadersRadios) {
+        if (homepageConfig.hasHeaders === null && radio.value === 'null') {
+          radio.checked = true;
+        } else if (homepageConfig.hasHeaders === true && radio.value === 'true') {
+          radio.checked = true;
+        } else if (homepageConfig.hasHeaders === false && radio.value === 'false') {
+          radio.checked = true;
+        }
+      }
+    }
+
+    function updateHomepageConfig(type, value, checked) {
+      if (type === 'hasHeaders') {
+        homepageConfig.hasHeaders = value;
+      } else if (type === 'hosts') {
+        if (checked) {
+          if (!homepageConfig.hosts.includes(value)) {
+            homepageConfig.hosts.push(value);
+          }
+        } else {
+          // 取消选中：从 hosts 中移除
+          homepageConfig.hosts = homepageConfig.hosts.filter(item => item !== value);
+          // 如果是手动添加的域名，同时从 manualHosts 中移除
+          if (homepageConfig.manualHosts && homepageConfig.manualHosts.includes(value)) {
+            homepageConfig.manualHosts = homepageConfig.manualHosts.filter(item => item !== value);
+          }
+        }
+      } else {
+        if (checked) {
+          if (!homepageConfig[type].includes(value)) {
+            homepageConfig[type].push(value);
+          }
+        } else {
+          homepageConfig[type] = homepageConfig[type].filter(item => item !== value);
+        }
+      }
+    }
+
+    function addManualHost() {
+      const input = document.getElementById('manualHostInput');
+      const host = input.value.trim();
+
+      if (!host) {
+        showToast('请输入域名', 'error');
+        return;
+      }
+
+      // 验证域名格式（简单验证）
+      const domainRegex = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?$/;
+      if (!domainRegex.test(host)) {
+        showToast('域名格式不正确，请输入有效的域名', 'error');
+        return;
+      }
+
+      // 检查是否已在配置中存在
+      if (homepageConfig.hosts.includes(host)) {
+        showToast('该域名已存在', 'error');
+        return;
+      }
+
+      // 添加到配置中并自动选中
+      homepageConfig.hosts.push(host);
+      // 记录为手动添加的域名
+      if (!homepageConfig.manualHosts) {
+        homepageConfig.manualHosts = [];
+      }
+      homepageConfig.manualHosts.push(host);
+      input.value = '';
+
+      // 重新渲染列表
+      loadHomepageDisplayConfig();
+      showToast('域名已添加', 'success');
+    }
+
+    function removeManualHost(host) {
+      if (!confirm('确定要删除域名 ' + host + ' 吗？')) {
+        return;
+      }
+
+      // 从配置中移除
+      homepageConfig.hosts = homepageConfig.hosts.filter(item => item !== host);
+      // 从手动添加的域名列表中移除
+      if (homepageConfig.manualHosts) {
+        homepageConfig.manualHosts = homepageConfig.manualHosts.filter(item => item !== host);
+      }
+
+      // 重新渲染列表
+      loadHomepageDisplayConfig();
+      showToast('域名已删除', 'success');
+    }
+
+    async function saveHomepageDisplayConfig() {
+      try {
+        showLoading();
+        // 只保存需要的字段
+        const configToSave = {
+          sources: homepageConfig.sources,
+          groups: homepageConfig.groups,
+          hosts: homepageConfig.hosts,
+          hasHeaders: homepageConfig.hasHeaders,
+          manualHosts: homepageConfig.manualHosts || [] // 保存手动添加的域名列表
+        };
+        const result = await apiRequest('/homepage-display', {
+          method: 'POST',
+          body: JSON.stringify(configToSave),
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('首页展示配置已保存', 'success');
+        } else {
+          showToast('保存配置失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        showToast('保存配置失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
     }
   </script>
 </body>

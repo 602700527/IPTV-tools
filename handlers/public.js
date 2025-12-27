@@ -1,5 +1,5 @@
 // 公开播放列表API - 无需卡密
-import { getDB } from '../database.js';
+import { getDB, getHomepageDisplayConfig } from '../database.js';
 
 // 调试接口 - 查看频道信息
 export async function handleChannelDebug(request, env, ctx) {
@@ -177,9 +177,43 @@ export async function handlePublicChannels(request, env, ctx) {
 
     const db = getDB();
 
+    // 获取首页展示配置
+    const displayConfig = await getHomepageDisplayConfig();
+
     // 构建查询条件
     let whereConditions = ['c.is_active = 1', 's.is_active = 1'];
     let params = [];
+
+    // 如果配置了数据源过滤
+    if (displayConfig.sources && displayConfig.sources.length > 0) {
+      const placeholders = displayConfig.sources.map(() => '?').join(',');
+      whereConditions.push(`c.source_id IN (${placeholders})`);
+      params.push(...displayConfig.sources);
+    }
+
+    // 如果配置了分类过滤
+    if (displayConfig.groups && displayConfig.groups.length > 0) {
+      const placeholders = displayConfig.groups.map(() => '?').join(',');
+      whereConditions.push(`c.group_title IN (${placeholders})`);
+      params.push(...displayConfig.groups);
+    }
+
+    // 如果配置了host过滤
+    if (displayConfig.hosts && displayConfig.hosts.length > 0) {
+      const hostConditions = displayConfig.hosts.map(host => `c.play_url LIKE '%${host}%'`).join(' OR ');
+      whereConditions.push(`(${hostConditions})`);
+    }
+
+    // 如果配置了请求头过滤
+    if (displayConfig.hasHeaders !== null && displayConfig.hasHeaders !== undefined) {
+      if (displayConfig.hasHeaders === true) {
+        // 只显示有请求头的频道（headers不为空且不为'{}'）
+        whereConditions.push(`(c.headers IS NOT NULL AND c.headers != '{}' AND c.headers != '')`);
+      } else {
+        // 只显示没有请求头的频道（headers为空、'{}'或NULL）
+        whereConditions.push(`(c.headers IS NULL OR c.headers = '{}' OR c.headers = '')`);
+      }
+    }
 
     if (search) {
       whereConditions.push('(c.channel_name LIKE ? OR c.group_title LIKE ?)');
@@ -202,14 +236,14 @@ export async function handlePublicChannels(request, env, ctx) {
       ORDER BY c.group_title, c.channel_name
     `).bind(...params).all();
 
-    // 获取所有分组
+    // 获取所有分组（同样需要应用过滤条件）
     const groupsResult = await db.prepare(`
       SELECT DISTINCT group_title
       FROM channels c
       INNER JOIN sources s ON c.source_id = s.id
-      WHERE c.is_active = 1 AND s.is_active = 1
+      WHERE ${whereClause}
       ORDER BY group_title
-    `).all();
+    `).bind(...params).all();
 
     const channels = channelsResult.results || [];
     const groups = groupsResult.results?.map(g => g.group_title).filter(g => g) || [];

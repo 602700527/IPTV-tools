@@ -1,5 +1,5 @@
 // 管理后台API处理器
-import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig } from '../database.js';
+import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig } from '../database.js';
 import { manualSyncAll } from './scheduler.js';
 import { getBlacklistedIPs, unbanIP, getIPAccessStats, banIP } from '../security/ip-blacklist.js';
 import { getBannedCodesFromCache, removeBannedCodeFromCache, syncBannedCodesToCache } from '../security/code-ban-cache.js';
@@ -526,7 +526,7 @@ export async function handleAdminRequest(request, env, ctx) {
           // 验证配置值
           const fields = ['sub_rate_min', 'sub_rate_hour', 'sub_rate_day', 'live_rate_min', 'live_rate_hour', 'live_rate_day', 'admin_rate_hour'];
           const validConfig = {};
-          
+
           for (const field of fields) {
             if (data[field] !== undefined && data[field] > 0) {
               validConfig[field] = parseInt(data[field]);
@@ -538,6 +538,78 @@ export async function handleAdminRequest(request, env, ctx) {
           return new Response(JSON.stringify({
             success: true,
             message: 'IP黑名单配置已更新',
+            config: validConfig
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        break;
+
+      case 'homepage-display':
+        // 首页展示配置管理
+        if (request.method === 'GET') {
+          const config = await getHomepageDisplayConfig();
+
+          // 获取所有可用的数据源
+          const sources = await getDB().prepare('SELECT id, name, url FROM sources WHERE is_active = 1 ORDER BY id').all();
+          const sourceList = sources.results || [];
+
+          // 获取所有可用的分类
+          const groups = await getDB().prepare(`
+            SELECT DISTINCT group_title
+            FROM channels
+            WHERE is_active = 1
+            ORDER BY group_title
+          `).all();
+          const groupList = (groups.results || [])
+            .map(g => g.group_title)
+            .filter(g => g);
+
+          // 获取所有可用的host（从play_url提取）
+          const hostResult = await getDB().prepare(`
+            SELECT DISTINCT play_url
+            FROM channels
+            WHERE is_active = 1
+            LIMIT 1000
+          `).all();
+
+          const hostSet = new Set();
+          (hostResult.results || []).forEach(row => {
+            try {
+              const url = new URL(row.play_url);
+              hostSet.add(url.hostname);
+            } catch (e) {
+              // 忽略无效URL
+            }
+          });
+          const hostList = Array.from(hostSet).sort();
+
+          return new Response(JSON.stringify({
+            success: true,
+            config,
+            options: {
+              sources: sourceList,
+              groups: groupList,
+              hosts: hostList
+            }
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'POST') {
+          const data = await request.json();
+
+          // 验证配置格式
+          const validConfig = {
+            sources: Array.isArray(data.sources) ? data.sources : [],
+            groups: Array.isArray(data.groups) ? data.groups : [],
+            hosts: Array.isArray(data.hosts) ? data.hosts : []
+          };
+
+          await updateHomepageDisplayConfig(validConfig);
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: '首页展示配置已更新',
             config: validConfig
           }), {
             headers: { 'Content-Type': 'application/json' }
