@@ -443,10 +443,21 @@ export async function handleAdminRequest(request, env, ctx) {
 
       case 'channels':
         // 获取频道列表（支持分页）
+        const action = url.searchParams.get('action');
         const sourceIdFilter = url.searchParams.get('source_id');
+        const groupTitleFilter = url.searchParams.get('group_title');
         const page = parseInt(url.searchParams.get('page')) || 1;
         const pageSize = parseInt(url.searchParams.get('page_size')) || 100;
         const search = url.searchParams.get('search') || '';
+
+        // 获取所有分组列表
+        if (action === 'get_groups') {
+          const db = getDB();
+          const groups = await db.prepare('SELECT DISTINCT group_title FROM channels WHERE group_title IS NOT NULL AND group_title != "" ORDER BY group_title').all();
+          return new Response(JSON.stringify({ groups: groups.results.map(g => g.group_title) }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
 
         if (request.method === 'DELETE') {
           // 清空所有频道数据
@@ -475,6 +486,11 @@ export async function handleAdminRequest(request, env, ctx) {
         if (sourceIdFilter) {
           whereConditions.push('c.source_id = ?');
           params.push(sourceIdFilter);
+        }
+
+        if (groupTitleFilter) {
+          whereConditions.push('c.group_title = ?');
+          params.push(groupTitleFilter);
         }
 
         if (search) {
