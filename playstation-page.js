@@ -46,7 +46,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .channel-name{font-size:14px;font-weight:500;color:#fff;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .channel-group{font-size:12px;color:rgba(255,255,255,.5)}
     
-    .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.95);z-index:1000;align-items:center;justify-content:center}
+    .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.95);z-index:2000;align-items:center;justify-content:center}
     .modal.active{display:flex}
     .modal-content{width:90%;max-width:1200px;background:#0a0a0a;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.8)}
     .player-container{position:relative;width:100%;padding-top:56.25%;background:#000}
@@ -54,7 +54,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .modal-info{padding:20px 30px;border-top:1px solid rgba(255,255,255,.1)}
     .modal-title{font-size:24px;font-weight:600;margin-bottom:10px}
     .modal-group{color:rgba(255,255,255,.6);font-size:14px}
-    .close-modal{position:absolute;top:20px;right:20px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);border:none;cursor:pointer;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:10}
+    .close-modal{position:absolute;top:20px;right:20px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);border:none;cursor:pointer;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:2010}
     .close-modal:hover{background:rgba(255,255,255,.3)}
     
     .loading{display:flex;align-items:center;justify-content:center;padding:60px;color:rgba(255,255,255,.5)}
@@ -68,7 +68,22 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .empty-desc{font-size:14px}
     
     .footer{text-align:center;padding:30px;color:rgba(255,255,255,.4);font-size:13px;border-top:1px solid rgba(255,255,255,.1);margin-top:40px;margin-left:260px}
-    
+
+    /* Toast 提示组件（已隐藏） */
+    /* .toast-container{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none}
+    .toast{min-width:320px;max-width:500px;padding:16px 20px;border-radius:10px;color:#fff;font-size:14px;line-height:1.5;box-shadow:0 8px 30px rgba(0,0,0,.4);pointer-events:auto;backdrop-filter:blur(10px);animation:toastSlideIn 0.3s ease;transition:all 0.2s}
+    .toast.error{background:linear-gradient(135deg,rgba(231,9,20,.9) 0%,rgba(220,38,38,.9) 100%);border:1px solid rgba(239,68,68,.3)}
+    .toast.warning{background:linear-gradient(135deg,rgba(234,179,8,.9) 0%,rgba(245,158,11,.9) 100%);border:1px solid rgba(251,191,36,.3)}
+    .toast.success{background:linear-gradient(135deg,rgba(34,197,94,.9) 0%,rgba(22,163,74,.9) 100%);border:1px solid rgba(74,222,128,.3)}
+    .toast.info{background:linear-gradient(135deg,rgba(59,130,246,.9) 0%,rgba(37,99,235,.9) 100%);border:1px solid rgba(96,165,250,.3)}
+    .toast-title{font-weight:600;margin-bottom:4px;font-size:15px}
+    .toast-message{color:rgba(255,255,255,.85);white-space:pre-wrap}
+    .toast-close{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.15);border:none;cursor:pointer;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .toast-close:hover{background:rgba(255,255,255,.25);transform:scale(1.1)}
+    @keyframes toastSlideIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes toastSlideOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-20px)}}
+    .toast.hiding{animation:toastSlideOut 0.3s ease forwards} */
+
     @media (max-width:1024px){
       .sidebar{display:none}
       .content{margin-left:0}
@@ -120,7 +135,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       </div>
     </div>
   </div>
-  
+
+  <!-- Toast 提示容器（已隐藏） -->
+  <!-- <div class="toast-container" id="toastContainer"></div> -->
+
   <footer class="footer">
     <p>&copy; 2024 IPTV Live. 免费高清直播服务</p>
   </footer>
@@ -148,6 +166,84 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let currentGroup = '';
     let searchTimeout = null;
     let currentHls = null;
+    let isModalOpen = false;  // 跟踪模态框是否打开
+    // let lastErrorTime = 0;  // 防止重复显示相同错误（已禁用）
+    // let lastErrorMsg = '';   // 记录上一条错误消息（已禁用）
+
+    /* Toast 提示函数（已禁用）
+    function showToast(message, type = 'info', duration = 4000, checkModal = false) {
+      // 如果需要检查modal状态且modal已关闭，则不显示Toast
+      if (checkModal && !isModalOpen) {
+        console.log('[Toast] Modal已关闭，跳过Toast显示');
+        return;
+      }
+
+      // 防止重复显示相同错误（1秒内的相同错误只显示一次）
+      const now = Date.now();
+      if (type === 'error' && message === lastErrorMsg && now - lastErrorTime < 1000) {
+        console.log('[Toast] 跳过重复错误');
+        return;
+      }
+      lastErrorMsg = message;
+      lastErrorTime = now;
+
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      toast.className = \`toast \${type}\`;
+
+      let title = '';
+      switch (type) {
+        case 'error':
+          title = '❌ 播放失败';
+          break;
+        case 'warning':
+          title = '⚠️ 提示';
+          break;
+        case 'success':
+          title = '✅ 成功';
+          break;
+        case 'info':
+        default:
+          title = 'ℹ️ 提示';
+          break;
+      }
+
+      toast.innerHTML = \`
+        <div style="position:relative;padding-right:30px">
+          <div class="toast-title">\${title}</div>
+          <div class="toast-message">\${message}</div>
+          <button class="toast-close">&times;</button>
+        </div>
+      \`;
+
+      container.appendChild(toast);
+
+      // 点击关闭按钮
+      const closeBtn = toast.querySelector('.toast-close');
+      closeBtn.onclick = () => removeToast(toast);
+
+      // 自动移除
+      const timeout = setTimeout(() => removeToast(toast), duration);
+
+      // 鼠标悬停时暂停自动移除
+      toast.onmouseenter = () => clearTimeout(timeout);
+      toast.onmouseleave = () => {
+        setTimeout(() => removeToast(toast), duration);
+      };
+    }
+
+    function removeToast(toast) {
+      if (!toast || toast.classList.contains('hiding')) return;
+      toast.classList.add('hiding');
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    }
+    */
 
     // 对URL中的查询参数进行编码（处理中文等非ASCII字符）
     function encodeUrlParams(url) {
@@ -286,6 +382,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       groupName.textContent = group;
 
       modal.classList.add('active');
+      isModalOpen = true;  // 标记模态框已打开
 
       // 销毁之前的Hls实例
       if (currentHls) {
@@ -347,19 +444,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
               startHlsPlay(playUrl, video, null);
             }
           } else {
-            alert('获取播放地址失败: ' + (data.error || '未知错误'));
+            // showToast('该频道暂时无法播放', 'error', 4000, true);
             closePlayer();
           }
         })
         .catch(function(error) {
           console.error('获取播放地址失败:', error);
-          alert('网络错误，请稍后重试');
+          // showToast('网络连接失败，请稍后重试', 'error', 4000, true);
           closePlayer();
         });
-
-      video.onerror = () => {
-        console.error('视频播放错误');
-      };
     }
 
     // 发送headers到扩展
@@ -532,7 +625,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       document.body.appendChild(dialog);
 
       document.getElementById('downloadExtension').onclick = () => {
-        alert('请到项目目录 extension-example 文件夹，按照说明安装扩展。');
+        // showToast('请在浏览器扩展设置中安装IPTV辅助扩展', 'info');
       };
 
       document.getElementById('tryPlay').onclick = () => {
@@ -549,14 +642,18 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // playUrl = encodeUrlParams(playUrl);
       // console.log('编码后的URL:', playUrl);
 
-      // 检测源类型
+      // 检测源类型 - 扩展支持更多流格式
       const isHls = playUrl.includes('.m3u8') ||
                      playUrl.includes('m3u8') ||
-                     playUrl.includes('application/x-mpegURL');
+                     playUrl.includes('application/x-mpegURL') ||
+                     playUrl.includes('.ts') ||  // MPEG-TS流也可以用HLS.js解析
+                     playUrl.endsWith('.ts') ||
+                     playUrl.includes('application/x-mpegTS');
 
       // 检测Mixed Content问题：HTTPS页面加载HTTP资源
       const isHttpOnHttpsPage = window.location.protocol === 'https:' && playUrl.startsWith('http://');
       console.log('[PlayStation] Mixed Content check:', isHttpOnHttpsPage);
+      console.log('[PlayStation] 视频源类型:', { url: playUrl, isHls });
 
       if (isHttpOnHttpsPage && window.IPTVHelper && typeof window.IPTVHelper.proxyRequest === 'function') {
         console.log('[PlayStation] 使用扩展代理请求解决Mixed Content问题');
@@ -588,7 +685,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             switch (data.type) {
               case Hls.ErrorTypes.NETWORK_ERROR:
                 console.error('网络错误:', data);
-                alert('播放失败: 网络错误。可能需要安装浏览器扩展来设置特殊Headers。');
+                // showToast('网络连接失败，请检查网络设置', 'error', 4000, true);
                 break;
               case Hls.ErrorTypes.MEDIA_ERROR:
                 console.log('尝试恢复媒体错误');
@@ -602,13 +699,49 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           }
         });
       } else {
-        // 非HLS源，直接使用原生video播放
+        // 非HLS源，使用原生video播放，并添加错误检测
         console.log('使用原生video播放（非HLS）');
         video.src = playUrl;
         video.load();
+
+        // 添加视频编码兼容性检测
+        video.addEventListener('error', function(e) {
+          const errorCode = video.error ? video.error.code : 0;
+          console.error('原生video错误:', errorCode, video.error);
+
+          let errorMsg = '该频道无法播放';
+
+          if (errorCode === 3) {
+            // MEDIA_ERR_DECODE
+            errorMsg = '视频解码失败，建议更换浏览器或安装扩展';
+          } else if (errorCode === 4) {
+            // MEDIA_ERR_SRC_NOT_SUPPORTED
+            errorMsg = '该频道需要特殊支持，建议使用其他播放器';
+          }
+
+          // showToast(errorMsg, 'error', 4000, true);
+        });
+
+        // 检测是否黑屏（有声音无画面）
+        video.addEventListener('play', function() {
+          console.log('视频开始播放');
+          setTimeout(function() {
+            if (video.readyState >= 2) {  // HAVE_CURRENT_DATA
+              const videoWidth = video.videoWidth;
+              const videoHeight = video.videoHeight;
+              console.log('视频分辨率:', videoWidth, 'x', videoHeight);
+
+              if (videoWidth === 0 || videoHeight === 0) {
+                console.warn('检测到黑屏问题: 分辨率为0');
+                // showToast('有声音无画面，建议更换浏览器或安装扩展', 'warning', 5000, true);
+              }
+            }
+          }, 3000);
+        });
+
         video.play().catch(function(e) {
           console.error('播放失败:', e);
-          alert('播放失败: ' + e.message);
+          // showToast('自动播放失败，请点击播放器播放', 'warning', 3000, true);
         });
       }
     }
@@ -627,7 +760,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           console.log('[Proxy] 代理成功，blob URL:', response.blobUrl);
 
           if (isHls && Hls.isSupported()) {
-            // HLS流使用blob URL
+            // HLS流或.ts流使用HLS.js
             console.log('[Proxy] 使用HLS.js播放blob URL');
             currentHls = new Hls({
               enableWorker: true,
@@ -647,7 +780,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             currentHls.on(Hls.Events.ERROR, function(event, data) {
               console.error('[Proxy] HLS错误:', data);
               if (data.fatal) {
-                alert('播放失败: ' + (data.details || 'HLS播放错误'));
+                // showToast('播放失败，请稍后重试', 'error', 4000, true);
                 currentHls.destroy();
               }
             });
@@ -656,9 +789,28 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             console.log('[Proxy] 使用原生video播放blob URL');
             video.src = response.blobUrl;
             video.load();
+
+            // 添加相同的错误检测逻辑
+            video.addEventListener('error', function(e) {
+              const errorCode = video.error ? video.error.code : 0;
+              console.error('[Proxy] 原生video错误:', errorCode, video.error);
+
+              let errorMsg = '播放失败';
+
+              if (errorCode === 3) {
+                errorMsg = '视频解码失败，建议更换浏览器或安装扩展';
+              } else if (errorCode === 4) {
+                errorMsg = '该频道需要特殊支持，建议使用其他播放器';
+              } else if (errorCode === 2) {
+                errorMsg = '网络连接失败';
+              }
+
+              // showToast(errorMsg, 'error', 4000, true);
+            });
+
             video.play().catch(function(e) {
               console.error('[Proxy] 播放失败:', e);
-              alert('播放失败: ' + e.message);
+              // showToast('自动播放失败，请点击播放器播放', 'warning', 3000, true);
             });
           }
         } else {
@@ -666,25 +818,27 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         }
       } catch (error) {
         console.error('[Proxy] 代理加载失败:', error);
-        alert('通过扩展代理加载失败: ' + error.message + '\\n\\n请检查扩展是否已正确安装。');
+        // showToast('播放失败，请检查扩展是否已安装', 'error', 4000, true);
       }
     }
     
     function closePlayer() {
       const modal = document.getElementById('playerModal');
       const video = document.getElementById('videoPlayer');
-      
+
+      isModalOpen = false;  // 标记模态框已关闭
+
       video.pause();
       video.src = '';
-      video.load(); // 强制重置
-      
+      video.load();
+
       // 销毁HLS播放器，停止所有网络请求
       if (currentHls) {
         console.log('[Player] Destroying HLS instance');
         currentHls.destroy();
         currentHls = null;
       }
-      
+
       modal.classList.remove('active');
     }
     
