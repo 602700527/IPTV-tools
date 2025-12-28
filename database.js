@@ -471,6 +471,27 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
         }
         processedUrls.add(currentChannel.play_url);
       }
+
+      // 分组重命名逻辑
+      if (currentChannel.group_title && filter.groupRenameRules && filter.groupRenameRules.length > 0) {
+        // 检查是否在排除列表中
+        const shouldExclude = filter.groupRenameExclude && filter.groupRenameExclude.length > 0 &&
+          filter.groupRenameExclude.some(exclude => 
+            currentChannel.group_title.toLowerCase().includes(exclude.toLowerCase())
+          );
+        
+        if (!shouldExclude) {
+          // 应用重命名规则（按优先级匹配第一个）
+          for (const rule of filter.groupRenameRules) {
+            if (currentChannel.group_title.toLowerCase().includes(rule.keyword.toLowerCase())) {
+              const originalGroup = currentChannel.group_title;
+              currentChannel.group_title = rule.newName;
+              console.log(`[Group Rename] "${originalGroup}" -> "${rule.newName}" (matched keyword: "${rule.keyword}")`);
+              break; // 只应用第一个匹配的规则
+            }
+          }
+        }
+      }
     }
 
     // 生成channel_hash (SHA-256)

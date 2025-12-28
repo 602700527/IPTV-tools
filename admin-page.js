@@ -147,7 +147,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
         <div id="syncFilterPanel" class="card" style="display:none;padding:16px;background:#f9f9fb;">
           <h4 style="margin-bottom:12px;font-weight:600;">同步过滤规则</h4>
-          <p style="margin-bottom:16px;color:#86868b;font-size:14px;">在同步源时，可以根据分组名、播放地址或频道名排除不需要的频道。留空则不过滤。</p>
+          <p style="margin-bottom:16px;color:#86868b;font-size:14px;">在同步源时，可以根据分组名、播放地址或频道名排除不需要的频道，也可以重命名分组名。留空则不过滤。</p>
           <div class="form-row">
             <div class="form-group">
               <label>排除分组名（包含以下关键字的分组将不被同步）</label>
@@ -170,6 +170,18 @@ export const ADMIN_HTML = `<!DOCTYPE html>
                 <input type="checkbox" id="excludeDuplicateUrls" style="margin-right:8px;">
                 过滤重复播放地址（只保留每个播放地址的第一个频道）
               </label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>分组重命名规则（根据关键字重命名分组）</label>
+              <textarea id="groupRenameRules" rows="4" placeholder="格式：关键字->新分组名&#10;例如：&#10;央视->中央电视台&#10;CCTV->央视频道&#10;体育->体育赛事&#10;电影->影视娱乐&#10;每行一个规则，支持'包含'匹配" style="font-family:monospace;font-size:13px;"></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>排除分组重命名（以下分组不重命名）</label>
+              <textarea id="groupRenameExclude" rows="2" placeholder="例如：央视, CCTV, 体育&#10;或者每行一个：&#10;央视&#10;CCTV&#10;体育" style="font-family:monospace;font-size:13px;"></textarea>
             </div>
           </div>
           <div style="display:flex;gap:8px;margin-top:8px;">
@@ -1067,6 +1079,8 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
       document.getElementById('syncExcludeUrls').value = '';
       document.getElementById('syncExcludeNames').value = '';
       document.getElementById('excludeDuplicateUrls').checked = false;
+      document.getElementById('groupRenameRules').value = '';
+      document.getElementById('groupRenameExclude').value = '';
       showToast('已清空同步过滤规则', 'success');
     }
 
@@ -1075,7 +1089,9 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
         excludeGroups: document.getElementById('syncExcludeGroups').value,
         excludeUrls: document.getElementById('syncExcludeUrls').value,
         excludeNames: document.getElementById('syncExcludeNames').value,
-        excludeDuplicateUrls: document.getElementById('excludeDuplicateUrls').checked
+        excludeDuplicateUrls: document.getElementById('excludeDuplicateUrls').checked,
+        groupRenameRules: document.getElementById('groupRenameRules').value,
+        groupRenameExclude: document.getElementById('groupRenameExclude').value
       };
       localStorage.setItem('syncFilters', JSON.stringify(filters));
       showToast('过滤规则已保存', 'success');
@@ -1090,6 +1106,8 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
           document.getElementById('syncExcludeUrls').value = filters.excludeUrls || '';
           document.getElementById('syncExcludeNames').value = filters.excludeNames || '';
           document.getElementById('excludeDuplicateUrls').checked = filters.excludeDuplicateUrls || false;
+          document.getElementById('groupRenameRules').value = filters.groupRenameRules || '';
+          document.getElementById('groupRenameExclude').value = filters.groupRenameExclude || '';
         } catch (e) {
           console.error('Failed to load sync filters:', e);
         }
@@ -1115,11 +1133,35 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
         .map(s => s.trim())
         .filter(s => s.length > 0);
 
+      // 解析分组重命名规则
+      const groupRenameRules = document.getElementById('groupRenameRules').value
+        .split(new RegExp('[\\n]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0)
+        .map(rule => {
+          const parts = rule.split('->');
+          if (parts.length === 2) {
+            return {
+              keyword: parts[0].trim(),
+              newName: parts[1].trim()
+            };
+          }
+          return null;
+        })
+        .filter(rule => rule !== null);
+
+      const groupRenameExclude = document.getElementById('groupRenameExclude').value
+        .split(new RegExp('[\\n,]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
       const filter = {
         excludeGroups,
         excludeUrls,
         excludeNames,
-        excludeDuplicateUrls: document.getElementById('excludeDuplicateUrls').checked
+        excludeDuplicateUrls: document.getElementById('excludeDuplicateUrls').checked,
+        groupRenameRules,
+        groupRenameExclude
       };
 
       console.log('Sync filter:', filter); // 调试日志
