@@ -24,14 +24,20 @@ export async function handleLiveRequest(request, env, ctx) {
     const code = pathParts[2]; // 卡密
     const hash = pathParts[3]; // 频道hash
 
-    // 1. 检查缓存 (Cache API)
+    // 1. 检查缓存 (Cache API) - 只缓存成功的响应
     const cache = caches.default;
     const cacheKey = new Request(url.toString(), request);
     let response = await cache.match(cacheKey);
 
     if (response) {
-      // 缓存命中，直接返回
-      return response;
+      // 缓存命中，检查是否为403错误（禁用、过期或封禁）
+      if (response.status === 403) {
+        // 忽略缓存的403响应，重新验证
+        response = null;
+      } else {
+        // 缓存命中且状态正常，直接返回
+        return response;
+      }
     }
 
     // 2. 缓存未命中，执行鉴权和获取真实链接

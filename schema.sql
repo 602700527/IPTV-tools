@@ -25,6 +25,12 @@ CREATE TABLE IF NOT EXISTS channels (
 -- 创建频道哈希索引
 CREATE INDEX IF NOT EXISTS idx_channel_hash ON channels(channel_hash);
 
+-- 创建频道is_active索引（优化订阅查询）
+CREATE INDEX IF NOT EXISTS idx_channels_is_active ON channels(is_active);
+
+-- 创建源is_active索引（优化订阅查询）
+CREATE INDEX IF NOT EXISTS idx_sources_is_active ON sources(is_active);
+
 -- 创建卡密表
 CREATE TABLE IF NOT EXISTS codes (
   code TEXT PRIMARY KEY, 

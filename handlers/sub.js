@@ -41,7 +41,7 @@ export async function handleSubRequest(request, env, ctx) {
   let response = await cache.match(cacheKey);
 
   if (response) {
-    // 缓存命中，直接返回
+    // 缓存命中
     return response;
   }
 
@@ -52,19 +52,19 @@ export async function handleSubRequest(request, env, ctx) {
   const auth = await db.prepare("SELECT status, expired_at FROM codes WHERE code = ?").bind(code).first();
 
   const now = new Date().toISOString();
-  if (!auth || auth.status !== 'active' || auth.expired_at < now) {
-    // 如果卡密已过期，自动设置为禁用状态
-    if (auth && auth.expired_at < now && auth.status === 'active') {
-      await db.prepare("UPDATE codes SET status = 'disabled' WHERE code = ?").bind(code).run();
+    if (!auth || auth.status !== 'active' || auth.expired_at < now) {
+      // 如果卡密已过期，自动设置为禁用状态
+      if (auth && auth.expired_at < now && auth.status === 'active') {
+        await db.prepare("UPDATE codes SET status = 'disabled' WHERE code = ?").bind(code).run();
+      }
+      response = new Response('Forbidden: Invalid or Expired Code', { status: 403 });
+      // 403错误只缓存10分钟，确保状态变更快速生效
+      response.headers.set("Cache-Control", "public, max-age=600");
+      ctx.waitUntil(cache.put(cacheKey, response.clone()));
+      return response;
     }
-    response = new Response('Forbidden: Invalid or Expired Code', { status: 403 });
-    // 缓存1小时，减少无效请求对数据库的压力
-    response.headers.set("Cache-Control", "public, max-age=3600");
-    ctx.waitUntil(cache.put(cacheKey, response.clone()));
-    return response;
-  }
 
-  // 3.2 获取所有频道（包含 headers，只获取启用源的频道）
+  // 3.2 获取所有频道（只获取启用源的频道）
   const channels = await db.prepare(`
     SELECT c.channel_name, c.group_title, c.logo, c.channel_hash, c.headers
     FROM channels c
@@ -77,12 +77,13 @@ export async function handleSubRequest(request, env, ctx) {
     response = new Response('#EXTM3U\n# No channels available', {
       headers: { 'Content-Type': 'application/vnd.apple.mpegurl' }
     });
-    response.headers.set("Cache-Control", "public, max-age=3600");
+    // 没有频道时缓存10分钟
+    response.headers.set("Cache-Control", "public, max-age=600");
     ctx.waitUntil(cache.put(cacheKey, response.clone()));
     return response;
   }
 
-    // 3.3 生成M3U内容（包含请求头信息）
+  // 3.3 生成M3U内容（性能优化版）
   const host = url.origin;
   const m3uLines = ['#EXTM3U'];
 
@@ -91,34 +92,27 @@ export async function handleSubRequest(request, env, ctx) {
     if (channel.group_title) infoParts.push(`group-title="${channel.group_title}"`);
     if (channel.logo) infoParts.push(`tvg-logo="${channel.logo}"`);
 
-    // 添加请求头信息
-    try {
-      const headers = JSON.parse(channel.headers || '{}');
-      // 处理User-Agent
-      if (headers['User-Agent']) {
-        const ua = headers['User-Agent'].replace(/"/g, '\\"');
-        infoParts.push(`http-user-agent="${ua}"`);
-      }
-      // 处理Referer（支持多种变体）
-      if (headers['Referer']) {
-        const referer = headers['Referer'].replace(/"/g, '\\"');
-        infoParts.push(`http-header="Referer: ${referer}"`);
-        infoParts.push(`referer="${referer}"`);
-      }
-      // 处理其他自定义headers
-      for (const [key, value] of Object.entries(headers)) {
-        if (key !== 'User-Agent' && key !== 'Referer') {
-          const safeKey = key.replace(/"/g, '\\"');
-          const safeValue = value.replace(/"/g, '\\"');
-          infoParts.push(`http-header="${safeKey}: ${safeValue}"`);
+    // 添加请求头信息（优化：只在有headers时才解析）
+    if (channel.headers && channel.headers !== '{}') {
+      try {
+        const headers = JSON.parse(channel.headers);
+        // 处理User-Agent
+        if (headers['User-Agent']) {
+          const ua = headers['User-Agent'].replace(/"/g, '\\"');
+          infoParts.push(`http-user-agent="${ua}"`);
         }
+        // 处理Referer
+        if (headers['Referer']) {
+          const referer = headers['Referer'].replace(/"/g, '\\"');
+          infoParts.push(`http-header="Referer: ${referer}"`);
+          infoParts.push(`referer="${referer}"`);
+        }
+      } catch (e) {
+        // headers 解析失败，忽略
       }
-    } catch (e) {
-      // headers 解析失败，忽略
     }
 
     infoParts.push(',' + channel.channel_name);
-
     m3uLines.push(infoParts.join(' '));
     // 播放地址格式：/live/{code}/{hash}
     m3uLines.push(`${host}/live/${code}/${channel.channel_hash}`);
@@ -126,12 +120,12 @@ export async function handleSubRequest(request, env, ctx) {
 
   const m3uContent = m3uLines.join('\n');
 
-  // 4. 创建响应
+  // 4. 创建响应（增加缓存时间到12小时）
   response = new Response(m3uContent, {
     headers: {
       'Content-Type': 'application/vnd.apple.mpegurl; charset=utf-8',
       'Content-Disposition': `attachment; filename="${filename}"`,
-      'Cache-Control': 'public, max-age=3600'
+      'Cache-Control': 'public, max-age=43200'
     }
   });
 
