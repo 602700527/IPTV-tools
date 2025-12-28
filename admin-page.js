@@ -164,6 +164,14 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               <textarea id="syncExcludeNames" rows="3" placeholder="例如：测试, 预告, 广告" style="font-family:monospace;font-size:13px;"></textarea>
             </div>
           </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>
+                <input type="checkbox" id="excludeDuplicateUrls" style="margin-right:8px;">
+                过滤重复播放地址（只保留每个播放地址的第一个频道）
+              </label>
+            </div>
+          </div>
           <div style="display:flex;gap:8px;margin-top:8px;">
             <button class="btn btn-primary" onclick="saveSyncFilters()">保存规则</button>
             <button class="btn" onclick="clearSyncFilters()">清空规则</button>
@@ -1058,6 +1066,7 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
       document.getElementById('syncExcludeGroups').value = '';
       document.getElementById('syncExcludeUrls').value = '';
       document.getElementById('syncExcludeNames').value = '';
+      document.getElementById('excludeDuplicateUrls').checked = false;
       showToast('已清空同步过滤规则', 'success');
     }
 
@@ -1065,7 +1074,8 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
       const filters = {
         excludeGroups: document.getElementById('syncExcludeGroups').value,
         excludeUrls: document.getElementById('syncExcludeUrls').value,
-        excludeNames: document.getElementById('syncExcludeNames').value
+        excludeNames: document.getElementById('syncExcludeNames').value,
+        excludeDuplicateUrls: document.getElementById('excludeDuplicateUrls').checked
       };
       localStorage.setItem('syncFilters', JSON.stringify(filters));
       showToast('过滤规则已保存', 'success');
@@ -1079,6 +1089,7 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
           document.getElementById('syncExcludeGroups').value = filters.excludeGroups || '';
           document.getElementById('syncExcludeUrls').value = filters.excludeUrls || '';
           document.getElementById('syncExcludeNames').value = filters.excludeNames || '';
+          document.getElementById('excludeDuplicateUrls').checked = filters.excludeDuplicateUrls || false;
         } catch (e) {
           console.error('Failed to load sync filters:', e);
         }
@@ -1107,7 +1118,8 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
       const filter = {
         excludeGroups,
         excludeUrls,
-        excludeNames
+        excludeNames,
+        excludeDuplicateUrls: document.getElementById('excludeDuplicateUrls').checked
       };
 
       console.log('Sync filter:', filter); // 调试日志

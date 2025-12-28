@@ -280,6 +280,9 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
   const db = getDB();
   const channels = [];
   let globalHeaders = {};
+  
+  // 用于跟踪已处理的播放地址（过滤重复URL）
+  const processedUrls = new Set();
 
   // 确保 sourceId 是整数
   sourceId = parseInt(sourceId);
@@ -458,6 +461,15 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
           console.log(`[Filter] Excluding channel: "${currentChannel.channel_name}" (matched keyword: ${filter.excludeNames.find(k => currentChannel.channel_name.toLowerCase().includes(k.toLowerCase()))})`);
           continue;
         }
+      }
+
+      // 过滤重复播放地址
+      if (filter.excludeDuplicateUrls && currentChannel.play_url) {
+        if (processedUrls.has(currentChannel.play_url)) {
+          console.log(`[Filter] Excluding duplicate URL: "${currentChannel.play_url}"`);
+          continue;
+        }
+        processedUrls.add(currentChannel.play_url);
       }
     }
 
