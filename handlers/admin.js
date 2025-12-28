@@ -622,7 +622,10 @@ export async function handleAdminRequest(request, env, ctx) {
               hosts: hostList
             }
           }), {
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-cache, no-store, must-revalidate'
+            }
           });
         } else if (request.method === 'POST') {
           const data = await request.json();
@@ -643,7 +646,12 @@ export async function handleAdminRequest(request, env, ctx) {
             message: '首页展示配置已更新',
             config: validConfig
           }), {
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0'
+            }
           });
         }
         break;

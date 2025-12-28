@@ -170,6 +170,7 @@ export async function handleChannelDebug(request, env, ctx) {
 }
 
 export async function handlePublicChannels(request, env, ctx) {
+  console.log('[PublicChannels] ===== 请求开始 =====');
   try {
     const url = new URL(request.url);
     const search = url.searchParams.get('search') || '';
@@ -179,6 +180,7 @@ export async function handlePublicChannels(request, env, ctx) {
 
     // 获取首页展示配置
     const displayConfig = await getHomepageDisplayConfig();
+    console.log('[PublicChannels] displayConfig配置:', JSON.stringify(displayConfig));
 
     // 构建查询条件
     let whereConditions = ['c.is_active = 1', 's.is_active = 1'];
@@ -208,16 +210,13 @@ export async function handlePublicChannels(request, env, ctx) {
     if (displayConfig.hasHeaders !== null && displayConfig.hasHeaders !== undefined) {
       console.log('[PublicChannels] hasHeaders过滤配置:', displayConfig.hasHeaders);
       if (displayConfig.hasHeaders === true) {
-        // 只显示有请求头的频道（headers不为空且不为'{}'）
-        const condition = `(c.headers IS NOT NULL AND c.headers <> '{}' AND c.headers <> '')`;
-        console.log('[PublicChannels] 只显示有请求头:', condition);
-        whereConditions.push(condition);
+        // 只显示有请求头的频道（headers不为NULL且length>2，即非空对象{}）
+        whereConditions.push(`c.headers IS NOT NULL AND length(c.headers) > 2`);
       } else {
-        // 只显示没有请求头的频道（headers为空、'{}'或NULL）
-        const condition = `(c.headers IS NULL OR c.headers = '{}' OR c.headers = '')`;
-        console.log('[PublicChannels] 只显示无请求头:', condition);
-        whereConditions.push(condition);
+        // 只显示没有请求头的频道（headers为NULL、{}或空字符串）
+        whereConditions.push(`c.headers IS NULL OR c.headers = '{}' OR c.headers = ''`);
       }
+      console.log('[PublicChannels] hasHeaders条件已添加');
     }
 
     if (search) {
@@ -256,15 +255,28 @@ export async function handlePublicChannels(request, env, ctx) {
     const channels = channelsResult.results || [];
     const groups = groupsResult.results?.map(g => g.group_title).filter(g => g) || [];
 
+    // 调试信息：添加到响应中，方便在浏览器Network面板查看
+    const debugInfo = {
+      hasHeadersConfig: displayConfig.hasHeaders,
+      whereClause: whereClause,
+      paramsCount: params.length,
+      channelsCount: channels.length
+    };
+
+    console.log('[PublicChannels] 调试信息:', JSON.stringify(debugInfo));
+
     return new Response(JSON.stringify({
       success: true,
       channels,
       total: channels.length,
-      groups
+      groups,
+      debug: debugInfo  // 添加调试信息
     }), {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=300'
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       }
     });
 
