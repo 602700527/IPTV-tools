@@ -586,7 +586,24 @@ export async function handleAdminRequest(request, env, ctx) {
         // 获取所有分组列表
         if (action === 'get_groups') {
           const db = getDB();
-          const groups = await db.prepare('SELECT DISTINCT group_title FROM channels WHERE group_title IS NOT NULL AND group_title != "" ORDER BY group_title').all();
+          let query = 'SELECT DISTINCT c.group_title FROM channels c';
+          const params = [];
+          const conditions = [];
+
+          // 基础条件：分组不为空
+          conditions.push('c.group_title IS NOT NULL');
+          conditions.push('c.group_title != ""');
+
+          // 如果指定了source_id，添加JOIN和过滤条件
+          if (sourceIdFilter) {
+            query += ' INNER JOIN sources s ON c.source_id = s.id';
+            conditions.push('s.id = ?');
+            params.push(sourceIdFilter);
+          }
+
+          query += ' WHERE ' + conditions.join(' AND ') + ' ORDER BY c.group_title';
+
+          const groups = await db.prepare(query).bind(...params).all();
           return new Response(JSON.stringify({ groups: groups.results.map(g => g.group_title) }), {
             headers: { 'Content-Type': 'application/json' }
           });

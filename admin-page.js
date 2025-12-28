@@ -192,7 +192,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     </div>
     <div id="channels" class="tab-content">
       <div class="card">
-        <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="resetChannelPage()"><option value="">全部源</option></select><select class="filter-select" id="channelGroupFilter" onchange="resetChannelPage()"><option value="">全部分组</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="resetChannelPage()"><select class="filter-select" id="channelPageSize" onchange="resetChannelPage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="30" selected>30条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select><button class="btn btn-danger" onclick="clearChannels()">清空数据</button></div></div>
+        <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="onSourceFilterChange()"><option value="">全部源</option></select><select class="filter-select" id="channelGroupFilter" onchange="resetChannelPage()"><option value="">全部分组</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="resetChannelPage()"><select class="filter-select" id="channelPageSize" onchange="resetChannelPage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="30" selected>30条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select><button class="btn btn-danger" onclick="clearChannels()">清空数据</button></div></div>
         <table><thead><tr><th>频道名称</th><th>分组</th><th>直播源</th><th>播放地址</th><th>请求头</th><th>状态</th><th>操作</th></tr></thead><tbody id="channelsTable"></tbody></table>
         <div id="channelPagination" class="pagination"></div>
       </div>
@@ -885,7 +885,9 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
           </tr>
         \`).join('');
         const filterSelect = document.getElementById('channelSourceFilter');
-        filterSelect.innerHTML = '<option value="">全部源</option>' + sourceList.map(s => \`<option value="\${s.id}">\${escapeHtml(s.name)}</option>\`).join('');
+        // 只显示已启用的源
+        const enabledSources = sourceList.filter(s => s.is_active);
+        filterSelect.innerHTML = '<option value="">全部源</option>' + enabledSources.map(s => \`<option value="\${s.id}">\${escapeHtml(s.name)}</option>\`).join('');
 
         // 加载所有分组并填充分组下拉框
         try {
@@ -1208,6 +1210,38 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
       } finally {
         hideLoading();
       }
+    }
+
+    // 源选择改变时，重新加载分组下拉框
+    async function onSourceFilterChange() {
+      const sourceId = document.getElementById('channelSourceFilter').value;
+      const groupFilter = document.getElementById('channelGroupFilter');
+      
+      if (sourceId) {
+        // 获取该源的分组
+        try {
+          const groupsData = await apiRequest('/channels?action=get_groups&source_id=' + sourceId, { showLoading: false });
+          const groups = groupsData.groups || [];
+          groupFilter.innerHTML = '<option value="">全部分组</option>' + groups.map(g => \`<option value="\${escapeHtml(g)}">\${escapeHtml(g)}</option>\`).join('');
+        } catch (e) {
+          console.error('加载分组失败:', e);
+        }
+      } else {
+        // 显示所有分组
+        try {
+          const groupsData = await apiRequest('/channels?action=get_groups', { showLoading: false });
+          const groups = groupsData.groups || [];
+          groupFilter.innerHTML = '<option value="">全部分组</option>' + groups.map(g => \`<option value="\${escapeHtml(g)}">\${escapeHtml(g)}</option>\`).join('');
+        } catch (e) {
+          console.error('加载分组失败:', e);
+        }
+      }
+      
+      // 重置分组选择
+      groupFilter.value = '';
+      
+      // 重新加载频道列表
+      resetChannelPage();
     }
 
     function resetChannelPage() {
