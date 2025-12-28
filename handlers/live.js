@@ -74,7 +74,7 @@ export async function handleLiveRequest(request, env, ctx) {
 
         // 计算封禁到期时间
         const bannedUntil = new Date();
-        bannedUntil.setDate(bannedUntil.getDate() + securityConfig.ban_duration_days);
+        bannedUntil.setTime(bannedUntil.getTime() + securityConfig.ban_duration_days * 24 * 60 * 60 * 1000);
 
         const banReason = `系统自动封禁：频道每日播放次数超出${securityConfig.channel_daily_limit}次，封禁${securityConfig.ban_duration_days}天 (${today})`;
 

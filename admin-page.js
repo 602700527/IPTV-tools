@@ -204,7 +204,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <div>
             <button class="btn btn-success" onclick="toggleAdvancedFilter()">高级查询</button>
             <button class="btn btn-primary" onclick="exportCodesCSV()">导出CSV</button>
+            <button class="btn btn-primary" onclick="showImportCodeModal()">批量导入</button>
             <button class="btn btn-primary" onclick="showGenerateCodeModal()">生成卡密</button>
+            <button class="btn btn-danger" onclick="clearCodes()">清空数据</button>
           </div>
         </div>
         <div id="advancedFilterPanel" class="card" style="display:none;margin-bottom:16px;padding:16px;background:#f9f9fb;">
@@ -570,6 +572,34 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
       <div class="form-group"><label>状态</label><select id="editStatus"><option value="unused">未使用</option><option value="active">活跃</option><option value="disabled">禁用</option></select></div>
       <div class="form-group"><label>备注</label><input type="text" id="editRemark" placeholder="备注信息"></div>
       <div class="modal-footer"><button class="btn" onclick="closeCodeEditModal()">取消</button><button class="btn btn-primary" onclick="saveCodeEdit()">保存</button></div>
+    </div>
+  </div>
+  <div id="importCodeModal" class="modal">
+    <div class="modal-content" style="max-width:800px">
+      <div class="modal-header"><h3>批量导入卡密</h3><button class="close-btn" onclick="closeImportCodeModal()">&times;</button></div>
+      <div style="margin-bottom:16px;padding:12px;background:#e3f2fd;border-left:4px solid #2196f3;border-radius:4px;font-size:13px;color:#1976d2;line-height:1.6;">
+        <p style="margin:0;font-weight:600;">CSV文件格式要求：</p>
+        <ul style="margin:8px 0 0 20px;">
+          <li>第一行为表头：卡密,有效期,激活时间,过期时间,备注</li>
+          <li>激活时间和过期时间为可选字段，可留空</li>
+          <li>日期格式：北京时间格式（YYYY-MM-DD HH:mm:ss 或 YYYY-MM-DD）</li>
+          <li>示例：ABC12345,30,2024-01-01 10:00:00,2024-02-01 10:00:00,VIP卡密</li>
+        </ul>
+      </div>
+      <div class="form-group"><label>选择CSV文件</label><input type="file" id="importFile" accept=".csv" onchange="handleImportFileSelect()"></div>
+      <div class="form-group" id="fileInfo" style="display:none;padding:8px;background:#f5f5f7;border-radius:4px;font-size:13px;"><span id="fileName"></span></div>
+      <div class="form-group">
+        <label>导入选项</label>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <input type="checkbox" id="skipDuplicates" checked style="width:auto;">
+          <span style="font-size:14px;">跳过已存在的卡密</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="updateExisting" style="width:auto;">
+          <span style="font-size:14px;">更新已存在的卡密数据</span>
+        </label>
+      </div>
+      <div class="modal-footer"><button class="btn" onclick="closeImportCodeModal()">取消</button><button class="btn btn-primary" onclick="importCodesFromCSV()">开始导入</button></div>
     </div>
   </div>
   <script>
@@ -1493,6 +1523,173 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
         loadCodes();
       } catch (error) {
         showToast('更新失败: ' + error.error, 'error');
+      }
+    }
+
+    function showImportCodeModal() {
+      document.getElementById('importFile').value = '';
+      document.getElementById('fileInfo').style.display = 'none';
+      document.getElementById('importCodeModal').classList.add('active');
+    }
+
+    function closeImportCodeModal() {
+      document.getElementById('importCodeModal').classList.remove('active');
+    }
+
+    function handleImportFileSelect() {
+      const fileInput = document.getElementById('importFile');
+      const fileInfo = document.getElementById('fileInfo');
+      const fileName = document.getElementById('fileName');
+
+      if (fileInput.files && fileInput.files[0]) {
+        fileName.textContent = '已选择: ' + fileInput.files[0].name + ' (' + formatFileSize(fileInput.files[0].size) + ')';
+        fileInfo.style.display = 'block';
+      } else {
+        fileInfo.style.display = 'none';
+      }
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    async function importCodesFromCSV() {
+      const fileInput = document.getElementById('importFile');
+
+      if (!fileInput.files || !fileInput.files[0]) {
+        showToast('请选择CSV文件', 'error');
+        return;
+      }
+
+      try {
+        showLoading();
+        const file = fileInput.files[0];
+        const text = await file.text();
+        const lines = text.split('\\n').map(line => line.trim()).filter(line => line);
+
+        if (lines.length < 2) {
+          showToast('CSV文件内容为空或格式不正确', 'error');
+          hideLoading();
+          return;
+        }
+
+        const skipDuplicates = document.getElementById('skipDuplicates').checked;
+        const updateExisting = document.getElementById('updateExisting').checked;
+
+        const codes = [];
+        let successCount = 0;
+        let skipCount = 0;
+        let errorCount = 0;
+        const errors = [];
+
+        for (let i = 1; i < lines.length; i++) {
+          const parts = parseCSVLine(lines[i]);
+
+          if (parts.length < 2) {
+            errorCount++;
+            errors.push('Row ' + (i + 1) + ': Format error, need at least 2 columns');
+            continue;
+          }
+
+          const code = parts[0].trim();
+          const durationDays = parseInt(parts[1]);
+          const activatedAt = parts[2] ? parts[2].trim() : null;
+          const expiredAt = parts[3] ? parts[3].trim() : null;
+          const remark = parts[4] ? parts[4].trim() : '';
+
+          if (!code || isNaN(durationDays)) {
+            errorCount++;
+            errors.push('Row ' + (i + 1) + ': Invalid code or duration format');
+            continue;
+          }
+
+          codes.push({
+            code,
+            duration_days: durationDays,
+            activated_at: activatedAt,
+            expired_at: expiredAt,
+            remark
+          });
+        }
+
+        if (codes.length === 0) {
+          showToast('没有有效的卡密数据', 'error');
+          hideLoading();
+          return;
+        }
+
+        const result = await apiRequest('/codes?action=import', {
+          method: 'POST',
+          body: JSON.stringify({
+            codes,
+            skip_duplicates: skipDuplicates,
+            update_existing: updateExisting
+          }),
+          showLoading: false
+        });
+
+        if (result.success) {
+          successCount = result.imported || 0;
+          skipCount = result.skipped || 0;
+          errorCount = result.errors || 0;
+
+          let message = '导入完成: ';
+          message += '成功 ' + successCount + ' 条';
+          if (skipCount > 0) message += ', 跳过 ' + skipCount + ' 条';
+          if (errorCount > 0) message += ', 失败 ' + errorCount + ' 条';
+
+          showToast(message, successCount > 0 ? 'success' : 'error');
+          closeImportCodeModal();
+          loadCodes();
+        } else {
+          showToast('导入失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        console.error('导入失败:', error);
+        showToast('导入失败: ' + (error.error || error.message), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function parseCSVLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          result.push(current);
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+
+      result.push(current);
+      return result;
+    }
+
+    async function clearCodes() {
+      if (!confirm('确定要清空所有卡密数据吗？此操作不可恢复！')) return;
+
+      try {
+        showLoading();
+        const result = await apiRequest('/codes', {
+          method: 'DELETE'
+        });
+        showToast(result.message || '清空成功', 'success');
+        loadCodes();
+      } catch (error) {
+        showToast('清空失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
       }
     }
 

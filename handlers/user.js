@@ -64,7 +64,7 @@ export async function handleUserActivate(request, env, ctx) {
       // 如果过期时间未设置，使用有效期天数计算
       if (!expiredAt) {
         const expDate = new Date();
-        expDate.setDate(expDate.getDate() + (codeRecord.duration_days || 30));
+        expDate.setTime(expDate.getTime() + (codeRecord.duration_days || 30) * 24 * 60 * 60 * 1000);
         expiredAt = expDate.toISOString();
       }
 

@@ -348,7 +348,7 @@ export async function handleAdminRequest(request, env, ctx) {
 
           // 计算过期时间
           const expiredAt = new Date();
-          expiredAt.setDate(expiredAt.getDate() + code.duration_days);
+          expiredAt.setTime(expiredAt.getTime() + code.duration_days * 24 * 60 * 60 * 1000);
 
           // 激活卡密
           await getDB().prepare(`
@@ -364,6 +364,124 @@ export async function handleAdminRequest(request, env, ctx) {
             success: true,
             activated_at: now,
             expired_at: expiredAt.toISOString()
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'POST' && url.searchParams.get('action') === 'import') {
+          // 批量导入卡密
+          const data = await request.json();
+          const { codes: importCodes, skip_duplicates, update_existing } = data;
+
+          if (!Array.isArray(importCodes) || importCodes.length === 0) {
+            return new Response(JSON.stringify({ success: false, error: 'Invalid data format' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+
+          const db = getDB();
+          let imported = 0;
+          let skipped = 0;
+          let errors = 0;
+          const errorDetails = [];
+
+          for (const item of importCodes) {
+            const { code, duration_days, activated_at, expired_at, remark } = item;
+
+            if (!code || !duration_days) {
+              errors++;
+              errorDetails.push(`Missing required fields for code: ${code || 'unknown'}`);
+              continue;
+            }
+
+            try {
+              const existing = await db.prepare('SELECT * FROM codes WHERE code = ?').bind(code).first();
+
+              if (existing) {
+                if (skip_duplicates && !update_existing) {
+                  skipped++;
+                } else if (update_existing) {
+                  let updateFields = [];
+                  let updateParams = [];
+
+                  updateFields.push('duration_days = ?');
+                  updateParams.push(duration_days);
+
+                  if (activated_at) {
+                    updateFields.push('activated_at = ?');
+                    updateParams.push(parseBeijingTime(activated_at));
+                  }
+
+                  if (expired_at) {
+                    updateFields.push('expired_at = ?');
+                    updateParams.push(parseBeijingTime(expired_at));
+                  } else {
+                    const defaultExpiredAt = new Date();
+                    defaultExpiredAt.setTime(defaultExpiredAt.getTime() + duration_days * 24 * 60 * 60 * 1000);
+                    updateFields.push('expired_at = ?');
+                    updateParams.push(defaultExpiredAt.toISOString());
+                  }
+
+                  if (remark !== undefined) {
+                    updateFields.push('remark = ?');
+                    updateParams.push(remark || '');
+                  }
+
+                  updateParams.push(code);
+
+                  await db.prepare(`
+                    UPDATE codes SET ${updateFields.join(', ')} WHERE code = ?
+                  `).bind(...updateParams).run();
+
+                  imported++;
+                } else {
+                  skipped++;
+                }
+              } else {
+                let activatedAtISO = null;
+                let expiredAtISO = null;
+
+                if (activated_at) {
+                  activatedAtISO = parseBeijingTime(activated_at);
+                }
+
+                if (expired_at) {
+                  expiredAtISO = parseBeijingTime(expired_at);
+                } else {
+                  const defaultExpiredAt = new Date();
+                  defaultExpiredAt.setTime(defaultExpiredAt.getTime() + duration_days * 24 * 60 * 60 * 1000);
+                  expiredAtISO = defaultExpiredAt.toISOString();
+                }
+
+                const status = activatedAtISO ? 'active' : 'unused';
+
+                await db.prepare(`
+                  INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, remark)
+                  VALUES (?, ?, ?, ?, ?, ?, ?)
+                `).bind(
+                  code,
+                  status,
+                  duration_days,
+                  activatedAtISO,
+                  expiredAtISO,
+                  3,
+                  remark || ''
+                ).run();
+
+                imported++;
+              }
+            } catch (error) {
+              errors++;
+              errorDetails.push(`Error importing code ${code}: ${error.message}`);
+            }
+          }
+
+          return new Response(JSON.stringify({
+            success: true,
+            imported,
+            skipped,
+            errors,
+            errorDetails
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
@@ -399,7 +517,7 @@ export async function handleAdminRequest(request, env, ctx) {
 
             const now = new Date().toISOString();
             const expiredAt = new Date();
-            expiredAt.setDate(expiredAt.getDate() + data.duration_days);
+            expiredAt.setTime(expiredAt.getTime() + data.duration_days * 24 * 60 * 60 * 1000);
 
             await db.prepare(`
               INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, remark)
@@ -436,6 +554,21 @@ export async function handleAdminRequest(request, env, ctx) {
           ).run();
 
           return new Response(JSON.stringify({ success: true }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'DELETE') {
+          // 清空所有卡密数据
+          const db = getDB();
+
+          const countResult = await db.prepare('SELECT COUNT(*) as count FROM codes').first();
+          const codeCount = countResult?.count || 0;
+
+          await db.prepare('DELETE FROM codes').run();
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: 'Deleted ' + codeCount + ' codes'
+          }), {
             headers: { 'Content-Type': 'application/json' }
           });
         }
@@ -992,6 +1125,35 @@ function generateCode() {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return code;
+}
+
+// 解析北京时间格式的日期字符串
+function parseBeijingTime(dateStr) {
+  if (!dateStr) return null;
+
+  try {
+    let parsedDate;
+    const trimmedStr = dateStr.trim();
+
+    if (trimmedStr.includes(' ') && trimmedStr.includes(':')) {
+      const parts = trimmedStr.split(' ');
+      const datePart = parts[0];
+      const timePart = parts.slice(1).join(' ');
+      const isoStr = `${datePart}T${timePart}+08:00`;
+      parsedDate = new Date(isoStr);
+    } else {
+      parsedDate = new Date(trimmedStr + 'T00:00:00+08:00');
+    }
+
+    if (isNaN(parsedDate.getTime())) {
+      return null;
+    }
+
+    return parsedDate.toISOString();
+  } catch (error) {
+    console.error('Error parsing Beijing time:', error);
+    return null;
+  }
 }
 
 // 获取符合查询条件的卡密用于导出
