@@ -53,6 +53,10 @@ export async function handleSubRequest(request, env, ctx) {
 
   const now = new Date().toISOString();
   if (!auth || auth.status !== 'active' || auth.expired_at < now) {
+    // 如果卡密已过期，自动设置为禁用状态
+    if (auth && auth.expired_at < now && auth.status === 'active') {
+      await db.prepare("UPDATE codes SET status = 'disabled' WHERE code = ?").bind(code).run();
+    }
     response = new Response('Forbidden: Invalid or Expired Code', { status: 403 });
     // 缓存1小时，减少无效请求对数据库的压力
     response.headers.set("Cache-Control", "public, max-age=3600");

@@ -36,6 +36,8 @@ export async function handleUserActivate(request, env, ctx) {
     // 检查是否已过期
     const now = new Date();
     if (codeRecord.expired_at && new Date(codeRecord.expired_at) < now) {
+      // 自动将过期卡密设置为禁用状态
+      await db.prepare("UPDATE codes SET status = 'disabled' WHERE code = ?").bind(code).run();
       return new Response(JSON.stringify({ success: false, error: '该卡密已过期' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' }
