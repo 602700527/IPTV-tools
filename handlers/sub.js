@@ -70,7 +70,6 @@ export async function handleSubRequest(request, env, ctx) {
     FROM channels c
     INNER JOIN sources s ON c.source_id = s.id
     WHERE c.is_active = 1 AND s.is_active = 1
-    ORDER BY c.group_title, c.channel_name
   `).all();
 
   if (!channels.results || channels.results.length === 0) {
@@ -83,11 +82,14 @@ export async function handleSubRequest(request, env, ctx) {
     return response;
   }
 
-  // 3.3 生成M3U内容（性能优化版）
+  // 3.3 对频道进行排序
+  const sortedChannels = sortChannels(channels.results || []);
+
+  // 3.4 生成M3U内容（性能优化版）
   const host = url.origin;
   const m3uLines = ['#EXTM3U'];
 
-  for (const channel of channels.results) {
+  for (const channel of sortedChannels) {
     const infoParts = ['#EXTINF:-1'];
     if (channel.group_title) infoParts.push(`group-title="${channel.group_title}"`);
     if (channel.logo) infoParts.push(`tvg-logo="${channel.logo}"`);
@@ -133,5 +135,71 @@ export async function handleSubRequest(request, env, ctx) {
   ctx.waitUntil(cache.put(cacheKey, response.clone()));
 
   return response;
+}
+
+// 频道排序函数
+function sortChannels(channels) {
+  if (!channels || channels.length === 0) {
+    return [];
+  }
+
+  // 首先按分组排序，然后按频道名排序
+  return channels.sort((a, b) => {
+    // 分组排序逻辑
+    const groupComparison = compareGroups(a.group_title || '', b.group_title || '');
+    if (groupComparison !== 0) {
+      return groupComparison;
+    }
+
+    // 频道名排序逻辑（英文、数字、汉字）
+    return compareChannelNames(a.channel_name || '', b.channel_name || '');
+  });
+}
+
+// 分组比较函数：中文分组优先，然后是英文分组
+function compareGroups(groupA, groupB) {
+  // 检查是否包含中文字符
+  const hasChinese = (str) => /[\u4e00-\u9fff]/.test(str);
+  
+  const aHasChinese = hasChinese(groupA);
+  const bHasChinese = hasChinese(groupB);
+
+  // 中文分组优先
+  if (aHasChinese && !bHasChinese) return -1;
+  if (!aHasChinese && bHasChinese) return 1;
+
+  // 同类型分组按字母顺序排序
+  return groupA.localeCompare(groupB, 'zh-CN');
+}
+
+// 频道名比较函数：英文 -> 数字 -> 汉字
+function compareChannelNames(nameA, nameB) {
+  const getType = (str) => {
+    // 检查是否以英文字母开头
+    if (/^[a-zA-Z]/.test(str)) return 'english';
+    // 检查是否以数字开头
+    if (/^[0-9]/.test(str)) return 'number';
+    // 否则为中文或其他
+    return 'chinese';
+  };
+
+  const typeA = getType(nameA);
+  const typeB = getType(nameB);
+
+  // 类型优先级：英文(0) -> 数字(1) -> 汉字(2)
+  const priority = { 'english': 0, 'number': 1, 'chinese': 2 };
+  
+  if (typeA !== typeB) {
+    return priority[typeA] - priority[typeB];
+  }
+
+  // 同类型内按字典序排序
+  if (typeA === 'chinese') {
+    // 中文字符按拼音排序
+    return nameA.localeCompare(nameB, 'zh-CN');
+  } else {
+    // 英文和数字按ASCII排序
+    return nameA.localeCompare(nameB, 'en-US');
+  }
 }
 
