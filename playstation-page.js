@@ -245,21 +245,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
     */
 
-    // 对URL中的查询参数进行编码（处理中文等非ASCII字符）
-    function encodeUrlParams(url) {
-      try {
-        const urlObj = new URL(url);
-        // 只编码查询参数，不编码整个URL
-        const params = new URLSearchParams(urlObj.search);
-        // 重新构建查询参数（URLSearchParams会自动编码）
-        urlObj.search = params.toString();
-        return urlObj.toString();
-      } catch (e) {
-        console.error('URL编码失败:', e);
-        return url;
-      }
-    }
-
     // 页面加载时获取频道列表
     window.addEventListener('DOMContentLoaded', () => {
       loadChannels();
@@ -382,7 +367,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       groupName.textContent = group;
 
       modal.classList.add('active');
-      isModalOpen = true;  // 标记模态框已打开
+      isModalOpen = true;
 
       // 销毁之前的Hls实例
       if (currentHls) {
@@ -390,276 +375,38 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         currentHls = null;
       }
 
-      // 先请求获取播放URL和headers
+      // 获取播放地址
       fetch(window.location.origin + '/api/play/' + hash)
         .then(res => res.json())
         .then(data => {
           if (data.success && data.play_url) {
-            const playUrl = data.play_url;
-            const headers = data.headers || {};
-
-            console.log('播放配置:', { playUrl, headers });
-
-            // 检查是否需要特殊headers
-            const needsSpecialHeaders = hasAnyForbiddenHeaders(headers);
-
-            console.log('[PlayStation] 是否需要特殊headers:', needsSpecialHeaders, headers);
-
-            if (needsSpecialHeaders) {
-              // 需要特殊headers，等待扩展检测
-              console.log('[PlayStation] 需要特殊headers，等待扩展检测...');
-
-              // 设置超时，防止无限等待
-              const timeout = setTimeout(() => {
-                console.warn('[PlayStation] 扩展检测超时（3秒），直接尝试播放');
-                startHlsPlay(playUrl, video, headers);
-              }, 3000);
-
-              waitForExtension((available) => {
-                clearTimeout(timeout);
-                console.log('[PlayStation] 扩展检测结果:', available);
-
-                if (available) {
-                  console.log('[PlayStation] 扩展可用，发送headers到扩展');
-                  // 扩展可用，自动发送headers到扩展
-                  sendHeadersToExtension(playUrl, headers)
-                    .then(() => {
-                      console.log('[Auto] 已发送headers到扩展，开始播放');
-                      startHlsPlay(playUrl, video, headers);
-                    })
-                    .catch(function(error) {
-                      console.error('[Auto] 发送headers失败:', error);
-                      // 即使失败也尝试播放
-                      startHlsPlay(playUrl, video, headers);
-                    });
-                } else {
-                  console.log('[PlayStation] 扩展不可用，显示安装提示');
-                  // 需要特殊headers但扩展不可用
-                  showExtensionDialog(playUrl, headers);
-                }
-              });
-            } else {
-              // 不需要特殊headers，直接播放
-              console.log('[PlayStation] 不需要特殊headers，直接播放');
-              startHlsPlay(playUrl, video, null);
-            }
+            console.log('播放地址:', data.play_url);
+            // 直接播放，不处理特殊headers
+            startPlay(data.play_url, video);
           } else {
-            // showToast('该频道暂时无法播放', 'error', 4000, true);
+            console.error('该频道暂时无法播放');
             closePlayer();
           }
         })
         .catch(function(error) {
           console.error('获取播放地址失败:', error);
-          // showToast('网络连接失败，请稍后重试', 'error', 4000, true);
           closePlayer();
         });
     }
 
-    // 发送headers到扩展
-    function sendHeadersToExtension(url, headers) {
-      return new Promise((resolve, reject) => {
-        console.log('[Extension] 尝试发送headers:', headers);
-
-        // 使用 window.IPTVHelper API（由扩展 main-world.js 注入）
-        if (window.IPTVHelper && typeof window.IPTVHelper.addHeaders === 'function') {
-          console.log('[Extension] 使用 IPTVHelper API');
-          window.IPTVHelper.addHeaders(headers, url)  // 传递视频URL
-            .then(function() {
-              console.log('[Extension] Headers已通过 IPTVHelper 发送');
-              resolve();
-            })
-            .catch(function(error) {
-              console.error('[Extension] IPTVHelper 发送失败:', error);
-              reject(error);
-            });
-          return;
-        }
-
-        // 备用方案：直接使用 chrome.runtime（仅在扩展环境中）
-        if (window.chrome && window.chrome.runtime && window.chrome.runtime.sendMessage) {
-          console.log('[Extension] 使用 chrome.runtime API');
-          window.chrome.runtime.sendMessage({
-            action: 'autoAddHeaders',
-            url: url,
-            headers: headers
-          }, (response) => {
-            if (chrome.runtime.lastError) {
-              console.error('[Extension] chrome.runtime error:', chrome.runtime.lastError);
-              reject(new Error(chrome.runtime.lastError.message));
-            } else if (response && response.success) {
-              console.log('[Extension] Headers已发送');
-              resolve();
-            } else {
-              reject(new Error('扩展响应失败'));
-            }
-          });
-          return;
-        }
-
-        // 两种方式都不可用
-        console.warn('[Extension] 扩展API不可用');
-        reject(new Error('扩展不可用，请安装 IPTV Helper 扩展'));
-      });
-    }
-
-    // 检查是否有浏览器禁止的headers
-    function hasAnyForbiddenHeaders(headers) {
-      const forbidden = ['user-agent', 'host', 'referer', 'origin', 'cookie'];
-      return Object.keys(headers).some(key =>
-        forbidden.includes(key.toLowerCase())
-      );
-    }
-
-    // 检查扩展是否可用
-    function checkExtensionAvailable() {
-      // 方法1: 检测 IPTVHelper API（最可靠）
-      if (window.IPTVHelper && typeof window.IPTVHelper.addHeaders === 'function') {
-        console.log('[PlayStation] 扩展检测通过: IPTVHelper API 可用');
-        return true;
-      }
-
-      // 方法2: 检测 window 标志
-      if (typeof window.EXTENSION_AVAILABLE !== 'undefined' && window.EXTENSION_AVAILABLE) {
-        console.log('[PlayStation] 扩展检测通过: EXTENSION_AVAILABLE 标志');
-        return true;
-      }
-
-      // 方法3: 检测 IPTVHelperReady 事件标志
-      if (window.IPTVHelperReady) {
-        console.log('[PlayStation] 扩展检测通过: IPTVHelperReady 标志');
-        return true;
-      }
-
-      // 方法4: 检测 DOM 属性
-      if (document.documentElement.getAttribute('data-iptv-extension') === 'available') {
-        console.log('[PlayStation] 扩展检测通过: DOM 属性');
-        return true;
-      }
-
-      // 方法5: 检测 chrome.runtime（备用）
-      if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
-        console.log('[PlayStation] chrome.runtime API 存在（异步检查）');
-        // 不在这里发送 ping，因为它是同步检查函数
-        return true;
-      }
-
-      console.log('[PlayStation] 扩展检测失败：未找到扩展API');
-      return false;
-    }
-
-    // 等待扩展可用（最多等待3秒）
-    function waitForExtension(callback) {
-      const maxAttempts = 30;  // 30次 * 100ms = 3秒
-      const delay = 100;       // 每次间隔100ms
-      let attempts = 0;
-
-      // 监听扩展就绪事件
-      const extensionReadyHandler = function(e) {
-        console.log('[PlayStation] 收到扩展就绪事件:', e.detail);
-        window.removeEventListener('iptvExtensionReady', extensionReadyHandler);
-        callback(true);
-      };
-
-      window.addEventListener('iptvExtensionReady', extensionReadyHandler);
-
-      function check() {
-        attempts++;
-
-        if (checkExtensionAvailable()) {
-          console.log('[PlayStation] ✅ 扩展已就绪 (尝试', attempts, '次)');
-          window.removeEventListener('iptvExtensionReady', extensionReadyHandler);
-          callback(true);
-        } else if (attempts >= maxAttempts) {
-          console.log('[PlayStation] ❌ 扩展未检测到 (尝试', attempts, '次)');
-          window.removeEventListener('iptvExtensionReady', extensionReadyHandler);
-          callback(false);
-        } else {
-          setTimeout(check, delay);
-        }
-      }
-
-      // 立即检查一次
-      check();
-    }
-
-    // 显示扩展提示对话框
-    function showExtensionDialog(playUrl, headers) {
-      const dialog = document.createElement('div');
-      dialog.style.cssText =
-        'position: fixed;' +
-        'top: 0;' +
-        'left: 0;' +
-        'right: 0;' +
-        'bottom: 0;' +
-        'background: rgba(0,0,0,0.9);' +
-        'display: flex;' +
-        'align-items: center;' +
-        'justify-content: center;' +
-        'z-index: 2000;';
-
-      const headerList = Object.entries(headers).map(([k, v]) => k + ': ' + v).join('<br>');
-
-      dialog.innerHTML = '<div style="background: #1a1a1a;border-radius: 12px;padding: 30px;max-width: 500px;width: 90%;color: #fff;box-shadow: 0 20px 60px rgba(0,0,0,0.5);">' +
-        '<h2 style="margin: 0 0 20px 0; color: #e50914;">需要浏览器扩展</h2>' +
-        '<p style="margin-bottom: 20px; line-height: 1.6;">该频道需要特殊Headers（如 User-Agent），但浏览器出于安全考虑不允许网页直接设置这些Headers。</p>' +
-        '<div style="background: #2a2a2a;padding: 15px;border-radius: 8px;margin-bottom: 20px;font-family: monospace;font-size: 12px;">' +
-        '<strong>需要的Headers:</strong><br>' + headerList +
-        '</div>' +
-        '<p style="margin-bottom: 20px; color: #aaa;"><strong>解决方案：</strong>请安装浏览器扩展来修改请求Headers</p>' +
-        '<div style="margin-bottom: 20px;">' +
-        '<button id="downloadExtension" style="background: #4CAF50;color: white;border: none;padding: 12px 24px;border-radius: 6px;cursor: pointer;font-size: 14px;margin-right: 10px;">安装扩展</button>' +
-        '<button id="tryPlay" style="background: #666;color: white;border: none;padding: 12px 24px;border-radius: 6px;cursor: pointer;font-size: 14px;">尝试播放</button>' +
-        '</div>' +
-        '<div style="background: #2a2a2a;padding: 15px;border-radius: 8px;font-size: 13px;">' +
-        '<strong>安装步骤（Chrome/Edge）:</strong>' +
-        '<ol style="margin: 10px 0 0 20px; line-height: 1.6;">' +
-        '<li>打开 chrome://extensions/</li>' +
-        '<li>启用"开发者模式"</li>' +
-        '<li>点击"加载已解压的扩展程序"</li>' +
-        '<li>选择项目目录下的 extension-example 文件夹</li>' +
-        '<li>点击扩展图标，设置 User-Agent 为 iPhone</li>' +
-        '</ol>' +
-        '</div>' +
-        '</div>';
-
-      document.body.appendChild(dialog);
-
-      document.getElementById('downloadExtension').onclick = () => {
-        // showToast('请在浏览器扩展设置中安装IPTV辅助扩展', 'info');
-      };
-
-      document.getElementById('tryPlay').onclick = () => {
-        document.body.removeChild(dialog);
-        startHlsPlay(playUrl, video, headers);
-      };
-    }
-
-    // 启动HLS播放
-    function startHlsPlay(playUrl, video, headers) {
+    // 启动播放
+    function startPlay(playUrl, video) {
       console.log('开始播放:', playUrl);
 
-      // 暂时不编码URL中的查询参数，因为某些服务器可能不支持编码后的中文
-      // playUrl = encodeUrlParams(playUrl);
-      // console.log('编码后的URL:', playUrl);
-
-      // 检测源类型 - 扩展支持更多流格式
+      // 检测源类型
       const isHls = playUrl.includes('.m3u8') ||
                      playUrl.includes('m3u8') ||
                      playUrl.includes('application/x-mpegURL') ||
-                     playUrl.includes('.ts') ||  // MPEG-TS流也可以用HLS.js解析
+                     playUrl.includes('.ts') ||
                      playUrl.endsWith('.ts') ||
                      playUrl.includes('application/x-mpegTS');
 
-      // 检测Mixed Content问题：HTTPS页面加载HTTP资源
-      const isHttpOnHttpsPage = window.location.protocol === 'https:' && playUrl.startsWith('http://');
-      console.log('[PlayStation] Mixed Content check:', isHttpOnHttpsPage);
-      console.log('[PlayStation] 视频源类型:', { url: playUrl, isHls });
-
-      if (isHttpOnHttpsPage && window.IPTVHelper && typeof window.IPTVHelper.proxyRequest === 'function') {
-        console.log('[PlayStation] 使用扩展代理请求解决Mixed Content问题');
-        loadVideoViaProxy(playUrl, video, isHls, headers);
-        return;
-      }
+      console.log('视频源类型:', { url: playUrl, isHls });
 
       if (isHls && Hls.isSupported()) {
         // 使用 Hls.js 播放
@@ -685,7 +432,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             switch (data.type) {
               case Hls.ErrorTypes.NETWORK_ERROR:
                 console.error('网络错误:', data);
-                // showToast('网络连接失败，请检查网络设置', 'error', 4000, true);
                 break;
               case Hls.ErrorTypes.MEDIA_ERROR:
                 console.log('尝试恢复媒体错误');
@@ -699,41 +445,26 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           }
         });
       } else {
-        // 非HLS源，使用原生video播放，并添加错误检测
+        // 非HLS源，使用原生video播放
         console.log('使用原生video播放（非HLS）');
         video.src = playUrl;
         video.load();
 
-        // 添加视频编码兼容性检测
         video.addEventListener('error', function(e) {
           const errorCode = video.error ? video.error.code : 0;
           console.error('原生video错误:', errorCode, video.error);
-
-          let errorMsg = '该频道无法播放';
-
-          if (errorCode === 3) {
-            // MEDIA_ERR_DECODE
-            errorMsg = '视频解码失败，建议更换浏览器或安装扩展';
-          } else if (errorCode === 4) {
-            // MEDIA_ERR_SRC_NOT_SUPPORTED
-            errorMsg = '该频道需要特殊支持，建议使用其他播放器';
-          }
-
-          // showToast(errorMsg, 'error', 4000, true);
         });
 
-        // 检测是否黑屏（有声音无画面）
         video.addEventListener('play', function() {
           console.log('视频开始播放');
           setTimeout(function() {
-            if (video.readyState >= 2) {  // HAVE_CURRENT_DATA
+            if (video.readyState >= 2) {
               const videoWidth = video.videoWidth;
               const videoHeight = video.videoHeight;
               console.log('视频分辨率:', videoWidth, 'x', videoHeight);
 
               if (videoWidth === 0 || videoHeight === 0) {
                 console.warn('检测到黑屏问题: 分辨率为0');
-                // showToast('有声音无画面，建议更换浏览器或安装扩展', 'warning', 5000, true);
               }
             }
           }, 3000);
@@ -741,84 +472,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
         video.play().catch(function(e) {
           console.error('播放失败:', e);
-          // showToast('自动播放失败，请点击播放器播放', 'warning', 3000, true);
         });
-      }
-    }
-
-    // 通过扩展代理加载视频（解决Mixed Content）
-    async function loadVideoViaProxy(url, video, isHls, headers) {
-      try {
-        console.log('[Proxy] 开始代理请求:', url);
-        console.log('[Proxy] 使用headers:', headers);
-        console.log('[Proxy] headers JSON:', JSON.stringify(headers));
-
-        // 调用扩展代理
-        const response = await window.IPTVHelper.proxyRequest(url, headers);
-
-        if (response.success) {
-          console.log('[Proxy] 代理成功，blob URL:', response.blobUrl);
-
-          if (isHls && Hls.isSupported()) {
-            // HLS流或.ts流使用HLS.js
-            console.log('[Proxy] 使用HLS.js播放blob URL');
-            currentHls = new Hls({
-              enableWorker: true,
-              lowLatencyMode: true,
-              backBufferLength: 90,
-              maxBufferLength: 30
-            });
-
-            currentHls.loadSource(response.blobUrl);
-            currentHls.attachMedia(video);
-
-            currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
-              console.log('[Proxy] HLS manifest parsed, 开始播放');
-              video.play().catch(function(e) { console.error('播放失败:', e); });
-            });
-
-            currentHls.on(Hls.Events.ERROR, function(event, data) {
-              console.error('[Proxy] HLS错误:', data);
-              if (data.fatal) {
-                // showToast('播放失败，请稍后重试', 'error', 4000, true);
-                currentHls.destroy();
-              }
-            });
-          } else {
-            // 非HLS流直接使用blob URL
-            console.log('[Proxy] 使用原生video播放blob URL');
-            video.src = response.blobUrl;
-            video.load();
-
-            // 添加相同的错误检测逻辑
-            video.addEventListener('error', function(e) {
-              const errorCode = video.error ? video.error.code : 0;
-              console.error('[Proxy] 原生video错误:', errorCode, video.error);
-
-              let errorMsg = '播放失败';
-
-              if (errorCode === 3) {
-                errorMsg = '视频解码失败，建议更换浏览器或安装扩展';
-              } else if (errorCode === 4) {
-                errorMsg = '该频道需要特殊支持，建议使用其他播放器';
-              } else if (errorCode === 2) {
-                errorMsg = '网络连接失败';
-              }
-
-              // showToast(errorMsg, 'error', 4000, true);
-            });
-
-            video.play().catch(function(e) {
-              console.error('[Proxy] 播放失败:', e);
-              // showToast('自动播放失败，请点击播放器播放', 'warning', 3000, true);
-            });
-          }
-        } else {
-          throw new Error(response.error || '代理请求失败');
-        }
-      } catch (error) {
-        console.error('[Proxy] 代理加载失败:', error);
-        // showToast('播放失败，请检查扩展是否已安装', 'error', 4000, true);
       }
     }
     
