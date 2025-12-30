@@ -1,5 +1,5 @@
 // 管理后台API处理器
-import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig } from '../database.js';
+import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig } from '../database.js';
 import { manualSyncAll } from './scheduler.js';
 import { getBlacklistedIPs, unbanIP, getIPAccessStats, banIP } from '../security/ip-blacklist.js';
 import { getBannedCodesFromCache, removeBannedCodeFromCache, syncBannedCodesToCache } from '../security/code-ban-cache.js';
@@ -802,6 +802,45 @@ export async function handleAdminRequest(request, env, ctx) {
               'Pragma': 'no-cache',
               'Expires': '0'
             }
+          });
+        }
+        break;
+
+      case 'system-config':
+        // 系统配置管理
+        if (request.method === 'GET') {
+          const config = await getSystemConfig();
+          return new Response(JSON.stringify({
+            success: true,
+            config
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'POST') {
+          const data = await request.json();
+          
+          const config = {};
+          if (data.enable_ref_check !== undefined) {
+            config.enable_ref_check = data.enable_ref_check;
+          }
+          if (data.ref_whitelist !== undefined) {
+            config.ref_whitelist = data.ref_whitelist;
+          }
+          if (data.enable_play_token !== undefined) {
+            config.enable_play_token = data.enable_play_token;
+          }
+          if (data.play_token_expire_seconds !== undefined && data.play_token_expire_seconds > 0) {
+            config.play_token_expire_seconds = parseInt(data.play_token_expire_seconds);
+          }
+
+          await updateSystemConfig(config);
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: '系统配置已更新',
+            config
+          }), {
+            headers: { 'Content-Type': 'application/json' }
           });
         }
         break;

@@ -160,6 +160,21 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
+    // 安全检测：阻止在非原始域名上运行（防止代理）
+    (function() {
+      const currentDomain = window.location.hostname;
+      const originalDomain = window.location.hostname; // 实际部署时应该硬编码你的域名
+      // 允许 localhost 和原始域名
+      const allowedDomains = [originalDomain, 'localhost', '127.0.0.1'];
+      // 注意：这里没有硬编码域名，因为代码是在运行时嵌入的
+      // 可以通过 worker 注入一个 ALLOWED_DOMAIN 变量
+      if (window.ALLOWED_DOMAINS && !window.ALLOWED_DOMAINS.some(d => currentDomain === d || currentDomain.endsWith('.' + d))) {
+        alert('此页面无法在当前域名运行，请访问原始站点');
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#fff;background:#000;"><h1>访问被拒绝</h1></div>';
+        throw new Error('Domain mismatch');
+      }
+    })();
+
     const API_BASE = '/api';
     let allChannels = [];
     let allGroups = [];
@@ -375,13 +390,22 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         currentHls = null;
       }
 
-      // 获取播放地址
-      fetch(window.location.origin + '/api/play/' + hash)
+      // 先获取token，再获取播放地址
+      fetch(window.location.origin + '/api/token?hash=' + encodeURIComponent(hash))
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.token) {
+            console.log('Token获取成功');
+            // 使用token获取播放地址
+            return fetch(window.location.origin + '/api/play/' + hash + '?token=' + encodeURIComponent(data.token));
+          } else {
+            throw new Error('获取Token失败');
+          }
+        })
         .then(res => res.json())
         .then(data => {
           if (data.success && data.play_url) {
             console.log('播放地址:', data.play_url);
-            // 直接播放，不处理特殊headers
             startPlay(data.play_url, video);
           } else {
             console.error('该频道暂时无法播放');
@@ -389,7 +413,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           }
         })
         .catch(function(error) {
-          console.error('获取播放地址失败:', error);
+          console.error('播放失败:', error);
           closePlayer();
         });
     }

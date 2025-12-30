@@ -1,5 +1,5 @@
 // 公开播放列表API - 无需卡密
-import { getDB, getHomepageDisplayConfig } from '../database.js';
+import { getDB, getHomepageDisplayConfig, getSystemConfig, generatePlayToken, verifyPlayToken, verifyReferer } from '../database.js';
 
 // 调试接口 - 查看频道信息
 export async function handleChannelDebug(request, env, ctx) {
@@ -304,6 +304,50 @@ export async function handlePublicPlay(request, env, ctx) {
   try {
     const db = getDB();
 
+    // 获取系统配置
+    const systemConfig = await getSystemConfig();
+
+    // Ref验证
+    if (systemConfig.enable_ref_check) {
+      const referer = request.headers.get('Referer');
+      if (!verifyReferer(referer, systemConfig.ref_whitelist)) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Invalid referer'
+        }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    // Token验证（如果启用）
+    const tokenParam = url.searchParams.get('token');
+    if (systemConfig.enable_play_token) {
+      if (!tokenParam) {
+        // 如果没有token，返回需要token的响应，前端应该重新请求获取token
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Token required',
+          requireToken: true
+        }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      const isValid = await verifyPlayToken(tokenParam, env.SECRET_KEY || 'default-secret-key', env, request);
+      if (!isValid) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Invalid or expired token'
+        }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
     // 查询频道信息
     const channel = await db.prepare(`
       SELECT channel_name, group_title, logo, play_url, headers
@@ -340,6 +384,71 @@ export async function handlePublicPlay(request, env, ctx) {
 
   } catch (error) {
     console.error('获取播放地址失败:', error);
+    return new Response('Internal Server Error', { status: 500 });
+  }
+}
+
+// 获取播放token
+export async function handleGetPlayToken(request, env, ctx) {
+  const url = new URL(request.url);
+  const hash = url.searchParams.get('hash');
+
+  if (!hash) {
+    return new Response('Missing channel hash', { status: 400 });
+  }
+
+  try {
+    const db = getDB();
+
+    // 获取系统配置
+    const systemConfig = await getSystemConfig();
+
+    // Ref验证（如果启用）
+    if (systemConfig.enable_ref_check) {
+      const referer = request.headers.get('Referer');
+      if (!verifyReferer(referer, systemConfig.ref_whitelist)) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Invalid referer'
+        }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    // 验证频道是否存在
+    const channel = await db.prepare(`
+      SELECT channel_name
+      FROM channels
+      WHERE channel_hash = ? AND is_active = 1
+    `).bind(hash).first();
+
+    if (!channel) {
+      return new Response('Channel not found', { status: 404 });
+    }
+
+    // 获取客户端真实IP（考虑CF代理）
+    const clientIp = request.headers.get('CF-Connecting-IP') || 
+                    request.headers.get('X-Forwarded-For')?.split(',')[0] ||
+                    'unknown';
+
+    // 生成带IP绑定的token（将IP哈希后存入nonce，服务器验证时对比）
+    const token = await generatePlayToken(hash, clientIp, env.SECRET_KEY || 'default-secret-key');
+
+    return new Response(JSON.stringify({
+      success: true,
+      token: token,
+      expire_seconds: systemConfig.play_token_expire_seconds
+    }), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
+      }
+    });
+
+  } catch (error) {
+    console.error('生成token失败:', error);
     return new Response('Internal Server Error', { status: 500 });
   }
 }

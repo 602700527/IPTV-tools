@@ -121,6 +121,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab" onclick="showTab('security')">安全监控</button>
       <button class="nav-tab" onclick="showTab('ip-blacklist')">IP黑名单</button>
       <button class="nav-tab" onclick="showTab('homepage-display')">首页展示</button>
+      <button class="nav-tab" onclick="showTab('system-settings')">系统设置</button>
       <button class="nav-tab" onclick="showTab('sql')">SQL Query</button>
     </div>
     <div id="dashboard" class="tab-content active">
@@ -530,6 +531,68 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
       </div>
     </div>
+    <div id="system-settings" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>系统安全设置</h3>
+          <button class="btn btn-primary" onclick="saveSystemConfig()">保存配置</button>
+        </div>
+        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            配置系统的安全策略，包括Referer验证和播放Token验证。
+          </p>
+          <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius:4px;">
+            <strong style="color:#e65100;">注意：</strong>
+            <ul style="margin:8px 0 0 20px;color:#666;">
+              <li>Referer验证：启用后，只有来自允许域名的请求才能获取播放地址</li>
+              <li>Token验证：启用后，播放地址需要通过Token验证，Token有效期可自定义</li>
+              <li><strong>新增功能：</strong>Token绑定IP地址+阅后即焚，防止重放攻击和代理盗用</li>
+              <li>建议同时启用两项功能以提高安全性</li>
+              <li>修改配置后，需要刷新首页才能生效</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <h4 style="margin-bottom:12px;font-weight:600;">Referer验证</h4>
+          <div style="margin-bottom:16px;">
+            <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+              <input type="checkbox" id="enableRefCheck" style="margin-right:12px;">
+              <span style="font-size:14px;">启用Referer验证</span>
+            </label>
+          </div>
+          <div class="form-group">
+            <label>允许的域名（逗号分隔，例如：example.com,*.example.com）</label>
+            <input type="text" id="refWhitelist" placeholder="例如：yourdomain.com,*.yourdomain.com,*" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;">
+            <p style="margin-top:8px;color:#86868b;font-size:12px;">使用 * 表示允许所有域名（不建议）</p>
+          </div>
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <h4 style="margin-bottom:12px;font-weight:600;">Token验证（防代理/防重放）</h4>
+          <div style="margin-bottom:16px;">
+            <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+              <input type="checkbox" id="enablePlayToken" style="margin-right:12px;">
+              <span style="font-size:14px;">启用播放Token验证</span>
+            </label>
+          </div>
+          <div class="form-group">
+            <label>Token有效期（秒）</label>
+            <input type="number" id="playTokenExpireSeconds" placeholder="例如：3600" min="60" max="86400" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;">
+            <p style="margin-top:8px;color:#86868b;font-size:12px;">建议值：3600（1小时）或 1800（30分钟）</p>
+          </div>
+          <div style="background:#e8f5e9;border-left:4px solid #2e7d32;padding:12px;border-radius:4px;margin-top:12px;">
+            <strong style="color:#1b5e20;">🔒 新增安全特性：</strong>
+            <ul style="margin:8px 0 0 20px;color:#1b5e20;font-size:13px;line-height:1.6;">
+              <li><strong>IP绑定：</strong>Token与获取时的客户端IP绑定，即使泄露也无法在其他IP上使用</li>
+              <li><strong>阅后即焚：</strong>Token使用一次后立即失效，防止重放攻击</li>
+              <li><strong>防代理：</strong>即使有人通过PHP代理你的页面，IP不匹配也会被拒绝</li>
+              <li><strong>防分享：</strong>Token无法被多次使用，有效限制地址分享行为</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
     <div id="sql" class="tab-content">
       <div class="card">
         <div class="toolbar">
@@ -811,6 +874,7 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
         loadIPBlacklist();
       }
       else if (tabName === 'homepage-display') loadHomepageDisplayConfig();
+      else if (tabName === 'system-settings') loadSystemConfig();
     }
 
     async function loadDashboard() {
@@ -2647,6 +2711,62 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
 
         if (result.success) {
           showToast('首页展示配置已保存', 'success');
+        } else {
+          showToast('保存配置失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        showToast('保存配置失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // 系统设置管理
+    async function loadSystemConfig() {
+      try {
+        showLoading();
+        const data = await apiRequest('/system-config', { showLoading: false });
+
+        if (data.success && data.config) {
+          document.getElementById('enableRefCheck').checked = data.config.enable_ref_check || false;
+          document.getElementById('refWhitelist').value = data.config.ref_whitelist || '';
+          document.getElementById('enablePlayToken').checked = data.config.enable_play_token !== undefined ? data.config.enable_play_token : true;
+          document.getElementById('playTokenExpireSeconds').value = data.config.play_token_expire_seconds || 3600;
+        } else {
+          showToast('加载配置失败', 'error');
+        }
+      } catch (error) {
+        showToast('加载配置失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function saveSystemConfig() {
+      try {
+        showLoading();
+        const config = {
+          enable_ref_check: document.getElementById('enableRefCheck').checked,
+          ref_whitelist: document.getElementById('refWhitelist').value.trim(),
+          enable_play_token: document.getElementById('enablePlayToken').checked,
+          play_token_expire_seconds: parseInt(document.getElementById('playTokenExpireSeconds').value)
+        };
+
+        // 验证配置值
+        if (config.play_token_expire_seconds < 60 || config.play_token_expire_seconds > 86400) {
+          showToast('Token有效期必须在60-86400秒之间', 'error');
+          hideLoading();
+          return;
+        }
+
+        const result = await apiRequest('/system-config', {
+          method: 'POST',
+          body: JSON.stringify(config),
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('系统配置已保存', 'success');
         } else {
           showToast('保存配置失败: ' + (result.error || '未知错误'), 'error');
         }

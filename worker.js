@@ -5,7 +5,7 @@ import { handleSubRequest } from './handlers/sub.js';
 import { handleAdminRequest } from './handlers/admin.js';
 import { handleScheduledEvent } from './handlers/scheduler.js';
 import { handleUserActivate } from './handlers/user.js';
-import { handlePublicChannels, handlePublicPlay, handleChannelDebug } from './handlers/public.js';
+import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken } from './handlers/public.js';
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { PLAYSTATION_HTML } from './playstation-page.js';
@@ -33,9 +33,22 @@ export default {
 
     // 路由处理
     if (path === '/' || path === '') {
-      // 首页 - 显示交互式播放站
-      return new Response(PLAYSTATION_HTML, {
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      // 首页 - 显示交互式播放站，添加安全头防止代理
+      // 注入允许的域名配置
+      const allowedDomains = [url.hostname];
+      const htmlWithConfig = PLAYSTATION_HTML.replace(
+        '<script>',
+        `<script>window.ALLOWED_DOMAINS = ${JSON.stringify(allowedDomains)};\n`
+      );
+      
+      return new Response(htmlWithConfig, {
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'X-Frame-Options': 'DENY', // 禁止在iframe中加载
+          'Content-Security-Policy': "frame-ancestors 'none'", // 禁止被嵌入任何框架
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'geolocation=(), microphone=(), camera=()'
+        }
       });
     } else if (path === '/api/channels') {
       // 公开频道列表API（无需卡密）
@@ -43,6 +56,9 @@ export default {
     } else if (path === '/api/debug') {
       // 调试接口 - 查看频道headers信息
       return await handleChannelDebug(request, env, ctx);
+    } else if (path === '/api/token') {
+      // 获取播放token API
+      return await handleGetPlayToken(request, env, ctx);
     } else if (path.startsWith('/api/play/')) {
       // 公开播放API（无需卡密）
       return await handlePublicPlay(request, env, ctx);

@@ -126,7 +126,12 @@ export async function createTables(env) {
     'live_rate_day': '2000',
     'admin_rate_hour': '10',
     // 首页展示配置（JSON格式）
-    'homepage_display_config': '{}'
+    'homepage_display_config': '{}',
+    // 系统安全配置
+    'enable_ref_check': 'false',
+    'ref_whitelist': '',
+    'enable_play_token': 'true',
+    'play_token_expire_seconds': '3600'
   };
 
   for (const [key, value] of Object.entries(defaultSettings)) {
@@ -250,6 +255,208 @@ export async function updateHomepageDisplayConfig(config) {
   await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
     .bind(configJson, 'homepage_display_config')
     .run();
+}
+
+// 获取系统安全配置
+export async function getSystemConfig() {
+  const db = getDB();
+  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?)')
+    .bind('enable_ref_check', 'ref_whitelist', 'enable_play_token', 'play_token_expire_seconds', 'homepage_display_config')
+    .all();
+
+  const config = {
+    enable_ref_check: false,
+    ref_whitelist: '',
+    enable_play_token: true,
+    play_token_expire_seconds: 3600,
+    homepage_display_config: {}
+  };
+
+  settings.results?.forEach(row => {
+    if (row.key === 'enable_ref_check') {
+      config.enable_ref_check = row.value === 'true';
+    } else if (row.key === 'ref_whitelist') {
+      config.ref_whitelist = row.value || '';
+    } else if (row.key === 'enable_play_token') {
+      config.enable_play_token = row.value === 'true';
+    } else if (row.key === 'play_token_expire_seconds') {
+      config.play_token_expire_seconds = parseInt(row.value) || 3600;
+    } else if (row.key === 'homepage_display_config') {
+      try {
+        config.homepage_display_config = JSON.parse(row.value);
+      } catch (e) {
+        config.homepage_display_config = {};
+      }
+    }
+  });
+
+  return config;
+}
+
+// 更新系统安全配置
+export async function updateSystemConfig(config) {
+  const db = getDB();
+
+  if (config.enable_ref_check !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.enable_ref_check.toString(), 'enable_ref_check')
+      .run();
+  }
+
+  if (config.ref_whitelist !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.ref_whitelist || '', 'ref_whitelist')
+      .run();
+  }
+
+  if (config.enable_play_token !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.enable_play_token.toString(), 'enable_play_token')
+      .run();
+  }
+
+  if (config.play_token_expire_seconds !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.play_token_expire_seconds.toString(), 'play_token_expire_seconds')
+      .run();
+  }
+}
+
+// 生成播放token（HMAC签名，带随机数防重放，IP绑定）
+export async function generatePlayToken(channelHash, clientIp, secret) {
+  const timestamp = Math.floor(Date.now() / 1000);
+  const nonce = crypto.randomUUID(); // 添加随机数防重放
+  
+  // 将IP地址哈希后嵌入nonce中（服务器验证时对比真实IP）
+  const ipEncoder = new TextEncoder();
+  const ipHashBuffer = await crypto.subtle.digest('SHA-256', ipEncoder.encode(clientIp || 'unknown'));
+  const ipHashArray = Array.from(new Uint8Array(ipHashBuffer));
+  const ipHash = ipHashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`${channelHash}:${timestamp}:${nonce}`);
+  
+  // 使用crypto.subtle.sign创建HMAC
+  const keyData = encoder.encode(secret || 'default-secret-key');
+  return crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  ).then(key => {
+    return crypto.subtle.sign('HMAC', key, data);
+  }).then(signature => {
+    const signatureArray = Array.from(new Uint8Array(signature));
+    const signatureHex = signatureArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    // 格式: channelHash:timestamp:nonce:ipHash:signatureHex
+    return `${channelHash}:${timestamp}:${nonce}:${ipHash}:${signatureHex}`;
+  });
+}
+
+// 验证播放token（阅后即焚 + IP绑定）
+export async function verifyPlayToken(token, secret, env, request) {
+  try {
+    const parts = token.split(':');
+    if (parts.length !== 5) {
+      console.log('[Token] Invalid token format');
+      return false;
+    }
+
+    const [channelHash, timestampStr, nonce, ipHash, signature] = parts;
+    const timestamp = parseInt(timestampStr);
+    const now = Math.floor(Date.now() / 1000);
+
+    // 验证token是否过期
+    const config = await getSystemConfig();
+    const expireSeconds = config.play_token_expire_seconds || 3600;
+    if (now - timestamp > expireSeconds) {
+      console.log('[Token] Token expired');
+      return false;
+    }
+
+    // 验证IP绑定（请求者的IP必须与生成token时的IP一致）
+    if (request) {
+      const clientIp = request.headers.get('CF-Connecting-IP') || 
+                      request.headers.get('X-Forwarded-For')?.split(',')[0] ||
+                      'unknown';
+      
+      const ipEncoder = new TextEncoder();
+      const requestIpHashBuffer = await crypto.subtle.digest('SHA-256', ipEncoder.encode(clientIp || 'unknown'));
+      const requestIpHashArray = Array.from(new Uint8Array(requestIpHashBuffer));
+      const requestIpHash = requestIpHashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      
+      if (requestIpHash !== ipHash) {
+        console.log('[Token] IP mismatch (anti-proxy protection)', { expected: ipHash.substring(0, 8), got: requestIpHash.substring(0, 8) });
+        return false;
+      }
+    }
+
+    // 检查是否已被使用（KV存储，阅后即焚）
+    if (env && env.KV) {
+      const usedKey = `used_token:${token}`;
+      const isUsed = await env.KV.get(usedKey);
+      if (isUsed) {
+        console.log('[Token] Token already used (replay attack prevented)');
+        return false;
+      }
+    }
+
+    // 验证签名
+    const encoder = new TextEncoder();
+    const data = encoder.encode(`${channelHash}:${timestampStr}:${nonce}`);
+    const keyData = encoder.encode(secret || 'default-secret-key');
+    
+    const key = await crypto.subtle.importKey(
+      'raw',
+      keyData,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['verify']
+    );
+    
+    const signatureArray = new Uint8Array(signature.match(/.{2}/g).map(byte => parseInt(byte, 16)));
+    const isValid = await crypto.subtle.verify('HMAC', key, signatureArray, data);
+    
+    if (!isValid) {
+      console.log('[Token] Invalid signature');
+      return false;
+    }
+
+    // 验证通过后，立即标记为已使用（阅后即焚）
+    if (env && env.KV) {
+      const usedKey = `used_token:${token}`;
+      await env.KV.put(usedKey, '1', {
+        expirationTtl: expireSeconds // 与token过期时间一致，自动清理
+      });
+      console.log('[Token] Token marked as used (burn after read)');
+    }
+
+    return true;
+  } catch (e) {
+    console.error('Token verification error:', e);
+    return false;
+  }
+}
+
+// 验证Referrer
+export function verifyReferer(referer, whitelist) {
+  if (!whitelist || whitelist.trim() === '') return true;
+  
+  const allowedDomains = whitelist.split(',').map(d => d.trim()).filter(d => d);
+  if (allowedDomains.length === 0) return true;
+
+  if (!referer) return false;
+
+  try {
+    const refererUrl = new URL(referer);
+    return allowedDomains.some(domain => {
+      if (domain === '*') return true;
+      return refererUrl.hostname === domain || refererUrl.hostname.endsWith('.' + domain);
+    });
+  } catch (e) {
+    return false;
+  }
 }
 
 // 更新安全配置
