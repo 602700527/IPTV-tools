@@ -175,6 +175,8 @@ export async function handlePublicChannels(request, env, ctx) {
     const url = new URL(request.url);
     const search = url.searchParams.get('search') || '';
     const group = url.searchParams.get('group') || '';
+    const page = parseInt(url.searchParams.get('page') || '1', 10);
+    const pageSize = parseInt(url.searchParams.get('page_size') || '50', 10);
 
     const db = getDB();
 
@@ -219,14 +221,10 @@ export async function handlePublicChannels(request, env, ctx) {
       console.log('[PublicChannels] hasHeaders条件已添加');
     }
 
+    // 搜索过滤（同时影响频道和分组列表）
     if (search) {
       whereConditions.push('(c.channel_name LIKE ? OR c.group_title LIKE ?)');
       params.push(`%${search}%`, `%${search}%`);
-    }
-
-    if (group) {
-      whereConditions.push('c.group_title = ?');
-      params.push(group);
     }
 
     const whereClause = whereConditions.join(' AND ');
@@ -234,16 +232,41 @@ export async function handlePublicChannels(request, env, ctx) {
     console.log('[PublicChannels] WHERE条件:', whereClause);
     console.log('[PublicChannels] 查询参数:', params);
 
-    // 获取所有频道（不限制数量）
+    // 构建频道的WHERE条件（包括group过滤）
+    let channelWhereConditions = [...whereConditions];
+    let channelParams = [...params];
+
+    if (group) {
+      channelWhereConditions.push('c.group_title = ?');
+      channelParams.push(group);
+    }
+
+    const channelWhereClause = channelWhereConditions.join(' AND ');
+
+    // 获取总数量（包含group过滤）
+    const countResult = await db.prepare(`
+      SELECT COUNT(*) as total
+      FROM channels c
+      INNER JOIN sources s ON c.source_id = s.id
+      WHERE ${channelWhereClause}
+    `).bind(...channelParams).first();
+    const total = countResult ? countResult.total : 0;
+
+    // 分页参数
+    const offset = (page - 1) * pageSize;
+    const totalPages = Math.ceil(total / pageSize);
+
+    // 获取分页频道数据（包含group过滤）
     const channelsResult = await db.prepare(`
       SELECT c.id, c.channel_name, c.group_title, c.logo, c.channel_hash, c.source_id, s.name as source_name, c.headers
       FROM channels c
       INNER JOIN sources s ON c.source_id = s.id
-      WHERE ${whereClause}
+      WHERE ${channelWhereClause}
       ORDER BY c.group_title, c.channel_name
-    `).bind(...params).all();
+      LIMIT ? OFFSET ?
+    `).bind(...channelParams, pageSize, offset).all();
 
-    // 获取所有分组（同样需要应用过滤条件）
+    // 获取所有分组（不受group过滤影响，但受search过滤影响）
     const groupsResult = await db.prepare(`
       SELECT DISTINCT group_title
       FROM channels c
@@ -255,12 +278,25 @@ export async function handlePublicChannels(request, env, ctx) {
     const channels = channelsResult.results || [];
     const groups = groupsResult.results?.map(g => g.group_title).filter(g => g) || [];
 
+    // 分页信息
+    const pagination = {
+      page,
+      page_size: pageSize,
+      total,
+      total_pages: totalPages,
+      has_prev: page > 1,
+      has_next: page < totalPages
+    };
+
     // 调试信息：添加到响应中，方便在浏览器Network面板查看
     const debugInfo = {
       hasHeadersConfig: displayConfig.hasHeaders,
-      whereClause: whereClause,
-      paramsCount: params.length,
-      channelsCount: channels.length
+      channelWhereClause: channelWhereClause,
+      groupsWhereClause: whereClause,
+      channelParamsCount: channelParams.length,
+      groupsParamsCount: params.length,
+      channelsCount: channels.length,
+      groupsCount: groups.length
     };
 
     console.log('[PublicChannels] 调试信息:', JSON.stringify(debugInfo));
@@ -268,8 +304,8 @@ export async function handlePublicChannels(request, env, ctx) {
     return new Response(JSON.stringify({
       success: true,
       channels,
-      total: channels.length,
       groups,
+      pagination,
       debug: debugInfo  // 添加调试信息
     }), {
       headers: {

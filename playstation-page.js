@@ -45,6 +45,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .channel-info{padding:14px}
     .channel-name{font-size:14px;font-weight:500;color:#fff;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .channel-group{font-size:12px;color:rgba(255,255,255,.5)}
+    .pagination{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:30px;padding:20px 0}
+    .pagination button{padding:8px 16px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:#fff;border-radius:6px;cursor:pointer;font-size:14px;transition:all .2s}
+    .pagination button:hover:not(:disabled){background:rgba(255,255,255,.1);border-color:#e50914}
+    .pagination button:disabled{color:rgba(255,255,255,.3);cursor:not-allowed;border-color:rgba(255,255,255,.1)}
+    .pagination button.active{background:#e50914;border-color:#e50914}
+    .pagination-info{color:rgba(255,255,255,.6);font-size:14px}
     
     /* 播放器样式 - 可折叠的右下角浮窗 */
     .player-wrapper{display:none;position:fixed;right:20px;bottom:20px;z-index:1000;background:#0a0a0a;border-radius:12px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1);transition:all .3s ease}
@@ -107,6 +113,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .player-wrapper.expanded{width:calc(100vw - 20px);height:calc(100vh - 90px);right:10px;top:70px}
       .player-title{font-size:12px}
       .player-group{font-size:11px}
+      .pagination{flex-wrap:wrap;gap:6px;padding:15px 0}
+      .pagination button{padding:6px 12px;font-size:12px}
+      .pagination-info{width:100%;text-align:center;margin-bottom:10px}
     }
   </style>
 </head>
@@ -133,12 +142,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         <div class="spinner"></div>
         <span class="loading-text">加载频道列表...</span>
       </div>
-      
+
       <div id="channelList" style="display:none;">
         <div class="section-title" id="sectionTitle">全部频道</div>
         <div class="channels-grid" id="channelsGrid"></div>
+        <div class="pagination" id="pagination"></div>
       </div>
-      
+
       <div id="emptyState" class="empty-state" style="display:none;">
         <div class="empty-icon">📺</div>
         <div class="empty-title">未找到频道</div>
@@ -197,6 +207,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let currentHls = null;
     let isPlayerOpen = false;
     let isPlayerExpanded = false;
+    let currentPage = 1;
+    let pageSize = 50;
+    let totalPages = 1;
+    let totalChannels = 0;
+    let currentSearch = '';
     // let lastErrorTime = 0;  // 防止重复显示相同错误（已禁用）
     // let lastErrorMsg = '';   // 记录上一条错误消息（已禁用）
 
@@ -280,18 +295,33 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       loadChannels();
     });
     
-    async function loadChannels() {
+    async function loadChannels(page = 1) {
       try {
-        const response = await fetch(API_BASE + '/channels');
+        const params = new URLSearchParams({
+          page: page,
+          page_size: pageSize
+        });
+        if (currentSearch) {
+          params.append('search', currentSearch);
+        }
+        if (currentGroup) {
+          params.append('group', currentGroup);
+        }
+
+        const response = await fetch(API_BASE + '/channels?' + params.toString());
         const data = await response.json();
-        
+
         if (data.success) {
+          currentPage = data.pagination?.page || 1;
+          totalPages = data.pagination?.total_pages || 1;
+          totalChannels = data.pagination?.total || 0;
           allChannels = data.channels || [];
           allGroups = data.groups || [];
-          
+
           renderGroups();
           renderChannels(allChannels);
-          
+          renderPagination();
+
           document.getElementById('loading').style.display = 'none';
           document.getElementById('channelList').style.display = 'block';
         } else {
@@ -305,11 +335,19 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     
     function renderGroups() {
       const container = document.getElementById('groupList');
-      container.innerHTML = allGroups.map(group => 
+      container.innerHTML = allGroups.map(group =>
         \`<div class="group-item" data-group="\${escapeHtml(group)}" onclick="filterByGroup('\${escapeHtml(group)}')">
           \${escapeHtml(group)}
         </div>\`
       ).join('');
+
+      // 更新选中状态（包括硬编码的"全部频道"选项）
+      document.querySelectorAll('.group-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.group === currentGroup) {
+          item.classList.add('active');
+        }
+      });
     }
     
     function renderChannels(channels) {
@@ -347,46 +385,72 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     
     function filterByGroup(group) {
       currentGroup = group;
-      
-      // 更新UI状态
-      document.querySelectorAll('.group-item').forEach(item => {
-        item.classList.remove('active');
-        if (item.dataset.group === group) {
-          item.classList.add('active');
-        }
-      });
-      
+      currentPage = 1; // 重置到第一页
+
       document.getElementById('sectionTitle').textContent = group || '全部频道';
-      
-      // 过滤频道
-      const filtered = group 
-        ? allChannels.filter(c => c.group_title === group)
-        : allChannels;
-      
-      renderChannels(filtered);
+
+      // 重新加载频道
+      loadChannels(1);
     }
     
     function handleSearch() {
       clearTimeout(searchTimeout);
       searchTimeout = setTimeout(() => {
-        const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
-        
+        const keyword = document.getElementById('searchInput').value.trim();
+
         if (!keyword) {
+          currentSearch = '';
+          currentPage = 1;
           filterByGroup(currentGroup);
           return;
         }
-        
-        // 搜索过滤
-        const filtered = allChannels.filter(c => 
-          c.channel_name.toLowerCase().includes(keyword) ||
-          (c.group_title && c.group_title.toLowerCase().includes(keyword))
-        );
-        
-        renderChannels(filtered);
-        document.getElementById('sectionTitle').textContent = \`搜索: \${escapeHtml(document.getElementById('searchInput').value)}\`;
+
+        currentSearch = keyword;
+        currentPage = 1; // 重置到第一页
+
+        // 重新加载频道
+        loadChannels(1);
+        document.getElementById('sectionTitle').textContent = \`搜索: \${escapeHtml(keyword)}\`;
       }, 300);
     }
-    
+
+    function goToPage(page) {
+      if (page >= 1 && page <= totalPages) {
+        loadChannels(page);
+        // 滚动到频道列表顶部
+        document.getElementById('channelList').scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function renderPagination() {
+      const container = document.getElementById('pagination');
+      if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+
+      let html = \`<span class="pagination-info">共 \${totalChannels} 个频道，第 \${currentPage}/\${totalPages} 页</span>\`;
+      html += \`<button onclick="goToPage(1)" \${currentPage === 1 ? 'disabled' : ''}>首页</button>\`;
+      html += \`<button onclick="goToPage(\${currentPage - 1})" \${currentPage === 1 ? 'disabled' : ''}>上一页</button>\`;
+
+      const maxButtons = 7;
+      let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+      let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+      if (endPage - startPage + 1 < maxButtons) {
+        startPage = Math.max(1, endPage - maxButtons + 1);
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        html += \`<button onclick="goToPage(\${i})" class="\${i === currentPage ? 'active' : ''}">\${i}</button>\`;
+      }
+
+      html += \`<button onclick="goToPage(\${currentPage + 1})" \${currentPage === totalPages ? 'disabled' : ''}>下一页</button>\`;
+      html += \`<button onclick="goToPage(\${totalPages})" \${currentPage === totalPages ? 'disabled' : ''}>末页</button>\`;
+
+      container.innerHTML = html;
+    }
+
     function playChannel(hash, name, group) {
       const playerWrapper = document.getElementById('playerWrapper');
       const video = document.getElementById('videoPlayer');
