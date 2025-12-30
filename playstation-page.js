@@ -46,16 +46,22 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .channel-name{font-size:14px;font-weight:500;color:#fff;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .channel-group{font-size:12px;color:rgba(255,255,255,.5)}
     
-    .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.95);z-index:2000;align-items:center;justify-content:center}
-    .modal.active{display:flex}
-    .modal-content{width:90%;max-width:1200px;background:#0a0a0a;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.8)}
-    .player-container{position:relative;width:100%;padding-top:56.25%;background:#000}
-    .player-container video{position:absolute;top:0;left:0;width:100%;height:100%}
-    .modal-info{padding:20px 30px;border-top:1px solid rgba(255,255,255,.1)}
-    .modal-title{font-size:24px;font-weight:600;margin-bottom:10px}
-    .modal-group{color:rgba(255,255,255,.6);font-size:14px}
-    .close-modal{position:absolute;top:20px;right:20px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);border:none;cursor:pointer;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:2010}
-    .close-modal:hover{background:rgba(255,255,255,.3)}
+    /* 播放器样式 - 可折叠的右下角浮窗 */
+    .player-wrapper{display:none;position:fixed;right:20px;bottom:20px;z-index:1000;background:#0a0a0a;border-radius:12px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1);transition:all .3s ease}
+    .player-wrapper.expanded{width:calc(100vw - 40px);height:calc(100vh - 80px);right:20px;top:70px;bottom:20px}
+    .player-wrapper.collapsed{width:480px;height:270px}
+    .player-wrapper.active{display:block}
+    .player-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.1);cursor:move;user-select:none}
+    .player-info{flex:1;min-width:0}
+    .player-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .player-group{font-size:12px;color:rgba(255,255,255,.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .player-controls{display:flex;gap:8px}
+    .player-btn{width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:14px}
+    .player-btn:hover{background:rgba(255,255,255,.2)}
+    .player-container{position:relative;width:100%;height:calc(100% - 50px);background:#000}
+    .player-container video{width:100%;height:100%;object-fit:contain}
+    .close-modal{background:rgba(231,9,20,.2)}
+    .close-modal:hover{background:rgba(231,9,20,.4)}
     
     .loading{display:flex;align-items:center;justify-content:center;padding:60px;color:rgba(255,255,255,.5)}
     .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#e50914;border-radius:50%;animation:spin 1s linear infinite}
@@ -89,13 +95,18 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .content{margin-left:0}
       .footer{margin-left:0}
       .channels-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+      .player-wrapper.collapsed{width:360px;height:200px}
     }
     @media (max-width:768px){
       .header{padding:0 20px}
       .nav-links{display:none}
       .search-box{margin-left:20px;max-width:300px}
       .channels-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
-      .modal-content{width:100%;max-width:none;border-radius:0}
+      .player-wrapper{right:10px;bottom:10px;width:calc(100vw - 20px)}
+      .player-wrapper.collapsed{height:calc(100vw * 9/16);width:calc(100vw - 20px)}
+      .player-wrapper.expanded{width:calc(100vw - 20px);height:calc(100vh - 90px);right:10px;top:70px}
+      .player-title{font-size:12px}
+      .player-group{font-size:11px}
     }
   </style>
 </head>
@@ -142,19 +153,22 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <footer class="footer">
     <p>&copy; 2024 IPTV Live. 免费高清直播服务</p>
   </footer>
-  
-  <div class="modal" id="playerModal">
-    <button class="close-modal" onclick="closePlayer()">&times;</button>
-    <div class="modal-content">
-      <div class="player-container">
-        <video id="videoPlayer" controls autoplay>
-          Your browser does not support the video tag.
-        </video>
+
+  <div class="player-wrapper collapsed" id="playerWrapper">
+    <div class="player-header" id="playerHeader">
+      <div class="player-info">
+        <div class="player-title" id="playerTitle">频道名称</div>
+        <div class="player-group" id="playerGroup">分组</div>
       </div>
-      <div class="modal-info">
-        <div class="modal-title" id="modalTitle">频道名称</div>
-        <div class="modal-group" id="modalGroup">分组</div>
+      <div class="player-controls">
+        <button class="player-btn" onclick="togglePlayerSize()" title="切换大小">⛶</button>
+        <button class="player-btn close-modal" onclick="closePlayer()" title="关闭">&times;</button>
       </div>
+    </div>
+    <div class="player-container">
+      <video id="videoPlayer" controls autoplay>
+        Your browser does not support the video tag.
+      </video>
     </div>
   </div>
   
@@ -181,7 +195,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let currentGroup = '';
     let searchTimeout = null;
     let currentHls = null;
-    let isModalOpen = false;  // 跟踪模态框是否打开
+    let isPlayerOpen = false;
+    let isPlayerExpanded = false;
     // let lastErrorTime = 0;  // 防止重复显示相同错误（已禁用）
     // let lastErrorMsg = '';   // 记录上一条错误消息（已禁用）
 
@@ -373,16 +388,16 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
     
     function playChannel(hash, name, group) {
-      const modal = document.getElementById('playerModal');
+      const playerWrapper = document.getElementById('playerWrapper');
       const video = document.getElementById('videoPlayer');
-      const title = document.getElementById('modalTitle');
-      const groupName = document.getElementById('modalGroup');
+      const title = document.getElementById('playerTitle');
+      const groupName = document.getElementById('playerGroup');
 
       title.textContent = name;
       groupName.textContent = group;
 
-      modal.classList.add('active');
-      isModalOpen = true;
+      playerWrapper.classList.add('active');
+      isPlayerOpen = true;
 
       // 销毁之前的Hls实例
       if (currentHls) {
@@ -416,6 +431,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           console.error('播放失败:', error);
           closePlayer();
         });
+    }
+
+    function togglePlayerSize() {
+      const playerWrapper = document.getElementById('playerWrapper');
+      isPlayerExpanded = !isPlayerExpanded;
+      playerWrapper.classList.toggle('expanded', isPlayerExpanded);
+      playerWrapper.classList.toggle('collapsed', !isPlayerExpanded);
     }
 
     // 启动播放
@@ -501,10 +523,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
     
     function closePlayer() {
-      const modal = document.getElementById('playerModal');
+      const playerWrapper = document.getElementById('playerWrapper');
       const video = document.getElementById('videoPlayer');
 
-      isModalOpen = false;  // 标记模态框已关闭
+      isPlayerOpen = false;
+      isPlayerExpanded = false;
 
       video.pause();
       video.src = '';
@@ -517,7 +540,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         currentHls = null;
       }
 
-      modal.classList.remove('active');
+      playerWrapper.classList.remove('active');
+      playerWrapper.classList.remove('expanded');
+      playerWrapper.classList.add('collapsed');
     }
     
     function showError(message) {
@@ -534,7 +559,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     // 按ESC关闭播放器
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
-        closePlayer();
+        // 如果播放器展开，先折叠；如果已折叠，则关闭
+        if (isPlayerOpen && isPlayerExpanded) {
+          togglePlayerSize();
+        } else {
+          closePlayer();
+        }
       }
     });
 
@@ -546,6 +576,46 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         currentHls = null;
       }
     });
+
+    // 播放器拖动功能
+    (function() {
+      const playerWrapper = document.getElementById('playerWrapper');
+      const playerHeader = document.getElementById('playerHeader');
+      let isDragging = false;
+      let startX, startY, startLeft, startBottom;
+
+      playerHeader.addEventListener('mousedown', function(e) {
+        if (e.target.classList.contains('player-btn')) return;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = playerWrapper.getBoundingClientRect();
+        startLeft = rect.left;
+        startBottom = window.innerHeight - rect.bottom;
+        playerHeader.style.cursor = 'grabbing';
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        const newLeft = startLeft + dx;
+        const newBottom = startBottom - dy;
+
+        playerWrapper.style.right = 'auto';
+        playerWrapper.style.left = newLeft + 'px';
+        playerWrapper.style.bottom = newBottom + 'px';
+        playerWrapper.style.top = 'auto';
+      });
+
+      document.addEventListener('mouseup', function() {
+        if (isDragging) {
+          isDragging = false;
+          playerHeader.style.cursor = 'move';
+        }
+      });
+    })();
   </script>
 </body>
 </html>`;
