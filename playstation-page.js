@@ -273,6 +273,49 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       }
     })();
 
+    // ========== AES-GCM 解密函数 ==========
+    async function decryptAES(encryptedBase64, secret) {
+      try {
+        // 从密钥派生加密密钥
+        const keyData = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(secret));
+        const key = await crypto.subtle.importKey(
+          'raw',
+          keyData,
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['decrypt']
+        );
+
+        // 从 Base64 解码
+        const binaryString = atob(encryptedBase64);
+        const combined = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          combined[i] = binaryString.charCodeAt(i);
+        }
+
+        // 分离 IV (前 12 bytes)
+        const iv = combined.slice(0, 12);
+        const encryptedData = combined.slice(12);
+
+        // 解密
+        const decrypted = await crypto.subtle.decrypt(
+          { name: 'AES-GCM', iv: iv },
+          key,
+          encryptedData
+        );
+
+        return new TextDecoder().decode(decrypted);
+      } catch (error) {
+        console.error('AES 解密失败:', error);
+        throw error;
+      }
+    }
+
+    // 解密密钥（需要与服务器端SECRET_KEY保持一致）
+    // 注意：生产环境中不应该在前端硬编码密钥，应该通过其他方式传递
+    // 这里为了演示，使用一个默认值。实际部署时应该通过环境变量或配置注入
+    const DECRYPTION_KEY = window.DECRYPTION_KEY || 'default-secret-key';
+
     const API_BASE = '/api';
     let allChannels = [];
     let allGroups = [];
@@ -590,8 +633,24 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         .then(res => res.json())
         .then(data => {
           if (data.success && data.play_url) {
-            console.log('播放地址:', data.play_url);
-            startPlay(data.play_url, video);
+            let playUrl = data.play_url;
+
+            // 如果返回的是加密的URL，进行解密
+            if (data.encoded && data.encryption === 'aes-gcm') {
+              decryptAES(playUrl, DECRYPTION_KEY)
+                .then(decryptedUrl => {
+                  console.log('URL已解密:', decryptedUrl);
+                  startPlay(decryptedUrl, video);
+                })
+                .catch(e => {
+                  console.error('URL解密失败:', e);
+                  closePlayer();
+                });
+              return; // 异步解密，提前返回
+            }
+
+            console.log('播放地址:', playUrl);
+            startPlay(playUrl, video);
           } else {
             console.error('该频道暂时无法播放');
             closePlayer();

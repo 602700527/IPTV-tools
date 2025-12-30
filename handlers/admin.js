@@ -818,7 +818,7 @@ export async function handleAdminRequest(request, env, ctx) {
           });
         } else if (request.method === 'POST') {
           const data = await request.json();
-          
+
           const config = {};
           if (data.enable_ref_check !== undefined) {
             config.enable_ref_check = data.enable_ref_check;
@@ -831,6 +831,12 @@ export async function handleAdminRequest(request, env, ctx) {
           }
           if (data.play_token_expire_seconds !== undefined && data.play_token_expire_seconds > 0) {
             config.play_token_expire_seconds = parseInt(data.play_token_expire_seconds);
+          }
+          if (data.enable_ip_bind !== undefined) {
+            config.enable_ip_bind = data.enable_ip_bind;
+          }
+          if (data.enable_burn_after_read !== undefined) {
+            config.enable_burn_after_read = data.enable_burn_after_read;
           }
 
           await updateSystemConfig(config);

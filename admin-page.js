@@ -581,8 +581,22 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <input type="number" id="playTokenExpireSeconds" placeholder="例如：3600" min="60" max="86400" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;">
             <p style="margin-top:8px;color:#86868b;font-size:12px;">建议值：3600（1小时）或 1800（30分钟）</p>
           </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+              <input type="checkbox" id="enableIPBind" style="margin-right:12px;">
+              <span style="font-size:14px;">启用IP绑定</span>
+            </label>
+            <p style="margin-top:8px;color:#86868b;font-size:12px;">Token与获取时的客户端IP绑定，即使泄露也无法在其他IP上使用</p>
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+              <input type="checkbox" id="enableBurnAfterRead" style="margin-right:12px;">
+              <span style="font-size:14px;">启用阅后即焚</span>
+            </label>
+            <p style="margin-top:8px;color:#86868b;font-size:12px;">Token使用一次后立即失效，防止重放攻击</p>
+          </div>
           <div style="background:#e8f5e9;border-left:4px solid #2e7d32;padding:12px;border-radius:4px;margin-top:12px;">
-            <strong style="color:#1b5e20;">🔒 新增安全特性：</strong>
+            <strong style="color:#1b5e20;">🔒 Token安全特性说明：</strong>
             <ul style="margin:8px 0 0 20px;color:#1b5e20;font-size:13px;line-height:1.6;">
               <li><strong>IP绑定：</strong>Token与获取时的客户端IP绑定，即使泄露也无法在其他IP上使用</li>
               <li><strong>阅后即焚：</strong>Token使用一次后立即失效，防止重放攻击</li>
@@ -2732,6 +2746,8 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
           document.getElementById('refWhitelist').value = data.config.ref_whitelist || '';
           document.getElementById('enablePlayToken').checked = data.config.enable_play_token !== undefined ? data.config.enable_play_token : true;
           document.getElementById('playTokenExpireSeconds').value = data.config.play_token_expire_seconds || 3600;
+          document.getElementById('enableIPBind').checked = data.config.enable_ip_bind !== undefined ? data.config.enable_ip_bind : true;
+          document.getElementById('enableBurnAfterRead').checked = data.config.enable_burn_after_read !== undefined ? data.config.enable_burn_after_read : true;
         } else {
           showToast('加载配置失败', 'error');
         }
@@ -2749,7 +2765,9 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
           enable_ref_check: document.getElementById('enableRefCheck').checked,
           ref_whitelist: document.getElementById('refWhitelist').value.trim(),
           enable_play_token: document.getElementById('enablePlayToken').checked,
-          play_token_expire_seconds: parseInt(document.getElementById('playTokenExpireSeconds').value)
+          play_token_expire_seconds: parseInt(document.getElementById('playTokenExpireSeconds').value),
+          enable_ip_bind: document.getElementById('enableIPBind').checked,
+          enable_burn_after_read: document.getElementById('enableBurnAfterRead').checked
         };
 
         // 验证配置值

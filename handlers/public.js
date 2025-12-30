@@ -1,5 +1,5 @@
 // 公开播放列表API - 无需卡密
-import { getDB, getHomepageDisplayConfig, getSystemConfig, generatePlayToken, verifyPlayToken, verifyReferer } from '../database.js';
+import { getDB, getHomepageDisplayConfig, getSystemConfig, generatePlayToken, verifyPlayToken, verifyReferer, encryptWithAES } from '../database.js';
 
 // 调试接口 - 查看频道信息
 export async function handleChannelDebug(request, env, ctx) {
@@ -343,21 +343,7 @@ export async function handlePublicPlay(request, env, ctx) {
     // 获取系统配置
     const systemConfig = await getSystemConfig();
 
-    // Ref验证
-    if (systemConfig.enable_ref_check) {
-      const referer = request.headers.get('Referer');
-      if (!verifyReferer(referer, systemConfig.ref_whitelist)) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: 'Invalid referer'
-        }), {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-    }
-
-    // Token验证（如果启用）
+    // Token验证（如果启用）- 优先验证token
     const tokenParam = url.searchParams.get('token');
     if (systemConfig.enable_play_token) {
       if (!tokenParam) {
@@ -377,6 +363,20 @@ export async function handlePublicPlay(request, env, ctx) {
         return new Response(JSON.stringify({
           success: false,
           error: 'Invalid or expired token'
+        }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    // Ref验证（在token验证之后）
+    if (systemConfig.enable_ref_check) {
+      const referer = request.headers.get('Referer');
+      if (!verifyReferer(referer, systemConfig.ref_whitelist)) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Invalid referer'
         }), {
           status: 403,
           headers: { 'Content-Type': 'application/json' }
@@ -405,16 +405,22 @@ export async function handlePublicPlay(request, env, ctx) {
       }
     }
 
+    // AES-GCM 加密播放URL
+    const secret = env.SECRET_KEY || 'default-secret-key';
+    const encryptedUrl = await encryptWithAES(channel.play_url, secret);
+
     // 直接返回播放URL和headers配置，让前端Hls.js使用
     return new Response(JSON.stringify({
       success: true,
-      play_url: channel.play_url,
+      play_url: encryptedUrl, // AES-GCM 加密的数据
       headers: headersObj,
-      channel_name: channel.channel_name
+      channel_name: channel.channel_name,
+      encoded: true, // 标识数据已加密
+      encryption: 'aes-gcm' // 标识加密方式
     }), {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=300'
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
       }
     });
 

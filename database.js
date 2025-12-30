@@ -131,7 +131,9 @@ export async function createTables(env) {
     'enable_ref_check': 'false',
     'ref_whitelist': '',
     'enable_play_token': 'true',
-    'play_token_expire_seconds': '3600'
+    'play_token_expire_seconds': '3600',
+    'enable_ip_bind': 'true',
+    'enable_burn_after_read': 'true'
   };
 
   for (const [key, value] of Object.entries(defaultSettings)) {
@@ -260,8 +262,8 @@ export async function updateHomepageDisplayConfig(config) {
 // 获取系统安全配置
 export async function getSystemConfig() {
   const db = getDB();
-  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?)')
-    .bind('enable_ref_check', 'ref_whitelist', 'enable_play_token', 'play_token_expire_seconds', 'homepage_display_config')
+  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?)')
+    .bind('enable_ref_check', 'ref_whitelist', 'enable_play_token', 'play_token_expire_seconds', 'homepage_display_config', 'enable_ip_bind', 'enable_burn_after_read')
     .all();
 
   const config = {
@@ -269,7 +271,9 @@ export async function getSystemConfig() {
     ref_whitelist: '',
     enable_play_token: true,
     play_token_expire_seconds: 3600,
-    homepage_display_config: {}
+    homepage_display_config: {},
+    enable_ip_bind: true,
+    enable_burn_after_read: true
   };
 
   settings.results?.forEach(row => {
@@ -287,6 +291,10 @@ export async function getSystemConfig() {
       } catch (e) {
         config.homepage_display_config = {};
       }
+    } else if (row.key === 'enable_ip_bind') {
+      config.enable_ip_bind = row.value === 'true';
+    } else if (row.key === 'enable_burn_after_read') {
+      config.enable_burn_after_read = row.value === 'true';
     }
   });
 
@@ -318,6 +326,18 @@ export async function updateSystemConfig(config) {
   if (config.play_token_expire_seconds !== undefined) {
     await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
       .bind(config.play_token_expire_seconds.toString(), 'play_token_expire_seconds')
+      .run();
+  }
+
+  if (config.enable_ip_bind !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.enable_ip_bind.toString(), 'enable_ip_bind')
+      .run();
+  }
+
+  if (config.enable_burn_after_read !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.enable_burn_after_read.toString(), 'enable_burn_after_read')
       .run();
   }
 }
@@ -367,25 +387,27 @@ export async function verifyPlayToken(token, secret, env, request) {
     const timestamp = parseInt(timestampStr);
     const now = Math.floor(Date.now() / 1000);
 
-    // 验证token是否过期
+    // 获取系统配置
     const config = await getSystemConfig();
     const expireSeconds = config.play_token_expire_seconds || 3600;
+
+    // 验证token是否过期
     if (now - timestamp > expireSeconds) {
       console.log('[Token] Token expired');
       return false;
     }
 
     // 验证IP绑定（请求者的IP必须与生成token时的IP一致）
-    if (request) {
-      const clientIp = request.headers.get('CF-Connecting-IP') || 
+    if (request && config.enable_ip_bind !== false) {
+      const clientIp = request.headers.get('CF-Connecting-IP') ||
                       request.headers.get('X-Forwarded-For')?.split(',')[0] ||
                       'unknown';
-      
+
       const ipEncoder = new TextEncoder();
       const requestIpHashBuffer = await crypto.subtle.digest('SHA-256', ipEncoder.encode(clientIp || 'unknown'));
       const requestIpHashArray = Array.from(new Uint8Array(requestIpHashBuffer));
       const requestIpHash = requestIpHashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      
+
       if (requestIpHash !== ipHash) {
         console.log('[Token] IP mismatch (anti-proxy protection)', { expected: ipHash.substring(0, 8), got: requestIpHash.substring(0, 8) });
         return false;
@@ -393,11 +415,12 @@ export async function verifyPlayToken(token, secret, env, request) {
     }
 
     // 检查是否已被使用（KV存储，阅后即焚）
-    if (env && env.KV) {
+    if (env && env.KV && config.enable_burn_after_read !== false) {
       const usedKey = `used_token:${token}`;
       const isUsed = await env.KV.get(usedKey);
+      console.log('[Token] Checking if token is used:', { usedKey, isUsed: !!isUsed });
       if (isUsed) {
-        console.log('[Token] Token already used (replay attack prevented)');
+        console.log('[Token] Token already used (replay attack prevented)', { token: token.substring(0, 30) + '...' });
         return false;
       }
     }
@@ -406,7 +429,7 @@ export async function verifyPlayToken(token, secret, env, request) {
     const encoder = new TextEncoder();
     const data = encoder.encode(`${channelHash}:${timestampStr}:${nonce}`);
     const keyData = encoder.encode(secret || 'default-secret-key');
-    
+
     const key = await crypto.subtle.importKey(
       'raw',
       keyData,
@@ -414,22 +437,22 @@ export async function verifyPlayToken(token, secret, env, request) {
       false,
       ['verify']
     );
-    
+
     const signatureArray = new Uint8Array(signature.match(/.{2}/g).map(byte => parseInt(byte, 16)));
     const isValid = await crypto.subtle.verify('HMAC', key, signatureArray, data);
-    
+
     if (!isValid) {
       console.log('[Token] Invalid signature');
       return false;
     }
 
     // 验证通过后，立即标记为已使用（阅后即焚）
-    if (env && env.KV) {
+    if (env && env.KV && config.enable_burn_after_read !== false) {
       const usedKey = `used_token:${token}`;
       await env.KV.put(usedKey, '1', {
         expirationTtl: expireSeconds // 与token过期时间一致，自动清理
       });
-      console.log('[Token] Token marked as used (burn after read)');
+      console.log('[Token] Token marked as used (burn after read)', { usedKey, expireSeconds });
     }
 
     return true;
@@ -805,5 +828,82 @@ export async function fetchAndParseM3U(sourceUrl, sourceId, filter = null) {
     console.error(`[Sync] Error fetching and parsing M3U: ${error.message}`);
     console.error(`[Sync] Stack:`, error.stack);
     return { success: false, error: error.message };
+  }
+}
+
+// ========== AES-GCM 加密/解密函数 ==========
+
+// AES-GCM 加密函数
+export async function encryptWithAES(text, secret) {
+  try {
+    // 从密钥派生加密密钥
+    const keyData = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(secret));
+    const key = await crypto.subtle.importKey(
+      'raw',
+      keyData,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt']
+    );
+
+    // 生成随机 IV (12 bytes for GCM)
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const textData = new TextEncoder().encode(text);
+
+    // 加密
+    const encrypted = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: iv },
+      key,
+      textData
+    );
+
+    // 将 IV 和加密数据合并，然后转为 Base64
+    const combined = new Uint8Array(iv.length + encrypted.byteLength);
+    combined.set(iv);
+    combined.set(new Uint8Array(encrypted), iv.length);
+
+    // 转为 Base64
+    return btoa(String.fromCharCode(...combined));
+  } catch (error) {
+    console.error('AES 加密失败:', error);
+    throw error;
+  }
+}
+
+// AES-GCM 解密函数
+export async function decryptWithAES(encryptedBase64, secret) {
+  try {
+    // 从密钥派生加密密钥
+    const keyData = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(secret));
+    const key = await crypto.subtle.importKey(
+      'raw',
+      keyData,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['decrypt']
+    );
+
+    // 从 Base64 解码
+    const binaryString = atob(encryptedBase64);
+    const combined = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      combined[i] = binaryString.charCodeAt(i);
+    }
+
+    // 分离 IV (前 12 bytes)
+    const iv = combined.slice(0, 12);
+    const encryptedData = combined.slice(12);
+
+    // 解密
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: iv },
+      key,
+      encryptedData
+    );
+
+    return new TextDecoder().decode(decrypted);
+  } catch (error) {
+    console.error('AES 解密失败:', error);
+    throw error;
   }
 }

@@ -34,13 +34,14 @@ export default {
     // 路由处理
     if (path === '/' || path === '') {
       // 首页 - 显示交互式播放站，添加安全头防止代理
-      // 注入允许的域名配置
+      // 注入允许的域名配置和解密密钥
       const allowedDomains = [url.hostname];
+      const secretKey = env.SECRET_KEY || 'default-secret-key';
       const htmlWithConfig = PLAYSTATION_HTML.replace(
         '<script>',
-        `<script>window.ALLOWED_DOMAINS = ${JSON.stringify(allowedDomains)};\n`
+        `<script>window.ALLOWED_DOMAINS = ${JSON.stringify(allowedDomains)};\nwindow.DECRYPTION_KEY = '${secretKey}';\n`
       );
-      
+
       return new Response(htmlWithConfig, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
