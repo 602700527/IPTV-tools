@@ -19,10 +19,18 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .search-input{width:100%;padding:12px 20px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.05);color:#fff;font-size:15px;transition:all .2s}
     .search-input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
     .search-input::placeholder{color:rgba(255,255,255,.5)}
-    .nav-links{display:flex;gap:30px;margin-left:auto}
+    .nav-links{display:flex;gap:20px;margin-left:auto}
     .nav-links a{color:rgba(255,255,255,.8);text-decoration:none;font-size:14px;transition:color .2s}
     .nav-links a:hover{color:#fff}
     .nav-links a.active{color:#e50914}
+
+    /* 快捷入口按钮 */
+    .quick-entries{display:flex;gap:8px;margin-right:20px;margin-left:20px}
+    .quick-entry{position:relative;width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .quick-entry:hover{background:rgba(255,255,255,.2);color:#fff}
+    .quick-entry-badge{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;background:#e50914;border-radius:9px;font-size:11px;font-weight:600;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 5px}
+    .quick-entry-tip{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;white-space:nowrap;font-size:12px;color:rgba(255,255,255,.6);opacity:0;transition:opacity .2s;pointer-events:none}
+    .quick-entry:hover .quick-entry-tip{opacity:1}
     
     .main{display:flex;margin-top:70px;min-height:calc(100vh - 70px)}
     .sidebar{width:260px;background:#141414;border-right:1px solid rgba(255,255,255,.1);overflow-y:auto;padding:20px 0;position:fixed;height:calc(100vh - 70px)}
@@ -33,10 +41,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     
     .section-title{font-size:18px;font-weight:600;margin-bottom:20px;color:#fff}
     .channels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
-    .channel-card{background:#141414;border-radius:8px;overflow:hidden;cursor:pointer;transition:all .3s;border:2px solid transparent}
+    .channel-card{background:#141414;border-radius:8px;overflow:hidden;cursor:pointer;transition:all .3s;border:2px solid transparent;position:relative}
     .channel-card:hover{transform:scale(1.05);border-color:#e50914;z-index:10;box-shadow:0 8px 30px rgba(0,0,0,.5)}
     .channel-poster{aspect-ratio:16/9;background:#1a1a1a;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-    .channel-poster img{width:100%;height:100%;object-fit:contain}
+    .channel-poster img{width:100%;height:100%;object-fit:contain;transition:transform .3s}
+    .channel-card:hover .channel-poster img{transform:scale(1.1)}
     .channel-icon{font-size:48px;opacity:.5}
     .play-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(229,9,20,.8);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
     .channel-card:hover .play-overlay{opacity:1}
@@ -80,6 +89,45 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .empty-desc{font-size:14px}
     
     .footer{text-align:center;padding:30px;color:rgba(255,255,255,.4);font-size:13px;border-top:1px solid rgba(255,255,255,.1);margin-top:40px;margin-left:260px}
+
+    /* 热门频道标签 */
+    .hot-tag{position:absolute;top:8px;left:8px;padding:4px 10px;background:#ff4757;color:white;border-radius:4px;font-size:11px;font-weight:600;z-index:10}
+    .hot-tag::before{content:'🔥 ';margin-right:2px}
+
+    /* 收藏功能 */
+    .favorite-btn{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.6);border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:10}
+    .favorite-btn:hover{background:rgba(0,0,0,.8);color:#fff}
+    .favorite-btn.favorited{color:#ffd700}
+    .favorite-section{display:none}
+    .favorite-section.active{display:block}
+
+    /* 快捷面板 */
+    .quick-panel{display:none;position:fixed;top:70px;right:20px;width:400px;max-height:calc(100vh - 100px);background:rgba(20,20,20,.98);border:1px solid rgba(255,255,255,.1);border-radius:12px;overflow:hidden;z-index:900;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+    .quick-panel.active{display:block;animation:slideIn 0.3s ease}
+    @keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    .quick-panel-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
+    .quick-panel-title{font-size:16px;font-weight:600;color:#fff;display:flex;align-items:center;gap:8px}
+    .quick-panel-close{width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:rgba(255,255,255,.6);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .quick-panel-close:hover{background:rgba(255,255,255,.2);color:#fff}
+    .quick-panel-content{padding:16px;overflow-y:auto;max-height:calc(100vh - 180px)}
+    .quick-panel-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;background:rgba(255,255,255,.03);cursor:pointer;transition:all .2s;margin-bottom:8px}
+    .quick-panel-item:hover{background:rgba(255,255,255,.08);transform:translateX(4px)}
+    .quick-panel-item-poster{width:80px;height:45px;background:#141414;border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .quick-panel-item-poster img{width:100%;height:100%;object-fit:contain}
+    .quick-panel-item-icon{font-size:24px;opacity:.5}
+    .quick-panel-item-info{flex:1;min-width:0}
+    .quick-panel-item-name{font-size:14px;font-weight:500;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .quick-panel-item-group{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px}
+    .quick-panel-item-time{font-size:11px;color:rgba(255,255,255,.4)}
+    .quick-panel-empty{text-align:center;padding:40px 20px;color:rgba(255,255,255,.5)}
+    .quick-panel-empty-icon{font-size:48px;margin-bottom:12px;opacity:.3}
+    .quick-panel-empty-text{font-size:14px}
+
+    /* 在线人数显示 */
+    .online-counter{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.6);font-size:13px}
+    .online-dot{width:8px;height:8px;border-radius:50%;background:#34c759;animation:pulse 2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+    .online-count{font-weight:600;color:#34c759}
 
     /* Toast 提示组件（已隐藏） */
     /* .toast-container{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none}
@@ -125,9 +173,25 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     <div class="search-box">
       <input type="text" class="search-input" id="searchInput" placeholder="搜索频道..." oninput="handleSearch()">
     </div>
-    <div class="nav-links">
-      <a href="/" class="active">首页</a>
-      <a href="/activate">激活卡密</a>
+    <div class="quick-entries">
+      <button class="quick-entry" onclick="showHistoryPanel()" title="播放历史">
+        🕐
+        <span class="quick-entry-tip">播放历史</span>
+        <span class="quick-entry-badge" id="historyBadge" style="display:none;">0</span>
+      </button>
+      <button class="quick-entry" onclick="showFavoritesPanel()" title="我的收藏">
+        ⭐
+        <span class="quick-entry-tip">我的收藏</span>
+        <span class="quick-entry-badge" id="favoritesBadge" style="display:none;">0</span>
+      </button>
+      <button class="quick-entry" onclick="playFeaturedChannel()" title="每日推荐">
+        🎯
+        <span class="quick-entry-tip">每日推荐</span>
+      </button>
+    </div>
+    <div class="online-counter">
+      <span class="online-dot"></span>
+      <span class="online-count" id="onlineCount">0</span> 人在观看
     </div>
   </header>
   
@@ -136,7 +200,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       <div class="group-item active" data-group="" onclick="filterByGroup('')">全部频道</div>
       <div id="groupList"></div>
     </aside>
-    
+
     <div class="content">
       <div id="loading" class="loading">
         <div class="spinner"></div>
@@ -154,10 +218,20 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         <div class="empty-title">未找到频道</div>
         <div class="empty-desc">请尝试其他搜索词或分组</div>
       </div>
+
     </div>
   </div>
 
-  <!-- Toast 提示容器（已隐藏） -->
+  <!-- 快捷面板 -->
+  <div class="quick-panel" id="quickPanel">
+    <div class="quick-panel-header">
+      <div class="quick-panel-title" id="quickPanelTitle">📌 面板</div>
+      <button class="quick-panel-close" onclick="closeQuickPanel()">&times;</button>
+    </div>
+    <div class="quick-panel-content" id="quickPanelContent"></div>
+  </div>
+
+      <!-- Toast 提示容器（已隐藏） -->
   <!-- <div class="toast-container" id="toastContainer"></div> -->
 
   <footer class="footer">
@@ -212,6 +286,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let totalPages = 1;
     let totalChannels = 0;
     let currentSearch = '';
+    let favorites = JSON.parse(localStorage.getItem('iptv_favorites') || '[]');
+    let history = JSON.parse(localStorage.getItem('iptv_history') || '[]');
+    let featuredChannels = [];
     // let lastErrorTime = 0;  // 防止重复显示相同错误（已禁用）
     // let lastErrorMsg = '';   // 记录上一条错误消息（已禁用）
 
@@ -293,6 +370,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     // 页面加载时获取频道列表
     window.addEventListener('DOMContentLoaded', () => {
       loadChannels();
+      updateOnlineCounter();
+      updateBadges();
+      setInterval(updateOnlineCounter, 30000); // 每30秒更新在线人数
     });
     
     async function loadChannels(page = 1) {
@@ -362,14 +442,20 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       
       emptyState.style.display = 'none';
       container.innerHTML = channels.map(channel => {
-        const logo = channel.logo 
+        const logo = channel.logo
           ? \`<img src="\${escapeHtml(channel.logo)}" alt="\${escapeHtml(channel.channel_name)}">\`
           : '<div class="channel-icon">📺</div>';
-        
+
+        const isFavorited = favorites.some(f => f.hash === channel.channel_hash);
+        const hotIndex = Math.floor(Math.random() * 20); // 随机显示热门标签
+        const showHotTag = hotIndex === 0;
+
         return \`
           <div class="channel-card" onclick="playChannel('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
             <div class="channel-poster">
               \${logo}
+              \${showHotTag ? '<div class="hot-tag">热门</div>' : ''}
+              <button class="favorite-btn \${isFavorited ? 'favorited' : ''}" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')" data-hash="\${escapeHtml(channel.channel_hash)}">\${isFavorited ? '⭐' : '☆'}</button>
               <div class="play-overlay">
                 <div class="play-icon"></div>
               </div>
@@ -387,7 +473,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       currentGroup = group;
       currentPage = 1; // 重置到第一页
 
-      document.getElementById('sectionTitle').textContent = group || '全部频道';
+      document.getElementById('sectionTitle').textContent = group === 'favorites' ? '⭐ 我的收藏' : (group || '全部频道');
+
+      // 如果是收藏分组，显示收藏列表
+      if (group === 'favorites') {
+        renderFavorites();
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
 
       // 重新加载频道
       loadChannels(1);
@@ -452,6 +545,19 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
 
     function playChannel(hash, name, group) {
+      // 添加到历史记录 - 支持直接使用传入的参数
+      const channel = allChannels.find(c => c.channel_hash === hash);
+      if (channel) {
+        addToHistory(channel);
+      } else if (hash && name) {
+        // 如果在当前列表中找不到频道，直接用传入参数创建历史记录
+        addToHistory({
+          channel_hash: hash,
+          channel_name: name,
+          group_title: group
+        });
+      }
+
       const playerWrapper = document.getElementById('playerWrapper');
       const video = document.getElementById('videoPlayer');
       const title = document.getElementById('playerTitle');
@@ -680,6 +786,285 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         }
       });
     })();
+
+    // ========== 新增功能函数 ==========
+
+    // 在线人数显示（模拟）
+    function updateOnlineCounter() {
+      const baseCount = Math.floor(Math.random() * 100) + 50;
+      const randomOffset = Math.floor(Math.random() * 20) - 10;
+      const count = baseCount + randomOffset;
+      document.getElementById('onlineCount').textContent = count.toLocaleString();
+    }
+
+    // 随机推荐
+    function initFeaturedChannels() {
+      // 每次生成10个随机推荐频道
+      if (allChannels.length > 0) {
+        const shuffled = [...allChannels].sort(() => 0.5 - Math.random());
+        featuredChannels = shuffled.slice(0, 10);
+      }
+    }
+
+    function showRecommendedPanel() {
+      const panel = document.getElementById('quickPanel');
+      const title = document.getElementById('quickPanelTitle');
+      const content = document.getElementById('quickPanelContent');
+
+      title.textContent = '🎯 随机推荐';
+
+      if (!featuredChannels || featuredChannels.length === 0) {
+        content.innerHTML = \`
+          <div class="quick-panel-empty">
+            <div class="quick-panel-empty-icon">🎯</div>
+            <div class="quick-panel-empty-text">暂无推荐频道</div>
+          </div>
+        \`;
+      } else {
+        content.innerHTML = featuredChannels.map((channel, index) => {
+          const logo = channel.logo
+            ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`
+            : '<div class="channel-icon">📺</div>';
+          return \`
+            <div class="quick-panel-item" onclick="playChannel('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}');closeQuickPanel();">
+              <div class="quick-panel-item-poster">\${logo}</div>
+              <div class="quick-panel-item-info">
+                <div class="quick-panel-item-name">\${escapeHtml(channel.channel_name)}</div>
+                <div class="quick-panel-item-group">\${escapeHtml(channel.group_title || '')}</div>
+              </div>
+              <div class="quick-panel-item-time">推荐 \${index + 1}</div>
+            </div>
+          \`;
+        }).join('');
+      }
+
+      panel.classList.add('active');
+
+      // 点击外部关闭面板
+      document.addEventListener('click', handlePanelOutsideClick);
+    }
+
+    function playFeaturedChannel() {
+      // 每次点击都重新生成随机推荐
+      initFeaturedChannels();
+      // 显示推荐面板
+      showRecommendedPanel();
+    }
+
+    // 收藏功能
+    function toggleFavorite(hash, name, group) {
+      const index = favorites.findIndex(f => f.hash === hash);
+      if (index > -1) {
+        favorites.splice(index, 1);
+      } else {
+        favorites.push({ hash, name, group, addedAt: Date.now() });
+      }
+      localStorage.setItem('iptv_favorites', JSON.stringify(favorites));
+
+      // 更新徽章
+      updateBadges();
+
+      // 如果在收藏页面，重新渲染
+      if (currentGroup === 'favorites') {
+        renderFavorites();
+      }
+
+      // 更新当前页面的收藏按钮状态
+      const btn = document.querySelector(\`.favorite-btn[data-hash="\${hash}"]\`);
+      if (btn) {
+        btn.textContent = index > -1 ? '☆' : '⭐';
+        btn.classList.toggle('favorited', index > -1);
+      }
+    }
+
+    function renderFavorites() {
+      const container = document.getElementById('channelsGrid');
+      const emptyState = document.getElementById('emptyState');
+      document.getElementById('pagination').innerHTML = '';
+
+      if (favorites.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        document.querySelector('.empty-title').textContent = '还没有收藏';
+        document.querySelector('.empty-desc').textContent = '点击频道卡片上的星星按钮添加收藏';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      container.innerHTML = favorites.map(fav => {
+        const logo = getLogoByHash(fav.hash);
+        return \`
+          <div class="channel-card" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
+            <div class="channel-poster">
+              \${logo}
+              <button class="favorite-btn favorited" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')" data-hash="\${escapeHtml(fav.hash)}">⭐</button>
+              <div class="play-overlay">
+                <div class="play-icon"></div>
+              </div>
+            </div>
+            <div class="channel-info">
+              <div class="channel-name">\${escapeHtml(fav.name)}</div>
+              <div class="channel-group">\${escapeHtml(fav.group)}</div>
+            </div>
+          </div>
+        \`;
+      }).join('');
+    }
+
+    function getLogoByHash(hash) {
+      const channel = allChannels.find(c => c.channel_hash === hash);
+      if (channel && channel.logo) {
+        return \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`;
+      }
+      return '<div class="channel-icon">📺</div>';
+    }
+
+    // 播放历史
+    function addToHistory(channel) {
+      const hash = channel.channel_hash || channel.hash;
+      const index = history.findIndex(h => h.hash === hash);
+      if (index > -1) {
+        history.splice(index, 1);
+      }
+
+      // 统一字段名为 hash, name, group
+      history.unshift({
+        hash: hash,
+        name: channel.channel_name,
+        group: channel.group_title,
+        watchedAt: Date.now()
+      });
+
+      // 只保留最近20条
+      if (history.length > 20) {
+        history = history.slice(0, 20);
+      }
+
+      localStorage.setItem('iptv_history', JSON.stringify(history));
+      updateBadges();
+    }
+
+    function getTimeAgo(timestamp) {
+      const seconds = Math.floor((Date.now() - timestamp) / 1000);
+
+      if (seconds < 60) return '刚刚';
+      if (seconds < 3600) return Math.floor(seconds / 60) + '分钟前';
+      if (seconds < 86400) return Math.floor(seconds / 3600) + '小时前';
+      if (seconds < 604800) return Math.floor(seconds / 86400) + '天前';
+      return '一周前';
+    }
+
+    // ========== 快捷面板功能 ==========
+
+    // 显示播放历史面板
+    function showHistoryPanel() {
+      const panel = document.getElementById('quickPanel');
+      const title = document.getElementById('quickPanelTitle');
+      const content = document.getElementById('quickPanelContent');
+
+      title.textContent = '🕐 播放历史';
+
+      if (history.length === 0) {
+        content.innerHTML = \`
+          <div class="quick-panel-empty">
+            <div class="quick-panel-empty-icon">🕐</div>
+            <div class="quick-panel-empty-text">暂无播放历史</div>
+          </div>
+        \`;
+      } else {
+        content.innerHTML = history.slice(0, 20).map(h => {
+          const logo = getLogoByHash(h.hash);
+          const timeAgo = getTimeAgo(h.watchedAt);
+          return \`
+            <div class="quick-panel-item" onclick="playChannel('\${escapeHtml(h.hash)}', '\${escapeHtml(h.name)}', '\${escapeHtml(h.group)}');closeQuickPanel();">
+              <div class="quick-panel-item-poster">\${logo}</div>
+              <div class="quick-panel-item-info">
+                <div class="quick-panel-item-name">\${escapeHtml(h.name)}</div>
+                <div class="quick-panel-item-group">\${escapeHtml(h.group)}</div>
+              </div>
+              <div class="quick-panel-item-time">\${timeAgo}</div>
+            </div>
+          \`;
+        }).join('');
+      }
+
+      panel.classList.add('active');
+
+      // 点击外部关闭面板
+      document.addEventListener('click', handlePanelOutsideClick);
+    }
+
+    // 显示收藏面板
+    function showFavoritesPanel() {
+      const panel = document.getElementById('quickPanel');
+      const title = document.getElementById('quickPanelTitle');
+      const content = document.getElementById('quickPanelContent');
+
+      title.textContent = '⭐ 我的收藏';
+
+      if (favorites.length === 0) {
+        content.innerHTML = \`
+          <div class="quick-panel-empty">
+            <div class="quick-panel-empty-icon">⭐</div>
+            <div class="quick-panel-empty-text">还没有收藏<br><span style="font-size:12px;opacity:0.7">点击频道卡片上的星星添加收藏</span></div>
+          </div>
+        \`;
+      } else {
+        content.innerHTML = favorites.map(fav => {
+          const logo = getLogoByHash(fav.hash);
+          return \`
+            <div class="quick-panel-item" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}');closeQuickPanel();">
+              <div class="quick-panel-item-poster">\${logo}</div>
+              <div class="quick-panel-item-info">
+                <div class="quick-panel-item-name">\${escapeHtml(fav.name)}</div>
+                <div class="quick-panel-item-group">\${escapeHtml(fav.group)}</div>
+              </div>
+            </div>
+          \`;
+        }).join('');
+      }
+
+      panel.classList.add('active');
+
+      // 点击外部关闭面板
+      document.addEventListener('click', handlePanelOutsideClick);
+    }
+
+    // 关闭快捷面板
+    function closeQuickPanel() {
+      const panel = document.getElementById('quickPanel');
+      panel.classList.remove('active');
+      document.removeEventListener('click', handlePanelOutsideClick);
+    }
+
+    // 处理面板外部点击
+    function handlePanelOutsideClick(e) {
+      const panel = document.getElementById('quickPanel');
+      const quickEntries = document.querySelector('.quick-entries');
+      if (!panel.contains(e.target) && !quickEntries.contains(e.target)) {
+        closeQuickPanel();
+      }
+    }
+
+    // 更新徽章数量
+    function updateBadges() {
+      const historyBadge = document.getElementById('historyBadge');
+      const favoritesBadge = document.getElementById('favoritesBadge');
+
+      if (history.length > 0) {
+        historyBadge.textContent = history.length;
+        historyBadge.style.display = 'flex';
+      } else {
+        historyBadge.style.display = 'none';
+      }
+
+      if (favorites.length > 0) {
+        favoritesBadge.textContent = favorites.length;
+        favoritesBadge.style.display = 'flex';
+      } else {
+        favoritesBadge.style.display = 'none';
+      }
+    }
   </script>
 </body>
 </html>`;
