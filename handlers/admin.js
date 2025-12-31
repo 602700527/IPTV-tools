@@ -1,5 +1,5 @@
 // 管理后台API处理器
-import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig } from '../database.js';
+import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, generateEncryptionKey } from '../database.js';
 import { manualSyncAll } from './scheduler.js';
 import { getBlacklistedIPs, unbanIP, getIPAccessStats, banIP } from '../security/ip-blacklist.js';
 import { getBannedCodesFromCache, removeBannedCodeFromCache, syncBannedCodesToCache } from '../security/code-ban-cache.js';
@@ -838,6 +838,18 @@ export async function handleAdminRequest(request, env, ctx) {
           if (data.enable_burn_after_read !== undefined) {
             config.enable_burn_after_read = data.enable_burn_after_read;
           }
+          if (data.enable_url_encryption !== undefined) {
+            config.enable_url_encryption = data.enable_url_encryption;
+          }
+          if (data.url_encryption_key !== undefined) {
+            config.url_encryption_key = data.url_encryption_key;
+          }
+          if (data.rotate_encryption_key === true) {
+            // 自动轮换密钥
+            const newKey = generateRandomEncryptionKey();
+            config.url_encryption_key = newKey;
+            config.rotate_encryption_key = true; // 标记为密钥轮换
+          }
 
           await updateSystemConfig(config);
 
@@ -1300,4 +1312,14 @@ function escapeCsvField(field) {
     return '"' + str.replace(/"/g, '""') + '"';
   }
   return str;
+}
+
+// 生成随机加密密钥
+function generateRandomEncryptionKey(length = 32) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let key = '';
+  for (let i = 0; i < length; i++) {
+    key += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return key;
 }

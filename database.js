@@ -133,7 +133,10 @@ export async function createTables(env) {
     'enable_play_token': 'true',
     'play_token_expire_seconds': '3600',
     'enable_ip_bind': 'true',
-    'enable_burn_after_read': 'true'
+    'enable_burn_after_read': 'true',
+    // URL加密配置
+    'enable_url_encryption': 'false',
+    'url_encryption_key': ''
   };
 
   for (const [key, value] of Object.entries(defaultSettings)) {
@@ -262,8 +265,8 @@ export async function updateHomepageDisplayConfig(config) {
 // 获取系统安全配置
 export async function getSystemConfig() {
   const db = getDB();
-  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?)')
-    .bind('enable_ref_check', 'ref_whitelist', 'enable_play_token', 'play_token_expire_seconds', 'homepage_display_config', 'enable_ip_bind', 'enable_burn_after_read')
+  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    .bind('enable_ref_check', 'ref_whitelist', 'enable_play_token', 'play_token_expire_seconds', 'homepage_display_config', 'enable_ip_bind', 'enable_burn_after_read', 'enable_url_encryption', 'url_encryption_key')
     .all();
 
   const config = {
@@ -273,7 +276,9 @@ export async function getSystemConfig() {
     play_token_expire_seconds: 3600,
     homepage_display_config: {},
     enable_ip_bind: true,
-    enable_burn_after_read: true
+    enable_burn_after_read: true,
+    enable_url_encryption: false,
+    url_encryption_key: ''
   };
 
   settings.results?.forEach(row => {
@@ -295,6 +300,10 @@ export async function getSystemConfig() {
       config.enable_ip_bind = row.value === 'true';
     } else if (row.key === 'enable_burn_after_read') {
       config.enable_burn_after_read = row.value === 'true';
+    } else if (row.key === 'enable_url_encryption') {
+      config.enable_url_encryption = row.value === 'true';
+    } else if (row.key === 'url_encryption_key') {
+      config.url_encryption_key = row.value || '';
     }
   });
 
@@ -340,6 +349,28 @@ export async function updateSystemConfig(config) {
       .bind(config.enable_burn_after_read.toString(), 'enable_burn_after_read')
       .run();
   }
+
+  if (config.enable_url_encryption !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.enable_url_encryption.toString(), 'enable_url_encryption')
+      .run();
+  }
+
+  if (config.url_encryption_key !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.url_encryption_key || '', 'url_encryption_key')
+      .run();
+  }
+}
+
+// 生成随机加密密钥
+export function generateEncryptionKey(length = 32) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let key = '';
+  for (let i = 0; i < length; i++) {
+    key += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return key;
 }
 
 // 生成播放token（HMAC签名，带随机数防重放，IP绑定）

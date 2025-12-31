@@ -332,6 +332,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let favorites = JSON.parse(localStorage.getItem('iptv_favorites') || '[]');
     let history = JSON.parse(localStorage.getItem('iptv_history') || '[]');
     let featuredChannels = [];
+    let isUpdatingKey = false;  // 防止重复更新密钥
     // let lastErrorTime = 0;  // 防止重复显示相同错误（已禁用）
     // let lastErrorMsg = '';   // 记录上一条错误消息（已禁用）
 
@@ -587,7 +588,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       container.innerHTML = html;
     }
 
-    function playChannel(hash, name, group) {
+    function playChannel(hash, name, group, retryCount = 0) {
       // 添加到历史记录 - 支持直接使用传入的参数
       const channel = allChannels.find(c => c.channel_hash === hash);
       if (channel) {
@@ -642,8 +643,22 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
                   console.log('URL已解密:', decryptedUrl);
                   startPlay(decryptedUrl, video);
                 })
-                .catch(e => {
+                .catch(async (e) => {
                   console.error('URL解密失败:', e);
+
+                  // 如果是第一次解密失败，尝试更新密钥并重试
+                  if (retryCount === 0) {
+                    console.log('[PlayChannel] 尝试更新密钥并重试');
+                    const keyUpdated = await updateEncryptionKey();
+                    if (keyUpdated) {
+                      console.log('[PlayChannel] 密钥已更新，重新播放');
+                      playChannel(hash, name, group, 1);  // 重试一次
+                      return;
+                    }
+                  }
+
+                  // 更新密钥失败或已重试过，关闭播放器
+                  console.error('[PlayChannel] 解密失败，无法播放');
                   closePlayer();
                 });
               return; // 异步解密，提前返回
@@ -847,6 +862,44 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     })();
 
     // ========== 新增功能函数 ==========
+
+    // 更新加密密钥（从服务器获取最新配置）
+    async function updateEncryptionKey() {
+      if (isUpdatingKey) {
+        console.log('[KeyUpdate] 正在更新密钥，跳过重复请求');
+        return false;
+      }
+
+      try {
+        isUpdatingKey = true;
+        console.log('[KeyUpdate] 开始获取最新配置');
+
+        const response = await fetch(window.location.origin + '/api/config');
+        const result = await response.json();
+
+        if (result.success && result.config) {
+          const { enable_url_encryption, url_encryption_key } = result.config;
+
+          // 如果启用了URL加密且有密钥，更新全局密钥
+          if (enable_url_encryption && url_encryption_key) {
+            DECRYPTION_KEY = url_encryption_key;
+            console.log('[KeyUpdate] 密钥已更新');
+            return true;
+          } else {
+            console.log('[KeyUpdate] 未启用URL加密或无密钥');
+            return false;
+          }
+        } else {
+          console.error('[KeyUpdate] 获取配置失败:', result);
+          return false;
+        }
+      } catch (error) {
+        console.error('[KeyUpdate] 更新密钥失败:', error);
+        return false;
+      } finally {
+        isUpdatingKey = false;
+      }
+    }
 
     // 在线人数显示（模拟）
     function updateOnlineCounter() {

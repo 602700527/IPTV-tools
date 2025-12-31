@@ -405,9 +405,12 @@ export async function handlePublicPlay(request, env, ctx) {
       }
     }
 
-    // AES-GCM 加密播放URL
-    const secret = env.SECRET_KEY || 'default-secret-key';
-    const encryptedUrl = await encryptWithAES(channel.play_url, secret);
+    // AES-GCM 加密播放URL（使用系统配置的密钥）
+    let encryptionKey = env.SECRET_KEY || 'default-secret-key';
+    if (systemConfig.enable_url_encryption && systemConfig.url_encryption_key) {
+      encryptionKey = systemConfig.url_encryption_key;
+    }
+    const encryptedUrl = await encryptWithAES(channel.play_url, encryptionKey);
 
     // 直接返回播放URL和headers配置，让前端Hls.js使用
     return new Response(JSON.stringify({
@@ -496,3 +499,29 @@ export async function handleGetPlayToken(request, env, ctx) {
 }
 
 // 视频流代理处理
+
+// 公开配置API - 获取前端需要的配置（如加密密钥）
+export async function handlePublicConfig(request, env, ctx) {
+  try {
+    const systemConfig = await getSystemConfig();
+
+    // 只返回必要的配置信息
+    const publicConfig = {
+      enable_url_encryption: systemConfig.enable_url_encryption,
+      url_encryption_key: systemConfig.url_encryption_key || ''
+    };
+
+    return new Response(JSON.stringify({
+      success: true,
+      config: publicConfig
+    }), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+      }
+    });
+  } catch (error) {
+    console.error('获取公开配置失败:', error);
+    return new Response('Internal Server Error', { status: 500 });
+  }
+}

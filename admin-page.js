@@ -595,6 +595,33 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             </label>
             <p style="margin-top:8px;color:#86868b;font-size:12px;">Token使用一次后立即失效，防止重放攻击</p>
           </div>
+          <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e5e5ea;">
+            <h4 style="margin-bottom:16px;color:#000;font-size:16px;">🔐 URL 加密配置</h4>
+            <div style="margin-bottom:16px;">
+              <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+                <input type="checkbox" id="enableURLEncryption" style="margin-right:12px;">
+                <span style="font-size:14px;">启用 URL 加密</span>
+              </label>
+              <p style="margin-top:8px;color:#86868b;font-size:12px;">对播放地址进行 AES-GCM 加密，防止直接分享和抓取</p>
+            </div>
+            <div style="margin-bottom:16px;">
+              <label>加密密钥</label>
+              <div style="display:flex;gap:8px;">
+                <input type="text" id="urlEncryptionKey" placeholder="留空自动生成或输入自定义密钥" style="flex:1;padding:10px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;monospace;">
+                <button type="button" class="btn" onclick="rotateEncryptionKey()" title="轮换密钥">🔄 轮换</button>
+              </div>
+              <p style="margin-top:8px;color:#86868b;font-size:12px;">建议长度至少 16 个字符，仅支持字母和数字</p>
+            </div>
+            <div style="background:#fff3cd;border-left:4px solid #ffc107;padding:12px;border-radius:4px;margin-top:12px;">
+              <strong style="color:#856404;">⚠️ 加密注意事项：</strong>
+              <ul style="margin:8px 0 0 20px;color:#856404;font-size:13px;line-height:1.6;">
+                <li><strong>密钥安全：</strong>轮换密钥后，旧的播放地址将失效，用户需重新获取</li>
+                <li><strong>自动轮换：</strong>建议定期轮换密钥（如每月一次）以增强安全性</li>
+                <li><strong>前端同步：</strong>轮换密钥后，前端页面需要重新加载才能获取新密钥</li>
+                <li><strong>兼容性：</strong>启用加密后，播放器需要支持解密（Hls.js 已支持）</li>
+              </ul>
+            </div>
+          </div>
           <div style="background:#e8f5e9;border-left:4px solid #2e7d32;padding:12px;border-radius:4px;margin-top:12px;">
             <strong style="color:#1b5e20;">🔒 Token安全特性说明：</strong>
             <ul style="margin:8px 0 0 20px;color:#1b5e20;font-size:13px;line-height:1.6;">
@@ -2748,6 +2775,8 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
           document.getElementById('playTokenExpireSeconds').value = data.config.play_token_expire_seconds || 3600;
           document.getElementById('enableIPBind').checked = data.config.enable_ip_bind !== undefined ? data.config.enable_ip_bind : true;
           document.getElementById('enableBurnAfterRead').checked = data.config.enable_burn_after_read !== undefined ? data.config.enable_burn_after_read : true;
+          document.getElementById('enableURLEncryption').checked = data.config.enable_url_encryption !== undefined ? data.config.enable_url_encryption : false;
+          document.getElementById('urlEncryptionKey').value = data.config.url_encryption_key || '';
         } else {
           showToast('加载配置失败', 'error');
         }
@@ -2767,7 +2796,9 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
           enable_play_token: document.getElementById('enablePlayToken').checked,
           play_token_expire_seconds: parseInt(document.getElementById('playTokenExpireSeconds').value),
           enable_ip_bind: document.getElementById('enableIPBind').checked,
-          enable_burn_after_read: document.getElementById('enableBurnAfterRead').checked
+          enable_burn_after_read: document.getElementById('enableBurnAfterRead').checked,
+          enable_url_encryption: document.getElementById('enableURLEncryption').checked,
+          url_encryption_key: document.getElementById('urlEncryptionKey').value.trim()
         };
 
         // 验证配置值
@@ -2775,6 +2806,20 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
           showToast('Token有效期必须在60-86400秒之间', 'error');
           hideLoading();
           return;
+        }
+
+        // 验证加密密钥
+        if (config.enable_url_encryption && config.url_encryption_key.length > 0) {
+          if (config.url_encryption_key.length < 8) {
+            showToast('加密密钥长度不能少于 8 个字符', 'error');
+            hideLoading();
+            return;
+          }
+          if (!/^[A-Za-z0-9]+$/.test(config.url_encryption_key)) {
+            showToast('加密密钥只能包含字母和数字', 'error');
+            hideLoading();
+            return;
+          }
         }
 
         const result = await apiRequest('/system-config', {
@@ -2790,6 +2835,38 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
         }
       } catch (error) {
         showToast('保存配置失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // 轮换加密密钥
+    async function rotateEncryptionKey() {
+      if (!confirm('确定要轮换加密密钥吗？\\n\\n⚠️ 注意：\\n- 轮换后，旧的播放地址将失效\\n- 用户需要重新获取播放地址\\n- 前端页面需要刷新才能获取新密钥')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const config = {
+          rotate_encryption_key: true
+        };
+
+        const result = await apiRequest('/system-config', {
+          method: 'POST',
+          body: JSON.stringify(config),
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('加密密钥已轮换', 'success');
+          // 重新加载配置以显示新密钥
+          await loadSystemConfig();
+        } else {
+          showToast('轮换密钥失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        showToast('轮换密钥失败: ' + error.error, 'error');
       } finally {
         hideLoading();
       }

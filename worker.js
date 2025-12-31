@@ -5,10 +5,11 @@ import { handleSubRequest } from './handlers/sub.js';
 import { handleAdminRequest } from './handlers/admin.js';
 import { handleScheduledEvent } from './handlers/scheduler.js';
 import { handleUserActivate } from './handlers/user.js';
-import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken } from './handlers/public.js';
+import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig } from './handlers/public.js';
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { PLAYSTATION_HTML } from './playstation-page.js';
+import { getSystemConfig } from './database.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -35,11 +36,15 @@ export default {
     if (path === '/' || path === '') {
       // 首页 - 显示交互式播放站，添加安全头防止代理
       // 注入允许的域名配置和解密密钥
+      const systemConfig = await getSystemConfig();
       const allowedDomains = [url.hostname];
-      const secretKey = env.SECRET_KEY || 'default-secret-key';
+      const decryptionKey = systemConfig.enable_url_encryption && systemConfig.url_encryption_key 
+        ? systemConfig.url_encryption_key 
+        : env.SECRET_KEY || 'default-secret-key';
+      
       const htmlWithConfig = PLAYSTATION_HTML.replace(
         '<script>',
-        `<script>window.ALLOWED_DOMAINS = ${JSON.stringify(allowedDomains)};\nwindow.DECRYPTION_KEY = '${secretKey}';\n`
+        `<script>window.ALLOWED_DOMAINS = ${JSON.stringify(allowedDomains)};\nwindow.DECRYPTION_KEY = '${decryptionKey}';\nwindow.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};\n`
       );
 
       return new Response(htmlWithConfig, {
@@ -51,6 +56,9 @@ export default {
           'Permissions-Policy': 'geolocation=(), microphone=(), camera=()'
         }
       });
+    } else if (path === '/api/config') {
+      // 公开配置API - 获取前端需要的配置（如加密密钥）
+      return await handlePublicConfig(request, env, ctx);
     } else if (path === '/api/channels') {
       // 公开频道列表API（无需卡密）
       return await handlePublicChannels(request, env, ctx);
