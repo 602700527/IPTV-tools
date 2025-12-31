@@ -564,6 +564,7 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
 
   // 基于 #EXTINF 块进行分割
   const blocks = content.split(/^#EXTINF:/m);
+  console.log(`[Sync] Found ${blocks.length - 1} potential channels in M3U`);
 
   // 跳过第一个空块（#EXTM3U之前的部分）
   for (const block of blocks) {
@@ -789,6 +790,7 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
   }
 
   // 批量插入频道，使用 batch 减少API调用
+  console.log(`[Sync] Starting batch insert for ${channels.length} channels`);
   if (channels.length > 0) {
     const BATCH_SIZE = 500; // 每批500条
     let processedCount = 0;
@@ -826,30 +828,45 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
     }
   }
 
+  console.log(`[Sync] Parse completed, returning ${channels.length} channels`);
   return channels.length;
 }
 
 // 从远程URL获取M3U内容并解析
 export async function fetchAndParseM3U(sourceUrl, sourceId, filter = null) {
   try {
-    console.log(`[Sync] Fetching M3U from: ${sourceUrl}`);
+    console.log(`[Sync] Fetching M3U from: ${sourceUrl} for source ID: ${sourceId}`);
     if (filter) {
       console.log(`[Sync] Filters:`, filter);
     }
+    
+    const fetchStartTime = Date.now();
     const response = await fetch(sourceUrl);
+    const fetchEndTime = Date.now();
+    console.log(`[Sync] Fetch completed in ${fetchEndTime - fetchStartTime}ms`);
+    
     if (!response.ok) {
       throw new Error(`Failed to fetch M3U: ${response.status} ${response.statusText}`);
     }
 
     const content = await response.text();
     console.log(`[Sync] M3U content size: ${content.length} bytes`);
+    
+    // 检查内容是否为空或格式不正确
+    if (!content || !content.startsWith('#EXTM3U')) {
+      console.error(`[Sync] Invalid M3U content: starts with ${content ? content.substring(0, 50) : 'empty'}...`);
+      throw new Error('Invalid M3U content');
+    }
 
+    const parseStartTime = Date.now();
     const channelCount = await parseM3UContent(content, sourceId, filter);
+    const parseEndTime = Date.now();
+    console.log(`[Sync] Parse completed in ${parseEndTime - parseStartTime}ms`);
 
     // 更新源的最后更新时间（使用 JavaScript 生成当前时间）
     const db = getDB();
     const now = new Date().toISOString();
-    db.prepare(`
+    await db.prepare(`
       UPDATE sources SET last_updated = ? WHERE id = ?
     `).bind(now, sourceId).run();
 

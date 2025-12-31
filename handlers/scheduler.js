@@ -1,14 +1,23 @@
 // 定时任务处理器：自动同步已启用的数据源
-import { getDB, fetchAndParseM3U } from '../database.js';
+import { getDB, fetchAndParseM3U, initDB } from '../database.js';
 
 export async function handleScheduledEvent(event, env, ctx) {
   try {
-    console.log('Scheduled task started: Auto-sync enabled sources');
-    
+    const now = new Date().toISOString();
+    console.log(`[${now}] Scheduled task started: Auto-sync enabled sources`);
+
+    // 初始化数据库
+    const db = await initDB(env);
+    if (!db) {
+      console.error('[Scheduler] Failed to initialize database');
+      return;
+    }
+    console.log('[Scheduler] Database initialized successfully');
+
     // 获取所有启用的数据源
-    const sources = await getDB().prepare(`
-      SELECT id, name, url, type, parse_mode 
-      FROM sources 
+    const sources = await db.prepare(`
+      SELECT id, name, url, type, parse_mode
+      FROM sources
       WHERE is_active = 1
       ORDER BY id
     `).all();
@@ -26,16 +35,18 @@ export async function handleScheduledEvent(event, env, ctx) {
     for (const source of enabledSources) {
       try {
         console.log(`Syncing source ${source.id}: ${source.name}`);
-        
+
         // 获取旧的频道数量
-        const oldCountResult = await getDB().prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(source.id).first();
+        const oldCountResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(source.id).first();
         const oldChannelCount = oldCountResult?.count || 0;
 
         // 删除该源的旧频道
-        await getDB().prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
+        await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
 
         // 同步新频道
+        console.log(`[Sync] Starting fetch and parse for source ${source.id}: ${source.name}`);
         const syncResult = await fetchAndParseM3U(source.url, source.id);
+        console.log(`[Sync] Sync result for source ${source.id}:`, syncResult);
 
         if (syncResult.success) {
           results.push({
@@ -46,7 +57,7 @@ export async function handleScheduledEvent(event, env, ctx) {
             new_channels: syncResult.channelCount,
             error: null
           });
-          console.log(`Source ${source.id} synced successfully: deleted ${oldChannelCount}, added ${syncResult.channelCount}`);
+          console.log(`[Sync] Source ${source.id} synced successfully: deleted ${oldChannelCount}, added ${syncResult.channelCount}`);
         } else {
           results.push({
             source_id: source.id,
@@ -94,8 +105,15 @@ export async function handleScheduledEvent(event, env, ctx) {
 // 手动触发同步（用于测试或立即同步）
 export async function manualSyncAll(env, filter = null) {
   try {
+    // 初始化数据库
+    const db = await initDB(env);
+    if (!db) {
+      console.error('[ManualSync] Failed to initialize database');
+      return { success: false, error: 'Database initialization failed' };
+    }
+
     // 获取所有启用的数据源
-    const sources = await getDB().prepare(`
+    const sources = await db.prepare(`
       SELECT id, name, url, type, parse_mode
       FROM sources
       WHERE is_active = 1
@@ -112,10 +130,10 @@ export async function manualSyncAll(env, filter = null) {
     // 逐个同步源
     for (const source of enabledSources) {
       try {
-        const oldCountResult = await getDB().prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(source.id).first();
+        const oldCountResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(source.id).first();
         const oldChannelCount = oldCountResult?.count || 0;
 
-        await getDB().prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
+        await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
         const syncResult = await fetchAndParseM3U(source.url, source.id, filter);
 
         if (syncResult.success) {
