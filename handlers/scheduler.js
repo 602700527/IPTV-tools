@@ -1,5 +1,5 @@
 // 定时任务处理器：自动同步已启用的数据源
-import { getDB, fetchAndParseM3U, initDB } from '../database.js';
+import { getDB, fetchAndParseM3U, initDB, getSyncFilterConfig } from '../database.js';
 
 export async function handleScheduledEvent(event, env, ctx) {
   try {
@@ -13,6 +13,16 @@ export async function handleScheduledEvent(event, env, ctx) {
       return;
     }
     console.log('[Scheduler] Database initialized successfully');
+
+    // 获取同步过滤规则配置
+    let filter = null;
+    try {
+      filter = await getSyncFilterConfig();
+      console.log('[Scheduler] Loaded sync filter config:', filter);
+    } catch (error) {
+      console.error('[Scheduler] Failed to load sync filter config:', error);
+      filter = null;
+    }
 
     // 获取所有启用的数据源
     const sources = await db.prepare(`
@@ -43,9 +53,9 @@ export async function handleScheduledEvent(event, env, ctx) {
         // 删除该源的旧频道
         await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
 
-        // 同步新频道
+        // 同步新频道（传入过滤规则）
         console.log(`[Sync] Starting fetch and parse for source ${source.id}: ${source.name}`);
-        const syncResult = await fetchAndParseM3U(source.url, source.id);
+        const syncResult = await fetchAndParseM3U(source.url, source.id, filter);
         console.log(`[Sync] Sync result for source ${source.id}:`, syncResult);
 
         if (syncResult.success) {

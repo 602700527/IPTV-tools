@@ -136,7 +136,9 @@ export async function createTables(env) {
     'enable_burn_after_read': 'true',
     // URL加密配置
     'enable_url_encryption': 'false',
-    'url_encryption_key': ''
+    'url_encryption_key': '',
+    // 同步过滤规则配置（JSON格式）
+    'sync_filter_config': '{}'
   };
 
   for (const [key, value] of Object.entries(defaultSettings)) {
@@ -308,6 +310,57 @@ export async function getSystemConfig() {
   });
 
   return config;
+}
+
+// 获取同步过滤规则配置
+export async function getSyncFilterConfig() {
+  const db = getDB();
+  const result = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('sync_filter_config').first();
+
+  if (!result) {
+    // 返回默认配置（空，表示不过滤）
+    return {
+      excludeGroups: [],
+      excludeUrls: [],
+      excludeNames: [],
+      excludeDuplicateUrls: false,
+      groupRenameRules: [],
+      groupRenameExclude: []
+    };
+  }
+
+  try {
+    return JSON.parse(result.value);
+  } catch (e) {
+    console.error('Failed to parse sync_filter_config:', e);
+    return {
+      excludeGroups: [],
+      excludeUrls: [],
+      excludeNames: [],
+      excludeDuplicateUrls: false,
+      groupRenameRules: [],
+      groupRenameExclude: []
+    };
+  }
+}
+
+// 更新同步过滤规则配置
+export async function updateSyncFilterConfig(config) {
+  const db = getDB();
+  const configJson = JSON.stringify(config);
+
+  // 检查配置是否存在
+  const existing = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('sync_filter_config').first();
+
+  if (existing) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(configJson, 'sync_filter_config')
+      .run();
+  } else {
+    await db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)')
+      .bind('sync_filter_config', configJson)
+      .run();
+  }
 }
 
 // 更新系统安全配置

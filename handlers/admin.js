@@ -1,5 +1,5 @@
 // 管理后台API处理器
-import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, generateEncryptionKey } from '../database.js';
+import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, generateEncryptionKey, getSyncFilterConfig, updateSyncFilterConfig } from '../database.js';
 import { manualSyncAll } from './scheduler.js';
 import { getBlacklistedIPs, unbanIP, getIPAccessStats, banIP } from '../security/ip-blacklist.js';
 import { getBannedCodesFromCache, removeBannedCodeFromCache, syncBannedCodesToCache } from '../security/code-ban-cache.js';
@@ -150,6 +150,42 @@ export async function handleAdminRequest(request, env, ctx) {
       case 'sync':
         // 同步源数据
         const syncSubAction = pathParts[3];
+
+        // 获取同步过滤规则配置
+        if (syncSubAction === 'filter' && request.method === 'GET') {
+          const config = await getSyncFilterConfig();
+          return new Response(JSON.stringify({
+            success: true,
+            config
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+
+        // 保存同步过滤规则配置
+        if (syncSubAction === 'filter' && request.method === 'POST') {
+          const data = await request.json();
+
+          // 验证配置格式
+          const validConfig = {
+            excludeGroups: Array.isArray(data.excludeGroups) ? data.excludeGroups : [],
+            excludeUrls: Array.isArray(data.excludeUrls) ? data.excludeUrls : [],
+            excludeNames: Array.isArray(data.excludeNames) ? data.excludeNames : [],
+            excludeDuplicateUrls: typeof data.excludeDuplicateUrls === 'boolean' ? data.excludeDuplicateUrls : false,
+            groupRenameRules: Array.isArray(data.groupRenameRules) ? data.groupRenameRules : [],
+            groupRenameExclude: Array.isArray(data.groupRenameExclude) ? data.groupRenameExclude : []
+          };
+
+          await updateSyncFilterConfig(validConfig);
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: '同步过滤规则已更新',
+            config: validConfig
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
 
         // 同步所有启用的源
         if (syncSubAction === 'all' && request.method === 'POST') {

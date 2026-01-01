@@ -901,7 +901,10 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
       document.getElementById(tabName).classList.add('active');
       event.target.classList.add('active');
       if (tabName === 'dashboard') loadDashboard();
-      else if (tabName === 'sources') loadSources();
+      else if (tabName === 'sources') {
+        loadSources();
+        loadSyncFilters(); // 加载同步过滤规则
+      }
       else if (tabName === 'channels') { loadSources(); loadChannels(); }
       else if (tabName === 'codes') loadCodes();
       else if (tabName === 'security') {
@@ -1189,20 +1192,105 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
       showToast('已清空同步过滤规则', 'success');
     }
 
-    function saveSyncFilters() {
+    async function saveSyncFilters() {
+      // 获取过滤规则（支持逗号和换行符分隔）
+      const excludeGroups = document.getElementById('syncExcludeGroups').value
+        .split(new RegExp('[\\n,]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      const excludeUrls = document.getElementById('syncExcludeUrls').value
+        .split(new RegExp('[\\n,]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      const excludeNames = document.getElementById('syncExcludeNames').value
+        .split(new RegExp('[\\n,]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      // 解析分组重命名规则
+      const groupRenameRules = document.getElementById('groupRenameRules').value
+        .split(new RegExp('[\\n]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0)
+        .map(rule => {
+          const parts = rule.split('->');
+          if (parts.length === 2) {
+            return {
+              keyword: parts[0].trim(),
+              newName: parts[1].trim()
+            };
+          }
+          return null;
+        })
+        .filter(rule => rule !== null);
+
+      const groupRenameExclude = document.getElementById('groupRenameExclude').value
+        .split(new RegExp('[\\n,]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
       const filters = {
+        excludeGroups,
+        excludeUrls,
+        excludeNames,
+        excludeDuplicateUrls: document.getElementById('excludeDuplicateUrls').checked,
+        groupRenameRules,
+        groupRenameExclude
+      };
+
+      // 同时保存到 localStorage（用于回显）和数据库（用于定时任务）
+      localStorage.setItem('syncFilters', JSON.stringify({
         excludeGroups: document.getElementById('syncExcludeGroups').value,
         excludeUrls: document.getElementById('syncExcludeUrls').value,
         excludeNames: document.getElementById('syncExcludeNames').value,
         excludeDuplicateUrls: document.getElementById('excludeDuplicateUrls').checked,
         groupRenameRules: document.getElementById('groupRenameRules').value,
         groupRenameExclude: document.getElementById('groupRenameExclude').value
-      };
-      localStorage.setItem('syncFilters', JSON.stringify(filters));
-      showToast('过滤规则已保存', 'success');
+      }));
+
+      try {
+        const result = await apiRequest('/sync/filter', {
+          method: 'POST',
+          body: JSON.stringify(filters)
+        });
+        if (result.success) {
+          showToast('过滤规则已保存到数据库，定时任务将自动应用', 'success');
+        } else {
+          showToast('保存失败: ' + result.error, 'error');
+        }
+      } catch (error) {
+        console.error('Failed to save sync filters:', error);
+        showToast('保存失败，仅保存在本地浏览器缓存', 'error');
+      }
     }
 
-    function loadSyncFilters() {
+    async function loadSyncFilters() {
+      // 优先从数据库加载，如果失败则从 localStorage 加载
+      try {
+        const result = await apiRequest('/sync/filter', { showLoading: false });
+        if (result.success && result.config) {
+          const config = result.config;
+          // 将数组转换为多行文本格式用于显示
+          document.getElementById('syncExcludeGroups').value = (config.excludeGroups || []).join('\\n');
+          document.getElementById('syncExcludeUrls').value = (config.excludeUrls || []).join('\\n');
+          document.getElementById('syncExcludeNames').value = (config.excludeNames || []).join('\\n');
+          document.getElementById('excludeDuplicateUrls').checked = config.excludeDuplicateUrls || false;
+
+          // 将分组重命名规则数组转换为多行文本格式
+          const groupRenameRulesText = (config.groupRenameRules || [])
+            .map(rule => rule.keyword + ' -> ' + rule.newName)
+            .join('\\n');
+          document.getElementById('groupRenameRules').value = groupRenameRulesText;
+
+          document.getElementById('groupRenameExclude').value = (config.groupRenameExclude || []).join('\\n');
+          console.log('Loaded sync filters from database:', config);
+          return;
+        }
+      } catch (error) {
+        console.error('Failed to load sync filters from database:', error);
+      }
+
+      // 如果从数据库加载失败，从 localStorage 加载
       const saved = localStorage.getItem('syncFilters');
       if (saved) {
         try {
@@ -1213,8 +1301,9 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
           document.getElementById('excludeDuplicateUrls').checked = filters.excludeDuplicateUrls || false;
           document.getElementById('groupRenameRules').value = filters.groupRenameRules || '';
           document.getElementById('groupRenameExclude').value = filters.groupRenameExclude || '';
+          console.log('Loaded sync filters from localStorage:', filters);
         } catch (e) {
-          console.error('Failed to load sync filters:', e);
+          console.error('Failed to load sync filters from localStorage:', e);
         }
       }
     }
