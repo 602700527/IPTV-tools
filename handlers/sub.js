@@ -145,61 +145,77 @@ function sortChannels(channels) {
 
   // 首先按分组排序，然后按频道名排序
   return channels.sort((a, b) => {
-    // 分组排序逻辑
-    const groupComparison = compareGroups(a.group_title || '', b.group_title || '');
-    if (groupComparison !== 0) {
-      return groupComparison;
+    const groupA = a.group_title || '';
+    const groupB = b.group_title || '';
+    // 先按分组名排序
+    if (groupA !== groupB) {
+      return groupA.localeCompare(groupB, 'zh-CN', { numeric: true });
     }
 
-    // 频道名排序逻辑（英文、数字、汉字）
-    return compareChannelNames(a.channel_name || '', b.channel_name || '');
+    // 同一分组内：英文 -> 数字 -> 中文（数字按数值大小排序）
+    const nameA = a.channel_name || '';
+    const nameB = b.channel_name || '';
+
+    // 尝试提取CCTV格式的数字
+    const cctvMatchA = nameA.match(/^([A-Za-z]+)(\d+)/);
+    const cctvMatchB = nameB.match(/^([A-Za-z]+)(\d+)/);
+
+    // 如果都是CCTV格式（字母开头+数字），按数字大小排序
+    if (cctvMatchA && cctvMatchB && cctvMatchA[1].toUpperCase() === cctvMatchB[1].toUpperCase()) {
+      const numA = parseInt(cctvMatchA[2]);
+      const numB = parseInt(cctvMatchB[2]);
+      if (numA !== numB) {
+        return numA - numB;
+      }
+      // 数字相同，继续按后缀排序（无后缀的排前面）
+      const suffixA = nameA.substring(cctvMatchA[1].length + cctvMatchA[2].length);
+      const suffixB = nameB.substring(cctvMatchB[1].length + cctvMatchB[2].length);
+
+      // 如果一个有后缀一个没有，无后缀的排前面
+      const hasSuffixA = suffixA.trim().length > 0;
+      const hasSuffixB = suffixB.trim().length > 0;
+      if (hasSuffixA !== hasSuffixB) {
+        return hasSuffixA ? 1 : -1;
+      }
+
+      // 都有后缀或都没有后缀，按后缀内容排序
+      return suffixA.localeCompare(suffixB, 'zh-CN', { numeric: true });
+    }
+
+    // 普通排序：按字符逐个比较
+    for (let i = 0; i < Math.min(nameA.length, nameB.length); i++) {
+      const charA = nameA.charCodeAt(i);
+      const charB = nameB.charCodeAt(i);
+
+      // 英文字母 (A-Z, a-z: 65-90, 97-122)
+      const isAlphaA = (charA >= 65 && charA <= 90) || (charA >= 97 && charA <= 122);
+      const isAlphaB = (charB >= 65 && charB <= 90) || (charB >= 97 && charB <= 122);
+
+      // 数字 (0-9: 48-57)
+      const isDigitA = charA >= 48 && charA <= 57;
+      const isDigitB = charB >= 48 && charB <= 57;
+
+      // 中文 (\u4e00-\u9fa5: 19968-40869)
+      const isChineseA = charA >= 19968 && charA <= 40869;
+      const isChineseB = charB >= 19968 && charB <= 40869;
+
+      // 确定字符类型优先级：英文=1, 数字=2, 中文=3
+      const typeA = isAlphaA ? 1 : (isDigitA ? 2 : (isChineseA ? 3 : 4));
+      const typeB = isAlphaB ? 1 : (isDigitB ? 2 : (isChineseB ? 3 : 4));
+
+      // 类型不同时，按类型排序
+      if (typeA !== typeB) {
+        return typeA - typeB;
+      }
+
+      // 类型相同时，按字符值排序
+      if (charA !== charB) {
+        return charA - charB;
+      }
+    }
+
+    // 所有字符都相等，按长度排序
+    return nameA.length - nameB.length;
   });
-}
-
-// 分组比较函数：中文分组优先，然后是英文分组
-function compareGroups(groupA, groupB) {
-  // 检查是否包含中文字符
-  const hasChinese = (str) => /[\u4e00-\u9fff]/.test(str);
-  
-  const aHasChinese = hasChinese(groupA);
-  const bHasChinese = hasChinese(groupB);
-
-  // 中文分组优先
-  if (aHasChinese && !bHasChinese) return -1;
-  if (!aHasChinese && bHasChinese) return 1;
-
-  // 同类型分组按字母顺序排序
-  return groupA.localeCompare(groupB, 'zh-CN');
-}
-
-// 频道名比较函数：英文 -> 数字 -> 汉字
-function compareChannelNames(nameA, nameB) {
-  const getType = (str) => {
-    // 检查是否以英文字母开头
-    if (/^[a-zA-Z]/.test(str)) return 'english';
-    // 检查是否以数字开头
-    if (/^[0-9]/.test(str)) return 'number';
-    // 否则为中文或其他
-    return 'chinese';
-  };
-
-  const typeA = getType(nameA);
-  const typeB = getType(nameB);
-
-  // 类型优先级：英文(0) -> 数字(1) -> 汉字(2)
-  const priority = { 'english': 0, 'number': 1, 'chinese': 2 };
-  
-  if (typeA !== typeB) {
-    return priority[typeA] - priority[typeB];
-  }
-
-  // 同类型内按字典序排序
-  if (typeA === 'chinese') {
-    // 中文字符按拼音排序
-    return nameA.localeCompare(nameB, 'zh-CN');
-  } else {
-    // 英文和数字按ASCII排序
-    return nameA.localeCompare(nameB, 'en-US');
-  }
 }
 
