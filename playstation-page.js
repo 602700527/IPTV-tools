@@ -174,19 +174,19 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       <input type="text" class="search-input" id="searchInput" placeholder="搜索频道..." oninput="handleSearch()">
     </div>
     <div class="quick-entries">
-      <button class="quick-entry" onclick="showHistoryPanel()" title="播放历史">
+      <button class="quick-entry" onclick="showHistoryInMain()" title="播放历史">
         🕐
         <span class="quick-entry-tip">播放历史</span>
         <span class="quick-entry-badge" id="historyBadge" style="display:none;">0</span>
       </button>
-      <button class="quick-entry" onclick="showFavoritesPanel()" title="我的收藏">
+      <button class="quick-entry" onclick="showFavoritesInMain()" title="我的收藏">
         ⭐
         <span class="quick-entry-tip">我的收藏</span>
         <span class="quick-entry-badge" id="favoritesBadge" style="display:none;">0</span>
       </button>
-      <button class="quick-entry" onclick="playFeaturedChannel()" title="每日推荐">
+      <button class="quick-entry" onclick="showRandomInMain()" title="随机推荐">
         🎯
-        <span class="quick-entry-tip">每日推荐</span>
+        <span class="quick-entry-tip">随机推荐</span>
       </button>
     </div>
     <div class="online-counter">
@@ -517,12 +517,33 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       currentGroup = group;
       currentPage = 1; // 重置到第一页
 
-      document.getElementById('sectionTitle').textContent = group === 'favorites' ? '⭐ 我的收藏' : (group || '全部频道');
+      // 更新标题
+      if (group === 'history') {
+        document.getElementById('sectionTitle').textContent = '🕐 播放历史';
+      } else if (group === 'favorites') {
+        document.getElementById('sectionTitle').textContent = '⭐ 我的收藏';
+      } else if (group === 'random') {
+        document.getElementById('sectionTitle').textContent = '🎯 随机推荐';
+      } else {
+        document.getElementById('sectionTitle').textContent = group || '全部频道';
+      }
 
       // 如果是收藏分组，显示收藏列表
       if (group === 'favorites') {
         renderFavorites();
         document.getElementById('pagination').innerHTML = '';
+        return;
+      }
+
+      // 如果是播放历史，显示历史列表
+      if (group === 'history') {
+        showHistoryInMain();
+        return;
+      }
+
+      // 如果是随机推荐，显示推荐列表
+      if (group === 'random') {
+        showRandomInMain();
         return;
       }
 
@@ -909,51 +930,93 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       document.getElementById('onlineCount').textContent = count.toLocaleString();
     }
 
+
     // 随机推荐
-    function initFeaturedChannels() {
-      // 每次生成10个随机推荐频道
-      if (allChannels.length > 0) {
-        const shuffled = [...allChannels].sort(() => 0.5 - Math.random());
-        featuredChannels = shuffled.slice(0, 10);
+    async function initFeaturedChannels() {
+      // 从后端获取随机推荐频道
+      try {
+        const response = await fetch(API_BASE + '/channels?action=random&count=30');
+        const data = await response.json();
+
+        if (data.success && data.channels) {
+          featuredChannels = data.channels;
+          console.log('获取到随机推荐频道:', featuredChannels.length);
+        } else {
+          console.error('获取随机推荐失败:', data.error);
+          featuredChannels = [];
+        }
+      } catch (error) {
+        console.error('获取随机推荐失败:', error);
+        featuredChannels = [];
       }
     }
 
-    function showRecommendedPanel() {
-      const panel = document.getElementById('quickPanel');
-      const title = document.getElementById('quickPanelTitle');
-      const content = document.getElementById('quickPanelContent');
 
-      title.textContent = '🎯 随机推荐';
 
-      if (!featuredChannels || featuredChannels.length === 0) {
-        content.innerHTML = \`
-          <div class="quick-panel-empty">
-            <div class="quick-panel-empty-icon">🎯</div>
-            <div class="quick-panel-empty-text">暂无推荐频道</div>
-          </div>
-        \`;
-      } else {
-        content.innerHTML = featuredChannels.map((channel, index) => {
-          const logo = channel.logo
-            ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`
-            : '<div class="channel-icon">📺</div>';
-          return \`
-            <div class="quick-panel-item" onclick="playChannel('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}');closeQuickPanel();">
-              <div class="quick-panel-item-poster">\${logo}</div>
-              <div class="quick-panel-item-info">
-                <div class="quick-panel-item-name">\${escapeHtml(channel.channel_name)}</div>
-                <div class="quick-panel-item-group">\${escapeHtml(channel.group_title || '')}</div>
-              </div>
-              <div class="quick-panel-item-time">推荐 \${index + 1}</div>
-            </div>
-          \`;
-        }).join('');
+
+    function showRandomInMain() {
+      // 重新生成随机推荐
+      initFeaturedChannels();
+
+      // 清除分组选择
+      currentGroup = 'random';
+      renderGroups();
+
+      // 更新标题
+      document.getElementById('sectionTitle').textContent = '🎯 随机推荐';
+
+      // 隐藏加载和分页
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('channelList').style.display = 'block';
+      document.getElementById('pagination').innerHTML = '';
+
+      // 获取前30条推荐
+      const randomChannels = featuredChannels.slice(0, 30);
+
+      if (!randomChannels || randomChannels.length === 0) {
+        const container = document.getElementById('channelsGrid');
+        const emptyState = document.getElementById('emptyState');
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        document.querySelector('.empty-title').textContent = '暂无推荐频道';
+        document.querySelector('.empty-desc').textContent = '请稍后再试';
+        return;
       }
 
-      panel.classList.add('active');
+      // 渲染推荐列表
+      const container = document.getElementById('channelsGrid');
+      const emptyState = document.getElementById('emptyState');
+      emptyState.style.display = 'none';
 
-      // 点击外部关闭面板
-      document.addEventListener('click', handlePanelOutsideClick);
+      container.innerHTML = randomChannels.map((channel, index) => {
+        const logo = channel.logo
+          ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`
+          : '<div class="channel-icon">📺</div>';
+
+        return \`
+          <div class="channel-card" onclick="playChannel('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
+            <div class="channel-poster">
+              \${logo}
+              \${index < 5 ? '<div class="hot-tag">推荐</div>' : ''}
+              <div class="play-overlay">
+                <div class="play-icon"></div>
+              </div>
+            </div>
+            <div class="channel-info">
+              <div class="channel-name">\${escapeHtml(channel.channel_name)}</div>
+              <div class="channel-group">\${escapeHtml(channel.group_title || '')}</div>
+            </div>
+          </div>
+        \`;
+      }).join('');
+    }
+
+    function showRecommendedPanel() {
+      showRandomInMain();
+    }
+
+    function playFeaturedChannel() {
+      showRandomInMain();
     }
 
     function playFeaturedChannel() {
@@ -994,7 +1057,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       const emptyState = document.getElementById('emptyState');
       document.getElementById('pagination').innerHTML = '';
 
-      if (favorites.length === 0) {
+      // 获取前30条收藏
+      const favoritesItems = favorites.slice(0, 30);
+
+      if (favoritesItems.length === 0) {
         container.innerHTML = '';
         emptyState.style.display = 'block';
         document.querySelector('.empty-title').textContent = '还没有收藏';
@@ -1003,7 +1069,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       }
 
       emptyState.style.display = 'none';
-      container.innerHTML = favorites.map(fav => {
+      container.innerHTML = favoritesItems.map(fav => {
         const logo = getLogoByHash(fav.hash);
         return \`
           <div class="channel-card" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
@@ -1069,77 +1135,123 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     // ========== 快捷面板功能 ==========
 
     // 显示播放历史面板
-    function showHistoryPanel() {
-      const panel = document.getElementById('quickPanel');
-      const title = document.getElementById('quickPanelTitle');
-      const content = document.getElementById('quickPanelContent');
 
-      title.textContent = '🕐 播放历史';
+    function showHistoryInMain() {
+      // 清除分组选择
+      currentGroup = 'history';
+      renderGroups();
 
-      if (history.length === 0) {
-        content.innerHTML = \`
-          <div class="quick-panel-empty">
-            <div class="quick-panel-empty-icon">🕐</div>
-            <div class="quick-panel-empty-text">暂无播放历史</div>
-          </div>
-        \`;
-      } else {
-        content.innerHTML = history.slice(0, 20).map(h => {
-          const logo = getLogoByHash(h.hash);
-          const timeAgo = getTimeAgo(h.watchedAt);
-          return \`
-            <div class="quick-panel-item" onclick="playChannel('\${escapeHtml(h.hash)}', '\${escapeHtml(h.name)}', '\${escapeHtml(h.group)}');closeQuickPanel();">
-              <div class="quick-panel-item-poster">\${logo}</div>
-              <div class="quick-panel-item-info">
-                <div class="quick-panel-item-name">\${escapeHtml(h.name)}</div>
-                <div class="quick-panel-item-group">\${escapeHtml(h.group)}</div>
-              </div>
-              <div class="quick-panel-item-time">\${timeAgo}</div>
-            </div>
-          \`;
-        }).join('');
+      // 更新标题
+      document.getElementById('sectionTitle').textContent = '🕐 播放历史';
+
+      // 隐藏加载和分页
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('channelList').style.display = 'block';
+      document.getElementById('pagination').innerHTML = '';
+
+      // 获取前30条历史记录
+      const historyItems = history.slice(0, 30);
+
+      if (historyItems.length === 0) {
+        const container = document.getElementById('channelsGrid');
+        const emptyState = document.getElementById('emptyState');
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        document.querySelector('.empty-title').textContent = '暂无播放历史';
+        document.querySelector('.empty-desc').textContent = '观看的频道会自动显示在这里';
+        return;
       }
 
-      panel.classList.add('active');
+      // 渲染历史记录
+      const container = document.getElementById('channelsGrid');
+      const emptyState = document.getElementById('emptyState');
+      emptyState.style.display = 'none';
 
-      // 点击外部关闭面板
-      document.addEventListener('click', handlePanelOutsideClick);
+      container.innerHTML = historyItems.map(h => {
+        const logo = getLogoByHash(h.hash);
+        const timeAgo = getTimeAgo(h.watchedAt);
+        const logoHtml = logo ? \`<img src="\${escapeHtml(logo)}" alt="\${escapeHtml(h.name)}">\` : '<div class="channel-icon">📺</div>';
+
+        return \`
+          <div class="channel-card" onclick="playChannel('\${escapeHtml(h.hash)}', '\${escapeHtml(h.name)}', '\${escapeHtml(h.group)}')">
+            <div class="channel-poster">
+              \${logoHtml}
+              <div class="play-overlay">
+                <div class="play-icon"></div>
+              </div>
+            </div>
+            <div class="channel-info">
+              <div class="channel-name">\${escapeHtml(h.name)}</div>
+              <div class="channel-group">\${escapeHtml(h.group)}</div>
+              <div class="channel-group" style="margin-top:4px;font-size:11px;color:#e50914">\${timeAgo}</div>
+            </div>
+          </div>
+        \`;
+      }).join('');
+    }
+
+    // 在主数据区域显示收藏
+    function showFavoritesInMain() {
+      // 清除分组选择
+      currentGroup = 'favorites';
+      renderGroups();
+
+      // 更新标题
+      document.getElementById('sectionTitle').textContent = '⭐ 我的收藏';
+
+      // 隐藏加载和分页
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('channelList').style.display = 'block';
+      document.getElementById('pagination').innerHTML = '';
+
+      // 获取前30条收藏
+      const favoritesItems = favorites.slice(0, 30);
+
+      if (favoritesItems.length === 0) {
+        const container = document.getElementById('channelsGrid');
+        const emptyState = document.getElementById('emptyState');
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        document.querySelector('.empty-title').textContent = '还没有收藏';
+        document.querySelector('.empty-desc').textContent = '点击频道卡片上的星星添加收藏';
+        return;
+      }
+
+      // 渲染收藏列表
+      const container = document.getElementById('channelsGrid');
+      const emptyState = document.getElementById('emptyState');
+      emptyState.style.display = 'none';
+
+      container.innerHTML = favoritesItems.map(fav => {
+        const logo = getLogoByHash(fav.hash);
+        const logoHtml = logo ? \`<img src="\${escapeHtml(logo)}" alt="\${escapeHtml(fav.name)}">\` : '<div class="channel-icon">📺</div>';
+
+        return \`
+          <div class="channel-card" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
+            <div class="channel-poster">
+              \${logoHtml}
+              <button class="favorite-btn favorited" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')" data-hash="\${escapeHtml(fav.hash)}">⭐</button>
+              <div class="play-overlay">
+                <div class="play-icon"></div>
+              </div>
+            </div>
+            <div class="channel-info">
+              <div class="channel-name">\${escapeHtml(fav.name)}</div>
+              <div class="channel-group">\${escapeHtml(fav.group)}</div>
+            </div>
+          </div>
+        \`;
+      }).join('');
+    }
+
+    // 显示播放历史面板
+    function showHistoryPanel() {
+      showHistoryInMain();
     }
 
     // 显示收藏面板
     function showFavoritesPanel() {
-      const panel = document.getElementById('quickPanel');
-      const title = document.getElementById('quickPanelTitle');
-      const content = document.getElementById('quickPanelContent');
-
-      title.textContent = '⭐ 我的收藏';
-
-      if (favorites.length === 0) {
-        content.innerHTML = \`
-          <div class="quick-panel-empty">
-            <div class="quick-panel-empty-icon">⭐</div>
-            <div class="quick-panel-empty-text">还没有收藏<br><span style="font-size:12px;opacity:0.7">点击频道卡片上的星星添加收藏</span></div>
-          </div>
-        \`;
-      } else {
-        content.innerHTML = favorites.map(fav => {
-          const logo = getLogoByHash(fav.hash);
-          return \`
-            <div class="quick-panel-item" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}');closeQuickPanel();">
-              <div class="quick-panel-item-poster">\${logo}</div>
-              <div class="quick-panel-item-info">
-                <div class="quick-panel-item-name">\${escapeHtml(fav.name)}</div>
-                <div class="quick-panel-item-group">\${escapeHtml(fav.group)}</div>
-              </div>
-            </div>
-          \`;
-        }).join('');
-      }
-
-      panel.classList.add('active');
-
-      // 点击外部关闭面板
-      document.addEventListener('click', handlePanelOutsideClick);
+      showFavoritesInMain();
     }
 
     // 关闭快捷面板

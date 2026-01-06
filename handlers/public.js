@@ -2,6 +2,58 @@
 import { getDB, getHomepageDisplayConfig, getSystemConfig, generatePlayToken, verifyPlayToken, verifyReferer, encryptWithAES } from '../database.js';
 import { getAllChannels, getAllGroups, getChannelByHash } from '../utils/channel-cache.js';
 
+// 随机推荐频道 - 从 KV 缓存的所有频道中随机获取
+async function handleRandomChannels(env, count = 30) {
+  console.log('[RandomChannels] 获取随机推荐，数量:', count);
+
+  try {
+    // 从 KV 缓存获取所有频道
+    const cacheResult = await getAllChannels(env);
+    const allChannels = cacheResult.channels || [];
+
+    console.log('[RandomChannels] 从缓存获取频道数量:', allChannels.length, 'fromCache:', cacheResult.fromCache);
+
+    if (allChannels.length === 0) {
+      return new Response(JSON.stringify({
+        success: true,
+        channels: [],
+        count: 0
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 随机打乱数组
+    const shuffled = [...allChannels].sort(() => 0.5 - Math.random());
+
+    // 取前N个
+    const randomChannels = shuffled.slice(0, Math.min(count, allChannels.length));
+
+    console.log('[RandomChannels] 返回随机频道数量:', randomChannels.length, '总频道数:', allChannels.length);
+
+    return new Response(JSON.stringify({
+      success: true,
+      channels: randomChannels,
+      count: randomChannels.length
+    }), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
+      }
+    });
+
+  } catch (error) {
+    console.error('[RandomChannels] 获取随机推荐失败:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: '获取随机推荐失败: ' + error.message
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
 // 调试接口 - 查看频道信息
 export async function handleChannelDebug(request, env, ctx) {
   const url = new URL(request.url);
@@ -183,6 +235,13 @@ export async function handlePublicChannels(request, env, ctx) {
     const group = url.searchParams.get('group') || '';
     const page = parseInt(url.searchParams.get('page') || '1', 10);
     const pageSize = parseInt(url.searchParams.get('page_size') || '50', 10);
+    const action = url.searchParams.get('action') || '';
+
+    // 随机推荐接口
+    if (action === 'random') {
+      const count = parseInt(url.searchParams.get('count') || '30', 10);
+      return await handleRandomChannels(env, count);
+    }
 
     const db = getDB();
 
