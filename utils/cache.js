@@ -7,6 +7,9 @@ const playCountCache = new Map(); // { "code:hash:date": count }
 // IP 访问计数缓存
 const ipAccessCache = new Map(); // { "ip:path:date": count }
 
+// 导出缓存变量，供外部直接访问
+export { playCountCache, ipAccessCache };
+
 // 缓存最后刷新时间
 let lastCacheFlush = Date.now();
 

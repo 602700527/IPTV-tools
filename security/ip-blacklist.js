@@ -1,7 +1,7 @@
 // IP黑名单安全系统
 // 防止撞库攻击：监控订阅地址访问频率，超出限制永久封禁
 import { getIPBlacklistConfig } from '../database.js';
-import { incrementIPAccess, getIPAccessCount, getIPTotalAccess, flushCacheToDB } from '../utils/cache.js';
+import { incrementIPAccess, getIPAccessCount, getIPTotalAccess, flushCacheToDB, ipAccessCache } from '../utils/cache.js';
 
 /**
  * 获取客户端真实IP
