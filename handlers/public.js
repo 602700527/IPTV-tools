@@ -1,6 +1,6 @@
 // 公开播放列表API - 无需卡密
 import { getDB, getHomepageDisplayConfig, getSystemConfig, generatePlayToken, verifyPlayToken, verifyReferer, encryptWithAES } from '../database.js';
-import { getAllChannels, getAllGroups } from '../utils/channel-cache.js';
+import { getAllChannels, getAllGroups, getChannelByHash } from '../utils/channel-cache.js';
 
 // 调试接口 - 查看频道信息
 export async function handleChannelDebug(request, env, ctx) {
@@ -22,6 +22,11 @@ export async function handleChannelDebug(request, env, ctx) {
 
     if (!channel) {
       return new Response('Channel not found', { status: 404 });
+    }
+
+    // 检查数据源是否激活
+    if (channel.source_active === 0) {
+      return new Response('Channel source is inactive', { status: 404 });
     }
 
     // 解析headers
@@ -190,17 +195,76 @@ export async function handlePublicChannels(request, env, ctx) {
                     (!displayConfig.sources || displayConfig.sources.length === 0) &&
                     (!displayConfig.groups || displayConfig.groups.length === 0) &&
                     (!displayConfig.hosts || displayConfig.hosts.length === 0) &&
-                    displayConfig.hasHeaders === null &&
-                    displayConfig.hasHeaders === undefined;
+                    (displayConfig.hasHeaders === null || displayConfig.hasHeaders === undefined);
 
-    let allChannels, allGroups;
-    if (useCache) {
+    console.log('[PublicChannels] useCache:', useCache, 'search:', search, 'group:', group, 'sources:', displayConfig.sources, 'groups:', displayConfig.groups, 'hosts:', displayConfig.hosts, 'hasHeaders:', displayConfig.hasHeaders);
+
+    let shouldUseCache = useCache;  // 使用可变变量来跟踪是否使用缓存
+    let allChannels, allGroups, total;
+    if (shouldUseCache) {
       console.log('[PublicChannels] 使用 KV 缓存');
-      const cacheResult = await getAllChannels(env);
-      const groupsResult = await getAllGroups(env);
-      allChannels = cacheResult.channels;
-      allGroups = groupsResult.groups;
-    } else {
+      try {
+        const cacheResult = await getAllChannels(env);
+        const groupsResult = await getAllGroups(env);
+        console.log('[PublicChannels] 缓存结果 - channels:', cacheResult.channels?.length || 0, 'fromCache:', cacheResult.fromCache, 'groups:', groupsResult.groups?.length || 0, 'fromCache:', groupsResult.fromCache);
+        allChannels = cacheResult.channels || [];
+        allGroups = groupsResult.groups || [];
+
+        // 对缓存数据进行排序（与数据库查询的排序逻辑一致）
+        if (allChannels.length > 0) {
+          allChannels.sort((a, b) => {
+            const groupA = a.group_title || '';
+            const groupB = b.group_title || '';
+            if (groupA !== groupB) {
+              return groupA.localeCompare(groupB, 'zh-CN', { numeric: true });
+            }
+            const nameA = a.channel_name || '';
+            const nameB = b.channel_name || '';
+            return nameA.localeCompare(nameB, 'zh-CN', { numeric: true });
+          });
+        }
+
+        // 计算总数
+        total = allChannels.length;
+
+        // 分页处理
+        const offset = (page - 1) * pageSize;
+        const totalPages = Math.ceil(total / pageSize);
+
+        // 分页获取频道数据
+        const paginatedChannels = allChannels.slice(offset, offset + pageSize);
+
+        // 分页信息
+        const pagination = {
+          page,
+          page_size: pageSize,
+          total,
+          total_pages: totalPages,
+          has_prev: page > 1,
+          has_next: page < totalPages
+        };
+
+        return new Response(JSON.stringify({
+          success: true,
+          channels: paginatedChannels,
+          groups: allGroups,
+          pagination
+        }), {
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
+      } catch (cacheError) {
+        console.error('[PublicChannels] 获取缓存失败,降级到数据库:', cacheError);
+        // 如果缓存获取失败,设置shouldUseCache为false,继续使用数据库查询
+        shouldUseCache = false;
+      }
+    }
+
+    if (!shouldUseCache) {
       console.log('[PublicChannels] 使用数据库查询');
       // 原有的数据库查询逻辑...
 
@@ -295,9 +359,8 @@ export async function handlePublicChannels(request, env, ctx) {
       ORDER BY group_title
     `).bind(...params).all();
 
-    channels = channelsResult.results || [];
-    groups = groupsResult.results?.map(g => g.group_title).filter(g => g) || [];
-    }
+    let channels = channelsResult.results || [];
+    let groups = groupsResult.results?.map(g => g.group_title).filter(g => g) || [];
 
     // 在应用层进行分组内排序（英文 -> 数字 -> 中文）
     if (channels.length > 0) {
@@ -413,12 +476,18 @@ export async function handlePublicChannels(request, env, ctx) {
         'Expires': '0'
       }
     });
-
+    }
   } catch (error) {
-    console.error('获取公开频道列表失败:', error);
+    console.error('[PublicChannels] 获取公开频道列表失败:', error);
+    console.error('[PublicChannels] 错误堆栈:', error.stack);
+    console.error('[PublicChannels] 错误详细信息:', JSON.stringify({
+      message: error.message,
+      name: error.name,
+      cause: error.cause
+    }));
     return new Response(JSON.stringify({
       success: false,
-      error: '获取频道列表失败'
+      error: '获取频道列表失败: ' + error.message
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
@@ -482,15 +551,16 @@ export async function handlePublicPlay(request, env, ctx) {
       }
     }
 
-    // 查询频道信息
-    const channel = await db.prepare(`
-      SELECT channel_name, group_title, logo, play_url, headers
-      FROM channels
-      WHERE channel_hash = ? AND is_active = 1
-    `).bind(hash).first();
+    // 查询频道信息（优先从 KV 缓存）
+    const channel = await getChannelByHash(env, hash);
 
-    if (!channel) {
+    if (!channel || !channel.is_active) {
       return new Response('Channel not found', { status: 404 });
+    }
+
+    // 检查数据源是否激活
+    if (channel.source_active === 0) {
+      return new Response('Channel source is inactive', { status: 404 });
     }
 
     // 解析headers
