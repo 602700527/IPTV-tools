@@ -359,6 +359,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let currentHls = null;
     let isPlayerOpen = false;
     let isPlayerExpanded = false;
+    let currentPlayRequestId = 0;  // 播放请求ID，用于取消之前的请求
+    let activeFetchControllers = [];  // 活跃的 AbortController 列表
     let currentPage = 1;
     let pageSize = 50;
     let totalPages = 1;
@@ -900,6 +902,20 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
 
     function playChannel(hash, name, group, retryCount = 0) {
+      // 生成新的播放请求ID
+      const requestId = ++currentPlayRequestId;
+      console.log('[PlayChannel] Request #' + requestId + ':', name);
+
+      // 取消之前所有未完成的请求
+      abortAllFetches();
+      cleanupVideoResources();
+
+      // 检查这个请求是否已经被取消
+      if (requestId !== currentPlayRequestId) {
+        console.log('[PlayChannel] Request #' + requestId + ' was cancelled');
+        return;
+      }
+
       // 显示播放提示
       showPlayingIndicator(name);
 
@@ -931,26 +947,52 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
       isPlayerOpen = true;
 
-      // 销毁之前的Hls实例
-      if (currentHls) {
-        currentHls.destroy();
-        currentHls = null;
-      }
+      // 创建新的 AbortController 用于这次请求
+      const tokenController = new AbortController();
+      const playController = new AbortController();
+      activeFetchControllers.push(tokenController, playController);
 
       // 先获取token，再获取播放地址
-      fetch(window.location.origin + '/api/token?hash=' + encodeURIComponent(hash))
-        .then(res => res.json())
+      fetch(window.location.origin + '/api/token?hash=' + encodeURIComponent(hash), {
+        signal: tokenController.signal
+      })
+        .then(res => {
+          // 检查请求是否被取消
+          if (requestId !== currentPlayRequestId) {
+            throw new Error('Request cancelled');
+          }
+          return res.json();
+        })
         .then(data => {
+          // 再次检查
+          if (requestId !== currentPlayRequestId) {
+            throw new Error('Request cancelled');
+          }
+
           if (data.success && data.token) {
-            console.log('Token获取成功');
+            console.log('[PlayChannel] Request #' + requestId + ': Token received');
             // 使用token获取播放地址
-            return fetch(window.location.origin + '/api/play/' + hash + '?token=' + encodeURIComponent(data.token));
+            return fetch(window.location.origin + '/api/play/' + hash + '?token=' + encodeURIComponent(data.token), {
+              signal: playController.signal
+            });
           } else {
-            throw new Error('获取Token失败');
+            throw new Error('Failed to get token');
           }
         })
-        .then(res => res.json())
+        .then(res => {
+          // 再次检查
+          if (requestId !== currentPlayRequestId) {
+            throw new Error('Request cancelled');
+          }
+          return res.json();
+        })
         .then(data => {
+          // 再次检查
+          if (requestId !== currentPlayRequestId) {
+            console.log('[PlayChannel] Request #' + requestId + ': Response received but cancelled');
+            return;
+          }
+
           if (data.success && data.play_url) {
             let playUrl = data.play_url;
 
@@ -958,41 +1000,92 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             if (data.encoded && data.encryption === 'aes-gcm') {
               decryptAES(playUrl, DECRYPTION_KEY)
                 .then(decryptedUrl => {
-                  console.log('URL已解密:', decryptedUrl);
+                  // 最后一次检查
+                  if (requestId !== currentPlayRequestId) {
+                    console.log('[PlayChannel] Request #' + requestId + ': Decrypted but cancelled');
+                    return;
+                  }
+                  console.log('[PlayChannel] Request #' + requestId + ': URL decrypted:', decryptedUrl);
                   startPlay(decryptedUrl, video);
                 })
                 .catch(async (e) => {
-                  console.error('URL解密失败:', e);
+                  console.error('[PlayChannel] URL decryption failed:', e);
 
                   // 如果是第一次解密失败，尝试更新密钥并重试
                   if (retryCount === 0) {
-                    console.log('[PlayChannel] 尝试更新密钥并重试');
+                    console.log('[PlayChannel] Try updating key and retry');
                     const keyUpdated = await updateEncryptionKey();
                     if (keyUpdated) {
-                      console.log('[PlayChannel] 密钥已更新，重新播放');
+                      console.log('[PlayChannel] Key updated, retrying');
                       playChannel(hash, name, group, 1);  // 重试一次
                       return;
                     }
                   }
 
                   // 更新密钥失败或已重试过，关闭播放器
-                  console.error('[PlayChannel] 解密失败，无法播放');
+                  console.error('[PlayChannel] Decryption failed, cannot play');
                   closePlayer();
                 });
               return; // 异步解密，提前返回
             }
 
-            console.log('播放地址:', playUrl);
+            console.log('[PlayChannel] Request #' + requestId + ': Play URL:', playUrl);
             startPlay(playUrl, video);
           } else {
-            console.error('该频道暂时无法播放');
+            console.error('Channel temporarily unavailable');
             closePlayer();
           }
         })
         .catch(function(error) {
-          console.error('播放失败:', error);
+          if (error.name === 'AbortError' || error.message === 'Request cancelled') {
+            console.log('[PlayChannel] Request #' + requestId + ' was cancelled');
+            return;  // 静默处理取消的错误
+          }
+          console.error('[PlayChannel] Playback failed:', error);
           closePlayer();
+        })
+        .finally(() => {
+          // 清理控制器
+          const index = activeFetchControllers.indexOf(tokenController);
+          if (index > -1) activeFetchControllers.splice(index, 1);
+          const index2 = activeFetchControllers.indexOf(playController);
+          if (index2 > -1) activeFetchControllers.splice(index2, 1);
         });
+    }
+
+    // 取消所有进行中的 fetch 请求
+    function abortAllFetches() {
+      if (activeFetchControllers.length > 0) {
+        console.log('[Abort] Canceling ' + activeFetchControllers.length + ' pending requests');
+        activeFetchControllers.forEach(controller => {
+          try {
+            controller.abort();
+          } catch (e) {
+            // 忽略已取消的控制器
+          }
+        });
+        activeFetchControllers = [];
+      }
+    }
+
+    // 清理视频资源
+    function cleanupVideoResources() {
+      const video = document.getElementById('videoPlayer');
+
+      // 销毁 HLS 实例
+      if (currentHls) {
+        console.log('[Cleanup] Destroying HLS instance');
+        currentHls.destroy();
+        currentHls = null;
+      }
+
+      // 停止视频并清空源
+      video.pause();
+      video.src = '';
+      video.load();
+      video.removeAttribute('src');
+
+      console.log('[Cleanup] Video resources cleaned');
     }
 
     function togglePlayerSize() {
@@ -1106,21 +1199,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     
     function closePlayer() {
       const playerWrapper = document.getElementById('playerWrapper');
-      const video = document.getElementById('videoPlayer');
+
+      // 取消所有进行中的请求
+      abortAllFetches();
+
+      // 清理视频资源
+      cleanupVideoResources();
 
       isPlayerOpen = false;
       isPlayerExpanded = false;
-
-      video.pause();
-      video.src = '';
-      video.load();
-
-      // 销毁HLS播放器，停止所有网络请求
-      if (currentHls) {
-        console.log('[Player] Destroying HLS instance');
-        currentHls.destroy();
-        currentHls = null;
-      }
 
       playerWrapper.classList.remove('active');
       playerWrapper.classList.remove('expanded');
