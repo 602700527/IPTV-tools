@@ -129,6 +129,31 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
     .online-count{font-weight:600;color:#34c759}
 
+    /* 点击波纹效果 */
+    .ripple{position:relative;overflow:hidden}
+    .ripple-effect{position:absolute;border-radius:50%;background:rgba(255,255,255,.3);transform:scale(0);animation:ripple 0.6s linear;pointer-events:none}
+    @keyframes ripple{to{transform:scale(4);opacity:0}}
+
+    /* 加载指示器 */
+    .loading-indicator{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:1001;background:rgba(20,20,20,.95);backdrop-filter:blur(20px);padding:16px 32px;border-radius:8px;display:none;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1)}
+    .loading-indicator.active{display:flex;animation:fadeIn 0.3s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+    .loading-spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.2);border-top-color:#e50914;border-radius:50%;animation:spin 0.8s linear infinite}
+    .loading-text{font-size:14px;color:#fff}
+
+    /* 点击高亮动画 */
+    .click-highlight{animation:clickPulse 0.3s ease}
+    @keyframes clickPulse{0%{transform:scale(1)}50%{transform:scale(0.95)}100%{transform:scale(1)}}
+
+    /* 播放提示动画 */
+    .playing-indicator{display:flex;align-items:center;gap:6px;color:#e50914;font-size:12px;font-weight:600;animation:fadeInUp 0.3s ease}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .playing-dots{display:flex;gap:3px}
+    .playing-dot{width:6px;height:6px;background:#e50914;border-radius:50%;animation:playingDot 1s ease-in-out infinite}
+    .playing-dot:nth-child(2){animation-delay:0.2s}
+    .playing-dot:nth-child(3){animation-delay:0.4s}
+    @keyframes playingDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(0.8)}}
+
     /* Toast 提示组件（已隐藏） */
     /* .toast-container{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none}
     .toast{min-width:320px;max-width:500px;padding:16px 20px;border-radius:10px;color:#fff;font-size:14px;line-height:1.5;box-shadow:0 8px 30px rgba(0,0,0,.4);pointer-events:auto;backdrop-filter:blur(10px);animation:toastSlideIn 0.3s ease;transition:all 0.2s}
@@ -174,17 +199,17 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       <input type="text" class="search-input" id="searchInput" placeholder="搜索频道..." oninput="handleSearch()">
     </div>
     <div class="quick-entries">
-      <button class="quick-entry" onclick="showHistoryInMain()" title="播放历史">
+      <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'history')" title="播放历史">
         🕐
         <span class="quick-entry-tip">播放历史</span>
         <span class="quick-entry-badge" id="historyBadge" style="display:none;">0</span>
       </button>
-      <button class="quick-entry" onclick="showFavoritesInMain()" title="我的收藏">
+      <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'favorites')" title="我的收藏">
         ⭐
         <span class="quick-entry-tip">我的收藏</span>
         <span class="quick-entry-badge" id="favoritesBadge" style="display:none;">0</span>
       </button>
-      <button class="quick-entry" onclick="showRandomInMain()" title="随机推荐">
+      <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'random')" title="随机推荐">
         🎯
         <span class="quick-entry-tip">随机推荐</span>
       </button>
@@ -229,6 +254,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       <button class="quick-panel-close" onclick="closeQuickPanel()">&times;</button>
     </div>
     <div class="quick-panel-content" id="quickPanelContent"></div>
+  </div>
+
+  <!-- 加载指示器 -->
+  <div class="loading-indicator" id="loadingIndicator">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loadingText">加载中...</div>
   </div>
 
       <!-- Toast 提示容器（已隐藏） -->
@@ -454,19 +485,24 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
           document.getElementById('loading').style.display = 'none';
           document.getElementById('channelList').style.display = 'block';
+
+          // 隐藏加载指示器
+          hideLoadingIndicator();
         } else {
           showError('加载频道列表失败');
+          hideLoadingIndicator();
         }
       } catch (error) {
         console.error('加载失败:', error);
         showError('网络错误，请稍后重试');
+        hideLoadingIndicator();
       }
     }
     
     function renderGroups() {
       const container = document.getElementById('groupList');
       container.innerHTML = allGroups.map(group =>
-        \`<div class="group-item" data-group="\${escapeHtml(group)}" onclick="filterByGroup('\${escapeHtml(group)}')">
+        \`<div class="group-item ripple" data-group="\${escapeHtml(group)}" onclick="filterByGroup('\${escapeHtml(group)}')">
           \${escapeHtml(group)}
         </div>\`
       ).join('');
@@ -477,19 +513,24 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         if (item.dataset.group === currentGroup) {
           item.classList.add('active');
         }
+
+        // 添加波纹效果
+        item.addEventListener('click', function(e) {
+          createRipple(item);
+        });
       });
     }
     
     function renderChannels(channels) {
       const container = document.getElementById('channelsGrid');
       const emptyState = document.getElementById('emptyState');
-      
+
       if (channels.length === 0) {
         container.innerHTML = '';
         emptyState.style.display = 'block';
         return;
       }
-      
+
       emptyState.style.display = 'none';
       container.innerHTML = channels.map(channel => {
         const logo = channel.logo
@@ -501,7 +542,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         const showHotTag = hotIndex === 0;
 
         return \`
-          <div class="channel-card" onclick="playChannel('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
+          <div class="channel-card ripple" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
             <div class="channel-poster">
               \${logo}
               \${showHotTag ? '<div class="hot-tag">热门</div>' : ''}
@@ -517,9 +558,26 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           </div>
         \`;
       }).join('');
+
+      // 添加波纹效果
+      container.querySelectorAll('.channel-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+          createRipple(card);
+        });
+      });
     }
     
     function filterByGroup(group) {
+      // 添加点击波纹效果
+      const escapedGroup = escapeHtml(group);
+      const clickedItem = document.querySelector(\`.group-item[data-group="\${escapedGroup}"]\`);
+      if (clickedItem) {
+        createRipple(clickedItem);
+      }
+
+      // 显示加载提示
+      showLoadingIndicator('正在加载频道...');
+
       currentGroup = group;
       currentPage = 1; // 重置到第一页
 
@@ -538,23 +596,121 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       if (group === 'favorites') {
         renderFavorites();
         document.getElementById('pagination').innerHTML = '';
+        hideLoadingIndicator();
         return;
       }
 
       // 如果是播放历史，显示历史列表
       if (group === 'history') {
         showHistoryInMain();
+        hideLoadingIndicator();
         return;
       }
 
       // 如果是随机推荐，显示推荐列表
       if (group === 'random') {
         showRandomInMain();
+        hideLoadingIndicator();
         return;
       }
 
       // 重新加载频道
       loadChannels(1);
+    }
+
+    // 处理频道点击
+    function handleChannelClick(event, hash, name, group) {
+      // 添加点击高亮效果
+      const card = event.currentTarget;
+      card.classList.add('click-highlight');
+      setTimeout(() => {
+        card.classList.remove('click-highlight');
+      }, 300);
+
+      // 播放频道
+      playChannel(hash, name, group);
+    }
+
+    // 处理快捷按钮点击
+    function handleQuickEntryClick(event, type) {
+      const button = event.currentTarget;
+      createRipple(button);
+
+      switch (type) {
+        case 'history':
+          showHistoryInMain();
+          break;
+        case 'favorites':
+          showFavoritesInMain();
+          break;
+        case 'random':
+          showRandomInMain();
+          break;
+      }
+    }
+
+    // 创建波纹效果
+    function createRipple(element) {
+      const ripple = document.createElement('span');
+      ripple.classList.add('ripple-effect');
+
+      const rect = element.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.width = ripple.style.height = size + 'px';
+
+      element.appendChild(ripple);
+
+      setTimeout(() => {
+        ripple.remove();
+      }, 600);
+    }
+
+    // 显示加载指示器
+    function showLoadingIndicator(text) {
+      const indicator = document.getElementById('loadingIndicator');
+      const loadingText = document.getElementById('loadingText');
+      loadingText.textContent = text;
+      indicator.classList.add('active');
+    }
+
+    // 隐藏加载指示器
+    function hideLoadingIndicator() {
+      const indicator = document.getElementById('loadingIndicator');
+      indicator.classList.remove('active');
+    }
+
+    // 显示播放提示
+    function showPlayingIndicator(channelName) {
+      // 创建播放提示元素
+      let indicator = document.getElementById('playingIndicator');
+      if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.id = 'playingIndicator';
+        indicator.className = 'playing-indicator';
+        indicator.style.cssText = 'position:fixed;top:80px;right:20px;z-index:1000;background:rgba(20,20,20,.95);backdrop-filter:blur(20px);padding:12px 20px;border-radius:8px;border:1px solid rgba(255,255,255,.1);box-shadow:0 4px 20px rgba(0,0,0,.5);';
+        document.body.appendChild(indicator);
+      }
+
+      indicator.innerHTML = \`
+        <div class="playing-dots">
+          <div class="playing-dot"></div>
+          <div class="playing-dot"></div>
+          <div class="playing-dot"></div>
+        </div>
+        <span>正在播放: \${escapeHtml(channelName)}</span>
+      \`;
+
+      // 3秒后自动消失
+      setTimeout(() => {
+        if (indicator.parentNode) {
+          indicator.style.animation = 'fadeInUp 0.3s ease reverse';
+          setTimeout(() => {
+            if (indicator.parentNode) {
+              indicator.remove();
+            }
+          }, 300);
+        }
+      }, 3000);
     }
     
     function handleSearch() {
@@ -570,6 +726,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           return;
         }
 
+        showLoadingIndicator('搜索中...');
         currentSearch = keyword;
         currentPage = 1; // 重置到第一页
 
@@ -617,6 +774,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
 
     function playChannel(hash, name, group, retryCount = 0) {
+      // 显示播放提示
+      showPlayingIndicator(name);
+
       // 添加到历史记录 - 支持直接使用传入的参数
       const channel = allChannels.find(c => c.channel_hash === hash);
       if (channel) {
@@ -638,7 +798,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       title.textContent = name;
       groupName.textContent = group;
 
-      playerWrapper.classList.add('active');
+      // 如果播放器还没打开，先显示出来
+      if (!isPlayerOpen) {
+        playerWrapper.classList.add('active');
+      }
+
       isPlayerOpen = true;
 
       // 销毁之前的Hls实例
@@ -707,6 +871,26 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     function togglePlayerSize() {
       const playerWrapper = document.getElementById('playerWrapper');
+      const rect = playerWrapper.getBoundingClientRect();
+
+      if (!isPlayerExpanded) {
+        // 从折叠状态切换到展开状态，保存当前中心点
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        // 清除定位，让 CSS 类控制
+        playerWrapper.style.left = '';
+        playerWrapper.style.right = '';
+        playerWrapper.style.top = '';
+        playerWrapper.style.bottom = '';
+      } else {
+        // 从展开状态切换到折叠状态，恢复到右下角默认位置
+        playerWrapper.style.left = '';
+        playerWrapper.style.right = '20px';
+        playerWrapper.style.top = '';
+        playerWrapper.style.bottom = '20px';
+      }
+
       isPlayerExpanded = !isPlayerExpanded;
       playerWrapper.classList.toggle('expanded', isPlayerExpanded);
       playerWrapper.classList.toggle('collapsed', !isPlayerExpanded);
@@ -815,6 +999,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       playerWrapper.classList.remove('active');
       playerWrapper.classList.remove('expanded');
       playerWrapper.classList.add('collapsed');
+
+      // 重置定位到默认位置
+      playerWrapper.style.left = '';
+      playerWrapper.style.right = '20px';
+      playerWrapper.style.top = '';
+      playerWrapper.style.bottom = '20px';
     }
     
     function showError(message) {
@@ -875,9 +1065,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         const newLeft = startLeft + dx;
         const newBottom = startBottom - dy;
 
+        // 限制拖动范围，防止超出屏幕
+        const maxX = window.innerWidth - 50;
+        const maxY = window.innerHeight - 50;
+
         playerWrapper.style.right = 'auto';
-        playerWrapper.style.left = newLeft + 'px';
-        playerWrapper.style.bottom = newBottom + 'px';
+        playerWrapper.style.left = Math.max(0, Math.min(newLeft, maxX)) + 'px';
+        playerWrapper.style.bottom = Math.max(0, Math.min(newBottom, maxY)) + 'px';
         playerWrapper.style.top = 'auto';
       });
 
@@ -885,6 +1079,20 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         if (isDragging) {
           isDragging = false;
           playerHeader.style.cursor = 'move';
+        }
+      });
+
+      // 当点击放大时，记录是否被拖动过
+      playerWrapper.addEventListener('transitionend', function(e) {
+        if (e.propertyName === 'width' && isPlayerExpanded) {
+          // 如果已经展开，确保使用 CSS 定位而不是内联样式
+          if (playerWrapper.style.left || playerWrapper.style.top) {
+            // 清除手动定位，让 CSS 类完全控制
+            playerWrapper.style.left = '';
+            playerWrapper.style.right = '';
+            playerWrapper.style.top = '';
+            playerWrapper.style.bottom = '';
+          }
         }
       });
     })();
@@ -956,81 +1164,77 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         console.error('获取随机推荐失败:', error);
         featuredChannels = [];
       }
+      // 不在这里隐藏加载提示，由调用方控制
     }
 
 
 
 
     function showRandomInMain() {
+      // 显示加载提示
+      showLoadingIndicator('正在加载推荐...');
+
       // 重新生成随机推荐
-      initFeaturedChannels();
+      initFeaturedChannels().then(() => {
+        // 清除分组选择
+        currentGroup = 'random';
+        renderGroups();
 
-      // 清除分组选择
-      currentGroup = 'random';
-      renderGroups();
+        // 更新标题
+        document.getElementById('sectionTitle').textContent = '🎯 随机推荐';
 
-      // 更新标题
-      document.getElementById('sectionTitle').textContent = '🎯 随机推荐';
+        // 隐藏加载和分页
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('channelList').style.display = 'block';
+        document.getElementById('pagination').innerHTML = '';
 
-      // 隐藏加载和分页
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('channelList').style.display = 'block';
-      document.getElementById('pagination').innerHTML = '';
+        // 获取前30条推荐
+        const randomChannels = featuredChannels.slice(0, 30);
 
-      // 获取前30条推荐
-      const randomChannels = featuredChannels.slice(0, 30);
+        if (!randomChannels || randomChannels.length === 0) {
+          const container = document.getElementById('channelsGrid');
+          const emptyState = document.getElementById('emptyState');
+          container.innerHTML = '';
+          emptyState.style.display = 'block';
+          document.querySelector('.empty-title').textContent = '暂无推荐频道';
+          document.querySelector('.empty-desc').textContent = '请稍后再试';
+          return;
+        }
 
-      if (!randomChannels || randomChannels.length === 0) {
+        // 渲染推荐列表
         const container = document.getElementById('channelsGrid');
         const emptyState = document.getElementById('emptyState');
-        container.innerHTML = '';
-        emptyState.style.display = 'block';
-        document.querySelector('.empty-title').textContent = '暂无推荐频道';
-        document.querySelector('.empty-desc').textContent = '请稍后再试';
-        return;
-      }
+        emptyState.style.display = 'none';
 
-      // 渲染推荐列表
-      const container = document.getElementById('channelsGrid');
-      const emptyState = document.getElementById('emptyState');
-      emptyState.style.display = 'none';
+        container.innerHTML = randomChannels.map((channel, index) => {
+          const logo = channel.logo
+            ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`
+            : '<div class="channel-icon">📺</div>';
 
-      container.innerHTML = randomChannels.map((channel, index) => {
-        const logo = channel.logo
-          ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`
-          : '<div class="channel-icon">📺</div>';
-
-        return \`
-          <div class="channel-card" onclick="playChannel('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
-            <div class="channel-poster">
-              \${logo}
-              \${index < 5 ? '<div class="hot-tag">推荐</div>' : ''}
-              <div class="play-overlay">
-                <div class="play-icon"></div>
+          return \`
+            <div class="channel-card ripple" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
+              <div class="channel-poster">
+                \${logo}
+                \${index < 5 ? '<div class="hot-tag">推荐</div>' : ''}
+                <div class="play-overlay">
+                  <div class="play-icon"></div>
+                </div>
+              </div>
+              <div class="channel-info">
+                <div class="channel-name">\${escapeHtml(channel.channel_name)}</div>
+                <div class="channel-group">\${escapeHtml(channel.group_title || '')}</div>
               </div>
             </div>
-            <div class="channel-info">
-              <div class="channel-name">\${escapeHtml(channel.channel_name)}</div>
-              <div class="channel-group">\${escapeHtml(channel.group_title || '')}</div>
-            </div>
-          </div>
-        \`;
-      }).join('');
-    }
+          \`;
+        }).join('');
 
-    function showRecommendedPanel() {
-      showRandomInMain();
-    }
-
-    function playFeaturedChannel() {
-      showRandomInMain();
-    }
-
-    function playFeaturedChannel() {
-      // 每次点击都重新生成随机推荐
-      initFeaturedChannels();
-      // 显示推荐面板
-      showRecommendedPanel();
+        // 添加波纹效果
+        container.querySelectorAll('.channel-card').forEach(card => {
+          card.addEventListener('click', function(e) {
+            createRipple(card);
+          });
+        });
+      });
     }
 
     // 收藏功能
@@ -1120,9 +1324,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         watchedAt: Date.now()
       });
 
-      // 只保留最近20条
-      if (history.length > 20) {
-        history = history.slice(0, 20);
+      // 只保留最近30条
+      if (history.length > 30) {
+        history = history.slice(0, 30);
       }
 
       localStorage.setItem('iptv_history', JSON.stringify(history));
