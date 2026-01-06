@@ -3,6 +3,7 @@ import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurit
 import { manualSyncAll } from './scheduler.js';
 import { getBlacklistedIPs, unbanIP, getIPAccessStats, banIP } from '../security/ip-blacklist.js';
 import { getBannedCodesFromCache, removeBannedCodeFromCache, syncBannedCodesToCache } from '../security/code-ban-cache.js';
+import { cacheChannelsToKV, clearChannelCache, getCacheStatus } from '../utils/channel-cache.js';
 
 export async function handleAdminRequest(request, env, ctx) {
   const url = new URL(request.url);
@@ -1291,6 +1292,49 @@ export async function handleAdminRequest(request, env, ctx) {
           return new Response('Method not allowed', { status: 405 });
         }
         break;
+
+      case 'cache':
+        // 缓存管理
+        const cacheSubAction = pathParts[3];
+
+        // 获取缓存状态
+        if (cacheSubAction === 'status' && request.method === 'GET') {
+          const status = await getCacheStatus(env);
+          return new Response(JSON.stringify({
+            success: true,
+            ...status
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+
+        // 刷新缓存
+        if (cacheSubAction === 'refresh' && request.method === 'POST') {
+          const result = await cacheChannelsToKV(env);
+          return new Response(JSON.stringify({
+            success: result.success,
+            message: result.success ? `缓存刷新成功：${result.channels} 个频道，${result.groups} 个分组` : '缓存刷新失败',
+            channels: result.channels,
+            groups: result.groups,
+            version: result.version,
+            error: result.error
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+
+        // 清空缓存
+        if (cacheSubAction === 'clear' && request.method === 'POST') {
+          const cleared = await clearChannelCache(env);
+          return new Response(JSON.stringify({
+            success: cleared,
+            message: cleared ? '缓存已清空' : '缓存清空失败'
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+
+        return new Response('Invalid cache action', { status: 400 });
 
       default:
         return new Response('Invalid admin action', { status: 400 });

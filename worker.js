@@ -10,12 +10,16 @@ import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { PLAYSTATION_HTML } from './playstation-page.js';
 import { getSystemConfig } from './database.js';
+import { initCache } from './utils/cache.js';
 
 export default {
   async fetch(request, env, ctx) {
     try {
       // 初始化数据库连接
       await initDB(env);
+
+      // 初始化缓存（从 KV 恢复）
+      await initCache(env);
 
       const url = new URL(request.url);
       const path = url.pathname;

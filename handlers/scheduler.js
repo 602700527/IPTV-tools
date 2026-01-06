@@ -1,5 +1,6 @@
 // 定时任务处理器：自动同步已启用的数据源
 import { getDB, fetchAndParseM3U, initDB, getSyncFilterConfig } from '../database.js';
+import { cacheChannelsToKV } from '../utils/channel-cache.js';
 
 export async function handleScheduledEvent(event, env, ctx) {
   try {
@@ -100,6 +101,41 @@ export async function handleScheduledEvent(event, env, ctx) {
 
     console.log(`Scheduled task completed: ${successCount}/${enabledSources.length} sources synced, ${failCount} failed`);
     console.log(`Total: ${totalDeleted} channels deleted, ${totalAdded} channels added`);
+
+    // 清理过期的 play_logs 记录（超过10分钟）
+    const tenMinutesAgo = new Date(Date.now() - 600000).toISOString();
+    const deleteResult = await db.prepare(`
+      DELETE FROM play_logs
+      WHERE played_at < ?
+    `).bind(tenMinutesAgo).run();
+
+    console.log(`Cleaned up ${deleteResult.meta?.changes || 0} expired play_logs records`);
+
+    // 清理旧的 play_counts 记录（7天前）
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const deleteCountsResult = await db.prepare(`
+      DELETE FROM play_counts
+      WHERE created_date < ?
+    `).bind(sevenDaysAgo).run();
+
+    console.log(`Cleaned up ${deleteCountsResult.meta?.changes || 0} old play_counts records`);
+
+    // 清理旧的 ip_access_logs 记录（7天前）
+    const deleteIpResult = await db.prepare(`
+      DELETE FROM ip_access_logs
+      WHERE created_date < ?
+    `).bind(sevenDaysAgo).run();
+
+    console.log(`Cleaned up ${deleteIpResult.meta?.changes || 0} old ip_access_logs records`);
+
+    // 缓存频道数据到 KV
+    console.log('Caching channels to KV...');
+    const cacheResult = await cacheChannelsToKV(env);
+    if (cacheResult.success) {
+      console.log(`Channels cached successfully: ${cacheResult.channels} channels, ${cacheResult.groups} groups`);
+    } else {
+      console.error('Failed to cache channels:', cacheResult.error);
+    }
 
     // 可选：将结果存储到KV或发送通知
     // await env.KV.put('last_sync_result', JSON.stringify({

@@ -1,5 +1,6 @@
 // 公开播放列表API - 无需卡密
 import { getDB, getHomepageDisplayConfig, getSystemConfig, generatePlayToken, verifyPlayToken, verifyReferer, encryptWithAES } from '../database.js';
+import { getAllChannels, getAllGroups } from '../utils/channel-cache.js';
 
 // 调试接口 - 查看频道信息
 export async function handleChannelDebug(request, env, ctx) {
@@ -184,9 +185,28 @@ export async function handlePublicChannels(request, env, ctx) {
     const displayConfig = await getHomepageDisplayConfig();
     console.log('[PublicChannels] displayConfig配置:', JSON.stringify(displayConfig));
 
-    // 构建查询条件
-    let whereConditions = ['c.is_active = 1', 's.is_active = 1'];
-    let params = [];
+    // 如果没有复杂的过滤条件（搜索、分组过滤、配置过滤），优先使用 KV 缓存
+    const useCache = !search && !group &&
+                    (!displayConfig.sources || displayConfig.sources.length === 0) &&
+                    (!displayConfig.groups || displayConfig.groups.length === 0) &&
+                    (!displayConfig.hosts || displayConfig.hosts.length === 0) &&
+                    displayConfig.hasHeaders === null &&
+                    displayConfig.hasHeaders === undefined;
+
+    let allChannels, allGroups;
+    if (useCache) {
+      console.log('[PublicChannels] 使用 KV 缓存');
+      const cacheResult = await getAllChannels(env);
+      const groupsResult = await getAllGroups(env);
+      allChannels = cacheResult.channels;
+      allGroups = groupsResult.groups;
+    } else {
+      console.log('[PublicChannels] 使用数据库查询');
+      // 原有的数据库查询逻辑...
+
+      // 构建查询条件
+      let whereConditions = ['c.is_active = 1', 's.is_active = 1'];
+      let params = [];
 
     // 如果配置了数据源过滤
     if (displayConfig.sources && displayConfig.sources.length > 0) {
@@ -275,8 +295,9 @@ export async function handlePublicChannels(request, env, ctx) {
       ORDER BY group_title
     `).bind(...params).all();
 
-    const channels = channelsResult.results || [];
-    const groups = groupsResult.results?.map(g => g.group_title).filter(g => g) || [];
+    channels = channelsResult.results || [];
+    groups = groupsResult.results?.map(g => g.group_title).filter(g => g) || [];
+    }
 
     // 在应用层进行分组内排序（英文 -> 数字 -> 中文）
     if (channels.length > 0) {

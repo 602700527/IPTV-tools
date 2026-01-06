@@ -148,6 +148,84 @@ export async function createTables(env) {
     }
   }
 
+  // 创建播放记录表（只记录IP用于并发检测，10分钟后自动清理）
+  await db.prepare(`
+    CREATE TABLE IF NOT EXISTS play_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      code TEXT NOT NULL,
+      channel_hash TEXT NOT NULL,
+      client_ip TEXT,
+      played_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      created_date DATE DEFAULT (DATE('now'))
+    )
+  `).run();
+
+  // 创建播放记录索引
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_play_logs_code ON play_logs(code)').run();
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_play_logs_code_date ON play_logs(code, created_date)').run();
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_play_logs_code_hash_date ON play_logs(code, channel_hash, created_date)').run();
+
+  // 创建播放计数表（每个频道每天只有1条记录）
+  await db.prepare(`
+    CREATE TABLE IF NOT EXISTS play_counts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      code TEXT NOT NULL,
+      channel_hash TEXT NOT NULL,
+      play_count INTEGER DEFAULT 0,
+      created_date DATE DEFAULT (DATE('now')),
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(code, channel_hash, created_date)
+    )
+  `).run();
+
+  // 创建播放计数索引
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_play_counts_unique ON play_counts(code, channel_hash, created_date)').run();
+
+  // 创建IP访问记录表
+  await db.prepare(`
+    CREATE TABLE IF NOT EXISTS ip_access_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      ip TEXT NOT NULL,
+      path TEXT NOT NULL,
+      request_count INTEGER DEFAULT 1,
+      first_access DATETIME DEFAULT CURRENT_TIMESTAMP,
+      last_access DATETIME DEFAULT CURRENT_TIMESTAMP,
+      created_date DATE DEFAULT (DATE('now'))
+    )
+  `).run();
+
+  // 创建IP访问记录索引
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_ip_access_logs_ip_date ON ip_access_logs(ip, created_date)').run();
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_ip_access_logs_ip_path_date ON ip_access_logs(ip, path, created_date)').run();
+
+  // 创建IP黑名单表
+  await db.prepare(`
+    CREATE TABLE IF NOT EXISTS ip_blacklist (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      ip TEXT NOT NULL UNIQUE,
+      banned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      reason TEXT,
+      details TEXT,
+      permanent BOOLEAN DEFAULT 1
+    )
+  `).run();
+
+  // 创建IP黑名单索引
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_ip_blacklist_ip ON ip_blacklist(ip)').run();
+
+  // 创建已使用token表
+  await db.prepare(`
+    CREATE TABLE IF NOT EXISTS used_tokens (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      token TEXT NOT NULL UNIQUE,
+      used_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      expires_at DATETIME
+    )
+  `).run();
+
+  // 创建已使用token索引
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_used_tokens_token ON used_tokens(token)').run();
+
   console.log('Tables created successfully');
 }
 

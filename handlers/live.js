@@ -2,6 +2,8 @@
 import { getDB, getSecurityConfig } from '../database.js';
 import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
 import { addBannedCodeToCache } from '../security/code-ban-cache.js';
+import { incrementPlayCount, getPlayCount, flushCacheToDB } from '../utils/cache.js';
+import { getChannelByHash } from '../utils/channel-cache.js';
 
 export async function handleLiveRequest(request, env, ctx) {
   try {
@@ -73,14 +75,26 @@ export async function handleLiveRequest(request, env, ctx) {
     // 2.2 检查每日播放额度（每个频道）
     const today = new Date().toISOString().split('T')[0];
 
-    // 从数据库查询今日该频道播放次数
-    const channelPlaysResult = await db.prepare(`
-      SELECT COUNT(*) as count
-      FROM play_logs
-      WHERE code = ? AND channel_hash = ? AND created_date = ?
-    `).bind(code, hash, today).first();
+    // 尝试刷新缓存（10分钟间隔）
+    await flushCacheToDB(env, ctx);
 
-    const todayPlays = channelPlaysResult?.count || 0;
+    // 从缓存获取今日该频道播放次数
+    let todayPlays = getPlayCount(code, hash, today);
+
+    // 如果缓存中没有，从数据库查询（启动时的首次请求）
+    if (todayPlays === 0) {
+      const dbCount = await db.prepare(`
+        SELECT play_count
+        FROM play_counts
+        WHERE code = ? AND channel_hash = ? AND created_date = ?
+      `).bind(code, hash, today).first();
+
+      if (dbCount) {
+        // 将数据库中的计数同步到缓存
+        playCountCache.set(`${code}:${hash}:${today}`, dbCount.play_count);
+        todayPlays = dbCount.play_count;
+      }
+    }
 
     if (todayPlays >= securityConfig.channel_daily_limit) {
       // 超过额度，自动封禁卡密
@@ -119,15 +133,8 @@ export async function handleLiveRequest(request, env, ctx) {
       return response;
     }
 
-    // 增加播放计数
-    const newPlays = todayPlays + 1;
-    await env.KV.put(channelLimitKey, newPlays.toString(), { expirationTtl: 86400 }); // 24小时过期
-
-    // 记录播放到数据库
-    ctx.waitUntil(db.prepare(`
-      INSERT INTO play_logs (code, channel_hash, client_ip, created_date)
-      VALUES (?, ?, ?, ?)
-    `).bind(code, hash, clientIP, today).run());
+    // 增加播放计数到缓存
+    incrementPlayCount(code, hash, today);
 
     // 2.3 IP 并发检测 (数据库)
     // 查询10分钟内的活跃IP
@@ -149,12 +156,18 @@ export async function handleLiveRequest(request, env, ctx) {
         ctx.waitUntil(cache.put(cacheKey, response.clone()));
         return response;
       }
+
+      // 新IP，记录到数据库（仅此情况写入）
+      ctx.waitUntil(db.prepare(`
+        INSERT INTO play_logs (code, channel_hash, client_ip, created_date)
+        VALUES (?, ?, ?, ?)
+      `).bind(code, hash, clientIP, today).run());
     }
 
-    // 3. 获取频道真实链接
-    const channel = await db.prepare("SELECT play_url, headers FROM channels WHERE channel_hash = ? AND is_active = 1").bind(hash).first();
+    // 3. 获取频道真实链接（优先从 KV 缓存）
+    const channel = await getChannelByHash(env, hash);
 
-    if (!channel) {
+    if (!channel || !channel.is_active) {
       response = new Response("Channel Not Found", { status: 404 });
       response.headers.set("Cache-Control", "public, max-age=300");
       ctx.waitUntil(cache.put(cacheKey, response.clone()));

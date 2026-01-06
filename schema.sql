@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS codes (
 -- 创建卡密状态索引
 CREATE INDEX IF NOT EXISTS idx_code_status ON codes(status);
 
--- 创建播放记录表
+-- 创建播放记录表（只记录IP用于并发检测，10分钟后自动清理）
 CREATE TABLE IF NOT EXISTS play_logs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   code TEXT NOT NULL,
@@ -59,6 +59,20 @@ CREATE TABLE IF NOT EXISTS play_logs (
 CREATE INDEX IF NOT EXISTS idx_play_logs_code ON play_logs(code);
 CREATE INDEX IF NOT EXISTS idx_play_logs_code_date ON play_logs(code, created_date);
 CREATE INDEX IF NOT EXISTS idx_play_logs_code_hash_date ON play_logs(code, channel_hash, created_date);
+
+-- 创建播放计数表（每个频道每天只有1条记录）
+CREATE TABLE IF NOT EXISTS play_counts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code TEXT NOT NULL,
+  channel_hash TEXT NOT NULL,
+  play_count INTEGER DEFAULT 0,
+  created_date DATE DEFAULT (DATE('now')),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(code, channel_hash, created_date)
+);
+
+-- 创建播放计数索引
+CREATE INDEX IF NOT EXISTS idx_play_counts_unique ON play_counts(code, channel_hash, created_date);
 
 -- 创建IP访问记录表
 CREATE TABLE IF NOT EXISTS ip_access_logs (

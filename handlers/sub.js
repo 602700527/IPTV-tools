@@ -1,6 +1,8 @@
 // 订阅请求处理器: /sub/{code}.m3u（简化版）
 import { getDB } from '../database.js';
 import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
+import { getIPAccessCount } from '../utils/cache.js';
+import { getAllChannels } from '../utils/channel-cache.js';
 
 export async function handleSubRequest(request, env, ctx) {
   const url = new URL(request.url);
@@ -20,28 +22,17 @@ export async function handleSubRequest(request, env, ctx) {
   // 从文件名中提取卡密
   const code = filename.replace('.m3u', '');
 
-  // 1. 防盗检查 (数据库)
+
+  // 1. 防盗检查 (缓存)
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD格式
 
-  // 获取今日订阅请求次数（从ip_access_logs表）
-  const subRequests = await db.prepare(`
-    SELECT SUM(request_count) as total
-    FROM ip_access_logs
-    WHERE ip = ? AND path = '/sub' AND created_date = ?
-  `).bind(clientIP, today).first();
-
-  const requestCount = subRequests?.total || 0;
+  // 从缓存获取今日订阅请求次数
+  const requestCount = getIPAccessCount(clientIP, '/sub', today);
 
   // 如果超过每日限制，返回403
   if (requestCount > 20) {
     return new Response('Forbidden: Daily request limit exceeded', { status: 403 });
   }
-
-  // 异步增加请求计数（在ip_access_logs中记录）
-  ctx.waitUntil(db.prepare(`
-    INSERT INTO ip_access_logs (ip, path, request_count, created_date)
-    VALUES (?, '/sub', 1, ?)
-  `).bind(clientIP, today).run());
 
   // 2. 检查缓存 (Cache API)
   const cache = caches.default;
@@ -72,15 +63,16 @@ export async function handleSubRequest(request, env, ctx) {
       return response;
     }
 
-  // 3.2 获取所有频道（只获取启用源的频道）
-  const channels = await db.prepare(`
-    SELECT c.channel_name, c.group_title, c.logo, c.channel_hash, c.headers
-    FROM channels c
-    INNER JOIN sources s ON c.source_id = s.id
-    WHERE c.is_active = 1 AND s.is_active = 1
-  `).all();
+  // 3.2 获取所有频道（优先从 KV 缓存，只获取启用源的频道）
+  const cacheResult = await getAllChannels(env);
+  let allChannels = cacheResult.channels;
 
-  if (!channels.results || channels.results.length === 0) {
+  // 如果 KV 缓存中没有，过滤已启用的频道
+  if (!cacheResult.fromCache) {
+    allChannels = allChannels.filter(c => c.is_active && c.source_active);
+  }
+
+  if (!allChannels || allChannels.length === 0) {
     response = new Response('#EXTM3U\n# No channels available', {
       headers: { 'Content-Type': 'application/vnd.apple.mpegurl' }
     });
@@ -91,7 +83,7 @@ export async function handleSubRequest(request, env, ctx) {
   }
 
   // 3.3 对频道进行排序
-  const sortedChannels = sortChannels(channels.results || []);
+  const sortedChannels = sortChannels(allChannels);
 
   // 3.4 生成M3U内容（性能优化版）
   const host = url.origin;

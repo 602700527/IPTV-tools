@@ -1,6 +1,7 @@
 // IP黑名单安全系统
 // 防止撞库攻击：监控订阅地址访问频率，超出限制永久封禁
 import { getIPBlacklistConfig } from '../database.js';
+import { incrementIPAccess, getIPAccessCount, getIPTotalAccess, flushCacheToDB } from '../utils/cache.js';
 
 /**
  * 获取客户端真实IP
@@ -46,43 +47,48 @@ export async function checkIPRateLimit(env, ctx, ip, path) {
     };
   }
 
-  // 2. 获取或创建访问记录（数据库）
+  // 2. 获取或创建访问记录（使用缓存）
   const today = new Date().toISOString().split('T')[0];
-  const { getDB } = await import('../database.js');
-  const db = getDB();
 
-  const existingAccess = await db.prepare(`
-    SELECT request_count, first_access
-    FROM ip_access_logs
-    WHERE ip = ? AND path = ? AND created_date = ?
-  `).bind(ip, path, today).first();
+  // 尝试刷新缓存（10分钟间隔）
+  await flushCacheToDB(env, ctx);
 
-  if (existingAccess) {
-    // 更新现有记录
-    await db.prepare(`
-      UPDATE ip_access_logs
-      SET request_count = request_count + 1,
-          last_access = CURRENT_TIMESTAMP
+  // 从缓存获取计数
+  let pathRequests = getIPAccessCount(ip, path, today);
+  let todayRequests = getIPTotalAccess(ip, today);
+
+  // 如果缓存中没有（首次请求），从数据库查询
+  if (pathRequests === 0 || todayRequests === 0) {
+    const { getDB } = await import('../database.js');
+    const db = getDB();
+
+    const dbPathRequests = await db.prepare(`
+      SELECT SUM(request_count) as total
+      FROM ip_access_logs
       WHERE ip = ? AND path = ? AND created_date = ?
-    `).bind(ip, path, today).run();
-  } else {
-    // 创建新记录
-    await db.prepare(`
-      INSERT INTO ip_access_logs (ip, path, request_count, first_access, created_date)
-      VALUES (?, ?, 1, CURRENT_TIMESTAMP, ?)
-    `).bind(ip, path, today).run();
+    `).bind(ip, path, today).first();
+
+    const dbTotalRequests = await db.prepare(`
+      SELECT SUM(request_count) as total
+      FROM ip_access_logs
+      WHERE ip = ? AND created_date = ?
+    `).bind(ip, today).first();
+
+    // 将数据库中的计数同步到缓存
+    if (dbPathRequests?.total) {
+      ipAccessCache.set(`${ip}:${path}:${today}`, dbPathRequests.total);
+      pathRequests = dbPathRequests.total;
+    }
+
+    if (dbTotalRequests?.total) {
+      // 更新缓存中的总计数
+      todayRequests = dbTotalRequests.total;
+    }
   }
 
-  // 重新查询以获取最新数据
-  const accessData = await db.prepare(`
-    SELECT SUM(request_count) as total_requests,
-           SUM(CASE WHEN path = ? THEN request_count ELSE 0 END) as path_requests
-    FROM ip_access_logs
-    WHERE ip = ? AND created_date = ?
-  `).bind(path, ip, today).first();
-
-  const todayRequests = accessData?.total_requests || 0;
-  const pathRequests = accessData?.path_requests || 0;
+  // 增加本次请求的计数到缓存
+  pathRequests = incrementIPAccess(ip, path, today);
+  todayRequests = getIPTotalAccess(ip, today);
 
   // 4. 获取配置的阈值
   const config = await getIPBlacklistConfig();

@@ -534,6 +534,24 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     <div id="system-settings" class="tab-content">
       <div class="card">
         <div class="toolbar">
+          <h3>缓存管理</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="refreshCache()">刷新缓存</button>
+            <button class="btn btn-danger" onclick="clearCache()">清空缓存</button>
+            <button class="btn" onclick="loadCacheStatus()">刷新状态</button>
+          </div>
+        </div>
+        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            频道数据会自动缓存到 KV 存储中，提高首页加载速度和减少数据库查询。缓存会在源数据同步后自动更新，也可以手动刷新。
+          </p>
+          <div id="cacheStatusInfo" style="padding:12px;background:white;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;">
+            <div style="color:#86868b;">加载中...</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="toolbar">
           <h3>系统安全设置</h3>
           <button class="btn btn-primary" onclick="saveSystemConfig()">保存配置</button>
         </div>
@@ -918,7 +936,10 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
         loadIPBlacklist();
       }
       else if (tabName === 'homepage-display') loadHomepageDisplayConfig();
-      else if (tabName === 'system-settings') loadSystemConfig();
+      else if (tabName === 'system-settings') {
+        loadSystemConfig();
+        loadCacheStatus(); // 加载缓存状态
+      }
     }
 
     async function loadDashboard() {
@@ -2956,6 +2977,105 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
         }
       } catch (error) {
         showToast('轮换密钥失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // 缓存管理
+    async function loadCacheStatus() {
+      try {
+        const statusDiv = document.getElementById('cacheStatusInfo');
+        statusDiv.innerHTML = '<div style="color:#86868b;">加载中...</div>';
+
+        const data = await apiRequest('/cache/status', { showLoading: false });
+
+        if (data.success) {
+          const hasCache = data.channelsCached || data.groupsCached;
+          let html = '';
+
+          if (hasCache) {
+            html = '<div style="color:#2e7d32;">✓ 缓存状态：</div>';
+            if (data.channelsCached) {
+              html += '<div style="margin-top:8px;">• 频道数据：<span style="color:#0071e3;font-weight:600;">已缓存 (' + (data.channelsCount || 0) + ' 个)</span></div>';
+            } else {
+              html += '<div style="margin-top:8px;">• 频道数据：<span style="color:#ff9800;">未缓存</span></div>';
+            }
+            if (data.groupsCached) {
+              html += '<div style="margin-top:4px;">• 分组列表：<span style="color:#0071e3;font-weight:600;">已缓存 (' + (data.groupsCount || 0) + ' 个)</span></div>';
+            } else {
+              html += '<div style="margin-top:4px;">• 分组列表：<span style="color:#ff9800;">未缓存</span></div>';
+            }
+            if (data.cachedAt) {
+              const cachedTime = new Date(data.cachedAt);
+              html += '<div style="margin-top:8px;font-size:12px;color:#86868b;">缓存时间：' + cachedTime.toLocaleString('zh-CN') + '</div>';
+            }
+            if (data.version) {
+              html += '<div style="margin-top:4px;font-size:12px;color:#86868b;">缓存版本：' + data.version + '</div>';
+            }
+          } else {
+            html = '<div style="color:#ff9800;">⚠ 缓存状态：</div>';
+            html += '<div style="margin-top:8px;">当前无缓存数据，请点击"刷新缓存"按钮</div>';
+          }
+
+          statusDiv.innerHTML = html;
+        } else {
+          statusDiv.innerHTML = '<div style="color:#ff3b30;">加载缓存状态失败</div>';
+        }
+      } catch (error) {
+        console.error('加载缓存状态失败:', error);
+        const statusDiv = document.getElementById('cacheStatusInfo');
+        statusDiv.innerHTML = '<div style="color:#ff3b30;">加载缓存状态失败: ' + (error.error || '未知错误') + '</div>';
+      }
+    }
+
+    async function refreshCache() {
+      if (!confirm('确定要刷新频道缓存吗？\\n\\n此操作将从数据库读取所有频道数据并缓存到KV存储中。')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/cache/refresh', {
+          method: 'POST',
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('缓存刷新成功：' + (result.channels || 0) + ' 个频道，' + (result.groups || 0) + ' 个分组', 'success');
+          // 刷新缓存状态显示
+          await loadCacheStatus();
+        } else {
+          showToast('缓存刷新失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        showToast('缓存刷新失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function clearCache() {
+      if (!confirm('确定要清空频道缓存吗？\\n\\n⚠️ 注意：清空后，首页和播放请求将从数据库读取数据，可能会导致加载速度变慢。')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/cache/clear', {
+          method: 'POST',
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('缓存已清空', 'success');
+          // 刷新缓存状态显示
+          await loadCacheStatus();
+        } else {
+          showToast('缓存清空失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        showToast('缓存清空失败: ' + error.error, 'error');
       } finally {
         hideLoading();
       }
