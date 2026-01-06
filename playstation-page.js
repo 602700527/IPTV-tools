@@ -187,10 +187,44 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .channels-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
       .player-wrapper.collapsed{width:360px;height:200px}
     }
+    .mobile-menu-btn{display:none}
+    .mobile-menu{display:none}
+    .mobile-menu-overlay{display:none}
+
     @media (max-width:768px){
-      .header{padding:0 20px}
-      .nav-links{display:none}
-      .search-box{margin-left:20px;max-width:300px}
+      .header{padding:0 15px;height:60px;justify-content:space-between}
+      .logo{font-size:18px}
+      .header-left{gap:15px}
+      .online-counter{font-size:11px;display:none}
+      .header-right{display:none}
+      .mobile-menu-btn{display:flex;width:40px;height:40px;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:none;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px}
+      .mobile-menu{display:block;position:fixed;top:0;right:-100%;width:280px;height:100vh;background:#1a1a1a;z-index:1000;transition:right .3s ease;overflow-y:auto;padding:20px}
+      .mobile-menu.open{right:0}
+      .mobile-menu-overlay{display:block;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:999;opacity:0;visibility:hidden;transition:all .3s}
+      .mobile-menu-overlay.open{opacity:1;visibility:visible}
+      .mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid rgba(255,255,255,.1)}
+      .mobile-menu-title{font-size:16px;font-weight:600;color:#fff}
+      .mobile-menu-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:none;border-radius:6px;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px}
+      .mobile-section{margin-bottom:25px}
+      .mobile-section-title{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+      .mobile-search{margin-bottom:15px}
+      .mobile-search input{width:100%;padding:12px 14px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.05);color:#fff;font-size:14px}
+      .mobile-search input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
+      .mobile-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+      .mobile-action-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7)}
+      .mobile-action-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+      .mobile-action-btn .icon{font-size:24px}
+      .mobile-action-btn .label{font-size:11px;color:rgba(255,255,255,.6)}
+      .mobile-lang-menu{display:flex;flex-direction:column;gap:8px}
+      .mobile-lang-item{padding:12px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px}
+      .mobile-lang-item:hover{background:rgba(255,255,255,.1);color:#fff}
+      .mobile-lang-item.active{background:rgba(229,9,20,.2);border-color:#e50914;color:#fff;font-weight:600}
+      .mobile-group-item{padding:12px 16px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;font-size:14px;border-left:3px solid transparent}
+      .mobile-group-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+      .mobile-group-item.active{color:#fff;background:rgba(229,9,20,.1);border-left-color:#e50914;font-weight:600}
+      .sidebar{display:none}
+      .sidebar.mobile-open{display:block;position:static;width:100%;height:auto;border-right:none;border-bottom:1px solid rgba(255,255,255,.1);padding:0 0 20px 0}
+      .content{margin-left:0}
       .channels-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
       .player-wrapper{right:10px;bottom:10px;width:calc(100vw - 20px)}
       .player-wrapper.collapsed{height:calc(100vw * 9/16);width:calc(100vw - 20px)}
@@ -200,6 +234,18 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .pagination{flex-wrap:wrap;gap:6px;padding:15px 0}
       .pagination button{padding:6px 12px;font-size:12px}
       .pagination-info{width:100%;text-align:center;margin-bottom:10px}
+      .main{margin-top:60px}
+    }
+    @media (max-width:480px){
+      .header{padding:0 10px}
+      .logo{font-size:16px}
+      .mobile-menu{width:100%}
+      .mobile-actions{grid-template-columns:repeat(2,1fr)}
+      .main{margin-top:60px}
+      .channels-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+      .channel-card{padding:10px}
+      .channel-name{font-size:13px}
+      .channel-group{font-size:11px}
     }
   </style>
 </head>
@@ -248,7 +294,62 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         </div>
       </div>
     </div>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+      ☰
+    </button>
   </header>
+
+  <!-- 移动端菜单 -->
+  <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+      <div class="mobile-menu-title">菜单</div>
+      <button class="mobile-menu-close" onclick="toggleMobileMenu()">✕</button>
+    </div>
+
+    <div class="mobile-section">
+      <div class="mobile-section-title" data-i18n="search">搜索</div>
+      <div class="mobile-search">
+        <input type="text" id="mobileSearchInput" placeholder="搜索频道..." oninput="handleMobileSearch()">
+      </div>
+    </div>
+
+    <div class="mobile-section">
+      <div class="mobile-section-title" data-i18n="quickActions">快捷操作</div>
+      <div class="mobile-actions">
+        <div class="mobile-action-btn" onclick="handleMobileAction('history')">
+          <span class="icon">🕐</span>
+          <span class="label" data-i18n="history">播放历史</span>
+        </div>
+        <div class="mobile-action-btn" onclick="handleMobileAction('favorites')">
+          <span class="icon">⭐</span>
+          <span class="label" data-i18n="favorites">我的收藏</span>
+        </div>
+        <div class="mobile-action-btn" onclick="handleMobileAction('random')">
+          <span class="icon">🎯</span>
+          <span class="label" data-i18n="random">随机推荐</span>
+        </div>
+        <div class="mobile-action-btn" onclick="handleMobileAction('clearCache')">
+          <span class="icon">🗑️</span>
+          <span class="label" data-i18n="clearCache">清除缓存</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-section">
+      <div class="mobile-section-title" data-i18n="language">语言</div>
+      <div class="mobile-lang-menu">
+        <div class="mobile-lang-item active" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">简体中文</div>
+        <div class="mobile-lang-item" data-lang="zh-TW" onclick="switchLanguage('zh-TW')">繁體中文</div>
+        <div class="mobile-lang-item" data-lang="en" onclick="switchLanguage('en')">English</div>
+      </div>
+    </div>
+
+    <div class="mobile-section">
+      <div class="mobile-section-title" data-i18n="groupNav">分组导航</div>
+      <div id="mobileGroupList"></div>
+    </div>
+  </div>
   
   <div class="main">
     <aside class="sidebar" id="sidebar">
@@ -348,6 +449,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         onlineCount: '人在观看',
         hot: '热门',
         recommend: '推荐',
+        quickActions: '快捷操作',
+        language: '语言',
+        groupNav: '分组导航',
         noHistory: '暂无播放历史',
         noHistoryDesc: '观看的频道会自动显示在这里',
         noFavorites: '还没有收藏',
@@ -381,6 +485,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         onlineCount: '人在觀看',
         hot: '熱門',
         recommend: '推薦',
+        quickActions: '快捷操作',
+        language: '語言',
+        groupNav: '分組導航',
         noHistory: '暫無播放歷史',
         noHistoryDesc: '觀看的頻道會自動顯示在這裡',
         noFavorites: '還沒有收藏',
@@ -414,6 +521,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         onlineCount: 'viewers online',
         hot: 'HOT',
         recommend: 'RECOMMENDED',
+        quickActions: 'Quick Actions',
+        language: 'Language',
+        groupNav: 'Group Navigation',
         noHistory: 'No watch history',
         noHistoryDesc: 'Channels you watch will appear here',
         noFavorites: 'No favorites yet',
@@ -448,6 +558,25 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       dropdown.classList.toggle('open');
     }
 
+    // 移动端菜单
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      const overlay = document.getElementById('mobileMenuOverlay');
+      menu.classList.toggle('open');
+      overlay.classList.toggle('open');
+    }
+
+    function handleMobileSearch() {
+      const value = document.getElementById('mobileSearchInput').value;
+      document.getElementById('searchInput').value = value;
+      handleSearch();
+    }
+
+    function handleMobileAction(action) {
+      toggleMobileMenu();
+      handleQuickEntryClick({ preventDefault: () => {} }, action);
+    }
+
     function switchLanguage(lang) {
       currentLanguage = lang;
 
@@ -456,8 +585,21 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         item.classList.toggle('active', item.dataset.lang === lang);
       });
 
+      // 更新移动端语言菜单状态
+      document.querySelectorAll('.mobile-lang-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.lang === lang);
+      });
+
       // 关闭下拉菜单
       document.getElementById('langDropdown').classList.remove('open');
+
+      // 关闭移动端菜单（如果打开）
+      const mobileMenu = document.getElementById('mobileMenu');
+      const overlay = document.getElementById('mobileMenuOverlay');
+      if (mobileMenu && mobileMenu.classList.contains('open')) {
+        mobileMenu.classList.remove('open');
+        overlay.classList.remove('open');
+      }
 
       // 更新 HTML lang 属性
       document.documentElement.lang = lang;
@@ -477,6 +619,26 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // 更新搜索框
       document.getElementById('searchInput').placeholder = t('searchPlaceholder');
 
+      // 更新移动端搜索框
+      const mobileSearchInput = document.getElementById('mobileSearchInput');
+      if (mobileSearchInput) {
+        mobileSearchInput.placeholder = t('searchPlaceholder');
+      }
+
+      // 更新所有带有 data-i18n 属性的元素
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (key) {
+          el.textContent = t(key);
+        }
+      });
+
+      // 更新移动端全部频道分组
+      const mobileAllChannelsItem = document.querySelector('.mobile-group-item[data-group=""]');
+      if (mobileAllChannelsItem) {
+        mobileAllChannelsItem.textContent = t('allChannels');
+      }
+
       // 更新快捷按钮提示
       document.querySelectorAll('.quick-entry[data-tip-key]').forEach(btn => {
         const tipKey = btn.dataset.tipKey;
@@ -495,6 +657,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       if (allChannelsItem) {
         allChannelsItem.textContent = t('allChannels');
       }
+
+      // 更新移动端分组列表
+      document.querySelectorAll('.mobile-group-item[data-group]:not([data-group=""])').forEach(item => {
+        // 分组名称不翻译，保持原样
+      });
+
+      // 更新移动端语言选项 - 不更新，保持各语言的原名显示
+      // 语言选项应该是：简体中文、繁體中文、English，不随选择的语言变化而变化
 
       // 更新当前页面标题
       const sectionTitle = document.getElementById('sectionTitle');
@@ -869,6 +1039,17 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         </div>\`
       ).join('');
 
+      // 渲染移动端分组列表
+      const mobileContainer = document.getElementById('mobileGroupList');
+      if (mobileContainer) {
+        mobileContainer.innerHTML = '<div class="mobile-group-item active" data-group="" onclick="filterByGroup(&apos;&apos;)">全部频道</div>' +
+          allGroups.map(group =>
+            \`<div class="mobile-group-item" data-group="\${escapeHtml(group)}" onclick="filterByGroup(&apos;\${escapeHtml(group)}&apos;)">
+              \${escapeHtml(group)}
+            </div>\`
+          ).join('');
+      }
+
       // 更新选中状态（包括硬编码的"全部频道"选项）
       document.querySelectorAll('.group-item').forEach(item => {
         item.classList.remove('active');
@@ -879,6 +1060,24 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         // 添加波纹效果
         item.addEventListener('click', function(e) {
           createRipple(item);
+        });
+      });
+
+      // 更新移动端分组选中状态
+      document.querySelectorAll('.mobile-group-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.group === currentGroup) {
+          item.classList.add('active');
+        }
+
+        // 添加点击事件关闭菜单
+        item.addEventListener('click', function() {
+          const mobileMenu = document.getElementById('mobileMenu');
+          const overlay = document.getElementById('mobileMenuOverlay');
+          if (mobileMenu && overlay) {
+            mobileMenu.classList.remove('open');
+            overlay.classList.remove('open');
+          }
         });
       });
     }
@@ -930,6 +1129,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
     
     function filterByGroup(group) {
+      // 移动端：关闭菜单
+      const mobileMenu = document.getElementById('mobileMenu');
+      const overlay = document.getElementById('mobileMenuOverlay');
+      if (mobileMenu && mobileMenu.classList.contains('open')) {
+        mobileMenu.classList.remove('open');
+        overlay.classList.remove('open');
+      }
+
       // 添加点击波纹效果
       const escapedGroup = escapeHtml(group);
       const clickedItem = document.querySelector(\`.group-item[data-group="\${escapedGroup}"]\`);

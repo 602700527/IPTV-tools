@@ -3,47 +3,64 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>卡密激活 - 电视直播服务</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-    .container{background:white;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);padding:40px;max-width:480px;width:100%}
-    .logo{text-align:center;margin-bottom:30px}
-    .logo h1{font-size:28px;font-weight:700;color:#1d1d1f;margin-bottom:8px}
-    .logo p{color:#86868b;font-size:14px}
-    .form-group{margin-bottom:20px}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:15px}
+    .container{background:white;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);padding:30px;max-width:480px;width:100%}
+    .logo{text-align:center;margin-bottom:25px}
+    .logo h1{font-size:24px;font-weight:700;color:#1d1d1f;margin-bottom:6px}
+    .logo p{color:#86868b;font-size:13px}
+    .form-group{margin-bottom:18px}
     .form-group label{display:block;margin-bottom:8px;font-weight:500;color:#1d1d1f;font-size:14px}
-    .form-group input{width:100%;padding:14px 16px;border:2px solid #e5e5ea;border-radius:8px;font-size:16px;transition:border-color .2s;letter-spacing:1px}
+    .form-group input{width:100%;padding:12px 14px;border:2px solid #e5e5ea;border-radius:8px;font-size:16px;transition:border-color .2s;letter-spacing:1px;-webkit-appearance:none}
     .form-group input:focus{outline:none;border-color:#667eea}
-    .btn{width:100%;padding:14px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:transform .2s,box-shadow .2s}
+    .btn{width:100%;padding:14px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:transform .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent}
     .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(102,126,234,.4)}
-    .btn:active{transform:translateY(0)}
-    .btn:disabled{background:#d2d2d7;cursor:not-allowed;transform:none}
+    .btn:active{transform:translateY(0);scale:.98}
+    .btn:disabled{background:#d2d2d7;cursor:not-allowed;transform:none;scale:1}
     .error{color:#ff3b30;text-align:center;margin-bottom:12px;font-size:14px;display:none;padding:12px;background:#ffebee;border-radius:8px}
     .success{color:#34c759;text-align:center;margin-bottom:12px;font-size:14px;display:none;padding:12px;background:#e8f5e9;border-radius:8px}
-    .result{display:none;margin-top:30px;padding:24px;background:#f5f5f7;border-radius:12px}
+    .result{display:none;margin-top:25px;padding:20px;background:#f5f5f7;border-radius:12px}
     .result.active{display:block}
-    .result h3{font-size:18px;font-weight:600;margin-bottom:16px;color:#1d1d1f}
-    .info-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #e5e5ea}
+    .result h3{font-size:16px;font-weight:600;margin-bottom:14px;color:#1d1d1f}
+    .info-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e5e5ea}
     .info-item:last-child{border-bottom:none}
-    .info-label{color:#86868b;font-size:14px}
-    .info-value{color:#1d1d1f;font-weight:500;font-size:14px}
-    .sub-url-container{margin-top:16px;padding:16px;background:#667eea;border-radius:8px}
-    .sub-url-label{color:white;font-size:12px;margin-bottom:8px}
-    .sub-url{color:white;font-size:14px;font-weight:600;word-break:break-all}
-    .copy-btn{width:100%;margin-top:16px;padding:12px;background:#0071e3;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}
+    .info-label{color:#86868b;font-size:13px}
+    .info-value{color:#1d1d1f;font-weight:500;font-size:13px}
+    .sub-url-container{margin-top:14px;padding:14px;background:#667eea;border-radius:8px}
+    .sub-url-label{color:white;font-size:11px;margin-bottom:6px}
+    .sub-url{color:white;font-size:12px;font-weight:600;word-break:break-all;line-height:1.6}
+    .copy-btn{width:100%;margin-top:14px;padding:12px;background:#0071e3;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;-webkit-tap-highlight-color:transparent}
     .copy-btn:hover{background:#0077ed}
-    .instructions{margin-top:20px;padding:16px;background:#fff3e0;border-radius:8px;border-left:4px solid #ff9800}
-    .instructions h4{color:#e65100;margin-bottom:12px;font-size:14px}
+    .copy-btn:active{scale:.98}
+    .instructions{margin-top:16px;padding:14px;background:#fff3e0;border-radius:8px;border-left:4px solid #ff9800}
+    .instructions h4{color:#e65100;margin-bottom:10px;font-size:13px}
     .instructions ul{list-style:none;padding:0}
-    .instructions li{padding:6px 0;color:#86868b;font-size:13px}
-    .instructions li:before{content:"✓";color:#ff9800;margin-right:8px;font-weight:bold}
+    .instructions li{padding:5px 0;color:#86868b;font-size:12px;line-height:1.5}
+    .instructions li:before{content:"✓";color:#ff9800;margin-right:6px;font-weight:bold}
     .loading{display:none;text-align:center;padding:20px}
     .loading.active{display:block}
     .spinner{width:40px;height:40px;border:3px solid #e5e5ea;border-top-color:#667eea;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
     @keyframes spin{to{transform:rotate(360deg)}}
     .loading-text{margin-top:12px;color:#86868b;font-size:14px}
+    @media (max-width:480px){
+      body{padding:10px}
+      .container{padding:20px;border-radius:12px}
+      .logo h1{font-size:20px}
+      .logo p{font-size:12px}
+      .form-group input{font-size:16px;padding:11px 13px}
+      .btn{padding:13px;font-size:15px}
+      .result{padding:16px}
+      .info-item{padding:8px 0}
+      .info-label,.info-value{font-size:12px}
+      .sub-url-container{padding:12px}
+      .sub-url{font-size:11px}
+      .instructions{padding:12px}
+      .instructions h4{font-size:12px}
+      .instructions li{font-size:11px;padding:4px 0}
+    }
   </style>
 </head>
 <body>
@@ -52,22 +69,22 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       <h1>📺 电视直播服务</h1>
       <p>卡密激活获取订阅地址</p>
     </div>
-    
+
     <div id="errorBox" class="error"></div>
     <div id="successBox" class="success"></div>
-    
+
     <div class="form-group">
       <label for="code">请输入卡密</label>
       <input type="text" id="code" placeholder="输入您的卡密" autocomplete="off">
     </div>
-    
+
     <button id="activateBtn" class="btn" onclick="activateCode()">立即激活</button>
-    
+
     <div id="loading" class="loading">
       <div class="spinner"></div>
       <p class="loading-text">正在激活...</p>
     </div>
-    
+
     <div id="result" class="result">
       <h3>✅ 激活成功</h3>
       <div class="info-item">
@@ -82,14 +99,14 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         <span class="info-label">过期时间</span>
         <span class="info-value" id="resultExpired">-</span>
       </div>
-      
+
       <div class="sub-url-container">
         <div class="sub-url-label">订阅地址（点击复制）</div>
         <div class="sub-url" id="subUrl" onclick="copySubUrl()">-</div>
       </div>
-      
+
       <button class="copy-btn" onclick="copySubUrl()">复制订阅地址</button>
-      
+
       <div class="instructions">
         <h4>📱 使用说明</h4>
         <ul>
@@ -97,7 +114,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
           <li>支持IPTV、PotPlayer等播放器</li>
           <li>支持各类电视盒子</li>
           <li>建议定期更新订阅列表</li>
-          <li>请勿使用软件对播放列表测试，否则可能触发平台限制</li>
+          <li>请勿使用软件对播放列表测试，否则可能触发系统防御</li>
         </ul>
       </div>
     </div>
