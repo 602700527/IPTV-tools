@@ -114,29 +114,15 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="logout-btn" onclick="logout()">退出登录</button>
     </div>
     <div class="nav-tabs">
-      <button class="nav-tab active" onclick="showTab('dashboard')">仪表盘</button>
-      <button class="nav-tab" onclick="showTab('sources')">直播源管理</button>
+      <button class="nav-tab active" onclick="showTab('sources')">直播源管理</button>
       <button class="nav-tab" onclick="showTab('channels')">频道管理</button>
       <button class="nav-tab" onclick="showTab('codes')">卡密管理</button>
       <button class="nav-tab" onclick="showTab('security')">安全监控</button>
       <button class="nav-tab" onclick="showTab('ip-blacklist')">IP黑名单</button>
       <button class="nav-tab" onclick="showTab('homepage-display')">首页展示</button>
       <button class="nav-tab" onclick="showTab('system-settings')">系统设置</button>
-      <button class="nav-tab" onclick="showTab('sql')">SQL Query</button>
     </div>
-    <div id="dashboard" class="tab-content active">
-      <div class="card">
-        <div class="toolbar"><h3>系统概览</h3><button class="btn btn-success" onclick="migrateDatabase()" title="升级数据库结构">升级数据库</button></div>
-        <div class="stats-grid">
-          <div class="stat-item"><div class="stat-value" id="statSources">0</div><div class="stat-label">直播源</div></div>
-          <div class="stat-item"><div class="stat-value" id="statChannels">0</div><div class="stat-label">频道总数</div></div>
-          <div class="stat-item"><div class="stat-value" id="statActiveCodes">0</div><div class="stat-label">活跃卡密</div></div>
-          <div class="stat-item"><div class="stat-value" id="statUnusedCodes">0</div><div class="stat-label">未使用卡密</div></div>
-          <div class="stat-item"><div class="stat-value" id="statBannedIPs" style="color:#ff3b30">0</div><div class="stat-label">封禁IP</div></div>
-        </div>
-      </div>
-    </div>
-    <div id="sources" class="tab-content">
+    <div id="sources" class="tab-content active">
       <div class="card">
         <div class="toolbar">
           <h3>直播源列表</h3>
@@ -652,29 +638,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
       </div>
     </div>
-    <div id="sql" class="tab-content">
-      <div class="card">
-        <div class="toolbar">
-          <h3>SQL Query</h3>
-        </div>
-        <div class="form-group">
-          <label>SQL Statement</label>
-          <textarea id="sqlQuery" rows="6" placeholder="Enter SQL query, e.g.:
-SELECT channel_name, headers, play_url 
-FROM channels 
-WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
-        </div>
-        <div style="display:flex;gap:8px;margin-bottom:20px;">
-          <button class="btn btn-primary" onclick="executeSQL()">Execute</button>
-          <button class="btn" onclick="clearSQLResult()">Clear</button>
-        </div>
-        <div id="sqlResult" style="display:none;">
-          <h4 style="margin-bottom:10px;">Query Results</h4>
-          <div id="sqlResultCount" style="margin-bottom:10px;color:#666;"></div>
-          <div id="sqlResultTable" style="overflow-x:auto;"></div>
-        </div>
-      </div>
-    </div>
   </div>
   <div id="loadingOverlay" class="loading-overlay">
     <div class="loading-spinner"></div>
@@ -822,7 +785,7 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
       .then(res => {
         if (res.ok) {
           document.getElementById('mainContent').style.display = 'block';
-          loadDashboard();
+          loadSources();
         } else {
           clearAuth();
           document.getElementById('loginOverlay').classList.remove('hidden');
@@ -852,7 +815,7 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
         if (res.ok) {
           document.getElementById('loginOverlay').classList.add('hidden');
           document.getElementById('mainContent').style.display = 'block';
-          loadDashboard();
+          loadSources();
         } else {
           showLoginError('密钥无效');
           clearAuth();
@@ -918,8 +881,7 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
       document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
       document.getElementById(tabName).classList.add('active');
       event.target.classList.add('active');
-      if (tabName === 'dashboard') loadDashboard();
-      else if (tabName === 'sources') {
+      if (tabName === 'sources') {
         loadSources();
         loadSyncFilters(); // 加载同步过滤规则
       }
@@ -939,50 +901,6 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
       else if (tabName === 'system-settings') {
         loadSystemConfig();
         loadCacheStatus(); // 加载缓存状态
-      }
-    }
-
-    async function loadDashboard() {
-      try {
-        showLoading();
-        const sources = await apiRequest('/sources', { showLoading: false });
-        const sourceList = sources.results || sources;
-        document.getElementById('statSources').textContent = sourceList.length || 0;
-        const channels = await apiRequest('/channels?page=1&page_size=1', { showLoading: false });
-        document.getElementById('statChannels').textContent = channels.pagination?.total || 0;
-        const codes = await apiRequest('/codes?page=1&page_size=1000', { showLoading: false });
-        const codeList = codes.results || [];
-        document.getElementById('statActiveCodes').textContent = codeList.filter(c => c.status === 'active').length;
-        document.getElementById('statUnusedCodes').textContent = codeList.filter(c => c.status === 'unused').length;
-        
-        // 加载封禁IP数量
-        const ipBlacklist = await apiRequest('/ip-blacklist', { showLoading: false });
-        document.getElementById('statBannedIPs').textContent = ipBlacklist.count || 0;
-      } catch (error) {
-        showToast('加载仪表盘失败', 'error');
-      } finally {
-        hideLoading();
-      }
-    }
-
-    async function migrateDatabase() {
-      if (!confirm('确定要升级数据库结构吗？此操作将为sources表添加is_active字段。')) {
-        return;
-      }
-      try {
-        showLoading();
-        const result = await apiRequest('/migrate');
-        if (result.success) {
-          showToast('数据库升级成功', 'success');
-          loadDashboard();
-          loadSources();
-        } else {
-          showToast('数据库升级失败: ' + result.error, 'error');
-        }
-      } catch (error) {
-        showToast('数据库升级失败: ' + error.error, 'error');
-      } finally {
-        hideLoading();
       }
     }
 
@@ -2559,83 +2477,6 @@ WHERE channel_name = 'CCTV1' OR channel_hash = '1e2bc193';"></textarea>
       document.getElementById('adminRateHour').value = 10;
 
       await saveIPBlacklistConfig();
-    }
-
-    // SQL Query Function
-    async function executeSQL() {
-      const sql = document.getElementById('sqlQuery').value.trim();
-      if (!sql) {
-        showToast('Please enter SQL query', 'error');
-        return;
-      }
-
-      showLoading();
-
-      try {
-        const result = await apiRequest('/sql', {
-          method: 'POST',
-          body: JSON.stringify({ sql: sql }),
-          showLoading: false
-        });
-
-        if (result.success) {
-          displaySQLResult(result.results, result.meta);
-        } else {
-          showToast('Query failed: ' + (result.error || 'Unknown error'), 'error');
-        }
-      } catch (error) {
-        showToast('Query failed: ' + error.message, 'error');
-      } finally {
-        hideLoading();
-      }
-    }
-
-    function displaySQLResult(results, meta) {
-      const container = document.getElementById('sqlResult');
-      const countDiv = document.getElementById('sqlResultCount');
-      const tableDiv = document.getElementById('sqlResultTable');
-
-      if (!results || results.length === 0) {
-        container.style.display = 'none';
-        return;
-      }
-
-      container.style.display = 'block';
-      countDiv.textContent = 'Total: ' + results.length + ' records';
-
-      // Generate table headers
-      const columns = Object.keys(results[0]);
-      let tableHTML = '<table><thead><tr>';
-      columns.forEach(col => {
-        tableHTML += '<th>' + escapeHtml(col) + '</th>';
-      });
-      tableHTML += '</tr></thead><tbody>';
-
-      // 生成数据行
-      results.forEach(row => {
-        tableHTML += '<tr>';
-        columns.forEach(col => {
-          let value = row[col];
-          // Format JSON object
-          if (typeof value === 'object' && value !== null) {
-            value = '<pre style="margin:0;padding:5px;background:#f5f5f5;font-size:12px;">' + escapeHtml(JSON.stringify(value, null, 2)) + '</pre>';
-          } else if (value === null || value === undefined) {
-            value = '<span style="color:#999;">NULL</span>';
-          } else {
-            value = escapeHtml(String(value));
-          }
-          tableHTML += '<td>' + value + '</td>';
-        });
-        tableHTML += '</tr>';
-      });
-
-      tableHTML += '</tbody></table>';
-      tableDiv.innerHTML = tableHTML;
-    }
-
-    function clearSQLResult() {
-      document.getElementById('sqlResult').style.display = 'none';
-      document.getElementById('sqlQuery').value = '';
     }
 
     // 首页展示配置管理

@@ -1258,41 +1258,6 @@ export async function handleAdminRequest(request, env, ctx) {
         }
         break;
 
-      case 'sql':
-        // 执行SQL查询
-        if (request.method === 'POST') {
-          const data = await request.json();
-          const sql = data.sql;
-
-          if (!sql) {
-            return new Response('Missing SQL query', { status: 400 });
-          }
-
-          try {
-            const db = getDB();
-            const result = await db.prepare(sql).all();
-
-            return new Response(JSON.stringify({
-              success: true,
-              results: result.results || [],
-              meta: result.meta || {}
-            }), {
-              headers: { 'Content-Type': 'application/json' }
-            });
-          } catch (error) {
-            return new Response(JSON.stringify({
-              success: false,
-              error: error.message
-            }), {
-              status: 500,
-              headers: { 'Content-Type': 'application/json' }
-            });
-          }
-        } else {
-          return new Response('Method not allowed', { status: 405 });
-        }
-        break;
-
       case 'cache':
         // 缓存管理
         const cacheSubAction = pathParts[3];
