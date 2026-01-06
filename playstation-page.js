@@ -419,7 +419,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       setInterval(updateOnlineCounter, 30000); // 每30秒更新在线人数
     });
     
-    async function loadChannels(page = 1) {
+    async function loadChannels(page = 1, updateGroups = true) {
       try {
         const params = new URLSearchParams({
           page: page,
@@ -428,21 +428,27 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         if (currentSearch) {
           params.append('search', currentSearch);
         }
-        if (currentGroup) {
+        // 搜索时不要分组限制，只在非搜索状态下才应用分组过滤
+        if (currentGroup && !currentSearch) {
           params.append('group', currentGroup);
         }
 
         const response = await fetch(API_BASE + '/channels?' + params.toString());
         const data = await response.json();
 
+
         if (data.success) {
           currentPage = data.pagination?.page || 1;
           totalPages = data.pagination?.total_pages || 1;
           totalChannels = data.pagination?.total || 0;
           allChannels = data.channels || [];
-          allGroups = data.groups || [];
 
-          renderGroups();
+          // 需要更新分组时才更新（搜索时不更新）
+          if (updateGroups) {
+            allGroups = data.groups || [];
+            renderGroups();
+          }
+
           renderChannels(allChannels);
           renderPagination();
 
@@ -559,15 +565,16 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         if (!keyword) {
           currentSearch = '';
           currentPage = 1;
-          filterByGroup(currentGroup);
+          // 清空搜索时需要更新分组列表
+          loadChannels(1, true);
           return;
         }
 
         currentSearch = keyword;
         currentPage = 1; // 重置到第一页
 
-        // 重新加载频道
-        loadChannels(1);
+        // 搜索时不更新分组列表，保持原有分组显示
+        loadChannels(1, false);
         document.getElementById('sectionTitle').textContent = \`搜索: \${escapeHtml(keyword)}\`;
       }, 300);
     }

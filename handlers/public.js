@@ -632,27 +632,44 @@ export async function handlePublicPlay(request, env, ctx) {
       }
     }
 
-    // AES-GCM 加密播放URL（使用系统配置的密钥）
-    let encryptionKey = env.SECRET_KEY || 'default-secret-key';
-    if (systemConfig.enable_url_encryption && systemConfig.url_encryption_key) {
-      encryptionKey = systemConfig.url_encryption_key;
-    }
-    const encryptedUrl = await encryptWithAES(channel.play_url, encryptionKey);
+    // 判断是否需要加密
+    const enableEncryption = systemConfig.enable_url_encryption && systemConfig.url_encryption_key;
 
-    // 直接返回播放URL和headers配置，让前端Hls.js使用
-    return new Response(JSON.stringify({
-      success: true,
-      play_url: encryptedUrl, // AES-GCM 加密的数据
-      headers: headersObj,
-      channel_name: channel.channel_name,
-      encoded: true, // 标识数据已加密
-      encryption: 'aes-gcm' // 标识加密方式
-    }), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
-      }
-    });
+    // 返回播放URL和headers配置
+    if (enableEncryption) {
+      // AES-GCM 加密播放URL（使用系统配置的密钥）
+      const encryptionKey = systemConfig.url_encryption_key;
+      const encryptedUrl = await encryptWithAES(channel.play_url, encryptionKey);
+
+      return new Response(JSON.stringify({
+        success: true,
+        play_url: encryptedUrl, // AES-GCM 加密的数据
+        headers: headersObj,
+        channel_name: channel.channel_name,
+        encoded: true, // 标识数据已加密
+        encryption: 'aes-gcm' // 标识加密方式
+      }), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+        }
+      });
+    } else {
+      // 不加密，直接返回原始URL
+      return new Response(JSON.stringify({
+        success: true,
+        play_url: channel.play_url, // 原始URL
+        headers: headersObj,
+        channel_name: channel.channel_name,
+        encoded: false, // 标识数据未加密
+        encryption: 'none' // 标识未加密
+      }), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+        }
+      });
+    }
 
   } catch (error) {
     console.error('获取播放地址失败:', error);
