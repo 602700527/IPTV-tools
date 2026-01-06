@@ -213,6 +213,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         🎯
         <span class="quick-entry-tip">随机推荐</span>
       </button>
+      <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" title="清除缓存">
+        🗑️
+        <span class="quick-entry-tip">清除缓存</span>
+      </button>
     </div>
     <div class="online-counter">
       <span class="online-dot"></span>
@@ -444,11 +448,84 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     // 页面加载时获取频道列表
     window.addEventListener('DOMContentLoaded', () => {
+      // 尝试从缓存加载分组数据，快速渲染分组列表
+      const cachedGroups = getFromCache(getCacheKey('groups'));
+      if (cachedGroups && cachedGroups.length > 0) {
+        allGroups = cachedGroups;
+        renderGroups();
+        console.log('[Cache] 从缓存加载分组:', allGroups.length, '个分组');
+      }
+
       loadChannels();
       updateOnlineCounter();
       updateBadges();
       setInterval(updateOnlineCounter, 30000); // 每30秒更新在线人数
     });
+
+    // ========== 本地缓存工具函数 ==========
+
+    // 缓存键前缀
+    const CACHE_PREFIX = 'iptv_cache_';
+    const CACHE_DURATION = 6 * 60 * 60 * 1000; // 6小时（毫秒）
+
+    // 生成缓存键
+    function getCacheKey(type, params = '') {
+      return CACHE_PREFIX + type + '_' + params;
+    }
+
+    // 从本地缓存读取
+    function getFromCache(key) {
+      try {
+        const cached = localStorage.getItem(key);
+        if (!cached) return null;
+
+        const data = JSON.parse(cached);
+        const now = Date.now();
+
+        // 检查是否过期
+        if (data.timestamp && now - data.timestamp < CACHE_DURATION) {
+          console.log('[Cache] 从缓存读取:', key);
+          return data.value;
+        } else {
+          // 过期删除
+          localStorage.removeItem(key);
+          console.log('[Cache] 缓存已过期:', key);
+          return null;
+        }
+      } catch (error) {
+        console.error('[Cache] 读取缓存失败:', error);
+        return null;
+      }
+    }
+
+    // 写入本地缓存
+    function setCache(key, value) {
+      try {
+        const data = {
+          timestamp: Date.now(),
+          value: value
+        };
+        localStorage.setItem(key, JSON.stringify(data));
+        console.log('[Cache] 已缓存:', key);
+      } catch (error) {
+        console.error('[Cache] 写入缓存失败:', error);
+      }
+    }
+
+    // 清除缓存
+    function clearCache() {
+      try {
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+          if (key.startsWith(CACHE_PREFIX)) {
+            localStorage.removeItem(key);
+          }
+        });
+        console.log('[Cache] 已清除所有缓存');
+      } catch (error) {
+        console.error('[Cache] 清除缓存失败:', error);
+      }
+    }
     
     async function loadChannels(page = 1, updateGroups = true) {
       try {
@@ -464,7 +541,39 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           params.append('group', currentGroup);
         }
 
-        const response = await fetch(API_BASE + '/channels?' + params.toString());
+        // 生成缓存键（搜索时和分组过滤时使用缓存，分页使用缓存）
+        const paramsStr = params.toString();
+        const cacheKey = getCacheKey('channels', paramsStr);
+
+        // 尝试从缓存读取
+        const cachedData = getFromCache(cacheKey);
+        if (cachedData) {
+          // 使用缓存数据
+          currentPage = cachedData.pagination?.page || 1;
+          totalPages = cachedData.pagination?.total_pages || 1;
+          totalChannels = cachedData.pagination?.total || 0;
+          allChannels = cachedData.channels || [];
+
+          // 需要更新分组时才更新（搜索时不更新）
+          if (updateGroups) {
+            allGroups = cachedData.groups || [];
+            renderGroups();
+          }
+
+          renderChannels(allChannels);
+          renderPagination();
+
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('channelList').style.display = 'block';
+
+          // 隐藏加载指示器
+          hideLoadingIndicator();
+
+          return;
+        }
+
+        // 缓存未命中，从服务器获取
+        const response = await fetch(API_BASE + '/channels?' + paramsStr);
         const data = await response.json();
 
 
@@ -485,6 +594,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
           document.getElementById('loading').style.display = 'none';
           document.getElementById('channelList').style.display = 'block';
+
+          // 缓存数据（6小时）
+          setCache(cacheKey, data);
+
+          // 单独缓存分组数据（用于快速访问）
+          if (updateGroups && data.groups) {
+            const groupsCacheKey = getCacheKey('groups');
+            setCache(groupsCacheKey, data.groups);
+          }
 
           // 隐藏加载指示器
           hideLoadingIndicator();
@@ -645,6 +763,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           break;
         case 'random':
           showRandomInMain();
+          break;
+        case 'clearCache':
+          // 清除缓存并刷新
+          clearCache();
+          // 重新加载频道列表
+          loadChannels(1, true);
+          // 显示提示
+          showPlayingIndicator('缓存已清除');
           break;
       }
     }
@@ -1301,7 +1427,30 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
 
     function getLogoByHash(hash) {
-      const channel = allChannels.find(c => c.channel_hash === hash);
+      // 优先从当前加载的频道列表中查找
+      let channel = allChannels.find(c => c.channel_hash === hash);
+
+      // 如果当前列表中没有，尝试从缓存数据中查找
+      if (!channel) {
+        // 获取所有分页的缓存数据
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+          if (key.startsWith(CACHE_PREFIX + 'channels_')) {
+            try {
+              const cached = JSON.parse(localStorage.getItem(key));
+              if (cached && cached.value && cached.value.channels) {
+                const found = cached.value.channels.find(c => c.channel_hash === hash);
+                if (found) {
+                  channel = found;
+                }
+              }
+            } catch (e) {
+              // 忽略解析错误
+            }
+          }
+        });
+      }
+
       if (channel && channel.logo) {
         return \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`;
       }
