@@ -459,7 +459,7 @@ export async function generatePlayToken(channelHash, clientIp, secret) {
 }
 
 // 验证播放token（阅后即焚 + IP绑定）
-export async function verifyPlayToken(token, secret, env, request) {
+export async function verifyPlayToken(token, secret, env, request, db = null) {
   try {
     const parts = token.split(':');
     if (parts.length !== 5) {
@@ -498,12 +498,13 @@ export async function verifyPlayToken(token, secret, env, request) {
       }
     }
 
-    // 检查是否已被使用（KV存储，阅后即焚）
-    if (env && env.KV && config.enable_burn_after_read !== false) {
-      const usedKey = `used_token:${token}`;
-      const isUsed = await env.KV.get(usedKey);
-      console.log('[Token] Checking if token is used:', { usedKey, isUsed: !!isUsed });
-      if (isUsed) {
+    // 检查是否已被使用（数据库存储，阅后即焚）
+    if (db && config.enable_burn_after_read !== false) {
+      const usedResult = await db.prepare(`
+        SELECT id FROM used_tokens WHERE token = ?
+      `).bind(token).first();
+
+      if (usedResult) {
         console.log('[Token] Token already used (replay attack prevented)', { token: token.substring(0, 30) + '...' });
         return false;
       }
@@ -531,12 +532,12 @@ export async function verifyPlayToken(token, secret, env, request) {
     }
 
     // 验证通过后，立即标记为已使用（阅后即焚）
-    if (env && env.KV && config.enable_burn_after_read !== false) {
-      const usedKey = `used_token:${token}`;
-      await env.KV.put(usedKey, '1', {
-        expirationTtl: expireSeconds // 与token过期时间一致，自动清理
-      });
-      console.log('[Token] Token marked as used (burn after read)', { usedKey, expireSeconds });
+    if (db && config.enable_burn_after_read !== false) {
+      await db.prepare(`
+        INSERT INTO used_tokens (token, used_at, expires_at)
+        VALUES (?, CURRENT_TIMESTAMP, datetime('now', '+' || ? || ' seconds'))
+      `).bind(token, expireSeconds).run();
+      console.log('[Token] Token marked as used (burn after read)', { token, expireSeconds });
     }
 
     return true;

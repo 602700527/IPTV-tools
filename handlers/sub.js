@@ -20,20 +20,28 @@ export async function handleSubRequest(request, env, ctx) {
   // 从文件名中提取卡密
   const code = filename.replace('.m3u', '');
 
-  // 1. 防盗检查 (KV)
+  // 1. 防盗检查 (数据库)
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD格式
-  const limitKey = `limit:sub:${today}:${code}`;
 
-  // 获取当前请求次数
-  let requestCount = parseInt(await env.KV.get(limitKey) || '0');
+  // 获取今日订阅请求次数（从ip_access_logs表）
+  const subRequests = await db.prepare(`
+    SELECT SUM(request_count) as total
+    FROM ip_access_logs
+    WHERE ip = ? AND path = '/sub' AND created_date = ?
+  `).bind(clientIP, today).first();
+
+  const requestCount = subRequests?.total || 0;
 
   // 如果超过每日限制，返回403
   if (requestCount > 20) {
     return new Response('Forbidden: Daily request limit exceeded', { status: 403 });
   }
 
-  // 异步增加请求计数
-  ctx.waitUntil(env.KV.put(limitKey, (requestCount + 1).toString(), { expirationTtl: 86400 })); // 24小时过期
+  // 异步增加请求计数（在ip_access_logs中记录）
+  ctx.waitUntil(db.prepare(`
+    INSERT INTO ip_access_logs (ip, path, request_count, created_date)
+    VALUES (?, '/sub', 1, ?)
+  `).bind(clientIP, today).run());
 
   // 2. 检查缓存 (Cache API)
   const cache = caches.default;

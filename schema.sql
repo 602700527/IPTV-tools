@@ -44,3 +44,57 @@ CREATE TABLE IF NOT EXISTS codes (
 
 -- 创建卡密状态索引
 CREATE INDEX IF NOT EXISTS idx_code_status ON codes(status);
+
+-- 创建播放记录表
+CREATE TABLE IF NOT EXISTS play_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code TEXT NOT NULL,
+  channel_hash TEXT NOT NULL,
+  client_ip TEXT,
+  played_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_date DATE DEFAULT (DATE('now'))
+);
+
+-- 创建播放记录索引
+CREATE INDEX IF NOT EXISTS idx_play_logs_code ON play_logs(code);
+CREATE INDEX IF NOT EXISTS idx_play_logs_code_date ON play_logs(code, created_date);
+CREATE INDEX IF NOT EXISTS idx_play_logs_code_hash_date ON play_logs(code, channel_hash, created_date);
+
+-- 创建IP访问记录表
+CREATE TABLE IF NOT EXISTS ip_access_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ip TEXT NOT NULL,
+  path TEXT NOT NULL,
+  request_count INTEGER DEFAULT 1,
+  first_access DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_access DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_date DATE DEFAULT (DATE('now'))
+);
+
+-- 创建IP访问记录索引
+CREATE INDEX IF NOT EXISTS idx_ip_access_logs_ip_date ON ip_access_logs(ip, created_date);
+CREATE INDEX IF NOT EXISTS idx_ip_access_logs_ip_path_date ON ip_access_logs(ip, path, created_date);
+
+-- 创建IP黑名单表
+CREATE TABLE IF NOT EXISTS ip_blacklist (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ip TEXT NOT NULL UNIQUE,
+  banned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  reason TEXT,
+  details TEXT,
+  permanent BOOLEAN DEFAULT 1
+);
+
+-- 创建IP黑名单索引
+CREATE INDEX IF NOT EXISTS idx_ip_blacklist_ip ON ip_blacklist(ip);
+
+-- 创建已使用token表
+CREATE TABLE IF NOT EXISTS used_tokens (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  token TEXT NOT NULL UNIQUE,
+  used_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  expires_at DATETIME
+);
+
+-- 创建已使用token索引
+CREATE INDEX IF NOT EXISTS idx_used_tokens_token ON used_tokens(token);

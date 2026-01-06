@@ -72,10 +72,15 @@ export async function handleLiveRequest(request, env, ctx) {
 
     // 2.2 检查每日播放额度（每个频道）
     const today = new Date().toISOString().split('T')[0];
-    const channelLimitKey = `channel_limit:${today}:${code}:${hash}`;
 
-    // 获取今日该频道播放次数
-    const todayPlays = parseInt(await env.KV.get(channelLimitKey) || '0');
+    // 从数据库查询今日该频道播放次数
+    const channelPlaysResult = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM play_logs
+      WHERE code = ? AND channel_hash = ? AND created_date = ?
+    `).bind(code, hash, today).first();
+
+    const todayPlays = channelPlaysResult?.count || 0;
 
     if (todayPlays >= securityConfig.channel_daily_limit) {
       // 超过额度，自动封禁卡密
@@ -102,20 +107,8 @@ export async function handleLiveRequest(request, env, ctx) {
           await addBannedCodeToCache(env, codeInfo);
         }
 
-        // 记录封禁信息到KV
-        const quotaKey = `code_quota:${today}:${code}`;
-        const existingQuotaData = await env.KV.get(quotaKey, { type: "json" }) || {};
-
-        await env.KV.put(quotaKey, JSON.stringify({
-          totalPlays: todayPlays,
-          channelPlays: existingQuotaData.channelPlays || {},
-          exceededChannels: [hash],
-          isBanned: true,
-          bannedAt: new Date().toISOString(),
-          bannedUntil: bannedUntil.toISOString(),
-          banDurationDays: securityConfig.ban_duration_days,
-          channelDailyLimit: securityConfig.channel_daily_limit
-        }), { expirationTtl: 86400 * securityConfig.ban_duration_days + 86400 });
+        // 记录封禁信息到数据库备注
+        console.warn(`Code ${code} auto-banned due to exceeding limit: ${todayPlays} plays for channel ${hash}`);
 
         console.warn(`Code ${code} auto-banned due to exceeding limit: ${todayPlays} plays for channel ${hash}`);
       }
@@ -130,54 +123,33 @@ export async function handleLiveRequest(request, env, ctx) {
     const newPlays = todayPlays + 1;
     await env.KV.put(channelLimitKey, newPlays.toString(), { expirationTtl: 86400 }); // 24小时过期
 
-    // 记录总播放次数和频道播放详情
-    const quotaKey = `code_quota:${today}:${code}`;
-    const quotaData = await env.KV.get(quotaKey, { type: "json" }) || {
-      totalPlays: 0,
-      channelPlays: {},
-      exceededChannels: [],
-      isBanned: false,
-      bannedAt: null
-    };
+    // 记录播放到数据库
+    ctx.waitUntil(db.prepare(`
+      INSERT INTO play_logs (code, channel_hash, client_ip, created_date)
+      VALUES (?, ?, ?, ?)
+    `).bind(code, hash, clientIP, today).run());
 
-    quotaData.totalPlays = (quotaData.totalPlays || 0) + 1;
+    // 2.3 IP 并发检测 (数据库)
+    // 查询10分钟内的活跃IP
+    const tenMinutesAgo = new Date(Date.now() - 600000).toISOString();
+    const activeIPsResult = await db.prepare(`
+      SELECT DISTINCT client_ip
+      FROM play_logs
+      WHERE code = ? AND played_at > ?
+    `).bind(code, tenMinutesAgo).all();
 
-    // 记录该频道的播放次数
-    quotaData.channelPlays = quotaData.channelPlays || {};
-    quotaData.channelPlays[hash] = (quotaData.channelPlays[hash] || 0) + 1;
-
-    await env.KV.put(quotaKey, JSON.stringify(quotaData), { expirationTtl: 86400 });
-
-    // 2.3 IP 并发检测 (KV)
-    const ipKey = `ips:${code}`;
-    const ipData = await env.KV.get(ipKey, { type: "json" });
-    const ipList = ipData || [];
-
-    // 清理过期的IP记录
-    const nowTime = Date.now();
-    const filteredIps = ipList.filter(ip => ip.time > nowTime - 600000); // 10分钟有效期
+    const activeIPs = new Set((activeIPsResult.results || []).map(r => r.client_ip));
 
     // 检查当前IP是否在列表中
-    const currentIPRecord = filteredIps.find(ip => ip.address === clientIP);
-
-    if (!currentIPRecord) {
+    if (!activeIPs.has(clientIP)) {
       // 当前IP不在列表中，检查是否超过最大IP数限制
-      if (filteredIps.length >= (auth.max_ips || 3)) {
+      if (activeIPs.size >= (auth.max_ips || 3)) {
         response = new Response("Forbidden: Too many devices", { status: 403 });
         response.headers.set("Cache-Control", "public, max-age=300");
         ctx.waitUntil(cache.put(cacheKey, response.clone()));
         return response;
       }
-
-      // 添加当前IP到列表
-      filteredIps.push({ address: clientIP, time: nowTime });
-    } else {
-      // 更新当前IP的时间戳
-      currentIPRecord.time = nowTime;
     }
-
-    // 异步更新KV，不阻塞响应
-    ctx.waitUntil(env.KV.put(ipKey, JSON.stringify(filteredIps), { expirationTtl: 600 }));
 
     // 3. 获取频道真实链接
     const channel = await db.prepare("SELECT play_url, headers FROM channels WHERE channel_hash = ? AND is_active = 1").bind(hash).first();

@@ -46,18 +46,43 @@ export async function checkIPRateLimit(env, ctx, ip, path) {
     };
   }
 
-  // 2. 获取访问记录
+  // 2. 获取或创建访问记录（数据库）
   const today = new Date().toISOString().split('T')[0];
-  const accessKey = `ip_access:${today}:${ip}`;
-  const accessData = await env.KV.get(accessKey, { type: 'json' }) || {
-    requests: 0,
-    paths: {},
-    firstAccess: new Date().toISOString()
-  };
+  const { getDB } = await import('../database.js');
+  const db = getDB();
 
-  // 3. 更新访问计数
-  accessData.requests += 1;
-  accessData.paths[path] = (accessData.paths[path] || 0) + 1;
+  const existingAccess = await db.prepare(`
+    SELECT request_count, first_access
+    FROM ip_access_logs
+    WHERE ip = ? AND path = ? AND created_date = ?
+  `).bind(ip, path, today).first();
+
+  if (existingAccess) {
+    // 更新现有记录
+    await db.prepare(`
+      UPDATE ip_access_logs
+      SET request_count = request_count + 1,
+          last_access = CURRENT_TIMESTAMP
+      WHERE ip = ? AND path = ? AND created_date = ?
+    `).bind(ip, path, today).run();
+  } else {
+    // 创建新记录
+    await db.prepare(`
+      INSERT INTO ip_access_logs (ip, path, request_count, first_access, created_date)
+      VALUES (?, ?, 1, CURRENT_TIMESTAMP, ?)
+    `).bind(ip, path, today).run();
+  }
+
+  // 重新查询以获取最新数据
+  const accessData = await db.prepare(`
+    SELECT SUM(request_count) as total_requests,
+           SUM(CASE WHEN path = ? THEN request_count ELSE 0 END) as path_requests
+    FROM ip_access_logs
+    WHERE ip = ? AND created_date = ?
+  `).bind(path, ip, today).first();
+
+  const todayRequests = accessData?.total_requests || 0;
+  const pathRequests = accessData?.path_requests || 0;
 
   // 4. 获取配置的阈值
   const config = await getIPBlacklistConfig();
@@ -96,15 +121,11 @@ export async function checkIPRateLimit(env, ctx, ip, path) {
     threshold = { maxPerHour: 60, maxPerDay: 500 };
   }
 
-  // 6. 异步保存访问记录
-  ctx.waitUntil(env.KV.put(accessKey, accessData, { expirationTtl: 86400 * 2 }));
-
   // 7. 检查是否触发封禁
-  if (accessData.requests > threshold.maxPerDay) {
+  if (todayRequests > threshold.maxPerDay) {
     // 超过每日限制，永久封禁
     await banIP(env, ip, 'Daily request limit exceeded', {
-      totalRequests: accessData.requests,
-      paths: accessData.paths,
+      totalRequests: todayRequests,
       threshold: threshold.maxPerDay
     });
     return {
@@ -115,25 +136,18 @@ export async function checkIPRateLimit(env, ctx, ip, path) {
   }
 
   // 检查单个路径的频率（防止刷单一路径）
-  for (const [key, count] of Object.entries(accessData.paths)) {
-    // 检查每分钟限制
-    if (threshold.maxPerMin && count > threshold.maxPerMin) {
-      // 这里需要更细粒度的时间记录，暂时使用每小时限制
-    }
-    
-    if (count > threshold.maxPerHour) {
-      // 单个路径超过每小时限制，永久封禁
-      await banIP(env, ip, `Excessive requests to path: ${key}`, {
-        path: key,
-        count: count,
-        threshold: threshold.maxPerHour
-      });
-      return {
-        allowed: false,
-        blocked: true,
-        message: 'Your IP has been permanently banned due to excessive requests to a specific endpoint.'
-      };
-    }
+  if (pathRequests > threshold.maxPerHour) {
+    // 单个路径超过每小时限制，永久封禁
+    await banIP(env, ip, `Excessive requests to path: ${path}`, {
+      path: path,
+      count: pathRequests,
+      threshold: threshold.maxPerHour
+    });
+    return {
+      allowed: false,
+      blocked: true,
+      message: 'Your IP has been permanently banned due to excessive requests to a specific endpoint.'
+    };
   }
 
   return { allowed: true, blocked: false, message: '' };
@@ -147,46 +161,49 @@ export async function checkIPRateLimit(env, ctx, ip, path) {
  * @returns {Promise<{data: Array, total: number}>} 封禁列表
  */
 export async function getBlacklistedIPs(env, limit = 100, offset = 0) {
-  const allBannedKey = 'ip_blacklist_all';
-  const allData = await env.KV.get(allBannedKey, { type: 'json' }) || [];
+  const { getDB } = await import('../database.js');
+  const db = getDB();
 
-  // 分页返回数据
-  const data = allData.slice(offset, offset + limit);
-  const total = allData.length;
+  const result = await db.prepare(`
+    SELECT ip, banned_at, reason, details
+    FROM ip_blacklist
+    ORDER BY banned_at DESC
+    LIMIT ? OFFSET ?
+  `).bind(limit, offset).all();
+
+  const totalResult = await db.prepare("SELECT COUNT(*) as total FROM ip_blacklist").first();
+  const total = totalResult?.total || 0;
+
+  // 格式化数据
+  const data = (result.results || []).map(item => ({
+    ip: item.ip,
+    bannedAt: item.banned_at,
+    reason: item.reason,
+    details: JSON.parse(item.details || '{}')
+  }));
 
   return { data, total };
 }
 
 // 永久封禁IP
 export async function banIP(env, ip, reason, details = {}) {
-  const blacklistData = {
-    ip,
-    bannedAt: new Date().toISOString(),
-    reason,
-    details,
-    permanent: true
-  };
+  const { getDB } = await import('../database.js');
+  const db = getDB();
 
-  await env.KV.put(`ip_blacklist:${ip}`, JSON.stringify(blacklistData));
-  await addToBanIndex(env, ip);
+  await db.prepare(`
+    INSERT OR REPLACE INTO ip_blacklist (ip, banned_at, reason, details, permanent)
+    VALUES (?, CURRENT_TIMESTAMP, ?, ?, 1)
+  `).bind(ip, reason, JSON.stringify(details)).run();
+
   console.log(`IP ${ip} has been permanently banned. Reason: ${reason}`);
 }
 
 // 解封IP
 export async function unbanIP(env, ip) {
-  const allBannedKey = 'ip_blacklist_all';
-  const existingData = await env.KV.get(allBannedKey, { type: 'json' }) || [];
+  const { getDB } = await import('../database.js');
+  const db = getDB();
 
-  // 过滤掉要解封的IP
-  const newData = existingData.filter(item => item.ip !== ip);
-
-  // 更新存储
-  if (newData.length === 0) {
-    // 如果没有数据了，删除键
-    await env.KV.delete(allBannedKey);
-  } else {
-    await env.KV.put(allBannedKey, JSON.stringify(newData));
-  }
+  await db.prepare("DELETE FROM ip_blacklist WHERE ip = ?").bind(ip).run();
 
   console.log(`IP ${ip} has been unbanned`);
   return true;
@@ -199,15 +216,35 @@ export async function unbanIP(env, ip) {
  * @returns {Promise<Object>} 访问统计
  */
 export async function getIPAccessStats(env, ip) {
-  const today = new Date().toISOString().split('T')[0];
-  const accessKey = `ip_access:${today}:${ip}`;
-  const accessData = await env.KV.get(accessKey, { type: 'json' }) || {
-    requests: 0,
-    paths: {},
-    firstAccess: null
-  };
+  const { getDB } = await import('../database.js');
+  const db = getDB();
 
-  return accessData;
+  const today = new Date().toISOString().split('T')[0];
+
+  const result = await db.prepare(`
+    SELECT
+      SUM(request_count) as total_requests,
+      MIN(first_access) as first_access,
+      GROUP_CONCAT(path || ':' || request_count, ',') as paths
+    FROM ip_access_logs
+    WHERE ip = ? AND created_date = ?
+  `).bind(ip, today).first();
+
+  const paths = {};
+  if (result?.paths) {
+    result.paths.split(',').forEach(p => {
+      const [path, count] = p.split(':');
+      if (path && count) {
+        paths[path] = parseInt(count);
+      }
+    });
+  }
+
+  return {
+    requests: result?.total_requests || 0,
+    paths: paths,
+    firstAccess: result?.first_access || null
+  };
 }
 
 /**
@@ -219,8 +256,10 @@ export async function getIPAccessStats(env, ip) {
 export async function isIPBlacklisted(env, ip) {
   if (!ip) return false;
 
-  const allBannedKey = 'ip_blacklist_all';
-  const allData = await env.KV.get(allBannedKey, { type: 'json' }) || [];
+  const { getDB } = await import('../database.js');
+  const db = getDB();
 
-  return allData.some(item => item.ip === ip);
+  const result = await db.prepare("SELECT ip FROM ip_blacklist WHERE ip = ?").bind(ip).first();
+
+  return !!result;
 }

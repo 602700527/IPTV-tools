@@ -435,7 +435,7 @@ export async function handlePublicPlay(request, env, ctx) {
         });
       }
 
-      const isValid = await verifyPlayToken(tokenParam, env.SECRET_KEY || 'default-secret-key', env, request);
+      const isValid = await verifyPlayToken(tokenParam, env.SECRET_KEY || 'default-secret-key', env, request, db);
       if (!isValid) {
         return new Response(JSON.stringify({
           success: false,
