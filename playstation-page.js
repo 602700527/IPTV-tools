@@ -12,10 +12,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     ::-webkit-scrollbar-track{background:#1a1a1a}
     ::-webkit-scrollbar-thumb{background:#333;border-radius:4px}
     ::-webkit-scrollbar-thumb:hover{background:#555}
-    
-    .header{position:fixed;top:0;left:0;right:0;height:70px;background:rgba(20,20,20,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.1);z-index:100;display:flex;align-items:center;padding:0 40px}
+
+    .header{position:fixed;top:0;left:0;right:0;height:70px;background:rgba(20,20,20,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.1);z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 40px}
     .logo{font-size:24px;font-weight:800;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .search-box{flex:1;max-width:500px;margin-left:60px}
+    .header-left{display:flex;align-items:center;gap:40px}
+    .header-right{display:flex;align-items:center;margin-left:auto}
+    .search-box{max-width:500px;margin-right:20px}
     .search-input{width:100%;padding:12px 20px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.05);color:#fff;font-size:15px;transition:all .2s}
     .search-input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
     .search-input::placeholder{color:rgba(255,255,255,.5)}
@@ -24,21 +26,30 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .nav-links a:hover{color:#fff}
     .nav-links a.active{color:#e50914}
 
+    /* 语言切换下拉列表 */
+    .lang-switcher{position:relative}
+    .lang-dropdown{position:relative;display:inline-block}
+    .lang-dropdown-menu{position:absolute;top:100%;right:0;margin-top:8px;background:#1a1a1a;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 0;min-width:120px;opacity:0;visibility:hidden;transform:translateY(-10px);transition:all .2s;z-index:1000}
+    .lang-dropdown.open .lang-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
+    .lang-dropdown-item{padding:10px 20px;cursor:pointer;transition:background .15s;color:rgba(255,255,255,.8);font-size:14px}
+    .lang-dropdown-item:hover{background:rgba(229,9,20,.15);color:#fff}
+    .lang-dropdown-item.active{background:rgba(229,9,20,.2);color:#fff;font-weight:600}
+
     /* 快捷入口按钮 */
-    .quick-entries{display:flex;gap:8px;margin-right:20px;margin-left:20px}
+    .quick-entries{display:flex;gap:8px;margin-left:0}
     .quick-entry{position:relative;width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s}
     .quick-entry:hover{background:rgba(255,255,255,.2);color:#fff}
     .quick-entry-badge{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;background:#e50914;border-radius:9px;font-size:11px;font-weight:600;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 5px}
     .quick-entry-tip{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;white-space:nowrap;font-size:12px;color:rgba(255,255,255,.6);opacity:0;transition:opacity .2s;pointer-events:none}
     .quick-entry:hover .quick-entry-tip{opacity:1}
-    
+
     .main{display:flex;margin-top:70px;min-height:calc(100vh - 70px)}
     .sidebar{width:260px;background:#141414;border-right:1px solid rgba(255,255,255,.1);overflow-y:auto;padding:20px 0;position:fixed;height:calc(100vh - 70px)}
     .group-item{padding:12px 24px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;font-size:14px;border-left:3px solid transparent}
     .group-item:hover{color:#fff;background:rgba(255,255,255,.05)}
     .group-item.active{color:#fff;background:rgba(229,9,20,.1);border-left-color:#e50914}
     .content{flex:1;margin-left:260px;padding:30px}
-    
+
     .section-title{font-size:18px;font-weight:600;margin-bottom:20px;color:#fff}
     .channels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
     .channel-card{background:#141414;border-radius:8px;overflow:hidden;cursor:pointer;transition:all .3s;border:2px solid transparent;position:relative}
@@ -124,7 +135,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .quick-panel-empty-text{font-size:14px}
 
     /* 在线人数显示 */
-    .online-counter{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.6);font-size:13px}
+    .online-counter{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.6);font-size:13px;margin-left:40px}
     .online-dot{width:8px;height:8px;border-radius:50%;background:#34c759;animation:pulse 2s ease-in-out infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
     .online-count{font-weight:600;color:#34c759}
@@ -194,33 +205,48 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 </head>
 <body>
   <header class="header">
-    <div class="logo">📺 IPTV Live</div>
-    <div class="search-box">
-      <input type="text" class="search-input" id="searchInput" placeholder="搜索频道..." oninput="handleSearch()">
+    <div class="header-left">
+      <div class="logo">📺 IPTV Live</div>
+      <div class="online-counter">
+        <span class="online-dot"></span>
+        <span class="online-count" id="onlineCount">0</span> <span id="onlineCountText">人在观看</span>
+      </div>
     </div>
-    <div class="quick-entries">
-      <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'history')" title="播放历史">
-        🕐
-        <span class="quick-entry-tip">播放历史</span>
-        <span class="quick-entry-badge" id="historyBadge" style="display:none;">0</span>
-      </button>
-      <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'favorites')" title="我的收藏">
-        ⭐
-        <span class="quick-entry-tip">我的收藏</span>
-        <span class="quick-entry-badge" id="favoritesBadge" style="display:none;">0</span>
-      </button>
-      <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'random')" title="随机推荐">
-        🎯
-        <span class="quick-entry-tip">随机推荐</span>
-      </button>
-      <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" title="清除缓存">
-        🗑️
-        <span class="quick-entry-tip">清除缓存</span>
-      </button>
-    </div>
-    <div class="online-counter">
-      <span class="online-dot"></span>
-      <span class="online-count" id="onlineCount">0</span> 人在观看
+    <div class="header-right">
+      <div class="search-box">
+        <input type="text" class="search-input" id="searchInput" placeholder="搜索频道..." oninput="handleSearch()">
+      </div>
+      <div class="quick-entries">
+        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'history')" data-tip-key="history">
+          🕐
+          <span class="quick-entry-tip">播放历史</span>
+          <span class="quick-entry-badge" id="historyBadge" style="display:none;">0</span>
+        </button>
+        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'favorites')" data-tip-key="favorites">
+          ⭐
+          <span class="quick-entry-tip">我的收藏</span>
+          <span class="quick-entry-badge" id="favoritesBadge" style="display:none;">0</span>
+        </button>
+        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'random')" data-tip-key="random">
+          🎯
+          <span class="quick-entry-tip">随机推荐</span>
+        </button>
+        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" data-tip-key="clearCache">
+          🗑️
+          <span class="quick-entry-tip">清除缓存</span>
+        </button>
+        <div class="lang-dropdown" id="langDropdown">
+          <button class="quick-entry ripple lang-switcher" onclick="toggleLangDropdown()">
+            🌐
+            <span class="quick-entry-tip">切换语言</span>
+          </button>
+          <div class="lang-dropdown-menu">
+            <div class="lang-dropdown-item active" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">简体中文</div>
+            <div class="lang-dropdown-item" data-lang="zh-TW" onclick="switchLanguage('zh-TW')">繁體中文</div>
+            <div class="lang-dropdown-item" data-lang="en" onclick="switchLanguage('en')">English</div>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
   
@@ -233,7 +259,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     <div class="content">
       <div id="loading" class="loading">
         <div class="spinner"></div>
-        <span class="loading-text">加载频道列表...</span>
+        <span class="loading-text">Loading...</span>
       </div>
 
       <div id="channelList" style="display:none;">
@@ -263,7 +289,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- 加载指示器 -->
   <div class="loading-indicator" id="loadingIndicator">
     <div class="loading-spinner"></div>
-    <div class="loading-text" id="loadingText">加载中...</div>
+    <div class="loading-text" id="loadingText">Loading...</div>
   </div>
 
       <!-- Toast 提示容器（已隐藏） -->
@@ -307,6 +333,199 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         throw new Error('Domain mismatch');
       }
     })();
+
+    // ========== 语言配置和翻译 ==========
+    const translations = {
+      'zh-CN': {
+        title: 'IPTV Live - 免费直播',
+        searchPlaceholder: '搜索频道...',
+        allChannels: '全部频道',
+        search: '搜索',
+        history: '播放历史',
+        favorites: '我的收藏',
+        random: '随机推荐',
+        clearCache: '清除缓存',
+        onlineCount: '人在观看',
+        hot: '热门',
+        recommend: '推荐',
+        noHistory: '暂无播放历史',
+        noHistoryDesc: '观看的频道会自动显示在这里',
+        noFavorites: '还没有收藏',
+        noFavoritesDesc: '点击频道卡片上的星星按钮添加收藏',
+        noRecommendations: '暂无推荐频道',
+        noRecommendationsDesc: '请稍后再试',
+        noChannels: '未找到频道',
+        noChannelsDesc: '请尝试其他搜索词或分组',
+        loading: '加载频道列表...',
+        loadingRecommendations: '正在加载推荐...',
+        searching: '搜索中...',
+        page: '页',
+        totalPages: '共',
+        firstPage: '首页',
+        prevPage: '上一页',
+        nextPage: '下一页',
+        lastPage: '末页',
+        loadingCache: '正在加载频道...',
+        cacheCleared: '缓存已清除',
+        playing: '正在播放'
+      },
+      'zh-TW': {
+        title: 'IPTV Live - 免費直播',
+        searchPlaceholder: '搜尋頻道...',
+        allChannels: '全部頻道',
+        search: '搜尋',
+        history: '播放歷史',
+        favorites: '我的收藏',
+        random: '隨機推薦',
+        clearCache: '清除緩存',
+        onlineCount: '人在觀看',
+        hot: '熱門',
+        recommend: '推薦',
+        noHistory: '暫無播放歷史',
+        noHistoryDesc: '觀看的頻道會自動顯示在這裡',
+        noFavorites: '還沒有收藏',
+        noFavoritesDesc: '點擊頻道卡片上的星星按鈕添加收藏',
+        noRecommendations: '暫無推薦頻道',
+        noRecommendationsDesc: '請稍後再試',
+        noChannels: '未找到頻道',
+        noChannelsDesc: '請嘗試其他搜尋詞或分組',
+        loading: '加載頻道列表...',
+        loadingRecommendations: '正在加載推薦...',
+        searching: '搜尋中...',
+        page: '頁',
+        totalPages: '共',
+        firstPage: '首頁',
+        prevPage: '上一頁',
+        nextPage: '下一頁',
+        lastPage: '末頁',
+        loadingCache: '正在加載頻道...',
+        cacheCleared: '緩存已清除',
+        playing: '正在播放'
+      },
+      'en': {
+        title: 'IPTV Live - Free Live TV',
+        searchPlaceholder: 'Search channels...',
+        allChannels: 'All Channels',
+        search: 'Search',
+        history: 'Watch History',
+        favorites: 'My Favorites',
+        random: 'Random Picks',
+        clearCache: 'Clear Cache',
+        onlineCount: 'viewers online',
+        hot: 'HOT',
+        recommend: 'RECOMMENDED',
+        noHistory: 'No watch history',
+        noHistoryDesc: 'Channels you watch will appear here',
+        noFavorites: 'No favorites yet',
+        noFavoritesDesc: 'Click the star button on channel cards to add favorites',
+        noRecommendations: 'No recommendations',
+        noRecommendationsDesc: 'Please try again later',
+        noChannels: 'No channels found',
+        noChannelsDesc: 'Try different search terms or groups',
+        loading: 'Loading channels...',
+        loadingRecommendations: 'Loading recommendations...',
+        searching: 'Searching...',
+        page: 'Page',
+        totalPages: 'Total',
+        firstPage: 'First',
+        prevPage: 'Prev',
+        nextPage: 'Next',
+        lastPage: 'Last',
+        loadingCache: 'Loading channels...',
+        cacheCleared: 'Cache cleared',
+        playing: 'Now Playing'
+      }
+    };
+
+    // 获取当前语言的翻译文本
+    function t(key) {
+      return translations[currentLanguage][key] || translations['zh-CN'][key] || key;
+    }
+
+    // 切换语言
+    function toggleLangDropdown() {
+      const dropdown = document.getElementById('langDropdown');
+      dropdown.classList.toggle('open');
+    }
+
+    function switchLanguage(lang) {
+      currentLanguage = lang;
+
+      // 更新按钮状态
+      document.querySelectorAll('.lang-dropdown-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.lang === lang);
+      });
+
+      // 关闭下拉菜单
+      document.getElementById('langDropdown').classList.remove('open');
+
+      // 更新 HTML lang 属性
+      document.documentElement.lang = lang;
+
+      // 保存语言设置
+      localStorage.setItem('iptv_language', lang);
+
+      // 刷新页面内容
+      updateLanguageContent();
+    }
+
+    // 更新页面语言内容
+    function updateLanguageContent() {
+      // 更新标题
+      document.title = t('title');
+
+      // 更新搜索框
+      document.getElementById('searchInput').placeholder = t('searchPlaceholder');
+
+      // 更新快捷按钮提示
+      document.querySelectorAll('.quick-entry[data-tip-key]').forEach(btn => {
+        const tipKey = btn.dataset.tipKey;
+        const tipEl = btn.querySelector('.quick-entry-tip');
+        if (tipEl && tipKey) {
+          tipEl.textContent = t(tipKey);
+          btn.setAttribute('title', t(tipKey));
+        }
+      });
+
+      // 更新在线人数文本
+      document.getElementById('onlineCountText').textContent = t('onlineCount');
+
+      // 更新全部频道分组
+      const allChannelsItem = document.querySelector('.group-item[data-group=""]');
+      if (allChannelsItem) {
+        allChannelsItem.textContent = t('allChannels');
+      }
+
+      // 更新当前页面标题
+      const sectionTitle = document.getElementById('sectionTitle');
+      if (sectionTitle) {
+        if (currentGroup === 'history') {
+          sectionTitle.textContent = '🕐 ' + t('history');
+        } else if (currentGroup === 'favorites') {
+          sectionTitle.textContent = '⭐ ' + t('favorites');
+        } else if (currentGroup === 'random') {
+          sectionTitle.textContent = '🎯 ' + t('random');
+        } else if (currentSearch) {
+          sectionTitle.textContent = t('search') + ': ' + currentSearch;
+        } else {
+          sectionTitle.textContent = currentGroup || t('allChannels');
+        }
+      }
+
+      // 重新渲染当前内容以更新文本
+      if (currentGroup === 'history') {
+        showHistoryInMain();
+      } else if (currentGroup === 'favorites') {
+        showFavoritesInMain();
+      } else if (currentGroup === 'random') {
+        showRandomInMain();
+      } else if (allChannels.length > 0) {
+        renderChannels(allChannels);
+      }
+
+      // 更新分页
+      renderPagination();
+    }
 
     // ========== AES-GCM 解密函数 ==========
     async function decryptAES(encryptedBase64, secret) {
@@ -352,6 +571,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     const DECRYPTION_KEY = window.DECRYPTION_KEY || 'default-secret-key';
 
     const API_BASE = '/api';
+    let currentLanguage = 'zh-CN';  // 当前语言
     let allChannels = [];
     let allGroups = [];
     let currentGroup = '';
@@ -373,7 +593,30 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     // let lastErrorTime = 0;  // 防止重复显示相同错误（已禁用）
     // let lastErrorMsg = '';   // 记录上一条错误消息（已禁用）
 
-    /* Toast 提示函数（已禁用）
+    // 从 localStorage 读取用户语言设置
+    const savedLanguage = localStorage.getItem('iptv_language');
+    if (savedLanguage && ['zh-CN', 'zh-TW', 'en'].includes(savedLanguage)) {
+      currentLanguage = savedLanguage;
+    }
+
+    // 页面加载时获取频道列表
+    window.addEventListener('DOMContentLoaded', () => {
+      // 初始化语言
+      switchLanguage(currentLanguage);
+
+      // 尝试从缓存加载分组数据，快速渲染分组列表
+      const cachedGroups = getFromCache(getCacheKey('groups'));
+      if (cachedGroups && cachedGroups.length > 0) {
+        allGroups = cachedGroups;
+        renderGroups();
+        console.log('[Cache] 从缓存加载分组:', allGroups.length, '个分组');
+      }
+
+      loadChannels();
+      updateOnlineCounter();
+      updateBadges();
+      setInterval(updateOnlineCounter, 30000); // 每30秒更新在线人数
+    });
     function showToast(message, type = 'info', duration = 4000, checkModal = false) {
       // 如果需要检查modal状态且modal已关闭，则不显示Toast
       if (checkModal && !isModalOpen) {
@@ -446,7 +689,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         }
       }, 300);
     }
-    */
 
     // 页面加载时获取频道列表
     window.addEventListener('DOMContentLoaded', () => {
@@ -609,12 +851,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           // 隐藏加载指示器
           hideLoadingIndicator();
         } else {
-          showError('加载频道列表失败');
+          showError(t('noChannels') + ': ' + t('noChannelsDesc'));
           hideLoadingIndicator();
         }
       } catch (error) {
         console.error('加载失败:', error);
-        showError('网络错误，请稍后重试');
+        showError(t('noChannels') + ': ' + t('noChannelsDesc'));
         hideLoadingIndicator();
       }
     }
@@ -665,7 +907,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           <div class="channel-card ripple" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
             <div class="channel-poster">
               \${logo}
-              \${showHotTag ? '<div class="hot-tag">热门</div>' : ''}
+              \${showHotTag ? '<div class="hot-tag">' + t('hot') + '</div>' : ''}
               <button class="favorite-btn \${isFavorited ? 'favorited' : ''}" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')" data-hash="\${escapeHtml(channel.channel_hash)}">\${isFavorited ? '⭐' : '☆'}</button>
               <div class="play-overlay">
                 <div class="play-icon"></div>
@@ -696,7 +938,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       }
 
       // 显示加载提示
-      showLoadingIndicator('正在加载频道...');
+      showLoadingIndicator(t('loadingCache'));
 
       currentGroup = group;
       currentPage = 1; // 重置到第一页
@@ -772,7 +1014,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           // 重新加载频道列表
           loadChannels(1, true);
           // 显示提示
-          showPlayingIndicator('缓存已清除');
+          showPlayingIndicator(t('cacheCleared'));
           break;
       }
     }
@@ -825,7 +1067,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           <div class="playing-dot"></div>
           <div class="playing-dot"></div>
         </div>
-        <span>正在播放: \${escapeHtml(channelName)}</span>
+        <span>\${t('playing')}: \${escapeHtml(channelName)}</span>
       \`;
 
       // 3秒后自动消失
@@ -854,7 +1096,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           return;
         }
 
-        showLoadingIndicator('搜索中...');
+        showLoadingIndicator(t('searching'));
         currentSearch = keyword;
         currentPage = 1; // 重置到第一页
 
@@ -879,9 +1121,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         return;
       }
 
-      let html = \`<span class="pagination-info">共 \${totalChannels} 个频道，第 \${currentPage}/\${totalPages} 页</span>\`;
-      html += \`<button onclick="goToPage(1)" \${currentPage === 1 ? 'disabled' : ''}>首页</button>\`;
-      html += \`<button onclick="goToPage(\${currentPage - 1})" \${currentPage === 1 ? 'disabled' : ''}>上一页</button>\`;
+      let html = \`<span class="pagination-info">\${t('totalPages')} \${totalChannels}, \${t('page')} \${currentPage}/\${totalPages}</span>\`;
+      html += \`<button onclick="goToPage(1)" \${currentPage === 1 ? 'disabled' : ''}>\${t('firstPage')}</button>\`;
+      html += \`<button onclick="goToPage(\${currentPage - 1})" \${currentPage === 1 ? 'disabled' : ''}>\${t('prevPage')}</button>\`;
 
       const maxButtons = 7;
       let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
@@ -895,8 +1137,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         html += \`<button onclick="goToPage(\${i})" class="\${i === currentPage ? 'active' : ''}">\${i}</button>\`;
       }
 
-      html += \`<button onclick="goToPage(\${currentPage + 1})" \${currentPage === totalPages ? 'disabled' : ''}>下一页</button>\`;
-      html += \`<button onclick="goToPage(\${totalPages})" \${currentPage === totalPages ? 'disabled' : ''}>末页</button>\`;
+      html += \`<button onclick="goToPage(\${currentPage + 1})" \${currentPage === totalPages ? 'disabled' : ''}>\${t('nextPage')}</button>\`;
+      html += \`<button onclick="goToPage(\${totalPages})" \${currentPage === totalPages ? 'disabled' : ''}>\${t('lastPage')}</button>\`;
 
       container.innerHTML = html;
     }
@@ -1252,6 +1494,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       }
     });
 
+    // 点击外部关闭语言下拉菜单
+    document.addEventListener('click', function(e) {
+      const dropdown = document.getElementById('langDropdown');
+      if (dropdown && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('open');
+      }
+    });
+
     // 播放器拖动功能
     (function() {
       const playerWrapper = document.getElementById('playerWrapper');
@@ -1385,7 +1635,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     function showRandomInMain() {
       // 显示加载提示
-      showLoadingIndicator('正在加载推荐...');
+      showLoadingIndicator(t('loadingRecommendations'));
 
       // 重新生成随机推荐
       initFeaturedChannels().then(() => {
@@ -1409,8 +1659,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           const emptyState = document.getElementById('emptyState');
           container.innerHTML = '';
           emptyState.style.display = 'block';
-          document.querySelector('.empty-title').textContent = '暂无推荐频道';
-          document.querySelector('.empty-desc').textContent = '请稍后再试';
+        document.querySelector('.empty-title').textContent = t('noRecommendations');
+        document.querySelector('.empty-desc').textContent = t('noRecommendationsDesc');
           return;
         }
 
@@ -1428,7 +1678,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             <div class="channel-card ripple" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
               <div class="channel-poster">
                 \${logo}
-                \${index < 5 ? '<div class="hot-tag">推荐</div>' : ''}
+                \${index < 5 ? '<div class="hot-tag">' + t('recommend') + '</div>' : ''}
                 <div class="play-overlay">
                   <div class="play-icon"></div>
                 </div>
@@ -1487,8 +1737,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       if (favoritesItems.length === 0) {
         container.innerHTML = '';
         emptyState.style.display = 'block';
-        document.querySelector('.empty-title').textContent = '还没有收藏';
-        document.querySelector('.empty-desc').textContent = '点击频道卡片上的星星按钮添加收藏';
+        document.querySelector('.empty-title').textContent = t('noFavorites');
+        document.querySelector('.empty-desc').textContent = t('noFavoritesDesc');
         return;
       }
 
@@ -1604,8 +1854,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         const emptyState = document.getElementById('emptyState');
         container.innerHTML = '';
         emptyState.style.display = 'block';
-        document.querySelector('.empty-title').textContent = '暂无播放历史';
-        document.querySelector('.empty-desc').textContent = '观看的频道会自动显示在这里';
+        document.querySelector('.empty-title').textContent = t('noHistory');
+        document.querySelector('.empty-desc').textContent = t('noHistoryDesc');
         return;
       }
 
