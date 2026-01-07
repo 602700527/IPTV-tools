@@ -39,7 +39,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .quick-entries{display:flex;gap:8px;margin-left:0}
     .quick-entry{position:relative;width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s}
     .quick-entry:hover{background:rgba(255,255,255,.2);color:#fff}
-    .quick-entry-badge{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;background:#e50914;border-radius:9px;font-size:11px;font-weight:600;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 5px}
+    .quick-entry-badge{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;background:#e50914;border-radius:9px;font-size:11px;font-weight:600;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 5px;display:none}
     .quick-entry-tip{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;white-space:nowrap;font-size:12px;color:rgba(255,255,255,.6);opacity:0;transition:opacity .2s;pointer-events:none}
     .quick-entry:hover .quick-entry-tip{opacity:1}
 
@@ -288,7 +288,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           🎯
           <span class="quick-entry-tip">随机推荐</span>
         </button>
-        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" data-tip-key="clearCache">
+        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" data-tip-key="clearCache" style="display:none;">
           🗑️
           <span class="quick-entry-tip">清除缓存</span>
         </button>
@@ -326,19 +326,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       <div class="mobile-actions">
         <div class="mobile-action-btn" onclick="handleMobileAction('history')">
           <span class="icon">🕐</span>
-          <span class="label" data-i18n="history">播放历史</span>
         </div>
         <div class="mobile-action-btn" onclick="handleMobileAction('favorites')">
           <span class="icon">⭐</span>
-          <span class="label" data-i18n="favorites">我的收藏</span>
         </div>
         <div class="mobile-action-btn" onclick="handleMobileAction('random')">
           <span class="icon">🎯</span>
-          <span class="label" data-i18n="random">随机推荐</span>
-        </div>
-        <div class="mobile-action-btn" onclick="handleMobileAction('clearCache')">
-          <span class="icon">🗑️</span>
-          <span class="label" data-i18n="clearCache">清除缓存</span>
         </div>
       </div>
     </div>
@@ -2217,24 +2210,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       }
     }
 
-    // 更新徽章数量
+    // 更新徽章数量（已禁用，不再显示徽章）
     function updateBadges() {
-      const historyBadge = document.getElementById('historyBadge');
-      const favoritesBadge = document.getElementById('favoritesBadge');
-
-      if (history.length > 0) {
-        historyBadge.textContent = history.length;
-        historyBadge.style.display = 'flex';
-      } else {
-        historyBadge.style.display = 'none';
-      }
-
-      if (favorites.length > 0) {
-        favoritesBadge.textContent = favorites.length;
-        favoritesBadge.style.display = 'flex';
-      } else {
-        favoritesBadge.style.display = 'none';
-      }
+      // 徽章功能已禁用，不再显示数量
+      return;
     }
   </script>
 </body>
