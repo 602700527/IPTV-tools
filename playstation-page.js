@@ -4,7 +4,85 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IPTV Live - 免费直播</title>
+
+  <!-- ========== SEO Meta Tags ========== -->
+  <!-- 基础Meta标签 -->
+  <meta name="description" content="IPTV Live提供免费的在线电视观看服务，包含10000+高清频道，支持体育、新闻、娱乐、电影等全类型频道，无需注册，一键播放，多设备同步观看。">
+  <meta name="keywords" content="IPTV,免费直播,在线看电视,体育直播,新闻直播,高清直播,免费电视,在线视频,直播平台,IPTV Live">
+  <meta name="author" content="IPTV Live">
+  <meta name="robots" content="index, follow">
+  <meta name="googlebot" content="index, follow">
+  <meta name="baiduspider" content="index, follow">
+  <meta name="revisit-after" content="1 days">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://iptv-search.com">
+  <meta property="og:title" content="IPTV Live - 免费高清电视观看平台">
+  <meta property="og:description" content="提供10000+免费高清频道，支持体育、新闻、娱乐、电影等全类型，无需注册，一键播放。">
+  <meta property="og:image" content="https://iptv-search.com/og-image.jpg">
+  <meta property="og:site_name" content="IPTV Live">
+  <meta property="og:locale" content="zh_CN">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://iptv-search.com">
+  <meta name="twitter:title" content="IPTV Live - 免费高清电视观看平台">
+  <meta name="twitter:description" content="提供10000+免费高清频道，支持体育、新闻、娱乐、电影等全类型。">
+  <meta name="twitter:image" content="https://iptv-search.com/og-image.jpg">
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://iptv-search.com">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="shortcut icon" href="/favicon.svg">
+
+  <!-- 移动端优化 -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="IPTV Live">
+  <meta name="theme-color" content="#e50914">
+
+  <!-- 结构化数据 (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "IPTV Live",
+    "url": "https://iptv-search.com",
+    "description": "提供免费的在线电视观看服务，包含10000+高清频道",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://iptv-search.com/?search={search_term_string}",
+      "query-input": "required name=search_term_string"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "IPTV Live",
+      "url": "https://iptv-search.com"
+    }
+  }
+  </script>
+
+  <!-- 面包屑导航结构化数据 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "首页",
+        "item": "https://iptv-search.com"
+      }
+    ]
+  }
+  </script>
+
+  <title>IPTV Live - 免费高清电视观看平台</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff}
@@ -88,7 +166,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .player-container video{width:100%;height:100%;object-fit:contain}
     .close-modal{background:rgba(231,9,20,.2)}
     .close-modal:hover{background:rgba(231,9,20,.4)}
-    
+
+    /* AdSense 广告位样式 */
+    .ad-banner-top{display:flex;justify-content:center;padding:10px;background:rgba(0,0,0,.2);margin-bottom:10px}
+    .ad-banner-bottom{display:flex;justify-content:center;padding:10px;background:rgba(0,0,0,.2);margin-top:10px}
+    .ad-sidebar{margin-bottom:20px}
+    .ad-responsive{width:100%;max-width:728px}
+    .ad-mobile-top{display:none;padding:10px;background:rgba(0,0,0,.2);margin-bottom:10px}
+    .ad-mobile-bottom{display:none;padding:10px;background:rgba(0,0,0,.2);margin-top:10px}
+
     .loading{display:flex;align-items:center;justify-content:center;padding:60px;color:rgba(255,255,255,.5)}
     .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#e50914;border-radius:50%;animation:spin 1s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -207,6 +293,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .mobile-menu-overlay.open{opacity:1;visibility:visible}
       .mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid rgba(255,255,255,.1)}
       .mobile-menu-title{font-size:16px;font-weight:600;color:#fff}
+      .ad-banner-top{display:none}
+      .ad-banner-bottom{display:none}
+      .ad-sidebar{display:none}
+      .ad-mobile-top{display:flex;justify-content:center}
+      .ad-mobile-bottom{display:flex;justify-content:center}
       .mobile-menu-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:none;border-radius:6px;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px}
       .mobile-section{margin-bottom:25px}
       .mobile-section-title{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
@@ -259,6 +350,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .channel-group{font-size:11px}
     }
   </style>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137"
+     crossorigin="anonymous"></script>
 </head>
 <body>
   <header class="header">
@@ -350,7 +443,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       <div id="mobileGroupList"></div>
     </div>
   </div>
-  
+
   <div class="main">
     <aside class="sidebar" id="sidebar">
       <div class="group-item active" data-group="" onclick="filterByGroup('')">全部频道</div>
@@ -367,6 +460,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         <div class="section-title" id="sectionTitle">全部频道</div>
         <div class="channels-grid" id="channelsGrid"></div>
         <div class="pagination" id="pagination"></div>
+
+       
       </div>
 
       <div id="emptyState" class="empty-state" style="display:none;">
@@ -398,6 +493,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
   <footer class="footer">
     <p>&copy; 2024 IPTV Live. 免费高清直播服务</p>
+    <!-- SEO 友好链接 -->
+    <div style="margin-top:15px;font-size:12px;color:rgba(255,255,255,.4);">
+      <a href="/sitemap.xml" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">网站地图</a>
+      <a href="/robots.txt" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">Robots</a>
+      <a href="/privacy-policy" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">隐私政策</a>
+      <a href="/terms" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">服务条款</a>
+    </div>
   </footer>
 
   <div class="player-wrapper collapsed" id="playerWrapper">
@@ -783,6 +885,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // 初始化语言
       switchLanguage(currentLanguage);
 
+      // SEO: 动态更新页面标题和描述
+      updateSEOMeta();
+
       // 尝试从缓存加载分组数据，快速渲染分组列表
       const cachedGroups = getFromCache(getCacheKey('groups'));
       if (cachedGroups && cachedGroups.length > 0) {
@@ -796,6 +901,54 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       updateBadges();
       setInterval(updateOnlineCounter, 30000); // 每30秒更新在线人数
     });
+
+    // ========== SEO 优化函数 ==========
+
+    // 动态更新页面SEO元信息
+    function updateSEOMeta() {
+      // 更新页面标题
+      let title = 'IPTV Live - 免费高清直播平台';
+      let description = 'IPTV Live提供免费的在线直播服务，包含2000+高清频道，支持体育、新闻、娱乐、电影等全类型频道，无需注册，一键播放，多设备同步观看。';
+
+      if (currentGroup) {
+        title = currentGroup + ' - IPTV Live 免费直播';
+        description = '观看' + currentGroup + '频道直播，IPTV Live提供' + currentGroup + '相关的免费高清直播内容，实时更新，画面清晰，播放流畅。';
+      } else if (currentSearch) {
+        title = currentSearch + ' - IPTV Live 搜索结果';
+        description = '搜索"' + currentSearch + '"的频道，找到' + totalChannels + '个相关频道，IPTV Live免费高清直播平台。';
+      } else if (currentGroup === 'history') {
+        title = '播放历史 - IPTV Live';
+        description = '查看您的观看历史记录，IPTV Live自动保存最近观看的频道，方便快速访问。';
+      } else if (currentGroup === 'favorites') {
+        title = '我的收藏 - IPTV Live';
+        description = '管理您收藏的频道，IPTV Live收藏功能让您快速访问喜爱的内容。';
+      } else if (currentGroup === 'random') {
+        title = '随机推荐 - IPTV Live';
+        description = '随机发现精彩频道，IPTV Live智能推荐让您探索更多优质直播内容。';
+      }
+
+      // 更新document title
+      document.title = title;
+
+      // 更新meta description
+      updateMetaTag('name', 'description', description);
+      updateMetaTag('property', 'og:title', title);
+      updateMetaTag('property', 'og:description', description);
+      updateMetaTag('name', 'twitter:title', title);
+      updateMetaTag('name', 'twitter:description', description);
+    }
+
+    // 更新或创建meta标签
+    function updateMetaTag(attribute, name, content) {
+      let meta = document.querySelector(\`meta[\${attribute}="\${name}"]\`);
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute(attribute, name);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    }
+
     function showToast(message, type = 'info', duration = 4000, checkModal = false) {
       // 如果需要检查modal状态且modal已关闭，则不显示Toast
       if (checkModal && !isModalOpen) {
@@ -2215,6 +2368,21 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // 徽章功能已禁用，不再显示数量
       return;
     }
+
+    // ========== Google AdSense 广告控制 ==========
+
+
+    // 动态加载广告（可选）
+    function loadAdsenseAds() {
+      // 如果需要动态加载广告，可以在这里实现
+      console.log('AdSense ads ready to load');
+    }
+
+    // 页面加载完成后尝试加载广告
+    window.addEventListener('load', () => {
+      // 如果启用了AdSense，广告会自动加载
+      console.log('Page loaded, AdSense ready');
+    });
   </script>
 </body>
 </html>`;

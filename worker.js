@@ -36,6 +36,22 @@ export default {
       });
     }
 
+    // 静态文件处理
+    if (path === '/favicon.svg' || path === '/favicon.ico') {
+      // Favicon SVG
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" fill="#e50914"/>
+  <rect x="15" y="20" width="70" height="60" rx="5" fill="white"/>
+  <polygon points="40,35 40,65 65,50" fill="#e50914"/>
+</svg>`;
+      return new Response(svg, {
+        headers: {
+          'Content-Type': 'image/svg+xml',
+          'Cache-Control': 'public, max-age=86400'
+        }
+      });
+    }
+
     // 路由处理
     if (path === '/' || path === '') {
       // 首页 - 显示交互式播放站，添加安全头防止代理
