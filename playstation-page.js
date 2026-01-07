@@ -190,6 +190,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .mobile-menu-btn{display:none}
     .mobile-menu{display:none}
     .mobile-menu-overlay{display:none}
+    .mobile-search-header{display:none}
 
     @media (max-width:768px){
       .header{padding:0 15px;height:60px;justify-content:space-between}
@@ -197,7 +198,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .header-left{gap:15px}
       .online-counter{font-size:11px;display:none}
       .header-right{display:none}
-      .mobile-menu-btn{display:flex;width:40px;height:40px;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:none;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px}
+      .mobile-search-header{display:flex;flex:1;max-width:180px;margin-right:12px}
+      .mobile-search-header .search-input{width:100%;padding:8px 12px;font-size:14px}
+      .mobile-menu-btn{display:flex;width:40px;height:40px;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:none;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px;flex-shrink:0}
       .mobile-menu{display:block;position:fixed;top:0;right:-100%;width:280px;height:100vh;background:#1a1a1a;z-index:1000;transition:right .3s ease;overflow-y:auto;padding:20px}
       .mobile-menu.open{right:0}
       .mobile-menu-overlay{display:block;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:999;opacity:0;visibility:hidden;transition:all .3s}
@@ -207,9 +210,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .mobile-menu-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:none;border-radius:6px;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px}
       .mobile-section{margin-bottom:25px}
       .mobile-section-title{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
-      .mobile-search{margin-bottom:15px}
-      .mobile-search input{width:100%;padding:12px 14px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.05);color:#fff;font-size:14px}
-      .mobile-search input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
       .mobile-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
       .mobile-action-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7)}
       .mobile-action-btn:hover{background:rgba(255,255,255,.1);color:#fff}
@@ -294,6 +294,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         </div>
       </div>
     </div>
+    <div class="mobile-search-header">
+      <input type="text" class="search-input" id="mobileHeaderSearchInput" placeholder="搜索..." oninput="handleMobileHeaderSearch()">
+    </div>
     <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
       ☰
     </button>
@@ -305,13 +308,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     <div class="mobile-menu-header">
       <div class="mobile-menu-title">菜单</div>
       <button class="mobile-menu-close" onclick="toggleMobileMenu()">✕</button>
-    </div>
-
-    <div class="mobile-section">
-      <div class="mobile-section-title" data-i18n="search">搜索</div>
-      <div class="mobile-search">
-        <input type="text" id="mobileSearchInput" placeholder="搜索频道..." oninput="handleMobileSearch()">
-      </div>
     </div>
 
     <div class="mobile-section">
@@ -567,7 +563,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
 
     function handleMobileSearch() {
-      const value = document.getElementById('mobileSearchInput').value;
+      const value = document.getElementById('mobileHeaderSearchInput').value;
+      document.getElementById('searchInput').value = value;
+      handleSearch();
+    }
+
+    function handleMobileHeaderSearch() {
+      const value = document.getElementById('mobileHeaderSearchInput').value;
       document.getElementById('searchInput').value = value;
       handleSearch();
     }
@@ -619,10 +621,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // 更新搜索框
       document.getElementById('searchInput').placeholder = t('searchPlaceholder');
 
-      // 更新移动端搜索框
-      const mobileSearchInput = document.getElementById('mobileSearchInput');
-      if (mobileSearchInput) {
-        mobileSearchInput.placeholder = t('searchPlaceholder');
+      // 更新移动端header搜索框
+      const mobileHeaderSearchInput = document.getElementById('mobileHeaderSearchInput');
+      if (mobileHeaderSearchInput) {
+        mobileHeaderSearchInput.placeholder = t('searchPlaceholder');
       }
 
       // 更新所有带有 data-i18n 属性的元素
@@ -1042,7 +1044,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // 渲染移动端分组列表
       const mobileContainer = document.getElementById('mobileGroupList');
       if (mobileContainer) {
-        mobileContainer.innerHTML = '<div class="mobile-group-item active" data-group="" onclick="filterByGroup(&apos;&apos;)">全部频道</div>' +
+        mobileContainer.innerHTML = \`<div class="mobile-group-item active" data-group="" onclick="filterByGroup('')">\${t('allChannels')}</div>\` +
           allGroups.map(group =>
             \`<div class="mobile-group-item" data-group="\${escapeHtml(group)}" onclick="filterByGroup(&apos;\${escapeHtml(group)}&apos;)">
               \${escapeHtml(group)}
@@ -1152,13 +1154,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
       // 更新标题
       if (group === 'history') {
-        document.getElementById('sectionTitle').textContent = '🕐 播放历史';
+        document.getElementById('sectionTitle').textContent = \`🕐 \${t('history')}\`;
       } else if (group === 'favorites') {
-        document.getElementById('sectionTitle').textContent = '⭐ 我的收藏';
+        document.getElementById('sectionTitle').textContent = \`⭐ \${t('favorites')}\`;
       } else if (group === 'random') {
-        document.getElementById('sectionTitle').textContent = '🎯 随机推荐';
+        document.getElementById('sectionTitle').textContent = \`🎯 \${t('random')}\`;
       } else {
-        document.getElementById('sectionTitle').textContent = group || '全部频道';
+        document.getElementById('sectionTitle').textContent = group || t('allChannels');
       }
 
       // 如果是收藏分组，显示收藏列表
@@ -1309,7 +1311,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
         // 搜索时不更新分组列表，保持原有分组显示
         loadChannels(1, false);
-        document.getElementById('sectionTitle').textContent = \`搜索: \${escapeHtml(keyword)}\`;
+        document.getElementById('sectionTitle').textContent = \`\${t('search')}: \${escapeHtml(keyword)}\`;
       }, 300);
     }
 
@@ -1850,8 +1852,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         currentGroup = 'random';
         renderGroups();
 
-        // 更新标题
-        document.getElementById('sectionTitle').textContent = '🎯 随机推荐';
+      // 更新标题
+      document.getElementById('sectionTitle').textContent = \`🎯 \${t('random')}\`;
 
         // 隐藏加载和分页
         document.getElementById('loading').style.display = 'none';
@@ -2046,7 +2048,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       renderGroups();
 
       // 更新标题
-      document.getElementById('sectionTitle').textContent = '🕐 播放历史';
+      document.getElementById('sectionTitle').textContent = \`🕐 \${t('history')}\`;
 
       // 隐藏加载和分页
       document.getElementById('loading').style.display = 'none';
@@ -2101,7 +2103,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       renderGroups();
 
       // 更新标题
-      document.getElementById('sectionTitle').textContent = '⭐ 我的收藏';
+      document.getElementById('sectionTitle').textContent = \`⭐ \${t('favorites')}\`;
 
       // 隐藏加载和分页
       document.getElementById('loading').style.display = 'none';
