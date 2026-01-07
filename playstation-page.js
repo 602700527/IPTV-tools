@@ -685,7 +685,18 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     function handleMobileAction(action) {
       toggleMobileMenu();
-      handleQuickEntryClick({ preventDefault: () => {} }, action);
+      // 移动端不需要波纹效果，直接调用对应的操作
+      switch (action) {
+        case 'history':
+          showHistoryInMain();
+          break;
+        case 'favorites':
+          showFavoritesInMain();
+          break;
+        case 'random':
+          showRandomInMain();
+          break;
+      }
     }
 
     function switchLanguage(lang) {
@@ -2041,6 +2052,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
       // 更新标题
       document.getElementById('sectionTitle').textContent = \`🎯 \${t('random')}\`;
+
+        // 隐藏加载指示器
+        hideLoadingIndicator();
 
         // 隐藏加载和分页
         document.getElementById('loading').style.display = 'none';
