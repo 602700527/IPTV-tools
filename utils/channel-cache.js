@@ -55,7 +55,7 @@ export async function cacheChannelsToKV(env) {
 
     // 一次性写入所有数据（批量写入）
     await env.KV.put(CHANNELS_CACHE_KEY, JSON.stringify(cacheData), {
-      expirationTtl: 12 * 60 * 60 // 12 小时
+      expirationTtl: 24 * 60 * 60 // 24 小时
     });
 
     // 单独缓存分组列表
@@ -64,12 +64,12 @@ export async function cacheChannelsToKV(env) {
       groups,
       cached_at: new Date().toISOString()
     }), {
-      expirationTtl: 12 * 60 * 60
+      expirationTtl: 24 * 60 * 60
     });
 
     // 保存版本号
     await env.KV.put(CACHE_VERSION_KEY, version.toString(), {
-      expirationTtl: 12 * 60 * 60
+      expirationTtl: 24 * 60 * 60
     });
 
     console.log(`[ChannelCache] Cached ${channels.results?.length || 0} channels and ${groups.length} groups to KV`);

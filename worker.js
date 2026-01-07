@@ -9,6 +9,7 @@ import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPl
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { PLAYSTATION_HTML } from './playstation-page.js';
+import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from './pages.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 
@@ -123,6 +124,26 @@ export default {
     } else if (path.startsWith('/admin/')) {
       // 管理后台API处理
       return await handleAdminRequest(request, env, ctx);
+    } else if (path === '/sitemap.xml') {
+      // 网站地图
+      return new Response(generateSitemap(url.origin), {
+        headers: { 'Content-Type': 'application/xml; charset=utf-8' }
+      });
+    } else if (path === '/robots.txt') {
+      // Robots.txt
+      return new Response(generateRobotsTxt(), {
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+      });
+    } else if (path === '/privacy-policy') {
+      // 隐私政策
+      return new Response(generatePrivacyPolicy(), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/terms') {
+      // 服务条款
+      return new Response(generateTermsOfService(), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     } else {
       // 默认响应
       return new Response('Not Found', { status: 404 });
