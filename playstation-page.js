@@ -75,7 +75,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     /* 播放器样式 - 可折叠的右下角浮窗 */
     .player-wrapper{display:none;position:fixed;right:20px;bottom:20px;z-index:1000;background:#0a0a0a;border-radius:12px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1);transition:all .3s ease}
     .player-wrapper.expanded{width:calc(100vw - 40px);height:calc(100vh - 80px);right:20px;top:70px;bottom:20px}
-    .player-wrapper.collapsed{width:480px;height:270px}
+    .player-wrapper.collapsed{width:480px;height:270px;aspect-ratio:16/9}
     .player-wrapper.active{display:block}
     .player-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.1);cursor:move;user-select:none}
     .player-info{flex:1;min-width:0}
@@ -84,7 +84,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .player-controls{display:flex;gap:8px}
     .player-btn{width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:14px}
     .player-btn:hover{background:rgba(255,255,255,.2)}
-    .player-container{position:relative;width:100%;height:calc(100% - 50px);background:#000}
+    .player-container{position:relative;width:100%;height:calc(100% - 50px);background:#000;display:flex;align-items:center;justify-content:center}
     .player-container video{width:100%;height:100%;object-fit:contain}
     .close-modal{background:rgba(231,9,20,.2)}
     .close-modal:hover{background:rgba(231,9,20,.4)}
@@ -210,13 +210,16 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .mobile-menu-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:none;border-radius:6px;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px}
       .mobile-section{margin-bottom:25px}
       .mobile-section-title{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
-      .mobile-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
-      .mobile-action-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7)}
+      .mobile-actions{display:flex;gap:10px;margin-bottom:20px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:5px}
+      .mobile-actions::-webkit-scrollbar{display:none}
+      .mobile-actions::-webkit-scrollbar{display:none}
+      .mobile-action-btn{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:70px;padding:12px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);flex-shrink:0}
       .mobile-action-btn:hover{background:rgba(255,255,255,.1);color:#fff}
       .mobile-action-btn .icon{font-size:24px}
-      .mobile-action-btn .label{font-size:11px;color:rgba(255,255,255,.6)}
-      .mobile-lang-menu{display:flex;flex-direction:column;gap:8px}
-      .mobile-lang-item{padding:12px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px}
+      .mobile-action-btn .label{font-size:11px;color:rgba(255,255,255,.6);white-space:nowrap}
+      .mobile-lang-menu{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:5px}
+      .mobile-lang-menu::-webkit-scrollbar{display:none}
+      .mobile-lang-item{padding:10px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px;white-space:nowrap;flex-shrink:0}
       .mobile-lang-item:hover{background:rgba(255,255,255,.1);color:#fff}
       .mobile-lang-item.active{background:rgba(229,9,20,.2);border-color:#e50914;color:#fff;font-weight:600}
       .mobile-group-item{padding:12px 16px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;font-size:14px;border-left:3px solid transparent}
@@ -224,17 +227,17 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .mobile-group-item.active{color:#fff;background:rgba(229,9,20,.1);border-left-color:#e50914;font-weight:600}
       .sidebar{display:none}
       .sidebar.mobile-open{display:block;position:static;width:100%;height:auto;border-right:none;border-bottom:1px solid rgba(255,255,255,.1);padding:0 0 20px 0}
-      .content{margin-left:0}
-      .channels-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+      .content{margin-left:0;padding:15px}
+      .channels-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
       /* 移动端播放器特殊样式 */
       .player-wrapper{position:fixed;top:60px;left:0;right:0;width:100% !important;height:0;overflow:hidden;border-radius:0;box-shadow:0 4px 20px rgba(0,0,0,.5);transition:all .3s ease}
-      .player-wrapper.active{height:220px;z-index:999}
+      .player-wrapper.active{height:calc(100vw * 9 / 16 + 50px);min-height:270px;max-height:370px;z-index:999}
       .player-wrapper.expanded{height:calc(100vh - 60px);width:100% !important;right:0 !important;left:0 !important;top:60px;bottom:auto}
-      .player-wrapper.collapsed{height:220px;width:100% !important;right:0 !important;left:0 !important;top:60px;bottom:auto}
+      .player-wrapper.collapsed{height:calc(100vw * 9 / 16 + 50px);min-height:270px;max-height:370px;width:100% !important;right:0 !important;left:0 !important;top:60px;bottom:auto}
       .player-container{height:calc(100% - 50px)}
       /* 内容区域添加顶部间距，避免被播放器遮挡 */
       .main{margin-top:60px;padding-top:0}
-      .main.player-active{padding-top:220px}
+      .main.player-active{padding-top:330px}
       .main.player-expanded{padding-top:calc(100vh - 60px)}
       .player-title{font-size:12px}
       .player-group{font-size:11px}
@@ -246,10 +249,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .header{padding:0 10px}
       .logo{font-size:16px}
       .mobile-menu{width:100%}
-      .mobile-actions{grid-template-columns:repeat(2,1fr)}
+      .mobile-action-btn{min-width:60px;padding:10px 6px}
+      .mobile-action-btn .icon{font-size:20px}
+      .mobile-action-btn .label{font-size:10px}
       .main{margin-top:60px}
-      .channels-grid{grid-template-columns:repeat(2,1fr);gap:10px}
-      .channel-card{padding:10px}
+      .channels-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+      .channel-card{padding:8px}
       .channel-name{font-size:13px}
       .channel-group{font-size:11px}
     }
@@ -258,7 +263,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 <body>
   <header class="header">
     <div class="header-left">
-      <div class="logo">📺 IPTV Live</div>
+      <div class="logo">IPTV Live</div>
       <div class="online-counter">
         <span class="online-dot"></span>
         <span class="online-count" id="onlineCount">0</span> <span id="onlineCountText">人在观看</span>
@@ -312,7 +317,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="toggleMobileMenu()"></div>
   <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-header">
-      <div class="mobile-menu-title">菜单</div>
+      <div class="mobile-menu-title" data-i18n="menu">菜单</div>
       <button class="mobile-menu-close" onclick="toggleMobileMenu()">✕</button>
     </div>
 
@@ -453,6 +458,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         recommend: '推荐',
         quickActions: '快捷操作',
         language: '语言',
+        menu: '菜单',
         groupNav: '分组导航',
         noHistory: '暂无播放历史',
         noHistoryDesc: '观看的频道会自动显示在这里',
@@ -489,6 +495,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         recommend: '推薦',
         quickActions: '快捷操作',
         language: '語言',
+        menu: '菜單',
         groupNav: '分組導航',
         noHistory: '暫無播放歷史',
         noHistoryDesc: '觀看的頻道會自動顯示在這裡',
@@ -525,6 +532,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         recommend: 'RECOMMENDED',
         quickActions: 'Quick Actions',
         language: 'Language',
+        menu: 'Menu',
         groupNav: 'Group Navigation',
         noHistory: 'No watch history',
         noHistoryDesc: 'Channels you watch will appear here',
