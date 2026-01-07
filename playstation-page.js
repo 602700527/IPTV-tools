@@ -193,12 +193,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .mobile-search-header{display:none}
 
     @media (max-width:768px){
-      .header{padding:0 15px;height:60px;justify-content:space-between}
-      .logo{font-size:18px}
-      .header-left{gap:15px}
+      .header{padding:0 12px;height:60px;justify-content:flex-start;gap:12px}
+      .logo{font-size:18px;flex-shrink:0}
+      .header-left{gap:10px}
       .online-counter{font-size:11px;display:none}
       .header-right{display:none}
-      .mobile-search-header{display:flex;flex:1;max-width:180px;margin-right:12px}
+      .mobile-search-header{display:flex;flex:1;max-width:200px;margin-left:auto}
       .mobile-search-header .search-input{width:100%;padding:8px 12px;font-size:14px}
       .mobile-menu-btn{display:flex;width:40px;height:40px;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:none;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px;flex-shrink:0}
       .mobile-menu{display:block;position:fixed;top:0;right:-100%;width:280px;height:100vh;background:#1a1a1a;z-index:1000;transition:right .3s ease;overflow-y:auto;padding:20px}
@@ -226,15 +226,21 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .sidebar.mobile-open{display:block;position:static;width:100%;height:auto;border-right:none;border-bottom:1px solid rgba(255,255,255,.1);padding:0 0 20px 0}
       .content{margin-left:0}
       .channels-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
-      .player-wrapper{right:10px;bottom:10px;width:calc(100vw - 20px)}
-      .player-wrapper.collapsed{height:calc(100vw * 9/16);width:calc(100vw - 20px)}
-      .player-wrapper.expanded{width:calc(100vw - 20px);height:calc(100vh - 90px);right:10px;top:70px}
+      /* 移动端播放器特殊样式 */
+      .player-wrapper{position:fixed;top:60px;left:0;right:0;width:100% !important;height:0;overflow:hidden;border-radius:0;box-shadow:0 4px 20px rgba(0,0,0,.5);transition:all .3s ease}
+      .player-wrapper.active{height:220px;z-index:999}
+      .player-wrapper.expanded{height:calc(100vh - 60px);width:100% !important;right:0 !important;left:0 !important;top:60px;bottom:auto}
+      .player-wrapper.collapsed{height:220px;width:100% !important;right:0 !important;left:0 !important;top:60px;bottom:auto}
+      .player-container{height:calc(100% - 50px)}
+      /* 内容区域添加顶部间距，避免被播放器遮挡 */
+      .main{margin-top:60px;padding-top:0}
+      .main.player-active{padding-top:220px}
+      .main.player-expanded{padding-top:calc(100vh - 60px)}
       .player-title{font-size:12px}
       .player-group{font-size:11px}
       .pagination{flex-wrap:wrap;gap:6px;padding:15px 0}
       .pagination button{padding:6px 12px;font-size:12px}
       .pagination-info{width:100%;text-align:center;margin-bottom:10px}
-      .main{margin-top:60px}
     }
     @media (max-width:480px){
       .header{padding:0 10px}
@@ -1394,6 +1400,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // 如果播放器还没打开，先显示出来
       if (!isPlayerOpen) {
         playerWrapper.classList.add('active');
+        // 移动端：播放器激活时，在main上添加class
+        if (window.innerWidth <= 768) {
+          document.querySelector('.main').classList.add('player-active');
+        }
       }
 
       isPlayerOpen = true;
@@ -1541,24 +1551,40 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     function togglePlayerSize() {
       const playerWrapper = document.getElementById('playerWrapper');
+      const mainElement = document.querySelector('.main');
       const rect = playerWrapper.getBoundingClientRect();
+      const isMobile = window.innerWidth <= 768;
 
       if (!isPlayerExpanded) {
-        // 从折叠状态切换到展开状态，保存当前中心点
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
+        // 从折叠状态切换到展开状态
+        if (isMobile) {
+          // 移动端：展开时调整main的padding-top
+          mainElement.classList.remove('player-active');
+          mainElement.classList.add('player-expanded');
+        } else {
+          // 桌面端：保存当前中心点
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
 
-        // 清除定位，让 CSS 类控制
-        playerWrapper.style.left = '';
-        playerWrapper.style.right = '';
-        playerWrapper.style.top = '';
-        playerWrapper.style.bottom = '';
+          // 清除定位，让 CSS 类控制
+          playerWrapper.style.left = '';
+          playerWrapper.style.right = '';
+          playerWrapper.style.top = '';
+          playerWrapper.style.bottom = '';
+        }
       } else {
-        // 从展开状态切换到折叠状态，恢复到右下角默认位置
-        playerWrapper.style.left = '';
-        playerWrapper.style.right = '20px';
-        playerWrapper.style.top = '';
-        playerWrapper.style.bottom = '20px';
+        // 从展开状态切换到折叠状态
+        if (isMobile) {
+          // 移动端：折叠时恢复main的padding
+          mainElement.classList.remove('player-expanded');
+          mainElement.classList.add('player-active');
+        } else {
+          // 桌面端：恢复到右下角默认位置
+          playerWrapper.style.left = '';
+          playerWrapper.style.right = '20px';
+          playerWrapper.style.top = '';
+          playerWrapper.style.bottom = '20px';
+        }
       }
 
       isPlayerExpanded = !isPlayerExpanded;
@@ -1650,6 +1676,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     
     function closePlayer() {
       const playerWrapper = document.getElementById('playerWrapper');
+      const mainElement = document.querySelector('.main');
 
       // 取消所有进行中的请求
       abortAllFetches();
@@ -1664,11 +1691,17 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       playerWrapper.classList.remove('expanded');
       playerWrapper.classList.add('collapsed');
 
-      // 重置定位到默认位置
-      playerWrapper.style.left = '';
-      playerWrapper.style.right = '20px';
-      playerWrapper.style.top = '';
-      playerWrapper.style.bottom = '20px';
+      // 移动端：移除main上的播放器相关class
+      if (window.innerWidth <= 768) {
+        mainElement.classList.remove('player-active');
+        mainElement.classList.remove('player-expanded');
+      } else {
+        // 桌面端：重置定位到默认位置
+        playerWrapper.style.left = '';
+        playerWrapper.style.right = '20px';
+        playerWrapper.style.top = '';
+        playerWrapper.style.bottom = '20px';
+      }
     }
     
     function showError(message) {
