@@ -539,13 +539,20 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- <div class="toast-container" id="toastContainer"></div> -->
 
   <footer class="footer">
-    <p>&copy; 2024 IPTV Live. 免费高清直播服务</p>
+    <p>&copy; 2024 IPTV Live. 免费高清电视在线观看平台</p>
     <!-- SEO 友好链接 -->
     <div style="margin-top:15px;font-size:12px;color:rgba(255,255,255,.4);">
       <a href="/sitemap.xml" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">网站地图</a>
       <a href="/robots.txt" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">Robots</a>
       <a href="/privacy-policy" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">隐私政策</a>
       <a href="/terms" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">服务条款</a>
+    </div>
+    <!-- Cloudflare托管说明和徽章 -->
+    <div style="margin-top:20px;display:flex;align-items:center;justify-content:center;gap:10px;">
+      <span style="font-size:12px;color:rgba(255,255,255,.6);">本站由 Cloudflare 提供加速与安全保护</span>
+      <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+        <img src="https://www.cloudflare.com/static/logo-2.svg" alt="Cloudflare" style="height:24px;width:auto;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">
+      </a>
     </div>
   </footer>
 
@@ -985,7 +992,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     // 动态更新页面SEO元信息
     function updateSEOMeta() {
       // 更新页面标题
-      let title = 'IPTV Live - 免费高清直播平台';
+      let title = 'IPTV Live - 免费高清电视在线观看平台';
       let description = 'IPTV Live提供免费的在线直播服务，包含2000+高清频道，支持体育、新闻、娱乐、电影等全类型频道，无需注册，一键播放，多设备同步观看。';
 
       if (currentGroup) {
@@ -993,7 +1000,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         description = '观看' + currentGroup + '频道直播，IPTV Live提供' + currentGroup + '相关的免费高清直播内容，实时更新，画面清晰，播放流畅。';
       } else if (currentSearch) {
         title = currentSearch + ' - IPTV Live 搜索结果';
-        description = '搜索"' + currentSearch + '"的频道，找到' + totalChannels + '个相关频道，IPTV Live免费高清直播平台。';
+        description = '搜索"' + currentSearch + '"的频道，找到' + totalChannels + '个相关频道，IPTV Live免费高清电视在线观看平台。';
       } else if (currentGroup === 'history') {
         title = '播放历史 - IPTV Live';
         description = '查看您的观看历史记录，IPTV Live自动保存最近观看的频道，方便快速访问。';

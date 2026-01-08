@@ -7881,13 +7881,20 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- <div class="toast-container" id="toastContainer"></div> -->
 
   <footer class="footer">
-    <p>&copy; 2024 IPTV Live. \u514D\u8D39\u9AD8\u6E05\u76F4\u64AD\u670D\u52A1</p>
+    <p>&copy; 2024 IPTV Live. \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0</p>
     <!-- SEO \u53CB\u597D\u94FE\u63A5 -->
     <div style="margin-top:15px;font-size:12px;color:rgba(255,255,255,.4);">
       <a href="/sitemap.xml" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">\u7F51\u7AD9\u5730\u56FE</a>
       <a href="/robots.txt" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">Robots</a>
       <a href="/privacy-policy" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">\u9690\u79C1\u653F\u7B56</a>
       <a href="/terms" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">\u670D\u52A1\u6761\u6B3E</a>
+    </div>
+    <!-- Cloudflare\u6258\u7BA1\u8BF4\u660E\u548C\u5FBD\u7AE0 -->
+    <div style="margin-top:20px;display:flex;align-items:center;justify-content:center;gap:10px;">
+      <span style="font-size:12px;color:rgba(255,255,255,.6);">\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4</span>
+      <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+        <img src="https://www.cloudflare.com/static/logo-2.svg" alt="Cloudflare" style="height:24px;width:auto;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">
+      </a>
     </div>
   </footer>
 
@@ -8327,7 +8334,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     // \u52A8\u6001\u66F4\u65B0\u9875\u9762SEO\u5143\u4FE1\u606F
     function updateSEOMeta() {
       // \u66F4\u65B0\u9875\u9762\u6807\u9898
-      let title = 'IPTV Live - \u514D\u8D39\u9AD8\u6E05\u76F4\u64AD\u5E73\u53F0';
+      let title = 'IPTV Live - \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0';
       let description = 'IPTV Live\u63D0\u4F9B\u514D\u8D39\u7684\u5728\u7EBF\u76F4\u64AD\u670D\u52A1\uFF0C\u5305\u542B2000+\u9AD8\u6E05\u9891\u9053\uFF0C\u652F\u6301\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u7B49\u5168\u7C7B\u578B\u9891\u9053\uFF0C\u65E0\u9700\u6CE8\u518C\uFF0C\u4E00\u952E\u64AD\u653E\uFF0C\u591A\u8BBE\u5907\u540C\u6B65\u89C2\u770B\u3002';
 
       if (currentGroup) {
@@ -8335,7 +8342,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         description = '\u89C2\u770B' + currentGroup + '\u9891\u9053\u76F4\u64AD\uFF0CIPTV Live\u63D0\u4F9B' + currentGroup + '\u76F8\u5173\u7684\u514D\u8D39\u9AD8\u6E05\u76F4\u64AD\u5185\u5BB9\uFF0C\u5B9E\u65F6\u66F4\u65B0\uFF0C\u753B\u9762\u6E05\u6670\uFF0C\u64AD\u653E\u6D41\u7545\u3002';
       } else if (currentSearch) {
         title = currentSearch + ' - IPTV Live \u641C\u7D22\u7ED3\u679C';
-        description = '\u641C\u7D22"' + currentSearch + '"\u7684\u9891\u9053\uFF0C\u627E\u5230' + totalChannels + '\u4E2A\u76F8\u5173\u9891\u9053\uFF0CIPTV Live\u514D\u8D39\u9AD8\u6E05\u76F4\u64AD\u5E73\u53F0\u3002';
+        description = '\u641C\u7D22"' + currentSearch + '"\u7684\u9891\u9053\uFF0C\u627E\u5230' + totalChannels + '\u4E2A\u76F8\u5173\u9891\u9053\uFF0CIPTV Live\u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0\u3002';
       } else if (currentGroup === 'history') {
         title = '\u64AD\u653E\u5386\u53F2 - IPTV Live';
         description = '\u67E5\u770B\u60A8\u7684\u89C2\u770B\u5386\u53F2\u8BB0\u5F55\uFF0CIPTV Live\u81EA\u52A8\u4FDD\u5B58\u6700\u8FD1\u89C2\u770B\u7684\u9891\u9053\uFF0C\u65B9\u4FBF\u5FEB\u901F\u8BBF\u95EE\u3002';
