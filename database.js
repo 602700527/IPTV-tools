@@ -357,11 +357,11 @@ export async function getSystemConfig() {
   const config = {
     enable_ref_check: false,
     ref_whitelist: '',
-    enable_play_token: true,
+    enable_play_token: false,
     play_token_expire_seconds: 3600,
     homepage_display_config: {},
-    enable_ip_bind: true,
-    enable_burn_after_read: true,
+    enable_ip_bind: false,
+    enable_burn_after_read: false,
     enable_url_encryption: false,
     url_encryption_key: ''
   };

@@ -877,6 +877,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let pageSize = 50;
     let totalPages = 1;
     let totalChannels = 0;
+
+    // 系统配置
+    let systemConfig = {
+      enable_play_token: false,
+      enable_url_encryption: false
+    };
     let currentSearch = '';
     let favorites = JSON.parse(localStorage.getItem('iptv_favorites') || '[]');
     let history = JSON.parse(localStorage.getItem('iptv_history') || '[]');
@@ -892,9 +898,16 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
 
     // 页面加载时获取频道列表
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', async () => {
       // 初始化语言
       switchLanguage(currentLanguage);
+
+      // 获取系统配置
+      try {
+        await updateEncryptionKey();
+      } catch (error) {
+        console.error('[Init] 获取系统配置失败:', error);
+      }
 
       // SEO: 动态更新页面标题和描述
       updateSEOMeta();
@@ -1572,6 +1585,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         }
       }
 
+
       isPlayerOpen = true;
 
       // 创建新的 AbortController 用于这次请求
@@ -1579,105 +1593,186 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       const playController = new AbortController();
       activeFetchControllers.push(tokenController, playController);
 
-      // 先获取token，再获取播放地址
-      fetch(window.location.origin + '/api/token?hash=' + encodeURIComponent(hash), {
-        signal: tokenController.signal
-      })
-        .then(res => {
-          // 检查请求是否被取消
-          if (requestId !== currentPlayRequestId) {
-            throw new Error('Request cancelled');
-          }
-          return res.json();
+      // 根据系统配置决定是否使用token
+      const useToken = systemConfig.enable_play_token;
+
+      if (useToken) {
+        // 先获取token，再获取播放地址
+        fetch(window.location.origin + '/api/token?hash=' + encodeURIComponent(hash), {
+          signal: tokenController.signal
         })
-        .then(data => {
-          // 再次检查
-          if (requestId !== currentPlayRequestId) {
-            throw new Error('Request cancelled');
-          }
-
-          if (data.success && data.token) {
-            console.log('[PlayChannel] Request #' + requestId + ': Token received');
-            // 使用token获取播放地址
-            return fetch(window.location.origin + '/api/play/' + hash + '?token=' + encodeURIComponent(data.token), {
-              signal: playController.signal
-            });
-          } else {
-            throw new Error('Failed to get token');
-          }
-        })
-        .then(res => {
-          // 再次检查
-          if (requestId !== currentPlayRequestId) {
-            throw new Error('Request cancelled');
-          }
-          return res.json();
-        })
-        .then(data => {
-          // 再次检查
-          if (requestId !== currentPlayRequestId) {
-            console.log('[PlayChannel] Request #' + requestId + ': Response received but cancelled');
-            return;
-          }
-
-          if (data.success && data.play_url) {
-            let playUrl = data.play_url;
-
-            // 如果返回的是加密的URL，进行解密
-            if (data.encoded && data.encryption === 'aes-gcm') {
-              decryptAES(playUrl, DECRYPTION_KEY)
-                .then(decryptedUrl => {
-                  // 最后一次检查
-                  if (requestId !== currentPlayRequestId) {
-                    console.log('[PlayChannel] Request #' + requestId + ': Decrypted but cancelled');
-                    return;
-                  }
-                  console.log('[PlayChannel] Request #' + requestId + ': URL decrypted:', decryptedUrl);
-                  startPlay(decryptedUrl, video);
-                })
-                .catch(async (e) => {
-                  console.error('[PlayChannel] URL decryption failed:', e);
-
-                  // 如果是第一次解密失败，尝试更新密钥并重试
-                  if (retryCount === 0) {
-                    console.log('[PlayChannel] Try updating key and retry');
-                    const keyUpdated = await updateEncryptionKey();
-                    if (keyUpdated) {
-                      console.log('[PlayChannel] Key updated, retrying');
-                      playChannel(hash, name, group, 1);  // 重试一次
-                      return;
-                    }
-                  }
-
-                  // 更新密钥失败或已重试过，关闭播放器
-                  console.error('[PlayChannel] Decryption failed, cannot play');
-                  closePlayer();
-                });
-              return; // 异步解密，提前返回
+          .then(res => {
+            // 检查请求是否被取消
+            if (requestId !== currentPlayRequestId) {
+              throw new Error('Request cancelled');
+            }
+            return res.json();
+          })
+          .then(data => {
+            // 再次检查
+            if (requestId !== currentPlayRequestId) {
+              throw new Error('Request cancelled');
             }
 
-            console.log('[PlayChannel] Request #' + requestId + ': Play URL:', playUrl);
-            startPlay(playUrl, video);
-          } else {
-            console.error('Channel temporarily unavailable');
+            if (data.success && data.token) {
+              console.log('[PlayChannel] Request #' + requestId + ': Token received');
+              // 使用token获取播放地址
+              return fetch(window.location.origin + '/api/play/' + hash + '?token=' + encodeURIComponent(data.token), {
+                signal: playController.signal
+              });
+            } else {
+              throw new Error('Failed to get token');
+            }
+          })
+          .then(res => {
+            // 再次检查
+            if (requestId !== currentPlayRequestId) {
+              throw new Error('Request cancelled');
+            }
+            return res.json();
+          })
+          .then(data => {
+            // 再次检查
+            if (requestId !== currentPlayRequestId) {
+              console.log('[PlayChannel] Request #' + requestId + ': Response received but cancelled');
+              return;
+            }
+
+            if (data.success && data.play_url) {
+              let playUrl = data.play_url;
+
+              // 如果返回的是加密的URL，进行解密
+              if (data.encoded && data.encryption === 'aes-gcm') {
+                decryptAES(playUrl, DECRYPTION_KEY)
+                  .then(decryptedUrl => {
+                    // 最后一次检查
+                    if (requestId !== currentPlayRequestId) {
+                      console.log('[PlayChannel] Request #' + requestId + ': Decrypted but cancelled');
+                      return;
+                    }
+                    console.log('[PlayChannel] Request #' + requestId + ': URL decrypted:', decryptedUrl);
+                    startPlay(decryptedUrl, video);
+                  })
+                  .catch(async (e) => {
+                    console.error('[PlayChannel] URL decryption failed:', e);
+
+                    // 如果是第一次解密失败，尝试更新密钥并重试
+                    if (retryCount === 0) {
+                      console.log('[PlayChannel] Try updating key and retry');
+                      const keyUpdated = await updateEncryptionKey();
+                      if (keyUpdated) {
+                        console.log('[PlayChannel] Key updated, retrying');
+                        playChannel(hash, name, group, 1);  // 重试一次
+                        return;
+                      }
+                    }
+
+                    // 更新密钥失败或已重试过，关闭播放器
+                    console.error('[PlayChannel] Decryption failed, cannot play');
+                    closePlayer();
+                  });
+                return; // 异步解密，提前返回
+              }
+
+              console.log('[PlayChannel] Request #' + requestId + ': Play URL:', playUrl);
+              startPlay(playUrl, video);
+            } else {
+              console.error('Channel temporarily unavailable');
+              closePlayer();
+            }
+          })
+          .catch(function(error) {
+            if (error.name === 'AbortError' || error.message === 'Request cancelled') {
+              console.log('[PlayChannel] Request #' + requestId + ' was cancelled');
+              return;  // 静默处理取消的错误
+            }
+            console.error('[PlayChannel] Playback failed:', error);
             closePlayer();
-          }
+          })
+          .finally(() => {
+            // 清理控制器
+            const index = activeFetchControllers.indexOf(tokenController);
+            if (index > -1) activeFetchControllers.splice(index, 1);
+            const index2 = activeFetchControllers.indexOf(playController);
+            if (index2 > -1) activeFetchControllers.splice(index2, 1);
+          });
+      } else {
+        // 不使用token，直接获取播放地址
+        console.log('[PlayChannel] Request #' + requestId + ': Direct play (no token)');
+        fetch(window.location.origin + '/api/play/' + hash, {
+          signal: playController.signal
         })
-        .catch(function(error) {
-          if (error.name === 'AbortError' || error.message === 'Request cancelled') {
-            console.log('[PlayChannel] Request #' + requestId + ' was cancelled');
-            return;  // 静默处理取消的错误
-          }
-          console.error('[PlayChannel] Playback failed:', error);
-          closePlayer();
-        })
-        .finally(() => {
-          // 清理控制器
-          const index = activeFetchControllers.indexOf(tokenController);
-          if (index > -1) activeFetchControllers.splice(index, 1);
-          const index2 = activeFetchControllers.indexOf(playController);
-          if (index2 > -1) activeFetchControllers.splice(index2, 1);
-        });
+          .then(res => {
+            // 检查请求是否被取消
+            if (requestId !== currentPlayRequestId) {
+              throw new Error('Request cancelled');
+            }
+            return res.json();
+          })
+          .then(data => {
+            // 再次检查
+            if (requestId !== currentPlayRequestId) {
+              console.log('[PlayChannel] Request #' + requestId + ': Response received but cancelled');
+              return;
+            }
+
+            if (data.success && data.play_url) {
+              let playUrl = data.play_url;
+
+              // 如果返回的是加密的URL，进行解密
+              if (data.encoded && data.encryption === 'aes-gcm') {
+                decryptAES(playUrl, DECRYPTION_KEY)
+                  .then(decryptedUrl => {
+                    // 最后一次检查
+                    if (requestId !== currentPlayRequestId) {
+                      console.log('[PlayChannel] Request #' + requestId + ': Decrypted but cancelled');
+                      return;
+                    }
+                    console.log('[PlayChannel] Request #' + requestId + ': URL decrypted:', decryptedUrl);
+                    startPlay(decryptedUrl, video);
+                  })
+                  .catch(async (e) => {
+                    console.error('[PlayChannel] URL decryption failed:', e);
+
+                    // 如果是第一次解密失败，尝试更新密钥并重试
+                    if (retryCount === 0) {
+                      console.log('[PlayChannel] Try updating key and retry');
+                      const keyUpdated = await updateEncryptionKey();
+                      if (keyUpdated) {
+                        console.log('[PlayChannel] Key updated, retrying');
+                        playChannel(hash, name, group, 1);  // 重试一次
+                        return;
+                      }
+                    }
+
+                    // 更新密钥失败或已重试过，关闭播放器
+                    console.error('[PlayChannel] Decryption failed, cannot play');
+                    closePlayer();
+                  });
+                return; // 异步解密，提前返回
+              }
+
+              console.log('[PlayChannel] Request #' + requestId + ': Play URL:', playUrl);
+              startPlay(playUrl, video);
+            } else {
+              console.error('Channel temporarily unavailable');
+              closePlayer();
+            }
+          })
+          .catch(function(error) {
+            if (error.name === 'AbortError' || error.message === 'Request cancelled') {
+              console.log('[PlayChannel] Request #' + requestId + ' was cancelled');
+              return;  // 静默处理取消的错误
+            }
+            console.error('[PlayChannel] Playback failed:', error);
+            closePlayer();
+          })
+          .finally(() => {
+            // 清理控制器
+            const index2 = activeFetchControllers.indexOf(playController);
+            if (index2 > -1) activeFetchControllers.splice(index2, 1);
+          });
+      }
     }
 
     // 取消所有进行中的 fetch 请求
@@ -1985,7 +2080,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         const result = await response.json();
 
         if (result.success && result.config) {
-          const { enable_url_encryption, url_encryption_key } = result.config;
+          const { enable_play_token, enable_url_encryption, url_encryption_key } = result.config;
+
+          // 更新系统配置
+          systemConfig.enable_play_token = enable_play_token;
+          systemConfig.enable_url_encryption = enable_url_encryption;
 
           // 如果启用了URL加密且有密钥，更新全局密钥
           if (enable_url_encryption && url_encryption_key) {

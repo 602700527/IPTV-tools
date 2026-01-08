@@ -355,11 +355,11 @@ async function getSystemConfig() {
   const config = {
     enable_ref_check: false,
     ref_whitelist: "",
-    enable_play_token: true,
+    enable_play_token: false,
     play_token_expire_seconds: 3600,
     homepage_display_config: {},
-    enable_ip_bind: true,
-    enable_burn_after_read: true,
+    enable_ip_bind: false,
+    enable_burn_after_read: false,
     enable_url_encryption: false,
     url_encryption_key: ""
   };
@@ -3884,6 +3884,7 @@ async function handlePublicConfig(request, env, ctx) {
   try {
     const systemConfig = await getSystemConfig();
     const publicConfig = {
+      enable_play_token: systemConfig.enable_play_token,
       enable_url_encryption: systemConfig.enable_url_encryption,
       url_encryption_key: systemConfig.url_encryption_key || ""
     };
@@ -7925,6 +7926,12 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     let pageSize = 50;
     let totalPages = 1;
     let totalChannels = 0;
+
+    // \u7CFB\u7EDF\u914D\u7F6E
+    let systemConfig = {
+      enable_play_token: false,
+      enable_url_encryption: false
+    };
     let currentSearch = '';
     let favorites = JSON.parse(localStorage.getItem('iptv_favorites') || '[]');
     let history = JSON.parse(localStorage.getItem('iptv_history') || '[]');
@@ -7940,9 +7947,16 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     }
 
     // \u9875\u9762\u52A0\u8F7D\u65F6\u83B7\u53D6\u9891\u9053\u5217\u8868
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', async () => {
       // \u521D\u59CB\u5316\u8BED\u8A00
       switchLanguage(currentLanguage);
+
+      // \u83B7\u53D6\u7CFB\u7EDF\u914D\u7F6E
+      try {
+        await updateEncryptionKey();
+      } catch (error) {
+        console.error('[Init] \u83B7\u53D6\u7CFB\u7EDF\u914D\u7F6E\u5931\u8D25:', error);
+      }
 
       // SEO: \u52A8\u6001\u66F4\u65B0\u9875\u9762\u6807\u9898\u548C\u63CF\u8FF0
       updateSEOMeta();
@@ -8620,6 +8634,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         }
       }
 
+
       isPlayerOpen = true;
 
       // \u521B\u5EFA\u65B0\u7684 AbortController \u7528\u4E8E\u8FD9\u6B21\u8BF7\u6C42
@@ -8627,105 +8642,186 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       const playController = new AbortController();
       activeFetchControllers.push(tokenController, playController);
 
-      // \u5148\u83B7\u53D6token\uFF0C\u518D\u83B7\u53D6\u64AD\u653E\u5730\u5740
-      fetch(window.location.origin + '/api/token?hash=' + encodeURIComponent(hash), {
-        signal: tokenController.signal
-      })
-        .then(res => {
-          // \u68C0\u67E5\u8BF7\u6C42\u662F\u5426\u88AB\u53D6\u6D88
-          if (requestId !== currentPlayRequestId) {
-            throw new Error('Request cancelled');
-          }
-          return res.json();
+      // \u6839\u636E\u7CFB\u7EDF\u914D\u7F6E\u51B3\u5B9A\u662F\u5426\u4F7F\u7528token
+      const useToken = systemConfig.enable_play_token;
+
+      if (useToken) {
+        // \u5148\u83B7\u53D6token\uFF0C\u518D\u83B7\u53D6\u64AD\u653E\u5730\u5740
+        fetch(window.location.origin + '/api/token?hash=' + encodeURIComponent(hash), {
+          signal: tokenController.signal
         })
-        .then(data => {
-          // \u518D\u6B21\u68C0\u67E5
-          if (requestId !== currentPlayRequestId) {
-            throw new Error('Request cancelled');
-          }
-
-          if (data.success && data.token) {
-            console.log('[PlayChannel] Request #' + requestId + ': Token received');
-            // \u4F7F\u7528token\u83B7\u53D6\u64AD\u653E\u5730\u5740
-            return fetch(window.location.origin + '/api/play/' + hash + '?token=' + encodeURIComponent(data.token), {
-              signal: playController.signal
-            });
-          } else {
-            throw new Error('Failed to get token');
-          }
-        })
-        .then(res => {
-          // \u518D\u6B21\u68C0\u67E5
-          if (requestId !== currentPlayRequestId) {
-            throw new Error('Request cancelled');
-          }
-          return res.json();
-        })
-        .then(data => {
-          // \u518D\u6B21\u68C0\u67E5
-          if (requestId !== currentPlayRequestId) {
-            console.log('[PlayChannel] Request #' + requestId + ': Response received but cancelled');
-            return;
-          }
-
-          if (data.success && data.play_url) {
-            let playUrl = data.play_url;
-
-            // \u5982\u679C\u8FD4\u56DE\u7684\u662F\u52A0\u5BC6\u7684URL\uFF0C\u8FDB\u884C\u89E3\u5BC6
-            if (data.encoded && data.encryption === 'aes-gcm') {
-              decryptAES(playUrl, DECRYPTION_KEY)
-                .then(decryptedUrl => {
-                  // \u6700\u540E\u4E00\u6B21\u68C0\u67E5
-                  if (requestId !== currentPlayRequestId) {
-                    console.log('[PlayChannel] Request #' + requestId + ': Decrypted but cancelled');
-                    return;
-                  }
-                  console.log('[PlayChannel] Request #' + requestId + ': URL decrypted:', decryptedUrl);
-                  startPlay(decryptedUrl, video);
-                })
-                .catch(async (e) => {
-                  console.error('[PlayChannel] URL decryption failed:', e);
-
-                  // \u5982\u679C\u662F\u7B2C\u4E00\u6B21\u89E3\u5BC6\u5931\u8D25\uFF0C\u5C1D\u8BD5\u66F4\u65B0\u5BC6\u94A5\u5E76\u91CD\u8BD5
-                  if (retryCount === 0) {
-                    console.log('[PlayChannel] Try updating key and retry');
-                    const keyUpdated = await updateEncryptionKey();
-                    if (keyUpdated) {
-                      console.log('[PlayChannel] Key updated, retrying');
-                      playChannel(hash, name, group, 1);  // \u91CD\u8BD5\u4E00\u6B21
-                      return;
-                    }
-                  }
-
-                  // \u66F4\u65B0\u5BC6\u94A5\u5931\u8D25\u6216\u5DF2\u91CD\u8BD5\u8FC7\uFF0C\u5173\u95ED\u64AD\u653E\u5668
-                  console.error('[PlayChannel] Decryption failed, cannot play');
-                  closePlayer();
-                });
-              return; // \u5F02\u6B65\u89E3\u5BC6\uFF0C\u63D0\u524D\u8FD4\u56DE
+          .then(res => {
+            // \u68C0\u67E5\u8BF7\u6C42\u662F\u5426\u88AB\u53D6\u6D88
+            if (requestId !== currentPlayRequestId) {
+              throw new Error('Request cancelled');
+            }
+            return res.json();
+          })
+          .then(data => {
+            // \u518D\u6B21\u68C0\u67E5
+            if (requestId !== currentPlayRequestId) {
+              throw new Error('Request cancelled');
             }
 
-            console.log('[PlayChannel] Request #' + requestId + ': Play URL:', playUrl);
-            startPlay(playUrl, video);
-          } else {
-            console.error('Channel temporarily unavailable');
+            if (data.success && data.token) {
+              console.log('[PlayChannel] Request #' + requestId + ': Token received');
+              // \u4F7F\u7528token\u83B7\u53D6\u64AD\u653E\u5730\u5740
+              return fetch(window.location.origin + '/api/play/' + hash + '?token=' + encodeURIComponent(data.token), {
+                signal: playController.signal
+              });
+            } else {
+              throw new Error('Failed to get token');
+            }
+          })
+          .then(res => {
+            // \u518D\u6B21\u68C0\u67E5
+            if (requestId !== currentPlayRequestId) {
+              throw new Error('Request cancelled');
+            }
+            return res.json();
+          })
+          .then(data => {
+            // \u518D\u6B21\u68C0\u67E5
+            if (requestId !== currentPlayRequestId) {
+              console.log('[PlayChannel] Request #' + requestId + ': Response received but cancelled');
+              return;
+            }
+
+            if (data.success && data.play_url) {
+              let playUrl = data.play_url;
+
+              // \u5982\u679C\u8FD4\u56DE\u7684\u662F\u52A0\u5BC6\u7684URL\uFF0C\u8FDB\u884C\u89E3\u5BC6
+              if (data.encoded && data.encryption === 'aes-gcm') {
+                decryptAES(playUrl, DECRYPTION_KEY)
+                  .then(decryptedUrl => {
+                    // \u6700\u540E\u4E00\u6B21\u68C0\u67E5
+                    if (requestId !== currentPlayRequestId) {
+                      console.log('[PlayChannel] Request #' + requestId + ': Decrypted but cancelled');
+                      return;
+                    }
+                    console.log('[PlayChannel] Request #' + requestId + ': URL decrypted:', decryptedUrl);
+                    startPlay(decryptedUrl, video);
+                  })
+                  .catch(async (e) => {
+                    console.error('[PlayChannel] URL decryption failed:', e);
+
+                    // \u5982\u679C\u662F\u7B2C\u4E00\u6B21\u89E3\u5BC6\u5931\u8D25\uFF0C\u5C1D\u8BD5\u66F4\u65B0\u5BC6\u94A5\u5E76\u91CD\u8BD5
+                    if (retryCount === 0) {
+                      console.log('[PlayChannel] Try updating key and retry');
+                      const keyUpdated = await updateEncryptionKey();
+                      if (keyUpdated) {
+                        console.log('[PlayChannel] Key updated, retrying');
+                        playChannel(hash, name, group, 1);  // \u91CD\u8BD5\u4E00\u6B21
+                        return;
+                      }
+                    }
+
+                    // \u66F4\u65B0\u5BC6\u94A5\u5931\u8D25\u6216\u5DF2\u91CD\u8BD5\u8FC7\uFF0C\u5173\u95ED\u64AD\u653E\u5668
+                    console.error('[PlayChannel] Decryption failed, cannot play');
+                    closePlayer();
+                  });
+                return; // \u5F02\u6B65\u89E3\u5BC6\uFF0C\u63D0\u524D\u8FD4\u56DE
+              }
+
+              console.log('[PlayChannel] Request #' + requestId + ': Play URL:', playUrl);
+              startPlay(playUrl, video);
+            } else {
+              console.error('Channel temporarily unavailable');
+              closePlayer();
+            }
+          })
+          .catch(function(error) {
+            if (error.name === 'AbortError' || error.message === 'Request cancelled') {
+              console.log('[PlayChannel] Request #' + requestId + ' was cancelled');
+              return;  // \u9759\u9ED8\u5904\u7406\u53D6\u6D88\u7684\u9519\u8BEF
+            }
+            console.error('[PlayChannel] Playback failed:', error);
             closePlayer();
-          }
+          })
+          .finally(() => {
+            // \u6E05\u7406\u63A7\u5236\u5668
+            const index = activeFetchControllers.indexOf(tokenController);
+            if (index > -1) activeFetchControllers.splice(index, 1);
+            const index2 = activeFetchControllers.indexOf(playController);
+            if (index2 > -1) activeFetchControllers.splice(index2, 1);
+          });
+      } else {
+        // \u4E0D\u4F7F\u7528token\uFF0C\u76F4\u63A5\u83B7\u53D6\u64AD\u653E\u5730\u5740
+        console.log('[PlayChannel] Request #' + requestId + ': Direct play (no token)');
+        fetch(window.location.origin + '/api/play/' + hash, {
+          signal: playController.signal
         })
-        .catch(function(error) {
-          if (error.name === 'AbortError' || error.message === 'Request cancelled') {
-            console.log('[PlayChannel] Request #' + requestId + ' was cancelled');
-            return;  // \u9759\u9ED8\u5904\u7406\u53D6\u6D88\u7684\u9519\u8BEF
-          }
-          console.error('[PlayChannel] Playback failed:', error);
-          closePlayer();
-        })
-        .finally(() => {
-          // \u6E05\u7406\u63A7\u5236\u5668
-          const index = activeFetchControllers.indexOf(tokenController);
-          if (index > -1) activeFetchControllers.splice(index, 1);
-          const index2 = activeFetchControllers.indexOf(playController);
-          if (index2 > -1) activeFetchControllers.splice(index2, 1);
-        });
+          .then(res => {
+            // \u68C0\u67E5\u8BF7\u6C42\u662F\u5426\u88AB\u53D6\u6D88
+            if (requestId !== currentPlayRequestId) {
+              throw new Error('Request cancelled');
+            }
+            return res.json();
+          })
+          .then(data => {
+            // \u518D\u6B21\u68C0\u67E5
+            if (requestId !== currentPlayRequestId) {
+              console.log('[PlayChannel] Request #' + requestId + ': Response received but cancelled');
+              return;
+            }
+
+            if (data.success && data.play_url) {
+              let playUrl = data.play_url;
+
+              // \u5982\u679C\u8FD4\u56DE\u7684\u662F\u52A0\u5BC6\u7684URL\uFF0C\u8FDB\u884C\u89E3\u5BC6
+              if (data.encoded && data.encryption === 'aes-gcm') {
+                decryptAES(playUrl, DECRYPTION_KEY)
+                  .then(decryptedUrl => {
+                    // \u6700\u540E\u4E00\u6B21\u68C0\u67E5
+                    if (requestId !== currentPlayRequestId) {
+                      console.log('[PlayChannel] Request #' + requestId + ': Decrypted but cancelled');
+                      return;
+                    }
+                    console.log('[PlayChannel] Request #' + requestId + ': URL decrypted:', decryptedUrl);
+                    startPlay(decryptedUrl, video);
+                  })
+                  .catch(async (e) => {
+                    console.error('[PlayChannel] URL decryption failed:', e);
+
+                    // \u5982\u679C\u662F\u7B2C\u4E00\u6B21\u89E3\u5BC6\u5931\u8D25\uFF0C\u5C1D\u8BD5\u66F4\u65B0\u5BC6\u94A5\u5E76\u91CD\u8BD5
+                    if (retryCount === 0) {
+                      console.log('[PlayChannel] Try updating key and retry');
+                      const keyUpdated = await updateEncryptionKey();
+                      if (keyUpdated) {
+                        console.log('[PlayChannel] Key updated, retrying');
+                        playChannel(hash, name, group, 1);  // \u91CD\u8BD5\u4E00\u6B21
+                        return;
+                      }
+                    }
+
+                    // \u66F4\u65B0\u5BC6\u94A5\u5931\u8D25\u6216\u5DF2\u91CD\u8BD5\u8FC7\uFF0C\u5173\u95ED\u64AD\u653E\u5668
+                    console.error('[PlayChannel] Decryption failed, cannot play');
+                    closePlayer();
+                  });
+                return; // \u5F02\u6B65\u89E3\u5BC6\uFF0C\u63D0\u524D\u8FD4\u56DE
+              }
+
+              console.log('[PlayChannel] Request #' + requestId + ': Play URL:', playUrl);
+              startPlay(playUrl, video);
+            } else {
+              console.error('Channel temporarily unavailable');
+              closePlayer();
+            }
+          })
+          .catch(function(error) {
+            if (error.name === 'AbortError' || error.message === 'Request cancelled') {
+              console.log('[PlayChannel] Request #' + requestId + ' was cancelled');
+              return;  // \u9759\u9ED8\u5904\u7406\u53D6\u6D88\u7684\u9519\u8BEF
+            }
+            console.error('[PlayChannel] Playback failed:', error);
+            closePlayer();
+          })
+          .finally(() => {
+            // \u6E05\u7406\u63A7\u5236\u5668
+            const index2 = activeFetchControllers.indexOf(playController);
+            if (index2 > -1) activeFetchControllers.splice(index2, 1);
+          });
+      }
     }
 
     // \u53D6\u6D88\u6240\u6709\u8FDB\u884C\u4E2D\u7684 fetch \u8BF7\u6C42
@@ -9033,7 +9129,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         const result = await response.json();
 
         if (result.success && result.config) {
-          const { enable_url_encryption, url_encryption_key } = result.config;
+          const { enable_play_token, enable_url_encryption, url_encryption_key } = result.config;
+
+          // \u66F4\u65B0\u7CFB\u7EDF\u914D\u7F6E
+          systemConfig.enable_play_token = enable_play_token;
+          systemConfig.enable_url_encryption = enable_url_encryption;
 
           // \u5982\u679C\u542F\u7528\u4E86URL\u52A0\u5BC6\u4E14\u6709\u5BC6\u94A5\uFF0C\u66F4\u65B0\u5168\u5C40\u5BC6\u94A5
           if (enable_url_encryption && url_encryption_key) {
