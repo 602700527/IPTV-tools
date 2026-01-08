@@ -11,6 +11,7 @@
     "db:console": "wrangler d1 execute tv-service-db --command"
   },
   "devDependencies": {
+    "better-sqlite3": "^12.5.0",
     "wrangler": "^2.20.0"
   },
   "dependencies": {

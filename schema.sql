@@ -1,11 +1,19 @@
+-- 创建设置表
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY,
+  value TEXT,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- 创建直播源配置表
 CREATE TABLE IF NOT EXISTS sources (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT, 
-  url TEXT, 
+  name TEXT,
+  url TEXT,
   type TEXT DEFAULT 'm3u',
   parse_mode TEXT DEFAULT 'strict',
-  last_updated DATETIME
+  last_updated DATETIME,
+  is_active BOOLEAN DEFAULT 1
 );
 
 -- 创建频道表
