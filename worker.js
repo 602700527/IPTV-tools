@@ -12,6 +12,7 @@ import { PLAYSTATION_HTML } from './playstation-page.js';
 import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from './pages.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
+import { LOGO_SVG, FAVICON_SVG, OG_IMAGE_SVG } from './assets.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -40,12 +41,23 @@ export default {
     // 静态文件处理
     if (path === '/favicon.svg' || path === '/favicon.ico') {
       // Favicon SVG
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" fill="#e50914"/>
-  <rect x="15" y="20" width="70" height="60" rx="5" fill="white"/>
-  <polygon points="40,35 40,65 65,50" fill="#e50914"/>
-</svg>`;
-      return new Response(svg, {
+      return new Response(FAVICON_SVG, {
+        headers: {
+          'Content-Type': 'image/svg+xml',
+          'Cache-Control': 'public, max-age=86400'
+        }
+      });
+    } else if (path === '/logo.svg') {
+      // Logo SVG
+      return new Response(LOGO_SVG, {
+        headers: {
+          'Content-Type': 'image/svg+xml',
+          'Cache-Control': 'public, max-age=86400'
+        }
+      });
+    } else if (path === '/og-image.svg' || path === '/og-image.jpg') {
+      // OG Image SVG (同时支持.jpg和.svg路径)
+      return new Response(OG_IMAGE_SVG, {
         headers: {
           'Content-Type': 'image/svg+xml',
           'Cache-Control': 'public, max-age=86400'

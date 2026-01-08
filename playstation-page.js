@@ -20,7 +20,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <meta property="og:url" content="https://iptv-search.com">
   <meta property="og:title" content="IPTV Live - 免费高清电视观看平台">
   <meta property="og:description" content="提供10000+免费高清频道，支持体育、新闻、娱乐、电影等全类型，无需注册，一键播放。">
-  <meta property="og:image" content="https://iptv-search.com/og-image.jpg">
+  <meta property="og:image" content="https://iptv-search.com/og-image.svg">
   <meta property="og:site_name" content="IPTV Live">
   <meta property="og:locale" content="zh_CN">
 
@@ -29,7 +29,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <meta name="twitter:url" content="https://iptv-search.com">
   <meta name="twitter:title" content="IPTV Live - 免费高清电视观看平台">
   <meta name="twitter:description" content="提供10000+免费高清频道，支持体育、新闻、娱乐、电影等全类型。">
-  <meta name="twitter:image" content="https://iptv-search.com/og-image.jpg">
+  <meta name="twitter:image" content="https://iptv-search.com/og-image.svg">
 
   <!-- Canonical URL -->
   <link rel="canonical" href="https://iptv-search.com">
@@ -92,7 +92,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     ::-webkit-scrollbar-thumb:hover{background:#555}
 
     .header{position:fixed;top:0;left:0;right:0;height:70px;background:rgba(20,20,20,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.1);z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 40px}
-    .logo{font-size:24px;font-weight:800;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .logo{display:flex;align-items:center;gap:10px}
+    .logo img{height:40px;width:auto}
+    .logo-text{font-size:24px;font-weight:800;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
     .header-left{display:flex;align-items:center;gap:40px}
     .header-right{display:flex;align-items:center;margin-left:auto}
     .search-box{max-width:500px;margin-right:20px}
@@ -376,7 +378,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 <body>
   <header class="header">
     <div class="header-left">
-      <div class="logo">IPTV Live</div>
+      <div class="logo">
+        <img src="/logo.svg" alt="IPTV Live Logo" />
+      </div>
       <div class="online-counter">
         <span class="online-dot"></span>
         <span class="online-count" id="onlineCount">0</span> <span id="onlineCountText">人在观看</span>

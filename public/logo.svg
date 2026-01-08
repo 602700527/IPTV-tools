@@ -1,0 +1,35 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 渐变定义 -->
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b81d24;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="tvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- TV图标 -->
+  <g transform="translate(10, 8)">
+    <!-- 电视外框 -->
+    <rect x="0" y="0" width="44" height="32" rx="4" fill="url(#tvGradient)" />
+    <!-- 屏幕内框 -->
+    <rect x="4" y="4" width="36" height="24" rx="2" fill="#0a0a0a" />
+    <!-- 播放按钮 -->
+    <path d="M18 10 L30 16 L18 22 Z" fill="#fff" />
+    <!-- 电视支架 -->
+    <rect x="12" y="34" width="8" height="4" rx="1" fill="#333" />
+    <rect x="24" y="34" width="8" height="4" rx="1" fill="#333" />
+    <!-- 信号波 -->
+    <g stroke="#e50914" stroke-width="2" fill="none">
+      <path d="M48 8 Q52 12 48 16" opacity="0.8" />
+      <path d="M52 4 Q60 12 52 20" opacity="0.6" />
+    </g>
+  </g>
+  
+  <!-- 文字部分 -->
+  <text x="65" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="20" font-weight="800" fill="url(#logoGradient)">IPTV</text>
+  <text x="65" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" font-weight="500" fill="#fff" opacity="0.8">Live</text>
+</svg>

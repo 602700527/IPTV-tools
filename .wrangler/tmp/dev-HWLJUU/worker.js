@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-rzCdIA/checked-fetch.js
+// .wrangler/tmp/bundle-i9MzN3/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-rzCdIA/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-i9MzN3/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -1009,11 +1009,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-rzCdIA/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-i9MzN3/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-rzCdIA/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-i9MzN3/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -7362,7 +7362,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <meta property="og:url" content="https://iptv-search.com">
   <meta property="og:title" content="IPTV Live - \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u89C2\u770B\u5E73\u53F0">
   <meta property="og:description" content="\u63D0\u4F9B10000+\u514D\u8D39\u9AD8\u6E05\u9891\u9053\uFF0C\u652F\u6301\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u7B49\u5168\u7C7B\u578B\uFF0C\u65E0\u9700\u6CE8\u518C\uFF0C\u4E00\u952E\u64AD\u653E\u3002">
-  <meta property="og:image" content="https://iptv-search.com/og-image.jpg">
+  <meta property="og:image" content="https://iptv-search.com/og-image.svg">
   <meta property="og:site_name" content="IPTV Live">
   <meta property="og:locale" content="zh_CN">
 
@@ -7371,7 +7371,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <meta name="twitter:url" content="https://iptv-search.com">
   <meta name="twitter:title" content="IPTV Live - \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u89C2\u770B\u5E73\u53F0">
   <meta name="twitter:description" content="\u63D0\u4F9B10000+\u514D\u8D39\u9AD8\u6E05\u9891\u9053\uFF0C\u652F\u6301\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u7B49\u5168\u7C7B\u578B\u3002">
-  <meta name="twitter:image" content="https://iptv-search.com/og-image.jpg">
+  <meta name="twitter:image" content="https://iptv-search.com/og-image.svg">
 
   <!-- Canonical URL -->
   <link rel="canonical" href="https://iptv-search.com">
@@ -7434,7 +7434,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     ::-webkit-scrollbar-thumb:hover{background:#555}
 
     .header{position:fixed;top:0;left:0;right:0;height:70px;background:rgba(20,20,20,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.1);z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 40px}
-    .logo{font-size:24px;font-weight:800;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .logo{display:flex;align-items:center;gap:10px}
+    .logo img{height:40px;width:auto}
+    .logo-text{font-size:24px;font-weight:800;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
     .header-left{display:flex;align-items:center;gap:40px}
     .header-right{display:flex;align-items:center;margin-left:auto}
     .search-box{max-width:500px;margin-right:20px}
@@ -7718,7 +7720,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 <body>
   <header class="header">
     <div class="header-left">
-      <div class="logo">IPTV Live</div>
+      <div class="logo">
+        <img src="/logo.svg" alt="IPTV Live Logo" />
+      </div>
       <div class="online-counter">
         <span class="online-dot"></span>
         <span class="online-count" id="onlineCount">0</span> <span id="onlineCountText">\u4EBA\u5728\u89C2\u770B</span>
@@ -10410,6 +10414,122 @@ __name(generateTermsOfService, "generateTermsOfService");
 
 // worker.js
 init_database();
+
+// assets.js
+init_checked_fetch();
+init_modules_watch_stub();
+var LOGO_SVG = `<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b81d24;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="tvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(10, 8)">
+    <rect x="0" y="0" width="44" height="32" rx="4" fill="url(#tvGradient)" />
+    <rect x="4" y="4" width="36" height="24" rx="2" fill="#0a0a0a" />
+    <path d="M18 10 L30 16 L18 22 Z" fill="#fff" />
+    <rect x="12" y="34" width="8" height="4" rx="1" fill="#333" />
+    <rect x="24" y="34" width="8" height="4" rx="1" fill="#333" />
+    <g stroke="#e50914" stroke-width="2" fill="none">
+      <path d="M48 8 Q52 12 48 16" opacity="0.8" />
+      <path d="M52 4 Q60 12 52 20" opacity="0.6" />
+    </g>
+  </g>
+
+  <text x="65" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="20" font-weight="800" fill="url(#logoGradient)">IPTV</text>
+  <text x="65" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" font-weight="500" fill="#fff" opacity="0.8">Live</text>
+</svg>`;
+var FAVICON_SVG = `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="faviconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b81d24;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <rect width="32" height="32" rx="6" fill="url(#faviconGradient)" />
+
+  <g transform="translate(5, 4)">
+    <rect x="1" y="1" width="20" height="15" rx="2" fill="#0a0a0a" />
+    <path d="M9 5 L16 9 L9 13 Z" fill="#e50914" />
+    <rect x="5" y="18" width="4" height="2" rx="1" fill="#0a0a0a" />
+    <rect x="12" y="18" width="4" height="2" rx="1" fill="#0a0a0a" />
+  </g>
+</svg>`;
+var OG_IMAGE_SVG = `<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#141414;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff6b6b;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bgGradient)" />
+
+  <circle cx="100" cy="100" r="80" fill="#e50914" opacity="0.1" />
+  <circle cx="200" cy="150" r="40" fill="#e50914" opacity="0.05" />
+
+  <circle cx="1100" cy="530" r="100" fill="#e50914" opacity="0.1" />
+  <circle cx="1000" cy="480" r="50" fill="#e50914" opacity="0.05" />
+
+  <g transform="translate(480, 200)" filter="url(#glow)">
+    <rect x="0" y="0" width="240" height="180" rx="12" fill="url(#logoGradient)" />
+    <rect x="20" y="20" width="200" height="140" rx="8" fill="#0a0a0a" />
+    <path d="M100 60 L160 90 L100 120 Z" fill="#fff" />
+    <rect x="60" y="190" width="40" height="15" rx="4" fill="#333" />
+    <rect x="140" y="190" width="40" height="15" rx="4" fill="#333" />
+    <g stroke="#e50914" stroke-width="3" fill="none">
+      <path d="M250 30 Q270 60 250 90" opacity="0.6" />
+      <path d="M260 10 Q300 60 260 110" opacity="0.4" />
+    </g>
+  </g>
+
+  <text x="600" y="450" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="72" font-weight="800" fill="url(#textGradient)" text-anchor="middle" filter="url(#glow)">IPTV Live</text>
+
+  <text x="600" y="510" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="28" font-weight="400" fill="#fff" opacity="0.8" text-anchor="middle">\u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u89C2\u770B\u5E73\u53F0</text>
+
+  <line x1="300" y1="530" x2="900" y2="530" stroke="#e50914" stroke-width="2" opacity="0.3" />
+
+  <g transform="translate(400, 560)">
+    <rect x="0" y="0" width="100" height="30" rx="15" fill="rgba(229,9,20,0.2)" stroke="#e50914" stroke-width="1" />
+    <text x="50" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#fff" text-anchor="middle">10000+\u9891\u9053</text>
+  </g>
+  <g transform="translate(520, 560)">
+    <rect x="0" y="0" width="80" height="30" rx="15" fill="rgba(229,9,20,0.2)" stroke="#e50914" stroke-width="1" />
+    <text x="40" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#fff" text-anchor="middle">\u514D\u8D39\u89C2\u770B</text>
+  </g>
+  <g transform="translate(620, 560)">
+    <rect x="0" y="0" width="80" height="30" rx="15" fill="rgba(229,9,20,0.2)" stroke="#e50914" stroke-width="1" />
+    <text x="40" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#fff" text-anchor="middle">\u9AD8\u6E05\u753B\u8D28</text>
+  </g>
+  <g transform="translate(720, 560)">
+    <rect x="0" y="0" width="80" height="30" rx="15" fill="rgba(229,9,20,0.2)" stroke="#e50914" stroke-width="1" />
+    <text x="40" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#fff" text-anchor="middle">\u65E0\u9700\u6CE8\u518C</text>
+  </g>
+</svg>`;
+
+// worker.js
 var worker_default = {
   async fetch(request, env, ctx) {
     try {
@@ -10428,12 +10548,21 @@ var worker_default = {
         });
       }
       if (path === "/favicon.svg" || path === "/favicon.ico") {
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" fill="#e50914"/>
-  <rect x="15" y="20" width="70" height="60" rx="5" fill="white"/>
-  <polygon points="40,35 40,65 65,50" fill="#e50914"/>
-</svg>`;
-        return new Response(svg, {
+        return new Response(FAVICON_SVG, {
+          headers: {
+            "Content-Type": "image/svg+xml",
+            "Cache-Control": "public, max-age=86400"
+          }
+        });
+      } else if (path === "/logo.svg") {
+        return new Response(LOGO_SVG, {
+          headers: {
+            "Content-Type": "image/svg+xml",
+            "Cache-Control": "public, max-age=86400"
+          }
+        });
+      } else if (path === "/og-image.svg" || path === "/og-image.jpg") {
+        return new Response(OG_IMAGE_SVG, {
           headers: {
             "Content-Type": "image/svg+xml",
             "Cache-Control": "public, max-age=86400"
@@ -10577,7 +10706,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-rzCdIA/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-i9MzN3/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -10611,7 +10740,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-rzCdIA/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-i9MzN3/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
