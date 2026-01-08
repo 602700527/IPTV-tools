@@ -4086,23 +4086,6 @@ var ADMIN_HTML = `<!DOCTYPE html>
         </div>
         <table><thead><tr><th>ID</th><th>\u540D\u79F0</th><th>\u7C7B\u578B</th><th>\u89E3\u6790\u6A21\u5F0F</th><th>\u72B6\u6001</th><th>\u9891\u9053\u6570</th><th>\u6700\u540E\u66F4\u65B0</th><th>\u64CD\u4F5C</th></tr></thead><tbody id="sourcesTable"></tbody></table>
       </div>
-      <div class="card">
-        <h3>\u5B9A\u65F6\u4EFB\u52A1\u63A7\u5236</h3>
-        <p style="margin-bottom:16px;color:#86868b;font-size:14px;">\u81EA\u52A8\u540C\u6B65\u6240\u6709\u5DF2\u542F\u7528\u7684\u6570\u636E\u6E90\uFF08\u9700\u5728wrangler.toml\u4E2D\u914D\u7F6Ecron\u8868\u8FBE\u5F0F\uFF09</p>
-        <div style="display:flex;gap:16px;align-items:center;">
-          <div>
-            <label style="display:block;margin-bottom:8px;font-weight:500;font-size:14px;">Cron\u8868\u8FBE\u5F0F</label>
-            <input type="text" id="cronExpression" value="0 2 * * *" style="padding:8px 12px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;width:200px;" placeholder="0 2 * * *">
-          </div>
-          <div>
-            <label style="display:block;margin-bottom:8px;font-weight:500;font-size:14px;">\u8BF4\u660E</label>
-            <span style="font-size:14px;color:#86868b;">\u793A\u4F8B: 0 2 * * * \u8868\u793A\u6BCF\u5929\u51CC\u66682\u70B9\u6267\u884C</span>
-          </div>
-        </div>
-        <div style="margin-top:16px;">
-          <button class="btn btn-primary" onclick="saveCronConfig()">\u4FDD\u5B58\u5B9A\u65F6\u4EFB\u52A1\u914D\u7F6E</button>
-        </div>
-      </div>
     </div>
     <div id="channels" class="tab-content">
       <div class="card">
@@ -5014,14 +4997,6 @@ var ADMIN_HTML = `<!DOCTYPE html>
       }
     }
 
-    function saveCronConfig() {
-      const cronExpression = document.getElementById('cronExpression').value.trim();
-      if (!cronExpression) {
-        showToast('\u8BF7\u8F93\u5165Cron\u8868\u8FBE\u5F0F', 'error');
-        return;
-      }
-      showToast('\u8BF7\u624B\u52A8\u5728 wrangler.toml \u4E2D\u914D\u7F6Ecron\u8868\u8FBE\u5F0F: ' + cronExpression + '\\n\u7136\u540E\u5728Cloudflare\u63A7\u5236\u53F0\u91CD\u65B0\u90E8\u7F72Worker', 'info');
-    }
 
     function toggleSyncFilter() {
       const panel = document.getElementById('syncFilterPanel');

@@ -179,23 +179,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
         <table><thead><tr><th>ID</th><th>名称</th><th>类型</th><th>解析模式</th><th>状态</th><th>频道数</th><th>最后更新</th><th>操作</th></tr></thead><tbody id="sourcesTable"></tbody></table>
       </div>
-      <div class="card">
-        <h3>定时任务控制</h3>
-        <p style="margin-bottom:16px;color:#86868b;font-size:14px;">自动同步所有已启用的数据源（需在wrangler.toml中配置cron表达式）</p>
-        <div style="display:flex;gap:16px;align-items:center;">
-          <div>
-            <label style="display:block;margin-bottom:8px;font-weight:500;font-size:14px;">Cron表达式</label>
-            <input type="text" id="cronExpression" value="0 2 * * *" style="padding:8px 12px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;width:200px;" placeholder="0 2 * * *">
-          </div>
-          <div>
-            <label style="display:block;margin-bottom:8px;font-weight:500;font-size:14px;">说明</label>
-            <span style="font-size:14px;color:#86868b;">示例: 0 2 * * * 表示每天凌晨2点执行</span>
-          </div>
-        </div>
-        <div style="margin-top:16px;">
-          <button class="btn btn-primary" onclick="saveCronConfig()">保存定时任务配置</button>
-        </div>
-      </div>
     </div>
     <div id="channels" class="tab-content">
       <div class="card">
@@ -1107,14 +1090,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       }
     }
 
-    function saveCronConfig() {
-      const cronExpression = document.getElementById('cronExpression').value.trim();
-      if (!cronExpression) {
-        showToast('请输入Cron表达式', 'error');
-        return;
-      }
-      showToast('请手动在 wrangler.toml 中配置cron表达式: ' + cronExpression + '\\n然后在Cloudflare控制台重新部署Worker', 'info');
-    }
 
     function toggleSyncFilter() {
       const panel = document.getElementById('syncFilterPanel');
