@@ -7595,6 +7595,10 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     .playing-dot:nth-child(3){animation-delay:0.4s}
     @keyframes playingDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(0.8)}}
 
+    /* \u5F53\u524D\u64AD\u653E\u9891\u9053\u7684\u6837\u5F0F */
+    .channel-card.playing{border-color:#e50914;box-shadow:0 0 20px rgba(229,9,20,0.3)}
+    .channel-card.playing .channel-poster .playing-indicator{position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.7);padding:4px 8px;border-radius:4px;color:#fff;z-index:5}
+
     /* Toast \u63D0\u793A\u7EC4\u4EF6\uFF08\u5DF2\u9690\u85CF\uFF09 */
     /* .toast-container{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none}
     .toast{min-width:320px;max-width:500px;padding:16px 20px;border-radius:10px;color:#fff;font-size:14px;line-height:1.5;box-shadow:0 8px 30px rgba(0,0,0,.4);pointer-events:auto;backdrop-filter:blur(10px);animation:toastSlideIn 0.3s ease;transition:all 0.2s}
@@ -8289,6 +8293,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     let history = JSON.parse(localStorage.getItem('iptv_history') || '[]');
     let featuredChannels = [];
     let isUpdatingKey = false;  // \u9632\u6B62\u91CD\u590D\u66F4\u65B0\u5BC6\u94A5
+    let currentPlayingChannel = null;  // \u5F53\u524D\u64AD\u653E\u7684\u9891\u9053
     // let lastErrorTime = 0;  // \u9632\u6B62\u91CD\u590D\u663E\u793A\u76F8\u540C\u9519\u8BEF\uFF08\u5DF2\u7981\u7528\uFF09
     // let lastErrorMsg = '';   // \u8BB0\u5F55\u4E0A\u4E00\u6761\u9519\u8BEF\u6D88\u606F\uFF08\u5DF2\u7981\u7528\uFF09
 
@@ -8689,14 +8694,16 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           : '<div class="channel-icon">\u{1F4FA}</div>';
 
         const isFavorited = favorites.some(f => f.hash === channel.channel_hash);
+        const isPlaying = currentPlayingChannel === channel.channel_hash;
         const hotIndex = Math.floor(Math.random() * 20); // \u968F\u673A\u663E\u793A\u70ED\u95E8\u6807\u7B7E
         const showHotTag = hotIndex === 0;
 
         return \`
-          <div class="channel-card ripple" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
+          <div class="channel-card ripple \${isPlaying ? 'playing' : ''}" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
             <div class="channel-poster">
               \${logo}
               \${showHotTag ? '<div class="hot-tag">' + t('hot') + '</div>' : ''}
+              \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
               <button class="favorite-btn \${isFavorited ? 'favorited' : ''}" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')" data-hash="\${escapeHtml(channel.channel_hash)}">\${isFavorited ? '\u2B50' : '\u2606'}</button>
               <div class="play-overlay">
                 <div class="play-icon"></div>
@@ -8958,6 +8965,12 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
       // \u663E\u793A\u64AD\u653E\u63D0\u793A
       showPlayingIndicator(name);
+
+      // \u66F4\u65B0\u5F53\u524D\u64AD\u653E\u9891\u9053
+      currentPlayingChannel = hash;
+      
+      // \u66F4\u65B0\u9891\u9053\u5217\u8868\u4E2D\u7684\u64AD\u653E\u72B6\u6001
+      updatePlayingStatus();
 
       // \u6DFB\u52A0\u5230\u5386\u53F2\u8BB0\u5F55 - \u652F\u6301\u76F4\u63A5\u4F7F\u7528\u4F20\u5165\u7684\u53C2\u6570
       const channel = allChannels.find(c => c.channel_hash === hash);
@@ -9351,6 +9364,10 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
       isPlayerOpen = false;
       isPlayerExpanded = false;
+      
+      // \u6E05\u9664\u5F53\u524D\u64AD\u653E\u9891\u9053\u72B6\u6001
+      currentPlayingChannel = null;
+      updatePlayingStatus();
 
       playerWrapper.classList.remove('active');
       playerWrapper.classList.remove('expanded');
@@ -9468,6 +9485,37 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     })();
 
     // ========== \u65B0\u589E\u529F\u80FD\u51FD\u6570 ==========
+
+    // \u66F4\u65B0\u9891\u9053\u5217\u8868\u4E2D\u7684\u64AD\u653E\u72B6\u6001
+    function updatePlayingStatus() {
+      // \u79FB\u9664\u6240\u6709\u5361\u7247\u7684\u64AD\u653E\u72B6\u6001
+      var allCards = document.querySelectorAll('.channel-card');
+      for (var i = 0; i < allCards.length; i++) {
+        var card = allCards[i];
+        card.classList.remove('playing');
+        var playingIndicator = card.querySelector('.playing-indicator');
+        if (playingIndicator) {
+          playingIndicator.remove();
+        }
+      }
+
+      // \u4E3A\u5F53\u524D\u64AD\u653E\u7684\u9891\u9053\u6DFB\u52A0\u64AD\u653E\u72B6\u6001
+      if (currentPlayingChannel) {
+        var selector = ".channel-card[onclick*='" + currentPlayingChannel + "']";
+        var playingCard = document.querySelector(selector);
+        if (playingCard) {
+          playingCard.classList.add('playing');
+          // \u6DFB\u52A0\u64AD\u653E\u6307\u793A\u5668
+          var poster = playingCard.querySelector('.channel-poster');
+          if (poster && !poster.querySelector('.playing-indicator')) {
+            var indicator = document.createElement('div');
+            indicator.className = 'playing-indicator';
+            indicator.innerHTML = '<div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span>';
+            poster.appendChild(indicator);
+          }
+        }
+      }
+    }
 
     // \u66F4\u65B0\u52A0\u5BC6\u5BC6\u94A5\uFF08\u4ECE\u670D\u52A1\u5668\u83B7\u53D6\u6700\u65B0\u914D\u7F6E\uFF09
     async function updateEncryptionKey() {
@@ -9704,12 +9752,14 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           const logo = channel.logo
             ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`
             : '<div class="channel-icon">\u{1F4FA}</div>';
+          const isPlaying = currentPlayingChannel === channel.channel_hash;
 
           return \`
-            <div class="channel-card ripple" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
+            <div class="channel-card ripple \${isPlaying ? 'playing' : ''}" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
               <div class="channel-poster">
                 \${logo}
                 \${index < 5 ? '<div class="hot-tag">' + t('recommend') + '</div>' : ''}
+                \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
                 <div class="play-overlay">
                   <div class="play-icon"></div>
                 </div>
@@ -9776,10 +9826,12 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       emptyState.style.display = 'none';
       container.innerHTML = favoritesItems.map(fav => {
         const logo = getLogoByHash(fav.hash);
+        const isPlaying = currentPlayingChannel === fav.hash;
         return \`
-          <div class="channel-card" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
+          <div class="channel-card \${isPlaying ? 'playing' : ''}" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
             <div class="channel-poster">
               \${logo}
+              \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
               <button class="favorite-btn favorited" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')" data-hash="\${escapeHtml(fav.hash)}">\u2B50</button>
               <div class="play-overlay">
                 <div class="play-icon"></div>
@@ -9899,11 +9951,13 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         const logo = getLogoByHash(h.hash);
         const timeAgo = getTimeAgo(h.watchedAt);
         const logoHtml = logo ? \`<img src="\${escapeHtml(logo)}" alt="\${escapeHtml(h.name)}">\` : '<div class="channel-icon">\u{1F4FA}</div>';
+        const isPlaying = currentPlayingChannel === h.hash;
 
         return \`
-          <div class="channel-card" onclick="playChannel('\${escapeHtml(h.hash)}', '\${escapeHtml(h.name)}', '\${escapeHtml(h.group)}')">
+          <div class="channel-card \${isPlaying ? 'playing' : ''}" onclick="playChannel('\${escapeHtml(h.hash)}', '\${escapeHtml(h.name)}', '\${escapeHtml(h.group)}')">
             <div class="channel-poster">
               \${logoHtml}
+              \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
               <div class="play-overlay">
                 <div class="play-icon"></div>
               </div>
@@ -9953,11 +10007,13 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       container.innerHTML = favoritesItems.map(fav => {
         const logo = getLogoByHash(fav.hash);
         const logoHtml = logo ? \`<img src="\${escapeHtml(logo)}" alt="\${escapeHtml(fav.name)}">\` : '<div class="channel-icon">\u{1F4FA}</div>';
+        const isPlaying = currentPlayingChannel === fav.hash;
 
         return \`
-          <div class="channel-card" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
+          <div class="channel-card \${isPlaying ? 'playing' : ''}" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
             <div class="channel-poster">
               \${logoHtml}
+              \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
               <button class="favorite-btn favorited" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')" data-hash="\${escapeHtml(fav.hash)}">\u2B50</button>
               <div class="play-overlay">
                 <div class="play-icon"></div>

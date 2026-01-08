@@ -253,6 +253,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .playing-dot:nth-child(3){animation-delay:0.4s}
     @keyframes playingDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(0.8)}}
 
+    /* 当前播放频道的样式 */
+    .channel-card.playing{border-color:#e50914;box-shadow:0 0 20px rgba(229,9,20,0.3)}
+    .channel-card.playing .channel-poster .playing-indicator{position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.7);padding:4px 8px;border-radius:4px;color:#fff;z-index:5}
+
     /* Toast 提示组件（已隐藏） */
     /* .toast-container{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none}
     .toast{min-width:320px;max-width:500px;padding:16px 20px;border-radius:10px;color:#fff;font-size:14px;line-height:1.5;box-shadow:0 8px 30px rgba(0,0,0,.4);pointer-events:auto;backdrop-filter:blur(10px);animation:toastSlideIn 0.3s ease;transition:all 0.2s}
@@ -947,6 +951,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let history = JSON.parse(localStorage.getItem('iptv_history') || '[]');
     let featuredChannels = [];
     let isUpdatingKey = false;  // 防止重复更新密钥
+    let currentPlayingChannel = null;  // 当前播放的频道
     // let lastErrorTime = 0;  // 防止重复显示相同错误（已禁用）
     // let lastErrorMsg = '';   // 记录上一条错误消息（已禁用）
 
@@ -1347,14 +1352,16 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           : '<div class="channel-icon">📺</div>';
 
         const isFavorited = favorites.some(f => f.hash === channel.channel_hash);
+        const isPlaying = currentPlayingChannel === channel.channel_hash;
         const hotIndex = Math.floor(Math.random() * 20); // 随机显示热门标签
         const showHotTag = hotIndex === 0;
 
         return \`
-          <div class="channel-card ripple" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
+          <div class="channel-card ripple \${isPlaying ? 'playing' : ''}" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
             <div class="channel-poster">
               \${logo}
               \${showHotTag ? '<div class="hot-tag">' + t('hot') + '</div>' : ''}
+              \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
               <button class="favorite-btn \${isFavorited ? 'favorited' : ''}" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')" data-hash="\${escapeHtml(channel.channel_hash)}">\${isFavorited ? '⭐' : '☆'}</button>
               <div class="play-overlay">
                 <div class="play-icon"></div>
@@ -1616,6 +1623,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
       // 显示播放提示
       showPlayingIndicator(name);
+
+      // 更新当前播放频道
+      currentPlayingChannel = hash;
+      
+      // 更新频道列表中的播放状态
+      updatePlayingStatus();
 
       // 添加到历史记录 - 支持直接使用传入的参数
       const channel = allChannels.find(c => c.channel_hash === hash);
@@ -2009,6 +2022,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
       isPlayerOpen = false;
       isPlayerExpanded = false;
+      
+      // 清除当前播放频道状态
+      currentPlayingChannel = null;
+      updatePlayingStatus();
 
       playerWrapper.classList.remove('active');
       playerWrapper.classList.remove('expanded');
@@ -2126,6 +2143,37 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     })();
 
     // ========== 新增功能函数 ==========
+
+    // 更新频道列表中的播放状态
+    function updatePlayingStatus() {
+      // 移除所有卡片的播放状态
+      var allCards = document.querySelectorAll('.channel-card');
+      for (var i = 0; i < allCards.length; i++) {
+        var card = allCards[i];
+        card.classList.remove('playing');
+        var playingIndicator = card.querySelector('.playing-indicator');
+        if (playingIndicator) {
+          playingIndicator.remove();
+        }
+      }
+
+      // 为当前播放的频道添加播放状态
+      if (currentPlayingChannel) {
+        var selector = ".channel-card[onclick*='" + currentPlayingChannel + "']";
+        var playingCard = document.querySelector(selector);
+        if (playingCard) {
+          playingCard.classList.add('playing');
+          // 添加播放指示器
+          var poster = playingCard.querySelector('.channel-poster');
+          if (poster && !poster.querySelector('.playing-indicator')) {
+            var indicator = document.createElement('div');
+            indicator.className = 'playing-indicator';
+            indicator.innerHTML = '<div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span>';
+            poster.appendChild(indicator);
+          }
+        }
+      }
+    }
 
     // 更新加密密钥（从服务器获取最新配置）
     async function updateEncryptionKey() {
@@ -2362,12 +2410,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           const logo = channel.logo
             ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`
             : '<div class="channel-icon">📺</div>';
+          const isPlaying = currentPlayingChannel === channel.channel_hash;
 
           return \`
-            <div class="channel-card ripple" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
+            <div class="channel-card ripple \${isPlaying ? 'playing' : ''}" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
               <div class="channel-poster">
                 \${logo}
                 \${index < 5 ? '<div class="hot-tag">' + t('recommend') + '</div>' : ''}
+                \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
                 <div class="play-overlay">
                   <div class="play-icon"></div>
                 </div>
@@ -2434,10 +2484,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       emptyState.style.display = 'none';
       container.innerHTML = favoritesItems.map(fav => {
         const logo = getLogoByHash(fav.hash);
+        const isPlaying = currentPlayingChannel === fav.hash;
         return \`
-          <div class="channel-card" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
+          <div class="channel-card \${isPlaying ? 'playing' : ''}" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
             <div class="channel-poster">
               \${logo}
+              \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
               <button class="favorite-btn favorited" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')" data-hash="\${escapeHtml(fav.hash)}">⭐</button>
               <div class="play-overlay">
                 <div class="play-icon"></div>
@@ -2557,11 +2609,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         const logo = getLogoByHash(h.hash);
         const timeAgo = getTimeAgo(h.watchedAt);
         const logoHtml = logo ? \`<img src="\${escapeHtml(logo)}" alt="\${escapeHtml(h.name)}">\` : '<div class="channel-icon">📺</div>';
+        const isPlaying = currentPlayingChannel === h.hash;
 
         return \`
-          <div class="channel-card" onclick="playChannel('\${escapeHtml(h.hash)}', '\${escapeHtml(h.name)}', '\${escapeHtml(h.group)}')">
+          <div class="channel-card \${isPlaying ? 'playing' : ''}" onclick="playChannel('\${escapeHtml(h.hash)}', '\${escapeHtml(h.name)}', '\${escapeHtml(h.group)}')">
             <div class="channel-poster">
               \${logoHtml}
+              \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
               <div class="play-overlay">
                 <div class="play-icon"></div>
               </div>
@@ -2611,11 +2665,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       container.innerHTML = favoritesItems.map(fav => {
         const logo = getLogoByHash(fav.hash);
         const logoHtml = logo ? \`<img src="\${escapeHtml(logo)}" alt="\${escapeHtml(fav.name)}">\` : '<div class="channel-icon">📺</div>';
+        const isPlaying = currentPlayingChannel === fav.hash;
 
         return \`
-          <div class="channel-card" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
+          <div class="channel-card \${isPlaying ? 'playing' : ''}" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
             <div class="channel-poster">
               \${logoHtml}
+              \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
               <button class="favorite-btn favorited" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')" data-hash="\${escapeHtml(fav.hash)}">⭐</button>
               <div class="play-overlay">
                 <div class="play-icon"></div>
