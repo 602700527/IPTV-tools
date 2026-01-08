@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS announcements (
   title TEXT NOT NULL,
   content TEXT NOT NULL,
   enabled BOOLEAN DEFAULT 1,
+  display_frequency TEXT DEFAULT 'once',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

@@ -523,6 +523,17 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           </div>
 
           <div class="form-group" style="margin-bottom:16px;">
+            <label>弹出频率</label>
+            <select class="filter-select" id="announcementFrequency" style="width:100%;">
+              <option value="once">仅一次（关闭后不再显示）</option>
+              <option value="daily">每天一次</option>
+              <option value="weekly">每周一次</option>
+              <option value="always">每次都显示</option>
+            </select>
+            <p style="margin-top:8px;color:#86868b;font-size:12px;">选择公告的显示频率。设置为"仅一次"时，用户关闭后不会再看到该公告。</p>
+          </div>
+
+          <div class="form-group" style="margin-bottom:16px;">
             <label>快速模板</label>
             <select class="filter-select" id="announcementTemplate" onchange="applyAnnouncementTemplate()" style="width:100%;">
               <option value="">-- 选择模板 --</option>
@@ -2849,11 +2860,13 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           document.getElementById('announcementTitleInput').value = announcementData.title || '';
           document.getElementById('announcementContentInput').value = announcementData.content || '';
           document.getElementById('announcementEnabled').checked = announcementData.enabled === 1;
+          document.getElementById('announcementFrequency').value = announcementData.display_frequency || 'once';
         } else {
           // 清空表单
           document.getElementById('announcementTitleInput').value = '';
           document.getElementById('announcementContentInput').value = '';
           document.getElementById('announcementEnabled').checked = false;
+          document.getElementById('announcementFrequency').value = 'once';
           document.getElementById('announcementTemplate').value = '';
         }
       } catch (error) {
@@ -2871,6 +2884,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         const title = document.getElementById('announcementTitleInput').value.trim();
         const content = document.getElementById('announcementContentInput').value.trim();
         const enabled = document.getElementById('announcementEnabled').checked;
+        const displayFrequency = document.getElementById('announcementFrequency').value;
 
         if (!title) {
           showToast('请输入公告标题', 'error');
@@ -2889,7 +2903,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         const data = {
           title,
           content,
-          enabled
+          enabled,
+          display_frequency: displayFrequency
         };
 
         // 如果已有公告，则更新

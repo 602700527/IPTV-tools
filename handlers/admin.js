@@ -1328,12 +1328,13 @@ export async function handleAdminRequest(request, env, ctx) {
           if (data.id) {
             await db.prepare(`
               UPDATE announcements
-              SET title = ?, content = ?, enabled = ?, updated_at = ?
+              SET title = ?, content = ?, enabled = ?, display_frequency = ?, updated_at = ?
               WHERE id = ?
             `).bind(
               data.title,
               data.content,
               data.enabled !== undefined ? (data.enabled ? 1 : 0) : 1,
+              data.display_frequency || 'once',
               now,
               data.id
             ).run();
@@ -1347,12 +1348,13 @@ export async function handleAdminRequest(request, env, ctx) {
           } else {
             // 创建新公告
             const result = await db.prepare(`
-              INSERT INTO announcements (title, content, enabled, created_at, updated_at)
-              VALUES (?, ?, ?, ?, ?)
+              INSERT INTO announcements (title, content, enabled, display_frequency, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?)
             `).bind(
               data.title,
               data.content,
               data.enabled !== undefined ? (data.enabled ? 1 : 0) : 1,
+              data.display_frequency || 'once',
               now,
               now
             ).run();

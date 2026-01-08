@@ -238,10 +238,22 @@ export async function createTables(env) {
       title TEXT NOT NULL,
       content TEXT NOT NULL,
       enabled BOOLEAN DEFAULT 1,
+      display_frequency TEXT DEFAULT 'once',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
+
+  // 迁移：添加 display_frequency 字段（如果不存在）
+  try {
+    await db.prepare('ALTER TABLE announcements ADD COLUMN display_frequency TEXT DEFAULT \'once\'').run();
+    console.log('Migrated announcements table: added display_frequency column');
+  } catch (e) {
+    // 字段已存在，忽略错误
+    if (!e.message.includes('duplicate column name')) {
+      console.error('Migration error:', e);
+    }
+  }
 
   // 创建公告索引
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_announcements_enabled ON announcements(enabled)').run();

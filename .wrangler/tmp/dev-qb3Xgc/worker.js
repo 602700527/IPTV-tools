@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-Utn9WG/checked-fetch.js
+// .wrangler/tmp/bundle-rzCdIA/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-Utn9WG/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-rzCdIA/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -264,10 +264,19 @@ async function createTables(env) {
       title TEXT NOT NULL,
       content TEXT NOT NULL,
       enabled BOOLEAN DEFAULT 1,
+      display_frequency TEXT DEFAULT 'once',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
+  try {
+    await db.prepare("ALTER TABLE announcements ADD COLUMN display_frequency TEXT DEFAULT 'once'").run();
+    console.log("Migrated announcements table: added display_frequency column");
+  } catch (e) {
+    if (!e.message.includes("duplicate column name")) {
+      console.error("Migration error:", e);
+    }
+  }
   await db.prepare("CREATE INDEX IF NOT EXISTS idx_announcements_enabled ON announcements(enabled)").run();
   await db.prepare("CREATE INDEX IF NOT EXISTS idx_announcements_updated ON announcements(updated_at DESC)").run();
   console.log("Tables created successfully");
@@ -1000,11 +1009,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-Utn9WG/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-rzCdIA/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-Utn9WG/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-rzCdIA/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -3107,12 +3116,13 @@ async function handleAdminRequest(request, env, ctx) {
           if (data.id) {
             await db2.prepare(`
               UPDATE announcements
-              SET title = ?, content = ?, enabled = ?, updated_at = ?
+              SET title = ?, content = ?, enabled = ?, display_frequency = ?, updated_at = ?
               WHERE id = ?
             `).bind(
               data.title,
               data.content,
               data.enabled !== void 0 ? data.enabled ? 1 : 0 : 1,
+              data.display_frequency || "once",
               now2,
               data.id
             ).run();
@@ -3124,12 +3134,13 @@ async function handleAdminRequest(request, env, ctx) {
             });
           } else {
             const result2 = await db2.prepare(`
-              INSERT INTO announcements (title, content, enabled, created_at, updated_at)
-              VALUES (?, ?, ?, ?, ?)
+              INSERT INTO announcements (title, content, enabled, display_frequency, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?)
             `).bind(
               data.title,
               data.content,
               data.enabled !== void 0 ? data.enabled ? 1 : 0 : 1,
+              data.display_frequency || "once",
               now2,
               now2
             ).run();
@@ -4535,6 +4546,17 @@ var ADMIN_HTML = `<!DOCTYPE html>
               <input type="checkbox" id="announcementEnabled" checked style="margin-right:12px;">
               <span style="font-size:14px;">\u542F\u7528\u516C\u544A</span>
             </label>
+          </div>
+
+          <div class="form-group" style="margin-bottom:16px;">
+            <label>\u5F39\u51FA\u9891\u7387</label>
+            <select class="filter-select" id="announcementFrequency" style="width:100%;">
+              <option value="once">\u4EC5\u4E00\u6B21\uFF08\u5173\u95ED\u540E\u4E0D\u518D\u663E\u793A\uFF09</option>
+              <option value="daily">\u6BCF\u5929\u4E00\u6B21</option>
+              <option value="weekly">\u6BCF\u5468\u4E00\u6B21</option>
+              <option value="always">\u6BCF\u6B21\u90FD\u663E\u793A</option>
+            </select>
+            <p style="margin-top:8px;color:#86868b;font-size:12px;">\u9009\u62E9\u516C\u544A\u7684\u663E\u793A\u9891\u7387\u3002\u8BBE\u7F6E\u4E3A"\u4EC5\u4E00\u6B21"\u65F6\uFF0C\u7528\u6237\u5173\u95ED\u540E\u4E0D\u4F1A\u518D\u770B\u5230\u8BE5\u516C\u544A\u3002</p>
           </div>
 
           <div class="form-group" style="margin-bottom:16px;">
@@ -6864,11 +6886,13 @@ var ADMIN_HTML = `<!DOCTYPE html>
           document.getElementById('announcementTitleInput').value = announcementData.title || '';
           document.getElementById('announcementContentInput').value = announcementData.content || '';
           document.getElementById('announcementEnabled').checked = announcementData.enabled === 1;
+          document.getElementById('announcementFrequency').value = announcementData.display_frequency || 'once';
         } else {
           // \u6E05\u7A7A\u8868\u5355
           document.getElementById('announcementTitleInput').value = '';
           document.getElementById('announcementContentInput').value = '';
           document.getElementById('announcementEnabled').checked = false;
+          document.getElementById('announcementFrequency').value = 'once';
           document.getElementById('announcementTemplate').value = '';
         }
       } catch (error) {
@@ -6886,6 +6910,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
         const title = document.getElementById('announcementTitleInput').value.trim();
         const content = document.getElementById('announcementContentInput').value.trim();
         const enabled = document.getElementById('announcementEnabled').checked;
+        const displayFrequency = document.getElementById('announcementFrequency').value;
 
         if (!title) {
           showToast('\u8BF7\u8F93\u5165\u516C\u544A\u6807\u9898', 'error');
@@ -6904,7 +6929,8 @@ var ADMIN_HTML = `<!DOCTYPE html>
         const data = {
           title,
           content,
-          enabled
+          enabled,
+          display_frequency: displayFrequency
         };
 
         // \u5982\u679C\u5DF2\u6709\u516C\u544A\uFF0C\u5219\u66F4\u65B0
@@ -7582,23 +7608,24 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     @keyframes toastSlideOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-20px)}}
     .toast.hiding{animation:toastSlideOut 0.3s ease forwards} */
 
-    /* \u516C\u544A\u6837\u5F0F */
-    .announcement-container{margin-bottom:20px;display:none}
-    .announcement-container.active{display:block}
-    .announcement-card{background:linear-gradient(135deg,rgba(229,9,20,.9) 0%,rgba(220,38,38,.9) 100%);border-radius:12px;padding:20px;position:relative;overflow:hidden}
-    .announcement-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(229,9,20,.3) 0%,transparent 70%);animation:announcementGlow 3s ease-in-out infinite}
-    @keyframes announcementGlow{0%,100%{opacity:0.5}50%{opacity:1}}
-    .announcement-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-    .announcement-title{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;color:#fff}
-    .announcement-icon{font-size:20px}
-    .announcement-close{width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.15);border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .2s}
-    .announcement-close:hover{background:rgba(255,255,255,.25);color:#fff}
-    .announcement-content{color:rgba(255,255,255,.9);font-size:14px;line-height:1.6}
-    .announcement-content p{margin-bottom:12px}
-    .announcement-content p:last-child{margin-bottom:0}
-    .announcement-content a{color:#ffadad;text-decoration:underline}
-    .announcement-footer{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.15);font-size:12px;color:rgba(255,255,255,.5)}
-    .announcement-time{display:flex;align-items:center;gap:4px}
+    /* \u516C\u544A\u6837\u5F0F - \u5F39\u7A97\u5F0F\u901A\u77E5 */
+    .announcement-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(4px)}
+    .announcement-modal.active{display:flex}
+    .announcement-modal-box{background:#1a1a1a;border-radius:16px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);animation:announcementSlideIn 0.3s ease}
+    @keyframes announcementSlideIn{from{opacity:0;transform:scale(0.9) translateY(-20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .announcement-modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+    .announcement-modal-title{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600;color:#fff}
+    .announcement-modal-icon{font-size:24px}
+    .announcement-close{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:rgba(255,255,255,.6);font-size:22px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .announcement-close:hover{background:rgba(255,255,255,.2);color:#fff;transform:rotate(90deg)}
+    .announcement-modal-body{padding:24px;color:rgba(255,255,255,.85);font-size:15px;line-height:1.7}
+    .announcement-modal-body p{margin-bottom:12px}
+    .announcement-modal-body p:last-child{margin-bottom:0}
+    .announcement-modal-body a{color:#60a5fa;text-decoration:underline}
+    .announcement-modal-footer{display:flex;align-items:center;justify-content:space-between;padding:16px 24px 20px;border-top:1px solid rgba(255,255,255,.1)}
+    .announcement-modal-time{display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.5)}
+    .announcement-modal-button{padding:10px 24px;background:#60a5fa;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s}
+    .announcement-modal-button:hover{background:#3b82f6}
 
 
     @media (max-width:1024px){
@@ -7792,24 +7819,25 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       </div>
 
       <div id="channelList" style="display:none;">
-        <!-- \u516C\u544A\u533A\u57DF -->
-        <div class="announcement-container" id="announcementContainer">
-          <div class="announcement-card">
-            <div class="announcement-header">
-              <div class="announcement-title">
-                <span class="announcement-icon">\u{1F4E2}</span>
+        <!-- \u516C\u544A\u5F39\u7A97 -->
+        <div class="announcement-modal" id="announcementModal">
+          <div class="announcement-modal-box">
+            <div class="announcement-modal-header">
+              <div class="announcement-modal-title">
+                <span class="announcement-modal-icon">\u{1F4E2}</span>
                 <span id="announcementTitle">\u7CFB\u7EDF\u516C\u544A</span>
               </div>
               <button class="announcement-close" onclick="closeAnnouncement()">&times;</button>
             </div>
-            <div class="announcement-content" id="announcementContent">
+            <div class="announcement-modal-body" id="announcementContent">
               <p>\u52A0\u8F7D\u4E2D...</p>
             </div>
-            <div class="announcement-footer">
-              <div class="announcement-time" id="announcementTime">
+            <div class="announcement-modal-footer">
+              <div class="announcement-modal-time" id="announcementTime">
                 <span>\u{1F550}</span>
                 <span>\u53D1\u5E03\u65F6\u95F4\u52A0\u8F7D\u4E2D</span>
               </div>
+              <button class="announcement-modal-button" onclick="closeAnnouncement()">\u77E5\u9053\u4E86</button>
             </div>
           </div>
         </div>
@@ -9481,15 +9509,52 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
         if (result.success && result.data && result.data.enabled) {
           announcement = result.data;
+          const displayFrequency = announcement.display_frequency || 'once';
 
-          // \u68C0\u67E5\u7528\u6237\u662F\u5426\u5DF2\u5173\u95ED\u516C\u544A
-          const closedKey = 'announcement_closed_' + announcement.id;
-          const userClosed = localStorage.getItem(closedKey);
+          // \u6839\u636E\u5F39\u51FA\u9891\u7387\u51B3\u5B9A\u662F\u5426\u663E\u793A\u516C\u544A
+          let shouldDisplay = false;
 
-          if (!userClosed) {
+          if (displayFrequency === 'always') {
+            // \u6BCF\u6B21\u90FD\u663E\u793A
+            shouldDisplay = true;
+          } else if (displayFrequency === 'once') {
+            // \u4EC5\u4E00\u6B21\uFF08\u5173\u95ED\u540E\u4E0D\u518D\u663E\u793A\uFF09
+            const closedKey = 'announcement_closed_' + announcement.id;
+            const userClosed = localStorage.getItem(closedKey);
+            shouldDisplay = !userClosed;
+          } else if (displayFrequency === 'daily') {
+            // \u6BCF\u5929\u4E00\u6B21
+            const closedKey = 'announcement_closed_' + announcement.id;
+            const lastClosed = localStorage.getItem(closedKey);
+
+            if (!lastClosed) {
+              shouldDisplay = true;
+            } else {
+              // \u68C0\u67E5\u662F\u5426\u662F\u4ECA\u5929
+              const lastClosedDate = new Date(parseInt(lastClosed));
+              const today = new Date();
+              shouldDisplay = lastClosedDate.toDateString() !== today.toDateString();
+            }
+          } else if (displayFrequency === 'weekly') {
+            // \u6BCF\u5468\u4E00\u6B21
+            const closedKey = 'announcement_closed_' + announcement.id;
+            const lastClosed = localStorage.getItem(closedKey);
+
+            if (!lastClosed) {
+              shouldDisplay = true;
+            } else {
+              // \u68C0\u67E5\u662F\u5426\u662F\u540C\u4E00\u5468
+              const lastClosedDate = new Date(parseInt(lastClosed));
+              const now = new Date();
+              const oneWeek = 7 * 24 * 60 * 60 * 1000;
+              shouldDisplay = (now.getTime() - lastClosedDate.getTime()) > oneWeek;
+            }
+          }
+
+          if (shouldDisplay) {
             renderAnnouncement();
           } else {
-            console.log('[Announcement] \u7528\u6237\u5DF2\u5173\u95ED\u6B64\u516C\u544A');
+            console.log('[Announcement] \u516C\u544A\u5DF2\u6839\u636E\u9891\u7387\u89C4\u5219\u9690\u85CF');
           }
         } else {
           console.log('[Announcement] \u65E0\u6709\u6548\u516C\u544A\u6216\u516C\u544A\u5DF2\u7981\u7528');
@@ -9503,14 +9568,14 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     function renderAnnouncement() {
       if (!announcement) return;
 
-      const container = document.getElementById('announcementContainer');
+      const modal = document.getElementById('announcementModal');
       const titleEl = document.getElementById('announcementTitle');
       const contentEl = document.getElementById('announcementContent');
       const timeEl = document.getElementById('announcementTime');
 
       titleEl.textContent = announcement.title || '\u7CFB\u7EDF\u516C\u544A';
       contentEl.innerHTML = announcement.content || '\u6682\u65E0\u5185\u5BB9';
-      container.classList.add('active');
+      modal.classList.add('active');
 
       // \u683C\u5F0F\u5316\u65F6\u95F4
       if (announcement.updated_at) {
@@ -9529,17 +9594,26 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     }
 
     // \u5173\u95ED\u516C\u544A
-    function closeAnnouncement() {
+    window.closeAnnouncement = function() {
       if (!announcement) return;
 
-      const container = document.getElementById('announcementContainer');
-      container.classList.remove('active');
+      const modal = document.getElementById('announcementModal');
+      modal.classList.remove('active');
 
-      // \u8BB0\u5F55\u7528\u6237\u5DF2\u5173\u95ED\u6B64\u516C\u544A
+      // \u6839\u636E\u5F39\u51FA\u9891\u7387\u8BB0\u5F55\u5173\u95ED\u65F6\u95F4
+      const displayFrequency = announcement.display_frequency || 'once';
       const closedKey = 'announcement_closed_' + announcement.id;
-      localStorage.setItem(closedKey, 'true');
 
-      console.log('[Announcement] \u7528\u6237\u5173\u95ED\u516C\u544A ID:', announcement.id);
+      if (displayFrequency === 'once') {
+        // \u4EC5\u4E00\u6B21\uFF1A\u6C38\u4E45\u8BB0\u5F55
+        localStorage.setItem(closedKey, 'true');
+      } else if (displayFrequency === 'daily' || displayFrequency === 'weekly') {
+        // \u6BCF\u5929\u4E00\u6B21\u6216\u6BCF\u5468\u4E00\u6B21\uFF1A\u8BB0\u5F55\u65F6\u95F4\u6233
+        localStorage.setItem(closedKey, Date.now().toString());
+      }
+      // 'always' \u6A21\u5F0F\u4E0D\u8BB0\u5F55\u5173\u95ED\u72B6\u6001
+
+      console.log('[Announcement] \u7528\u6237\u5173\u95ED\u516C\u544A ID:', announcement.id, '\u9891\u7387:', displayFrequency);
     }
 
     // \u5728\u7EBF\u4EBA\u6570\u663E\u793A\uFF08\u6A21\u62DF\uFF09
@@ -10503,7 +10577,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-Utn9WG/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-rzCdIA/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -10537,7 +10611,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-Utn9WG/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-rzCdIA/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

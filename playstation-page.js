@@ -266,23 +266,24 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     @keyframes toastSlideOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-20px)}}
     .toast.hiding{animation:toastSlideOut 0.3s ease forwards} */
 
-    /* 公告样式 */
-    .announcement-container{margin-bottom:20px;display:none}
-    .announcement-container.active{display:block}
-    .announcement-card{background:linear-gradient(135deg,rgba(229,9,20,.9) 0%,rgba(220,38,38,.9) 100%);border-radius:12px;padding:20px;position:relative;overflow:hidden}
-    .announcement-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(229,9,20,.3) 0%,transparent 70%);animation:announcementGlow 3s ease-in-out infinite}
-    @keyframes announcementGlow{0%,100%{opacity:0.5}50%{opacity:1}}
-    .announcement-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-    .announcement-title{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;color:#fff}
-    .announcement-icon{font-size:20px}
-    .announcement-close{width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.15);border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .2s}
-    .announcement-close:hover{background:rgba(255,255,255,.25);color:#fff}
-    .announcement-content{color:rgba(255,255,255,.9);font-size:14px;line-height:1.6}
-    .announcement-content p{margin-bottom:12px}
-    .announcement-content p:last-child{margin-bottom:0}
-    .announcement-content a{color:#ffadad;text-decoration:underline}
-    .announcement-footer{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.15);font-size:12px;color:rgba(255,255,255,.5)}
-    .announcement-time{display:flex;align-items:center;gap:4px}
+    /* 公告样式 - 弹窗式通知 */
+    .announcement-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(4px)}
+    .announcement-modal.active{display:flex}
+    .announcement-modal-box{background:#1a1a1a;border-radius:16px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);animation:announcementSlideIn 0.3s ease}
+    @keyframes announcementSlideIn{from{opacity:0;transform:scale(0.9) translateY(-20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .announcement-modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+    .announcement-modal-title{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600;color:#fff}
+    .announcement-modal-icon{font-size:24px}
+    .announcement-close{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:rgba(255,255,255,.6);font-size:22px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .announcement-close:hover{background:rgba(255,255,255,.2);color:#fff;transform:rotate(90deg)}
+    .announcement-modal-body{padding:24px;color:rgba(255,255,255,.85);font-size:15px;line-height:1.7}
+    .announcement-modal-body p{margin-bottom:12px}
+    .announcement-modal-body p:last-child{margin-bottom:0}
+    .announcement-modal-body a{color:#60a5fa;text-decoration:underline}
+    .announcement-modal-footer{display:flex;align-items:center;justify-content:space-between;padding:16px 24px 20px;border-top:1px solid rgba(255,255,255,.1)}
+    .announcement-modal-time{display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.5)}
+    .announcement-modal-button{padding:10px 24px;background:#60a5fa;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s}
+    .announcement-modal-button:hover{background:#3b82f6}
 
 
     @media (max-width:1024px){
@@ -476,24 +477,25 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       </div>
 
       <div id="channelList" style="display:none;">
-        <!-- 公告区域 -->
-        <div class="announcement-container" id="announcementContainer">
-          <div class="announcement-card">
-            <div class="announcement-header">
-              <div class="announcement-title">
-                <span class="announcement-icon">📢</span>
+        <!-- 公告弹窗 -->
+        <div class="announcement-modal" id="announcementModal">
+          <div class="announcement-modal-box">
+            <div class="announcement-modal-header">
+              <div class="announcement-modal-title">
+                <span class="announcement-modal-icon">📢</span>
                 <span id="announcementTitle">系统公告</span>
               </div>
               <button class="announcement-close" onclick="closeAnnouncement()">&times;</button>
             </div>
-            <div class="announcement-content" id="announcementContent">
+            <div class="announcement-modal-body" id="announcementContent">
               <p>加载中...</p>
             </div>
-            <div class="announcement-footer">
-              <div class="announcement-time" id="announcementTime">
+            <div class="announcement-modal-footer">
+              <div class="announcement-modal-time" id="announcementTime">
                 <span>🕐</span>
                 <span>发布时间加载中</span>
               </div>
+              <button class="announcement-modal-button" onclick="closeAnnouncement()">知道了</button>
             </div>
           </div>
         </div>
@@ -2165,15 +2167,52 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
         if (result.success && result.data && result.data.enabled) {
           announcement = result.data;
+          const displayFrequency = announcement.display_frequency || 'once';
 
-          // 检查用户是否已关闭公告
-          const closedKey = 'announcement_closed_' + announcement.id;
-          const userClosed = localStorage.getItem(closedKey);
+          // 根据弹出频率决定是否显示公告
+          let shouldDisplay = false;
 
-          if (!userClosed) {
+          if (displayFrequency === 'always') {
+            // 每次都显示
+            shouldDisplay = true;
+          } else if (displayFrequency === 'once') {
+            // 仅一次（关闭后不再显示）
+            const closedKey = 'announcement_closed_' + announcement.id;
+            const userClosed = localStorage.getItem(closedKey);
+            shouldDisplay = !userClosed;
+          } else if (displayFrequency === 'daily') {
+            // 每天一次
+            const closedKey = 'announcement_closed_' + announcement.id;
+            const lastClosed = localStorage.getItem(closedKey);
+
+            if (!lastClosed) {
+              shouldDisplay = true;
+            } else {
+              // 检查是否是今天
+              const lastClosedDate = new Date(parseInt(lastClosed));
+              const today = new Date();
+              shouldDisplay = lastClosedDate.toDateString() !== today.toDateString();
+            }
+          } else if (displayFrequency === 'weekly') {
+            // 每周一次
+            const closedKey = 'announcement_closed_' + announcement.id;
+            const lastClosed = localStorage.getItem(closedKey);
+
+            if (!lastClosed) {
+              shouldDisplay = true;
+            } else {
+              // 检查是否是同一周
+              const lastClosedDate = new Date(parseInt(lastClosed));
+              const now = new Date();
+              const oneWeek = 7 * 24 * 60 * 60 * 1000;
+              shouldDisplay = (now.getTime() - lastClosedDate.getTime()) > oneWeek;
+            }
+          }
+
+          if (shouldDisplay) {
             renderAnnouncement();
           } else {
-            console.log('[Announcement] 用户已关闭此公告');
+            console.log('[Announcement] 公告已根据频率规则隐藏');
           }
         } else {
           console.log('[Announcement] 无有效公告或公告已禁用');
@@ -2187,14 +2226,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     function renderAnnouncement() {
       if (!announcement) return;
 
-      const container = document.getElementById('announcementContainer');
+      const modal = document.getElementById('announcementModal');
       const titleEl = document.getElementById('announcementTitle');
       const contentEl = document.getElementById('announcementContent');
       const timeEl = document.getElementById('announcementTime');
 
       titleEl.textContent = announcement.title || '系统公告';
       contentEl.innerHTML = announcement.content || '暂无内容';
-      container.classList.add('active');
+      modal.classList.add('active');
 
       // 格式化时间
       if (announcement.updated_at) {
@@ -2213,17 +2252,26 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
 
     // 关闭公告
-    function closeAnnouncement() {
+    window.closeAnnouncement = function() {
       if (!announcement) return;
 
-      const container = document.getElementById('announcementContainer');
-      container.classList.remove('active');
+      const modal = document.getElementById('announcementModal');
+      modal.classList.remove('active');
 
-      // 记录用户已关闭此公告
+      // 根据弹出频率记录关闭时间
+      const displayFrequency = announcement.display_frequency || 'once';
       const closedKey = 'announcement_closed_' + announcement.id;
-      localStorage.setItem(closedKey, 'true');
 
-      console.log('[Announcement] 用户关闭公告 ID:', announcement.id);
+      if (displayFrequency === 'once') {
+        // 仅一次：永久记录
+        localStorage.setItem(closedKey, 'true');
+      } else if (displayFrequency === 'daily' || displayFrequency === 'weekly') {
+        // 每天一次或每周一次：记录时间戳
+        localStorage.setItem(closedKey, Date.now().toString());
+      }
+      // 'always' 模式不记录关闭状态
+
+      console.log('[Announcement] 用户关闭公告 ID:', announcement.id, '频率:', displayFrequency);
     }
 
     // 在线人数显示（模拟）
