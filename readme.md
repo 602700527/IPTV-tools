@@ -1,4 +1,4 @@
-# Cloudflare TV 直播服务
+# |？1Cloudflare TV 直播服务
 
 基于 Cloudflare 生态 (Workers + D1 + KV + Cache API) 的电视直播服务，实现高并发、低延迟和秒级管理。
 
@@ -31,6 +31,7 @@ cfworker2/
 ### 1. 管理后台功能
 
 #### 1.1 直播源管理
+
 - **添加源**：支持添加新的M3U/M3U8直播源
 - **编辑源**：修改源的名称、URL、类型和解析模式
 - **删除源**：删除源及其关联的所有频道数据
@@ -44,6 +45,7 @@ cfworker2/
   - 宽松模式：兼容性更强的解析方式
 
 #### 1.2 频道管理
+
 - **列表展示**：分页显示所有频道
 - **多维度筛选**：
   - 按直播源筛选
@@ -59,6 +61,7 @@ cfworker2/
   - 启用/禁用单个频道
 
 #### 1.3 卡密管理
+
 - **生成卡密**：
   - 批量生成（1-100个）
   - 设置有效期（天数）
@@ -82,6 +85,7 @@ cfworker2/
 - **分页展示**：支持10/20/30/50/100条/页
 
 #### 1.4 仪表盘
+
 - **统计概览**：
   - 直播源总数
   - 频道总数
@@ -91,11 +95,13 @@ cfworker2/
 ### 2. 订阅功能
 
 #### 2.1 订阅链接格式
+
 ```
 https://your-domain.com/sub/{卡密}.m3u
 ```
 
 #### 2.2 处理流程
+
 1. **防盗检查**：使用KV存储检查每日请求次数（限制20次/天）
 2. **缓存检查**：检查Cache API缓存（1小时有效期）
 3. **卡密验证**：验证卡密状态和有效期
@@ -109,11 +115,13 @@ https://your-domain.com/sub/{卡密}.m3u
 ### 3. 播放功能
 
 #### 3.1 播放链接格式
+
 ```
 https://your-domain.com/live/{卡密}/{频道hash}
 ```
 
 #### 3.2 处理流程
+
 1. **缓存检查**：检查Cache API缓存（5分钟有效期）
 2. **卡密验证**：验证卡密状态和有效期
 3. **IP并发检测**：
@@ -129,6 +137,7 @@ https://your-domain.com/live/{卡密}/{频道hash}
 ### 表结构
 
 #### sources（直播源表）
+
 ```sql
 CREATE TABLE sources (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -141,6 +150,7 @@ CREATE TABLE sources (
 ```
 
 #### channels（频道表）
+
 ```sql
 CREATE TABLE channels (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -157,6 +167,7 @@ CREATE TABLE channels (
 ```
 
 #### codes（卡密表）
+
 ```sql
 CREATE TABLE codes (
   code TEXT PRIMARY KEY,  -- 卡密（唯一）
@@ -170,6 +181,7 @@ CREATE TABLE codes (
 ```
 
 ### 索引
+
 ```sql
 -- 频道hash索引（加速播放请求）
 CREATE INDEX idx_channel_hash ON channels(channel_hash);
@@ -327,23 +339,27 @@ CREATE INDEX idx_code_status ON codes(status);
 ## 安全机制
 
 ### 1. 防盗链
+
 - **动态URL**：播放链接包含卡密和频道hash，有效期5分钟
 - **请求频率限制**：每个卡密每日最多20次订阅请求
 - **缓存策略**：无效请求缓存1小时，减少数据库压力
 
 ### 2. IP并发限制
+
 - **默认限制**：每个卡密最多3个IP同时使用
 - **记录机制**：使用KV存储记录活跃IP和访问时间
 - **自动清理**：10分钟内无访问的IP自动失效
 - **实时更新**：异步更新KV，不阻塞响应
 
 ### 3. 卡密管理
+
 - **状态控制**：未使用、活跃、禁用三种状态
 - **有效期管理**：支持设置卡密有效期，过期自动失效
 - **唯一性保证**：自动检测并生成唯一卡密
 - **批量操作**：支持批量生成、批量导出
 
 ### 4. 数据库安全
+
 - **索引优化**：关键字段建立索引，提高查询效率
 - **批量操作**：使用batch操作减少API调用
 - **连接管理**：单例模式管理数据库连接
@@ -351,15 +367,18 @@ CREATE INDEX idx_code_status ON codes(status);
 ## 缓存策略
 
 ### Cache API
+
 - **订阅请求**：缓存1小时
 - **播放请求**：缓存5分钟
 - **错误响应**：根据类型缓存5分钟或1小时
 
 ### KV存储
+
 - **防盗计数器**：TTL 24小时
 - **IP并发记录**：TTL 10分钟
 
 ### 缓存命中率优化
+
 - 播放请求缓存命中率 > 95%
 - 订阅请求缓存命中率 > 80%
 - 无效请求缓存减少数据库压力
@@ -371,11 +390,13 @@ CREATE INDEX idx_code_status ON codes(status);
 所有管理 API 请求需要在请求头中包含 `X-Admin-Key`，值为 `wrangler.toml` 中配置的 `ADMIN_KEY`。
 
 #### 初始化数据库
+
 ```
 GET /admin/init
 ```
 
 #### 直播源管理
+
 ```
 # 获取所有源
 GET /admin/sources
@@ -407,6 +428,7 @@ POST /admin/sync/{id}
 ```
 
 #### 频道管理
+
 ```
 # 获取频道列表（分页）
 GET /admin/channels?page=1&page_size=30&source_id=1&search=关键词
@@ -416,6 +438,7 @@ DELETE /admin/channels
 ```
 
 #### 卡密管理
+
 ```
 # 获取卡密列表（分页、高级查询）
 GET /admin/codes?page=1&page_size=30&status=active
@@ -454,11 +477,13 @@ Body: {
 ### 公共API
 
 #### 订阅接口
+
 ```
 GET /sub/{code}.m3u
 ```
 
 #### 播放接口
+
 ```
 GET /live/{code}/{hash}
 ```
@@ -468,6 +493,7 @@ GET /live/{code}/{hash}
 ### 支持的格式
 
 #### 标准M3U格式
+
 ```
 #EXTM3U
 #EXTINF:-1 group-title="央视" tvg-logo="http://example.com/logo.png",CCTV-1
@@ -475,6 +501,7 @@ http://example.com/stream.m3u8
 ```
 
 #### 包含请求头的格式
+
 ```
 #EXTM3U
 #EXTINF:-1 http-user-agent="Mozilla/5.0" referer="http://example.com",Channel Name
@@ -482,6 +509,7 @@ http://example.com/stream.m3u8
 ```
 
 #### VLC选项格式
+
 ```
 #EXTM3U
 #EXTINF:-1,Channel Name
@@ -491,6 +519,7 @@ http://example.com/stream.m3u8
 ```
 
 #### 全局User-Agent
+
 ```
 #EXTM3U user-agent="Mozilla/5.0"
 #EXTINF:-1,Channel Name
@@ -532,11 +561,13 @@ wrangler login
 ### 3. 配置 Cloudflare 资源
 
 #### 创建 KV 命名空间
+
 ```bash
 wrangler kv:namespace create "KV"
 ```
 
 将返回的 ID 添加到 `wrangler.toml`：
+
 ```toml
 [[kv_namespaces]]
 binding = "KV"
@@ -545,11 +576,13 @@ preview_id = "your-preview-kv-id"
 ```
 
 #### 创建 D1 数据库
+
 ```bash
 wrangler d1 create "tv-service-db"
 ```
 
 将返回的 ID 添加到 `wrangler.toml`：
+
 ```toml
 [[d1_databases]]
 binding = "DB"
@@ -558,7 +591,9 @@ database_id = "your-database-id"
 ```
 
 #### 配置管理员密钥
+
 在 `wrangler.toml` 中添加：
+
 ```toml
 [vars]
 ADMIN_KEY = "your-secure-admin-key"
@@ -567,11 +602,13 @@ ADMIN_KEY = "your-secure-admin-key"
 ### 4. 初始化数据库
 
 通过管理后台初始化：
+
 1. 访问 `https://your-worker.workers.dev/admin`
 2. 输入管理员密钥登录
 3. 数据库表会自动创建
 
 或使用 API：
+
 ```bash
 curl -X GET https://your-worker.workers.dev/admin/init \
   -H "X-Admin-Key: your-admin-key"
@@ -594,16 +631,19 @@ npm run deploy
 ## 性能优化
 
 ### 1. 数据库优化
+
 - 批量插入：每批500条记录
 - 索引优化：关键字段建立索引
 - 连接池：单例模式管理连接
 
 ### 2. 缓存优化
+
 - 边缘缓存：95%播放请求命中缓存
 - 异步更新：KV更新不阻塞响应
 - 分级缓存：不同场景使用不同TTL
 
 ### 3. 并发处理
+
 - 异步操作：ctx.waitUntil()不阻塞响应
 - 批量操作：减少API调用次数
 - 连接复用：单例数据库连接
@@ -611,16 +651,19 @@ npm run deploy
 ## 监控与统计
 
 ### 系统统计
+
 - 直播源数量
 - 频道总数
 - 活跃卡密数
 - 未使用卡密数
 
 ### 频道统计
+
 - 每个源的频道数量
 - 启用/禁用状态分布
 
 ### 卡密统计
+
 - 状态分布（未使用/活跃/禁用）
 - 有效期分布
 - IP使用情况
@@ -628,22 +671,27 @@ npm run deploy
 ## 常见问题
 
 ### 1. 如何添加新的直播源？
+
 登录管理后台 -> 直播源管理 -> 添加源 -> 填写源信息 -> 同步数据
 
 ### 2. 如何生成卡密？
+
 登录管理后台 -> 卡密管理 -> 生成卡密 -> 设置参数 -> 生成
 
 ### 3. 订阅链接无法使用？
+
 - 检查卡密是否已激活且未过期
 - 检查每日请求次数是否超限
 - 检查是否有可用频道
 
 ### 4. 播放卡顿或无法播放？
+
 - 检查卡密是否被禁用或过期
 - 检查IP是否超过限制
 - 检查原始直播源是否可用
 
 ### 5. 如何导出卡密数据？
+
 登录管理后台 -> 卡密管理 -> 设置查询条件 -> 导出CSV
 
 ## 许可证

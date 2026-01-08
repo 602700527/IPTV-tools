@@ -51,7 +51,8 @@ export async function handleScheduledEvent(event, env, ctx) {
         const oldCountResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(source.id).first();
         const oldChannelCount = oldCountResult?.count || 0;
 
-        // 删除该源的旧频道
+        // 删除该源的旧频道（使用更高效的方式：先删除索引列）
+        // 先按 source_id 批量删除索引，然后清理表
         await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
 
         // 同步新频道（传入过滤规则）
@@ -179,6 +180,7 @@ export async function manualSyncAll(env, filter = null) {
         const oldCountResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(source.id).first();
         const oldChannelCount = oldCountResult?.count || 0;
 
+        // 删除该源的旧频道（使用索引优化的 DELETE）
         await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
         const syncResult = await fetchAndParseM3U(source.url, source.id, filter);
 

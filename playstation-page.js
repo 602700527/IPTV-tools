@@ -1532,6 +1532,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       abortAllFetches();
       cleanupVideoResources();
 
+      
       // 检查这个请求是否已经被取消
       if (requestId !== currentPlayRequestId) {
         console.log('[PlayChannel] Request #' + requestId + ' was cancelled');
