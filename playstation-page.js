@@ -1354,7 +1354,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         const isFavorited = favorites.some(f => f.hash === channel.channel_hash);
         const isPlaying = currentPlayingChannel === channel.channel_hash;
         const hotIndex = Math.floor(Math.random() * 20); // 随机显示热门标签
-        const showHotTag = hotIndex === 0;
+        const showHotTag = hotIndex === 0 && !isPlaying; // 正在播放时隐藏hot标签
 
         return \`
           <div class="channel-card ripple \${isPlaying ? 'playing' : ''}" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
@@ -2155,6 +2155,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         if (playingIndicator) {
           playingIndicator.remove();
         }
+        // 恢复所有卡片的hot标签（如果有的话）
+        var hotTag = card.querySelector('.hot-tag');
+        if (hotTag && hotTag.style.display === 'none') {
+          hotTag.style.display = 'block';
+        }
       }
 
       // 为当前播放的频道添加播放状态
@@ -2163,6 +2168,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         var playingCard = document.querySelector(selector);
         if (playingCard) {
           playingCard.classList.add('playing');
+          // 隐藏hot标签
+          var hotTag = playingCard.querySelector('.hot-tag');
+          if (hotTag) {
+            hotTag.style.display = 'none';
+          }
           // 添加播放指示器
           var poster = playingCard.querySelector('.channel-poster');
           if (poster && !poster.querySelector('.playing-indicator')) {
@@ -2411,12 +2421,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`
             : '<div class="channel-icon">📺</div>';
           const isPlaying = currentPlayingChannel === channel.channel_hash;
+          const showRecommendTag = index < 5 && !isPlaying; // 正在播放时隐藏推荐标签
 
           return \`
             <div class="channel-card ripple \${isPlaying ? 'playing' : ''}" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
               <div class="channel-poster">
                 \${logo}
-                \${index < 5 ? '<div class="hot-tag">' + t('recommend') + '</div>' : ''}
+                \${showRecommendTag ? '<div class="hot-tag">' + t('recommend') + '</div>' : ''}
                 \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
                 <div class="play-overlay">
                   <div class="play-icon"></div>

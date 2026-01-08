@@ -8696,7 +8696,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         const isFavorited = favorites.some(f => f.hash === channel.channel_hash);
         const isPlaying = currentPlayingChannel === channel.channel_hash;
         const hotIndex = Math.floor(Math.random() * 20); // \u968F\u673A\u663E\u793A\u70ED\u95E8\u6807\u7B7E
-        const showHotTag = hotIndex === 0;
+        const showHotTag = hotIndex === 0 && !isPlaying; // \u6B63\u5728\u64AD\u653E\u65F6\u9690\u85CFhot\u6807\u7B7E
 
         return \`
           <div class="channel-card ripple \${isPlaying ? 'playing' : ''}" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
@@ -9497,6 +9497,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         if (playingIndicator) {
           playingIndicator.remove();
         }
+        // \u6062\u590D\u6240\u6709\u5361\u7247\u7684hot\u6807\u7B7E\uFF08\u5982\u679C\u6709\u7684\u8BDD\uFF09
+        var hotTag = card.querySelector('.hot-tag');
+        if (hotTag && hotTag.style.display === 'none') {
+          hotTag.style.display = 'block';
+        }
       }
 
       // \u4E3A\u5F53\u524D\u64AD\u653E\u7684\u9891\u9053\u6DFB\u52A0\u64AD\u653E\u72B6\u6001
@@ -9505,6 +9510,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         var playingCard = document.querySelector(selector);
         if (playingCard) {
           playingCard.classList.add('playing');
+          // \u9690\u85CFhot\u6807\u7B7E
+          var hotTag = playingCard.querySelector('.hot-tag');
+          if (hotTag) {
+            hotTag.style.display = 'none';
+          }
           // \u6DFB\u52A0\u64AD\u653E\u6307\u793A\u5668
           var poster = playingCard.querySelector('.channel-poster');
           if (poster && !poster.querySelector('.playing-indicator')) {
@@ -9753,12 +9763,13 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
             ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`
             : '<div class="channel-icon">\u{1F4FA}</div>';
           const isPlaying = currentPlayingChannel === channel.channel_hash;
+          const showRecommendTag = index < 5 && !isPlaying; // \u6B63\u5728\u64AD\u653E\u65F6\u9690\u85CF\u63A8\u8350\u6807\u7B7E
 
           return \`
             <div class="channel-card ripple \${isPlaying ? 'playing' : ''}" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
               <div class="channel-poster">
                 \${logo}
-                \${index < 5 ? '<div class="hot-tag">' + t('recommend') + '</div>' : ''}
+                \${showRecommendTag ? '<div class="hot-tag">' + t('recommend') + '</div>' : ''}
                 \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
                 <div class="play-overlay">
                   <div class="play-icon"></div>
