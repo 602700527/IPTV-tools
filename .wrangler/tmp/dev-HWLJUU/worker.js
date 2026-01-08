@@ -7891,10 +7891,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     </div>
     <!-- Cloudflare\u6258\u7BA1\u8BF4\u660E\u548C\u5FBD\u7AE0 -->
     <div style="margin-top:20px;display:flex;align-items:center;justify-content:center;gap:10px;">
-      <span style="font-size:12px;color:rgba(255,255,255,.6);">\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4</span>
-      <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
-        <img src="https://www.cloudflare.com/static/logo-2.svg" alt="Cloudflare" style="height:24px;width:auto;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">
+            <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+        <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare" style="height:12px;width:auto;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">
       </a>
+      <span style="font-size:12px;color:rgba(255,255,255,.6);">\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4</span>
+
     </div>
   </footer>
 
