@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-H8UZLO/checked-fetch.js
+// .wrangler/tmp/bundle-Utn9WG/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-H8UZLO/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-Utn9WG/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -258,6 +258,18 @@ async function createTables(env) {
     )
   `).run();
   await db.prepare("CREATE INDEX IF NOT EXISTS idx_used_tokens_token ON used_tokens(token)").run();
+  await db.prepare(`
+    CREATE TABLE IF NOT EXISTS announcements (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      enabled BOOLEAN DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+  await db.prepare("CREATE INDEX IF NOT EXISTS idx_announcements_enabled ON announcements(enabled)").run();
+  await db.prepare("CREATE INDEX IF NOT EXISTS idx_announcements_updated ON announcements(updated_at DESC)").run();
   console.log("Tables created successfully");
 }
 async function getSecurityConfig() {
@@ -988,11 +1000,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-H8UZLO/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-Utn9WG/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-H8UZLO/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-Utn9WG/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -3074,6 +3086,63 @@ async function handleAdminRequest(request, env, ctx) {
           });
         }
         return new Response("Invalid cache action", { status: 400 });
+      case "announcement":
+        if (request.method === "GET") {
+          const db2 = getDB();
+          const announcement = await db2.prepare(`
+            SELECT * FROM announcements
+            ORDER BY updated_at DESC
+            LIMIT 1
+          `).first();
+          return new Response(JSON.stringify({
+            success: true,
+            data: announcement
+          }), {
+            headers: { "Content-Type": "application/json" }
+          });
+        } else if (request.method === "POST") {
+          const data = await request.json();
+          const db2 = getDB();
+          const now2 = (/* @__PURE__ */ new Date()).toISOString();
+          if (data.id) {
+            await db2.prepare(`
+              UPDATE announcements
+              SET title = ?, content = ?, enabled = ?, updated_at = ?
+              WHERE id = ?
+            `).bind(
+              data.title,
+              data.content,
+              data.enabled !== void 0 ? data.enabled ? 1 : 0 : 1,
+              now2,
+              data.id
+            ).run();
+            return new Response(JSON.stringify({
+              success: true,
+              message: "\u516C\u544A\u66F4\u65B0\u6210\u529F"
+            }), {
+              headers: { "Content-Type": "application/json" }
+            });
+          } else {
+            const result2 = await db2.prepare(`
+              INSERT INTO announcements (title, content, enabled, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?)
+            `).bind(
+              data.title,
+              data.content,
+              data.enabled !== void 0 ? data.enabled ? 1 : 0 : 1,
+              now2,
+              now2
+            ).run();
+            return new Response(JSON.stringify({
+              success: true,
+              message: "\u516C\u544A\u521B\u5EFA\u6210\u529F",
+              id: result2.meta.last_row_id
+            }), {
+              headers: { "Content-Type": "application/json" }
+            });
+          }
+        }
+        break;
       default:
         return new Response("Invalid admin action", { status: 400 });
     }
@@ -3302,6 +3371,44 @@ __name(handleUserActivate, "handleUserActivate");
 init_checked_fetch();
 init_modules_watch_stub();
 init_database();
+async function handlePublicAnnouncement(request, env, ctx) {
+  try {
+    const db = getDB();
+    const announcementResult = await db.prepare(`
+      SELECT * FROM announcements
+      WHERE enabled = 1
+      ORDER BY updated_at DESC
+      LIMIT 1
+    `).first();
+    if (!announcementResult) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: "No active announcement"
+      }), {
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    return new Response(JSON.stringify({
+      success: true,
+      data: announcementResult
+    }), {
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"
+      }
+    });
+  } catch (error) {
+    console.error("[Announcement] \u83B7\u53D6\u516C\u544A\u5931\u8D25:", error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Internal server error"
+    }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(handlePublicAnnouncement, "handlePublicAnnouncement");
 async function handleRandomChannels(env, count = 30) {
   console.log("[RandomChannels] \u83B7\u53D6\u968F\u673A\u63A8\u8350\uFF0C\u6570\u91CF:", count);
   try {
@@ -4411,6 +4518,51 @@ var ADMIN_HTML = `<!DOCTYPE html>
     <div id="system-settings" class="tab-content">
       <div class="card">
         <div class="toolbar">
+          <h3>\u516C\u544A\u7BA1\u7406</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="saveAnnouncement()">\u4FDD\u5B58\u516C\u544A</button>
+            <button class="btn" onclick="loadAnnouncement()">\u5237\u65B0\u516C\u544A</button>
+          </div>
+        </div>
+        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            \u53D1\u5E03\u7CFB\u7EDF\u516C\u544A\uFF0C\u516C\u544A\u5C06\u663E\u793A\u5728\u9996\u9875\u9876\u90E8\u3002\u652F\u6301\u9009\u62E9\u9884\u8BBE\u6A21\u677F\u5FEB\u901F\u7F16\u8F91\u3002
+          </p>
+
+          <div class="form-group" style="margin-bottom:16px;">
+            <label>\u516C\u544A\u72B6\u6001</label>
+            <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+              <input type="checkbox" id="announcementEnabled" checked style="margin-right:12px;">
+              <span style="font-size:14px;">\u542F\u7528\u516C\u544A</span>
+            </label>
+          </div>
+
+          <div class="form-group" style="margin-bottom:16px;">
+            <label>\u5FEB\u901F\u6A21\u677F</label>
+            <select class="filter-select" id="announcementTemplate" onchange="applyAnnouncementTemplate()" style="width:100%;">
+              <option value="">-- \u9009\u62E9\u6A21\u677F --</option>
+              <option value="update">\u7CFB\u7EDF\u66F4\u65B0\u901A\u77E5</option>
+              <option value="maintenance">\u7EF4\u62A4\u901A\u77E5</option>
+              <option value="feature">\u65B0\u529F\u80FD\u4E0A\u7EBF</option>
+              <option value="notice">\u91CD\u8981\u63D0\u793A</option>
+              <option value="custom">\u81EA\u5B9A\u4E49\u5185\u5BB9</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>\u516C\u544A\u6807\u9898</label>
+            <input type="text" id="announcementTitleInput" placeholder="\u8F93\u5165\u516C\u544A\u6807\u9898" style="width:100%;">
+          </div>
+
+          <div class="form-group">
+            <label>\u516C\u544A\u5185\u5BB9\uFF08\u652F\u6301HTML\uFF09</label>
+            <textarea id="announcementContentInput" rows="6" placeholder="\u8F93\u5165\u516C\u544A\u5185\u5BB9" style="font-family:monospace;font-size:13px;"></textarea>
+            <p style="margin-top:8px;color:#86868b;font-size:12px;">\u652F\u6301HTML\u6807\u7B7E\uFF0C\u5982 &lt;p&gt;\u3001&lt;br&gt;\u3001&lt;strong&gt; \u7B49</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="toolbar">
           <h3>\u7F13\u5B58\u7BA1\u7406</h3>
           <div style="display:flex;gap:8px;">
             <button class="btn btn-primary" onclick="refreshCache()">\u5237\u65B0\u7F13\u5B58</button>
@@ -4648,7 +4800,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
       const indicator = document.getElementById('syncIndicator');
       if (syncStatus && syncStatus.status === 'syncing') {
         const elapsed = Math.floor((Date.now() - syncStatus.timestamp) / 1000);
-        document.getElementById('syncText').textContent = \`\u6B63\u5728\u540C\u6B65\u4E2D... (\${elapsed}\u79D2)\`;
+        document.getElementById('syncText').textContent = '\u6B63\u5728\u540C\u6B65\u4E2D... (' + elapsed + '\u79D2)';
         indicator.classList.add('active');
       } else {
         indicator.classList.remove('active');
@@ -4791,6 +4943,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
       else if (tabName === 'homepage-display') loadHomepageDisplayConfig();
       else if (tabName === 'system-settings') {
         loadSystemConfig();
+        loadAnnouncement(); // \u52A0\u8F7D\u516C\u544A
         loadCacheStatus(); // \u52A0\u8F7D\u7F13\u5B58\u72B6\u6001
       }
     }
@@ -6674,6 +6827,120 @@ var ADMIN_HTML = `<!DOCTYPE html>
       }
     }
 
+    // ========== \u516C\u544A\u7BA1\u7406 ==========
+
+    // \u516C\u544A\u6A21\u677F
+    const announcementTemplates = {
+      update: {
+        title: '\u{1F4E3} \u7CFB\u7EDF\u66F4\u65B0\u901A\u77E5',
+        content: '<p>\u7CFB\u7EDF\u5DF2\u5B8C\u6210\u91CD\u8981\u66F4\u65B0\uFF0C\u672C\u6B21\u66F4\u65B0\u5305\u542B\uFF1A</p><p><strong>\u2728 \u65B0\u589E\u529F\u80FD\uFF1A</strong></p><ul><li>\u4F18\u5316\u64AD\u653E\u4F53\u9A8C\uFF0C\u63D0\u5347\u52A0\u8F7D\u901F\u5EA6</li><li>\u4FEE\u590D\u5DF2\u77E5\u95EE\u9898\uFF0C\u63D0\u5347\u7A33\u5B9A\u6027</li></ul><p>\u5982\u6709\u95EE\u9898\uFF0C\u8BF7\u8054\u7CFB\u5BA2\u670D\u3002</p>'
+      },
+      maintenance: {
+        title: '\u{1F527} \u7CFB\u7EDF\u7EF4\u62A4\u901A\u77E5',
+        content: '<p>\u7CFB\u7EDF\u5C06\u4E8E <strong>YYYY-MM-DD HH:MM</strong> \u8FDB\u884C\u7EF4\u62A4\u5347\u7EA7\u3002</p><p>\u7EF4\u62A4\u671F\u95F4\uFF0C\u90E8\u5206\u529F\u80FD\u53EF\u80FD\u65E0\u6CD5\u6B63\u5E38\u4F7F\u7528\uFF0C\u9884\u8BA1\u7EF4\u62A4\u65F6\u95F4 <strong>X \u5C0F\u65F6</strong>\u3002</p><p>\u7ED9\u60A8\u5E26\u6765\u7684\u4E0D\u4FBF\uFF0C\u656C\u8BF7\u8C05\u89E3\uFF01</p><p>\u7EF4\u62A4\u5B8C\u6210\u540E\uFF0C\u7CFB\u7EDF\u4F1A\u81EA\u52A8\u6062\u590D\u6B63\u5E38\u670D\u52A1\u3002</p>'
+      },
+      feature: {
+        title: '\u{1F389} \u65B0\u529F\u80FD\u4E0A\u7EBF',
+        content: '<p>\u4E3A\u4E86\u7ED9\u60A8\u5E26\u6765\u66F4\u597D\u7684\u4F7F\u7528\u4F53\u9A8C\uFF0C\u6211\u4EEC\u9686\u91CD\u63A8\u51FA\u65B0\u529F\u80FD\uFF01</p><p><strong>\u2728 \u672C\u6B21\u66F4\u65B0\u4EAE\u70B9\uFF1A</strong></p><ul><li>\u652F\u6301\u66F4\u591A\u9891\u9053\u6E90</li><li>\u4F18\u5316\u64AD\u653E\u6027\u80FD</li><li>\u5168\u65B0\u7684\u7528\u6237\u754C\u9762</li></ul><p>\u5FEB\u6765\u4F53\u9A8C\u65B0\u529F\u80FD\u5427\uFF01</p>'
+      },
+      notice: {
+        title: '\u26A0\uFE0F \u91CD\u8981\u63D0\u793A',
+        content: '<p><strong>\u91CD\u8981\u901A\u77E5\uFF1A</strong></p><p>1. \u8BF7\u52FF\u5206\u4EAB\u8D26\u53F7\u4FE1\u606F\u7ED9\u4ED6\u4EBA</p><p>2. \u6CE8\u610F\u4FDD\u62A4\u4E2A\u4EBA\u9690\u79C1</p><p>3. \u5982\u53D1\u73B0\u5F02\u5E38\u60C5\u51B5\uFF0C\u8BF7\u53CA\u65F6\u8054\u7CFB\u5BA2\u670D</p><p>\u611F\u8C22\u60A8\u7684\u914D\u5408\uFF01</p>'
+      },
+      custom: {
+        title: '',
+        content: ''
+      }
+    };
+
+    // \u52A0\u8F7D\u516C\u544A
+    async function loadAnnouncement() {
+      try {
+        showLoading();
+        const result = await apiRequest('/announcement', { showLoading: false });
+
+        if (result.success && result.data) {
+          const announcementData = result.data;
+          document.getElementById('announcementTitleInput').value = announcementData.title || '';
+          document.getElementById('announcementContentInput').value = announcementData.content || '';
+          document.getElementById('announcementEnabled').checked = announcementData.enabled === 1;
+        } else {
+          // \u6E05\u7A7A\u8868\u5355
+          document.getElementById('announcementTitleInput').value = '';
+          document.getElementById('announcementContentInput').value = '';
+          document.getElementById('announcementEnabled').checked = false;
+          document.getElementById('announcementTemplate').value = '';
+        }
+      } catch (error) {
+        showToast('\u52A0\u8F7D\u516C\u544A\u5931\u8D25: ' + (error.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // \u4FDD\u5B58\u516C\u544A
+    async function saveAnnouncement() {
+      try {
+        showLoading();
+
+        const title = document.getElementById('announcementTitleInput').value.trim();
+        const content = document.getElementById('announcementContentInput').value.trim();
+        const enabled = document.getElementById('announcementEnabled').checked;
+
+        if (!title) {
+          showToast('\u8BF7\u8F93\u5165\u516C\u544A\u6807\u9898', 'error');
+          hideLoading();
+          return;
+        }
+
+        if (!content) {
+          showToast('\u8BF7\u8F93\u5165\u516C\u544A\u5185\u5BB9', 'error');
+          hideLoading();
+          return;
+        }
+
+        // \u5148\u83B7\u53D6\u73B0\u6709\u516C\u544A
+        const getResult = await apiRequest('/announcement', { showLoading: false });
+        const data = {
+          title,
+          content,
+          enabled
+        };
+
+        // \u5982\u679C\u5DF2\u6709\u516C\u544A\uFF0C\u5219\u66F4\u65B0
+        if (getResult.success && getResult.data) {
+          data.id = getResult.data.id;
+        }
+
+        const result = await apiRequest('/announcement', {
+          method: 'POST',
+          body: JSON.stringify(data),
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('\u516C\u544A\u4FDD\u5B58\u6210\u529F', 'success');
+        } else {
+          showToast('\u4FDD\u5B58\u516C\u544A\u5931\u8D25: ' + (result.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+        }
+      } catch (error) {
+        showToast('\u4FDD\u5B58\u516C\u544A\u5931\u8D25: ' + (error.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // \u5E94\u7528\u516C\u544A\u6A21\u677F
+    function applyAnnouncementTemplate() {
+      const templateKey = document.getElementById('announcementTemplate').value;
+
+      if (templateKey && announcementTemplates[templateKey]) {
+        const template = announcementTemplates[templateKey];
+        document.getElementById('announcementTitleInput').value = template.title;
+        document.getElementById('announcementContentInput').value = template.content;
+      }
+    }
+
     // \u8F6E\u6362\u52A0\u5BC6\u5BC6\u94A5
     async function rotateEncryptionKey() {
       if (!confirm('\u786E\u5B9A\u8981\u8F6E\u6362\u52A0\u5BC6\u5BC6\u94A5\u5417\uFF1F\\n\\n\u26A0\uFE0F \u6CE8\u610F\uFF1A\\n- \u8F6E\u6362\u540E\uFF0C\u65E7\u7684\u64AD\u653E\u5730\u5740\u5C06\u5931\u6548\\n- \u7528\u6237\u9700\u8981\u91CD\u65B0\u83B7\u53D6\u64AD\u653E\u5730\u5740\\n- \u524D\u7AEF\u9875\u9762\u9700\u8981\u5237\u65B0\u624D\u80FD\u83B7\u53D6\u65B0\u5BC6\u94A5')) {
@@ -7315,6 +7582,25 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     @keyframes toastSlideOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-20px)}}
     .toast.hiding{animation:toastSlideOut 0.3s ease forwards} */
 
+    /* \u516C\u544A\u6837\u5F0F */
+    .announcement-container{margin-bottom:20px;display:none}
+    .announcement-container.active{display:block}
+    .announcement-card{background:linear-gradient(135deg,rgba(229,9,20,.9) 0%,rgba(220,38,38,.9) 100%);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+    .announcement-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(229,9,20,.3) 0%,transparent 70%);animation:announcementGlow 3s ease-in-out infinite}
+    @keyframes announcementGlow{0%,100%{opacity:0.5}50%{opacity:1}}
+    .announcement-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .announcement-title{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;color:#fff}
+    .announcement-icon{font-size:20px}
+    .announcement-close{width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.15);border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .announcement-close:hover{background:rgba(255,255,255,.25);color:#fff}
+    .announcement-content{color:rgba(255,255,255,.9);font-size:14px;line-height:1.6}
+    .announcement-content p{margin-bottom:12px}
+    .announcement-content p:last-child{margin-bottom:0}
+    .announcement-content a{color:#ffadad;text-decoration:underline}
+    .announcement-footer{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.15);font-size:12px;color:rgba(255,255,255,.5)}
+    .announcement-time{display:flex;align-items:center;gap:4px}
+
+
     @media (max-width:1024px){
       .sidebar{display:none}
       .content{margin-left:0}
@@ -7506,11 +7792,33 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       </div>
 
       <div id="channelList" style="display:none;">
+        <!-- \u516C\u544A\u533A\u57DF -->
+        <div class="announcement-container" id="announcementContainer">
+          <div class="announcement-card">
+            <div class="announcement-header">
+              <div class="announcement-title">
+                <span class="announcement-icon">\u{1F4E2}</span>
+                <span id="announcementTitle">\u7CFB\u7EDF\u516C\u544A</span>
+              </div>
+              <button class="announcement-close" onclick="closeAnnouncement()">&times;</button>
+            </div>
+            <div class="announcement-content" id="announcementContent">
+              <p>\u52A0\u8F7D\u4E2D...</p>
+            </div>
+            <div class="announcement-footer">
+              <div class="announcement-time" id="announcementTime">
+                <span>\u{1F550}</span>
+                <span>\u53D1\u5E03\u65F6\u95F4\u52A0\u8F7D\u4E2D</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="section-title" id="sectionTitle">\u5168\u90E8\u9891\u9053</div>
         <div class="channels-grid" id="channelsGrid"></div>
         <div class="pagination" id="pagination"></div>
 
-       
+
       </div>
 
       <div id="emptyState" class="empty-state" style="display:none;">
@@ -7932,6 +8240,10 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       enable_play_token: false,
       enable_url_encryption: false
     };
+
+    // \u516C\u544A\u6570\u636E
+    let announcement = null;
+    let announcementClosed = false;
     let currentSearch = '';
     let favorites = JSON.parse(localStorage.getItem('iptv_favorites') || '[]');
     let history = JSON.parse(localStorage.getItem('iptv_history') || '[]');
@@ -7957,6 +8269,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       } catch (error) {
         console.error('[Init] \u83B7\u53D6\u7CFB\u7EDF\u914D\u7F6E\u5931\u8D25:', error);
       }
+
+      // \u52A0\u8F7D\u516C\u544A
+      loadAnnouncement();
 
       // SEO: \u52A8\u6001\u66F4\u65B0\u9875\u9762\u6807\u9898\u548C\u63CF\u8FF0
       updateSEOMeta();
@@ -9156,6 +9471,77 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       }
     }
 
+    // ========== \u516C\u544A\u529F\u80FD ==========
+
+    // \u52A0\u8F7D\u516C\u544A
+    async function loadAnnouncement() {
+      try {
+        const response = await fetch(window.location.origin + '/api/announcement');
+        const result = await response.json();
+
+        if (result.success && result.data && result.data.enabled) {
+          announcement = result.data;
+
+          // \u68C0\u67E5\u7528\u6237\u662F\u5426\u5DF2\u5173\u95ED\u516C\u544A
+          const closedKey = 'announcement_closed_' + announcement.id;
+          const userClosed = localStorage.getItem(closedKey);
+
+          if (!userClosed) {
+            renderAnnouncement();
+          } else {
+            console.log('[Announcement] \u7528\u6237\u5DF2\u5173\u95ED\u6B64\u516C\u544A');
+          }
+        } else {
+          console.log('[Announcement] \u65E0\u6709\u6548\u516C\u544A\u6216\u516C\u544A\u5DF2\u7981\u7528');
+        }
+      } catch (error) {
+        console.error('[Announcement] \u52A0\u8F7D\u516C\u544A\u5931\u8D25:', error);
+      }
+    }
+
+    // \u6E32\u67D3\u516C\u544A
+    function renderAnnouncement() {
+      if (!announcement) return;
+
+      const container = document.getElementById('announcementContainer');
+      const titleEl = document.getElementById('announcementTitle');
+      const contentEl = document.getElementById('announcementContent');
+      const timeEl = document.getElementById('announcementTime');
+
+      titleEl.textContent = announcement.title || '\u7CFB\u7EDF\u516C\u544A';
+      contentEl.innerHTML = announcement.content || '\u6682\u65E0\u5185\u5BB9';
+      container.classList.add('active');
+
+      // \u683C\u5F0F\u5316\u65F6\u95F4
+      if (announcement.updated_at) {
+        const date = new Date(announcement.updated_at);
+        const timeStr = date.toLocaleString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        timeEl.querySelector('span:last-child').textContent = timeStr;
+      } else {
+        timeEl.querySelector('span:last-child').textContent = '\u53D1\u5E03\u65F6\u95F4\u672A\u77E5';
+      }
+    }
+
+    // \u5173\u95ED\u516C\u544A
+    function closeAnnouncement() {
+      if (!announcement) return;
+
+      const container = document.getElementById('announcementContainer');
+      container.classList.remove('active');
+
+      // \u8BB0\u5F55\u7528\u6237\u5DF2\u5173\u95ED\u6B64\u516C\u544A
+      const closedKey = 'announcement_closed_' + announcement.id;
+      localStorage.setItem(closedKey, 'true');
+
+      console.log('[Announcement] \u7528\u6237\u5173\u95ED\u516C\u544A ID:', announcement.id);
+    }
+
     // \u5728\u7EBF\u4EBA\u6570\u663E\u793A\uFF08\u6A21\u62DF\uFF09
     function updateOnlineCounter() {
       const baseCount = Math.floor(Math.random() * 100) + 50;
@@ -10004,6 +10390,8 @@ window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
         });
       } else if (path === "/api/config") {
         return await handlePublicConfig(request, env, ctx);
+      } else if (path === "/api/announcement") {
+        return await handlePublicAnnouncement(request, env, ctx);
       } else if (path === "/api/channels") {
         return await handlePublicChannels(request, env, ctx);
       } else if (path === "/api/debug") {
@@ -10115,7 +10503,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-H8UZLO/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-Utn9WG/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -10149,7 +10537,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-H8UZLO/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-Utn9WG/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

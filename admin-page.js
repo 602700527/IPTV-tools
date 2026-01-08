@@ -503,6 +503,51 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     <div id="system-settings" class="tab-content">
       <div class="card">
         <div class="toolbar">
+          <h3>公告管理</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="saveAnnouncement()">保存公告</button>
+            <button class="btn" onclick="loadAnnouncement()">刷新公告</button>
+          </div>
+        </div>
+        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            发布系统公告，公告将显示在首页顶部。支持选择预设模板快速编辑。
+          </p>
+
+          <div class="form-group" style="margin-bottom:16px;">
+            <label>公告状态</label>
+            <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+              <input type="checkbox" id="announcementEnabled" checked style="margin-right:12px;">
+              <span style="font-size:14px;">启用公告</span>
+            </label>
+          </div>
+
+          <div class="form-group" style="margin-bottom:16px;">
+            <label>快速模板</label>
+            <select class="filter-select" id="announcementTemplate" onchange="applyAnnouncementTemplate()" style="width:100%;">
+              <option value="">-- 选择模板 --</option>
+              <option value="update">系统更新通知</option>
+              <option value="maintenance">维护通知</option>
+              <option value="feature">新功能上线</option>
+              <option value="notice">重要提示</option>
+              <option value="custom">自定义内容</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>公告标题</label>
+            <input type="text" id="announcementTitleInput" placeholder="输入公告标题" style="width:100%;">
+          </div>
+
+          <div class="form-group">
+            <label>公告内容（支持HTML）</label>
+            <textarea id="announcementContentInput" rows="6" placeholder="输入公告内容" style="font-family:monospace;font-size:13px;"></textarea>
+            <p style="margin-top:8px;color:#86868b;font-size:12px;">支持HTML标签，如 &lt;p&gt;、&lt;br&gt;、&lt;strong&gt; 等</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="toolbar">
           <h3>缓存管理</h3>
           <div style="display:flex;gap:8px;">
             <button class="btn btn-primary" onclick="refreshCache()">刷新缓存</button>
@@ -740,7 +785,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       const indicator = document.getElementById('syncIndicator');
       if (syncStatus && syncStatus.status === 'syncing') {
         const elapsed = Math.floor((Date.now() - syncStatus.timestamp) / 1000);
-        document.getElementById('syncText').textContent = \`正在同步中... (\${elapsed}秒)\`;
+        document.getElementById('syncText').textContent = '正在同步中... (' + elapsed + '秒)';
         indicator.classList.add('active');
       } else {
         indicator.classList.remove('active');
@@ -883,6 +928,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       else if (tabName === 'homepage-display') loadHomepageDisplayConfig();
       else if (tabName === 'system-settings') {
         loadSystemConfig();
+        loadAnnouncement(); // 加载公告
         loadCacheStatus(); // 加载缓存状态
       }
     }
@@ -2763,6 +2809,120 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         showToast('保存配置失败: ' + error.error, 'error');
       } finally {
         hideLoading();
+      }
+    }
+
+    // ========== 公告管理 ==========
+
+    // 公告模板
+    const announcementTemplates = {
+      update: {
+        title: '📣 系统更新通知',
+        content: '<p>系统已完成重要更新，本次更新包含：</p><p><strong>✨ 新增功能：</strong></p><ul><li>优化播放体验，提升加载速度</li><li>修复已知问题，提升稳定性</li></ul><p>如有问题，请联系客服。</p>'
+      },
+      maintenance: {
+        title: '🔧 系统维护通知',
+        content: '<p>系统将于 <strong>YYYY-MM-DD HH:MM</strong> 进行维护升级。</p><p>维护期间，部分功能可能无法正常使用，预计维护时间 <strong>X 小时</strong>。</p><p>给您带来的不便，敬请谅解！</p><p>维护完成后，系统会自动恢复正常服务。</p>'
+      },
+      feature: {
+        title: '🎉 新功能上线',
+        content: '<p>为了给您带来更好的使用体验，我们隆重推出新功能！</p><p><strong>✨ 本次更新亮点：</strong></p><ul><li>支持更多频道源</li><li>优化播放性能</li><li>全新的用户界面</li></ul><p>快来体验新功能吧！</p>'
+      },
+      notice: {
+        title: '⚠️ 重要提示',
+        content: '<p><strong>重要通知：</strong></p><p>1. 请勿分享账号信息给他人</p><p>2. 注意保护个人隐私</p><p>3. 如发现异常情况，请及时联系客服</p><p>感谢您的配合！</p>'
+      },
+      custom: {
+        title: '',
+        content: ''
+      }
+    };
+
+    // 加载公告
+    async function loadAnnouncement() {
+      try {
+        showLoading();
+        const result = await apiRequest('/announcement', { showLoading: false });
+
+        if (result.success && result.data) {
+          const announcementData = result.data;
+          document.getElementById('announcementTitleInput').value = announcementData.title || '';
+          document.getElementById('announcementContentInput').value = announcementData.content || '';
+          document.getElementById('announcementEnabled').checked = announcementData.enabled === 1;
+        } else {
+          // 清空表单
+          document.getElementById('announcementTitleInput').value = '';
+          document.getElementById('announcementContentInput').value = '';
+          document.getElementById('announcementEnabled').checked = false;
+          document.getElementById('announcementTemplate').value = '';
+        }
+      } catch (error) {
+        showToast('加载公告失败: ' + (error.error || '未知错误'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // 保存公告
+    async function saveAnnouncement() {
+      try {
+        showLoading();
+
+        const title = document.getElementById('announcementTitleInput').value.trim();
+        const content = document.getElementById('announcementContentInput').value.trim();
+        const enabled = document.getElementById('announcementEnabled').checked;
+
+        if (!title) {
+          showToast('请输入公告标题', 'error');
+          hideLoading();
+          return;
+        }
+
+        if (!content) {
+          showToast('请输入公告内容', 'error');
+          hideLoading();
+          return;
+        }
+
+        // 先获取现有公告
+        const getResult = await apiRequest('/announcement', { showLoading: false });
+        const data = {
+          title,
+          content,
+          enabled
+        };
+
+        // 如果已有公告，则更新
+        if (getResult.success && getResult.data) {
+          data.id = getResult.data.id;
+        }
+
+        const result = await apiRequest('/announcement', {
+          method: 'POST',
+          body: JSON.stringify(data),
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('公告保存成功', 'success');
+        } else {
+          showToast('保存公告失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        showToast('保存公告失败: ' + (error.error || '未知错误'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // 应用公告模板
+    function applyAnnouncementTemplate() {
+      const templateKey = document.getElementById('announcementTemplate').value;
+
+      if (templateKey && announcementTemplates[templateKey]) {
+        const template = announcementTemplates[templateKey];
+        document.getElementById('announcementTitleInput').value = template.title;
+        document.getElementById('announcementContentInput').value = template.content;
       }
     }
 

@@ -231,6 +231,22 @@ export async function createTables(env) {
   // 创建已使用token索引
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_used_tokens_token ON used_tokens(token)').run();
 
+  // 创建公告表
+  await db.prepare(`
+    CREATE TABLE IF NOT EXISTS announcements (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      enabled BOOLEAN DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+
+  // 创建公告索引
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_announcements_enabled ON announcements(enabled)').run();
+  await db.prepare('CREATE INDEX IF NOT EXISTS idx_announcements_updated ON announcements(updated_at DESC)').run();
+
   console.log('Tables created successfully');
 }
 

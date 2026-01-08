@@ -266,6 +266,25 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     @keyframes toastSlideOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-20px)}}
     .toast.hiding{animation:toastSlideOut 0.3s ease forwards} */
 
+    /* 公告样式 */
+    .announcement-container{margin-bottom:20px;display:none}
+    .announcement-container.active{display:block}
+    .announcement-card{background:linear-gradient(135deg,rgba(229,9,20,.9) 0%,rgba(220,38,38,.9) 100%);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+    .announcement-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(229,9,20,.3) 0%,transparent 70%);animation:announcementGlow 3s ease-in-out infinite}
+    @keyframes announcementGlow{0%,100%{opacity:0.5}50%{opacity:1}}
+    .announcement-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .announcement-title{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;color:#fff}
+    .announcement-icon{font-size:20px}
+    .announcement-close{width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.15);border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .announcement-close:hover{background:rgba(255,255,255,.25);color:#fff}
+    .announcement-content{color:rgba(255,255,255,.9);font-size:14px;line-height:1.6}
+    .announcement-content p{margin-bottom:12px}
+    .announcement-content p:last-child{margin-bottom:0}
+    .announcement-content a{color:#ffadad;text-decoration:underline}
+    .announcement-footer{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.15);font-size:12px;color:rgba(255,255,255,.5)}
+    .announcement-time{display:flex;align-items:center;gap:4px}
+
+
     @media (max-width:1024px){
       .sidebar{display:none}
       .content{margin-left:0}
@@ -457,11 +476,33 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       </div>
 
       <div id="channelList" style="display:none;">
+        <!-- 公告区域 -->
+        <div class="announcement-container" id="announcementContainer">
+          <div class="announcement-card">
+            <div class="announcement-header">
+              <div class="announcement-title">
+                <span class="announcement-icon">📢</span>
+                <span id="announcementTitle">系统公告</span>
+              </div>
+              <button class="announcement-close" onclick="closeAnnouncement()">&times;</button>
+            </div>
+            <div class="announcement-content" id="announcementContent">
+              <p>加载中...</p>
+            </div>
+            <div class="announcement-footer">
+              <div class="announcement-time" id="announcementTime">
+                <span>🕐</span>
+                <span>发布时间加载中</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="section-title" id="sectionTitle">全部频道</div>
         <div class="channels-grid" id="channelsGrid"></div>
         <div class="pagination" id="pagination"></div>
 
-       
+
       </div>
 
       <div id="emptyState" class="empty-state" style="display:none;">
@@ -883,6 +924,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       enable_play_token: false,
       enable_url_encryption: false
     };
+
+    // 公告数据
+    let announcement = null;
+    let announcementClosed = false;
     let currentSearch = '';
     let favorites = JSON.parse(localStorage.getItem('iptv_favorites') || '[]');
     let history = JSON.parse(localStorage.getItem('iptv_history') || '[]');
@@ -908,6 +953,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       } catch (error) {
         console.error('[Init] 获取系统配置失败:', error);
       }
+
+      // 加载公告
+      loadAnnouncement();
 
       // SEO: 动态更新页面标题和描述
       updateSEOMeta();
@@ -2105,6 +2153,77 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       } finally {
         isUpdatingKey = false;
       }
+    }
+
+    // ========== 公告功能 ==========
+
+    // 加载公告
+    async function loadAnnouncement() {
+      try {
+        const response = await fetch(window.location.origin + '/api/announcement');
+        const result = await response.json();
+
+        if (result.success && result.data && result.data.enabled) {
+          announcement = result.data;
+
+          // 检查用户是否已关闭公告
+          const closedKey = 'announcement_closed_' + announcement.id;
+          const userClosed = localStorage.getItem(closedKey);
+
+          if (!userClosed) {
+            renderAnnouncement();
+          } else {
+            console.log('[Announcement] 用户已关闭此公告');
+          }
+        } else {
+          console.log('[Announcement] 无有效公告或公告已禁用');
+        }
+      } catch (error) {
+        console.error('[Announcement] 加载公告失败:', error);
+      }
+    }
+
+    // 渲染公告
+    function renderAnnouncement() {
+      if (!announcement) return;
+
+      const container = document.getElementById('announcementContainer');
+      const titleEl = document.getElementById('announcementTitle');
+      const contentEl = document.getElementById('announcementContent');
+      const timeEl = document.getElementById('announcementTime');
+
+      titleEl.textContent = announcement.title || '系统公告';
+      contentEl.innerHTML = announcement.content || '暂无内容';
+      container.classList.add('active');
+
+      // 格式化时间
+      if (announcement.updated_at) {
+        const date = new Date(announcement.updated_at);
+        const timeStr = date.toLocaleString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        timeEl.querySelector('span:last-child').textContent = timeStr;
+      } else {
+        timeEl.querySelector('span:last-child').textContent = '发布时间未知';
+      }
+    }
+
+    // 关闭公告
+    function closeAnnouncement() {
+      if (!announcement) return;
+
+      const container = document.getElementById('announcementContainer');
+      container.classList.remove('active');
+
+      // 记录用户已关闭此公告
+      const closedKey = 'announcement_closed_' + announcement.id;
+      localStorage.setItem(closedKey, 'true');
+
+      console.log('[Announcement] 用户关闭公告 ID:', announcement.id);
     }
 
     // 在线人数显示（模拟）

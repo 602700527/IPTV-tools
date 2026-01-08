@@ -5,7 +5,7 @@ import { handleSubRequest } from './handlers/sub.js';
 import { handleAdminRequest } from './handlers/admin.js';
 import { handleScheduledEvent } from './handlers/scheduler.js';
 import { handleUserActivate } from './handlers/user.js';
-import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig } from './handlers/public.js';
+import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement } from './handlers/public.js';
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { PLAYSTATION_HTML } from './playstation-page.js';
@@ -80,6 +80,9 @@ export default {
     } else if (path === '/api/config') {
       // 公开配置API - 获取前端需要的配置（如加密密钥）
       return await handlePublicConfig(request, env, ctx);
+    } else if (path === '/api/announcement') {
+      // 公开公告API
+      return await handlePublicAnnouncement(request, env, ctx);
     } else if (path === '/api/channels') {
       // 公开频道列表API（无需卡密）
       return await handlePublicChannels(request, env, ctx);

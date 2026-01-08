@@ -112,3 +112,17 @@ CREATE TABLE IF NOT EXISTS used_tokens (
 
 -- 创建已使用token索引
 CREATE INDEX IF NOT EXISTS idx_used_tokens_token ON used_tokens(token);
+
+-- 创建公告表
+CREATE TABLE IF NOT EXISTS announcements (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  enabled BOOLEAN DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 创建公告索引
+CREATE INDEX IF NOT EXISTS idx_announcements_enabled ON announcements(enabled);
+CREATE INDEX IF NOT EXISTS idx_announcements_updated ON announcements(updated_at DESC);

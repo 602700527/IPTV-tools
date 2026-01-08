@@ -2,6 +2,49 @@
 import { getDB, getHomepageDisplayConfig, getSystemConfig, generatePlayToken, verifyPlayToken, verifyReferer, encryptWithAES } from '../database.js';
 import { getAllChannels, getAllGroups, getChannelByHash } from '../utils/channel-cache.js';
 
+// 公开公告API
+export async function handlePublicAnnouncement(request, env, ctx) {
+  try {
+    const db = getDB();
+
+    // 获取最新的启用的公告
+    const announcementResult = await db.prepare(`
+      SELECT * FROM announcements
+      WHERE enabled = 1
+      ORDER BY updated_at DESC
+      LIMIT 1
+    `).first();
+
+    if (!announcementResult) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: 'No active announcement'
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      data: announcementResult
+    }), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+      }
+    });
+  } catch (error) {
+    console.error('[Announcement] 获取公告失败:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Internal server error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
 // 随机推荐频道 - 从 KV 缓存的所有频道中随机获取
 async function handleRandomChannels(env, count = 30) {
   console.log('[RandomChannels] 获取随机推荐，数量:', count);
