@@ -1225,28 +1225,29 @@ function getAuthorizedSubscriptionIPs(code, date, maxIPs) {
 }
 __name(getAuthorizedSubscriptionIPs, "getAuthorizedSubscriptionIPs");
 function cleanupExpiredSubscriptionIPs() {
-  const now = Date.now();
-  const thirtyMinutes = 30 * 60 * 1e3;
   let cleanedCount = 0;
   for (const [cacheKey, ipSet] of subscriptionIPCache.entries()) {
-    const [code, date] = cacheKey.split(":");
-    const toRemove = [];
-    for (const ip of ipSet) {
+    const [code] = cacheKey.split(":");
+    const ipArray = Array.from(ipSet).map((ip) => {
       const timestampKey = `${code}:${ip}`;
-      const lastTimestamp = subscriptionIPTimestamp.get(timestampKey);
-      if (!lastTimestamp || now - lastTimestamp >= thirtyMinutes) {
-        toRemove.push(ip);
+      const timestamp = subscriptionIPTimestamp.get(timestampKey) || 0;
+      return { ip, timestamp };
+    });
+    ipArray.sort((a, b) => b.timestamp - a.timestamp);
+    if (ipArray.length > 10) {
+      const toRemove = ipArray.slice(10);
+      const toKeep = ipArray.slice(0, 10);
+      console.log(`[Cleanup] Code: ${code}, Total IPs: ${ipArray.length}, Keeping: ${toKeep.length}, Removing: ${toRemove.length}`);
+      toRemove.forEach(({ ip }) => {
+        ipSet.delete(ip);
+        const timestampKey = `${code}:${ip}`;
         subscriptionIPTimestamp.delete(timestampKey);
         cleanedCount++;
-      }
-    }
-    toRemove.forEach((ip) => ipSet.delete(ip));
-    if (ipSet.size === 0) {
-      subscriptionIPCache.delete(cacheKey);
+      });
     }
   }
   if (cleanedCount > 0) {
-    console.log(`Cleaned up ${cleanedCount} expired subscription IPs from cache`);
+    console.log(`Cleaned up ${cleanedCount} excess subscription IPs (keeping latest 10 per code)`);
   }
   return cleanedCount;
 }
@@ -1307,6 +1308,9 @@ async function flushCacheToDB(env, ctx) {
       }
       console.log(`Flushed ${ipBatch.length} IP access records`);
     }
+    console.log(`[Flush] Starting subscription IP flush...`);
+    console.log(`[Flush] subscriptionIPCache size: ${subscriptionIPCache.size}, entries: ${Array.from(subscriptionIPCache.keys()).join(", ")}`);
+    console.log(`[Flush] subscriptionIPTimestamp size: ${subscriptionIPTimestamp.size}`);
     const cleanedCount = cleanupExpiredSubscriptionIPs();
     const subIPBatch = [];
     for (const [cacheKey, ipSet] of subscriptionIPCache.entries()) {
@@ -1324,6 +1328,7 @@ async function flushCacheToDB(env, ctx) {
         }
       }
     }
+    console.log(`[Flush] Collected ${subIPBatch.length} subscription IP records to flush`);
     if (subIPBatch.length > 0) {
       let insertedCount = 0;
       let skippedCount = 0;

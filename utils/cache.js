@@ -286,41 +286,43 @@ export function getAuthorizedSubscriptionIPs(code, date, maxIPs) {
 }
 
 /**
- * 清理过期的订阅IP缓存
+ * 清理过期的订阅IP缓存（只保留最新的10个记录）
  */
 export function cleanupExpiredSubscriptionIPs() {
-  const now = Date.now();
-  const thirtyMinutes = 30 * 60 * 1000;
-
   let cleanedCount = 0;
 
   for (const [cacheKey, ipSet] of subscriptionIPCache.entries()) {
-    const [code, date] = cacheKey.split(':');
+    const [code] = cacheKey.split(':');
 
-    // 检查每个IP的时间戳
-    const toRemove = [];
-    for (const ip of ipSet) {
+    // 将IP转换为数组并按时间戳排序
+    const ipArray = Array.from(ipSet).map(ip => {
       const timestampKey = `${code}:${ip}`;
-      const lastTimestamp = subscriptionIPTimestamp.get(timestampKey);
+      const timestamp = subscriptionIPTimestamp.get(timestampKey) || 0;
+      return { ip, timestamp };
+    });
 
-      if (!lastTimestamp || now - lastTimestamp >= thirtyMinutes) {
-        toRemove.push(ip);
+    // 按时间戳降序排序（最新的在前）
+    ipArray.sort((a, b) => b.timestamp - a.timestamp);
+
+    // 只保留最新的10个
+    if (ipArray.length > 10) {
+      const toRemove = ipArray.slice(10);
+      const toKeep = ipArray.slice(0, 10);
+
+      console.log(`[Cleanup] Code: ${code}, Total IPs: ${ipArray.length}, Keeping: ${toKeep.length}, Removing: ${toRemove.length}`);
+
+      // 移除多余的IP
+      toRemove.forEach(({ ip }) => {
+        ipSet.delete(ip);
+        const timestampKey = `${code}:${ip}`;
         subscriptionIPTimestamp.delete(timestampKey);
         cleanedCount++;
-      }
-    }
-
-    // 从集合中移除过期IP
-    toRemove.forEach(ip => ipSet.delete(ip));
-
-    // 如果集合为空，删除整个缓存项
-    if (ipSet.size === 0) {
-      subscriptionIPCache.delete(cacheKey);
+      });
     }
   }
 
   if (cleanedCount > 0) {
-    console.log(`Cleaned up ${cleanedCount} expired subscription IPs from cache`);
+    console.log(`Cleaned up ${cleanedCount} excess subscription IPs (keeping latest 10 per code)`);
   }
 
   return cleanedCount;
@@ -404,6 +406,10 @@ export async function flushCacheToDB(env, ctx) {
 
     // 3. 批量写入订阅IP到 subscription_ips 表
     // 注意：不立即清空订阅IP缓存，只清理过期的IP
+    console.log(`[Flush] Starting subscription IP flush...`);
+    console.log(`[Flush] subscriptionIPCache size: ${subscriptionIPCache.size}, entries: ${Array.from(subscriptionIPCache.keys()).join(', ')}`);
+    console.log(`[Flush] subscriptionIPTimestamp size: ${subscriptionIPTimestamp.size}`);
+
     const cleanedCount = cleanupExpiredSubscriptionIPs();
 
     const subIPBatch = [];
@@ -424,6 +430,8 @@ export async function flushCacheToDB(env, ctx) {
         }
       }
     }
+
+    console.log(`[Flush] Collected ${subIPBatch.length} subscription IP records to flush`);
 
     if (subIPBatch.length > 0) {
       let insertedCount = 0;
