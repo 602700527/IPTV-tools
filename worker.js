@@ -1,5 +1,5 @@
 // Cloudflare Worker 主入口文件
-import { initDB } from './database.js';
+import { initDB, createTables } from './database.js';
 import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest } from './handlers/sub.js';
 import { handleAdminRequest } from './handlers/admin.js';
@@ -14,14 +14,24 @@ import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 import { LOGO_SVG, FAVICON_SVG, OG_IMAGE_SVG } from './assets.js';
 
+// 缓存初始化标记（防止重复初始化）
+let cacheInitialized = false;
+
 export default {
   async fetch(request, env, ctx) {
     try {
       // 初始化数据库连接
       await initDB(env);
 
-      // 初始化缓存（从 KV 恢复）
-      await initCache(env);
+      // 确保表结构存在（自动迁移）
+      await createTables(env);
+
+      // 初始化缓存（从 KV 恢复）- 只初始化一次
+      if (!cacheInitialized) {
+        await initCache(env);
+        cacheInitialized = true;
+        console.log('Cache initialized');
+      }
 
       const url = new URL(request.url);
       const path = url.pathname;

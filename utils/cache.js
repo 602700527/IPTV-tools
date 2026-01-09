@@ -7,8 +7,24 @@ const playCountCache = new Map(); // { "code:hash:date": count }
 // IP 访问计数缓存
 const ipAccessCache = new Map(); // { "ip:path:date": count }
 
+// 订阅IP缓存（用于减少数据库查询）
+const subscriptionIPCache = new Map(); // { "code:date": Set<IP> }
+const subscriptionIPTimestamp = new Map(); // { "code:ip": timestamp } - 记录IP订阅时间
+
 // 导出缓存变量，供外部直接访问
-export { playCountCache, ipAccessCache };
+export { playCountCache, ipAccessCache, subscriptionIPCache, subscriptionIPTimestamp };
+
+// 导出获取缓存状态的函数（用于调试）
+export function getSubscriptionIPCacheStatus() {
+  const status = {};
+  for (const [key, value] of subscriptionIPCache.entries()) {
+    status[key] = {
+      ips: Array.from(value),
+      count: value.size
+    };
+  }
+  return status;
+}
 
 // 缓存最后刷新时间
 let lastCacheFlush = Date.now();
@@ -39,6 +55,20 @@ export async function initCache(env) {
         });
       }
 
+      // 恢复订阅IP缓存
+      if (cacheData.subscriptionIPCache) {
+        Object.entries(cacheData.subscriptionIPCache).forEach(([key, value]) => {
+          subscriptionIPCache.set(key, new Set(value));
+        });
+      }
+
+      // 恢复订阅IP时间戳
+      if (cacheData.subscriptionIPTimestamp) {
+        Object.entries(cacheData.subscriptionIPTimestamp).forEach(([key, value]) => {
+          subscriptionIPTimestamp.set(key, value);
+        });
+      }
+
       // 恢复最后刷新时间
       if (cacheData.lastCacheFlush) {
         lastCacheFlush = cacheData.lastCacheFlush;
@@ -46,7 +76,8 @@ export async function initCache(env) {
 
       console.log('Cache restored from KV:', {
         playCounts: playCountCache.size,
-        ipAccess: ipAccessCache.size
+        ipAccess: ipAccessCache.size,
+        subscriptionIPs: subscriptionIPCache.size
       });
     }
   } catch (error) {
@@ -64,6 +95,10 @@ export async function backupCache(env) {
     const cacheData = {
       playCountCache: Object.fromEntries(playCountCache),
       ipAccessCache: Object.fromEntries(ipAccessCache),
+      subscriptionIPCache: Object.fromEntries(
+        Array.from(subscriptionIPCache.entries()).map(([key, value]) => [key, Array.from(value)])
+      ),
+      subscriptionIPTimestamp: Object.fromEntries(subscriptionIPTimestamp),
       lastCacheFlush: Date.now()
     };
 
@@ -73,7 +108,8 @@ export async function backupCache(env) {
 
     console.log('Cache backed up to KV:', {
       playCounts: playCountCache.size,
-      ipAccess: ipAccessCache.size
+      ipAccess: ipAccessCache.size,
+      subscriptionIPs: subscriptionIPCache.size
     });
   } catch (error) {
     console.error('Failed to backup cache to KV:', error);
@@ -133,6 +169,171 @@ export function getIPTotalAccess(ip, date) {
 }
 
 /**
+ * 检查并添加订阅IP到缓存
+ * @param {string} code - 卡密
+ * @param {string} ip - 客户端IP
+ * @param {string} date - 日期 (YYYY-MM-DD)
+ * @param {number} maxIPs - 最大IP数
+ * @returns {boolean} 是否允许订阅
+ */
+export function checkAndAddSubscriptionIP(code, ip, date, maxIPs) {
+  const cacheKey = `${code}:${date}`;
+  const timestampKey = `${code}:${ip}`;
+  const now = Date.now();
+  const thirtyMinutes = 30 * 60 * 1000;
+
+  console.log(`[Cache checkAndAdd] Code: ${code}, IP: ${ip}, Date: ${date}, maxIPs: ${maxIPs}`);
+
+  // 获取或创建IP集合
+  if (!subscriptionIPCache.has(cacheKey)) {
+    subscriptionIPCache.set(cacheKey, new Set());
+    console.log(`[Cache checkAndAdd] Created new IP set for ${cacheKey}`);
+  }
+
+  const ipSet = subscriptionIPCache.get(cacheKey);
+
+  // 检查IP是否在30分钟内已存在
+  const lastTimestamp = subscriptionIPTimestamp.get(timestampKey);
+  if (lastTimestamp && now - lastTimestamp < thirtyMinutes) {
+    // 30分钟内已存在，允许但不更新时间戳
+    console.log(`[Cache checkAndAdd] IP ${ip} already in cache (within 30min)`);
+    return true;
+  }
+
+  // 如果IP已存在于集合中但已超过30分钟，先移除（重新计时）
+  if (ipSet.has(ip)) {
+    ipSet.delete(ip);
+    console.log(`[Cache checkAndAdd] Removed expired IP ${ip} for re-adding`);
+  }
+
+  // 检查是否超过最大IP数限制
+  if (ipSet.size >= maxIPs) {
+    console.log(`[Cache checkAndAdd] IP ${ip} rejected: too many IPs (${ipSet.size} >= ${maxIPs})`);
+    return false;
+  }
+
+  // 新IP或30分钟后的旧IP，添加到缓存
+  ipSet.add(ip);
+  subscriptionIPTimestamp.set(timestampKey, now);
+  console.log(`[Cache checkAndAdd] Added IP ${ip} to cache, total: ${ipSet.size}`);
+  return true;
+}
+
+/**
+ * 检查订阅IP是否在缓存中（用于播放验证）
+ * @param {string} code - 卡密
+ * @param {string} ip - 客户端IP
+ * @param {string} date - 日期 (YYYY-MM-DD)
+ * @returns {boolean} IP是否在授权列表中
+ */
+export function isSubscriptionIPAuthorized(code, ip, date) {
+  const cacheKey = `${code}:${date}`;
+  const timestampKey = `${code}:${ip}`;
+  const now = Date.now();
+  const thirtyMinutes = 30 * 60 * 1000;
+
+  const ipSet = subscriptionIPCache.get(cacheKey);
+  if (!ipSet || !ipSet.has(ip)) {
+    return false;
+  }
+
+  // 检查时间戳是否在30分钟内
+  const lastTimestamp = subscriptionIPTimestamp.get(timestampKey);
+  if (!lastTimestamp || now - lastTimestamp >= thirtyMinutes) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * 获取订阅IP列表（用于播放验证）
+ * @param {string} code - 卡密
+ * @param {string} date - 日期 (YYYY-MM-DD)
+ * @param {number} maxIPs - 最大IP数
+ * @returns {Set<string>} 授权的IP集合
+ */
+export function getAuthorizedSubscriptionIPs(code, date, maxIPs) {
+  const cacheKey = `${code}:${date}`;
+  const ipSet = subscriptionIPCache.get(cacheKey);
+
+  console.log(`[Cache getAuthorized] Looking up ${cacheKey}`);
+  console.log(`[Cache getAuthorized] subscriptionIPCache size: ${subscriptionIPCache.size}, keys: ${Array.from(subscriptionIPCache.keys()).join(', ')}`);
+
+  if (!ipSet) {
+    console.log(`[Cache getAuthorized] No IP set found for ${cacheKey}`);
+    return new Set();
+  }
+
+  console.log(`[Cache getAuthorized] IP set size: ${ipSet.size}, IPs: ${Array.from(ipSet).join(', ')}`);
+
+  // 过滤出30分钟内的IP，并按时间戳排序，取最新的maxIPs个
+  const now = Date.now();
+  const thirtyMinutes = 30 * 60 * 1000;
+
+  const validIPs = [];
+  for (const ip of ipSet) {
+    const timestampKey = `${code}:${ip}`;
+    const lastTimestamp = subscriptionIPTimestamp.get(timestampKey);
+
+    console.log(`[Cache getAuthorized] Checking IP ${ip}, timestamp: ${lastTimestamp}, age: ${lastTimestamp ? Math.floor((now - lastTimestamp) / 1000) + 's' : 'null'}`);
+
+    if (lastTimestamp && now - lastTimestamp < thirtyMinutes) {
+      validIPs.push({ ip, timestamp: lastTimestamp });
+    }
+  }
+
+  // 按时间戳降序排序，取最新的maxIPs个
+  validIPs.sort((a, b) => b.timestamp - a.timestamp);
+  const latestIPs = validIPs.slice(0, maxIPs).map(item => item.ip);
+
+  console.log(`[Cache getAuthorized] Returning ${latestIPs.length} IPs: ${latestIPs.join(', ')}`);
+
+  return new Set(latestIPs);
+}
+
+/**
+ * 清理过期的订阅IP缓存
+ */
+export function cleanupExpiredSubscriptionIPs() {
+  const now = Date.now();
+  const thirtyMinutes = 30 * 60 * 1000;
+
+  let cleanedCount = 0;
+
+  for (const [cacheKey, ipSet] of subscriptionIPCache.entries()) {
+    const [code, date] = cacheKey.split(':');
+
+    // 检查每个IP的时间戳
+    const toRemove = [];
+    for (const ip of ipSet) {
+      const timestampKey = `${code}:${ip}`;
+      const lastTimestamp = subscriptionIPTimestamp.get(timestampKey);
+
+      if (!lastTimestamp || now - lastTimestamp >= thirtyMinutes) {
+        toRemove.push(ip);
+        subscriptionIPTimestamp.delete(timestampKey);
+        cleanedCount++;
+      }
+    }
+
+    // 从集合中移除过期IP
+    toRemove.forEach(ip => ipSet.delete(ip));
+
+    // 如果集合为空，删除整个缓存项
+    if (ipSet.size === 0) {
+      subscriptionIPCache.delete(cacheKey);
+    }
+  }
+
+  if (cleanedCount > 0) {
+    console.log(`Cleaned up ${cleanedCount} expired subscription IPs from cache`);
+  }
+
+  return cleanedCount;
+}
+
+/**
  * 刷新缓存到数据库
  */
 export async function flushCacheToDB(env, ctx) {
@@ -150,7 +351,7 @@ export async function flushCacheToDB(env, ctx) {
     const db = getDB();
     const today = new Date().toISOString().split('T')[0];
 
-    // 批量写入播放计数到 play_counts 表
+    // 1. 批量写入播放计数到 play_counts 表
     const playBatch = [];
     for (const [key, count] of playCountCache.entries()) {
       const [code, channelHash, date] = key.split(':');
@@ -171,7 +372,7 @@ export async function flushCacheToDB(env, ctx) {
       console.log(`Flushed ${playBatch.length} play count records to play_counts table`);
     }
 
-    // 批量写入 IP 访问计数
+    // 2. 批量写入 IP 访问计数
     const ipBatch = [];
     for (const [key, count] of ipAccessCache.entries()) {
       const [ip, path, date] = key.split(':');
@@ -208,9 +409,62 @@ export async function flushCacheToDB(env, ctx) {
       console.log(`Flushed ${ipBatch.length} IP access records`);
     }
 
-    // 清空今日的缓存
+    // 3. 批量写入订阅IP到 subscription_ips 表
+    // 注意：不立即清空订阅IP缓存，只清理过期的IP
+    const cleanedCount = cleanupExpiredSubscriptionIPs();
+
+    const subIPBatch = [];
+    for (const [cacheKey, ipSet] of subscriptionIPCache.entries()) {
+      const [code, date] = cacheKey.split(':');
+
+      for (const ip of ipSet) {
+        const timestampKey = `${code}:${ip}`;
+        const timestamp = subscriptionIPTimestamp.get(timestampKey);
+
+        if (timestamp) {
+          subIPBatch.push({
+            code,
+            ip,
+            subscribed_at: new Date(timestamp).toISOString(),
+            date
+          });
+        }
+      }
+    }
+
+    if (subIPBatch.length > 0) {
+      let insertedCount = 0;
+      let skippedCount = 0;
+
+      for (const { code, ip, subscribed_at, date } of subIPBatch) {
+        // 检查是否已存在（去重）
+        const existing = await db.prepare(`
+          SELECT id FROM subscription_ips
+          WHERE code = ? AND client_ip = ? AND subscribed_at = ? AND created_date = ?
+        `).bind(code, ip, subscribed_at, date).first();
+
+        if (!existing) {
+          // 插入新记录
+          await db.prepare(`
+            INSERT INTO subscription_ips (code, client_ip, subscribed_at, created_date)
+            VALUES (?, ?, ?, ?)
+          `).bind(code, ip, subscribed_at, date).run();
+          insertedCount++;
+        } else {
+          skippedCount++;
+        }
+      }
+
+      console.log(`Flushed ${insertedCount} subscription IP records (skipped ${skippedCount} duplicates, cleaned ${cleanedCount} expired IPs)`);
+    }
+
+    // 清空播放计数和IP访问计数缓存
     playCountCache.clear();
     ipAccessCache.clear();
+
+    // 注意：不清空订阅IP缓存，因为它需要持续运行
+    // subscriptionIPCache 和 subscriptionIPTimestamp 保持运行状态
+    // cleanupExpiredSubscriptionIPs() 会定期清理过期IP
 
     // 更新最后刷新时间
     lastCacheFlush = now;
@@ -233,6 +487,8 @@ export function getCacheStats() {
   return {
     playCountEntries: playCountCache.size,
     ipAccessEntries: ipAccessCache.size,
+    subscriptionIPEntries: subscriptionIPCache.size,
+    subscriptionIPTimestampEntries: subscriptionIPTimestamp.size,
     lastFlush: new Date(lastCacheFlush).toISOString(),
     nextFlush: new Date(lastCacheFlush + CACHE_FLUSH_INTERVAL).toISOString()
   };
@@ -244,5 +500,7 @@ export function getCacheStats() {
 export function clearCache() {
   playCountCache.clear();
   ipAccessCache.clear();
+  subscriptionIPCache.clear();
+  subscriptionIPTimestamp.clear();
   lastCacheFlush = Date.now();
 }

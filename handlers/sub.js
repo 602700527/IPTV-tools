@@ -1,7 +1,7 @@
 // 订阅请求处理器: /sub/{code}.m3u（简化版）
 import { getDB } from '../database.js';
 import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
-import { getIPAccessCount } from '../utils/cache.js';
+import { getIPAccessCount, checkAndAddSubscriptionIP, getSubscriptionIPCacheStatus } from '../utils/cache.js';
 import { getAllChannels } from '../utils/channel-cache.js';
 
 export async function handleSubRequest(request, env, ctx) {
@@ -34,21 +34,21 @@ export async function handleSubRequest(request, env, ctx) {
     return new Response('Forbidden: Daily request limit exceeded', { status: 403 });
   }
 
-  // 2. 检查缓存 (Cache API)
-  const cache = caches.default;
-  const cacheKey = new Request(url.toString(), request);
-  let response = await cache.match(cacheKey);
+  // 2. 禁用订阅请求的缓存（因为需要实时记录IP）
+  // 不使用 Cache API 缓存，确保每次订阅都能记录IP
+  // const cache = caches.default;
+  // const cacheKey = new Request(url.toString(), request);
+  // let response = await cache.match(cacheKey);
+  // if (response) {
+  //   // 缓存命中
+  //   return response;
+  // }
 
-  if (response) {
-    // 缓存命中
-    return response;
-  }
-
-  // 3. 缓存未命中，生成M3U内容
+  // 3. 生成M3U内容
 
   // 3.1 校验卡密
   const db = getDB();
-  const auth = await db.prepare("SELECT status, expired_at FROM codes WHERE code = ?").bind(code).first();
+  const auth = await db.prepare("SELECT status, expired_at, max_ips FROM codes WHERE code = ?").bind(code).first();
 
   const now = new Date().toISOString();
     if (!auth || auth.status !== 'active' || auth.expired_at < now) {
@@ -56,12 +56,25 @@ export async function handleSubRequest(request, env, ctx) {
       if (auth && auth.expired_at < now && auth.status === 'active') {
         await db.prepare("UPDATE codes SET status = 'disabled' WHERE code = ?").bind(code).run();
       }
-      response = new Response('Forbidden: Invalid or Expired Code', { status: 403 });
-      // 403错误只缓存10分钟，确保状态变更快速生效
-      response.headers.set("Cache-Control", "public, max-age=600");
-      ctx.waitUntil(cache.put(cacheKey, response.clone()));
-      return response;
+      const errorResponse = new Response('Forbidden: Invalid or Expired Code', { status: 403 });
+      errorResponse.headers.set("Cache-Control", "public, max-age=600");
+      return errorResponse;
     }
+
+  // 3.1.1 检查订阅IP限制（只允许最新的max_ips个IP订阅）- 使用内存缓存
+  const maxIPs = auth.max_ips || 3;
+
+  // 使用内存缓存检查和添加订阅IP
+  const isAllowed = checkAndAddSubscriptionIP(code, clientIP, today, maxIPs);
+
+  console.log(`[Sub] Code: ${code}, IP: ${clientIP}, Allowed: ${isAllowed}, maxIPs: ${maxIPs}`);
+  console.log(`[Sub] Cache status:`, getSubscriptionIPCacheStatus());
+
+  if (!isAllowed) {
+    const errorResponse = new Response(`Forbidden: Too many unique IPs (max ${maxIPs})`, { status: 403 });
+    errorResponse.headers.set("Cache-Control", "public, max-age=60");
+    return errorResponse;
+  }
 
   // 3.2 获取所有频道（优先从 KV 缓存，只获取启用源的频道）
   const cacheResult = await getAllChannels(env);
@@ -73,13 +86,12 @@ export async function handleSubRequest(request, env, ctx) {
   }
 
   if (!allChannels || allChannels.length === 0) {
-    response = new Response('#EXTM3U\n# No channels available', {
-      headers: { 'Content-Type': 'application/vnd.apple.mpegurl' }
+    return new Response('#EXTM3U\n# No channels available', {
+      headers: {
+        'Content-Type': 'application/vnd.apple.mpegurl',
+        'Cache-Control': 'public, max-age=600'
+      }
     });
-    // 没有频道时缓存10分钟
-    response.headers.set("Cache-Control", "public, max-age=600");
-    ctx.waitUntil(cache.put(cacheKey, response.clone()));
-    return response;
   }
 
   // 3.3 对频道进行排序
@@ -123,16 +135,13 @@ export async function handleSubRequest(request, env, ctx) {
   const m3uContent = m3uLines.join('\n');
 
   // 4. 创建响应（增加缓存时间到12小时）
-  response = new Response(m3uContent, {
+  const response = new Response(m3uContent, {
     headers: {
       'Content-Type': 'application/vnd.apple.mpegurl; charset=utf-8',
       'Content-Disposition': `attachment; filename="${filename}"`,
       'Cache-Control': 'public, max-age=43200'
     }
   });
-
-  // 5. 写入缓存
-  ctx.waitUntil(cache.put(cacheKey, response.clone()));
 
   return response;
 }

@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-wsJgKo/checked-fetch.js
+// .wrangler/tmp/bundle-yqEQo5/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-wsJgKo/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-yqEQo5/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -279,6 +279,27 @@ async function createTables(env) {
   }
   await db.prepare("CREATE INDEX IF NOT EXISTS idx_announcements_enabled ON announcements(enabled)").run();
   await db.prepare("CREATE INDEX IF NOT EXISTS idx_announcements_updated ON announcements(updated_at DESC)").run();
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS subscription_ips (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        code TEXT NOT NULL,
+        client_ip TEXT NOT NULL,
+        subscribed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_date DATE DEFAULT (DATE('now'))
+      )
+    `).run();
+    console.log("Database: subscription_ips table created or already exists");
+  } catch (e) {
+    console.error("Database: Failed to create subscription_ips table:", e);
+  }
+  try {
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_subscription_ips_code_date ON subscription_ips(code, created_date)").run();
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_subscription_ips_code_ip_date ON subscription_ips(code, client_ip, created_date)").run();
+    console.log("Database: subscription_ips indexes created or already exist");
+  } catch (e) {
+    console.error("Database: Failed to create subscription_ips indexes:", e);
+  }
   console.log("Tables created successfully");
 }
 async function getSecurityConfig() {
@@ -1009,11 +1030,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-wsJgKo/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-yqEQo5/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-wsJgKo/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-yqEQo5/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -1037,6 +1058,19 @@ init_checked_fetch();
 init_modules_watch_stub();
 var playCountCache2 = /* @__PURE__ */ new Map();
 var ipAccessCache = /* @__PURE__ */ new Map();
+var subscriptionIPCache = /* @__PURE__ */ new Map();
+var subscriptionIPTimestamp = /* @__PURE__ */ new Map();
+function getSubscriptionIPCacheStatus() {
+  const status = {};
+  for (const [key, value] of subscriptionIPCache.entries()) {
+    status[key] = {
+      ips: Array.from(value),
+      count: value.size
+    };
+  }
+  return status;
+}
+__name(getSubscriptionIPCacheStatus, "getSubscriptionIPCacheStatus");
 var lastCacheFlush = Date.now();
 var CACHE_FLUSH_INTERVAL = 10 * 60 * 1e3;
 async function initCache(env) {
@@ -1054,12 +1088,23 @@ async function initCache(env) {
           ipAccessCache.set(key, value);
         });
       }
+      if (cacheData.subscriptionIPCache) {
+        Object.entries(cacheData.subscriptionIPCache).forEach(([key, value]) => {
+          subscriptionIPCache.set(key, new Set(value));
+        });
+      }
+      if (cacheData.subscriptionIPTimestamp) {
+        Object.entries(cacheData.subscriptionIPTimestamp).forEach(([key, value]) => {
+          subscriptionIPTimestamp.set(key, value);
+        });
+      }
       if (cacheData.lastCacheFlush) {
         lastCacheFlush = cacheData.lastCacheFlush;
       }
       console.log("Cache restored from KV:", {
         playCounts: playCountCache2.size,
-        ipAccess: ipAccessCache.size
+        ipAccess: ipAccessCache.size,
+        subscriptionIPs: subscriptionIPCache.size
       });
     }
   } catch (error) {
@@ -1073,6 +1118,10 @@ async function backupCache(env) {
     const cacheData = {
       playCountCache: Object.fromEntries(playCountCache2),
       ipAccessCache: Object.fromEntries(ipAccessCache),
+      subscriptionIPCache: Object.fromEntries(
+        Array.from(subscriptionIPCache.entries()).map(([key, value]) => [key, Array.from(value)])
+      ),
+      subscriptionIPTimestamp: Object.fromEntries(subscriptionIPTimestamp),
       lastCacheFlush: Date.now()
     };
     await env.KV.put("memory_cache_backup", JSON.stringify(cacheData), {
@@ -1080,7 +1129,8 @@ async function backupCache(env) {
     });
     console.log("Cache backed up to KV:", {
       playCounts: playCountCache2.size,
-      ipAccess: ipAccessCache.size
+      ipAccess: ipAccessCache.size,
+      subscriptionIPs: subscriptionIPCache.size
     });
   } catch (error) {
     console.error("Failed to backup cache to KV:", error);
@@ -1122,6 +1172,90 @@ function getIPTotalAccess(ip, date) {
   return total;
 }
 __name(getIPTotalAccess, "getIPTotalAccess");
+function checkAndAddSubscriptionIP(code, ip, date, maxIPs) {
+  const cacheKey = `${code}:${date}`;
+  const timestampKey = `${code}:${ip}`;
+  const now = Date.now();
+  const thirtyMinutes = 30 * 60 * 1e3;
+  console.log(`[Cache checkAndAdd] Code: ${code}, IP: ${ip}, Date: ${date}, maxIPs: ${maxIPs}`);
+  if (!subscriptionIPCache.has(cacheKey)) {
+    subscriptionIPCache.set(cacheKey, /* @__PURE__ */ new Set());
+    console.log(`[Cache checkAndAdd] Created new IP set for ${cacheKey}`);
+  }
+  const ipSet = subscriptionIPCache.get(cacheKey);
+  const lastTimestamp = subscriptionIPTimestamp.get(timestampKey);
+  if (lastTimestamp && now - lastTimestamp < thirtyMinutes) {
+    console.log(`[Cache checkAndAdd] IP ${ip} already in cache (within 30min)`);
+    return true;
+  }
+  if (ipSet.has(ip)) {
+    ipSet.delete(ip);
+    console.log(`[Cache checkAndAdd] Removed expired IP ${ip} for re-adding`);
+  }
+  if (ipSet.size >= maxIPs) {
+    console.log(`[Cache checkAndAdd] IP ${ip} rejected: too many IPs (${ipSet.size} >= ${maxIPs})`);
+    return false;
+  }
+  ipSet.add(ip);
+  subscriptionIPTimestamp.set(timestampKey, now);
+  console.log(`[Cache checkAndAdd] Added IP ${ip} to cache, total: ${ipSet.size}`);
+  return true;
+}
+__name(checkAndAddSubscriptionIP, "checkAndAddSubscriptionIP");
+function getAuthorizedSubscriptionIPs(code, date, maxIPs) {
+  const cacheKey = `${code}:${date}`;
+  const ipSet = subscriptionIPCache.get(cacheKey);
+  console.log(`[Cache getAuthorized] Looking up ${cacheKey}`);
+  console.log(`[Cache getAuthorized] subscriptionIPCache size: ${subscriptionIPCache.size}, keys: ${Array.from(subscriptionIPCache.keys()).join(", ")}`);
+  if (!ipSet) {
+    console.log(`[Cache getAuthorized] No IP set found for ${cacheKey}`);
+    return /* @__PURE__ */ new Set();
+  }
+  console.log(`[Cache getAuthorized] IP set size: ${ipSet.size}, IPs: ${Array.from(ipSet).join(", ")}`);
+  const now = Date.now();
+  const thirtyMinutes = 30 * 60 * 1e3;
+  const validIPs = [];
+  for (const ip of ipSet) {
+    const timestampKey = `${code}:${ip}`;
+    const lastTimestamp = subscriptionIPTimestamp.get(timestampKey);
+    console.log(`[Cache getAuthorized] Checking IP ${ip}, timestamp: ${lastTimestamp}, age: ${lastTimestamp ? Math.floor((now - lastTimestamp) / 1e3) + "s" : "null"}`);
+    if (lastTimestamp && now - lastTimestamp < thirtyMinutes) {
+      validIPs.push({ ip, timestamp: lastTimestamp });
+    }
+  }
+  validIPs.sort((a, b) => b.timestamp - a.timestamp);
+  const latestIPs = validIPs.slice(0, maxIPs).map((item) => item.ip);
+  console.log(`[Cache getAuthorized] Returning ${latestIPs.length} IPs: ${latestIPs.join(", ")}`);
+  return new Set(latestIPs);
+}
+__name(getAuthorizedSubscriptionIPs, "getAuthorizedSubscriptionIPs");
+function cleanupExpiredSubscriptionIPs() {
+  const now = Date.now();
+  const thirtyMinutes = 30 * 60 * 1e3;
+  let cleanedCount = 0;
+  for (const [cacheKey, ipSet] of subscriptionIPCache.entries()) {
+    const [code, date] = cacheKey.split(":");
+    const toRemove = [];
+    for (const ip of ipSet) {
+      const timestampKey = `${code}:${ip}`;
+      const lastTimestamp = subscriptionIPTimestamp.get(timestampKey);
+      if (!lastTimestamp || now - lastTimestamp >= thirtyMinutes) {
+        toRemove.push(ip);
+        subscriptionIPTimestamp.delete(timestampKey);
+        cleanedCount++;
+      }
+    }
+    toRemove.forEach((ip) => ipSet.delete(ip));
+    if (ipSet.size === 0) {
+      subscriptionIPCache.delete(cacheKey);
+    }
+  }
+  if (cleanedCount > 0) {
+    console.log(`Cleaned up ${cleanedCount} expired subscription IPs from cache`);
+  }
+  return cleanedCount;
+}
+__name(cleanupExpiredSubscriptionIPs, "cleanupExpiredSubscriptionIPs");
 async function flushCacheToDB(env, ctx) {
   const now = Date.now();
   if (now - lastCacheFlush < CACHE_FLUSH_INTERVAL) {
@@ -1178,6 +1312,43 @@ async function flushCacheToDB(env, ctx) {
       }
       console.log(`Flushed ${ipBatch.length} IP access records`);
     }
+    const cleanedCount = cleanupExpiredSubscriptionIPs();
+    const subIPBatch = [];
+    for (const [cacheKey, ipSet] of subscriptionIPCache.entries()) {
+      const [code, date] = cacheKey.split(":");
+      for (const ip of ipSet) {
+        const timestampKey = `${code}:${ip}`;
+        const timestamp = subscriptionIPTimestamp.get(timestampKey);
+        if (timestamp) {
+          subIPBatch.push({
+            code,
+            ip,
+            subscribed_at: new Date(timestamp).toISOString(),
+            date
+          });
+        }
+      }
+    }
+    if (subIPBatch.length > 0) {
+      let insertedCount = 0;
+      let skippedCount = 0;
+      for (const { code, ip, subscribed_at, date } of subIPBatch) {
+        const existing = await db.prepare(`
+          SELECT id FROM subscription_ips
+          WHERE code = ? AND client_ip = ? AND subscribed_at = ? AND created_date = ?
+        `).bind(code, ip, subscribed_at, date).first();
+        if (!existing) {
+          await db.prepare(`
+            INSERT INTO subscription_ips (code, client_ip, subscribed_at, created_date)
+            VALUES (?, ?, ?, ?)
+          `).bind(code, ip, subscribed_at, date).run();
+          insertedCount++;
+        } else {
+          skippedCount++;
+        }
+      }
+      console.log(`Flushed ${insertedCount} subscription IP records (skipped ${skippedCount} duplicates, cleaned ${cleanedCount} expired IPs)`);
+    }
     playCountCache2.clear();
     ipAccessCache.clear();
     lastCacheFlush = now;
@@ -1193,9 +1364,9 @@ __name(flushCacheToDB, "flushCacheToDB");
 
 // security/ip-blacklist.js
 function getClientIP(request) {
-  const forwarded = request.headers.get("CF-Connecting-IP");
-  if (forwarded) {
-    return forwarded;
+  const cfIP = request.headers.get("CF-Connecting-IP");
+  if (cfIP) {
+    return cfIP;
   }
   const xForwardedFor = request.headers.get("X-Forwarded-For");
   if (xForwardedFor) {
@@ -1205,7 +1376,8 @@ function getClientIP(request) {
   if (xRealIP) {
     return xRealIP;
   }
-  return null;
+  console.warn("[IP] No client IP found, using 127.0.0.1 for local development");
+  return "127.0.0.1";
 }
 __name(getClientIP, "getClientIP");
 async function checkIPRateLimit(env, ctx, ip, path) {
@@ -1676,6 +1848,18 @@ async function handleLiveRequest(request, env, ctx) {
     }
     const securityConfig = await getSecurityConfig();
     const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+    const maxIPs = auth.max_ips || 3;
+    const authorizedIPs = getAuthorizedSubscriptionIPs(code, today, maxIPs);
+    console.log(`[Live] Code: ${code}, IP: ${clientIP}, Authorized IPs: ${Array.from(authorizedIPs).join(", ")}, IsAuthorized: ${authorizedIPs.has(clientIP)}`);
+    if (authorizedIPs.size > 0 && !authorizedIPs.has(clientIP)) {
+      response = new Response("Forbidden: Your IP is not authorized to play (please re-subscribe)", { status: 403 });
+      response.headers.set("Cache-Control", "public, max-age=60");
+      ctx.waitUntil(cache.put(cacheKey, response.clone()));
+      return response;
+    }
+    if (authorizedIPs.size === 0) {
+      console.log(`[Live] Code: ${code}, IP: ${clientIP} - First subscription detected, allowing playback`);
+    }
     await flushCacheToDB(env, ctx);
     let todayPlays = getPlayCount(code, hash, today);
     if (todayPlays === 0) {
@@ -1711,25 +1895,6 @@ ${banReason}` : banReason;
       return response;
     }
     incrementPlayCount(code, hash, today);
-    const tenMinutesAgo = new Date(Date.now() - 6e5).toISOString();
-    const activeIPsResult = await db.prepare(`
-      SELECT DISTINCT client_ip
-      FROM play_logs
-      WHERE code = ? AND played_at > ?
-    `).bind(code, tenMinutesAgo).all();
-    const activeIPs = new Set((activeIPsResult.results || []).map((r) => r.client_ip));
-    if (!activeIPs.has(clientIP)) {
-      if (activeIPs.size >= (auth.max_ips || 3)) {
-        response = new Response("Forbidden: Too many devices", { status: 403 });
-        response.headers.set("Cache-Control", "public, max-age=300");
-        ctx.waitUntil(cache.put(cacheKey, response.clone()));
-        return response;
-      }
-      ctx.waitUntil(db.prepare(`
-        INSERT INTO play_logs (code, channel_hash, client_ip, created_date)
-        VALUES (?, ?, ?, ?)
-      `).bind(code, hash, clientIP, today).run());
-    }
     const channel = await getChannelByHash(env, hash);
     if (!channel || !channel.is_active) {
       response = new Response("Channel Not Found", { status: 404 });
@@ -1772,23 +1937,25 @@ async function handleSubRequest(request, env, ctx) {
   if (requestCount > 20) {
     return new Response("Forbidden: Daily request limit exceeded", { status: 403 });
   }
-  const cache = caches.default;
-  const cacheKey = new Request(url.toString(), request);
-  let response = await cache.match(cacheKey);
-  if (response) {
-    return response;
-  }
   const db = getDB();
-  const auth = await db.prepare("SELECT status, expired_at FROM codes WHERE code = ?").bind(code).first();
+  const auth = await db.prepare("SELECT status, expired_at, max_ips FROM codes WHERE code = ?").bind(code).first();
   const now = (/* @__PURE__ */ new Date()).toISOString();
   if (!auth || auth.status !== "active" || auth.expired_at < now) {
     if (auth && auth.expired_at < now && auth.status === "active") {
       await db.prepare("UPDATE codes SET status = 'disabled' WHERE code = ?").bind(code).run();
     }
-    response = new Response("Forbidden: Invalid or Expired Code", { status: 403 });
-    response.headers.set("Cache-Control", "public, max-age=600");
-    ctx.waitUntil(cache.put(cacheKey, response.clone()));
-    return response;
+    const errorResponse = new Response("Forbidden: Invalid or Expired Code", { status: 403 });
+    errorResponse.headers.set("Cache-Control", "public, max-age=600");
+    return errorResponse;
+  }
+  const maxIPs = auth.max_ips || 3;
+  const isAllowed = checkAndAddSubscriptionIP(code, clientIP, today, maxIPs);
+  console.log(`[Sub] Code: ${code}, IP: ${clientIP}, Allowed: ${isAllowed}, maxIPs: ${maxIPs}`);
+  console.log(`[Sub] Cache status:`, getSubscriptionIPCacheStatus());
+  if (!isAllowed) {
+    const errorResponse = new Response(`Forbidden: Too many unique IPs (max ${maxIPs})`, { status: 403 });
+    errorResponse.headers.set("Cache-Control", "public, max-age=60");
+    return errorResponse;
   }
   const cacheResult = await getAllChannels(env);
   let allChannels = cacheResult.channels;
@@ -1796,12 +1963,12 @@ async function handleSubRequest(request, env, ctx) {
     allChannels = allChannels.filter((c) => c.is_active && c.source_active);
   }
   if (!allChannels || allChannels.length === 0) {
-    response = new Response("#EXTM3U\n# No channels available", {
-      headers: { "Content-Type": "application/vnd.apple.mpegurl" }
+    return new Response("#EXTM3U\n# No channels available", {
+      headers: {
+        "Content-Type": "application/vnd.apple.mpegurl",
+        "Cache-Control": "public, max-age=600"
+      }
     });
-    response.headers.set("Cache-Control", "public, max-age=600");
-    ctx.waitUntil(cache.put(cacheKey, response.clone()));
-    return response;
   }
   const sortedChannels = sortChannels(allChannels);
   const host = url.origin;
@@ -1830,14 +1997,13 @@ async function handleSubRequest(request, env, ctx) {
     m3uLines.push(`${host}/live/${code}/${channel.channel_hash}`);
   }
   const m3uContent = m3uLines.join("\n");
-  response = new Response(m3uContent, {
+  const response = new Response(m3uContent, {
     headers: {
       "Content-Type": "application/vnd.apple.mpegurl; charset=utf-8",
       "Content-Disposition": `attachment; filename="${filename}"`,
       "Cache-Control": "public, max-age=43200"
     }
   });
-  ctx.waitUntil(cache.put(cacheKey, response.clone()));
   return response;
 }
 __name(handleSubRequest, "handleSubRequest");
@@ -2004,6 +2170,13 @@ async function handleScheduledEvent(event, env, ctx) {
       console.log(`Channels cached successfully: ${cacheResult.channels} channels, ${cacheResult.groups} groups`);
     } else {
       console.error("Failed to cache channels:", cacheResult.error);
+    }
+    console.log("Flushing cache to database...");
+    const flushResult = await flushCacheToDB(env, ctx);
+    if (flushResult) {
+      console.log("Cache flushed successfully");
+    } else {
+      console.log("Cache flush skipped (not yet due)");
     }
   } catch (error) {
     console.error("Scheduled task error:", error);
@@ -11269,11 +11442,17 @@ var OG_IMAGE_SVG = `<svg width="1200" height="630" viewBox="0 0 1200 630" fill="
 </svg>`;
 
 // worker.js
+var cacheInitialized = false;
 var worker_default = {
   async fetch(request, env, ctx) {
     try {
       await initDB(env);
-      await initCache(env);
+      await createTables(env);
+      if (!cacheInitialized) {
+        await initCache(env);
+        cacheInitialized = true;
+        console.log("Cache initialized");
+      }
       const url = new URL(request.url);
       const path = url.pathname;
       if (request.method === "OPTIONS") {
@@ -11445,7 +11624,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-wsJgKo/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-yqEQo5/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -11479,7 +11658,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-wsJgKo/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-yqEQo5/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

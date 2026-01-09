@@ -2,7 +2,7 @@
 import { getDB, getSecurityConfig } from '../database.js';
 import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
 import { addBannedCodeToCache } from '../security/code-ban-cache.js';
-import { incrementPlayCount, getPlayCount, flushCacheToDB } from '../utils/cache.js';
+import { incrementPlayCount, getPlayCount, flushCacheToDB, getAuthorizedSubscriptionIPs } from '../utils/cache.js';
 import { getChannelByHash } from '../utils/channel-cache.js';
 
 export async function handleLiveRequest(request, env, ctx) {
@@ -72,8 +72,30 @@ export async function handleLiveRequest(request, env, ctx) {
     // 获取安全配置
     const securityConfig = await getSecurityConfig();
 
-    // 2.2 检查每日播放额度（每个频道）
+    // 2.2 检查订阅IP限制（播放IP必须在订阅记录的IP列表中）- 使用内存缓存
     const today = new Date().toISOString().split('T')[0];
+    const maxIPs = auth.max_ips || 3;
+
+    // 使用内存缓存获取授权的订阅IP列表
+    const authorizedIPs = getAuthorizedSubscriptionIPs(code, today, maxIPs);
+
+    console.log(`[Live] Code: ${code}, IP: ${clientIP}, Authorized IPs: ${Array.from(authorizedIPs).join(', ')}, IsAuthorized: ${authorizedIPs.has(clientIP)}`);
+
+    // 检查当前播放IP是否在订阅IP列表中
+    // 如果授权IP列表为空（说明是该卡密首次订阅），则允许播放
+    if (authorizedIPs.size > 0 && !authorizedIPs.has(clientIP)) {
+      response = new Response("Forbidden: Your IP is not authorized to play (please re-subscribe)", { status: 403 });
+      response.headers.set("Cache-Control", "public, max-age=60");
+      ctx.waitUntil(cache.put(cacheKey, response.clone()));
+      return response;
+    }
+
+    // 如果授权IP列表为空，说明是该卡密首次订阅，记录日志并允许播放
+    if (authorizedIPs.size === 0) {
+      console.log(`[Live] Code: ${code}, IP: ${clientIP} - First subscription detected, allowing playback`);
+    }
+
+    // 2.3 检查每日播放额度（每个频道）
 
     // 尝试刷新缓存（10分钟间隔）
     await flushCacheToDB(env, ctx);
@@ -135,34 +157,6 @@ export async function handleLiveRequest(request, env, ctx) {
 
     // 增加播放计数到缓存
     incrementPlayCount(code, hash, today);
-
-    // 2.3 IP 并发检测 (数据库)
-    // 查询10分钟内的活跃IP
-    const tenMinutesAgo = new Date(Date.now() - 600000).toISOString();
-    const activeIPsResult = await db.prepare(`
-      SELECT DISTINCT client_ip
-      FROM play_logs
-      WHERE code = ? AND played_at > ?
-    `).bind(code, tenMinutesAgo).all();
-
-    const activeIPs = new Set((activeIPsResult.results || []).map(r => r.client_ip));
-
-    // 检查当前IP是否在列表中
-    if (!activeIPs.has(clientIP)) {
-      // 当前IP不在列表中，检查是否超过最大IP数限制
-      if (activeIPs.size >= (auth.max_ips || 3)) {
-        response = new Response("Forbidden: Too many devices", { status: 403 });
-        response.headers.set("Cache-Control", "public, max-age=300");
-        ctx.waitUntil(cache.put(cacheKey, response.clone()));
-        return response;
-      }
-
-      // 新IP，记录到数据库（仅此情况写入）
-      ctx.waitUntil(db.prepare(`
-        INSERT INTO play_logs (code, channel_hash, client_ip, created_date)
-        VALUES (?, ?, ?, ?)
-      `).bind(code, hash, clientIP, today).run());
-    }
 
     // 3. 获取频道真实链接（优先从 KV 缓存）
     const channel = await getChannelByHash(env, hash);

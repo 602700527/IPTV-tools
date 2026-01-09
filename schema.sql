@@ -127,3 +127,16 @@ CREATE TABLE IF NOT EXISTS announcements (
 -- 创建公告索引
 CREATE INDEX IF NOT EXISTS idx_announcements_enabled ON announcements(enabled);
 CREATE INDEX IF NOT EXISTS idx_announcements_updated ON announcements(updated_at DESC);
+
+-- 创建订阅IP记录表（记录卡密的订阅IP，用于验证播放请求）
+CREATE TABLE IF NOT EXISTS subscription_ips (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code TEXT NOT NULL,
+  client_ip TEXT NOT NULL,
+  subscribed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_date DATE DEFAULT (DATE('now'))
+);
+
+-- 创建订阅IP记录索引
+CREATE INDEX IF NOT EXISTS idx_subscription_ips_code_date ON subscription_ips(code, created_date);
+CREATE INDEX IF NOT EXISTS idx_subscription_ips_code_ip_date ON subscription_ips(code, client_ip, created_date);

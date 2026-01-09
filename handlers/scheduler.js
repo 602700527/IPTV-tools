@@ -1,6 +1,7 @@
 // 定时任务处理器：自动同步已启用的数据源
 import { getDB, fetchAndParseM3U, initDB, getSyncFilterConfig } from '../database.js';
 import { cacheChannelsToKV } from '../utils/channel-cache.js';
+import { flushCacheToDB } from '../utils/cache.js';
 
 export async function handleScheduledEvent(event, env, ctx) {
   try {
@@ -136,6 +137,15 @@ export async function handleScheduledEvent(event, env, ctx) {
       console.log(`Channels cached successfully: ${cacheResult.channels} channels, ${cacheResult.groups} groups`);
     } else {
       console.error('Failed to cache channels:', cacheResult.error);
+    }
+
+    // 刷新缓存到数据库（包括订阅IP）
+    console.log('Flushing cache to database...');
+    const flushResult = await flushCacheToDB(env, ctx);
+    if (flushResult) {
+      console.log('Cache flushed successfully');
+    } else {
+      console.log('Cache flush skipped (not yet due)');
     }
 
     // 可选：将结果存储到KV或发送通知

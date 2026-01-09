@@ -259,6 +259,31 @@ export async function createTables(env) {
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_announcements_enabled ON announcements(enabled)').run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_announcements_updated ON announcements(updated_at DESC)').run();
 
+  // 创建订阅IP记录表（记录卡密的订阅IP，用于验证播放请求）
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS subscription_ips (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        code TEXT NOT NULL,
+        client_ip TEXT NOT NULL,
+        subscribed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_date DATE DEFAULT (DATE('now'))
+      )
+    `).run();
+    console.log('Database: subscription_ips table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create subscription_ips table:', e);
+  }
+
+  try {
+    // 创建订阅IP记录索引
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_subscription_ips_code_date ON subscription_ips(code, created_date)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_subscription_ips_code_ip_date ON subscription_ips(code, client_ip, created_date)').run();
+    console.log('Database: subscription_ips indexes created or already exist');
+  } catch (e) {
+    console.error('Database: Failed to create subscription_ips indexes:', e);
+  }
+
   console.log('Tables created successfully');
 }
 

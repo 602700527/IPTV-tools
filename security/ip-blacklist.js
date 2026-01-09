@@ -7,23 +7,28 @@ import { incrementIPAccess, getIPAccessCount, getIPTotalAccess, flushCacheToDB, 
  * 获取客户端真实IP
  */
 export function getClientIP(request) {
-  const forwarded = request.headers.get('CF-Connecting-IP');
-  if (forwarded) {
-    return forwarded;
+  // Cloudflare Workers 环境优先
+  const cfIP = request.headers.get('CF-Connecting-IP');
+  if (cfIP) {
+    return cfIP;
   }
 
-  // 备选方案
+  // 备选方案：X-Forwarded-For
   const xForwardedFor = request.headers.get('X-Forwarded-For');
   if (xForwardedFor) {
     return xForwardedFor.split(',')[0].trim();
   }
 
+  // 备选方案：X-Real-IP
   const xRealIP = request.headers.get('X-Real-IP');
   if (xRealIP) {
     return xRealIP;
   }
 
-  return null;
+  // 本地开发环境：使用 localhost 或 127.0.0.1
+  // 注意：在生产环境中，这里应该永远不会执行
+  console.warn('[IP] No client IP found, using 127.0.0.1 for local development');
+  return '127.0.0.1';
 }
 
 /**
