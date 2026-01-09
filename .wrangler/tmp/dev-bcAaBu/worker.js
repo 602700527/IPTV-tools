@@ -1192,10 +1192,6 @@ function checkAndAddSubscriptionIP(code, ip, date, maxIPs) {
     ipSet.delete(ip);
     console.log(`[Cache checkAndAdd] Removed expired IP ${ip} for re-adding`);
   }
-  if (ipSet.size >= maxIPs) {
-    console.log(`[Cache checkAndAdd] IP ${ip} rejected: too many IPs (${ipSet.size} >= ${maxIPs})`);
-    return false;
-  }
   ipSet.add(ip);
   subscriptionIPTimestamp.set(timestampKey, now);
   console.log(`[Cache checkAndAdd] Added IP ${ip} to cache, total: ${ipSet.size}`);
@@ -1213,13 +1209,12 @@ function getAuthorizedSubscriptionIPs(code, date, maxIPs) {
   }
   console.log(`[Cache getAuthorized] IP set size: ${ipSet.size}, IPs: ${Array.from(ipSet).join(", ")}`);
   const now = Date.now();
-  const thirtyMinutes = 30 * 60 * 1e3;
   const validIPs = [];
   for (const ip of ipSet) {
     const timestampKey = `${code}:${ip}`;
     const lastTimestamp = subscriptionIPTimestamp.get(timestampKey);
     console.log(`[Cache getAuthorized] Checking IP ${ip}, timestamp: ${lastTimestamp}, age: ${lastTimestamp ? Math.floor((now - lastTimestamp) / 1e3) + "s" : "null"}`);
-    if (lastTimestamp && now - lastTimestamp < thirtyMinutes) {
+    if (lastTimestamp) {
       validIPs.push({ ip, timestamp: lastTimestamp });
     }
   }
@@ -7330,6 +7325,7 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
     .instructions ul{list-style:none;padding:0}
     .instructions li{padding:5px 0;color:#86868b;font-size:12px;line-height:1.5}
     .instructions li:before{content:"\u2713";color:#ff9800;margin-right:6px;font-weight:bold}
+    .instructions.warning li:before{content:"\u26A0\uFE0F";margin-right:6px}
     .loading{display:none;text-align:center;padding:20px}
     .loading.active{display:block}
     .spinner{width:40px;height:40px;border:3px solid #e5e5ea;border-top-color:#667eea;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
@@ -7419,6 +7415,15 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
           <li data-i18n="instr5">Do not use software to test playlist, may trigger system defense</li>
         </ul>
       </div>
+      <div class="instructions warning" style="margin-top: 12px; background: #fff3e0; border-left-color: #ff9800;">
+        <h4 data-i18n="ipRestrictions" style="color: #e65100;">\u26A0\uFE0F Important Notice</h4>
+        <ul>
+          <li data-i18n="instr6">Sharing subscription or playback URLs will trigger IP limit detection</li>
+          <li data-i18n="instr7">Abuse or sharing may result in code being banned or disabled</li>
+          <li data-i18n="instr8">NEVER share your subscription URL or playback URL with others</li>
+          <li data-i18n="instr9">Your IP address is logged for security and anti-abuse</li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -7445,12 +7450,18 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
         instr3: 'Supports various TV boxes',
         instr4: 'Regularly update subscription list recommended',
         instr5: 'Do not use software to test playlist, may trigger system defense',
+        ipRestrictions: '\u26A0\uFE0F Important Notice',
+        instr6: 'Sharing subscription or playback URLs will trigger IP limit detection',
+        instr7: 'Abuse or sharing may result in code being banned or disabled',
+        instr8: 'NEVER share your subscription URL or playback URL with others',
+        instr9: 'Your IP address is logged for security and anti-abuse',
         enterCodeError: 'Please enter activation code',
         successMsg: 'Code activated successfully!',
         failMsg: 'Activation failed, please check if code is correct',
         networkError: 'Network error, please try again later',
         copiedMsg: 'Subscription URL copied to clipboard',
-        days: ' days'
+        days: ' days',
+        maxIPs: '3'
       },
       'zh-CN': {
         title: '\u{1F4FA} \u7535\u89C6\u76F4\u64AD\u670D\u52A1',
@@ -7471,12 +7482,18 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
         instr3: '\u652F\u6301\u5404\u7C7B\u7535\u89C6\u76D2\u5B50',
         instr4: '\u5EFA\u8BAE\u5B9A\u671F\u66F4\u65B0\u8BA2\u9605\u5217\u8868',
         instr5: '\u8BF7\u52FF\u4F7F\u7528\u8F6F\u4EF6\u5BF9\u64AD\u653E\u5217\u8868\u6D4B\u8BD5\uFF0C\u5426\u5219\u53EF\u80FD\u89E6\u53D1\u7CFB\u7EDF\u9632\u5FA1',
+        ipRestrictions: '\u26A0\uFE0F \u91CD\u8981\u63D0\u793A',
+        instr6: '\u5206\u4EAB\u8BA2\u9605\u5730\u5740\u6216\u64AD\u653E\u5730\u5740\u4F1A\u89E6\u53D1IP\u9650\u5236\u68C0\u6D4B',
+        instr7: '\u6EE5\u7528\u6216\u5206\u4EAB\u4F1A\u5BFC\u81F4\u5361\u5BC6\u88AB\u7981\u7528\u6216\u5C01\u7981',
+        instr8: '\u5207\u52FF\u5C06\u60A8\u7684\u8BA2\u9605\u5730\u5740\u6216\u64AD\u653E\u5730\u5740\u5206\u4EAB\u7ED9\u4ED6\u4EBA',
+        instr9: '\u60A8\u7684IP\u5730\u5740\u4F1A\u88AB\u8BB0\u5F55\u7528\u4E8E\u5B89\u5168\u9A8C\u8BC1\u548C\u9632\u6B62\u6EE5\u7528',
         enterCodeError: '\u8BF7\u8F93\u5165\u5361\u5BC6',
         successMsg: '\u5361\u5BC6\u6FC0\u6D3B\u6210\u529F\uFF01',
         failMsg: '\u6FC0\u6D3B\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u5361\u5BC6\u662F\u5426\u6B63\u786E',
         networkError: '\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5',
         copiedMsg: '\u8BA2\u9605\u5730\u5740\u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F',
-        days: ' \u5929'
+        days: ' \u5929',
+        maxIPs: '3'
       }
     };
 
@@ -7515,7 +7532,12 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
       // Update all elements with data-i18n
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        el.textContent = t(key);
+        let text = t(key);
+        // Replace {maxIPs} placeholder with actual value
+        if (text && text.includes('{maxIPs}')) {
+          text = text.replace('{maxIPs}', t('maxIPs'));
+        }
+        el.textContent = text;
       });
 
       // Update placeholders

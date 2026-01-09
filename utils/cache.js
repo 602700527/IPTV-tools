@@ -206,13 +206,7 @@ export function checkAndAddSubscriptionIP(code, ip, date, maxIPs) {
     console.log(`[Cache checkAndAdd] Removed expired IP ${ip} for re-adding`);
   }
 
-  // 检查是否超过最大IP数限制
-  if (ipSet.size >= maxIPs) {
-    console.log(`[Cache checkAndAdd] IP ${ip} rejected: too many IPs (${ipSet.size} >= ${maxIPs})`);
-    return false;
-  }
-
-  // 新IP或30分钟后的旧IP，添加到缓存
+  // 新IP或30分钟后的旧IP，添加到缓存（不限制数量）
   ipSet.add(ip);
   subscriptionIPTimestamp.set(timestampKey, now);
   console.log(`[Cache checkAndAdd] Added IP ${ip} to cache, total: ${ipSet.size}`);
@@ -267,9 +261,8 @@ export function getAuthorizedSubscriptionIPs(code, date, maxIPs) {
 
   console.log(`[Cache getAuthorized] IP set size: ${ipSet.size}, IPs: ${Array.from(ipSet).join(', ')}`);
 
-  // 过滤出30分钟内的IP，并按时间戳排序，取最新的maxIPs个
+  // 按时间戳排序，取最新的maxIPs个（不限制30分钟）
   const now = Date.now();
-  const thirtyMinutes = 30 * 60 * 1000;
 
   const validIPs = [];
   for (const ip of ipSet) {
@@ -278,7 +271,7 @@ export function getAuthorizedSubscriptionIPs(code, date, maxIPs) {
 
     console.log(`[Cache getAuthorized] Checking IP ${ip}, timestamp: ${lastTimestamp}, age: ${lastTimestamp ? Math.floor((now - lastTimestamp) / 1000) + 's' : 'null'}`);
 
-    if (lastTimestamp && now - lastTimestamp < thirtyMinutes) {
+    if (lastTimestamp) {
       validIPs.push({ ip, timestamp: lastTimestamp });
     }
   }

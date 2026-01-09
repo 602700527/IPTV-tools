@@ -52,6 +52,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     .instructions ul{list-style:none;padding:0}
     .instructions li{padding:5px 0;color:#86868b;font-size:12px;line-height:1.5}
     .instructions li:before{content:"✓";color:#ff9800;margin-right:6px;font-weight:bold}
+    .instructions.warning li:before{content:"⚠️";margin-right:6px}
     .loading{display:none;text-align:center;padding:20px}
     .loading.active{display:block}
     .spinner{width:40px;height:40px;border:3px solid #e5e5ea;border-top-color:#667eea;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
@@ -141,6 +142,15 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
           <li data-i18n="instr5">Do not use software to test playlist, may trigger system defense</li>
         </ul>
       </div>
+      <div class="instructions warning" style="margin-top: 12px; background: #fff3e0; border-left-color: #ff9800;">
+        <h4 data-i18n="ipRestrictions" style="color: #e65100;">⚠️ Important Notice</h4>
+        <ul>
+          <li data-i18n="instr6">Sharing subscription or playback URLs will trigger IP limit detection</li>
+          <li data-i18n="instr7">Abuse or sharing may result in code being banned or disabled</li>
+          <li data-i18n="instr8">NEVER share your subscription URL or playback URL with others</li>
+          <li data-i18n="instr9">Your IP address is logged for security and anti-abuse</li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -167,12 +177,18 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         instr3: 'Supports various TV boxes',
         instr4: 'Regularly update subscription list recommended',
         instr5: 'Do not use software to test playlist, may trigger system defense',
+        ipRestrictions: '⚠️ Important Notice',
+        instr6: 'Sharing subscription or playback URLs will trigger IP limit detection',
+        instr7: 'Abuse or sharing may result in code being banned or disabled',
+        instr8: 'NEVER share your subscription URL or playback URL with others',
+        instr9: 'Your IP address is logged for security and anti-abuse',
         enterCodeError: 'Please enter activation code',
         successMsg: 'Code activated successfully!',
         failMsg: 'Activation failed, please check if code is correct',
         networkError: 'Network error, please try again later',
         copiedMsg: 'Subscription URL copied to clipboard',
-        days: ' days'
+        days: ' days',
+        maxIPs: '3'
       },
       'zh-CN': {
         title: '📺 电视直播服务',
@@ -193,12 +209,18 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         instr3: '支持各类电视盒子',
         instr4: '建议定期更新订阅列表',
         instr5: '请勿使用软件对播放列表测试，否则可能触发系统防御',
+        ipRestrictions: '⚠️ 重要提示',
+        instr6: '分享订阅地址或播放地址会触发IP限制检测',
+        instr7: '滥用或分享会导致卡密被禁用或封禁',
+        instr8: '切勿将您的订阅地址或播放地址分享给他人',
+        instr9: '您的IP地址会被记录用于安全验证和防止滥用',
         enterCodeError: '请输入卡密',
         successMsg: '卡密激活成功！',
         failMsg: '激活失败，请检查卡密是否正确',
         networkError: '网络错误，请稍后重试',
         copiedMsg: '订阅地址已复制到剪贴板',
-        days: ' 天'
+        days: ' 天',
+        maxIPs: '3'
       }
     };
 
@@ -237,7 +259,12 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       // Update all elements with data-i18n
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        el.textContent = t(key);
+        let text = t(key);
+        // Replace {maxIPs} placeholder with actual value
+        if (text && text.includes('{maxIPs}')) {
+          text = text.replace('{maxIPs}', t('maxIPs'));
+        }
+        el.textContent = text;
       });
 
       // Update placeholders
