@@ -1,14 +1,14 @@
 // 交互式播放站首页
 export const PLAYSTATION_HTML = `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- ========== SEO Meta Tags ========== -->
   <!-- 基础Meta标签 -->
-  <meta name="description" content="IPTV Live提供免费的在线电视观看服务，包含10000+高清频道，支持体育、新闻、娱乐、电影等全类型频道，无需注册，一键播放，多设备同步观看。">
-  <meta name="keywords" content="IPTV,免费直播,在线看电视,体育直播,新闻直播,高清直播,免费电视,在线视频,直播平台,IPTV Live">
+  <meta name="description" id="seo-description" content="IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback, multi-device sync.">
+  <meta name="keywords" id="seo-keywords" content="IPTV,free live TV,online TV,sports live streaming,news live streaming,HD streaming,free TV,online video,live streaming platform,IPTV Live">
   <meta name="author" content="IPTV Live">
   <meta name="robots" content="index, follow">
   <meta name="googlebot" content="index, follow">
@@ -18,18 +18,17 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com">
-  <meta property="og:title" content="IPTV Live - 免费高清电视观看平台">
-  <meta property="og:description" content="提供10000+免费高清频道，支持体育、新闻、娱乐、电影等全类型，无需注册，一键播放。">
+  <meta property="og:title" id="og-title" content="IPTV Live - Free HD Live TV Streaming Platform">
+  <meta property="og:description" id="og-description" content="Access 10,000+ free HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback.">
   <meta property="og:image" content="https://iptv-search.com/og-image.svg">
   <meta property="og:site_name" content="IPTV Live">
-  <meta property="og:locale" content="zh_CN">
+  <meta property="og:locale" id="og-locale" content="en_US">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://iptv-search.com">
-  <meta name="twitter:title" content="IPTV Live - 免费高清电视观看平台">
-  <meta name="twitter:description" content="提供10000+免费高清频道，支持体育、新闻、娱乐、电影等全类型。">
-  <meta name="twitter:image" content="https://iptv-search.com/og-image.svg">
+  <meta name="twitter:title" id="twitter-title" content="IPTV Live - Free HD Live TV Streaming Platform">
+  <meta name="twitter:description" id="twitter-description" content="Access 10,000+ free HD channels including sports, news, entertainment, movies and more.">
 
   <!-- Canonical URL -->
   <link rel="canonical" href="https://iptv-search.com">
@@ -46,13 +45,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <meta name="theme-color" content="#e50914">
 
   <!-- 结构化数据 (JSON-LD) -->
-  <script type="application/ld+json">
+  <script type="application/ld+json" id="structured-data">
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "IPTV Live",
     "url": "https://iptv-search.com",
-    "description": "提供免费的在线电视观看服务，包含10000+高清频道",
+    "description": "IPTV Live provides free online TV streaming with 10,000+ HD channels",
     "potentialAction": {
       "@type": "SearchAction",
       "target": "https://iptv-search.com/?search={search_term_string}",
@@ -419,9 +418,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             <span class="quick-entry-tip">切换语言</span>
           </button>
           <div class="lang-dropdown-menu">
-            <div class="lang-dropdown-item active" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">简体中文</div>
-            <div class="lang-dropdown-item" data-lang="zh-TW" onclick="switchLanguage('zh-TW')">繁體中文</div>
-            <div class="lang-dropdown-item" data-lang="en" onclick="switchLanguage('en')">English</div>
+            <div class="lang-dropdown-item" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">简体中文</div>
+            <div class="lang-dropdown-item active" data-lang="en" onclick="switchLanguage('en')">English</div>
           </div>
         </div>
       </div>
@@ -460,9 +458,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     <div class="mobile-section">
       <div class="mobile-section-title" data-i18n="language">语言</div>
       <div class="mobile-lang-menu">
-        <div class="mobile-lang-item active" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">简体中文</div>
-        <div class="mobile-lang-item" data-lang="zh-TW" onclick="switchLanguage('zh-TW')">繁體中文</div>
-        <div class="mobile-lang-item" data-lang="en" onclick="switchLanguage('en')">English</div>
+        <div class="mobile-lang-item" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">简体中文</div>
+        <div class="mobile-lang-item active" data-lang="en" onclick="switchLanguage('en')">English</div>
       </div>
     </div>
 
@@ -543,20 +540,20 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- <div class="toast-container" id="toastContainer"></div> -->
 
   <footer class="footer">
-    <p>&copy; 2024 IPTV Live. 免费高清电视在线观看平台</p>
+    <p>&copy; 2024 IPTV Live. <span data-i18n="footerCopyright">免费高清电视在线观看平台</span></p>
     <!-- SEO 友好链接 -->
     <div style="margin-top:15px;font-size:12px;color:rgba(255,255,255,.4);">
-      <a href="/sitemap.xml" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">网站地图</a>
+      <a href="/sitemap.xml" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;" data-i18n="sitemap">网站地图</a>
       <a href="/robots.txt" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">Robots</a>
-      <a href="/privacy-policy" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">隐私政策</a>
-      <a href="/terms" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">服务条款</a>
+      <a href="/privacy-policy" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;" data-i18n="privacyPolicy">隐私政策</a>
+      <a href="/terms" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;" data-i18n="termsOfService">服务条款</a>
     </div>
     <!-- Cloudflare托管说明和徽章 -->
     <div style="margin-top:20px;display:flex;align-items:center;justify-content:center;gap:10px;">
             <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
         <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare" style="height:12px;width:auto;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">
       </a>
-      <span style="font-size:12px;color:rgba(255,255,255,.6);">本站由 Cloudflare 提供加速与安全保护</span>
+      <span style="font-size:12px;color:rgba(255,255,255,.6);" data-i18n="cloudflareBadge">本站由 Cloudflare 提供加速与安全保护</span>
 
     </div>
   </footer>
@@ -599,7 +596,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     // ========== 语言配置和翻译 ==========
     const translations = {
       'zh-CN': {
-        title: 'IPTV Live - 免费直播',
+        title: 'IPTV Live - 免费电视直播',
         searchPlaceholder: '搜索频道...',
         allChannels: '全部频道',
         search: '搜索',
@@ -633,44 +630,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         lastPage: '末页',
         loadingCache: '正在加载频道...',
         cacheCleared: '缓存已清除',
-        playing: '正在播放'
-      },
-      'zh-TW': {
-        title: 'IPTV Live - 免費直播',
-        searchPlaceholder: '搜尋頻道...',
-        allChannels: '全部頻道',
-        search: '搜尋',
-        history: '播放歷史',
-        favorites: '我的收藏',
-        random: '隨機推薦',
-        clearCache: '清除緩存',
-        onlineCount: '人在觀看',
-        hot: '熱門',
-        recommend: '推薦',
-        quickActions: '快捷操作',
-        language: '語言',
-        menu: '菜單',
-        groupNav: '分組導航',
-        noHistory: '暫無播放歷史',
-        noHistoryDesc: '觀看的頻道會自動顯示在這裡',
-        noFavorites: '還沒有收藏',
-        noFavoritesDesc: '點擊頻道卡片上的星星按鈕添加收藏',
-        noRecommendations: '暫無推薦頻道',
-        noRecommendationsDesc: '請稍後再試',
-        noChannels: '未找到頻道',
-        noChannelsDesc: '請嘗試其他搜尋詞或分組',
-        loading: '加載頻道列表...',
-        loadingRecommendations: '正在加載推薦...',
-        searching: '搜尋中...',
-        page: '頁',
-        totalPages: '共',
-        firstPage: '首頁',
-        prevPage: '上一頁',
-        nextPage: '下一頁',
-        lastPage: '末頁',
-        loadingCache: '正在加載頻道...',
-        cacheCleared: '緩存已清除',
-        playing: '正在播放'
+        playing: '正在播放',
+        footerCopyright: '免费高清电视在线观看平台',
+        sitemap: '网站地图',
+        privacyPolicy: '隐私政策',
+        termsOfService: '服务条款',
+        cloudflareBadge: '本站由 Cloudflare 提供加速与安全保护'
       },
       'en': {
         title: 'IPTV Live - Free Live TV',
@@ -707,13 +672,18 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         lastPage: 'Last',
         loadingCache: 'Loading channels...',
         cacheCleared: 'Cache cleared',
-        playing: 'Now Playing'
+        playing: 'Now Playing',
+        footerCopyright: 'Free HD Live TV Streaming Platform',
+        sitemap: 'Sitemap',
+        privacyPolicy: 'Privacy Policy',
+        termsOfService: 'Terms of Service',
+        cloudflareBadge: 'This site is powered by Cloudflare for acceleration and security'
       }
     };
 
     // 获取当前语言的翻译文本
     function t(key) {
-      return translations[currentLanguage][key] || translations['zh-CN'][key] || key;
+      return translations[currentLanguage][key] || translations['en'][key] || key;
     }
 
     // 切换语言
@@ -758,6 +728,61 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       }
     }
 
+    // SEO信息配置
+    const seoConfig = {
+      'en': {
+        title: 'IPTV Live - Free Live TV',
+        description: 'IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback, multi-device sync.',
+        keywords: 'IPTV,free live TV,online TV,sports live streaming,news live streaming,HD streaming,free TV,online video,live streaming platform,IPTV Live',
+        ogTitle: 'IPTV Live - Free HD Live TV Streaming Platform',
+        ogDescription: 'Access 10,000+ free HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback.',
+        ogLocale: 'en_US',
+        twitterTitle: 'IPTV Live - Free HD Live TV Streaming Platform',
+        twitterDescription: 'Access 10,000+ free HD channels including sports, news, entertainment, movies and more.',
+        structuredDescription: 'IPTV Live provides free online TV streaming with 10,000+ HD channels'
+      },
+      'zh-CN': {
+        title: 'IPTV Live - 免费电视直播',
+        description: 'IPTV Live提供免费的在线电视观看服务，包含10000+高清频道，支持体育、新闻、娱乐、电影等全类型频道，无需注册，一键播放，多设备同步观看。',
+        keywords: 'IPTV,免费电视直播,在线看电视,体育直播,新闻直播,高清直播,免费电视,在线视频,直播平台,IPTV Live',
+        ogTitle: 'IPTV Live - 免费高清电视观看平台',
+        ogDescription: '提供10000+免费高清频道，支持体育、新闻、娱乐、电影等全类型，无需注册，一键播放。',
+        ogLocale: 'zh_CN',
+        twitterTitle: 'IPTV Live - 免费高清电视观看平台',
+        twitterDescription: '提供10000+免费高清频道，支持体育、新闻、娱乐、电影等全类型。',
+        structuredDescription: '提供免费的在线电视观看服务，包含10000+高清频道'
+      }
+    };
+
+    // 更新SEO信息
+    function updateSEO(lang) {
+      const config = seoConfig[lang] || seoConfig['en'];
+
+      // 更新页面标题
+      document.title = config.title;
+
+      // 更新基础Meta标签
+      document.getElementById('seo-description').content = config.description;
+      document.getElementById('seo-keywords').content = config.keywords;
+
+      // 更新Open Graph标签
+      document.getElementById('og-title').content = config.ogTitle;
+      document.getElementById('og-description').content = config.ogDescription;
+      document.getElementById('og-locale').content = config.ogLocale;
+
+      // 更新Twitter Card标签
+      document.getElementById('twitter-title').content = config.twitterTitle;
+      document.getElementById('twitter-description').content = config.twitterDescription;
+
+      // 更新结构化数据
+      const structuredData = document.getElementById('structured-data');
+      if (structuredData) {
+        const data = JSON.parse(structuredData.textContent);
+        data.description = config.structuredDescription;
+        structuredData.textContent = JSON.stringify(data, null, 2);
+      }
+    }
+
     function switchLanguage(lang) {
       currentLanguage = lang;
 
@@ -784,6 +809,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
       // 更新 HTML lang 属性
       document.documentElement.lang = lang;
+
+      // 更新SEO信息
+      updateSEO(lang);
 
       // 保存语言设置
       localStorage.setItem('iptv_language', lang);
@@ -922,7 +950,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     const DECRYPTION_KEY = window.DECRYPTION_KEY || 'default-secret-key';
 
     const API_BASE = '/api';
-    let currentLanguage = 'zh-CN';  // 当前语言
+    let currentLanguage = 'en';  // 当前语言
     let allChannels = [];
     let allGroups = [];
     let currentGroup = '';
@@ -952,12 +980,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let featuredChannels = [];
     let isUpdatingKey = false;  // 防止重复更新密钥
     let currentPlayingChannel = null;  // 当前播放的频道
+    let isLoadingChannels = false;  // 防止重复加载频道
+    let pendingChannelLoad = null;  // 待处理的频道加载请求
     // let lastErrorTime = 0;  // 防止重复显示相同错误（已禁用）
     // let lastErrorMsg = '';   // 记录上一条错误消息（已禁用）
 
     // 从 localStorage 读取用户语言设置
     const savedLanguage = localStorage.getItem('iptv_language');
-    if (savedLanguage && ['zh-CN', 'zh-TW', 'en'].includes(savedLanguage)) {
+    if (savedLanguage && ['zh-CN', 'en'].includes(savedLanguage)) {
       currentLanguage = savedLanguage;
     }
 
@@ -1002,7 +1032,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       let description = 'IPTV Live提供免费的在线直播服务，包含2000+高清频道，支持体育、新闻、娱乐、电影等全类型频道，无需注册，一键播放，多设备同步观看。';
 
       if (currentGroup) {
-        title = currentGroup + ' - IPTV Live 免费直播';
+        title = currentGroup + ' - IPTV Live 免费电视直播';
         description = '观看' + currentGroup + '频道直播，IPTV Live提供' + currentGroup + '相关的免费高清直播内容，实时更新，画面清晰，播放流畅。';
       } else if (currentSearch) {
         title = currentSearch + ' - IPTV Live 搜索结果';
@@ -1133,7 +1163,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     // 缓存键前缀
     const CACHE_PREFIX = 'iptv_cache_';
-    const CACHE_DURATION = 6 * 60 * 60 * 1000; // 6小时（毫秒）
+    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24小时（毫秒）
+    const GROUPS_CACHE_KEY = 'iptv_groups'; // 分组数据独立缓存键
+    const GROUPS_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 分组数据缓存7天
 
     // 生成缓存键
     function getCacheKey(type, params = '') {
@@ -1166,7 +1198,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
 
     // 写入本地缓存
-    function setCache(key, value) {
+    function setCache(key, value, customDuration = null) {
       try {
         const data = {
           timestamp: Date.now(),
@@ -1176,6 +1208,42 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         console.log('[Cache] 已缓存:', key);
       } catch (error) {
         console.error('[Cache] 写入缓存失败:', error);
+      }
+    }
+
+    // 获取分组缓存（独立长期缓存）
+    function getCachedGroups() {
+      try {
+        const cached = localStorage.getItem(GROUPS_CACHE_KEY);
+        if (cached) {
+          const { data, timestamp } = JSON.parse(cached);
+          const now = Date.now();
+          if (now - timestamp < GROUPS_CACHE_DURATION) {
+            console.log('[Cache] 从分组缓存读取，剩余有效时间:', Math.round((GROUPS_CACHE_DURATION - (now - timestamp)) / (24 * 60 * 60 * 1000)), '天');
+            return data;
+          } else {
+            localStorage.removeItem(GROUPS_CACHE_KEY);
+            console.log('[Cache] 分组缓存已过期');
+          }
+        }
+        return null;
+      } catch (error) {
+        console.error('[Cache] 读取分组缓存失败:', error);
+        return null;
+      }
+    }
+
+    // 缓存分组数据（独立长期缓存）
+    function cacheGroups(groups) {
+      try {
+        const data = {
+          timestamp: Date.now(),
+          data: groups
+        };
+        localStorage.setItem(GROUPS_CACHE_KEY, JSON.stringify(data));
+        console.log('[Cache] 已缓存分组数据，共', groups.length, '个分组');
+      } catch (error) {
+        console.error('[Cache] 写入分组缓存失败:', error);
       }
     }
 
@@ -1195,6 +1263,16 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
     
     async function loadChannels(page = 1, updateGroups = true) {
+      // 请求节流：如果正在加载，保存待加载请求
+      if (isLoadingChannels) {
+        console.log('[LoadChannels] 正在加载，保存待加载请求:', { page, updateGroups });
+        pendingChannelLoad = { page, updateGroups };
+        return;
+      }
+
+      isLoadingChannels = true;
+      console.log('[LoadChannels] 开始加载:', { page, updateGroups, currentSearch, currentGroup });
+
       try {
         const params = new URLSearchParams({
           page: page,
@@ -1211,6 +1289,17 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         // 生成缓存键（搜索时和分组过滤时使用缓存，分页使用缓存）
         const paramsStr = params.toString();
         const cacheKey = getCacheKey('channels', paramsStr);
+
+        // 优先从分组缓存读取分组数据
+        if (updateGroups) {
+          const cachedGroups = getCachedGroups();
+          if (cachedGroups) {
+            allGroups = cachedGroups;
+            renderGroups();
+            updateGroups = false; // 已有分组缓存，不需要从API获取
+            console.log('[LoadChannels] 使用分组缓存');
+          }
+        }
 
         // 尝试从缓存读取
         const cachedData = getFromCache(cacheKey);
@@ -1262,13 +1351,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           document.getElementById('loading').style.display = 'none';
           document.getElementById('channelList').style.display = 'block';
 
-          // 缓存数据（6小时）
+          // 缓存数据（24小时）
           setCache(cacheKey, data);
 
-          // 单独缓存分组数据（用于快速访问）
+          // 单独缓存分组数据（用于快速访问，缓存7天）
           if (updateGroups && data.groups) {
-            const groupsCacheKey = getCacheKey('groups');
-            setCache(groupsCacheKey, data.groups);
+            cacheGroups(data.groups);
           }
 
           // 隐藏加载指示器
@@ -1281,6 +1369,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         console.error('加载失败:', error);
         showError(t('noChannels') + ': ' + t('noChannelsDesc'));
         hideLoadingIndicator();
+      } finally {
+        isLoadingChannels = false;
+        // 如果有待加载的请求，执行它
+        if (pendingChannelLoad) {
+          const { page, updateGroups } = pendingChannelLoad;
+          pendingChannelLoad = null;
+          console.log('[LoadChannels] 执行待加载请求:', { page, updateGroups });
+          loadChannels(page, updateGroups);
+        }
       }
     }
     

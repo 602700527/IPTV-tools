@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-i9MzN3/checked-fetch.js
+// .wrangler/tmp/bundle-wsJgKo/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-i9MzN3/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-wsJgKo/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -1009,11 +1009,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-i9MzN3/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-wsJgKo/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-i9MzN3/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-wsJgKo/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -7105,18 +7105,29 @@ var ADMIN_HTML = `<!DOCTYPE html>
 init_checked_fetch();
 init_modules_watch_stub();
 var USER_ACTIVATE_HTML = `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>\u5361\u5BC6\u6FC0\u6D3B - \u7535\u89C6\u76F4\u64AD\u670D\u52A1</title>
+  <title>Activation - TV Live Service</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:15px}
-    .container{background:white;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);padding:30px;max-width:480px;width:100%}
+    .container{background:white;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);padding:30px;max-width:480px;width:100%;position:relative}
     .logo{text-align:center;margin-bottom:25px}
     .logo h1{font-size:24px;font-weight:700;color:#1d1d1f;margin-bottom:6px}
     .logo p{color:#86868b;font-size:13px}
+    .lang-switch{position:absolute;top:20px;right:20px;z-index:10}
+    .lang-dropdown{position:relative;display:inline-block}
+    .lang-btn{background:#667eea;color:white;border:none;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:background .2s;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent}
+    .lang-btn:hover{background:#764ba2}
+    .lang-btn:after{content:"\u25BC";font-size:9px}
+    .lang-menu{display:none;position:absolute;top:calc(100%+8px);right:0;background:white;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);min-width:120px;overflow:hidden;animation:fadeIn .2s ease}
+    .lang-menu.show{display:block}
+    .lang-menu button{display:block;width:100%;padding:10px 16px;background:none;border:none;text-align:left;font-size:13px;color:#1d1d1f;cursor:pointer;transition:background .2s}
+    .lang-menu button:hover{background:#f5f5f7}
+    .lang-menu button.active{background:#667eea;color:white}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
     .form-group{margin-bottom:18px}
     .form-group label{display:block;margin-bottom:8px;font-weight:500;color:#1d1d1f;font-size:14px}
     .form-group input{width:100%;padding:12px 14px;border:2px solid #e5e5ea;border-radius:8px;font-size:16px;transition:border-color .2s;letter-spacing:1px;-webkit-appearance:none}
@@ -7136,7 +7147,8 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
     .info-value{color:#1d1d1f;font-weight:500;font-size:13px}
     .sub-url-container{margin-top:14px;padding:14px;background:#667eea;border-radius:8px}
     .sub-url-label{color:white;font-size:11px;margin-bottom:6px}
-    .sub-url{color:white;font-size:12px;font-weight:600;word-break:break-all;line-height:1.6}
+    .sub-url{color:white;font-size:12px;font-weight:600;word-break:break-all;line-height:1.6;cursor:pointer}
+    .sub-url:hover{opacity:.9}
     .copy-btn{width:100%;margin-top:14px;padding:12px;background:#0071e3;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;-webkit-tap-highlight-color:transparent}
     .copy-btn:hover{background:#0077ed}
     .copy-btn:active{scale:.98}
@@ -7152,9 +7164,12 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
     .loading-text{margin-top:12px;color:#86868b;font-size:14px}
     @media (max-width:480px){
       body{padding:10px}
-      .container{padding:20px;border-radius:12px}
+      .container{padding:20px;border-radius:12px;padding-top:50px}
       .logo h1{font-size:20px}
       .logo p{font-size:12px}
+    .lang-switch{top:15px;right:15px}
+    .lang-btn{padding:6px 14px;font-size:12px}
+    .lang-menu button{padding:8px 12px;font-size:12px}
       .form-group input{font-size:16px;padding:11px 13px}
       .btn{padding:13px;font-size:15px}
       .result{padding:16px}
@@ -7170,64 +7185,173 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
 </head>
 <body>
   <div class="container">
+    <div class="lang-switch">
+      <div class="lang-dropdown">
+        <button class="lang-btn" onclick="toggleLangMenu()" id="currentLangBtn">EN</button>
+        <div class="lang-menu" id="langMenu">
+          <button onclick="setLanguage('en')" id="langEn">English</button>
+          <button onclick="setLanguage('zh-CN')" id="langZh">\u7B80\u4F53\u4E2D\u6587</button>
+        </div>
+      </div>
+    </div>
     <div class="logo">
-      <h1>\u{1F4FA} \u7535\u89C6\u76F4\u64AD\u670D\u52A1</h1>
-      <p>\u5361\u5BC6\u6FC0\u6D3B\u83B7\u53D6\u8BA2\u9605\u5730\u5740</p>
+      <h1 data-i18n="title">\u{1F4FA} TV Live Service</h1>
+      <p data-i18n="subtitle">Activate your code to get subscription URL</p>
     </div>
 
     <div id="errorBox" class="error"></div>
     <div id="successBox" class="success"></div>
 
     <div class="form-group">
-      <label for="code">\u8BF7\u8F93\u5165\u5361\u5BC6</label>
-      <input type="text" id="code" placeholder="\u8F93\u5165\u60A8\u7684\u5361\u5BC6" autocomplete="off">
+      <label for="code" data-i18n="enterCode">Enter activation code</label>
+      <input type="text" id="code" data-i18n-placeholder="codePlaceholder" placeholder="Enter your activation code" autocomplete="off">
     </div>
 
-    <button id="activateBtn" class="btn" onclick="activateCode()">\u7ACB\u5373\u6FC0\u6D3B</button>
+    <button id="activateBtn" class="btn" onclick="activateCode()" data-i18n="activate">Activate Now</button>
 
     <div id="loading" class="loading">
       <div class="spinner"></div>
-      <p class="loading-text">\u6B63\u5728\u6FC0\u6D3B...</p>
+      <p class="loading-text" data-i18n="activating">Activating...</p>
     </div>
 
     <div id="result" class="result">
-      <h3>\u2705 \u6FC0\u6D3B\u6210\u529F</h3>
+      <h3 data-i18n="success">\u2705 Activation Successful</h3>
       <div class="info-item">
-        <span class="info-label">\u5361\u5BC6</span>
+        <span class="info-label" data-i18n="codeLabel">Code</span>
         <span class="info-value" id="resultCode">-</span>
       </div>
       <div class="info-item">
-        <span class="info-label">\u6709\u6548\u671F</span>
+        <span class="info-label" data-i18n="durationLabel">Validity</span>
         <span class="info-value" id="resultDuration">-</span>
       </div>
       <div class="info-item">
-        <span class="info-label">\u8FC7\u671F\u65F6\u95F4</span>
+        <span class="info-label" data-i18n="expiresLabel">Expires</span>
         <span class="info-value" id="resultExpired">-</span>
       </div>
 
       <div class="sub-url-container">
-        <div class="sub-url-label">\u8BA2\u9605\u5730\u5740\uFF08\u70B9\u51FB\u590D\u5236\uFF09</div>
+        <div class="sub-url-label" data-i18n="subUrlLabel">Subscription URL (click to copy)</div>
         <div class="sub-url" id="subUrl" onclick="copySubUrl()">-</div>
       </div>
 
-      <button class="copy-btn" onclick="copySubUrl()">\u590D\u5236\u8BA2\u9605\u5730\u5740</button>
+      <button class="copy-btn" onclick="copySubUrl()" data-i18n="copyUrl">Copy Subscription URL</button>
 
       <div class="instructions">
-        <h4>\u{1F4F1} \u4F7F\u7528\u8BF4\u660E</h4>
+        <h4 data-i18n="instructions">\u{1F4F1} Usage Instructions</h4>
         <ul>
-          <li>\u5C06\u8BA2\u9605\u5730\u5740\u6DFB\u52A0\u5230\u64AD\u653E\u5668</li>
-          <li>\u652F\u6301IPTV\u3001PotPlayer\u7B49\u64AD\u653E\u5668</li>
-          <li>\u652F\u6301\u5404\u7C7B\u7535\u89C6\u76D2\u5B50</li>
-          <li>\u5EFA\u8BAE\u5B9A\u671F\u66F4\u65B0\u8BA2\u9605\u5217\u8868</li>
-          <li>\u8BF7\u52FF\u4F7F\u7528\u8F6F\u4EF6\u5BF9\u64AD\u653E\u5217\u8868\u6D4B\u8BD5\uFF0C\u5426\u5219\u53EF\u80FD\u89E6\u53D1\u7CFB\u7EDF\u9632\u5FA1</li>
+          <li data-i18n="instr1">Add subscription URL to your player</li>
+          <li data-i18n="instr2">Supports IPTV, PotPlayer and other players</li>
+          <li data-i18n="instr3">Supports various TV boxes</li>
+          <li data-i18n="instr4">Regularly update subscription list recommended</li>
+          <li data-i18n="instr5">Do not use software to test playlist, may trigger system defense</li>
         </ul>
       </div>
     </div>
   </div>
-  
+
   <script>
     const API_BASE = '/api/activate';
-    
+
+    const translations = {
+      'en': {
+        title: '\u{1F4FA} TV Live Service',
+        subtitle: 'Activate your code to get subscription URL',
+        enterCode: 'Enter activation code',
+        codePlaceholder: 'Enter your activation code',
+        activate: 'Activate Now',
+        activating: 'Activating...',
+        success: '\u2705 Activation Successful',
+        codeLabel: 'Code',
+        durationLabel: 'Validity',
+        expiresLabel: 'Expires',
+        subUrlLabel: 'Subscription URL (click to copy)',
+        copyUrl: 'Copy Subscription URL',
+        instructions: '\u{1F4F1} Usage Instructions',
+        instr1: 'Add subscription URL to your player',
+        instr2: 'Supports IPTV, PotPlayer and other players',
+        instr3: 'Supports various TV boxes',
+        instr4: 'Regularly update subscription list recommended',
+        instr5: 'Do not use software to test playlist, may trigger system defense',
+        enterCodeError: 'Please enter activation code',
+        successMsg: 'Code activated successfully!',
+        failMsg: 'Activation failed, please check if code is correct',
+        networkError: 'Network error, please try again later',
+        copiedMsg: 'Subscription URL copied to clipboard',
+        days: ' days'
+      },
+      'zh-CN': {
+        title: '\u{1F4FA} \u7535\u89C6\u76F4\u64AD\u670D\u52A1',
+        subtitle: '\u5361\u5BC6\u6FC0\u6D3B\u83B7\u53D6\u8BA2\u9605\u5730\u5740',
+        enterCode: '\u8BF7\u8F93\u5165\u5361\u5BC6',
+        codePlaceholder: '\u8F93\u5165\u60A8\u7684\u5361\u5BC6',
+        activate: '\u7ACB\u5373\u6FC0\u6D3B',
+        activating: '\u6B63\u5728\u6FC0\u6D3B...',
+        success: '\u2705 \u6FC0\u6D3B\u6210\u529F',
+        codeLabel: '\u5361\u5BC6',
+        durationLabel: '\u6709\u6548\u671F',
+        expiresLabel: '\u8FC7\u671F\u65F6\u95F4',
+        subUrlLabel: '\u8BA2\u9605\u5730\u5740\uFF08\u70B9\u51FB\u590D\u5236\uFF09',
+        copyUrl: '\u590D\u5236\u8BA2\u9605\u5730\u5740',
+        instructions: '\u{1F4F1} \u4F7F\u7528\u8BF4\u660E',
+        instr1: '\u5C06\u8BA2\u9605\u5730\u5740\u6DFB\u52A0\u5230\u64AD\u653E\u5668',
+        instr2: '\u652F\u6301IPTV\u3001PotPlayer\u7B49\u64AD\u653E\u5668',
+        instr3: '\u652F\u6301\u5404\u7C7B\u7535\u89C6\u76D2\u5B50',
+        instr4: '\u5EFA\u8BAE\u5B9A\u671F\u66F4\u65B0\u8BA2\u9605\u5217\u8868',
+        instr5: '\u8BF7\u52FF\u4F7F\u7528\u8F6F\u4EF6\u5BF9\u64AD\u653E\u5217\u8868\u6D4B\u8BD5\uFF0C\u5426\u5219\u53EF\u80FD\u89E6\u53D1\u7CFB\u7EDF\u9632\u5FA1',
+        enterCodeError: '\u8BF7\u8F93\u5165\u5361\u5BC6',
+        successMsg: '\u5361\u5BC6\u6FC0\u6D3B\u6210\u529F\uFF01',
+        failMsg: '\u6FC0\u6D3B\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u5361\u5BC6\u662F\u5426\u6B63\u786E',
+        networkError: '\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5',
+        copiedMsg: '\u8BA2\u9605\u5730\u5740\u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F',
+        days: ' \u5929'
+      }
+    };
+
+    let currentLang = localStorage.getItem('activate_lang') || 'en';
+
+    function t(key) {
+      return translations[currentLang][key] || translations['en'][key] || key;
+    }
+
+    function toggleLangMenu() {
+      const menu = document.getElementById('langMenu');
+      menu.classList.toggle('show');
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('activate_lang', lang);
+
+      // Update button states
+      document.getElementById('langEn').classList.toggle('active', lang === 'en');
+      document.getElementById('langZh').classList.toggle('active', lang === 'zh-CN');
+
+      // Update current language button
+      const langNames = { 'en': 'EN', 'zh-CN': '\u7B80\u4F53' };
+      document.getElementById('currentLangBtn').textContent = langNames[lang] || 'EN';
+
+      // Close menu
+      document.getElementById('langMenu').classList.remove('show');
+
+      // Update HTML lang attribute
+      document.documentElement.lang = lang;
+
+      // Update document title
+      document.title = lang === 'en' ? 'Activation - TV Live Service' : '\u5361\u5BC6\u6FC0\u6D3B - \u7535\u89C6\u76F4\u64AD\u670D\u52A1';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t(key);
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.placeholder = t(key);
+      });
+    }
+
     function showError(message) {
       const errorBox = document.getElementById('errorBox');
       const successBox = document.getElementById('successBox');
@@ -7238,7 +7362,7 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
         errorBox.style.display = 'none';
       }, 5000);
     }
-    
+
     function showSuccess(message) {
       const errorBox = document.getElementById('errorBox');
       const successBox = document.getElementById('successBox');
@@ -7249,7 +7373,7 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
         successBox.style.display = 'none';
       }, 5000);
     }
-    
+
     function showLoading(show) {
       const loading = document.getElementById('loading');
       const btn = document.getElementById('activateBtn');
@@ -7261,61 +7385,61 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
         btn.disabled = false;
       }
     }
-    
+
     async function activateCode() {
       const code = document.getElementById('code').value.trim();
-      
+
       if (!code) {
-        showError('\u8BF7\u8F93\u5165\u5361\u5BC6');
+        showError(t('enterCodeError'));
         return;
       }
-      
+
       showLoading(true);
       document.getElementById('result').classList.remove('active');
-      
+
       try {
         const response = await fetch(API_BASE + '?code=' + encodeURIComponent(code), {
           method: 'POST'
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok && data.success) {
-          showSuccess('\u5361\u5BC6\u6FC0\u6D3B\u6210\u529F\uFF01');
+          showSuccess(t('successMsg'));
           showResult(code, data);
         } else {
-          showError(data.error || '\u6FC0\u6D3B\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u5361\u5BC6\u662F\u5426\u6B63\u786E');
+          showError(data.error || t('failMsg'));
         }
       } catch (error) {
-        console.error('\u6FC0\u6D3B\u5931\u8D25:', error);
-        showError('\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5');
+        console.error('Activation failed:', error);
+        showError(t('networkError'));
       } finally {
         showLoading(false);
       }
     }
-    
+
     function showResult(code, data) {
       const result = document.getElementById('result');
       const now = new Date();
       const expiredAt = new Date(data.expired_at);
       const durationDays = Math.ceil((expiredAt - now) / (1000 * 60 * 60 * 24));
-      
+
       document.getElementById('resultCode').textContent = code;
-      document.getElementById('resultDuration').textContent = durationDays + ' \u5929';
-      document.getElementById('resultExpired').textContent = expiredAt.toLocaleString('zh-CN');
-      
+      document.getElementById('resultDuration').textContent = durationDays + t('days');
+      document.getElementById('resultExpired').textContent = expiredAt.toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US');
+
       const host = window.location.origin;
       const subUrl = host + '/sub/' + code + '.m3u';
       document.getElementById('subUrl').textContent = subUrl;
-      
+
       result.classList.add('active');
     }
-    
+
     function copySubUrl() {
       const subUrl = document.getElementById('subUrl').textContent;
       if (subUrl && subUrl !== '-') {
         navigator.clipboard.writeText(subUrl).then(() => {
-          showSuccess('\u8BA2\u9605\u5730\u5740\u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F');
+          showSuccess(t('copiedMsg'));
         }).catch(err => {
           const textarea = document.createElement('textarea');
           textarea.value = subUrl;
@@ -7323,16 +7447,29 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
           textarea.select();
           document.execCommand('copy');
           document.body.removeChild(textarea);
-          showSuccess('\u8BA2\u9605\u5730\u5740\u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F');
+          showSuccess(t('copiedMsg'));
         });
       }
     }
-    
-    // \u652F\u6301\u56DE\u8F66\u952E\u6FC0\u6D3B
-    document.getElementById('code').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        activateCode();
-      }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      setLanguage(currentLang);
+
+      // Support Enter key activation
+      document.getElementById('code').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          activateCode();
+        }
+      });
+
+      // Close language menu when clicking outside
+      document.addEventListener('click', function(e) {
+        const dropdown = document.querySelector('.lang-dropdown');
+        if (!dropdown.contains(e.target)) {
+          document.getElementById('langMenu').classList.remove('show');
+        }
+      });
     });
   <\/script>
 </body>
@@ -7342,15 +7479,15 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
 init_checked_fetch();
 init_modules_watch_stub();
 var PLAYSTATION_HTML = `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- ========== SEO Meta Tags ========== -->
   <!-- \u57FA\u7840Meta\u6807\u7B7E -->
-  <meta name="description" content="IPTV Live\u63D0\u4F9B\u514D\u8D39\u7684\u5728\u7EBF\u7535\u89C6\u89C2\u770B\u670D\u52A1\uFF0C\u5305\u542B10000+\u9AD8\u6E05\u9891\u9053\uFF0C\u652F\u6301\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u7B49\u5168\u7C7B\u578B\u9891\u9053\uFF0C\u65E0\u9700\u6CE8\u518C\uFF0C\u4E00\u952E\u64AD\u653E\uFF0C\u591A\u8BBE\u5907\u540C\u6B65\u89C2\u770B\u3002">
-  <meta name="keywords" content="IPTV,\u514D\u8D39\u76F4\u64AD,\u5728\u7EBF\u770B\u7535\u89C6,\u4F53\u80B2\u76F4\u64AD,\u65B0\u95FB\u76F4\u64AD,\u9AD8\u6E05\u76F4\u64AD,\u514D\u8D39\u7535\u89C6,\u5728\u7EBF\u89C6\u9891,\u76F4\u64AD\u5E73\u53F0,IPTV Live">
+  <meta name="description" id="seo-description" content="IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback, multi-device sync.">
+  <meta name="keywords" id="seo-keywords" content="IPTV,free live TV,online TV,sports live streaming,news live streaming,HD streaming,free TV,online video,live streaming platform,IPTV Live">
   <meta name="author" content="IPTV Live">
   <meta name="robots" content="index, follow">
   <meta name="googlebot" content="index, follow">
@@ -7360,18 +7497,17 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com">
-  <meta property="og:title" content="IPTV Live - \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u89C2\u770B\u5E73\u53F0">
-  <meta property="og:description" content="\u63D0\u4F9B10000+\u514D\u8D39\u9AD8\u6E05\u9891\u9053\uFF0C\u652F\u6301\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u7B49\u5168\u7C7B\u578B\uFF0C\u65E0\u9700\u6CE8\u518C\uFF0C\u4E00\u952E\u64AD\u653E\u3002">
+  <meta property="og:title" id="og-title" content="IPTV Live - Free HD Live TV Streaming Platform">
+  <meta property="og:description" id="og-description" content="Access 10,000+ free HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback.">
   <meta property="og:image" content="https://iptv-search.com/og-image.svg">
   <meta property="og:site_name" content="IPTV Live">
-  <meta property="og:locale" content="zh_CN">
+  <meta property="og:locale" id="og-locale" content="en_US">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://iptv-search.com">
-  <meta name="twitter:title" content="IPTV Live - \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u89C2\u770B\u5E73\u53F0">
-  <meta name="twitter:description" content="\u63D0\u4F9B10000+\u514D\u8D39\u9AD8\u6E05\u9891\u9053\uFF0C\u652F\u6301\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u7B49\u5168\u7C7B\u578B\u3002">
-  <meta name="twitter:image" content="https://iptv-search.com/og-image.svg">
+  <meta name="twitter:title" id="twitter-title" content="IPTV Live - Free HD Live TV Streaming Platform">
+  <meta name="twitter:description" id="twitter-description" content="Access 10,000+ free HD channels including sports, news, entertainment, movies and more.">
 
   <!-- Canonical URL -->
   <link rel="canonical" href="https://iptv-search.com">
@@ -7388,13 +7524,13 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <meta name="theme-color" content="#e50914">
 
   <!-- \u7ED3\u6784\u5316\u6570\u636E (JSON-LD) -->
-  <script type="application/ld+json">
+  <script type="application/ld+json" id="structured-data">
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "IPTV Live",
     "url": "https://iptv-search.com",
-    "description": "\u63D0\u4F9B\u514D\u8D39\u7684\u5728\u7EBF\u7535\u89C6\u89C2\u770B\u670D\u52A1\uFF0C\u5305\u542B10000+\u9AD8\u6E05\u9891\u9053",
+    "description": "IPTV Live provides free online TV streaming with 10,000+ HD channels",
     "potentialAction": {
       "@type": "SearchAction",
       "target": "https://iptv-search.com/?search={search_term_string}",
@@ -7761,9 +7897,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
             <span class="quick-entry-tip">\u5207\u6362\u8BED\u8A00</span>
           </button>
           <div class="lang-dropdown-menu">
-            <div class="lang-dropdown-item active" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">\u7B80\u4F53\u4E2D\u6587</div>
-            <div class="lang-dropdown-item" data-lang="zh-TW" onclick="switchLanguage('zh-TW')">\u7E41\u9AD4\u4E2D\u6587</div>
-            <div class="lang-dropdown-item" data-lang="en" onclick="switchLanguage('en')">English</div>
+            <div class="lang-dropdown-item" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">\u7B80\u4F53\u4E2D\u6587</div>
+            <div class="lang-dropdown-item active" data-lang="en" onclick="switchLanguage('en')">English</div>
           </div>
         </div>
       </div>
@@ -7802,9 +7937,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     <div class="mobile-section">
       <div class="mobile-section-title" data-i18n="language">\u8BED\u8A00</div>
       <div class="mobile-lang-menu">
-        <div class="mobile-lang-item active" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">\u7B80\u4F53\u4E2D\u6587</div>
-        <div class="mobile-lang-item" data-lang="zh-TW" onclick="switchLanguage('zh-TW')">\u7E41\u9AD4\u4E2D\u6587</div>
-        <div class="mobile-lang-item" data-lang="en" onclick="switchLanguage('en')">English</div>
+        <div class="mobile-lang-item" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">\u7B80\u4F53\u4E2D\u6587</div>
+        <div class="mobile-lang-item active" data-lang="en" onclick="switchLanguage('en')">English</div>
       </div>
     </div>
 
@@ -7885,20 +8019,20 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- <div class="toast-container" id="toastContainer"></div> -->
 
   <footer class="footer">
-    <p>&copy; 2024 IPTV Live. \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0</p>
+    <p>&copy; 2024 IPTV Live. <span data-i18n="footerCopyright">\u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0</span></p>
     <!-- SEO \u53CB\u597D\u94FE\u63A5 -->
     <div style="margin-top:15px;font-size:12px;color:rgba(255,255,255,.4);">
-      <a href="/sitemap.xml" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">\u7F51\u7AD9\u5730\u56FE</a>
+      <a href="/sitemap.xml" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;" data-i18n="sitemap">\u7F51\u7AD9\u5730\u56FE</a>
       <a href="/robots.txt" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">Robots</a>
-      <a href="/privacy-policy" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">\u9690\u79C1\u653F\u7B56</a>
-      <a href="/terms" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">\u670D\u52A1\u6761\u6B3E</a>
+      <a href="/privacy-policy" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;" data-i18n="privacyPolicy">\u9690\u79C1\u653F\u7B56</a>
+      <a href="/terms" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;" data-i18n="termsOfService">\u670D\u52A1\u6761\u6B3E</a>
     </div>
     <!-- Cloudflare\u6258\u7BA1\u8BF4\u660E\u548C\u5FBD\u7AE0 -->
     <div style="margin-top:20px;display:flex;align-items:center;justify-content:center;gap:10px;">
             <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
         <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare" style="height:12px;width:auto;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">
       </a>
-      <span style="font-size:12px;color:rgba(255,255,255,.6);">\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4</span>
+      <span style="font-size:12px;color:rgba(255,255,255,.6);" data-i18n="cloudflareBadge">\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4</span>
 
     </div>
   </footer>
@@ -7941,7 +8075,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     // ========== \u8BED\u8A00\u914D\u7F6E\u548C\u7FFB\u8BD1 ==========
     const translations = {
       'zh-CN': {
-        title: 'IPTV Live - \u514D\u8D39\u76F4\u64AD',
+        title: 'IPTV Live - \u514D\u8D39\u7535\u89C6\u76F4\u64AD',
         searchPlaceholder: '\u641C\u7D22\u9891\u9053...',
         allChannels: '\u5168\u90E8\u9891\u9053',
         search: '\u641C\u7D22',
@@ -7975,44 +8109,12 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         lastPage: '\u672B\u9875',
         loadingCache: '\u6B63\u5728\u52A0\u8F7D\u9891\u9053...',
         cacheCleared: '\u7F13\u5B58\u5DF2\u6E05\u9664',
-        playing: '\u6B63\u5728\u64AD\u653E'
-      },
-      'zh-TW': {
-        title: 'IPTV Live - \u514D\u8CBB\u76F4\u64AD',
-        searchPlaceholder: '\u641C\u5C0B\u983B\u9053...',
-        allChannels: '\u5168\u90E8\u983B\u9053',
-        search: '\u641C\u5C0B',
-        history: '\u64AD\u653E\u6B77\u53F2',
-        favorites: '\u6211\u7684\u6536\u85CF',
-        random: '\u96A8\u6A5F\u63A8\u85A6',
-        clearCache: '\u6E05\u9664\u7DE9\u5B58',
-        onlineCount: '\u4EBA\u5728\u89C0\u770B',
-        hot: '\u71B1\u9580',
-        recommend: '\u63A8\u85A6',
-        quickActions: '\u5FEB\u6377\u64CD\u4F5C',
-        language: '\u8A9E\u8A00',
-        menu: '\u83DC\u55AE',
-        groupNav: '\u5206\u7D44\u5C0E\u822A',
-        noHistory: '\u66AB\u7121\u64AD\u653E\u6B77\u53F2',
-        noHistoryDesc: '\u89C0\u770B\u7684\u983B\u9053\u6703\u81EA\u52D5\u986F\u793A\u5728\u9019\u88E1',
-        noFavorites: '\u9084\u6C92\u6709\u6536\u85CF',
-        noFavoritesDesc: '\u9EDE\u64CA\u983B\u9053\u5361\u7247\u4E0A\u7684\u661F\u661F\u6309\u9215\u6DFB\u52A0\u6536\u85CF',
-        noRecommendations: '\u66AB\u7121\u63A8\u85A6\u983B\u9053',
-        noRecommendationsDesc: '\u8ACB\u7A0D\u5F8C\u518D\u8A66',
-        noChannels: '\u672A\u627E\u5230\u983B\u9053',
-        noChannelsDesc: '\u8ACB\u5617\u8A66\u5176\u4ED6\u641C\u5C0B\u8A5E\u6216\u5206\u7D44',
-        loading: '\u52A0\u8F09\u983B\u9053\u5217\u8868...',
-        loadingRecommendations: '\u6B63\u5728\u52A0\u8F09\u63A8\u85A6...',
-        searching: '\u641C\u5C0B\u4E2D...',
-        page: '\u9801',
-        totalPages: '\u5171',
-        firstPage: '\u9996\u9801',
-        prevPage: '\u4E0A\u4E00\u9801',
-        nextPage: '\u4E0B\u4E00\u9801',
-        lastPage: '\u672B\u9801',
-        loadingCache: '\u6B63\u5728\u52A0\u8F09\u983B\u9053...',
-        cacheCleared: '\u7DE9\u5B58\u5DF2\u6E05\u9664',
-        playing: '\u6B63\u5728\u64AD\u653E'
+        playing: '\u6B63\u5728\u64AD\u653E',
+        footerCopyright: '\u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0',
+        sitemap: '\u7F51\u7AD9\u5730\u56FE',
+        privacyPolicy: '\u9690\u79C1\u653F\u7B56',
+        termsOfService: '\u670D\u52A1\u6761\u6B3E',
+        cloudflareBadge: '\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4'
       },
       'en': {
         title: 'IPTV Live - Free Live TV',
@@ -8049,13 +8151,18 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         lastPage: 'Last',
         loadingCache: 'Loading channels...',
         cacheCleared: 'Cache cleared',
-        playing: 'Now Playing'
+        playing: 'Now Playing',
+        footerCopyright: 'Free HD Live TV Streaming Platform',
+        sitemap: 'Sitemap',
+        privacyPolicy: 'Privacy Policy',
+        termsOfService: 'Terms of Service',
+        cloudflareBadge: 'This site is powered by Cloudflare for acceleration and security'
       }
     };
 
     // \u83B7\u53D6\u5F53\u524D\u8BED\u8A00\u7684\u7FFB\u8BD1\u6587\u672C
     function t(key) {
-      return translations[currentLanguage][key] || translations['zh-CN'][key] || key;
+      return translations[currentLanguage][key] || translations['en'][key] || key;
     }
 
     // \u5207\u6362\u8BED\u8A00
@@ -8100,6 +8207,61 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       }
     }
 
+    // SEO\u4FE1\u606F\u914D\u7F6E
+    const seoConfig = {
+      'en': {
+        title: 'IPTV Live - Free Live TV',
+        description: 'IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback, multi-device sync.',
+        keywords: 'IPTV,free live TV,online TV,sports live streaming,news live streaming,HD streaming,free TV,online video,live streaming platform,IPTV Live',
+        ogTitle: 'IPTV Live - Free HD Live TV Streaming Platform',
+        ogDescription: 'Access 10,000+ free HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback.',
+        ogLocale: 'en_US',
+        twitterTitle: 'IPTV Live - Free HD Live TV Streaming Platform',
+        twitterDescription: 'Access 10,000+ free HD channels including sports, news, entertainment, movies and more.',
+        structuredDescription: 'IPTV Live provides free online TV streaming with 10,000+ HD channels'
+      },
+      'zh-CN': {
+        title: 'IPTV Live - \u514D\u8D39\u7535\u89C6\u76F4\u64AD',
+        description: 'IPTV Live\u63D0\u4F9B\u514D\u8D39\u7684\u5728\u7EBF\u7535\u89C6\u89C2\u770B\u670D\u52A1\uFF0C\u5305\u542B10000+\u9AD8\u6E05\u9891\u9053\uFF0C\u652F\u6301\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u7B49\u5168\u7C7B\u578B\u9891\u9053\uFF0C\u65E0\u9700\u6CE8\u518C\uFF0C\u4E00\u952E\u64AD\u653E\uFF0C\u591A\u8BBE\u5907\u540C\u6B65\u89C2\u770B\u3002',
+        keywords: 'IPTV,\u514D\u8D39\u7535\u89C6\u76F4\u64AD,\u5728\u7EBF\u770B\u7535\u89C6,\u4F53\u80B2\u76F4\u64AD,\u65B0\u95FB\u76F4\u64AD,\u9AD8\u6E05\u76F4\u64AD,\u514D\u8D39\u7535\u89C6,\u5728\u7EBF\u89C6\u9891,\u76F4\u64AD\u5E73\u53F0,IPTV Live',
+        ogTitle: 'IPTV Live - \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u89C2\u770B\u5E73\u53F0',
+        ogDescription: '\u63D0\u4F9B10000+\u514D\u8D39\u9AD8\u6E05\u9891\u9053\uFF0C\u652F\u6301\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u7B49\u5168\u7C7B\u578B\uFF0C\u65E0\u9700\u6CE8\u518C\uFF0C\u4E00\u952E\u64AD\u653E\u3002',
+        ogLocale: 'zh_CN',
+        twitterTitle: 'IPTV Live - \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u89C2\u770B\u5E73\u53F0',
+        twitterDescription: '\u63D0\u4F9B10000+\u514D\u8D39\u9AD8\u6E05\u9891\u9053\uFF0C\u652F\u6301\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u7B49\u5168\u7C7B\u578B\u3002',
+        structuredDescription: '\u63D0\u4F9B\u514D\u8D39\u7684\u5728\u7EBF\u7535\u89C6\u89C2\u770B\u670D\u52A1\uFF0C\u5305\u542B10000+\u9AD8\u6E05\u9891\u9053'
+      }
+    };
+
+    // \u66F4\u65B0SEO\u4FE1\u606F
+    function updateSEO(lang) {
+      const config = seoConfig[lang] || seoConfig['en'];
+
+      // \u66F4\u65B0\u9875\u9762\u6807\u9898
+      document.title = config.title;
+
+      // \u66F4\u65B0\u57FA\u7840Meta\u6807\u7B7E
+      document.getElementById('seo-description').content = config.description;
+      document.getElementById('seo-keywords').content = config.keywords;
+
+      // \u66F4\u65B0Open Graph\u6807\u7B7E
+      document.getElementById('og-title').content = config.ogTitle;
+      document.getElementById('og-description').content = config.ogDescription;
+      document.getElementById('og-locale').content = config.ogLocale;
+
+      // \u66F4\u65B0Twitter Card\u6807\u7B7E
+      document.getElementById('twitter-title').content = config.twitterTitle;
+      document.getElementById('twitter-description').content = config.twitterDescription;
+
+      // \u66F4\u65B0\u7ED3\u6784\u5316\u6570\u636E
+      const structuredData = document.getElementById('structured-data');
+      if (structuredData) {
+        const data = JSON.parse(structuredData.textContent);
+        data.description = config.structuredDescription;
+        structuredData.textContent = JSON.stringify(data, null, 2);
+      }
+    }
+
     function switchLanguage(lang) {
       currentLanguage = lang;
 
@@ -8126,6 +8288,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
       // \u66F4\u65B0 HTML lang \u5C5E\u6027
       document.documentElement.lang = lang;
+
+      // \u66F4\u65B0SEO\u4FE1\u606F
+      updateSEO(lang);
 
       // \u4FDD\u5B58\u8BED\u8A00\u8BBE\u7F6E
       localStorage.setItem('iptv_language', lang);
@@ -8264,7 +8429,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     const DECRYPTION_KEY = window.DECRYPTION_KEY || 'default-secret-key';
 
     const API_BASE = '/api';
-    let currentLanguage = 'zh-CN';  // \u5F53\u524D\u8BED\u8A00
+    let currentLanguage = 'en';  // \u5F53\u524D\u8BED\u8A00
     let allChannels = [];
     let allGroups = [];
     let currentGroup = '';
@@ -8294,12 +8459,14 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     let featuredChannels = [];
     let isUpdatingKey = false;  // \u9632\u6B62\u91CD\u590D\u66F4\u65B0\u5BC6\u94A5
     let currentPlayingChannel = null;  // \u5F53\u524D\u64AD\u653E\u7684\u9891\u9053
+    let isLoadingChannels = false;  // \u9632\u6B62\u91CD\u590D\u52A0\u8F7D\u9891\u9053
+    let pendingChannelLoad = null;  // \u5F85\u5904\u7406\u7684\u9891\u9053\u52A0\u8F7D\u8BF7\u6C42
     // let lastErrorTime = 0;  // \u9632\u6B62\u91CD\u590D\u663E\u793A\u76F8\u540C\u9519\u8BEF\uFF08\u5DF2\u7981\u7528\uFF09
     // let lastErrorMsg = '';   // \u8BB0\u5F55\u4E0A\u4E00\u6761\u9519\u8BEF\u6D88\u606F\uFF08\u5DF2\u7981\u7528\uFF09
 
     // \u4ECE localStorage \u8BFB\u53D6\u7528\u6237\u8BED\u8A00\u8BBE\u7F6E
     const savedLanguage = localStorage.getItem('iptv_language');
-    if (savedLanguage && ['zh-CN', 'zh-TW', 'en'].includes(savedLanguage)) {
+    if (savedLanguage && ['zh-CN', 'en'].includes(savedLanguage)) {
       currentLanguage = savedLanguage;
     }
 
@@ -8344,7 +8511,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       let description = 'IPTV Live\u63D0\u4F9B\u514D\u8D39\u7684\u5728\u7EBF\u76F4\u64AD\u670D\u52A1\uFF0C\u5305\u542B2000+\u9AD8\u6E05\u9891\u9053\uFF0C\u652F\u6301\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u7B49\u5168\u7C7B\u578B\u9891\u9053\uFF0C\u65E0\u9700\u6CE8\u518C\uFF0C\u4E00\u952E\u64AD\u653E\uFF0C\u591A\u8BBE\u5907\u540C\u6B65\u89C2\u770B\u3002';
 
       if (currentGroup) {
-        title = currentGroup + ' - IPTV Live \u514D\u8D39\u76F4\u64AD';
+        title = currentGroup + ' - IPTV Live \u514D\u8D39\u7535\u89C6\u76F4\u64AD';
         description = '\u89C2\u770B' + currentGroup + '\u9891\u9053\u76F4\u64AD\uFF0CIPTV Live\u63D0\u4F9B' + currentGroup + '\u76F8\u5173\u7684\u514D\u8D39\u9AD8\u6E05\u76F4\u64AD\u5185\u5BB9\uFF0C\u5B9E\u65F6\u66F4\u65B0\uFF0C\u753B\u9762\u6E05\u6670\uFF0C\u64AD\u653E\u6D41\u7545\u3002';
       } else if (currentSearch) {
         title = currentSearch + ' - IPTV Live \u641C\u7D22\u7ED3\u679C';
@@ -8475,7 +8642,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
     // \u7F13\u5B58\u952E\u524D\u7F00
     const CACHE_PREFIX = 'iptv_cache_';
-    const CACHE_DURATION = 6 * 60 * 60 * 1000; // 6\u5C0F\u65F6\uFF08\u6BEB\u79D2\uFF09
+    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24\u5C0F\u65F6\uFF08\u6BEB\u79D2\uFF09
+    const GROUPS_CACHE_KEY = 'iptv_groups'; // \u5206\u7EC4\u6570\u636E\u72EC\u7ACB\u7F13\u5B58\u952E
+    const GROUPS_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // \u5206\u7EC4\u6570\u636E\u7F13\u5B587\u5929
 
     // \u751F\u6210\u7F13\u5B58\u952E
     function getCacheKey(type, params = '') {
@@ -8508,7 +8677,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     }
 
     // \u5199\u5165\u672C\u5730\u7F13\u5B58
-    function setCache(key, value) {
+    function setCache(key, value, customDuration = null) {
       try {
         const data = {
           timestamp: Date.now(),
@@ -8518,6 +8687,42 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         console.log('[Cache] \u5DF2\u7F13\u5B58:', key);
       } catch (error) {
         console.error('[Cache] \u5199\u5165\u7F13\u5B58\u5931\u8D25:', error);
+      }
+    }
+
+    // \u83B7\u53D6\u5206\u7EC4\u7F13\u5B58\uFF08\u72EC\u7ACB\u957F\u671F\u7F13\u5B58\uFF09
+    function getCachedGroups() {
+      try {
+        const cached = localStorage.getItem(GROUPS_CACHE_KEY);
+        if (cached) {
+          const { data, timestamp } = JSON.parse(cached);
+          const now = Date.now();
+          if (now - timestamp < GROUPS_CACHE_DURATION) {
+            console.log('[Cache] \u4ECE\u5206\u7EC4\u7F13\u5B58\u8BFB\u53D6\uFF0C\u5269\u4F59\u6709\u6548\u65F6\u95F4:', Math.round((GROUPS_CACHE_DURATION - (now - timestamp)) / (24 * 60 * 60 * 1000)), '\u5929');
+            return data;
+          } else {
+            localStorage.removeItem(GROUPS_CACHE_KEY);
+            console.log('[Cache] \u5206\u7EC4\u7F13\u5B58\u5DF2\u8FC7\u671F');
+          }
+        }
+        return null;
+      } catch (error) {
+        console.error('[Cache] \u8BFB\u53D6\u5206\u7EC4\u7F13\u5B58\u5931\u8D25:', error);
+        return null;
+      }
+    }
+
+    // \u7F13\u5B58\u5206\u7EC4\u6570\u636E\uFF08\u72EC\u7ACB\u957F\u671F\u7F13\u5B58\uFF09
+    function cacheGroups(groups) {
+      try {
+        const data = {
+          timestamp: Date.now(),
+          data: groups
+        };
+        localStorage.setItem(GROUPS_CACHE_KEY, JSON.stringify(data));
+        console.log('[Cache] \u5DF2\u7F13\u5B58\u5206\u7EC4\u6570\u636E\uFF0C\u5171', groups.length, '\u4E2A\u5206\u7EC4');
+      } catch (error) {
+        console.error('[Cache] \u5199\u5165\u5206\u7EC4\u7F13\u5B58\u5931\u8D25:', error);
       }
     }
 
@@ -8537,6 +8742,16 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     }
     
     async function loadChannels(page = 1, updateGroups = true) {
+      // \u8BF7\u6C42\u8282\u6D41\uFF1A\u5982\u679C\u6B63\u5728\u52A0\u8F7D\uFF0C\u4FDD\u5B58\u5F85\u52A0\u8F7D\u8BF7\u6C42
+      if (isLoadingChannels) {
+        console.log('[LoadChannels] \u6B63\u5728\u52A0\u8F7D\uFF0C\u4FDD\u5B58\u5F85\u52A0\u8F7D\u8BF7\u6C42:', { page, updateGroups });
+        pendingChannelLoad = { page, updateGroups };
+        return;
+      }
+
+      isLoadingChannels = true;
+      console.log('[LoadChannels] \u5F00\u59CB\u52A0\u8F7D:', { page, updateGroups, currentSearch, currentGroup });
+
       try {
         const params = new URLSearchParams({
           page: page,
@@ -8553,6 +8768,17 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         // \u751F\u6210\u7F13\u5B58\u952E\uFF08\u641C\u7D22\u65F6\u548C\u5206\u7EC4\u8FC7\u6EE4\u65F6\u4F7F\u7528\u7F13\u5B58\uFF0C\u5206\u9875\u4F7F\u7528\u7F13\u5B58\uFF09
         const paramsStr = params.toString();
         const cacheKey = getCacheKey('channels', paramsStr);
+
+        // \u4F18\u5148\u4ECE\u5206\u7EC4\u7F13\u5B58\u8BFB\u53D6\u5206\u7EC4\u6570\u636E
+        if (updateGroups) {
+          const cachedGroups = getCachedGroups();
+          if (cachedGroups) {
+            allGroups = cachedGroups;
+            renderGroups();
+            updateGroups = false; // \u5DF2\u6709\u5206\u7EC4\u7F13\u5B58\uFF0C\u4E0D\u9700\u8981\u4ECEAPI\u83B7\u53D6
+            console.log('[LoadChannels] \u4F7F\u7528\u5206\u7EC4\u7F13\u5B58');
+          }
+        }
 
         // \u5C1D\u8BD5\u4ECE\u7F13\u5B58\u8BFB\u53D6
         const cachedData = getFromCache(cacheKey);
@@ -8604,13 +8830,12 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           document.getElementById('loading').style.display = 'none';
           document.getElementById('channelList').style.display = 'block';
 
-          // \u7F13\u5B58\u6570\u636E\uFF086\u5C0F\u65F6\uFF09
+          // \u7F13\u5B58\u6570\u636E\uFF0824\u5C0F\u65F6\uFF09
           setCache(cacheKey, data);
 
-          // \u5355\u72EC\u7F13\u5B58\u5206\u7EC4\u6570\u636E\uFF08\u7528\u4E8E\u5FEB\u901F\u8BBF\u95EE\uFF09
+          // \u5355\u72EC\u7F13\u5B58\u5206\u7EC4\u6570\u636E\uFF08\u7528\u4E8E\u5FEB\u901F\u8BBF\u95EE\uFF0C\u7F13\u5B587\u5929\uFF09
           if (updateGroups && data.groups) {
-            const groupsCacheKey = getCacheKey('groups');
-            setCache(groupsCacheKey, data.groups);
+            cacheGroups(data.groups);
           }
 
           // \u9690\u85CF\u52A0\u8F7D\u6307\u793A\u5668
@@ -8623,6 +8848,15 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         console.error('\u52A0\u8F7D\u5931\u8D25:', error);
         showError(t('noChannels') + ': ' + t('noChannelsDesc'));
         hideLoadingIndicator();
+      } finally {
+        isLoadingChannels = false;
+        // \u5982\u679C\u6709\u5F85\u52A0\u8F7D\u7684\u8BF7\u6C42\uFF0C\u6267\u884C\u5B83
+        if (pendingChannelLoad) {
+          const { page, updateGroups } = pendingChannelLoad;
+          pendingChannelLoad = null;
+          console.log('[LoadChannels] \u6267\u884C\u5F85\u52A0\u8F7D\u8BF7\u6C42:', { page, updateGroups });
+          loadChannels(page, updateGroups);
+        }
       }
     }
     
@@ -10143,11 +10377,11 @@ Sitemap: https://iptv-search.com/sitemap.xml`;
 __name(generateRobotsTxt, "generateRobotsTxt");
 function generatePrivacyPolicy() {
   return `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>\u9690\u79C1\u653F\u7B56 - IPTV Live</title>
+  <title>Privacy Policy - IPTV Live</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff;line-height:1.6;padding:20px}
@@ -10162,141 +10396,334 @@ function generatePrivacyPolicy() {
     .last-updated{color:rgba(255,255,255,.5);font-size:14px;margin-bottom:20px}
     a{color:#e50914;text-decoration:none}
     a:hover{text-decoration:underline}
+    .lang-switch{position:fixed;top:20px;right:20px;z-index:1000}
+    .lang-dropdown{position:relative;display:inline-block}
+    .lang-btn{background:#e50914;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:background .2s;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent}
+    .lang-btn:hover{background:#f7262c}
+    .lang-btn:after{content:"\u25BC";font-size:10px}
+    .lang-menu{display:none;position:absolute;top:calc(100%+8px);right:0;background:#141414;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.5);min-width:140px;overflow:hidden;animation:fadeIn .2s ease}
+    .lang-menu.show{display:block}
+    .lang-menu button{display:block;width:100%;padding:12px 16px;background:none;border:none;text-align:left;font-size:14px;color:rgba(255,255,255,.9);cursor:pointer;transition:background .2s}
+    .lang-menu button:hover{background:rgba(255,255,255,.1)}
+    .lang-menu button.active{background:#e50914;color:white}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
     @media (max-width:768px){
       body{padding:15px}
       h1{font-size:24px}
       h2{font-size:20px}
       .section{padding:20px}
+      .lang-switch{top:10px;right:10px}
+      .lang-btn{padding:8px 16px;font-size:13px}
+      .lang-menu button{padding:10px 14px;font-size:13px}
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>\u9690\u79C1\u653F\u7B56</h1>
-    <p class="last-updated">\u6700\u540E\u66F4\u65B0\u65E5\u671F\uFF1A2024\u5E741\u67081\u65E5</p>
-
-    <div class="section">
-      <h2>\u5F15\u8A00</h2>
-      <p>IPTV Live\uFF08\u4EE5\u4E0B\u7B80\u79F0"\u6211\u4EEC"\uFF09\u5C0A\u91CD\u5E76\u4FDD\u62A4\u60A8\u7684\u9690\u79C1\u6743\u3002\u672C\u9690\u79C1\u653F\u7B56\u65E8\u5728\u8BF4\u660E\u6211\u4EEC\u5982\u4F55\u6536\u96C6\u3001\u4F7F\u7528\u3001\u5B58\u50A8\u548C\u4FDD\u62A4\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u3002\u4F7F\u7528\u6211\u4EEC\u7684\u670D\u52A1\u5373\u8868\u793A\u60A8\u540C\u610F\u672C\u653F\u7B56\u7684\u6761\u6B3E\u3002</p>
+  <div class="lang-switch">
+    <div class="lang-dropdown">
+      <button class="lang-btn" onclick="toggleLangMenu()" id="currentLangBtn">English</button>
+      <div class="lang-menu" id="langMenu">
+        <button onclick="setLanguage('en')" id="langEn">English</button>
+        <button onclick="setLanguage('zh-CN')" id="langZh">\u7B80\u4F53\u4E2D\u6587</button>
+      </div>
     </div>
-
-    <div class="section">
-      <h2>1. \u4FE1\u606F\u6536\u96C6</h2>
-      <h3>1.1 \u6211\u4EEC\u6536\u96C6\u7684\u4FE1\u606F\u7C7B\u578B\uFF1A</h3>
-      <ul>
-        <li><strong>\u6D4F\u89C8\u4FE1\u606F\uFF1A</strong>\u60A8\u7684IP\u5730\u5740\u3001\u6D4F\u89C8\u5668\u7C7B\u578B\u3001\u8BBE\u5907\u4FE1\u606F\u3001\u8BBF\u95EE\u65F6\u95F4\u548C\u9875\u9762\u6D4F\u89C8\u8BB0\u5F55</li>
-        <li><strong>\u4F7F\u7528\u4FE1\u606F\uFF1A</strong>\u60A8\u89C2\u770B\u7684\u9891\u9053\u3001\u641C\u7D22\u8BB0\u5F55\u3001\u6536\u85CF\u548C\u64AD\u653E\u5386\u53F2\uFF08\u5B58\u50A8\u5728\u672C\u5730\uFF09</li>
-        <li><strong>\u6280\u672F\u4FE1\u606F\uFF1A</strong>Cookies\u3001Web\u4FE1\u6807\u548C\u5176\u4ED6\u8DDF\u8E2A\u6280\u672F</li>
-      </ul>
-
-      <h3>1.2 \u4FE1\u606F\u6536\u96C6\u65B9\u5F0F\uFF1A</h3>
-      <ul>
-        <li>\u81EA\u52A8\u6536\u96C6\uFF1A\u901A\u8FC7\u6D4F\u89C8\u5668\u548C\u670D\u52A1\u5668\u65E5\u5FD7</li>
-        <li>\u672C\u5730\u5B58\u50A8\uFF1A\u901A\u8FC7\u6D4F\u89C8\u5668 localStorage \u5B58\u50A8\u7528\u6237\u504F\u597D\u548C\u5386\u53F2\u8BB0\u5F55</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>2. \u4FE1\u606F\u4F7F\u7528</h2>
-      <p>\u6211\u4EEC\u4F7F\u7528\u6536\u96C6\u7684\u4FE1\u606F\u7528\u4E8E\uFF1A</p>
-      <ul>
-        <li>\u63D0\u4F9B\u3001\u7EF4\u62A4\u548C\u6539\u8FDB\u6211\u4EEC\u7684\u670D\u52A1</li>
-        <li>\u5206\u6790\u7528\u6237\u4F7F\u7528\u60C5\u51B5\uFF0C\u4F18\u5316\u7528\u6237\u4F53\u9A8C</li>
-        <li>\u9632\u6B62\u6B3A\u8BC8\u3001\u6EE5\u7528\u548C\u5B89\u5168\u5A01\u80C1</li>
-        <li>\u7B26\u5408\u6CD5\u5F8B\u8981\u6C42\u548C\u76D1\u7BA1\u4E49\u52A1</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>3. \u4FE1\u606F\u5B58\u50A8</h2>
-      <ul>
-        <li>\u60A8\u7684\u89C2\u770B\u5386\u53F2\u548C\u6536\u85CF\u5B58\u50A8\u5728\u672C\u5730\u6D4F\u89C8\u5668\u7684 localStorage \u4E2D\uFF0C\u4E0D\u4F1A\u4E0A\u4F20\u5230\u6211\u4EEC\u7684\u670D\u52A1\u5668</li>
-        <li>\u670D\u52A1\u5668\u65E5\u5FD7\u53EF\u80FD\u5305\u542BIP\u5730\u5740\u7B49\u4FE1\u606F\uFF0C\u4F46\u4E0D\u4F1A\u4E0E\u4E2A\u4EBA\u8EAB\u4EFD\u5173\u8054</li>
-        <li>\u6570\u636E\u91C7\u7528\u884C\u4E1A\u6807\u51C6\u7684\u5B89\u5168\u63AA\u65BD\u8FDB\u884C\u4FDD\u62A4</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>4. \u4FE1\u606F\u5171\u4EAB</h2>
-      <p>\u6211\u4EEC\u4E0D\u4F1A\u51FA\u552E\u3001\u51FA\u79DF\u6216\u4EA4\u6613\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u3002\u4F46\u5728\u4EE5\u4E0B\u60C5\u51B5\u4E0B\uFF0C\u6211\u4EEC\u53EF\u80FD\u4F1A\u5171\u4EAB\u4FE1\u606F\uFF1A</p>
-      <ul>
-        <li><strong>\u670D\u52A1\u63D0\u4F9B\u5546\uFF1A</strong>\u4E0E\u5E2E\u52A9\u6211\u4EEC\u63D0\u4F9B\u670D\u52A1\u7684\u7B2C\u4E09\u65B9\u5171\u4EAB\u5FC5\u8981\u4FE1\u606F\uFF08\u5982Cloudflare\u7B49\uFF09</li>
-        <li><strong>\u6CD5\u5F8B\u8981\u6C42\uFF1A</strong>\u54CD\u5E94\u6CD5\u5F8B\u8981\u6C42\u3001\u6CD5\u9662\u547D\u4EE4\u6216\u653F\u5E9C\u8C03\u67E5</li>
-        <li><strong>\u4E1A\u52A1\u8F6C\u8BA9\uFF1A</strong>\u5728\u5408\u5E76\u3001\u6536\u8D2D\u6216\u8D44\u4EA7\u8F6C\u8BA9\u7684\u60C5\u51B5\u4E0B</li>
-        <li><strong>\u7B2C\u4E09\u65B9\u5E7F\u544A\uFF1A</strong>\u6211\u4EEC\u53EF\u80FD\u4F7F\u7528\u7B2C\u4E09\u65B9\u5E7F\u544A\u670D\u52A1\uFF08\u5982Google AdSense\uFF09\uFF0C\u8FD9\u4E9B\u670D\u52A1\u53EF\u80FD\u4F1A\u6536\u96C6\u60A8\u7684\u6D4F\u89C8\u4FE1\u606F</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>5. Cookies</h2>
-      <p>\u6211\u4EEC\u4F7F\u7528 Cookies \u548C\u7C7B\u4F3C\u6280\u672F\u6765\uFF1A</p>
-      <ul>
-        <li>\u8BB0\u4F4F\u60A8\u7684\u8BED\u8A00\u504F\u597D\u548C\u8BBE\u7F6E</li>
-        <li>\u5206\u6790\u7F51\u7AD9\u6D41\u91CF\u548C\u4F7F\u7528\u6A21\u5F0F</li>
-        <li>\u63D0\u4F9B\u4E2A\u6027\u5316\u5185\u5BB9</li>
-      </ul>
-      <p>\u60A8\u53EF\u4EE5\u901A\u8FC7\u6D4F\u89C8\u5668\u8BBE\u7F6E\u7981\u7528 Cookies\uFF0C\u4F46\u8FD9\u53EF\u80FD\u4F1A\u5F71\u54CD\u7F51\u7AD9\u7684\u67D0\u4E9B\u529F\u80FD\u3002</p>
-    </div>
-
-    <div class="section">
-      <h2>6. \u7B2C\u4E09\u65B9\u94FE\u63A5</h2>
-      <p>\u6211\u4EEC\u7684\u7F51\u7AD9\u53EF\u80FD\u5305\u542B\u6307\u5411\u7B2C\u4E09\u65B9\u7F51\u7AD9\u7684\u94FE\u63A5\u3002\u6211\u4EEC\u5BF9\u8FD9\u4E9B\u7B2C\u4E09\u65B9\u7F51\u7AD9\u7684\u9690\u79C1\u653F\u7B56\u548C\u505A\u6CD5\u4E0D\u627F\u62C5\u4EFB\u4F55\u8D23\u4EFB\u3002\u6211\u4EEC\u5EFA\u8BAE\u60A8\u67E5\u770B\u8FD9\u4E9B\u7F51\u7AD9\u7684\u9690\u79C1\u653F\u7B56\u3002</p>
-    </div>
-
-    <div class="section">
-      <h2>7. \u6570\u636E\u5B89\u5168</h2>
-      <p>\u6211\u4EEC\u91C7\u53D6\u9002\u5F53\u7684\u6280\u672F\u548C\u7EC4\u7EC7\u63AA\u65BD\u6765\u4FDD\u62A4\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u514D\u53D7\u672A\u7ECF\u6388\u6743\u7684\u8BBF\u95EE\u3001\u4F7F\u7528\u6216\u62AB\u9732\u3002\u7136\u800C\uFF0C\u6CA1\u6709\u4EFB\u4F55\u4E92\u8054\u7F51\u4F20\u8F93\u6216\u5B58\u50A8\u65B9\u6CD5\u662F100%\u5B89\u5168\u7684\u3002</p>
-    </div>
-
-    <div class="section">
-      <h2>8. \u60A8\u7684\u6743\u5229</h2>
-      <p>\u6839\u636E\u9002\u7528\u7684\u6570\u636E\u4FDD\u62A4\u6CD5\u5F8B\uFF0C\u60A8\u53EF\u80FD\u62E5\u6709\u4EE5\u4E0B\u6743\u5229\uFF1A</p>
-      <ul>
-        <li>\u8BBF\u95EE\u548C\u83B7\u53D6\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u526F\u672C</li>
-        <li>\u66F4\u6B63\u4E0D\u51C6\u786E\u7684\u4FE1\u606F</li>
-        <li>\u5220\u9664\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F</li>
-        <li>\u53CD\u5BF9\u6216\u9650\u5236\u67D0\u4E9B\u5904\u7406\u6D3B\u52A8</li>
-        <li>\u6570\u636E\u53EF\u643A\u5E26\u6027</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>9. \u513F\u7AE5\u9690\u79C1</h2>
-      <p>\u6211\u4EEC\u7684\u670D\u52A1\u4E0D\u9488\u5BF913\u5C81\u4EE5\u4E0B\u7684\u513F\u7AE5\u3002\u6211\u4EEC\u4E0D\u4F1A\u6545\u610F\u6536\u96C613\u5C81\u4EE5\u4E0B\u513F\u7AE5\u7684\u4E2A\u4EBA\u4FE1\u606F\u3002\u5982\u679C\u6211\u4EEC\u53D1\u73B0\u6536\u96C6\u4E86\u6B64\u7C7B\u4FE1\u606F\uFF0C\u5C06\u7ACB\u5373\u5220\u9664\u3002</p>
-    </div>
-
-    <div class="section">
-      <h2>10. \u56FD\u9645\u6570\u636E\u4F20\u8F93</h2>
-      <p>\u60A8\u7684\u4FE1\u606F\u53EF\u80FD\u4F1A\u4F20\u8F93\u5230\u60A8\u6240\u5728\u56FD\u5BB6\u6216\u5730\u533A\u4EE5\u5916\u7684\u56FD\u5BB6\u6216\u5730\u533A\uFF0C\u5E76\u5728\u90A3\u91CC\u8FDB\u884C\u5904\u7406\u3002\u8FD9\u4E9B\u56FD\u5BB6/\u5730\u533A\u7684\u6570\u636E\u4FDD\u62A4\u6CD5\u5F8B\u53EF\u80FD\u4E0E\u60A8\u6240\u5728\u53F8\u6CD5\u7BA1\u8F96\u533A\u4E0D\u540C\u3002</p>
-    </div>
-
-    <div class="section">
-      <h2>11. \u653F\u7B56\u53D8\u66F4</h2>
-      <p>\u6211\u4EEC\u53EF\u80FD\u4F1A\u4E0D\u65F6\u66F4\u65B0\u672C\u9690\u79C1\u653F\u7B56\u3002\u66F4\u65B0\u540E\u7684\u653F\u7B56\u5C06\u5728\u672C\u9875\u9762\u4E0A\u53D1\u5E03\uFF0C\u5E76\u66F4\u65B0"\u6700\u540E\u66F4\u65B0\u65E5\u671F"\u3002\u91CD\u5927\u53D8\u66F4\u65F6\uFF0C\u6211\u4EEC\u5C06\u901A\u8FC7\u7F51\u7AD9\u901A\u77E5\u60A8\u3002</p>
-    </div>
-
-    <div class="section">
-      <h2>12. \u8054\u7CFB\u6211\u4EEC</h2>
-      <p>\u5982\u679C\u60A8\u5BF9\u672C\u9690\u79C1\u653F\u7B56\u6709\u4EFB\u4F55\u95EE\u9898\u6216\u7591\u8651\uFF0C\u8BF7\u901A\u8FC7\u4EE5\u4E0B\u65B9\u5F0F\u8054\u7CFB\u6211\u4EEC\uFF1A</p>
-      <ul>
-        <li>\u7535\u5B50\u90AE\u4EF6\uFF1Asupport@iptv-search.com</li>
-        <li>\u7F51\u7AD9\uFF1A<a href="https://iptv-search.com">https://iptv-search.com</a></li>
-      </ul>
-    </div>
-
-    <p style="text-align:center;color:rgba(255,255,255,.5);margin-top:40px;">&copy; 2024 IPTV Live. \u4FDD\u7559\u6240\u6709\u6743\u5229\u3002</p>
   </div>
+  <div class="container">
+    <h1 data-i18n="title">Privacy Policy</h1>
+    <p class="last-updated" data-i18n="lastUpdated">Last Updated: January 1, 2024</p>
+
+    <div class="section">
+      <h2 data-i18n="intro">Introduction</h2>
+      <p data-i18n="introText">IPTV Live ("we") respects and protects your privacy. This Privacy Policy explains how we collect, use, store, and protect your personal information. By using our services, you agree to the terms of this policy.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="infoCollection">1. Information Collection</h2>
+      <h3 data-i18n="infoTypes">1.1 Types of Information We Collect:</h3>
+      <ul>
+        <li data-i18n="browsingInfo"><strong>Browsing Information:</strong> Your IP address, browser type, device information, visit time, and page browsing history</li>
+        <li data-i18n="usageInfo"><strong>Usage Information:</strong> Channels you watch, search records, favorites, and playback history (stored locally)</li>
+        <li data-i18n="techInfo"><strong>Technical Information:</strong> Cookies, web beacons, and other tracking technologies</li>
+      </ul>
+
+      <h3 data-i18n="collectionMethods">1.2 Information Collection Methods:</h3>
+      <ul>
+        <li data-i18n="autoCollection">Automatic collection through browser and server logs</li>
+        <li data-i18n="localStorage">Local storage through browser localStorage for user preferences and history</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="infoUsage">2. Information Usage</h2>
+      <p data-i18n="usageText">We use collected information to:</p>
+      <ul>
+        <li data-i18n="usage1">Provide, maintain, and improve our services</li>
+        <li data-i18n="usage2">Analyze user usage patterns to optimize user experience</li>
+        <li data-i18n="usage3">Prevent fraud, abuse, and security threats</li>
+        <li data-i18n="usage4">Comply with legal requirements and regulatory obligations</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="infoStorage">3. Information Storage</h2>
+      <ul>
+        <li data-i18n="storage1">Your viewing history and favorites are stored locally in your browser's localStorage and are not uploaded to our servers</li>
+        <li data-i18n="storage2">Server logs may contain information such as IP addresses but are not linked to personal identity</li>
+        <li data-i18n="storage3">Data is protected using industry-standard security measures</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="infoSharing">4. Information Sharing</h2>
+      <p data-i18n="sharingText">We do not sell, rent, or trade your personal information. However, we may share information in the following cases:</p>
+      <ul>
+        <li data-i18n="sharing1"><strong>Service Providers:</strong> Sharing necessary information with third parties that help us provide services (such as Cloudflare)</li>
+        <li data-i18n="sharing2"><strong>Legal Requirements:</strong> Responding to legal requests, court orders, or government investigations</li>
+        <li data-i18n="sharing3"><strong>Business Transfer:</strong> In the event of a merger, acquisition, or asset transfer</li>
+        <li data-i18n="sharing4"><strong>Third-Party Advertising:</strong> We may use third-party advertising services (such as Google AdSense) which may collect your browsing information</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="cookies">5. Cookies</h2>
+      <p data-i18n="cookiesText">We use Cookies and similar technologies to:</p>
+      <ul>
+        <li data-i18n="cookies1">Remember your language preferences and settings</li>
+        <li data-i18n="cookies2">Analyze website traffic and usage patterns</li>
+        <li data-i18n="cookies3">Provide personalized content</li>
+      </ul>
+      <p data-i18n="cookiesDisable">You can disable Cookies through your browser settings, but this may affect certain website features.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="thirdParty">6. Third-Party Links</h2>
+      <p data-i18n="thirdPartyText">Our website may contain links to third-party websites. We are not responsible for the privacy policies and practices of these third-party websites. We recommend reviewing the privacy policies of these websites.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="dataSecurity">7. Data Security</h2>
+      <p data-i18n="dataSecurityText">We take appropriate technical and organizational measures to protect your personal information from unauthorized access, use, or disclosure. However, no method of internet transmission or storage is 100% secure.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="yourRights">8. Your Rights</h2>
+      <p data-i18n="yourRightsText">Under applicable data protection laws, you may have the following rights:</p>
+      <ul>
+        <li data-i18n="rights1">Access and obtain a copy of your personal information</li>
+        <li data-i18n="rights2">Correct inaccurate information</li>
+        <li data-i18n="rights3">Delete your personal information</li>
+        <li data-i18n="rights4">Object or restrict certain processing activities</li>
+        <li data-i18n="rights5">Data portability</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="childPrivacy">9. Children's Privacy</h2>
+      <p data-i18n="childPrivacyText">Our services are not directed to children under 13 years of age. We do not knowingly collect personal information from children under 13. If we discover we have collected such information, we will delete it immediately.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="intlTransfer">10. International Data Transfer</h2>
+      <p data-i18n="intlTransferText">Your information may be transferred to and processed in countries or regions outside of your own country or region where data protection laws may differ from those in your jurisdiction.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="policyChanges">11. Policy Changes</h2>
+      <p data-i18n="policyChangesText">We may update this Privacy Policy from time to time. Updated policies will be posted on this page and the "Last Updated" date will be revised. For significant changes, we will notify you through the website.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="contactUs">12. Contact Us</h2>
+      <p data-i18n="contactUsText">If you have any questions or concerns about this Privacy Policy, please contact us at:</p>
+      <ul>
+        <li data-i18n="email">Email: support@iptv-search.com</li>
+        <li data-i18n="website">Website: <a href="https://iptv-search.com">https://iptv-search.com</a></li>
+      </ul>
+    </div>
+
+    <p style="text-align:center;color:rgba(255,255,255,.5);margin-top:40px;" data-i18n="copyright">&copy; 2024 IPTV Live. All rights reserved.</p>
+  </div>
+  <script>
+    const privacyTranslations = {
+      'en': {
+        title: 'Privacy Policy',
+        lastUpdated: 'Last Updated: January 1, 2024',
+        intro: 'Introduction',
+        introText: 'IPTV Live ("we") respects and protects your privacy. This Privacy Policy explains how we collect, use, store, and protect your personal information. By using our services, you agree to terms of this policy.',
+        infoCollection: '1. Information Collection',
+        infoTypes: '1.1 Types of Information We Collect:',
+        browsingInfo: '<strong>Browsing Information:</strong> Your IP address, browser type, device information, visit time, and page browsing history',
+        usageInfo: '<strong>Usage Information:</strong> Channels you watch, search records, favorites, and playback history (stored locally)',
+        techInfo: '<strong>Technical Information:</strong> Cookies, web beacons, and other tracking technologies',
+        collectionMethods: '1.2 Information Collection Methods:',
+        autoCollection: 'Automatic collection through browser and server logs',
+        localStorage: 'Local storage through browser localStorage for user preferences and history',
+        infoUsage: '2. Information Usage',
+        usageText: 'We use collected information to:',
+        usage1: 'Provide, maintain, and improve our services',
+        usage2: 'Analyze user usage patterns to optimize user experience',
+        usage3: 'Prevent fraud, abuse, and security threats',
+        usage4: 'Comply with legal requirements and regulatory obligations',
+        infoStorage: '3. Information Storage',
+        storage1: 'Your viewing history and favorites are stored locally in your browser\\'s localStorage and are not uploaded to our servers',
+        storage2: 'Server logs may contain information such as IP addresses but are not linked to personal identity',
+        storage3: 'Data is protected using industry-standard security measures',
+        infoSharing: '4. Information Sharing',
+        sharingText: 'We do not sell, rent, or trade your personal information. However, we may share information in following cases:',
+        sharing1: '<strong>Service Providers:</strong> Sharing necessary information with third parties that help us provide services (such as Cloudflare)',
+        sharing2: '<strong>Legal Requirements:</strong> Responding to legal requests, court orders, or government investigations',
+        sharing3: '<strong>Business Transfer:</strong> In event of a merger, acquisition, or asset transfer',
+        sharing4: '<strong>Third-Party Advertising:</strong> We may use third-party advertising services (such as Google AdSense) which may collect your browsing information',
+        cookies: '5. Cookies',
+        cookiesText: 'We use Cookies and similar technologies to:',
+        cookies1: 'Remember your language preferences and settings',
+        cookies2: 'Analyze website traffic and usage patterns',
+        cookies3: 'Provide personalized content',
+        cookiesDisable: 'You can disable Cookies through your browser settings, but this may affect certain website features.',
+        thirdParty: '6. Third-Party Links',
+        thirdPartyText: 'Our website may contain links to third-party websites. We are not responsible for privacy policies and practices of these third-party websites. We recommend reviewing of privacy policies of these websites.',
+        dataSecurity: '7. Data Security',
+        dataSecurityText: 'We take appropriate technical and organizational measures to protect your personal information from unauthorized access, use, or disclosure. However, no method of internet transmission or storage is 100% secure.',
+        yourRights: '8. Your Rights',
+        yourRightsText: 'Under applicable data protection laws, you may have following rights:',
+        rights1: 'Access and obtain a copy of your personal information',
+        rights2: 'Correct inaccurate information',
+        rights3: 'Delete your personal information',
+        rights4: 'Object or restrict certain processing activities',
+        rights5: 'Data portability',
+        childPrivacy: '9. Children\\'s Privacy',
+        childPrivacyText: 'Our services are not directed to children under 13 years of age. We do not knowingly collect personal information from children under 13. If we discover we have collected such information, we will delete it immediately.',
+        intlTransfer: '10. International Data Transfer',
+        intlTransferText: 'Your information may be transferred to and processed in countries or regions outside of your own country or region where data protection laws may differ from those in your jurisdiction.',
+        policyChanges: '11. Policy Changes',
+        policyChangesText: 'We may update this Privacy Policy from time to time. Updated policies will be posted on this page and "Last Updated" date will be revised. For significant changes, we will notify you through website.',
+        contactUs: '12. Contact Us',
+        contactUsText: 'If you have any questions or concerns about this Privacy Policy, please contact us at:',
+        email: 'Email: support@iptv-search.com',
+        website: 'Website: <a href="https://iptv-search.com">https://iptv-search.com</a>',
+        copyright: '&copy; 2024 IPTV Live. All rights reserved.'
+      },
+      'zh-CN': {
+        title: '\u9690\u79C1\u653F\u7B56',
+        lastUpdated: '\u6700\u540E\u66F4\u65B0\u65E5\u671F\uFF1A2024\u5E741\u67081\u65E5',
+        intro: '\u5F15\u8A00',
+        introText: 'IPTV Live\uFF08\u4EE5\u4E0B\u7B80\u79F0"\u6211\u4EEC"\uFF09\u5C0A\u91CD\u5E76\u4FDD\u62A4\u60A8\u7684\u9690\u79C1\u6743\u3002\u672C\u9690\u79C1\u653F\u7B56\u65E8\u5728\u8BF4\u660E\u6211\u4EEC\u5982\u4F55\u6536\u96C6\u3001\u4F7F\u7528\u3001\u5B58\u50A8\u548C\u4FDD\u62A4\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u3002\u4F7F\u7528\u6211\u4EEC\u7684\u670D\u52A1\u5373\u8868\u793A\u60A8\u540C\u610F\u672C\u653F\u7B56\u7684\u6761\u6B3E\u3002',
+        infoCollection: '1. \u4FE1\u606F\u6536\u96C6',
+        infoTypes: '1.1 \u6211\u4EEC\u6536\u96C6\u7684\u4FE1\u606F\u7C7B\u578B\uFF1A',
+        browsingInfo: '<strong>\u6D4F\u89C8\u4FE1\u606F\uFF1A</strong>\u60A8\u7684IP\u5730\u5740\u3001\u6D4F\u89C8\u5668\u7C7B\u578B\u3001\u8BBE\u5907\u4FE1\u606F\u3001\u8BBF\u95EE\u65F6\u95F4\u548C\u9875\u9762\u6D4F\u89C8\u8BB0\u5F55',
+        usageInfo: '<strong>\u4F7F\u7528\u4FE1\u606F\uFF1A</strong>\u60A8\u89C2\u770B\u7684\u9891\u9053\u3001\u641C\u7D22\u8BB0\u5F55\u3001\u6536\u85CF\u548C\u64AD\u653E\u5386\u53F2\uFF08\u5B58\u50A8\u5728\u672C\u5730\uFF09',
+        techInfo: '<strong>\u6280\u672F\u4FE1\u606F\uFF1A</strong>Cookies\u3001Web\u4FE1\u6807\u548C\u5176\u4ED6\u8DDF\u8E2A\u6280\u672F',
+        collectionMethods: '1.2 \u4FE1\u606F\u6536\u96C6\u65B9\u5F0F\uFF1A',
+        autoCollection: '\u81EA\u52A8\u6536\u96C6\uFF1A\u901A\u8FC7\u6D4F\u89C8\u5668\u548C\u670D\u52A1\u5668\u65E5\u5FD7',
+        localStorage: '\u672C\u5730\u5B58\u50A8\uFF1A\u901A\u8FC7\u6D4F\u89C8\u5668 localStorage \u5B58\u50A8\u7528\u6237\u504F\u597D\u548C\u5386\u53F2\u8BB0\u5F55',
+        infoUsage: '2. \u4FE1\u606F\u4F7F\u7528',
+        usageText: '\u6211\u4EEC\u4F7F\u7528\u6536\u96C6\u7684\u4FE1\u606F\u7528\u4E8E\uFF1A',
+        usage1: '\u63D0\u4F9B\u3001\u7EF4\u62A4\u548C\u6539\u8FDB\u6211\u4EEC\u7684\u670D\u52A1',
+        usage2: '\u5206\u6790\u7528\u6237\u4F7F\u7528\u60C5\u51B5\uFF0C\u4F18\u5316\u7528\u6237\u4F53\u9A8C',
+        usage3: '\u9632\u6B62\u6B3A\u8BC8\u3001\u6EE5\u7528\u548C\u5B89\u5168\u5A01\u80C1',
+        usage4: '\u7B26\u5408\u6CD5\u5F8B\u8981\u6C42\u548C\u76D1\u7BA1\u4E49\u52A1',
+        infoStorage: '3. \u4FE1\u606F\u5B58\u50A8',
+        storage1: '\u60A8\u7684\u89C2\u770B\u5386\u53F2\u548C\u6536\u85CF\u5B58\u50A8\u5728\u672C\u5730\u6D4F\u89C8\u5668\u7684 localStorage \u4E2D\uFF0C\u4E0D\u4F1A\u4E0A\u4F20\u5230\u6211\u4EEC\u7684\u670D\u52A1\u5668',
+        storage2: '\u670D\u52A1\u5668\u65E5\u5FD7\u53EF\u80FD\u5305\u542BIP\u5730\u5740\u7B49\u4FE1\u606F\uFF0C\u4F46\u4E0D\u4F1A\u4E0E\u4E2A\u4EBA\u8EAB\u4EFD\u5173\u8054',
+        storage3: '\u6570\u636E\u91C7\u7528\u884C\u4E1A\u6807\u51C6\u7684\u5B89\u5168\u63AA\u65BD\u8FDB\u884C\u4FDD\u62A4',
+        infoSharing: '4. \u4FE1\u606F\u5171\u4EAB',
+        sharingText: '\u6211\u4EEC\u4E0D\u4F1A\u51FA\u552E\u3001\u51FA\u79DF\u6216\u4EA4\u6613\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u3002\u4F46\u5728\u4EE5\u4E0B\u60C5\u51B5\u4E0B\uFF0C\u6211\u4EEC\u53EF\u80FD\u4F1A\u5171\u4EAB\u4FE1\u606F\uFF1A',
+        sharing1: '<strong>\u670D\u52A1\u63D0\u4F9B\u5546\uFF1A</strong>\u4E0E\u5E2E\u52A9\u6211\u4EEC\u63D0\u4F9B\u670D\u52A1\u7684\u7B2C\u4E09\u65B9\u5171\u4EAB\u5FC5\u8981\u4FE1\u606F\uFF08\u5982Cloudflare\u7B49\uFF09',
+        sharing2: '<strong>\u6CD5\u5F8B\u8981\u6C42\uFF1A</strong>\u54CD\u5E94\u6CD5\u5F8B\u8981\u6C42\u3001\u6CD5\u9662\u547D\u4EE4\u6216\u653F\u5E9C\u8C03\u67E5',
+        sharing3: '<strong>\u4E1A\u52A1\u8F6C\u8BA9\uFF1A</strong>\u5728\u5408\u5E76\u3001\u6536\u8D2D\u6216\u8D44\u4EA7\u8F6C\u8BA9\u7684\u60C5\u51B5\u4E0B',
+        sharing4: '<strong>\u7B2C\u4E09\u65B9\u5E7F\u544A\uFF1A</strong>\u6211\u4EEC\u53EF\u80FD\u4F7F\u7528\u7B2C\u4E09\u65B9\u5E7F\u544A\u670D\u52A1\uFF08\u5982Google AdSense\uFF09\uFF0C\u8FD9\u4E9B\u670D\u52A1\u53EF\u80FD\u4F1A\u6536\u96C6\u60A8\u7684\u6D4F\u89C8\u4FE1\u606F',
+        cookies: '5. Cookies',
+        cookiesText: '\u6211\u4EEC\u4F7F\u7528 Cookies \u548C\u7C7B\u4F3C\u6280\u672F\u6765\uFF1A',
+        cookies1: '\u8BB0\u4F4F\u60A8\u7684\u8BED\u8A00\u504F\u597D\u548C\u8BBE\u7F6E',
+        cookies2: '\u5206\u6790\u7F51\u7AD9\u6D41\u91CF\u548C\u4F7F\u7528\u6A21\u5F0F',
+        cookies3: '\u63D0\u4F9B\u4E2A\u6027\u5316\u5185\u5BB9',
+        cookiesDisable: '\u60A8\u53EF\u4EE5\u901A\u8FC7\u6D4F\u89C8\u5668\u8BBE\u7F6E\u7981\u7528 Cookies\uFF0C\u4F46\u8FD9\u53EF\u80FD\u4F1A\u5F71\u54CD\u7F51\u7AD9\u7684\u67D0\u4E9B\u529F\u80FD\u3002',
+        thirdParty: '6. \u7B2C\u4E09\u65B9\u94FE\u63A5',
+        thirdPartyText: '\u6211\u4EEC\u7684\u7F51\u7AD9\u53EF\u80FD\u5305\u542B\u6307\u5411\u7B2C\u4E09\u65B9\u7F51\u7AD9\u7684\u94FE\u63A5\u3002\u6211\u4EEC\u5BF9\u8FD9\u4E9B\u7B2C\u4E09\u65B9\u7F51\u7AD9\u7684\u9690\u79C1\u653F\u7B56\u548C\u505A\u6CD5\u4E0D\u627F\u62C5\u4EFB\u4F55\u8D23\u4EFB\u3002\u6211\u4EEC\u5EFA\u8BAE\u60A8\u67E5\u770B\u8FD9\u4E9B\u7F51\u7AD9\u7684\u9690\u79C1\u653F\u7B56\u3002',
+        dataSecurity: '7. \u6570\u636E\u5B89\u5168',
+        dataSecurityText: '\u6211\u4EEC\u91C7\u53D6\u9002\u5F53\u7684\u6280\u672F\u548C\u7EC4\u7EC7\u63AA\u65BD\u6765\u4FDD\u62A4\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u514D\u53D7\u672A\u7ECF\u6388\u6743\u7684\u8BBF\u95EE\u3001\u4F7F\u7528\u6216\u62AB\u9732\u3002\u7136\u800C\uFF0C\u6CA1\u6709\u4EFB\u4F55\u4E92\u8054\u7F51\u4F20\u8F93\u6216\u5B58\u50A8\u65B9\u6CD5\u662F100%\u5B89\u5168\u7684\u3002',
+        yourRights: '8. \u60A8\u7684\u6743\u5229',
+        yourRightsText: '\u6839\u636E\u9002\u7528\u7684\u6570\u636E\u4FDD\u62A4\u6CD5\u5F8B\uFF0C\u60A8\u53EF\u80FD\u62E5\u6709\u4EE5\u4E0B\u6743\u5229\uFF1A',
+        rights1: '\u8BBF\u95EE\u548C\u83B7\u53D6\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u526F\u672C',
+        rights2: '\u66F4\u6B63\u4E0D\u51C6\u786E\u7684\u4FE1\u606F',
+        rights3: '\u5220\u9664\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F',
+        rights4: '\u53CD\u5BF9\u6216\u9650\u5236\u67D0\u4E9B\u5904\u7406\u6D3B\u52A8',
+        rights5: '\u6570\u636E\u53EF\u643A\u5E26\u6027',
+        childPrivacy: '9. \u513F\u7AE5\u9690\u79C1',
+        childPrivacyText: '\u6211\u4EEC\u7684\u670D\u52A1\u4E0D\u9488\u5BF913\u5C81\u4EE5\u4E0B\u7684\u513F\u7AE5\u3002\u6211\u4EEC\u4E0D\u4F1A\u6545\u610F\u6536\u96C613\u5C81\u4EE5\u4E0B\u513F\u7AE5\u7684\u4E2A\u4EBA\u4FE1\u606F\u3002\u5982\u679C\u6211\u4EEC\u53D1\u73B0\u6536\u96C6\u4E86\u6B64\u7C7B\u4FE1\u606F\uFF0C\u5C06\u7ACB\u5373\u5220\u9664\u3002',
+        intlTransfer: '10. \u56FD\u9645\u6570\u636E\u4F20\u8F93',
+        intlTransferText: '\u60A8\u7684\u4FE1\u606F\u53EF\u80FD\u4F1A\u4F20\u8F93\u5230\u60A8\u6240\u5728\u56FD\u5BB6\u6216\u5730\u533A\u4EE5\u5916\u7684\u56FD\u5BB6\u6216\u5730\u533A\uFF0C\u5E76\u5728\u90A3\u91CC\u8FDB\u884C\u5904\u7406\u3002\u8FD9\u4E9B\u56FD\u5BB6/\u5730\u533A\u7684\u6570\u636E\u4FDD\u62A4\u6CD5\u5F8B\u53EF\u80FD\u4E0E\u60A8\u6240\u5728\u53F8\u6CD5\u7BA1\u8F96\u533A\u4E0D\u540C\u3002',
+        policyChanges: '11. \u653F\u7B56\u53D8\u66F4',
+        policyChangesText: '\u6211\u4EEC\u53EF\u80FD\u4F1A\u4E0D\u65F6\u66F4\u65B0\u672C\u9690\u79C1\u653F\u7B56\u3002\u66F4\u65B0\u540E\u7684\u653F\u7B56\u5C06\u5728\u672C\u9875\u9762\u4E0A\u53D1\u5E03\uFF0C\u5E76\u66F4\u65B0"\u6700\u540E\u66F4\u65B0\u65E5\u671F"\u3002\u91CD\u5927\u53D8\u66F4\u65F6\uFF0C\u6211\u4EEC\u5C06\u901A\u8FC7\u7F51\u7AD9\u901A\u77E5\u60A8\u3002',
+        contactUs: '12. \u8054\u7CFB\u6211\u4EEC',
+        contactUsText: '\u5982\u679C\u60A8\u5BF9\u672C\u9690\u79C1\u653F\u7B56\u6709\u4EFB\u4F55\u95EE\u9898\u6216\u7591\u8651\uFF0C\u8BF7\u901A\u8FC7\u4EE5\u4E0B\u65B9\u5F0F\u8054\u7CFB\u6211\u4EEC\uFF1A',
+        email: '\u7535\u5B50\u90AE\u4EF6\uFF1Asupport@iptv-search.com',
+        website: '\u7F51\u7AD9\uFF1A<a href="https://iptv-search.com">https://iptv-search.com</a>',
+        copyright: '&copy; 2024 IPTV Live. \u4FDD\u7559\u6240\u6709\u6743\u5229\u3002'
+      }
+    };
+
+    let currentLang = localStorage.getItem('privacy_lang') || 'en';
+
+    function toggleLangMenu() {
+      const menu = document.getElementById('langMenu');
+      menu.classList.toggle('show');
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('privacy_lang', lang);
+
+      // Update button states
+      document.getElementById('langEn').classList.toggle('active', lang === 'en');
+      document.getElementById('langZh').classList.toggle('active', lang === 'zh-CN');
+
+      // Update current language button
+      const langNames = { 'en': 'English', 'zh-CN': '\u7B80\u4F53' };
+      document.getElementById('currentLangBtn').textContent = langNames[lang] || 'English';
+
+      // Close menu
+      document.getElementById('langMenu').classList.remove('show');
+
+      // Update HTML lang attribute
+      document.documentElement.lang = lang;
+
+      // Update document title
+      document.title = privacyTranslations[lang].title + ' - IPTV Live';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (privacyTranslations[lang] && privacyTranslations[lang][key]) {
+          el.innerHTML = privacyTranslations[lang][key];
+        }
+      });
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      setLanguage(currentLang);
+
+      // Close language menu when clicking outside
+      document.addEventListener('click', function(e) {
+        const dropdown = document.querySelector('.lang-dropdown');
+        if (!dropdown.contains(e.target)) {
+          document.getElementById('langMenu').classList.remove('show');
+        }
+      });
+    });
+  <\/script>
 </body>
 </html>`;
 }
 __name(generatePrivacyPolicy, "generatePrivacyPolicy");
 function generateTermsOfService() {
   return `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>\u670D\u52A1\u6761\u6B3E - IPTV Live</title>
+  <title>Terms of Service - IPTV Live</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff;line-height:1.6;padding:20px}
@@ -10312,176 +10739,413 @@ function generateTermsOfService() {
     a{color:#e50914;text-decoration:none}
     a:hover{text-decoration:underline}
     .warning{background:rgba(231,9,20,.1);border-left:4px solid #e50914;padding:15px;margin:15px 0}
+    .lang-switch{position:fixed;top:20px;right:20px;z-index:1000}
+    .lang-dropdown{position:relative;display:inline-block}
+    .lang-btn{background:#e50914;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:background .2s;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent}
+    .lang-btn:hover{background:#f7262c}
+    .lang-btn:after{content:"\u25BC";font-size:10px}
+    .lang-menu{display:none;position:absolute;top:calc(100%+8px);right:0;background:#141414;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.5);min-width:140px;overflow:hidden;animation:fadeIn .2s ease}
+    .lang-menu.show{display:block}
+    .lang-menu button{display:block;width:100%;padding:12px 16px;background:none;border:none;text-align:left;font-size:14px;color:rgba(255,255,255,.9);cursor:pointer;transition:background .2s}
+    .lang-menu button:hover{background:rgba(255,255,255,.1)}
+    .lang-menu button.active{background:#e50914;color:white}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
     @media (max-width:768px){
       body{padding:15px}
       h1{font-size:24px}
       h2{font-size:20px}
       .section{padding:20px}
+      .lang-switch{top:10px;right:10px}
+      .lang-btn{padding:8px 16px;font-size:13px}
+      .lang-menu button{padding:10px 14px;font-size:13px}
     }
   </style>
 </head>
 <body>
+  <div class="lang-switch">
+    <div class="lang-dropdown">
+      <button class="lang-btn" onclick="toggleLangMenu()" id="currentLangBtn">English</button>
+      <div class="lang-menu" id="langMenu">
+        <button onclick="setLanguage('en')" id="langEn">English</button>
+        <button onclick="setLanguage('zh-CN')" id="langZh">\u7B80\u4F53\u4E2D\u6587</button>
+      </div>
+    </div>
+  </div>
   <div class="container">
-    <h1>\u670D\u52A1\u6761\u6B3E</h1>
-    <p class="last-updated">\u6700\u540E\u66F4\u65B0\u65E5\u671F\uFF1A2024\u5E741\u67081\u65E5</p>
+    <h1 data-i18n="title">Terms of Service</h1>
+    <p class="last-updated" data-i18n="lastUpdated">Last Updated: January 1, 2024</p>
 
     <div class="section">
-      <h2>\u6B22\u8FCE\u4F7F\u7528 IPTV Live</h2>
-      <p>\u611F\u8C22\u60A8\u4F7F\u7528 IPTV Live \u670D\u52A1\uFF08\u4EE5\u4E0B\u7B80\u79F0"\u672C\u670D\u52A1"\uFF09\u3002\u901A\u8FC7\u4F7F\u7528\u672C\u670D\u52A1\uFF0C\u60A8\u540C\u610F\u9075\u5B88\u4EE5\u4E0B\u670D\u52A1\u6761\u6B3E\u3002\u5982\u679C\u60A8\u4E0D\u540C\u610F\u8FD9\u4E9B\u6761\u6B3E\uFF0C\u8BF7\u4E0D\u8981\u4F7F\u7528\u672C\u670D\u52A1\u3002</p>
+      <h2 data-i18n="welcome">Welcome to IPTV Live</h2>
+      <p data-i18n="welcomeText">Thank you for using IPTV Live services ("the Service"). By using the Service, you agree to comply with these Terms of Service. If you do not agree to these terms, please do not use the Service.</p>
     </div>
 
     <div class="section">
-      <h2>1. \u670D\u52A1\u8BF4\u660E</h2>
-      <h3>1.1 \u670D\u52A1\u5185\u5BB9\uFF1A</h3>
+      <h2 data-i18n="serviceDesc">1. Service Description</h2>
+      <h3 data-i18n="serviceContent">1.1 Service Content:</h3>
       <ul>
-        <li>IPTV Live \u63D0\u4F9B\u514D\u8D39\u7684\u5728\u7EBF\u7535\u89C6\u89C2\u770B\u670D\u52A1</li>
-        <li>\u670D\u52A1\u5305\u62EC\u9891\u9053\u5217\u8868\u3001\u641C\u7D22\u3001\u6536\u85CF\u3001\u64AD\u653E\u5386\u53F2\u7B49\u529F\u80FD</li>
-        <li>\u7528\u6237\u53EF\u4EE5\u901A\u8FC7\u7F51\u9875\u6D4F\u89C8\u5668\u8BBF\u95EE\u672C\u670D\u52A1</li>
+        <li data-i18n="content1">IPTV Live provides free online TV viewing services</li>
+        <li data-i18n="content2">Services include channel lists, search, favorites, and playback history</li>
+        <li data-i18n="content3">Users can access the service through web browsers</li>
       </ul>
 
-      <h3>1.2 \u670D\u52A1\u6027\u8D28\uFF1A</h3>
+      <h3 data-i18n="serviceNature">1.2 Service Nature:</h3>
       <ul>
-        <li>\u672C\u670D\u52A1\u4E3A\u514D\u8D39\u670D\u52A1\uFF0C\u4E0D\u6536\u53D6\u4EFB\u4F55\u8D39\u7528</li>
-        <li>\u6211\u4EEC\u4FDD\u7559\u968F\u65F6\u4FEE\u6539\u3001\u6682\u505C\u6216\u7EC8\u6B62\u670D\u52A1\u7684\u6743\u5229</li>
-        <li>\u670D\u52A1\u7684\u53EF\u7528\u6027\u53EF\u80FD\u53D7\u5230\u7F51\u7EDC\u72B6\u51B5\u548C\u6280\u672F\u9650\u5236\u7684\u5F71\u54CD</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>2. \u7528\u6237\u8D23\u4EFB</h2>
-      <h3>2.1 \u4F7F\u7528\u8981\u6C42\uFF1A</h3>
-      <ul>
-        <li>\u60A8\u5FC5\u987B\u5E74\u6EE113\u5C81\u624D\u80FD\u4F7F\u7528\u672C\u670D\u52A1</li>
-        <li>\u60A8\u6709\u8D23\u4EFB\u786E\u4FDD\u60A8\u7684\u8D26\u6237\u5B89\u5168</li>
-        <li>\u60A8\u4E0D\u5F97\u5171\u4EAB\u60A8\u7684\u8D26\u6237\u4FE1\u606F\u6216\u51ED\u636E</li>
-      </ul>
-
-      <h3>2.2 \u7981\u6B62\u884C\u4E3A\uFF1A</h3>
-      <ul>
-        <li>\u4E0D\u5F97\u5C06\u672C\u670D\u52A1\u7528\u4E8E\u4EFB\u4F55\u975E\u6CD5\u76EE\u7684</li>
-        <li>\u4E0D\u5F97\u5E72\u6270\u6216\u7834\u574F\u672C\u670D\u52A1\u7684\u6B63\u5E38\u8FD0\u884C</li>
-        <li>\u4E0D\u5F97\u4E0A\u4F20\u75C5\u6BD2\u3001\u6076\u610F\u4EE3\u7801\u6216\u5176\u4ED6\u6709\u5BB3\u8F6F\u4EF6</li>
-        <li>\u4E0D\u5F97\u5C1D\u8BD5\u672A\u7ECF\u6388\u6743\u8BBF\u95EE\u6211\u4EEC\u7684\u7CFB\u7EDF\u6216\u6570\u636E</li>
-        <li>\u4E0D\u5F97\u4FB5\u72AF\u4ED6\u4EBA\u7684\u77E5\u8BC6\u4EA7\u6743\u6216\u9690\u79C1\u6743</li>
-        <li>\u4E0D\u5F97\u4F7F\u7528\u81EA\u52A8\u5316\u5DE5\u5177\uFF08\u5982\u673A\u5668\u4EBA\u3001\u722C\u866B\uFF09\u8BBF\u95EE\u672C\u670D\u52A1</li>
+        <li data-i18n="nature1">The Service is a free service and no fees are charged</li>
+        <li data-i18n="nature2">We reserve the right to modify, suspend, or terminate the service at any time</li>
+        <li data-i18n="nature3">Service availability may be affected by network conditions and technical limitations</li>
       </ul>
     </div>
 
     <div class="section">
-      <h2>3. \u5185\u5BB9\u7248\u6743</h2>
-      <div class="warning">
-        <strong>\u91CD\u8981\u58F0\u660E\uFF1A</strong>
-        <p>IPTV Live \u4EC5\u4F5C\u4E3A\u5185\u5BB9\u805A\u5408\u5E73\u53F0\uFF0C\u63D0\u4F9B\u9891\u9053\u94FE\u63A5\u670D\u52A1\u3002\u672C\u5E73\u53F0\u4E0D\u62E5\u6709\u3001\u4E0D\u5236\u4F5C\u3001\u4E0D\u5B58\u50A8\u4EFB\u4F55\u89C6\u9891\u5185\u5BB9\u3002\u6240\u6709\u9891\u9053\u7684\u7248\u6743\u5C5E\u4E8E\u5176\u5404\u81EA\u7684\u6240\u6709\u8005\u3002</p>
+      <h2 data-i18n="userResp">2. User Responsibilities</h2>
+      <h3 data-i18n="userReq">2.1 Usage Requirements:</h3>
+      <ul>
+        <li data-i18n="req1">You must be at least 13 years old to use the Service</li>
+        <li data-i18n="req2">You are responsible for ensuring your account security</li>
+        <li data-i18n="req3">You must not share your account information or credentials</li>
+      </ul>
+
+      <h3 data-i18n="prohibited">2.2 Prohibited Activities:</h3>
+      <ul>
+        <li data-i18n="proh1">Do not use the Service for any illegal purpose</li>
+        <li data-i18n="proh2">Do not interfere with or disrupt the normal operation of the Service</li>
+        <li data-i18n="proh3">Do not upload viruses, malicious code, or other harmful software</li>
+        <li data-i18n="proh4">Do not attempt unauthorized access to our systems or data</li>
+        <li data-i18n="proh5">Do not infringe on others' intellectual property or privacy rights</li>
+        <li data-i18n="proh6">Do not use automated tools (such as bots, crawlers) to access the Service</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="copyright">3. Content Copyright</h2>
+      <div class="warning" data-i18n="disclaimer">
+        <strong>Important Notice:</strong>
+        <p>IPTV Live serves only as a content aggregation platform providing channel link services. This platform does not own, produce, or store any video content. All channel copyrights belong to their respective owners.</p>
       </div>
 
-      <h3>3.1 \u77E5\u8BC6\u4EA7\u6743\uFF1A</h3>
+      <h3 data-i18n="ip">3.1 Intellectual Property:</h3>
       <ul>
-        <li>\u672C\u7F51\u7AD9\u7684\u754C\u9762\u3001\u8BBE\u8BA1\u3001\u6587\u672C\u3001\u56FE\u5F62\u7B49\u53D7\u7248\u6743\u4FDD\u62A4</li>
-        <li>\u672A\u7ECF\u8BB8\u53EF\uFF0C\u4E0D\u5F97\u590D\u5236\u3001\u4FEE\u6539\u3001\u5206\u53D1\u672C\u7F51\u7AD9\u7684\u5185\u5BB9</li>
-        <li>\u9891\u9053\u5185\u5BB9\u7684\u77E5\u8BC6\u4EA7\u6743\u5C5E\u4E8E\u5176\u539F\u59CB\u6240\u6709\u8005</li>
+        <li data-i18n="ip1">The website interface, design, text, graphics, etc. are protected by copyright</li>
+        <li data-i18n="ip2">Without permission, do not copy, modify, or distribute the website content</li>
+        <li data-i18n="ip3">The intellectual property of channel content belongs to its original owners</li>
       </ul>
 
-      <h3>3.2 \u7528\u6237\u5185\u5BB9\uFF1A</h3>
+      <h3 data-i18n="userContent">3.2 User Content:</h3>
       <ul>
-        <li>\u60A8\u5BF9\u63D0\u4EA4\u7684\u5185\u5BB9\u4FDD\u7559\u6240\u6709\u6743</li>
-        <li>\u901A\u8FC7\u4F7F\u7528\u672C\u670D\u52A1\uFF0C\u60A8\u6388\u4E88\u6211\u4EEC\u5C55\u793A\u548C\u4F7F\u7528\u76F8\u5173\u5185\u5BB9\u7684\u6743\u5229</li>
-        <li>\u60A8\u4FDD\u8BC1\u62E5\u6709\u6240\u6709\u5FC5\u8981\u6743\u5229\u6765\u63D0\u4EA4\u8FD9\u4E9B\u5185\u5BB9</li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>4. \u514D\u8D23\u58F0\u660E</h2>
-      <h3>4.1 \u670D\u52A1\u6309"\u73B0\u72B6"\u63D0\u4F9B\uFF1A</h3>
-      <ul>
-        <li>\u672C\u670D\u52A1\u6309"\u73B0\u72B6"\u548C"\u53EF\u7528"\u57FA\u7840\u63D0\u4F9B</li>
-        <li>\u6211\u4EEC\u4E0D\u5BF9\u670D\u52A1\u7684\u51C6\u786E\u6027\u3001\u53EF\u9760\u6027\u6216\u5B8C\u6574\u6027\u505A\u51FA\u4EFB\u4F55\u4FDD\u8BC1</li>
-        <li>\u6211\u4EEC\u4E0D\u4FDD\u8BC1\u670D\u52A1\u4E0D\u4F1A\u4E2D\u65AD\u6216\u65E0\u9519\u8BEF</li>
-      </ul>
-
-      <h3>4.2 \u95F4\u63A5\u635F\u5931\uFF1A</h3>
-      <p>\u5728\u4EFB\u4F55\u60C5\u51B5\u4E0B\uFF0C\u6211\u4EEC\u90FD\u4E0D\u5BF9\u4EFB\u4F55\u95F4\u63A5\u3001\u5076\u7136\u3001\u7279\u6B8A\u6216\u540E\u679C\u6027\u635F\u5BB3\u627F\u62C5\u8D23\u4EFB\uFF0C\u5305\u62EC\u4F46\u4E0D\u9650\u4E8E\u5229\u6DA6\u635F\u5931\u3001\u6570\u636E\u4E22\u5931\u6216\u4E1A\u52A1\u4E2D\u65AD\u3002</p>
-
-      <h3>4.3 \u7B2C\u4E09\u65B9\u5185\u5BB9\uFF1A</h3>
-      <ul>
-        <li>\u6211\u4EEC\u4E0D\u5BF9\u7B2C\u4E09\u65B9\u63D0\u4F9B\u7684\u5185\u5BB9\u6216\u670D\u52A1\u627F\u62C5\u8D23\u4EFB</li>
-        <li>\u9891\u9053\u5185\u5BB9\u7684\u8D28\u91CF\u3001\u53EF\u7528\u6027\u548C\u51C6\u786E\u6027\u7531\u5185\u5BB9\u63D0\u4F9B\u8005\u8D1F\u8D23</li>
-        <li>\u6211\u4EEC\u4E0D\u5BF9\u9891\u9053\u7684\u7248\u6743\u95EE\u9898\u8D1F\u8D23</li>
+        <li data-i18n="uc1">You retain ownership of submitted content</li>
+        <li data-i18n="uc2">By using the Service, you grant us the right to display and use related content</li>
+        <li data-i18n="uc3">You guarantee you have all necessary rights to submit such content</li>
       </ul>
     </div>
 
     <div class="section">
-      <h2>5. \u670D\u52A1\u4E2D\u65AD</h2>
+      <h2 data-i18n="liability">4. Disclaimer</h2>
+      <h3 data-i18n="asIs">4.1 Service Provided "As Is":</h3>
       <ul>
-        <li>\u6211\u4EEC\u4FDD\u7559\u968F\u65F6\u4FEE\u6539\u3001\u6682\u505C\u6216\u7EC8\u6B62\u5168\u90E8\u6216\u90E8\u5206\u670D\u52A1\u7684\u6743\u5229</li>
-        <li>\u670D\u52A1\u4E2D\u65AD\u53EF\u80FD\u53D1\u751F\u5728\u7CFB\u7EDF\u7EF4\u62A4\u3001\u5347\u7EA7\u6216\u4E0D\u53EF\u6297\u529B\u60C5\u51B5\u4E0B</li>
-        <li>\u6211\u4EEC\u4E0D\u5BF9\u670D\u52A1\u4E2D\u65AD\u9020\u6210\u7684\u635F\u5931\u627F\u62C5\u8D23\u4EFB</li>
+        <li data-i18n="asIs1">The Service is provided on an "as is" and "available" basis</li>
+        <li data-i18n="asIs2">We make no warranties regarding the accuracy, reliability, or completeness of the Service</li>
+        <li data-i18n="asIs3">We do not guarantee that the Service will be uninterrupted or error-free</li>
+      </ul>
+
+      <h3 data-i18n="indirect">4.2 Indirect Damages:</h3>
+      <p data-i18n="indirectText">In no event shall we be liable for any indirect, incidental, special, or consequential damages, including but not limited to lost profits, data loss, or business interruption.</p>
+
+      <h3 data-i18n="thirdParty">4.3 Third-Party Content:</h3>
+      <ul>
+        <li data-i18n="tp1">We are not responsible for content or services provided by third parties</li>
+        <li data-i18n="tp2">The quality, availability, and accuracy of channel content are the responsibility of content providers</li>
+        <li data-i18n="tp3">We are not responsible for copyright issues related to channels</li>
       </ul>
     </div>
 
     <div class="section">
-      <h2>6. \u8D26\u6237\u4E0E\u5B89\u5168</h2>
+      <h2 data-i18n="interruption">5. Service Interruption</h2>
       <ul>
-        <li>\u60A8\u5BF9\u4F7F\u7528\u60A8\u8D26\u6237\u7684\u6240\u6709\u6D3B\u52A8\u8D1F\u8D23</li>
-        <li>\u5982\u53D1\u73B0\u4EFB\u4F55\u672A\u7ECF\u6388\u6743\u4F7F\u7528\u60A8\u8D26\u6237\u7684\u60C5\u51B5\uFF0C\u8BF7\u7ACB\u5373\u901A\u77E5\u6211\u4EEC</li>
-        <li>\u6211\u4EEC\u4E0D\u5BF9\u56E0\u7528\u6237\u672A\u80FD\u4FDD\u62A4\u5176\u8D26\u6237\u800C\u9020\u6210\u7684\u635F\u5931\u8D1F\u8D23</li>
+        <li data-i18n="int1">We reserve the right to modify, suspend, or terminate all or part of the Service at any time</li>
+        <li data-i18n="int2">Service interruptions may occur during system maintenance, upgrades, or force majeure</li>
+        <li data-i18n="int3">We are not liable for losses caused by service interruptions</li>
       </ul>
     </div>
 
     <div class="section">
-      <h2>7. \u9690\u79C1\u4FDD\u62A4</h2>
-      <p>\u60A8\u7684\u9690\u79C1\u5BF9\u6211\u4EEC\u5F88\u91CD\u8981\u3002\u8BF7\u67E5\u770B\u6211\u4EEC\u7684<a href="/privacy-policy">\u9690\u79C1\u653F\u7B56</a>\uFF0C\u4E86\u89E3\u6211\u4EEC\u5982\u4F55\u6536\u96C6\u3001\u4F7F\u7528\u548C\u4FDD\u62A4\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u3002</p>
-    </div>
-
-    <div class="section">
-      <h2>8. \u9002\u7528\u6CD5\u5F8B</h2>
-      <p>\u672C\u6761\u6B3E\u53D7\u60A8\u6240\u5728\u56FD\u5BB6/\u5730\u533A\u7684\u6CD5\u5F8B\u7BA1\u8F96\u3002\u5982\u679C\u56E0\u4F7F\u7528\u672C\u670D\u52A1\u4EA7\u751F\u4EFB\u4F55\u4E89\u8BAE\uFF0C\u5E94\u901A\u8FC7\u534F\u5546\u89E3\u51B3\u3002</p>
-    </div>
-
-    <div class="section">
-      <h2>9. \u6761\u6B3E\u4FEE\u6539</h2>
+      <h2 data-i18n="account">6. Account & Security</h2>
       <ul>
-        <li>\u6211\u4EEC\u4FDD\u7559\u968F\u65F6\u4FEE\u6539\u8FD9\u4E9B\u6761\u6B3E\u7684\u6743\u5229</li>
-        <li>\u4FEE\u6539\u540E\u7684\u6761\u6B3E\u5C06\u5728\u672C\u9875\u9762\u53D1\u5E03</li>
-        <li>\u7EE7\u7EED\u4F7F\u7528\u672C\u670D\u52A1\u5373\u8868\u793A\u60A8\u63A5\u53D7\u4FEE\u6539\u540E\u7684\u6761\u6B3E</li>
-        <li>\u91CD\u5927\u53D8\u66F4\u5C06\u901A\u8FC7\u7F51\u7AD9\u901A\u77E5\u60A8</li>
+        <li data-i18n="acc1">You are responsible for all activities on your account</li>
+        <li data-i18n="acc2">If you discover any unauthorized use of your account, please notify us immediately</li>
+        <li data-i18n="acc3">We are not responsible for losses resulting from your failure to protect your account</li>
       </ul>
     </div>
 
     <div class="section">
-      <h2>10. \u7EC8\u6B62\u670D\u52A1</h2>
+      <h2 data-i18n="privacy">7. Privacy Protection</h2>
+      <p data-i18n="privacyText">Your privacy is important to us. Please review our <a href="/privacy-policy">Privacy Policy</a> to understand how we collect, use, and protect your personal information.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="law">8. Applicable Law</h2>
+      <p data-i18n="lawText">These terms are governed by the laws of your country/region. If any dispute arises from using the Service, it should be resolved through consultation.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="modification">9. Terms Modification</h2>
       <ul>
-        <li>\u5982\u679C\u60A8\u8FDD\u53CD\u8FD9\u4E9B\u6761\u6B3E\uFF0C\u6211\u4EEC\u6709\u6743\u6682\u505C\u6216\u7EC8\u6B62\u60A8\u4F7F\u7528\u672C\u670D\u52A1\u7684\u6743\u5229</li>
-        <li>\u60A8\u53EF\u4EE5\u968F\u65F6\u505C\u6B62\u4F7F\u7528\u672C\u670D\u52A1</li>
-        <li>\u670D\u52A1\u7EC8\u6B62\u540E\uFF0C\u67D0\u4E9B\u6761\u6B3E\u4ECD\u5C06\u7EE7\u7EED\u6709\u6548</li>
+        <li data-i18n="mod1">We reserve the right to modify these terms at any time</li>
+        <li data-i18n="mod2">Modified terms will be posted on this page</li>
+        <li data-i18n="mod3">Continued use of the Service indicates your acceptance of the modified terms</li>
+        <li data-i18n="mod4">Significant changes will be notified through the website</li>
       </ul>
     </div>
 
     <div class="section">
-      <h2>11. \u4E0D\u53EF\u6297\u529B</h2>
-      <p>\u6211\u4EEC\u4E0D\u5BF9\u56E0\u4E0D\u53EF\u6297\u529B\u4E8B\u4EF6\u5BFC\u81F4\u7684\u670D\u52A1\u4E2D\u65AD\u6216\u5EF6\u8FDF\u627F\u62C5\u8D23\u4EFB\uFF0C\u5305\u62EC\u4F46\u4E0D\u9650\u4E8E\u81EA\u7136\u707E\u5BB3\u3001\u6218\u4E89\u3001\u653F\u5E9C\u884C\u4E3A\u3001\u7F51\u7EDC\u653B\u51FB\u7B49\u3002</p>
-    </div>
-
-    <div class="section">
-      <h2>12. \u5B8C\u6574\u534F\u8BAE</h2>
-      <p>\u8FD9\u4E9B\u6761\u6B3E\u6784\u6210\u60A8\u4E0E\u6211\u4EEC\u4E4B\u95F4\u5173\u4E8E\u4F7F\u7528\u672C\u670D\u52A1\u7684\u5B8C\u6574\u534F\u8BAE\u3002\u8FD9\u4E9B\u6761\u6B3E\u53D6\u4EE3\u6240\u6709\u5148\u524D\u7684\u534F\u8BAE\u6216\u8C05\u89E3\u3002</p>
-    </div>
-
-    <div class="section">
-      <h2>13. \u53EF\u5206\u5272\u6027</h2>
-      <p>\u5982\u679C\u8FD9\u4E9B\u6761\u6B3E\u7684\u4EFB\u4F55\u6761\u6B3E\u88AB\u8BA4\u5B9A\u4E3A\u4E0D\u53EF\u6267\u884C\u6216\u65E0\u6548\uFF0C\u5176\u4F59\u6761\u6B3E\u4ECD\u5C06\u4FDD\u6301\u5B8C\u5168\u6709\u6548\u548C\u53EF\u6267\u884C\u3002</p>
-    </div>
-
-    <div class="section">
-      <h2>14. \u8054\u7CFB\u6211\u4EEC</h2>
-      <p>\u5982\u679C\u60A8\u5BF9\u672C\u670D\u52A1\u6761\u6B3E\u6709\u4EFB\u4F55\u95EE\u9898\u6216\u7591\u8651\uFF0C\u8BF7\u901A\u8FC7\u4EE5\u4E0B\u65B9\u5F0F\u8054\u7CFB\u6211\u4EEC\uFF1A</p>
+      <h2 data-i18n="termination">10. Service Termination</h2>
       <ul>
-        <li>\u7535\u5B50\u90AE\u4EF6\uFF1Asupport@iptv-search.com</li>
-        <li>\u7F51\u7AD9\uFF1A<a href="https://iptv-search.com">https://iptv-search.com</a></li>
+        <li data-i18n="term1">If you violate these terms, we have the right to suspend or terminate your right to use the Service</li>
+        <li data-i18n="term2">You may stop using the Service at any time</li>
+        <li data-i18n="term3">Some terms will continue to be effective after service termination</li>
       </ul>
     </div>
 
-    <p style="text-align:center;color:rgba(255,255,255,.5);margin-top:40px;">&copy; 2024 IPTV Live. \u4FDD\u7559\u6240\u6709\u6743\u5229\u3002</p>
+    <div class="section">
+      <h2 data-i18n="forceMajeure">11. Force Majeure</h2>
+      <p data-i18n="forceText">We are not liable for service interruptions or delays caused by force majeure events, including but not limited to natural disasters, wars, government actions, cyber attacks, etc.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="agreement">12. Entire Agreement</h2>
+      <p data-i18n="agreementText">These terms constitute the entire agreement between you and us regarding the use of the Service. These terms supersede all prior agreements or understandings.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="severability">13. Severability</h2>
+      <p data-i18n="severabilityText">If any term of these terms is deemed unenforceable or invalid, the remaining terms will remain in full force and effect.</p>
+    </div>
+
+    <div class="section">
+      <h2 data-i18n="contact">14. Contact Us</h2>
+      <p data-i18n="contactText">If you have any questions or concerns about these Terms of Service, please contact us at:</p>
+      <ul>
+        <li data-i18n="email">Email: support@iptv-search.com</li>
+        <li data-i18n="website">Website: <a href="https://iptv-search.com">https://iptv-search.com</a></li>
+      </ul>
+    </div>
+
+    <p style="text-align:center;color:rgba(255,255,255,.5);margin-top:40px;" data-i18n="copyright">&copy; 2024 IPTV Live. All rights reserved.</p>
   </div>
+  <script>
+    const termsTranslations = {
+      'en': {
+        title: 'Terms of Service',
+        lastUpdated: 'Last Updated: January 1, 2024',
+        welcome: 'Welcome to IPTV Live',
+        welcomeText: 'Thank you for using IPTV Live services ("the Service"). By using the Service, you agree to comply with these Terms of Service. If you do not agree to these terms, please do not use the Service.',
+        serviceDesc: '1. Service Description',
+        serviceContent: '1.1 Service Content:',
+        content1: 'IPTV Live provides free online TV viewing services',
+        content2: 'Services include channel lists, search, favorites, and playback history',
+        content3: 'Users can access the service through web browsers',
+        serviceNature: '1.2 Service Nature:',
+        nature1: 'The Service is a free service and no fees are charged',
+        nature2: 'We reserve the right to modify, suspend, or terminate the service at any time',
+        nature3: 'Service availability may be affected by network conditions and technical limitations',
+        userResp: '2. User Responsibilities',
+        userReq: '2.1 Usage Requirements:',
+        req1: 'You must be at least 13 years old to use the Service',
+        req2: 'You are responsible for ensuring your account security',
+        req3: 'You must not share your account information or credentials',
+        prohibited: '2.2 Prohibited Activities:',
+        proh1: 'Do not use the Service for any illegal purpose',
+        proh2: 'Do not interfere with or disrupt the normal operation of the Service',
+        proh3: 'Do not upload viruses, malicious code, or other harmful software',
+        proh4: 'Do not attempt unauthorized access to our systems or data',
+        proh5: 'Do not infringe on others\\' intellectual property or privacy rights',
+        proh6: 'Do not use automated tools (such as bots, crawlers) to access the Service',
+        copyright: '3. Content Copyright',
+        disclaimer: '<strong>Important Notice:</strong> IPTV Live serves only as a content aggregation platform providing channel link services. This platform does not own, produce, or store any video content. All channel copyrights belong to their respective owners.',
+        ip: '3.1 Intellectual Property:',
+        ip1: 'The website interface, design, text, graphics, etc. are protected by copyright',
+        ip2: 'Without permission, do not copy, modify, or distribute the website content',
+        ip3: 'The intellectual property of channel content belongs to its original owners',
+        userContent: '3.2 User Content:',
+        uc1: 'You retain ownership of submitted content',
+        uc2: 'By using the Service, you grant us the right to display and use related content',
+        uc3: 'You guarantee you have all necessary rights to submit such content',
+        liability: '4. Disclaimer',
+        asIs: '4.1 Service Provided "As Is":',
+        asIs1: 'The Service is provided on an "as is" and "available" basis',
+        asIs2: 'We make no warranties regarding the accuracy, reliability, or completeness of the Service',
+        asIs3: 'We do not guarantee that the Service will be uninterrupted or error-free',
+        indirect: '4.2 Indirect Damages:',
+        indirectText: 'In no event shall we be liable for any indirect, incidental, special, or consequential damages, including but not limited to lost profits, data loss, or business interruption.',
+        thirdParty: '4.3 Third-Party Content:',
+        tp1: 'We are not responsible for content or services provided by third parties',
+        tp2: 'The quality, availability, and accuracy of channel content are the responsibility of content providers',
+        tp3: 'We are not responsible for copyright issues related to channels',
+        interruption: '5. Service Interruption',
+        int1: 'We reserve the right to modify, suspend, or terminate all or part of the Service at any time',
+        int2: 'Service interruptions may occur during system maintenance, upgrades, or force majeure',
+        int3: 'We are not liable for losses caused by service interruptions',
+        account: '6. Account & Security',
+        acc1: 'You are responsible for all activities on your account',
+        acc2: 'If you discover any unauthorized use of your account, please notify us immediately',
+        acc3: 'We are not responsible for losses resulting from your failure to protect your account',
+        privacy: '7. Privacy Protection',
+        privacyText: 'Your privacy is important to us. Please review our <a href="/privacy-policy">Privacy Policy</a> to understand how we collect, use, and protect your personal information.',
+        law: '8. Applicable Law',
+        lawText: 'These terms are governed by the laws of your country/region. If any dispute arises from using the Service, it should be resolved through consultation.',
+        modification: '9. Terms Modification',
+        mod1: 'We reserve the right to modify these terms at any time',
+        mod2: 'Modified terms will be posted on this page',
+        mod3: 'Continued use of the Service indicates your acceptance of the modified terms',
+        mod4: 'Significant changes will be notified through the website',
+        termination: '10. Service Termination',
+        term1: 'If you violate these terms, we have the right to suspend or terminate your right to use the Service',
+        term2: 'You may stop using the Service at any time',
+        term3: 'Some terms will continue to be effective after service termination',
+        forceMajeure: '11. Force Majeure',
+        forceText: 'We are not liable for service interruptions or delays caused by force majeure events, including but not limited to natural disasters, wars, government actions, cyber attacks, etc.',
+        agreement: '12. Entire Agreement',
+        agreementText: 'These terms constitute the entire agreement between you and us regarding the use of the Service. These terms supersede all prior agreements or understandings.',
+        severability: '13. Severability',
+        severabilityText: 'If any term of these terms is deemed unenforceable or invalid, the remaining terms will remain in full force and effect.',
+        contact: '14. Contact Us',
+        contactText: 'If you have any questions or concerns about these Terms of Service, please contact us at:',
+        email: 'Email: support@iptv-search.com',
+        website: 'Website: <a href="https://iptv-search.com">https://iptv-search.com</a>',
+        copyright: '&copy; 2024 IPTV Live. All rights reserved.'
+      },
+      'zh-CN': {
+        title: '\u670D\u52A1\u6761\u6B3E',
+        lastUpdated: '\u6700\u540E\u66F4\u65B0\u65E5\u671F\uFF1A2024\u5E741\u67081\u65E5',
+        welcome: '\u6B22\u8FCE\u4F7F\u7528 IPTV Live',
+        welcomeText: '\u611F\u8C22\u60A8\u4F7F\u7528 IPTV Live \u670D\u52A1\uFF08\u4EE5\u4E0B\u7B80\u79F0"\u672C\u670D\u52A1"\uFF09\u3002\u901A\u8FC7\u4F7F\u7528\u672C\u670D\u52A1\uFF0C\u60A8\u540C\u610F\u9075\u5B88\u4EE5\u4E0B\u670D\u52A1\u6761\u6B3E\u3002\u5982\u679C\u60A8\u4E0D\u540C\u610F\u8FD9\u4E9B\u6761\u6B3E\uFF0C\u8BF7\u4E0D\u8981\u4F7F\u7528\u672C\u670D\u52A1\u3002',
+        serviceDesc: '1. \u670D\u52A1\u8BF4\u660E',
+        serviceContent: '1.1 \u670D\u52A1\u5185\u5BB9\uFF1A',
+        content1: 'IPTV Live \u63D0\u4F9B\u514D\u8D39\u7684\u5728\u7EBF\u7535\u89C6\u89C2\u770B\u670D\u52A1',
+        content2: '\u670D\u52A1\u5305\u62EC\u9891\u9053\u5217\u8868\u3001\u641C\u7D22\u3001\u6536\u85CF\u3001\u64AD\u653E\u5386\u53F2\u7B49\u529F\u80FD',
+        content3: '\u7528\u6237\u53EF\u4EE5\u901A\u8FC7\u7F51\u9875\u6D4F\u89C8\u5668\u8BBF\u95EE\u672C\u670D\u52A1',
+        serviceNature: '1.2 \u670D\u52A1\u6027\u8D28\uFF1A',
+        nature1: '\u672C\u670D\u52A1\u4E3A\u514D\u8D39\u670D\u52A1\uFF0C\u4E0D\u6536\u53D6\u4EFB\u4F55\u8D39\u7528',
+        nature2: '\u6211\u4EEC\u4FDD\u7559\u968F\u65F6\u4FEE\u6539\u3001\u6682\u505C\u6216\u7EC8\u6B62\u670D\u52A1\u7684\u6743\u5229',
+        nature3: '\u670D\u52A1\u7684\u53EF\u7528\u6027\u53EF\u80FD\u53D7\u5230\u7F51\u7EDC\u72B6\u51B5\u548C\u6280\u672F\u9650\u5236\u7684\u5F71\u54CD',
+        userResp: '2. \u7528\u6237\u8D23\u4EFB',
+        userReq: '2.1 \u4F7F\u7528\u8981\u6C42\uFF1A',
+        req1: '\u60A8\u5FC5\u987B\u5E74\u6EE113\u5C81\u624D\u80FD\u4F7F\u7528\u672C\u670D\u52A1',
+        req2: '\u60A8\u6709\u8D23\u4EFB\u786E\u4FDD\u60A8\u7684\u8D26\u6237\u5B89\u5168',
+        req3: '\u60A8\u4E0D\u5F97\u5171\u4EAB\u60A8\u7684\u8D26\u6237\u4FE1\u606F\u6216\u51ED\u636E',
+        prohibited: '2.2 \u7981\u6B62\u884C\u4E3A\uFF1A',
+        proh1: '\u4E0D\u5F97\u5C06\u672C\u670D\u52A1\u7528\u4E8E\u4EFB\u4F55\u975E\u6CD5\u76EE\u7684',
+        proh2: '\u4E0D\u5F97\u5E72\u6270\u6216\u7834\u574F\u672C\u670D\u52A1\u7684\u6B63\u5E38\u8FD0\u884C',
+        proh3: '\u4E0D\u5F97\u4E0A\u4F20\u75C5\u6BD2\u3001\u6076\u610F\u4EE3\u7801\u6216\u5176\u4ED6\u6709\u5BB3\u8F6F\u4EF6',
+        proh4: '\u4E0D\u5F97\u5C1D\u8BD5\u672A\u7ECF\u6388\u6743\u8BBF\u95EE\u6211\u4EEC\u7684\u7CFB\u7EDF\u6216\u6570\u636E',
+        proh5: '\u4E0D\u5F97\u4FB5\u72AF\u4ED6\u4EBA\u7684\u77E5\u8BC6\u4EA7\u6743\u6216\u9690\u79C1\u6743',
+        proh6: '\u4E0D\u5F97\u4F7F\u7528\u81EA\u52A8\u5316\u5DE5\u5177\uFF08\u5982\u673A\u5668\u4EBA\u3001\u722C\u866B\uFF09\u8BBF\u95EE\u672C\u670D\u52A1',
+        copyright: '3. \u5185\u5BB9\u7248\u6743',
+        disclaimer: '<strong>\u91CD\u8981\u58F0\u660E\uFF1A</strong> IPTV Live \u4EC5\u4F5C\u4E3A\u5185\u5BB9\u805A\u5408\u5E73\u53F0\uFF0C\u63D0\u4F9B\u9891\u9053\u94FE\u63A5\u670D\u52A1\u3002\u672C\u5E73\u53F0\u4E0D\u62E5\u6709\u3001\u4E0D\u5236\u4F5C\u3001\u4E0D\u5B58\u50A8\u4EFB\u4F55\u89C6\u9891\u5185\u5BB9\u3002\u6240\u6709\u9891\u9053\u7684\u7248\u6743\u5C5E\u4E8E\u5176\u5404\u81EA\u7684\u6240\u6709\u8005\u3002',
+        ip: '3.1 \u77E5\u8BC6\u4EA7\u6743\uFF1A',
+        ip1: '\u672C\u7F51\u7AD9\u7684\u754C\u9762\u3001\u8BBE\u8BA1\u3001\u6587\u672C\u3001\u56FE\u5F62\u7B49\u53D7\u7248\u6743\u4FDD\u62A4',
+        ip2: '\u672A\u7ECF\u8BB8\u53EF\uFF0C\u4E0D\u5F97\u590D\u5236\u3001\u4FEE\u6539\u3001\u5206\u53D1\u672C\u7F51\u7AD9\u7684\u5185\u5BB9',
+        ip3: '\u9891\u9053\u5185\u5BB9\u7684\u77E5\u8BC6\u4EA7\u6743\u5C5E\u4E8E\u5176\u539F\u59CB\u6240\u6709\u8005',
+        userContent: '3.2 \u7528\u6237\u5185\u5BB9\uFF1A',
+        uc1: '\u60A8\u5BF9\u63D0\u4EA4\u7684\u5185\u5BB9\u4FDD\u7559\u6240\u6709\u6743',
+        uc2: '\u901A\u8FC7\u4F7F\u7528\u672C\u670D\u52A1\uFF0C\u60A8\u6388\u4E88\u6211\u4EEC\u5C55\u793A\u548C\u4F7F\u7528\u76F8\u5173\u5185\u5BB9\u7684\u6743\u5229',
+        uc3: '\u60A8\u4FDD\u8BC1\u62E5\u6709\u6240\u6709\u5FC5\u8981\u6743\u5229\u6765\u63D0\u4EA4\u8FD9\u4E9B\u5185\u5BB9',
+        liability: '4. \u514D\u8D23\u58F0\u660E',
+        asIs: '4.1 \u670D\u52A1\u6309"\u73B0\u72B6"\u63D0\u4F9B\uFF1A',
+        asIs1: '\u672C\u670D\u52A1\u6309"\u73B0\u72B6"\u548C"\u53EF\u7528"\u57FA\u7840\u63D0\u4F9B',
+        asIs2: '\u6211\u4EEC\u4E0D\u5BF9\u670D\u52A1\u7684\u51C6\u786E\u6027\u3001\u53EF\u9760\u6027\u6216\u5B8C\u6574\u6027\u505A\u51FA\u4EFB\u4F55\u4FDD\u8BC1',
+        asIs3: '\u6211\u4EEC\u4E0D\u4FDD\u8BC1\u670D\u52A1\u4E0D\u4F1A\u4E2D\u65AD\u6216\u65E0\u9519\u8BEF',
+        indirect: '4.2 \u95F4\u63A5\u635F\u5931\uFF1A',
+        indirectText: '\u5728\u4EFB\u4F55\u60C5\u51B5\u4E0B\uFF0C\u6211\u4EEC\u90FD\u4E0D\u5BF9\u4EFB\u4F55\u95F4\u63A5\u3001\u5076\u7136\u3001\u7279\u6B8A\u6216\u540E\u679C\u6027\u635F\u5BB3\u627F\u62C5\u8D23\u4EFB\uFF0C\u5305\u62EC\u4F46\u4E0D\u9650\u4E8E\u5229\u6DA6\u635F\u5931\u3001\u6570\u636E\u4E22\u5931\u6216\u4E1A\u52A1\u4E2D\u65AD\u3002',
+        thirdParty: '4.3 \u7B2C\u4E09\u65B9\u5185\u5BB9\uFF1A',
+        tp1: '\u6211\u4EEC\u4E0D\u5BF9\u7B2C\u4E09\u65B9\u63D0\u4F9B\u7684\u5185\u5BB9\u6216\u670D\u52A1\u627F\u62C5\u8D23\u4EFB',
+        tp2: '\u9891\u9053\u5185\u5BB9\u7684\u8D28\u91CF\u3001\u53EF\u7528\u6027\u548C\u51C6\u786E\u6027\u7531\u5185\u5BB9\u63D0\u4F9B\u8005\u8D1F\u8D23',
+        tp3: '\u6211\u4EEC\u4E0D\u5BF9\u9891\u9053\u7684\u7248\u6743\u95EE\u9898\u8D1F\u8D23',
+        interruption: '5. \u670D\u52A1\u4E2D\u65AD',
+        int1: '\u6211\u4EEC\u4FDD\u7559\u968F\u65F6\u4FEE\u6539\u3001\u6682\u505C\u6216\u7EC8\u6B62\u5168\u90E8\u6216\u90E8\u5206\u670D\u52A1\u7684\u6743\u5229',
+        int2: '\u670D\u52A1\u4E2D\u65AD\u53EF\u80FD\u53D1\u751F\u5728\u7CFB\u7EDF\u7EF4\u62A4\u3001\u5347\u7EA7\u6216\u4E0D\u53EF\u6297\u529B\u60C5\u51B5\u4E0B',
+        int3: '\u6211\u4EEC\u4E0D\u5BF9\u670D\u52A1\u4E2D\u65AD\u9020\u6210\u7684\u635F\u5931\u627F\u62C5\u8D23\u4EFB',
+        account: '6. \u8D26\u6237\u4E0E\u5B89\u5168',
+        acc1: '\u60A8\u5BF9\u4F7F\u7528\u60A8\u8D26\u6237\u7684\u6240\u6709\u6D3B\u52A8\u8D1F\u8D23',
+        acc2: '\u5982\u53D1\u73B0\u4EFB\u4F55\u672A\u7ECF\u6388\u6743\u4F7F\u7528\u60A8\u8D26\u6237\u7684\u60C5\u51B5\uFF0C\u8BF7\u7ACB\u5373\u901A\u77E5\u6211\u4EEC',
+        acc3: '\u6211\u4EEC\u4E0D\u5BF9\u56E0\u7528\u6237\u672A\u80FD\u4FDD\u62A4\u5176\u8D26\u6237\u800C\u9020\u6210\u7684\u635F\u5931\u8D1F\u8D23',
+        privacy: '7. \u9690\u79C1\u4FDD\u62A4',
+        privacyText: '\u60A8\u7684\u9690\u79C1\u5BF9\u6211\u4EEC\u5F88\u91CD\u8981\u3002\u8BF7\u67E5\u770B\u6211\u4EEC\u7684<a href="/privacy-policy">\u9690\u79C1\u653F\u7B56</a>\uFF0C\u4E86\u89E3\u6211\u4EEC\u5982\u4F55\u6536\u96C6\u3001\u4F7F\u7528\u548C\u4FDD\u62A4\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u3002',
+        law: '8. \u9002\u7528\u6CD5\u5F8B',
+        lawText: '\u672C\u6761\u6B3E\u53D7\u60A8\u6240\u5728\u56FD\u5BB6/\u5730\u533A\u7684\u6CD5\u5F8B\u7BA1\u8F96\u3002\u5982\u679C\u56E0\u4F7F\u7528\u672C\u670D\u52A1\u4EA7\u751F\u4EFB\u4F55\u4E89\u8BAE\uFF0C\u5E94\u901A\u8FC7\u534F\u5546\u89E3\u51B3\u3002',
+        modification: '9. \u6761\u6B3E\u4FEE\u6539',
+        mod1: '\u6211\u4EEC\u4FDD\u7559\u968F\u65F6\u4FEE\u6539\u8FD9\u4E9B\u6761\u6B3E\u7684\u6743\u5229',
+        mod2: '\u4FEE\u6539\u540E\u7684\u6761\u6B3E\u5C06\u5728\u672C\u9875\u9762\u53D1\u5E03',
+        mod3: '\u7EE7\u7EED\u4F7F\u7528\u672C\u670D\u52A1\u5373\u8868\u793A\u60A8\u63A5\u53D7\u4FEE\u6539\u540E\u7684\u6761\u6B3E',
+        mod4: '\u91CD\u5927\u53D8\u66F4\u5C06\u901A\u8FC7\u7F51\u7AD9\u901A\u77E5\u60A8',
+        termination: '10. \u7EC8\u6B62\u670D\u52A1',
+        term1: '\u5982\u679C\u60A8\u8FDD\u53CD\u8FD9\u4E9B\u6761\u6B3E\uFF0C\u6211\u4EEC\u6709\u6743\u6682\u505C\u6216\u7EC8\u6B62\u60A8\u4F7F\u7528\u672C\u670D\u52A1\u7684\u6743\u5229',
+        term2: '\u60A8\u53EF\u4EE5\u968F\u65F6\u505C\u6B62\u4F7F\u7528\u672C\u670D\u52A1',
+        term3: '\u670D\u52A1\u7EC8\u6B62\u540E\uFF0C\u67D0\u4E9B\u6761\u6B3E\u4ECD\u5C06\u7EE7\u7EED\u6709\u6548',
+        forceMajeure: '11. \u4E0D\u53EF\u6297\u529B',
+        forceText: '\u6211\u4EEC\u4E0D\u5BF9\u56E0\u4E0D\u53EF\u6297\u529B\u4E8B\u4EF6\u5BFC\u81F4\u7684\u670D\u52A1\u4E2D\u65AD\u6216\u5EF6\u8FDF\u627F\u62C5\u8D23\u4EFB\uFF0C\u5305\u62EC\u4F46\u4E0D\u9650\u4E8E\u81EA\u7136\u707E\u5BB3\u3001\u6218\u4E89\u3001\u653F\u5E9C\u884C\u4E3A\u3001\u7F51\u7EDC\u653B\u51FB\u7B49\u3002',
+        agreement: '12. \u5B8C\u6574\u534F\u8BAE',
+        agreementText: '\u8FD9\u4E9B\u6761\u6B3E\u6784\u6210\u60A8\u4E0E\u6211\u4EEC\u4E4B\u95F4\u5173\u4E8E\u4F7F\u7528\u672C\u670D\u52A1\u7684\u5B8C\u6574\u534F\u8BAE\u3002\u8FD9\u4E9B\u6761\u6B3E\u53D6\u4EE3\u6240\u6709\u5148\u524D\u7684\u534F\u8BAE\u6216\u8C05\u89E3\u3002',
+        severability: '13. \u53EF\u5206\u5272\u6027',
+        severabilityText: '\u5982\u679C\u8FD9\u4E9B\u6761\u6B3E\u7684\u4EFB\u4F55\u6761\u6B3E\u88AB\u8BA4\u5B9A\u4E3A\u4E0D\u53EF\u6267\u884C\u6216\u65E0\u6548\uFF0C\u5176\u4F59\u6761\u6B3E\u4ECD\u5C06\u4FDD\u6301\u5B8C\u5168\u6709\u6548\u548C\u53EF\u6267\u884C\u3002',
+        contact: '14. \u8054\u7CFB\u6211\u4EEC',
+        contactText: '\u5982\u679C\u60A8\u5BF9\u672C\u670D\u52A1\u6761\u6B3E\u6709\u4EFB\u4F55\u95EE\u9898\u6216\u7591\u8651\uFF0C\u8BF7\u901A\u8FC7\u4EE5\u4E0B\u65B9\u5F0F\u8054\u7CFB\u6211\u4EEC\uFF1A',
+        email: '\u7535\u5B50\u90AE\u4EF6\uFF1Asupport@iptv-search.com',
+        website: '\u7F51\u7AD9\uFF1A<a href="https://iptv-search.com">https://iptv-search.com</a>',
+        copyright: '&copy; 2024 IPTV Live. \u4FDD\u7559\u6240\u6709\u6743\u5229\u3002'
+      }
+    };
+
+    let currentLang = localStorage.getItem('terms_lang') || 'en';
+
+    function toggleLangMenu() {
+      const menu = document.getElementById('langMenu');
+      menu.classList.toggle('show');
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('terms_lang', lang);
+
+      // Update button states
+      document.getElementById('langEn').classList.toggle('active', lang === 'en');
+      document.getElementById('langZh').classList.toggle('active', lang === 'zh-CN');
+
+      // Update current language button
+      const langNames = { 'en': 'English', 'zh-CN': '\u7B80\u4F53' };
+      document.getElementById('currentLangBtn').textContent = langNames[lang] || 'English';
+
+      // Close menu
+      document.getElementById('langMenu').classList.remove('show');
+
+      // Update HTML lang attribute
+      document.documentElement.lang = lang;
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (termsTranslations[lang] && termsTranslations[lang][key]) {
+          el.innerHTML = termsTranslations[lang][key];
+        }
+      });
+
+      // Update document title
+      document.title = termsTranslations[lang].title + ' - IPTV Live';
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      setLanguage(currentLang);
+
+      // Close language menu when clicking outside
+      document.addEventListener('click', function(e) {
+        const dropdown = document.querySelector('.lang-dropdown');
+        if (!dropdown.contains(e.target)) {
+          document.getElementById('langMenu').classList.remove('show');
+        }
+      });
+    });
+  <\/script>
 </body>
 </html>`;
 }
@@ -10781,7 +11445,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-i9MzN3/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-wsJgKo/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -10815,7 +11479,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-i9MzN3/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-wsJgKo/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

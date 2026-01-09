@@ -1,17 +1,28 @@
 // 用户卡密激活页面内容
 export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>卡密激活 - 电视直播服务</title>
+  <title>Activation - TV Live Service</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:15px}
-    .container{background:white;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);padding:30px;max-width:480px;width:100%}
+    .container{background:white;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);padding:30px;max-width:480px;width:100%;position:relative}
     .logo{text-align:center;margin-bottom:25px}
     .logo h1{font-size:24px;font-weight:700;color:#1d1d1f;margin-bottom:6px}
     .logo p{color:#86868b;font-size:13px}
+    .lang-switch{position:absolute;top:20px;right:20px;z-index:10}
+    .lang-dropdown{position:relative;display:inline-block}
+    .lang-btn{background:#667eea;color:white;border:none;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:background .2s;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent}
+    .lang-btn:hover{background:#764ba2}
+    .lang-btn:after{content:"▼";font-size:9px}
+    .lang-menu{display:none;position:absolute;top:calc(100%+8px);right:0;background:white;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);min-width:120px;overflow:hidden;animation:fadeIn .2s ease}
+    .lang-menu.show{display:block}
+    .lang-menu button{display:block;width:100%;padding:10px 16px;background:none;border:none;text-align:left;font-size:13px;color:#1d1d1f;cursor:pointer;transition:background .2s}
+    .lang-menu button:hover{background:#f5f5f7}
+    .lang-menu button.active{background:#667eea;color:white}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
     .form-group{margin-bottom:18px}
     .form-group label{display:block;margin-bottom:8px;font-weight:500;color:#1d1d1f;font-size:14px}
     .form-group input{width:100%;padding:12px 14px;border:2px solid #e5e5ea;border-radius:8px;font-size:16px;transition:border-color .2s;letter-spacing:1px;-webkit-appearance:none}
@@ -31,7 +42,8 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     .info-value{color:#1d1d1f;font-weight:500;font-size:13px}
     .sub-url-container{margin-top:14px;padding:14px;background:#667eea;border-radius:8px}
     .sub-url-label{color:white;font-size:11px;margin-bottom:6px}
-    .sub-url{color:white;font-size:12px;font-weight:600;word-break:break-all;line-height:1.6}
+    .sub-url{color:white;font-size:12px;font-weight:600;word-break:break-all;line-height:1.6;cursor:pointer}
+    .sub-url:hover{opacity:.9}
     .copy-btn{width:100%;margin-top:14px;padding:12px;background:#0071e3;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;-webkit-tap-highlight-color:transparent}
     .copy-btn:hover{background:#0077ed}
     .copy-btn:active{scale:.98}
@@ -47,9 +59,12 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     .loading-text{margin-top:12px;color:#86868b;font-size:14px}
     @media (max-width:480px){
       body{padding:10px}
-      .container{padding:20px;border-radius:12px}
+      .container{padding:20px;border-radius:12px;padding-top:50px}
       .logo h1{font-size:20px}
       .logo p{font-size:12px}
+    .lang-switch{top:15px;right:15px}
+    .lang-btn{padding:6px 14px;font-size:12px}
+    .lang-menu button{padding:8px 12px;font-size:12px}
       .form-group input{font-size:16px;padding:11px 13px}
       .btn{padding:13px;font-size:15px}
       .result{padding:16px}
@@ -65,64 +80,173 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
 </head>
 <body>
   <div class="container">
+    <div class="lang-switch">
+      <div class="lang-dropdown">
+        <button class="lang-btn" onclick="toggleLangMenu()" id="currentLangBtn">EN</button>
+        <div class="lang-menu" id="langMenu">
+          <button onclick="setLanguage('en')" id="langEn">English</button>
+          <button onclick="setLanguage('zh-CN')" id="langZh">简体中文</button>
+        </div>
+      </div>
+    </div>
     <div class="logo">
-      <h1>📺 电视直播服务</h1>
-      <p>卡密激活获取订阅地址</p>
+      <h1 data-i18n="title">📺 TV Live Service</h1>
+      <p data-i18n="subtitle">Activate your code to get subscription URL</p>
     </div>
 
     <div id="errorBox" class="error"></div>
     <div id="successBox" class="success"></div>
 
     <div class="form-group">
-      <label for="code">请输入卡密</label>
-      <input type="text" id="code" placeholder="输入您的卡密" autocomplete="off">
+      <label for="code" data-i18n="enterCode">Enter activation code</label>
+      <input type="text" id="code" data-i18n-placeholder="codePlaceholder" placeholder="Enter your activation code" autocomplete="off">
     </div>
 
-    <button id="activateBtn" class="btn" onclick="activateCode()">立即激活</button>
+    <button id="activateBtn" class="btn" onclick="activateCode()" data-i18n="activate">Activate Now</button>
 
     <div id="loading" class="loading">
       <div class="spinner"></div>
-      <p class="loading-text">正在激活...</p>
+      <p class="loading-text" data-i18n="activating">Activating...</p>
     </div>
 
     <div id="result" class="result">
-      <h3>✅ 激活成功</h3>
+      <h3 data-i18n="success">✅ Activation Successful</h3>
       <div class="info-item">
-        <span class="info-label">卡密</span>
+        <span class="info-label" data-i18n="codeLabel">Code</span>
         <span class="info-value" id="resultCode">-</span>
       </div>
       <div class="info-item">
-        <span class="info-label">有效期</span>
+        <span class="info-label" data-i18n="durationLabel">Validity</span>
         <span class="info-value" id="resultDuration">-</span>
       </div>
       <div class="info-item">
-        <span class="info-label">过期时间</span>
+        <span class="info-label" data-i18n="expiresLabel">Expires</span>
         <span class="info-value" id="resultExpired">-</span>
       </div>
 
       <div class="sub-url-container">
-        <div class="sub-url-label">订阅地址（点击复制）</div>
+        <div class="sub-url-label" data-i18n="subUrlLabel">Subscription URL (click to copy)</div>
         <div class="sub-url" id="subUrl" onclick="copySubUrl()">-</div>
       </div>
 
-      <button class="copy-btn" onclick="copySubUrl()">复制订阅地址</button>
+      <button class="copy-btn" onclick="copySubUrl()" data-i18n="copyUrl">Copy Subscription URL</button>
 
       <div class="instructions">
-        <h4>📱 使用说明</h4>
+        <h4 data-i18n="instructions">📱 Usage Instructions</h4>
         <ul>
-          <li>将订阅地址添加到播放器</li>
-          <li>支持IPTV、PotPlayer等播放器</li>
-          <li>支持各类电视盒子</li>
-          <li>建议定期更新订阅列表</li>
-          <li>请勿使用软件对播放列表测试，否则可能触发系统防御</li>
+          <li data-i18n="instr1">Add subscription URL to your player</li>
+          <li data-i18n="instr2">Supports IPTV, PotPlayer and other players</li>
+          <li data-i18n="instr3">Supports various TV boxes</li>
+          <li data-i18n="instr4">Regularly update subscription list recommended</li>
+          <li data-i18n="instr5">Do not use software to test playlist, may trigger system defense</li>
         </ul>
       </div>
     </div>
   </div>
-  
+
   <script>
     const API_BASE = '/api/activate';
-    
+
+    const translations = {
+      'en': {
+        title: '📺 TV Live Service',
+        subtitle: 'Activate your code to get subscription URL',
+        enterCode: 'Enter activation code',
+        codePlaceholder: 'Enter your activation code',
+        activate: 'Activate Now',
+        activating: 'Activating...',
+        success: '✅ Activation Successful',
+        codeLabel: 'Code',
+        durationLabel: 'Validity',
+        expiresLabel: 'Expires',
+        subUrlLabel: 'Subscription URL (click to copy)',
+        copyUrl: 'Copy Subscription URL',
+        instructions: '📱 Usage Instructions',
+        instr1: 'Add subscription URL to your player',
+        instr2: 'Supports IPTV, PotPlayer and other players',
+        instr3: 'Supports various TV boxes',
+        instr4: 'Regularly update subscription list recommended',
+        instr5: 'Do not use software to test playlist, may trigger system defense',
+        enterCodeError: 'Please enter activation code',
+        successMsg: 'Code activated successfully!',
+        failMsg: 'Activation failed, please check if code is correct',
+        networkError: 'Network error, please try again later',
+        copiedMsg: 'Subscription URL copied to clipboard',
+        days: ' days'
+      },
+      'zh-CN': {
+        title: '📺 电视直播服务',
+        subtitle: '卡密激活获取订阅地址',
+        enterCode: '请输入卡密',
+        codePlaceholder: '输入您的卡密',
+        activate: '立即激活',
+        activating: '正在激活...',
+        success: '✅ 激活成功',
+        codeLabel: '卡密',
+        durationLabel: '有效期',
+        expiresLabel: '过期时间',
+        subUrlLabel: '订阅地址（点击复制）',
+        copyUrl: '复制订阅地址',
+        instructions: '📱 使用说明',
+        instr1: '将订阅地址添加到播放器',
+        instr2: '支持IPTV、PotPlayer等播放器',
+        instr3: '支持各类电视盒子',
+        instr4: '建议定期更新订阅列表',
+        instr5: '请勿使用软件对播放列表测试，否则可能触发系统防御',
+        enterCodeError: '请输入卡密',
+        successMsg: '卡密激活成功！',
+        failMsg: '激活失败，请检查卡密是否正确',
+        networkError: '网络错误，请稍后重试',
+        copiedMsg: '订阅地址已复制到剪贴板',
+        days: ' 天'
+      }
+    };
+
+    let currentLang = localStorage.getItem('activate_lang') || 'en';
+
+    function t(key) {
+      return translations[currentLang][key] || translations['en'][key] || key;
+    }
+
+    function toggleLangMenu() {
+      const menu = document.getElementById('langMenu');
+      menu.classList.toggle('show');
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('activate_lang', lang);
+
+      // Update button states
+      document.getElementById('langEn').classList.toggle('active', lang === 'en');
+      document.getElementById('langZh').classList.toggle('active', lang === 'zh-CN');
+
+      // Update current language button
+      const langNames = { 'en': 'EN', 'zh-CN': '简体' };
+      document.getElementById('currentLangBtn').textContent = langNames[lang] || 'EN';
+
+      // Close menu
+      document.getElementById('langMenu').classList.remove('show');
+
+      // Update HTML lang attribute
+      document.documentElement.lang = lang;
+
+      // Update document title
+      document.title = lang === 'en' ? 'Activation - TV Live Service' : '卡密激活 - 电视直播服务';
+
+      // Update all elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t(key);
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.placeholder = t(key);
+      });
+    }
+
     function showError(message) {
       const errorBox = document.getElementById('errorBox');
       const successBox = document.getElementById('successBox');
@@ -133,7 +257,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         errorBox.style.display = 'none';
       }, 5000);
     }
-    
+
     function showSuccess(message) {
       const errorBox = document.getElementById('errorBox');
       const successBox = document.getElementById('successBox');
@@ -144,7 +268,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         successBox.style.display = 'none';
       }, 5000);
     }
-    
+
     function showLoading(show) {
       const loading = document.getElementById('loading');
       const btn = document.getElementById('activateBtn');
@@ -156,61 +280,61 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         btn.disabled = false;
       }
     }
-    
+
     async function activateCode() {
       const code = document.getElementById('code').value.trim();
-      
+
       if (!code) {
-        showError('请输入卡密');
+        showError(t('enterCodeError'));
         return;
       }
-      
+
       showLoading(true);
       document.getElementById('result').classList.remove('active');
-      
+
       try {
         const response = await fetch(API_BASE + '?code=' + encodeURIComponent(code), {
           method: 'POST'
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok && data.success) {
-          showSuccess('卡密激活成功！');
+          showSuccess(t('successMsg'));
           showResult(code, data);
         } else {
-          showError(data.error || '激活失败，请检查卡密是否正确');
+          showError(data.error || t('failMsg'));
         }
       } catch (error) {
-        console.error('激活失败:', error);
-        showError('网络错误，请稍后重试');
+        console.error('Activation failed:', error);
+        showError(t('networkError'));
       } finally {
         showLoading(false);
       }
     }
-    
+
     function showResult(code, data) {
       const result = document.getElementById('result');
       const now = new Date();
       const expiredAt = new Date(data.expired_at);
       const durationDays = Math.ceil((expiredAt - now) / (1000 * 60 * 60 * 24));
-      
+
       document.getElementById('resultCode').textContent = code;
-      document.getElementById('resultDuration').textContent = durationDays + ' 天';
-      document.getElementById('resultExpired').textContent = expiredAt.toLocaleString('zh-CN');
-      
+      document.getElementById('resultDuration').textContent = durationDays + t('days');
+      document.getElementById('resultExpired').textContent = expiredAt.toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US');
+
       const host = window.location.origin;
       const subUrl = host + '/sub/' + code + '.m3u';
       document.getElementById('subUrl').textContent = subUrl;
-      
+
       result.classList.add('active');
     }
-    
+
     function copySubUrl() {
       const subUrl = document.getElementById('subUrl').textContent;
       if (subUrl && subUrl !== '-') {
         navigator.clipboard.writeText(subUrl).then(() => {
-          showSuccess('订阅地址已复制到剪贴板');
+          showSuccess(t('copiedMsg'));
         }).catch(err => {
           const textarea = document.createElement('textarea');
           textarea.value = subUrl;
@@ -218,16 +342,29 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
           textarea.select();
           document.execCommand('copy');
           document.body.removeChild(textarea);
-          showSuccess('订阅地址已复制到剪贴板');
+          showSuccess(t('copiedMsg'));
         });
       }
     }
-    
-    // 支持回车键激活
-    document.getElementById('code').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        activateCode();
-      }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      setLanguage(currentLang);
+
+      // Support Enter key activation
+      document.getElementById('code').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          activateCode();
+        }
+      });
+
+      // Close language menu when clicking outside
+      document.addEventListener('click', function(e) {
+        const dropdown = document.querySelector('.lang-dropdown');
+        if (!dropdown.contains(e.target)) {
+          document.getElementById('langMenu').classList.remove('show');
+        }
+      });
     });
   </script>
 </body>
