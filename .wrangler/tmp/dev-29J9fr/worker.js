@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-4oxDSN/checked-fetch.js
+// .wrangler/tmp/bundle-26c8Si/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-4oxDSN/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-26c8Si/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -1172,11 +1172,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-4oxDSN/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-26c8Si/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-4oxDSN/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-26c8Si/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -1506,20 +1506,34 @@ __name(flushCacheToDB, "flushCacheToDB");
 
 // security/ip-blacklist.js
 function getClientIP(request) {
-  const cfIP = request.headers.get("CF-Connecting-IP");
-  if (cfIP) {
-    return cfIP;
+  try {
+    const cfIP = request.headers.get("CF-Connecting-IP");
+    if (cfIP) {
+      console.log("[IP] Got IP from CF-Connecting-IP:", cfIP);
+      return cfIP;
+    }
+    const xForwardedFor = request.headers.get("X-Forwarded-For");
+    if (xForwardedFor) {
+      const ip = xForwardedFor.split(",")[0].trim();
+      console.log("[IP] Got IP from X-Forwarded-For:", ip);
+      return ip;
+    }
+    const xRealIP = request.headers.get("X-Real-IP");
+    if (xRealIP) {
+      console.log("[IP] Got IP from X-Real-IP:", xRealIP);
+      return xRealIP;
+    }
+    console.warn("[IP] No client IP found in headers, using 127.0.0.1 for local development");
+    console.log("[IP] Request headers:", {
+      cfIP: request.headers.get("CF-Connecting-IP"),
+      xForwardedFor: request.headers.get("X-Forwarded-For"),
+      xRealIP: request.headers.get("X-Real-IP")
+    });
+    return "127.0.0.1";
+  } catch (error) {
+    console.error("[IP] Error getting client IP:", error);
+    return "127.0.0.1";
   }
-  const xForwardedFor = request.headers.get("X-Forwarded-For");
-  if (xForwardedFor) {
-    return xForwardedFor.split(",")[0].trim();
-  }
-  const xRealIP = request.headers.get("X-Real-IP");
-  if (xRealIP) {
-    return xRealIP;
-  }
-  console.warn("[IP] No client IP found, using 127.0.0.1 for local development");
-  return "127.0.0.1";
 }
 __name(getClientIP, "getClientIP");
 async function checkIPRateLimit(env, ctx, ip, path) {
@@ -4537,85 +4551,91 @@ init_modules_watch_stub();
 init_checked_fetch();
 init_modules_watch_stub();
 init_database();
+function getClientIP2(request) {
+  return getClientIP(request);
+}
+__name(getClientIP2, "getClientIP");
 async function createFreeSubscription(ip, fingerprint, fingerprintComponents, env) {
-  const db = getDB();
-  const subId = generateSubscriptionId();
-  const expiredAt = /* @__PURE__ */ new Date();
-  expiredAt.setDate(expiredAt.getDate() + 7);
-  const existing = await db.prepare(`
-    SELECT id, fingerprint, expired_at
-    FROM free_subscriptions
-    WHERE ip = ? AND expired_at > datetime('now')
-    ORDER BY expired_at DESC
-    LIMIT 1
-  `).bind(ip).first();
-  if (existing) {
-    if (existing.fingerprint !== fingerprint) {
-      console.log("[FreeSub] IP mismatch with existing subscription fingerprint", {
-        ip,
-        subId: existing.id,
-        storedFp: existing.fingerprint.substring(0, 8),
-        newFp: fingerprint.substring(0, 8)
-      });
+  try {
+    const db = getDB();
+    const subId = generateSubscriptionId();
+    const expiredAt = /* @__PURE__ */ new Date();
+    expiredAt.setDate(expiredAt.getDate() + 7);
+    const existing = await db.prepare(`
+      SELECT id, fingerprint, expired_at
+      FROM free_subscriptions
+      WHERE ip = ? AND expired_at > datetime('now')
+      ORDER BY expired_at DESC
+      LIMIT 1
+    `).bind(ip).first();
+    if (existing) {
+      if (existing.fingerprint !== fingerprint) {
+        console.log("[FreeSub] IP mismatch with existing subscription fingerprint", {
+          ip,
+          subId: existing.id,
+          storedFp: existing.fingerprint.substring(0, 8),
+          newFp: fingerprint.substring(0, 8)
+        });
+      }
+      return await getFreeSubscription(existing.id, db);
     }
-    return await getFreeSubscription(existing.id, db);
-  }
-  const fingerprintMatch = await db.prepare(`
+    const fingerprintMatch = await db.prepare(`
     SELECT id, ip, ip_change_count
     FROM free_subscriptions
     WHERE fingerprint = ? AND expired_at > datetime('now')
     ORDER BY expired_at DESC
     LIMIT 1
   `).bind(fingerprint).first();
-  if (fingerprintMatch) {
-    if (fingerprintMatch.ip !== ip) {
-      const newIpChangeCount = (fingerprintMatch.ip_change_count || 0) + 1;
-      if (newIpChangeCount > 3) {
-        console.log("[FreeSub] Suspicious activity: IP changed too many times", {
+    if (fingerprintMatch) {
+      if (fingerprintMatch.ip !== ip) {
+        const newIpChangeCount = (fingerprintMatch.ip_change_count || 0) + 1;
+        if (newIpChangeCount > 3) {
+          console.log("[FreeSub] Suspicious activity: IP changed too many times", {
+            subId: fingerprintMatch.id,
+            oldIp: fingerprintMatch.ip,
+            newIp: ip,
+            changes: newIpChangeCount
+          });
+        }
+        await db.prepare(`
+        UPDATE free_subscriptions
+        SET ip = ?, ip_change_count = ?, ip_updated_at = datetime('now')
+        WHERE id = ?
+      `).bind(ip, newIpChangeCount, fingerprintMatch.id).run();
+        console.log("[FreeSub] IP updated for existing subscription", {
           subId: fingerprintMatch.id,
           oldIp: fingerprintMatch.ip,
           newIp: ip,
           changes: newIpChangeCount
         });
       }
-      await db.prepare(`
-        UPDATE free_subscriptions
-        SET ip = ?, ip_change_count = ?, ip_updated_at = datetime('now')
-        WHERE id = ?
-      `).bind(ip, newIpChangeCount, fingerprintMatch.id).run();
-      console.log("[FreeSub] IP updated for existing subscription", {
-        subId: fingerprintMatch.id,
-        oldIp: fingerprintMatch.ip,
-        newIp: ip,
-        changes: newIpChangeCount
-      });
+      return await getFreeSubscription(fingerprintMatch.id, db);
     }
-    return await getFreeSubscription(fingerprintMatch.id, db);
-  }
-  await db.prepare(`
+    await db.prepare(`
     INSERT INTO free_subscriptions (
       sub_id, ip, fingerprint, fingerprint_components, 
       expired_at, total_days, consecutive_days
     ) VALUES (?, ?, ?, ?, ?, ?, ?)
   `).bind(
-    subId,
-    ip,
-    fingerprint,
-    JSON.stringify(fingerprintComponents),
-    expiredAt.toISOString(),
-    7,
-    // 初始7天
-    1
-    // 初始连续签到1天
-  ).run();
-  console.log("[FreeSub] New free subscription created", { subId, ip });
-  return await getFreeSubscriptionBySubId(subId, db);
+      subId,
+      ip,
+      fingerprint,
+      JSON.stringify(fingerprintComponents),
+      expiredAt.toISOString(),
+      7,
+      // 初始7天
+      1
+      // 初始连续签到1天
+    ).run();
+    console.log("[FreeSub] New free subscription created", { subId, ip });
+    return await getFreeSubscriptionBySubId(subId, db);
+  } catch (error) {
+    console.error("[FreeSub] Error creating subscription:", error);
+    console.error("[FreeSub] Error stack:", error.stack);
+    throw error;
+  }
 }
 __name(createFreeSubscription, "createFreeSubscription");
-function getClientIP2(request) {
-  return request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For")?.split(",")[0] || "unknown";
-}
-__name(getClientIP2, "getClientIP");
 function generateSubscriptionId() {
   const prefix = "free";
   const random = Math.random().toString(36).substring(2, 10);
@@ -4913,7 +4933,14 @@ async function handleFreeSubAPI(request, env, ctx) {
     return jsonResponse({ error: "Not found" }, 404);
   } catch (error) {
     console.error("[FreeSub API] Error:", error);
-    return jsonResponse({ error: "Internal server error" }, 500);
+    console.error("[FreeSub API] Error stack:", error.stack);
+    console.error("[FreeSub API] Error details:", {
+      message: error.message,
+      name: error.name,
+      path: url.pathname,
+      method: request.method
+    });
+    return jsonResponse({ error: "Internal server error", details: error.message }, 500);
   }
 }
 __name(handleFreeSubAPI, "handleFreeSubAPI");
@@ -13258,7 +13285,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-4oxDSN/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-26c8Si/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -13292,7 +13319,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-4oxDSN/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-26c8Si/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

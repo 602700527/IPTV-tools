@@ -2,6 +2,12 @@
 // 处理免费订阅的创建、验证、续期等逻辑
 
 import { getDB } from '../database.js';
+import { getClientIP as getIPFromBlacklist } from '../security/ip-blacklist.js';
+
+// 统一的IP获取函数
+export function getClientIP(request) {
+  return getIPFromBlacklist(request);
+}
 
 /**
  * 创建免费订阅
@@ -12,23 +18,24 @@ import { getDB } from '../database.js';
  * @returns {object} 订阅信息
  */
 export async function createFreeSubscription(ip, fingerprint, fingerprintComponents, env) {
-  const db = getDB();
-  
-  // 生成唯一的订阅ID
-  const subId = generateSubscriptionId();
-  
-  // 计算过期时间（默认7天）
-  const expiredAt = new Date();
-  expiredAt.setDate(expiredAt.getDate() + 7);
-  
-  // 检查该IP是否已有活跃的免费订阅
-  const existing = await db.prepare(`
-    SELECT id, fingerprint, expired_at
-    FROM free_subscriptions
-    WHERE ip = ? AND expired_at > datetime('now')
-    ORDER BY expired_at DESC
-    LIMIT 1
-  `).bind(ip).first();
+  try {
+    const db = getDB();
+
+    // 生成唯一的订阅ID
+    const subId = generateSubscriptionId();
+
+    // 计算过期时间（默认7天）
+    const expiredAt = new Date();
+    expiredAt.setDate(expiredAt.getDate() + 7);
+
+    // 检查该IP是否已有活跃的免费订阅
+    const existing = await db.prepare(`
+      SELECT id, fingerprint, expired_at
+      FROM free_subscriptions
+      WHERE ip = ? AND expired_at > datetime('now')
+      ORDER BY expired_at DESC
+      LIMIT 1
+    `).bind(ip).first();
   
   if (existing) {
     // 检查指纹是否匹配
@@ -103,18 +110,14 @@ export async function createFreeSubscription(ip, fingerprint, fingerprintCompone
     1     // 初始连续签到1天
   ).run();
   
-  console.log('[FreeSub] New free subscription created', { subId, ip });
-  
-  return await getFreeSubscriptionBySubId(subId, db);
-}
+    console.log('[FreeSub] New free subscription created', { subId, ip });
 
-/**
- * 获取客户端IP
- */
-export function getClientIP(request) {
-  return request.headers.get('CF-Connecting-IP') ||
-         request.headers.get('X-Forwarded-For')?.split(',')[0] ||
-         'unknown';
+    return await getFreeSubscriptionBySubId(subId, db);
+  } catch (error) {
+    console.error('[FreeSub] Error creating subscription:', error);
+    console.error('[FreeSub] Error stack:', error.stack);
+    throw error; // 重新抛出错误，让API处理器统一处理
+  }
 }
 
 /**

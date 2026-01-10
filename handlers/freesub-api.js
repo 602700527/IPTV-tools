@@ -123,7 +123,14 @@ export async function handleFreeSubAPI(request, env, ctx) {
 
   } catch (error) {
     console.error('[FreeSub API] Error:', error);
-    return jsonResponse({ error: 'Internal server error' }, 500);
+    console.error('[FreeSub API] Error stack:', error.stack);
+    console.error('[FreeSub API] Error details:', {
+      message: error.message,
+      name: error.name,
+      path: url.pathname,
+      method: request.method
+    });
+    return jsonResponse({ error: 'Internal server error', details: error.message }, 500);
   }
 }
 
