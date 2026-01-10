@@ -97,7 +97,7 @@ export async function createFreeSubscription(ip, fingerprint, fingerprintCompone
   // 创建新订阅
   await db.prepare(`
     INSERT INTO free_subscriptions (
-      sub_id, ip, fingerprint, fingerprint_components, 
+      sub_id, ip, fingerprint, fingerprint_components,
       expired_at, total_days, consecutive_days
     ) VALUES (?, ?, ?, ?, ?, ?, ?)
   `).bind(
@@ -107,9 +107,27 @@ export async function createFreeSubscription(ip, fingerprint, fingerprintCompone
     JSON.stringify(fingerprintComponents),
     expiredAt.toISOString(),
     7,    // 初始7天
-    1     // 初始连续签到1天
+    0     // 初始连续签到0天
   ).run();
-  
+
+  // 获取新创建的订阅ID
+  const newSub = await db.prepare(`
+    SELECT id FROM free_subscriptions WHERE sub_id = ?
+  `).bind(subId).first();
+
+  // 记录创建当天的签到（防止当天签到）
+  const today = new Date().toISOString().split('T')[0];
+  await db.prepare(`
+    INSERT INTO checkin_records (
+      subscription_id, checkin_date, reward_days, consecutive_days
+    ) VALUES (?, ?, ?, ?)
+  `).bind(
+    newSub.id,
+    today,
+    0,    // 创建当天不给奖励
+    0     // 连续签到0天
+  ).run();
+
     console.log('[FreeSub] New free subscription created', { subId, ip });
 
     return await getFreeSubscriptionBySubId(subId, db);

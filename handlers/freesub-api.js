@@ -45,10 +45,14 @@ export async function handleFreeSubAPI(request, env, ctx) {
       }
 
       const body = await request.json();
-      const { subId, fingerprint } = body;
+      const { subId, fingerprint, captcha } = body;
 
       if (!subId || !fingerprint) {
         return jsonResponse({ error: 'subId and fingerprint are required' }, 400);
+      }
+
+      if (!captcha || captcha.length < 3) {
+        return jsonResponse({ success: false, reason: 'invalid_captcha', error: '验证码无效' }, 400);
       }
 
       // 验证订阅

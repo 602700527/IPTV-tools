@@ -14,7 +14,13 @@ export async function performCheckIn(subscriptionId, ip) {
   
   // 获取订阅信息
   const sub = await db.prepare(`
-    SELECT * FROM free_subscriptions WHERE id = ?
+    SELECT
+      fs.*,
+      (SELECT checkin_date FROM checkin_records
+       WHERE subscription_id = fs.id
+       ORDER BY checkin_date DESC LIMIT 1) as last_checkin_date
+    FROM free_subscriptions fs
+    WHERE fs.id = ?
   `).bind(subscriptionId).first();
   
   if (!sub) {
@@ -37,42 +43,42 @@ export async function performCheckIn(subscriptionId, ip) {
     SELECT id, checkin_date FROM checkin_records
     WHERE subscription_id = ? AND checkin_date = ?
   `).bind(subscriptionId, today).first();
-  
+
   if (existingCheckIn) {
-    return { 
-      success: false, 
+    return {
+      success: false,
       reason: 'already_checked_in',
       checkInDate: existingCheckIn.checkin_date
     };
   }
-  
+
   // 计算上次签到日期
-  const lastCheckInDate = sub.last_checkin ? new Date(sub.last_checkin).toISOString().split('T')[0] : null;
+  const lastCheckInDate = sub.last_checkin_date || sub.created_at ? new Date(sub.created_at).toISOString().split('T')[0] : null;
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayDate = yesterday.toISOString().split('T')[0];
-  
+
   // 计算连续签到天数
   let newConsecutiveDays = 1;
   let isConsecutive = false;
-  
+
   if (lastCheckInDate === yesterdayDate) {
     // 连续签到
     newConsecutiveDays = (sub.consecutive_days || 0) + 1;
     isConsecutive = true;
-  } else if (lastCheckInDate !== today) {
+  } else if (lastCheckInDate === today) {
+    // 已经签到过了（包括创建当天的0天记录）
+    return { success: false, reason: 'already_checked_in' };
+  } else {
     // 中断了，重新开始
     newConsecutiveDays = 1;
-  } else {
-    // 已经签到过了
-    return { success: false, reason: 'already_checked_in' };
   }
   
   // 计算奖励天数
   let rewardDays = 1; // 默认1天
   
   if (newConsecutiveDays >= 30) {
-    rewardDays = 10; // 连续30天，奖励10天
+    rewardDays = 7; // 连续30天，奖励7天
   } else if (newConsecutiveDays >= 7) {
     rewardDays = 2; // 连续7天，奖励2天
   }

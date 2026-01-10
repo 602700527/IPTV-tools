@@ -4734,7 +4734,7 @@ async function createFreeSubscription(ip, fingerprint, fingerprintComponents, en
     }
     await db.prepare(`
     INSERT INTO free_subscriptions (
-      sub_id, ip, fingerprint, fingerprint_components, 
+      sub_id, ip, fingerprint, fingerprint_components,
       expired_at, total_days, consecutive_days
     ) VALUES (?, ?, ?, ?, ?, ?, ?)
   `).bind(
@@ -4745,8 +4745,24 @@ async function createFreeSubscription(ip, fingerprint, fingerprintComponents, en
       expiredAt.toISOString(),
       7,
       // 初始7天
-      1
-      // 初始连续签到1天
+      0
+      // 初始连续签到0天
+    ).run();
+    const newSub = await db.prepare(`
+    SELECT id FROM free_subscriptions WHERE sub_id = ?
+  `).bind(subId).first();
+    const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+    await db.prepare(`
+    INSERT INTO checkin_records (
+      subscription_id, checkin_date, reward_days, consecutive_days
+    ) VALUES (?, ?, ?, ?)
+  `).bind(
+      newSub.id,
+      today,
+      0,
+      // 创建当天不给奖励
+      0
+      // 连续签到0天
     ).run();
     console.log("[FreeSub] New free subscription created", { subId, ip });
     return await getFreeSubscriptionBySubId(subId, db);
@@ -4837,7 +4853,13 @@ init_database();
 async function performCheckIn(subscriptionId, ip) {
   const db = getDB();
   const sub = await db.prepare(`
-    SELECT * FROM free_subscriptions WHERE id = ?
+    SELECT
+      fs.*,
+      (SELECT checkin_date FROM checkin_records
+       WHERE subscription_id = fs.id
+       ORDER BY checkin_date DESC LIMIT 1) as last_checkin_date
+    FROM free_subscriptions fs
+    WHERE fs.id = ?
   `).bind(subscriptionId).first();
   if (!sub) {
     return { success: false, reason: "subscription_not_found" };
@@ -4860,7 +4882,7 @@ async function performCheckIn(subscriptionId, ip) {
       checkInDate: existingCheckIn.checkin_date
     };
   }
-  const lastCheckInDate = sub.last_checkin ? new Date(sub.last_checkin).toISOString().split("T")[0] : null;
+  const lastCheckInDate = sub.last_checkin_date || sub.created_at ? new Date(sub.created_at).toISOString().split("T")[0] : null;
   const yesterday = /* @__PURE__ */ new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayDate = yesterday.toISOString().split("T")[0];
@@ -4869,14 +4891,14 @@ async function performCheckIn(subscriptionId, ip) {
   if (lastCheckInDate === yesterdayDate) {
     newConsecutiveDays = (sub.consecutive_days || 0) + 1;
     isConsecutive = true;
-  } else if (lastCheckInDate !== today) {
-    newConsecutiveDays = 1;
-  } else {
+  } else if (lastCheckInDate === today) {
     return { success: false, reason: "already_checked_in" };
+  } else {
+    newConsecutiveDays = 1;
   }
   let rewardDays = 1;
   if (newConsecutiveDays >= 30) {
-    rewardDays = 10;
+    rewardDays = 7;
   } else if (newConsecutiveDays >= 7) {
     rewardDays = 2;
   }
@@ -5000,9 +5022,12 @@ async function handleFreeSubAPI(request, env, ctx) {
         return jsonResponse({ error: "Method not allowed" }, 405);
       }
       const body = await request.json();
-      const { subId, fingerprint } = body;
+      const { subId, fingerprint, captcha } = body;
       if (!subId || !fingerprint) {
         return jsonResponse({ error: "subId and fingerprint are required" }, 400);
+      }
+      if (!captcha || captcha.length < 3) {
+        return jsonResponse({ success: false, reason: "invalid_captcha", error: "\u9A8C\u8BC1\u7801\u65E0\u6548" }, 400);
       }
       const db = getDB();
       const validation = await validateFreeSubscriptionWithFingerprint(subId, request, fingerprint, db);
@@ -12032,6 +12057,49 @@ var FREE_SUB_HTML = `
     .copy-btn:hover {
       background: #5568d3;
     }
+
+    .captcha-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .captcha-input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      text-align: center;
+      letter-spacing: 3px;
+    }
+
+    .captcha-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .captcha-canvas {
+      width: 120px;
+      height: 44px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .captcha-refresh {
+      padding: 8px 12px;
+      background: #f0f0f0;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .captcha-refresh:hover {
+      background: #e0e0e0;
+    }
   </style>
 </head>
 <body>
@@ -12075,6 +12143,11 @@ var FREE_SUB_HTML = `
       <p style="text-align: center; color: #666; margin-bottom: 15px; font-size: 14px;">
         \u7B7E\u5230\u53EF\u5EF6\u957F\u8BA2\u9605\u65F6\u957F\uFF0C\u8FDE\u7EED\u7B7E\u5230\u6709\u989D\u5916\u5956\u52B1\uFF01
       </p>
+      <div class="captcha-container">
+        <input type="text" class="captcha-input" id="captchaInput" placeholder="\u8F93\u5165\u9A8C\u8BC1\u7801" maxlength="6">
+        <canvas class="captcha-canvas" id="captchaCanvas" width="120" height="44" onclick="refreshCaptcha()"></canvas>
+        <button class="captcha-refresh" onclick="refreshCaptcha()">\u5237\u65B0</button>
+      </div>
       <button class="checkin-btn" id="checkInBtn" onclick="checkIn()">
         \u7ACB\u5373\u7B7E\u5230
       </button>
@@ -12100,7 +12173,7 @@ var FREE_SUB_HTML = `
       </div>
       <div class="feature">
         <div class="feature-icon">\u{1F3C6}</div>
-        <div class="feature-text">\u8FDE\u7EED30\u5929+10\u5929</div>
+        <div class="feature-text">\u8FDE\u7EED30\u5929+7\u5929</div>
       </div>
       <div class="feature">
         <div class="feature-icon">\u{1F512}</div>
@@ -12114,11 +12187,13 @@ var FREE_SUB_HTML = `
     let subId = null;
     let fingerprint = null;
     let fingerprintComponents = null;
+    let captchaCode = '';
 
     // \u9875\u9762\u52A0\u8F7D\u65F6\u6267\u884C
     window.addEventListener('DOMContentLoaded', async () => {
       await generateFingerprint();
       await loadSubscription();
+      refreshCaptcha();
     });
 
     // \u751F\u6210\u6307\u7EB9
@@ -12223,6 +12298,21 @@ var FREE_SUB_HTML = `
 
     // \u7B7E\u5230
     async function checkIn() {
+      const captchaInput = document.getElementById('captchaInput');
+      const captchaValue = captchaInput.value.trim().toUpperCase();
+
+      // \u9A8C\u8BC1\u9A8C\u8BC1\u7801
+      if (!captchaValue) {
+        showMessage('\u8BF7\u8F93\u5165\u9A8C\u8BC1\u7801', 'error');
+        return;
+      }
+
+      if (captchaValue !== captchaCode) {
+        showMessage('\u9A8C\u8BC1\u7801\u9519\u8BEF', 'error');
+        refreshCaptcha();
+        return;
+      }
+
       const btn = document.getElementById('checkInBtn');
       btn.disabled = true;
       btn.innerHTML = '<span class="loading"></span>\u7B7E\u5230\u4E2D...';
@@ -12235,17 +12325,22 @@ var FREE_SUB_HTML = `
           },
           body: JSON.stringify({
             subId: subId,
-            fingerprint: fingerprint
+            fingerprint: fingerprint,
+            captcha: captchaValue
           })
         });
 
         const data = await response.json();
 
         if (data.success) {
-          showMessage(\`\u7B7E\u5230\u6210\u529F\uFF01\u83B7\u5F97\${data.rewardDays}\u5929\uFF0C\u5269\u4F59\${data.consecutiveDays}\u5929\`, 'success');
+          showMessage(\`\u7B7E\u5230\u6210\u529F\uFF01\u83B7\u5F97\${data.rewardDays}\u5929\uFF0C\u8FDE\u7EED\u7B7E\u5230\${data.consecutiveDays}\u5929\`, 'success');
           await loadSubscriptionInfo();
+          refreshCaptcha();
         } else {
           showMessage(data.reason === 'already_checked_in' ? '\u4ECA\u65E5\u5DF2\u7B7E\u5230' : data.error || '\u7B7E\u5230\u5931\u8D25', 'error');
+          if (data.reason === 'invalid_captcha') {
+            refreshCaptcha();
+          }
         }
       } catch (error) {
         console.error('\u7B7E\u5230\u5931\u8D25:', error);
@@ -12274,6 +12369,66 @@ var FREE_SUB_HTML = `
       setTimeout(() => {
         messageEl.className = 'message';
       }, 5000);
+    }
+
+    // \u5237\u65B0\u9A8C\u8BC1\u7801
+    function refreshCaptcha() {
+      const canvas = document.getElementById('captchaCanvas');
+      const ctx = canvas.getContext('2d');
+
+      // \u6E05\u7A7A\u753B\u5E03
+      ctx.fillStyle = '#f5f5f5';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // \u751F\u6210\u968F\u673A\u9A8C\u8BC1\u7801\uFF084\u4F4D\u6570\u5B57+\u5B57\u6BCD\uFF09
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+      captchaCode = '';
+      for (let i = 0; i < 4; i++) {
+        captchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      // \u7ED8\u5236\u9A8C\u8BC1\u7801
+      ctx.font = 'bold 24px Arial';
+      ctx.textBaseline = 'middle';
+
+      for (let i = 0; i < captchaCode.length; i++) {
+        // \u968F\u673A\u989C\u8272
+        const r = Math.floor(Math.random() * 100);
+        const g = Math.floor(Math.random() * 100);
+        const b = Math.floor(Math.random() * 100);
+        ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+
+        // \u968F\u673A\u4F4D\u7F6E\u548C\u65CB\u8F6C
+        const x = 20 + i * 25;
+        const y = 22 + (Math.random() - 0.5) * 10;
+        const angle = (Math.random() - 0.5) * 0.4;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillText(captchaCode[i], 0, 0);
+        ctx.restore();
+      }
+
+      // \u6DFB\u52A0\u5E72\u6270\u7EBF
+      for (let i = 0; i < 5; i++) {
+        ctx.strokeStyle = 'rgba(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ',0.3)';
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.stroke();
+      }
+
+      // \u6DFB\u52A0\u5E72\u6270\u70B9
+      for (let i = 0; i < 30; i++) {
+        ctx.fillStyle = 'rgba(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ',0.5)';
+        ctx.beginPath();
+        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+
+      // \u6E05\u7A7A\u8F93\u5165\u6846
+      document.getElementById('captchaInput').value = '';
     }
   <\/script>
 </body>

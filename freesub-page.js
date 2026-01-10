@@ -224,6 +224,49 @@ export const FREE_SUB_HTML = `
     .copy-btn:hover {
       background: #5568d3;
     }
+
+    .captcha-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .captcha-input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      text-align: center;
+      letter-spacing: 3px;
+    }
+
+    .captcha-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .captcha-canvas {
+      width: 120px;
+      height: 44px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .captcha-refresh {
+      padding: 8px 12px;
+      background: #f0f0f0;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .captcha-refresh:hover {
+      background: #e0e0e0;
+    }
   </style>
 </head>
 <body>
@@ -267,6 +310,11 @@ export const FREE_SUB_HTML = `
       <p style="text-align: center; color: #666; margin-bottom: 15px; font-size: 14px;">
         签到可延长订阅时长，连续签到有额外奖励！
       </p>
+      <div class="captcha-container">
+        <input type="text" class="captcha-input" id="captchaInput" placeholder="输入验证码" maxlength="6">
+        <canvas class="captcha-canvas" id="captchaCanvas" width="120" height="44" onclick="refreshCaptcha()"></canvas>
+        <button class="captcha-refresh" onclick="refreshCaptcha()">刷新</button>
+      </div>
       <button class="checkin-btn" id="checkInBtn" onclick="checkIn()">
         立即签到
       </button>
@@ -292,7 +340,7 @@ export const FREE_SUB_HTML = `
       </div>
       <div class="feature">
         <div class="feature-icon">🏆</div>
-        <div class="feature-text">连续30天+10天</div>
+        <div class="feature-text">连续30天+7天</div>
       </div>
       <div class="feature">
         <div class="feature-icon">🔒</div>
@@ -306,11 +354,13 @@ export const FREE_SUB_HTML = `
     let subId = null;
     let fingerprint = null;
     let fingerprintComponents = null;
+    let captchaCode = '';
 
     // 页面加载时执行
     window.addEventListener('DOMContentLoaded', async () => {
       await generateFingerprint();
       await loadSubscription();
+      refreshCaptcha();
     });
 
     // 生成指纹
@@ -415,6 +465,21 @@ export const FREE_SUB_HTML = `
 
     // 签到
     async function checkIn() {
+      const captchaInput = document.getElementById('captchaInput');
+      const captchaValue = captchaInput.value.trim().toUpperCase();
+
+      // 验证验证码
+      if (!captchaValue) {
+        showMessage('请输入验证码', 'error');
+        return;
+      }
+
+      if (captchaValue !== captchaCode) {
+        showMessage('验证码错误', 'error');
+        refreshCaptcha();
+        return;
+      }
+
       const btn = document.getElementById('checkInBtn');
       btn.disabled = true;
       btn.innerHTML = '<span class="loading"></span>签到中...';
@@ -427,17 +492,22 @@ export const FREE_SUB_HTML = `
           },
           body: JSON.stringify({
             subId: subId,
-            fingerprint: fingerprint
+            fingerprint: fingerprint,
+            captcha: captchaValue
           })
         });
 
         const data = await response.json();
 
         if (data.success) {
-          showMessage(\`签到成功！获得\${data.rewardDays}天，剩余\${data.consecutiveDays}天\`, 'success');
+          showMessage(\`签到成功！获得\${data.rewardDays}天，连续签到\${data.consecutiveDays}天\`, 'success');
           await loadSubscriptionInfo();
+          refreshCaptcha();
         } else {
           showMessage(data.reason === 'already_checked_in' ? '今日已签到' : data.error || '签到失败', 'error');
+          if (data.reason === 'invalid_captcha') {
+            refreshCaptcha();
+          }
         }
       } catch (error) {
         console.error('签到失败:', error);
@@ -466,6 +536,66 @@ export const FREE_SUB_HTML = `
       setTimeout(() => {
         messageEl.className = 'message';
       }, 5000);
+    }
+
+    // 刷新验证码
+    function refreshCaptcha() {
+      const canvas = document.getElementById('captchaCanvas');
+      const ctx = canvas.getContext('2d');
+
+      // 清空画布
+      ctx.fillStyle = '#f5f5f5';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 生成随机验证码（4位数字+字母）
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+      captchaCode = '';
+      for (let i = 0; i < 4; i++) {
+        captchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      // 绘制验证码
+      ctx.font = 'bold 24px Arial';
+      ctx.textBaseline = 'middle';
+
+      for (let i = 0; i < captchaCode.length; i++) {
+        // 随机颜色
+        const r = Math.floor(Math.random() * 100);
+        const g = Math.floor(Math.random() * 100);
+        const b = Math.floor(Math.random() * 100);
+        ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+
+        // 随机位置和旋转
+        const x = 20 + i * 25;
+        const y = 22 + (Math.random() - 0.5) * 10;
+        const angle = (Math.random() - 0.5) * 0.4;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillText(captchaCode[i], 0, 0);
+        ctx.restore();
+      }
+
+      // 添加干扰线
+      for (let i = 0; i < 5; i++) {
+        ctx.strokeStyle = 'rgba(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ',0.3)';
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.stroke();
+      }
+
+      // 添加干扰点
+      for (let i = 0; i < 30; i++) {
+        ctx.fillStyle = 'rgba(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ',0.5)';
+        ctx.beginPath();
+        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+
+      // 清空输入框
+      document.getElementById('captchaInput').value = '';
     }
   </script>
 </body>
