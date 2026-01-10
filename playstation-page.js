@@ -412,7 +412,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           🎁
           <span class="quick-entry-tip">免费订阅</span>
         </button>
-        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" data-tip-key="clearCache" style="display:none;">
+        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" data-tip-key="clearCache">
           🗑️
           <span class="quick-entry-tip">清除缓存</span>
         </button>
@@ -1152,7 +1152,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     // 页面加载时获取频道列表
     window.addEventListener('DOMContentLoaded', () => {
       // 尝试从缓存加载分组数据，快速渲染分组列表
-      const cachedGroups = getFromCache(getCacheKey('groups'));
+      const cachedGroups = getCachedGroups();
       if (cachedGroups && cachedGroups.length > 0) {
         allGroups = cachedGroups;
         renderGroups();
@@ -1171,7 +1171,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     const CACHE_PREFIX = 'iptv_cache_';
     const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24小时（毫秒）
     const GROUPS_CACHE_KEY = 'iptv_groups'; // 分组数据独立缓存键
-    const GROUPS_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 分组数据缓存7天
+    const GROUPS_CACHE_DURATION = 24 * 60 * 60 * 1000; // 分组数据缓存24小时
 
     // 生成缓存键
     function getCacheKey(type, params = '') {
@@ -1258,7 +1258,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       try {
         const keys = Object.keys(localStorage);
         keys.forEach(key => {
-          if (key.startsWith(CACHE_PREFIX)) {
+          if (key.startsWith(CACHE_PREFIX) || key === GROUPS_CACHE_KEY) {
             localStorage.removeItem(key);
           }
         });
