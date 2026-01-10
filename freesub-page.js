@@ -158,27 +158,20 @@ export const FREE_SUB_HTML = `
 
     .features {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: 1fr;
+      gap: 8px;
       margin-top: 20px;
-    }
-
-    .feature {
-      text-align: center;
       padding: 15px;
-      background: white;
+      background: #f8f9fa;
       border-radius: 8px;
-      border: 1px solid #eee;
+      border: 1px solid #e9ecef;
     }
 
-    .feature-icon {
-      font-size: 24px;
-      margin-bottom: 8px;
-    }
-
-    .feature-text {
-      font-size: 12px;
-      color: #666;
+    .feature-text-full {
+      color: #495057;
+      font-size: 13px;
+      line-height: 1.5;
+      padding: 4px 0;
     }
 
     .loading {
@@ -208,6 +201,20 @@ export const FREE_SUB_HTML = `
 
     .notice-icon {
       margin-right: 8px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .feature-text-full {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 10px 0;
     }
 
     .copy-btn {
@@ -273,7 +280,7 @@ export const FREE_SUB_HTML = `
   <div class="container">
     <div class="header">
       <h1>🎁 免费订阅</h1>
-      <p>每天30%精选频道，每日签到续期</p>
+      <p>每天随机精选频道，每日签到续期</p>
     </div>
 
     <div class="notice">
@@ -298,7 +305,7 @@ export const FREE_SUB_HTML = `
             <div class="status-label">连续签到</div>
           </div>
           <div class="status-item">
-            <div class="status-value" id="channelCount">30%</div>
+            <div class="status-value" id="channelCount">随机精选</div>
             <div class="status-label">频道数量</div>
           </div>
         </div>
@@ -322,30 +329,9 @@ export const FREE_SUB_HTML = `
     </div>
 
     <div class="features">
-      <div class="feature">
-        <div class="feature-icon">🎁</div>
-        <div class="feature-text">免费使用</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">🔄</div>
-        <div class="feature-text">每日30%频道</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">✅</div>
-        <div class="feature-text">每日+1天</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">🔥</div>
-        <div class="feature-text">连续7天+2天</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">🏆</div>
-        <div class="feature-text">连续30天+7天</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">🔒</div>
-        <div class="feature-text">IP绑定保护</div>
-      </div>
+      <div class="feature-text-full">• 首次签到有效期3天，每天签到+1天</div>
+      <div class="feature-text-full">• 连续7天额外+2天</div>
+      <div class="feature-text-full">• 连续30天额外+7天，最多累计30天</div>
     </div>
   </div>
 

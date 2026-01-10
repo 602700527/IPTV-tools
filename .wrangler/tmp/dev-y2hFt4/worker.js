@@ -12094,27 +12094,20 @@ var FREE_SUB_HTML = `
 
     .features {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: 1fr;
+      gap: 8px;
       margin-top: 20px;
-    }
-
-    .feature {
-      text-align: center;
       padding: 15px;
-      background: white;
+      background: #f8f9fa;
       border-radius: 8px;
-      border: 1px solid #eee;
+      border: 1px solid #e9ecef;
     }
 
-    .feature-icon {
-      font-size: 24px;
-      margin-bottom: 8px;
-    }
-
-    .feature-text {
-      font-size: 12px;
-      color: #666;
+    .feature-text-full {
+      color: #495057;
+      font-size: 13px;
+      line-height: 1.5;
+      padding: 4px 0;
     }
 
     .loading {
@@ -12144,6 +12137,20 @@ var FREE_SUB_HTML = `
 
     .notice-icon {
       margin-right: 8px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .feature-text-full {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 10px 0;
     }
 
     .copy-btn {
@@ -12209,7 +12216,7 @@ var FREE_SUB_HTML = `
   <div class="container">
     <div class="header">
       <h1>\u{1F381} \u514D\u8D39\u8BA2\u9605</h1>
-      <p>\u6BCF\u592930%\u7CBE\u9009\u9891\u9053\uFF0C\u6BCF\u65E5\u7B7E\u5230\u7EED\u671F</p>
+      <p>\u6BCF\u5929\u968F\u673A\u7CBE\u9009\u9891\u9053\uFF0C\u6BCF\u65E5\u7B7E\u5230\u7EED\u671F</p>
     </div>
 
     <div class="notice">
@@ -12234,7 +12241,7 @@ var FREE_SUB_HTML = `
             <div class="status-label">\u8FDE\u7EED\u7B7E\u5230</div>
           </div>
           <div class="status-item">
-            <div class="status-value" id="channelCount">30%</div>
+            <div class="status-value" id="channelCount">\u968F\u673A\u7CBE\u9009</div>
             <div class="status-label">\u9891\u9053\u6570\u91CF</div>
           </div>
         </div>
@@ -12258,30 +12265,9 @@ var FREE_SUB_HTML = `
     </div>
 
     <div class="features">
-      <div class="feature">
-        <div class="feature-icon">\u{1F381}</div>
-        <div class="feature-text">\u514D\u8D39\u4F7F\u7528</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">\u{1F504}</div>
-        <div class="feature-text">\u6BCF\u65E530%\u9891\u9053</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">\u2705</div>
-        <div class="feature-text">\u6BCF\u65E5+1\u5929</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">\u{1F525}</div>
-        <div class="feature-text">\u8FDE\u7EED7\u5929+2\u5929</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">\u{1F3C6}</div>
-        <div class="feature-text">\u8FDE\u7EED30\u5929+7\u5929</div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">\u{1F512}</div>
-        <div class="feature-text">IP\u7ED1\u5B9A\u4FDD\u62A4</div>
-      </div>
+      <div class="feature-text-full">\u2022 \u9996\u6B21\u7B7E\u5230\u6709\u6548\u671F3\u5929\uFF0C\u6BCF\u5929\u7B7E\u5230+1\u5929</div>
+      <div class="feature-text-full">\u2022 \u8FDE\u7EED7\u5929\u989D\u5916+2\u5929</div>
+      <div class="feature-text-full">\u2022 \u8FDE\u7EED30\u5929\u989D\u5916+7\u5929\uFF0C\u6700\u591A\u7D2F\u8BA130\u5929</div>
     </div>
   </div>
 
