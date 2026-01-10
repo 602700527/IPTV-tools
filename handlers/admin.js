@@ -1370,6 +1370,123 @@ export async function handleAdminRequest(request, env, ctx) {
         }
         break;
 
+      case 'ad-ts':
+        // 广告TS文件管理
+        const adTsSubAction = pathParts[3];
+
+        if (request.method === 'GET' && !adTsSubAction) {
+          // 获取所有广告TS文件列表
+          const db = getDB();
+          const adTsFiles = await db.prepare('SELECT * FROM ad_ts_files ORDER BY created_at DESC').all();
+
+          return new Response(JSON.stringify({
+            success: true,
+            count: adTsFiles.results?.length || 0,
+            files: adTsFiles.results || []
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'POST' && adTsSubAction === 'upload') {
+          // 上传广告TS文件
+          const formData = await request.formData();
+          const file = formData.get('file');
+          const name = formData.get('name');
+          const adType = formData.get('ad_type') || 'normal';
+          const description = formData.get('description') || '';
+          const isActive = formData.get('is_active') === 'true';
+
+          if (!file) {
+            return new Response(JSON.stringify({ success: false, error: 'No file provided' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+
+          // 将文件内容转换为Base64
+          const arrayBuffer = await file.arrayBuffer();
+          const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+          const db = getDB();
+          const now = new Date().toISOString();
+
+          await db.prepare(`
+            INSERT INTO ad_ts_files (name, content, ad_type, description, is_active, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            name || file.name,
+            base64,
+            adType,
+            description,
+            isActive ? 1 : 0,
+            now,
+            now
+          ).run();
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: '广告TS文件上传成功'
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'DELETE' && adTsSubAction === 'delete') {
+          // 删除广告TS文件
+          const id = url.searchParams.get('id');
+          if (!id) {
+            return new Response('Missing id parameter', { status: 400 });
+          }
+
+          const db = getDB();
+          await db.prepare('DELETE FROM ad_ts_files WHERE id = ?').bind(id).run();
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: '广告TS文件已删除'
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'PUT' && adTsSubAction === 'update') {
+          // 更新广告TS文件（启用/禁用广告）
+          const id = url.searchParams.get('id');
+          if (!id) {
+            return new Response('Missing id parameter', { status: 400 });
+          }
+
+          const db = getDB();
+          const now = new Date().toISOString();
+
+          await db.prepare(`
+            UPDATE ad_ts_files SET is_active = 1, updated_at = ? WHERE id = ?
+          `).bind(now, id).run();
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: '广告TS文件已启用'
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'PUT' && adTsSubAction === 'disable') {
+          // 禁用广告TS文件
+          const id = url.searchParams.get('id');
+          if (!id) {
+            return new Response('Missing id parameter', { status: 400 });
+          }
+
+          const db = getDB();
+          const now = new Date().toISOString();
+
+          await db.prepare(`
+            UPDATE ad_ts_files SET is_active = 0, updated_at = ? WHERE id = ?
+          `).bind(now, id).run();
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: '广告TS文件已禁用'
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        break;
+
       default:
         return new Response('Invalid admin action', { status: 400 });
     }
@@ -1514,3 +1631,4 @@ function generateRandomEncryptionKey(length = 32) {
   }
   return key;
 }
+

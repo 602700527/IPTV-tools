@@ -1,5 +1,5 @@
 // 播放请求处理器: /live/{code}/{hash}（简化安全版）
-import { getDB, getSecurityConfig } from '../database.js';
+import { getDB, getSecurityConfig, getActiveAdTsFile } from '../database.js';
 import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
 import { addBannedCodeToCache } from '../security/code-ban-cache.js';
 import { incrementPlayCount, getPlayCount, flushCacheToDB, getAuthorizedSubscriptionIPs } from '../utils/cache.js';
@@ -84,8 +84,24 @@ export async function handleLiveRequest(request, env, ctx) {
     // 检查当前播放IP是否在订阅IP列表中
     // 如果授权IP列表为空（说明是该卡密首次订阅），则允许播放
     if (authorizedIPs.size > 0 && !authorizedIPs.has(clientIP)) {
-      response = new Response("Forbidden: Your IP is not authorized to play (please re-subscribe)", { status: 403 });
-      response.headers.set("Cache-Control", "public, max-age=60");
+      // 获取广告TS文件
+      const adTsFile = await getActiveAdTsFile();
+
+      if (adTsFile && adTsFile.content) {
+        // 返回自定义M3U8，包含广告TS
+        const m3u8Content = generateAdM3U8(adTsFile);
+        response = new Response(m3u8Content, {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/vnd.apple.mpegurl',
+            'Cache-Control': 'public, max-age=60'
+          }
+        });
+      } else {
+        // 没有广告文件，返回403错误
+        response = new Response("Forbidden: Your IP is not authorized to play (please re-subscribe)", { status: 403 });
+        response.headers.set("Cache-Control", "public, max-age=60");
+      }
       ctx.waitUntil(cache.put(cacheKey, response.clone()));
       return response;
     }
@@ -184,5 +200,23 @@ export async function handleLiveRequest(request, env, ctx) {
     console.error('Live request error:', error);
     return new Response('Internal Server Error', { status: 500 });
   }
+}
+
+// 生成广告M3U8内容
+function generateAdM3U8(adTsFile) {
+  // Base64解码TS内容
+  const tsContent = adTsFile.content;
+
+  // 生成M3U8内容
+  const m3u8 = `#EXTM3U8
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:10.000
+#EXT-X-MEDIA-SEQUENCE:0
+#EXTINF:10.000,
+ad.ts
+#EXT-X-ENDLIST`;
+
+  // 返回M3U8和TS的组合内容
+  return `${m3u8}\n\n${tsContent}`;
 }
 

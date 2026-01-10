@@ -1,12 +1,16 @@
-// 定时任务处理器：自动同步已启用的数据源
+// 定时任务处理器：自动同步已启用的数据源和刷新缓存
 import { getDB, fetchAndParseM3U, initDB, getSyncFilterConfig } from '../database.js';
 import { cacheChannelsToKV } from '../utils/channel-cache.js';
 import { flushCacheToDB } from '../utils/cache.js';
 
+// 并发控制锁
+let syncInProgress = false;
+let cacheRefreshInProgress = false;
+
 export async function handleScheduledEvent(event, env, ctx) {
   try {
     const now = new Date().toISOString();
-    console.log(`[${now}] Scheduled task started: Auto-sync enabled sources`);
+    console.log(`[${now}] Scheduled task started`);
 
     // 初始化数据库
     const db = await initDB(env);
@@ -16,6 +20,52 @@ export async function handleScheduledEvent(event, env, ctx) {
     }
     console.log('[Scheduler] Database initialized successfully');
 
+    // 检查cron类型（通过时间判断）
+    const hour = new Date().getHours();
+    const minute = new Date().getMinutes();
+
+    // 每天2:40执行数据源同步
+    if (hour === 2 && minute === 40) {
+      if (syncInProgress) {
+        console.log('[Scheduler] Data source sync already in progress, skipping');
+        return;
+      }
+
+      syncInProgress = true;
+      console.log('[Scheduler] Starting data source sync');
+
+      try {
+        await syncAllSources(db, env);
+      } finally {
+        syncInProgress = false;
+      }
+    } else {
+      // 每10分钟刷新缓存
+      if (cacheRefreshInProgress) {
+        console.log('[Scheduler] Cache refresh already in progress, skipping');
+        return;
+      }
+
+      cacheRefreshInProgress = true;
+      console.log('[Scheduler] Starting cache refresh');
+
+      try {
+        await refreshCache(db, env);
+      } finally {
+        cacheRefreshInProgress = false;
+      }
+    }
+
+  } catch (error) {
+    console.error('[Scheduler] Error in scheduled event:', error);
+    syncInProgress = false;
+    cacheRefreshInProgress = false;
+  }
+}
+
+// 同步所有数据源（每天2:40执行）
+async function syncAllSources(db, env) {
+  try {
     // 获取同步过滤规则配置
     let filter = null;
     try {
@@ -35,33 +85,37 @@ export async function handleScheduledEvent(event, env, ctx) {
     `).all();
 
     if (!sources.results || sources.results.length === 0) {
-      console.log('No enabled sources found');
+      console.log('[Scheduler] No enabled sources found');
       return;
     }
 
     const enabledSources = sources.results;
-    console.log(`Found ${enabledSources.length} enabled source(s) to sync`);
+    console.log(`[Scheduler] Found ${enabledSources.length} enabled source(s) to sync`);
 
     // 逐个同步源
     const results = [];
+    let totalDeleted = 0;
+    let totalAdded = 0;
+
     for (const source of enabledSources) {
       try {
-        console.log(`Syncing source ${source.id}: ${source.name}`);
+        console.log(`[Scheduler] Syncing source ${source.id}: ${source.name}`);
 
         // 获取旧的频道数量
         const oldCountResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(source.id).first();
         const oldChannelCount = oldCountResult?.count || 0;
 
-        // 删除该源的旧频道（使用更高效的方式：先删除索引列）
-        // 先按 source_id 批量删除索引，然后清理表
-        await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
-
-        // 同步新频道（传入过滤规则）
-        console.log(`[Sync] Starting fetch and parse for source ${source.id}: ${source.name}`);
+        // 先同步新频道
+        console.log(`[Scheduler] Starting fetch and parse for source ${source.id}: ${source.name}`);
         const syncResult = await fetchAndParseM3U(source.url, source.id, filter);
-        console.log(`[Sync] Sync result for source ${source.id}:`, syncResult);
 
-        if (syncResult.success) {
+        if (syncResult.success && syncResult.channelCount > 0) {
+          // 只有成功获取新频道时才删除旧频道
+          console.log(`[Scheduler] Deleting old channels for source ${source.id}`);
+          await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
+          totalDeleted += oldChannelCount;
+          totalAdded += syncResult.channelCount;
+
           results.push({
             source_id: source.id,
             source_name: source.name,
@@ -70,20 +124,21 @@ export async function handleScheduledEvent(event, env, ctx) {
             new_channels: syncResult.channelCount,
             error: null
           });
-          console.log(`[Sync] Source ${source.id} synced successfully: deleted ${oldChannelCount}, added ${syncResult.channelCount}`);
+          console.log(`[Scheduler] Source ${source.id} synced successfully: deleted ${oldChannelCount}, added ${syncResult.channelCount}`);
         } else {
+          // 同步失败或没有新频道，不删除旧频道
           results.push({
             source_id: source.id,
             source_name: source.name,
             success: false,
-            deleted_channels: oldChannelCount,
+            deleted_channels: 0,
             new_channels: 0,
-            error: syncResult.error
+            error: syncResult.error || 'No channels fetched'
           });
-          console.error(`Source ${source.id} sync failed: ${syncResult.error}`);
+          console.error(`[Scheduler] Source ${source.id} sync failed: ${syncResult.error}`);
         }
       } catch (error) {
-        console.error(`Error syncing source ${source.id}:`, error);
+        console.error(`[Scheduler] Error syncing source ${source.id}:`, error);
         results.push({
           source_id: source.id,
           source_name: source.name,
@@ -98,12 +153,54 @@ export async function handleScheduledEvent(event, env, ctx) {
     // 记录同步结果
     const successCount = results.filter(r => r.success).length;
     const failCount = results.filter(r => !r.success).length;
-    const totalDeleted = results.reduce((sum, r) => sum + r.deleted_channels, 0);
-    const totalAdded = results.reduce((sum, r) => sum + r.new_channels, 0);
 
-    console.log(`Scheduled task completed: ${successCount}/${enabledSources.length} sources synced, ${failCount} failed`);
-    console.log(`Total: ${totalDeleted} channels deleted, ${totalAdded} channels added`);
+    console.log(`[Scheduler] Sync completed: ${successCount}/${enabledSources.length} sources synced, ${failCount} failed`);
+    console.log(`[Scheduler] Total: ${totalDeleted} channels deleted, ${totalAdded} channels added`);
 
+    // 清理过期的记录
+    await cleanupOldRecords(db);
+
+    // 缓存频道数据到 KV
+    console.log('[Scheduler] Caching channels to KV...');
+    const cacheResult = await cacheChannelsToKV(env);
+    if (cacheResult.success) {
+      console.log(`[Scheduler] Cached ${cacheResult.cachedCount} channels to KV`);
+    } else {
+      console.error('[Scheduler] Failed to cache channels:', cacheResult.error);
+    }
+
+  } catch (error) {
+    console.error('[Scheduler] Error in syncAllSources:', error);
+    throw error;
+  }
+}
+
+// 刷新缓存（每10分钟执行）
+async function refreshCache(db, env) {
+  try {
+    console.log('[Scheduler] Refreshing cache...');
+
+    // 清理过期的记录
+    await cleanupOldRecords(db);
+
+    // 缓存频道数据到 KV
+    const cacheResult = await cacheChannelsToKV(env);
+    if (cacheResult.success) {
+      console.log(`[Scheduler] Cache refreshed: ${cacheResult.cachedCount} channels cached`);
+    } else {
+      console.error('[Scheduler] Failed to refresh cache:', cacheResult.error);
+    }
+
+    console.log('[Scheduler] Cache refresh completed');
+  } catch (error) {
+    console.error('[Scheduler] Error in refreshCache:', error);
+    throw error;
+  }
+}
+
+// 清理过期记录
+async function cleanupOldRecords(db) {
+  try {
     // 清理过期的 play_logs 记录（超过10分钟）
     const tenMinutesAgo = new Date(Date.now() - 600000).toISOString();
     const deleteResult = await db.prepare(`
@@ -111,7 +208,9 @@ export async function handleScheduledEvent(event, env, ctx) {
       WHERE played_at < ?
     `).bind(tenMinutesAgo).run();
 
-    console.log(`Cleaned up ${deleteResult.meta?.changes || 0} expired play_logs records`);
+    if (deleteResult.meta?.changes > 0) {
+      console.log(`[Scheduler] Cleaned up ${deleteResult.meta.changes} expired play_logs records`);
+    }
 
     // 清理旧的 play_counts 记录（7天前）
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -120,7 +219,9 @@ export async function handleScheduledEvent(event, env, ctx) {
       WHERE created_date < ?
     `).bind(sevenDaysAgo).run();
 
-    console.log(`Cleaned up ${deleteCountsResult.meta?.changes || 0} old play_counts records`);
+    if (deleteCountsResult.meta?.changes > 0) {
+      console.log(`[Scheduler] Cleaned up ${deleteCountsResult.meta.changes} old play_counts records`);
+    }
 
     // 清理旧的 ip_access_logs 记录（7天前）
     const deleteIpResult = await db.prepare(`
@@ -128,44 +229,34 @@ export async function handleScheduledEvent(event, env, ctx) {
       WHERE created_date < ?
     `).bind(sevenDaysAgo).run();
 
-    console.log(`Cleaned up ${deleteIpResult.meta?.changes || 0} old ip_access_logs records`);
-
-    // 缓存频道数据到 KV
-    console.log('Caching channels to KV...');
-    const cacheResult = await cacheChannelsToKV(env);
-    if (cacheResult.success) {
-      console.log(`Channels cached successfully: ${cacheResult.channels} channels, ${cacheResult.groups} groups`);
-    } else {
-      console.error('Failed to cache channels:', cacheResult.error);
+    if (deleteIpResult.meta?.changes > 0) {
+      console.log(`[Scheduler] Cleaned up ${deleteIpResult.meta.changes} old ip_access_logs records`);
     }
 
-    // 刷新缓存到数据库（包括订阅IP）
-    console.log('Flushing cache to database...');
-    const flushResult = await flushCacheToDB(env, ctx);
-    if (flushResult) {
-      console.log('Cache flushed successfully');
-    } else {
-      console.log('Cache flush skipped (not yet due)');
-    }
+    // 清理旧的 subscription_ips 记录（30天前）
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const deleteSubResult = await db.prepare(`
+      DELETE FROM subscription_ips
+      WHERE created_date < ?
+    `).bind(thirtyDaysAgo).run();
 
-    // 可选：将结果存储到KV或发送通知
-    // await env.KV.put('last_sync_result', JSON.stringify({
-    //   timestamp: new Date().toISOString(),
-    //   results
-    // }), { expirationTtl: 86400 * 7 });
+    if (deleteSubResult.meta?.changes > 0) {
+      console.log(`[Scheduler] Cleaned up ${deleteSubResult.meta.changes} old subscription_ips records`);
+    }
 
   } catch (error) {
-    console.error('Scheduled task error:', error);
+    console.error('[Scheduler] Error in cleanupOldRecords:', error);
   }
 }
 
-// 手动触发同步（用于测试或立即同步）
+// 手动同步所有数据源（供管理员手动触发）
 export async function manualSyncAll(env, filter = null) {
   try {
-    // 初始化数据库
+    console.log('[Scheduler] Manual sync started');
+
     const db = await initDB(env);
     if (!db) {
-      console.error('[ManualSync] Failed to initialize database');
+      console.error('[Scheduler] Failed to initialize database');
       return { success: false, error: 'Database initialization failed' };
     }
 
@@ -190,11 +281,13 @@ export async function manualSyncAll(env, filter = null) {
         const oldCountResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(source.id).first();
         const oldChannelCount = oldCountResult?.count || 0;
 
-        // 删除该源的旧频道（使用索引优化的 DELETE）
-        await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
+        // 先同步新频道
         const syncResult = await fetchAndParseM3U(source.url, source.id, filter);
 
-        if (syncResult.success) {
+        if (syncResult.success && syncResult.channelCount > 0) {
+          // 只有成功获取新频道时才删除旧频道
+          await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
+
           results.push({
             source_id: source.id,
             source_name: source.name,
@@ -208,9 +301,9 @@ export async function manualSyncAll(env, filter = null) {
             source_id: source.id,
             source_name: source.name,
             success: false,
-            deleted_channels: oldChannelCount,
+            deleted_channels: 0,
             new_channels: 0,
-            error: syncResult.error
+            error: syncResult.error || 'No channels fetched'
           });
         }
       } catch (error) {
@@ -228,16 +321,15 @@ export async function manualSyncAll(env, filter = null) {
     const successCount = results.filter(r => r.success).length;
     const failCount = results.filter(r => !r.success).length;
 
+    console.log(`[Scheduler] Manual sync completed: ${successCount}/${enabledSources.length} sources synced, ${failCount} failed`);
+
     return {
       success: true,
-      message: `同步完成：${successCount}个成功，${failCount}个失败`,
-      total_sources: enabledSources.length,
-      success_count: successCount,
-      fail_count: failCount,
+      message: `同步完成: ${successCount}个源成功, ${failCount}个源失败`,
       results
     };
   } catch (error) {
-    console.error('Manual sync error:', error);
+    console.error('[Scheduler] Error in manualSyncAll:', error);
     return { success: false, error: error.message };
   }
 }

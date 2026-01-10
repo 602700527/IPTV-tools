@@ -284,6 +284,35 @@ export async function createTables(env) {
     console.error('Database: Failed to create subscription_ips indexes:', e);
   }
 
+  // 创建广告TS文件表
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS ad_ts_files (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        content TEXT NOT NULL,
+        ad_type TEXT DEFAULT 'normal',
+        description TEXT,
+        is_active BOOLEAN DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    console.log('Database: ad_ts_files table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create ad_ts_files table:', e);
+  }
+
+  // 创建广告TS文件索引
+  try {
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_ad_ts_files_active ON ad_ts_files(is_active)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_ad_ts_files_type_active ON ad_ts_files(ad_type, is_active)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_ad_ts_files_updated ON ad_ts_files(updated_at DESC)').run();
+    console.log('Database: ad_ts_files indexes created or already exist');
+  } catch (e) {
+    console.error('Database: Failed to create ad_ts_files indexes:', e);
+  }
+
   console.log('Tables created successfully');
 }
 
@@ -1256,4 +1285,29 @@ export async function decryptWithAES(encryptedBase64, secret) {
     console.error('AES 解密失败:', error);
     throw error;
   }
+}
+
+// 获取当前活跃的广告TS文件
+export async function getActiveAdTsFile(adType = null) {
+  const db = getDB();
+
+  let query = 'SELECT * FROM ad_ts_files WHERE is_active = 1';
+  const params = [];
+
+  if (adType) {
+    query += ' AND ad_type = ?';
+    params.push(adType);
+  }
+
+  // 获取所有符合条件的活跃广告
+  const adTsFiles = await db.prepare(query).bind(...params).all();
+  const ads = adTsFiles.results || [];
+
+  if (ads.length === 0) {
+    return null;
+  }
+
+  // 随机选择一个广告
+  const randomIndex = Math.floor(Math.random() * ads.length);
+  return ads[randomIndex];
 }

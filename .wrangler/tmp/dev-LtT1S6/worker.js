@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-yqEQo5/checked-fetch.js
+// .wrangler/tmp/bundle-HNIaaU/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-yqEQo5/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-HNIaaU/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -64,6 +64,7 @@ __export(database_exports, {
   fetchAndParseM3U: () => fetchAndParseM3U,
   generateEncryptionKey: () => generateEncryptionKey,
   generatePlayToken: () => generatePlayToken,
+  getActiveAdTsFile: () => getActiveAdTsFile,
   getDB: () => getDB,
   getHomepageDisplayConfig: () => getHomepageDisplayConfig,
   getIPBlacklistConfig: () => getIPBlacklistConfig,
@@ -299,6 +300,31 @@ async function createTables(env) {
     console.log("Database: subscription_ips indexes created or already exist");
   } catch (e) {
     console.error("Database: Failed to create subscription_ips indexes:", e);
+  }
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS ad_ts_files (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        content TEXT NOT NULL,
+        ad_type TEXT DEFAULT 'normal',
+        description TEXT,
+        is_active BOOLEAN DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    console.log("Database: ad_ts_files table created or already exists");
+  } catch (e) {
+    console.error("Database: Failed to create ad_ts_files table:", e);
+  }
+  try {
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_ad_ts_files_active ON ad_ts_files(is_active)").run();
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_ad_ts_files_type_active ON ad_ts_files(ad_type, is_active)").run();
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_ad_ts_files_updated ON ad_ts_files(updated_at DESC)").run();
+    console.log("Database: ad_ts_files indexes created or already exist");
+  } catch (e) {
+    console.error("Database: Failed to create ad_ts_files indexes:", e);
   }
   console.log("Tables created successfully");
 }
@@ -998,6 +1024,22 @@ async function decryptWithAES(encryptedBase64, secret) {
     throw error;
   }
 }
+async function getActiveAdTsFile(adType = null) {
+  const db = getDB();
+  let query = "SELECT * FROM ad_ts_files WHERE is_active = 1";
+  const params = [];
+  if (adType) {
+    query += " AND ad_type = ?";
+    params.push(adType);
+  }
+  const adTsFiles = await db.prepare(query).bind(...params).all();
+  const ads = adTsFiles.results || [];
+  if (ads.length === 0) {
+    return null;
+  }
+  const randomIndex = Math.floor(Math.random() * ads.length);
+  return ads[randomIndex];
+}
 var DB;
 var init_database = __esm({
   "database.js"() {
@@ -1027,14 +1069,15 @@ var init_database = __esm({
     __name(fetchAndParseM3U, "fetchAndParseM3U");
     __name(encryptWithAES, "encryptWithAES");
     __name(decryptWithAES, "decryptWithAES");
+    __name(getActiveAdTsFile, "getActiveAdTsFile");
   }
 });
 
-// .wrangler/tmp/bundle-yqEQo5/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-HNIaaU/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-yqEQo5/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-HNIaaU/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -1852,8 +1895,20 @@ async function handleLiveRequest(request, env, ctx) {
     const authorizedIPs = getAuthorizedSubscriptionIPs(code, today, maxIPs);
     console.log(`[Live] Code: ${code}, IP: ${clientIP}, Authorized IPs: ${Array.from(authorizedIPs).join(", ")}, IsAuthorized: ${authorizedIPs.has(clientIP)}`);
     if (authorizedIPs.size > 0 && !authorizedIPs.has(clientIP)) {
-      response = new Response("Forbidden: Your IP is not authorized to play (please re-subscribe)", { status: 403 });
-      response.headers.set("Cache-Control", "public, max-age=60");
+      const adTsFile = await getActiveAdTsFile();
+      if (adTsFile && adTsFile.content) {
+        const m3u8Content = generateAdM3U8(adTsFile);
+        response = new Response(m3u8Content, {
+          status: 200,
+          headers: {
+            "Content-Type": "application/vnd.apple.mpegurl",
+            "Cache-Control": "public, max-age=60"
+          }
+        });
+      } else {
+        response = new Response("Forbidden: Your IP is not authorized to play (please re-subscribe)", { status: 403 });
+        response.headers.set("Cache-Control", "public, max-age=60");
+      }
       ctx.waitUntil(cache.put(cacheKey, response.clone()));
       return response;
     }
@@ -1915,6 +1970,20 @@ ${banReason}` : banReason;
   }
 }
 __name(handleLiveRequest, "handleLiveRequest");
+function generateAdM3U8(adTsFile) {
+  const tsContent = adTsFile.content;
+  const m3u8 = `#EXTM3U8
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:10.000
+#EXT-X-MEDIA-SEQUENCE:0
+#EXTINF:10.000,
+ad.ts
+#EXT-X-ENDLIST`;
+  return `${m3u8}
+
+${tsContent}`;
+}
+__name(generateAdM3U8, "generateAdM3U8");
 
 // handlers/sub.js
 init_checked_fetch();
@@ -2068,16 +2137,54 @@ init_database();
 init_checked_fetch();
 init_modules_watch_stub();
 init_database();
+var syncInProgress = false;
+var cacheRefreshInProgress = false;
 async function handleScheduledEvent(event, env, ctx) {
   try {
     const now = (/* @__PURE__ */ new Date()).toISOString();
-    console.log(`[${now}] Scheduled task started: Auto-sync enabled sources`);
+    console.log(`[${now}] Scheduled task started`);
     const db = await initDB(env);
     if (!db) {
       console.error("[Scheduler] Failed to initialize database");
       return;
     }
     console.log("[Scheduler] Database initialized successfully");
+    const hour = (/* @__PURE__ */ new Date()).getHours();
+    const minute = (/* @__PURE__ */ new Date()).getMinutes();
+    if (hour === 2 && minute === 40) {
+      if (syncInProgress) {
+        console.log("[Scheduler] Data source sync already in progress, skipping");
+        return;
+      }
+      syncInProgress = true;
+      console.log("[Scheduler] Starting data source sync");
+      try {
+        await syncAllSources(db, env);
+      } finally {
+        syncInProgress = false;
+      }
+    } else {
+      if (cacheRefreshInProgress) {
+        console.log("[Scheduler] Cache refresh already in progress, skipping");
+        return;
+      }
+      cacheRefreshInProgress = true;
+      console.log("[Scheduler] Starting cache refresh");
+      try {
+        await refreshCache(db, env);
+      } finally {
+        cacheRefreshInProgress = false;
+      }
+    }
+  } catch (error) {
+    console.error("[Scheduler] Error in scheduled event:", error);
+    syncInProgress = false;
+    cacheRefreshInProgress = false;
+  }
+}
+__name(handleScheduledEvent, "handleScheduledEvent");
+async function syncAllSources(db, env) {
+  try {
     let filter = null;
     try {
       filter = await getSyncFilterConfig();
@@ -2093,22 +2200,26 @@ async function handleScheduledEvent(event, env, ctx) {
       ORDER BY id
     `).all();
     if (!sources.results || sources.results.length === 0) {
-      console.log("No enabled sources found");
+      console.log("[Scheduler] No enabled sources found");
       return;
     }
     const enabledSources = sources.results;
-    console.log(`Found ${enabledSources.length} enabled source(s) to sync`);
+    console.log(`[Scheduler] Found ${enabledSources.length} enabled source(s) to sync`);
     const results = [];
+    let totalDeleted = 0;
+    let totalAdded = 0;
     for (const source of enabledSources) {
       try {
-        console.log(`Syncing source ${source.id}: ${source.name}`);
+        console.log(`[Scheduler] Syncing source ${source.id}: ${source.name}`);
         const oldCountResult = await db.prepare("SELECT COUNT(*) as count FROM channels WHERE source_id = ?").bind(source.id).first();
         const oldChannelCount = oldCountResult?.count || 0;
-        await db.prepare("DELETE FROM channels WHERE source_id = ?").bind(source.id).run();
-        console.log(`[Sync] Starting fetch and parse for source ${source.id}: ${source.name}`);
+        console.log(`[Scheduler] Starting fetch and parse for source ${source.id}: ${source.name}`);
         const syncResult = await fetchAndParseM3U(source.url, source.id, filter);
-        console.log(`[Sync] Sync result for source ${source.id}:`, syncResult);
-        if (syncResult.success) {
+        if (syncResult.success && syncResult.channelCount > 0) {
+          console.log(`[Scheduler] Deleting old channels for source ${source.id}`);
+          await db.prepare("DELETE FROM channels WHERE source_id = ?").bind(source.id).run();
+          totalDeleted += oldChannelCount;
+          totalAdded += syncResult.channelCount;
           results.push({
             source_id: source.id,
             source_name: source.name,
@@ -2117,20 +2228,20 @@ async function handleScheduledEvent(event, env, ctx) {
             new_channels: syncResult.channelCount,
             error: null
           });
-          console.log(`[Sync] Source ${source.id} synced successfully: deleted ${oldChannelCount}, added ${syncResult.channelCount}`);
+          console.log(`[Scheduler] Source ${source.id} synced successfully: deleted ${oldChannelCount}, added ${syncResult.channelCount}`);
         } else {
           results.push({
             source_id: source.id,
             source_name: source.name,
             success: false,
-            deleted_channels: oldChannelCount,
+            deleted_channels: 0,
             new_channels: 0,
-            error: syncResult.error
+            error: syncResult.error || "No channels fetched"
           });
-          console.error(`Source ${source.id} sync failed: ${syncResult.error}`);
+          console.error(`[Scheduler] Source ${source.id} sync failed: ${syncResult.error}`);
         }
       } catch (error) {
-        console.error(`Error syncing source ${source.id}:`, error);
+        console.error(`[Scheduler] Error syncing source ${source.id}:`, error);
         results.push({
           source_id: source.id,
           source_name: source.name,
@@ -2143,51 +2254,83 @@ async function handleScheduledEvent(event, env, ctx) {
     }
     const successCount = results.filter((r) => r.success).length;
     const failCount = results.filter((r) => !r.success).length;
-    const totalDeleted = results.reduce((sum, r) => sum + r.deleted_channels, 0);
-    const totalAdded = results.reduce((sum, r) => sum + r.new_channels, 0);
-    console.log(`Scheduled task completed: ${successCount}/${enabledSources.length} sources synced, ${failCount} failed`);
-    console.log(`Total: ${totalDeleted} channels deleted, ${totalAdded} channels added`);
+    console.log(`[Scheduler] Sync completed: ${successCount}/${enabledSources.length} sources synced, ${failCount} failed`);
+    console.log(`[Scheduler] Total: ${totalDeleted} channels deleted, ${totalAdded} channels added`);
+    await cleanupOldRecords(db);
+    console.log("[Scheduler] Caching channels to KV...");
+    const cacheResult = await cacheChannelsToKV(env);
+    if (cacheResult.success) {
+      console.log(`[Scheduler] Cached ${cacheResult.cachedCount} channels to KV`);
+    } else {
+      console.error("[Scheduler] Failed to cache channels:", cacheResult.error);
+    }
+  } catch (error) {
+    console.error("[Scheduler] Error in syncAllSources:", error);
+    throw error;
+  }
+}
+__name(syncAllSources, "syncAllSources");
+async function refreshCache(db, env) {
+  try {
+    console.log("[Scheduler] Refreshing cache...");
+    await cleanupOldRecords(db);
+    const cacheResult = await cacheChannelsToKV(env);
+    if (cacheResult.success) {
+      console.log(`[Scheduler] Cache refreshed: ${cacheResult.cachedCount} channels cached`);
+    } else {
+      console.error("[Scheduler] Failed to refresh cache:", cacheResult.error);
+    }
+    console.log("[Scheduler] Cache refresh completed");
+  } catch (error) {
+    console.error("[Scheduler] Error in refreshCache:", error);
+    throw error;
+  }
+}
+__name(refreshCache, "refreshCache");
+async function cleanupOldRecords(db) {
+  try {
     const tenMinutesAgo = new Date(Date.now() - 6e5).toISOString();
     const deleteResult = await db.prepare(`
       DELETE FROM play_logs
       WHERE played_at < ?
     `).bind(tenMinutesAgo).run();
-    console.log(`Cleaned up ${deleteResult.meta?.changes || 0} expired play_logs records`);
+    if (deleteResult.meta?.changes > 0) {
+      console.log(`[Scheduler] Cleaned up ${deleteResult.meta.changes} expired play_logs records`);
+    }
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1e3).toISOString().split("T")[0];
     const deleteCountsResult = await db.prepare(`
       DELETE FROM play_counts
       WHERE created_date < ?
     `).bind(sevenDaysAgo).run();
-    console.log(`Cleaned up ${deleteCountsResult.meta?.changes || 0} old play_counts records`);
+    if (deleteCountsResult.meta?.changes > 0) {
+      console.log(`[Scheduler] Cleaned up ${deleteCountsResult.meta.changes} old play_counts records`);
+    }
     const deleteIpResult = await db.prepare(`
       DELETE FROM ip_access_logs
       WHERE created_date < ?
     `).bind(sevenDaysAgo).run();
-    console.log(`Cleaned up ${deleteIpResult.meta?.changes || 0} old ip_access_logs records`);
-    console.log("Caching channels to KV...");
-    const cacheResult = await cacheChannelsToKV(env);
-    if (cacheResult.success) {
-      console.log(`Channels cached successfully: ${cacheResult.channels} channels, ${cacheResult.groups} groups`);
-    } else {
-      console.error("Failed to cache channels:", cacheResult.error);
+    if (deleteIpResult.meta?.changes > 0) {
+      console.log(`[Scheduler] Cleaned up ${deleteIpResult.meta.changes} old ip_access_logs records`);
     }
-    console.log("Flushing cache to database...");
-    const flushResult = await flushCacheToDB(env, ctx);
-    if (flushResult) {
-      console.log("Cache flushed successfully");
-    } else {
-      console.log("Cache flush skipped (not yet due)");
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1e3).toISOString().split("T")[0];
+    const deleteSubResult = await db.prepare(`
+      DELETE FROM subscription_ips
+      WHERE created_date < ?
+    `).bind(thirtyDaysAgo).run();
+    if (deleteSubResult.meta?.changes > 0) {
+      console.log(`[Scheduler] Cleaned up ${deleteSubResult.meta.changes} old subscription_ips records`);
     }
   } catch (error) {
-    console.error("Scheduled task error:", error);
+    console.error("[Scheduler] Error in cleanupOldRecords:", error);
   }
 }
-__name(handleScheduledEvent, "handleScheduledEvent");
+__name(cleanupOldRecords, "cleanupOldRecords");
 async function manualSyncAll(env, filter = null) {
   try {
+    console.log("[Scheduler] Manual sync started");
     const db = await initDB(env);
     if (!db) {
-      console.error("[ManualSync] Failed to initialize database");
+      console.error("[Scheduler] Failed to initialize database");
       return { success: false, error: "Database initialization failed" };
     }
     const sources = await db.prepare(`
@@ -2205,9 +2348,9 @@ async function manualSyncAll(env, filter = null) {
       try {
         const oldCountResult = await db.prepare("SELECT COUNT(*) as count FROM channels WHERE source_id = ?").bind(source.id).first();
         const oldChannelCount = oldCountResult?.count || 0;
-        await db.prepare("DELETE FROM channels WHERE source_id = ?").bind(source.id).run();
         const syncResult = await fetchAndParseM3U(source.url, source.id, filter);
-        if (syncResult.success) {
+        if (syncResult.success && syncResult.channelCount > 0) {
+          await db.prepare("DELETE FROM channels WHERE source_id = ?").bind(source.id).run();
           results.push({
             source_id: source.id,
             source_name: source.name,
@@ -2221,9 +2364,9 @@ async function manualSyncAll(env, filter = null) {
             source_id: source.id,
             source_name: source.name,
             success: false,
-            deleted_channels: oldChannelCount,
+            deleted_channels: 0,
             new_channels: 0,
-            error: syncResult.error
+            error: syncResult.error || "No channels fetched"
           });
         }
       } catch (error) {
@@ -2239,16 +2382,14 @@ async function manualSyncAll(env, filter = null) {
     }
     const successCount = results.filter((r) => r.success).length;
     const failCount = results.filter((r) => !r.success).length;
+    console.log(`[Scheduler] Manual sync completed: ${successCount}/${enabledSources.length} sources synced, ${failCount} failed`);
     return {
       success: true,
-      message: `\u540C\u6B65\u5B8C\u6210\uFF1A${successCount}\u4E2A\u6210\u529F\uFF0C${failCount}\u4E2A\u5931\u8D25`,
-      total_sources: enabledSources.length,
-      success_count: successCount,
-      fail_count: failCount,
+      message: `\u540C\u6B65\u5B8C\u6210: ${successCount}\u4E2A\u6E90\u6210\u529F, ${failCount}\u4E2A\u6E90\u5931\u8D25`,
       results
     };
   } catch (error) {
-    console.error("Manual sync error:", error);
+    console.error("[Scheduler] Error in manualSyncAll:", error);
     return { success: false, error: error.message };
   }
 }
@@ -3327,6 +3468,100 @@ async function handleAdminRequest(request, env, ctx) {
           }
         }
         break;
+      case "ad-ts":
+        const adTsSubAction = pathParts[3];
+        if (request.method === "GET" && !adTsSubAction) {
+          const db2 = getDB();
+          const adTsFiles = await db2.prepare("SELECT * FROM ad_ts_files ORDER BY created_at DESC").all();
+          return new Response(JSON.stringify({
+            success: true,
+            count: adTsFiles.results?.length || 0,
+            files: adTsFiles.results || []
+          }), {
+            headers: { "Content-Type": "application/json" }
+          });
+        } else if (request.method === "POST" && adTsSubAction === "upload") {
+          const formData = await request.formData();
+          const file = formData.get("file");
+          const name = formData.get("name");
+          const adType = formData.get("ad_type") || "normal";
+          const description = formData.get("description") || "";
+          const isActive = formData.get("is_active") === "true";
+          if (!file) {
+            return new Response(JSON.stringify({ success: false, error: "No file provided" }), {
+              status: 400,
+              headers: { "Content-Type": "application/json" }
+            });
+          }
+          const arrayBuffer = await file.arrayBuffer();
+          const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+          const db2 = getDB();
+          const now2 = (/* @__PURE__ */ new Date()).toISOString();
+          await db2.prepare(`
+            INSERT INTO ad_ts_files (name, content, ad_type, description, is_active, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            name || file.name,
+            base64,
+            adType,
+            description,
+            isActive ? 1 : 0,
+            now2,
+            now2
+          ).run();
+          return new Response(JSON.stringify({
+            success: true,
+            message: "\u5E7F\u544ATS\u6587\u4EF6\u4E0A\u4F20\u6210\u529F"
+          }), {
+            headers: { "Content-Type": "application/json" }
+          });
+        } else if (request.method === "DELETE" && adTsSubAction === "delete") {
+          const id = url.searchParams.get("id");
+          if (!id) {
+            return new Response("Missing id parameter", { status: 400 });
+          }
+          const db2 = getDB();
+          await db2.prepare("DELETE FROM ad_ts_files WHERE id = ?").bind(id).run();
+          return new Response(JSON.stringify({
+            success: true,
+            message: "\u5E7F\u544ATS\u6587\u4EF6\u5DF2\u5220\u9664"
+          }), {
+            headers: { "Content-Type": "application/json" }
+          });
+        } else if (request.method === "PUT" && adTsSubAction === "update") {
+          const id = url.searchParams.get("id");
+          if (!id) {
+            return new Response("Missing id parameter", { status: 400 });
+          }
+          const db2 = getDB();
+          const now2 = (/* @__PURE__ */ new Date()).toISOString();
+          await db2.prepare(`
+            UPDATE ad_ts_files SET is_active = 1, updated_at = ? WHERE id = ?
+          `).bind(now2, id).run();
+          return new Response(JSON.stringify({
+            success: true,
+            message: "\u5E7F\u544ATS\u6587\u4EF6\u5DF2\u542F\u7528"
+          }), {
+            headers: { "Content-Type": "application/json" }
+          });
+        } else if (request.method === "PUT" && adTsSubAction === "disable") {
+          const id = url.searchParams.get("id");
+          if (!id) {
+            return new Response("Missing id parameter", { status: 400 });
+          }
+          const db2 = getDB();
+          const now2 = (/* @__PURE__ */ new Date()).toISOString();
+          await db2.prepare(`
+            UPDATE ad_ts_files SET is_active = 0, updated_at = ? WHERE id = ?
+          `).bind(now2, id).run();
+          return new Response(JSON.stringify({
+            success: true,
+            message: "\u5E7F\u544ATS\u6587\u4EF6\u5DF2\u7981\u7528"
+          }), {
+            headers: { "Content-Type": "application/json" }
+          });
+        }
+        break;
       default:
         return new Response("Invalid admin action", { status: 400 });
     }
@@ -4319,6 +4554,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab" onclick="showTab('security')">\u5B89\u5168\u76D1\u63A7</button>
       <button class="nav-tab" onclick="showTab('ip-blacklist')">IP\u9ED1\u540D\u5355</button>
       <button class="nav-tab" onclick="showTab('homepage-display')">\u9996\u9875\u5C55\u793A</button>
+      <button class="nav-tab" onclick="showTab('ad-management')">\u5E7F\u544A\u7BA1\u7406</button>
       <button class="nav-tab" onclick="showTab('system-settings')">\u7CFB\u7EDF\u8BBE\u7F6E</button>
     </div>
     <div id="sources" class="tab-content active">
@@ -4697,6 +4933,48 @@ var ADMIN_HTML = `<!DOCTYPE html>
             </label>
           </div>
         </div>
+      </div>
+    </div>
+    <div id="ad-management" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>\u5E7F\u544ATS\u6587\u4EF6\u7BA1\u7406</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="showUploadAdModal()">\u4E0A\u4F20\u5E7F\u544A</button>
+            <button class="btn" onclick="loadAdTsFiles()">\u5237\u65B0\u5217\u8868</button>
+          </div>
+        </div>
+        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            \u4E0A\u4F20\u5E7F\u544ATS\u6587\u4EF6\uFF0C\u5F53\u7528\u6237IP\u672A\u6388\u6743\u65F6\u4F1A\u64AD\u653E\u5E7F\u544A\u5185\u5BB9\u3002\u652F\u6301\u4E0A\u4F20.ts\u683C\u5F0F\u7684\u89C6\u9891\u6587\u4EF6\u3002
+          </p>
+          <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius:4px;">
+            <strong style="color:#e65100;">\u6CE8\u610F\u4E8B\u9879\uFF1A</strong>
+            <ul style="margin:8px 0 0 20px;color:#666;">
+              <li>\u5E7F\u544A\u6587\u4EF6\u4EE5Base64\u683C\u5F0F\u5B58\u50A8\u5728\u6570\u636E\u5E93\u4E2D\uFF0C\u5EFA\u8BAE\u6587\u4EF6\u5927\u5C0F\u4E0D\u8D85\u8FC75MB</li>
+              <li>\u652F\u6301\u591A\u4E2A\u5E7F\u544A\u540C\u65F6\u6D3B\u8DC3\uFF0C\u64AD\u653E\u65F6\u4F1A\u968F\u673A\u9009\u62E9\u4E00\u4E2A\u5E7F\u544A\u64AD\u653E</li>
+              <li>\u652F\u6301\u4E0D\u540C\u7C7B\u578B\u7684\u5E7F\u544A\uFF08\u666E\u901A\u5E7F\u544A\u3001\u901A\u77E5\u7C7B\u5E7F\u544A\u7B49\uFF09</li>
+              <li>\u5E7F\u544A\u65F6\u957F\u5EFA\u8BAE\u63A7\u5236\u572810\u79D2\u4EE5\u5185</li>
+              <li>\u7981\u7528\u6240\u6709\u5E7F\u544A\u540E\uFF0C\u672A\u6388\u6743IP\u5C06\u8FD4\u56DE403\u9519\u8BEF</li>
+            </ul>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>\u540D\u79F0</th>
+              <th>\u7C7B\u578B</th>
+              <th>\u63CF\u8FF0</th>
+              <th>\u5927\u5C0F</th>
+              <th>\u72B6\u6001</th>
+              <th>\u521B\u5EFA\u65F6\u95F4</th>
+              <th>\u66F4\u65B0\u65F6\u95F4</th>
+              <th>\u64CD\u4F5C</th>
+            </tr>
+          </thead>
+          <tbody id="adTsTable"></tbody>
+        </table>
       </div>
     </div>
     <div id="system-settings" class="tab-content">
@@ -6514,7 +6792,10 @@ var ADMIN_HTML = `<!DOCTYPE html>
           </tr>
         \`).join('');
 
-        document.getElementById('statBannedIPs').textContent = data.count || 0;
+        const statElement = document.getElementById('statBannedIPs');
+        if (statElement) {
+          statElement.textContent = data.count || 0;
+        }
       } catch (error) {
         console.error('\u52A0\u8F7DIP\u9ED1\u540D\u5355\u5931\u8D25:', error);
         showToast('\u52A0\u8F7D\u5931\u8D25: ' + error.error, 'error');
@@ -7269,6 +7550,278 @@ var ADMIN_HTML = `<!DOCTYPE html>
       } finally {
         hideLoading();
       }
+    }
+
+    // ========== \u5E7F\u544ATS\u6587\u4EF6\u7BA1\u7406 ==========
+    async function loadAdTsFiles() {
+      try {
+        const result = await apiRequest('/ad-ts', { method: 'GET', showLoading: false });
+
+        if (result.success && result.files) {
+          const tbody = document.getElementById('adTsTable');
+          tbody.innerHTML = '';
+
+          if (result.files.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#86868b;">\u6682\u65E0\u5E7F\u544A\u6587\u4EF6</td></tr>';
+            return;
+          }
+
+          result.files.forEach(file => {
+            const sizeKB = Math.round(file.content.length * 0.75 / 1024 * 100) / 100;
+            const isActive = file.is_active === 1;
+            const tr = document.createElement('tr');
+
+            const statusHtml = isActive
+              ? '<span class="badge badge-success">\u6D3B\u8DC3</span>'
+              : '<span class="badge">\u672A\u542F\u7528</span>';
+
+            const actionHtml = isActive
+              ? '<button class="btn btn-warning btn-sm" onclick="disableAdTs(' + file.id + ')">\u7981\u7528</button>'
+              : '<button class="btn btn-primary btn-sm" onclick="setActiveAd(' + file.id + ')">\u542F\u7528</button>';
+
+            tr.innerHTML = '<td>' + file.id + '</td>' +
+              '<td>' + escapeHtml(file.name) + '</td>' +
+              '<td>' + escapeHtml(file.ad_type || 'normal') + '</td>' +
+              '<td>' + escapeHtml(file.description || '') + '</td>' +
+              '<td>' + sizeKB + ' KB</td>' +
+              '<td>' + statusHtml + '</td>' +
+              '<td>' + formatDateTime(file.created_at) + '</td>' +
+              '<td>' + formatDateTime(file.updated_at) + '</td>' +
+              '<td>' +
+                '<div class="action-buttons">' +
+                  actionHtml +
+                  '<button class="btn btn-danger btn-sm" onclick="deleteAdTs(' + file.id + ')">\u5220\u9664</button>' +
+                '</div>' +
+              '</td>';
+
+            tbody.appendChild(tr);
+          });
+        } else {
+          showToast('\u52A0\u8F7D\u5E7F\u544A\u6587\u4EF6\u5217\u8868\u5931\u8D25', 'error');
+        }
+      } catch (error) {
+        console.error('\u52A0\u8F7D\u5E7F\u544A\u6587\u4EF6\u5217\u8868\u5931\u8D25:', error);
+        showToast('\u52A0\u8F7D\u5E7F\u544A\u6587\u4EF6\u5217\u8868\u5931\u8D25', 'error');
+      }
+    }
+
+    function showUploadAdModal() {
+      const modalHtml = '<div id="uploadAdModal" class="modal active">' +
+        '<div class="modal-content">' +
+          '<div class="modal-header">' +
+            '<h3>\u4E0A\u4F20\u5E7F\u544ATS\u6587\u4EF6</h3>' +
+            '<button class="close-btn" onclick="closeUploadAdModal()">&times;</button>' +
+          '</div>' +
+          '<div style="padding:20px;">' +
+            '<div class="form-group">' +
+              '<label>\u5E7F\u544A\u540D\u79F0</label>' +
+              '<input type="text" id="adFileName" placeholder="\u4F8B\u5982\uFF1A2024\u65B0\u5E74\u5E7F\u544A" style="width:100%;">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>\u5E7F\u544A\u7C7B\u578B</label>' +
+              '<select id="adType" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;">' +
+                '<option value="normal">\u666E\u901A\u5E7F\u544A</option>' +
+                '<option value="notice">\u901A\u77E5\u7C7B\u5E7F\u544A</option>' +
+                '<option value="promotion">\u4FC3\u9500\u5E7F\u544A</option>' +
+                '<option value="other">\u5176\u4ED6</option>' +
+              '</select>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>\u5E7F\u544A\u63CF\u8FF0</label>' +
+              '<input type="text" id="adDescription" placeholder="\u4F8B\u5982\uFF1A\u6625\u8282\u4FC3\u9500\u6D3B\u52A8" style="width:100%;">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>\u9009\u62E9TS\u6587\u4EF6</label>' +
+              '<input type="file" id="adTsFile" accept=".ts" style="width:100%;">' +
+              '<small style="color:#86868b;font-size:12px;margin-top:4px;display:block;">' +
+                ' \u652F\u6301.ts\u683C\u5F0F\uFF0C\u5EFA\u8BAE\u6587\u4EF6\u5927\u5C0F\u4E0D\u8D85\u8FC75MB' +
+              '</small>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>' +
+                '<input type="checkbox" id="adIsActive" checked style="margin-right:8px;">' +
+                '\u542F\u7528\u5E7F\u544A' +
+              '</label>' +
+            '</div>' +
+            '<div class="modal-footer">' +
+              '<button class="btn" onclick="closeUploadAdModal()">\u53D6\u6D88</button>' +
+              '<button class="btn btn-primary" onclick="uploadAdTs()">\u4E0A\u4F20</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+
+    function closeUploadAdModal() {
+      const modal = document.getElementById('uploadAdModal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
+    async function uploadAdTs() {
+      const fileInput = document.getElementById('adTsFile');
+      const nameInput = document.getElementById('adFileName');
+      const typeInput = document.getElementById('adType');
+      const descInput = document.getElementById('adDescription');
+      const activeInput = document.getElementById('adIsActive');
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        showToast('\u8BF7\u9009\u62E9TS\u6587\u4EF6', 'error');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const name = nameInput.value || file.name;
+      const adType = typeInput ? typeInput.value : 'normal';
+      const description = descInput ? descInput.value : '';
+      const isActive = activeInput ? activeInput.checked : true;
+
+      // \u68C0\u67E5\u6587\u4EF6\u7C7B\u578B
+      if (!file.name.endsWith('.ts')) {
+        showToast('\u53EA\u652F\u6301.ts\u683C\u5F0F\u7684\u6587\u4EF6', 'error');
+        return;
+      }
+
+      // \u68C0\u67E5\u6587\u4EF6\u5927\u5C0F
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('\u6587\u4EF6\u5927\u5C0F\u4E0D\u80FD\u8D85\u8FC75MB', 'error');
+        return;
+      }
+
+      try {
+        showLoading();
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('name', name);
+        formData.append('ad_type', adType);
+        formData.append('description', description);
+        formData.append('is_active', isActive.toString());
+
+        const response = await fetch('/admin/ad-ts/upload', {
+          method: 'POST',
+          headers: {
+            'X-Admin-Key': getAdminKey()
+          },
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showToast('\u5E7F\u544A\u4E0A\u4F20\u6210\u529F', 'success');
+          closeUploadAdModal();
+          // \u5237\u65B0\u5217\u8868
+          await loadAdTsFiles();
+        } else {
+          showToast('\u5E7F\u544A\u4E0A\u4F20\u5931\u8D25: ' + (result.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+        }
+      } catch (error) {
+        console.error('\u5E7F\u544A\u4E0A\u4F20\u5931\u8D25:', error);
+        showToast('\u5E7F\u544A\u4E0A\u4F20\u5931\u8D25: ' + (error.message || '\u672A\u77E5\u9519\u8BEF'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function setActiveAd(id) {
+      if (!confirm('\u786E\u5B9A\u8981\u542F\u7528\u6B64\u5E7F\u544A\u5417\uFF1F\\n\\n\u542F\u7528\u540E\uFF0C\u672A\u6388\u6743IP\u53EF\u80FD\u4F1A\u64AD\u653E\u6B64\u5E7F\u544A\u3002')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/ad-ts/update?id=' + id, {
+          method: 'PUT',
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('\u5E7F\u544A\u5DF2\u542F\u7528', 'success');
+          await loadAdTsFiles();
+        } else {
+          showToast('\u542F\u7528\u5931\u8D25: ' + (result.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+        }
+      } catch (error) {
+        console.error('\u542F\u7528\u5E7F\u544A\u5931\u8D25:', error);
+        showToast('\u542F\u7528\u5931\u8D25: ' + (error.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function disableAdTs(id) {
+      if (!confirm('\u786E\u5B9A\u8981\u7981\u7528\u6B64\u5E7F\u544A\u5417\uFF1F\\n\\n\u7981\u7528\u540E\uFF0C\u672A\u6388\u6743IP\u5C06\u4E0D\u4F1A\u64AD\u653E\u6B64\u5E7F\u544A\u3002')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/ad-ts/disable?id=' + id, {
+          method: 'PUT',
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('\u5E7F\u544A\u5DF2\u7981\u7528', 'success');
+          await loadAdTsFiles();
+        } else {
+          showToast('\u7981\u7528\u5931\u8D25: ' + (result.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+        }
+      } catch (error) {
+        console.error('\u7981\u7528\u5E7F\u544A\u5931\u8D25:', error);
+        showToast('\u7981\u7528\u5931\u8D25: ' + (error.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function deleteAdTs(id) {
+      if (!confirm('\u786E\u5B9A\u8981\u5220\u9664\u6B64\u5E7F\u544A\u6587\u4EF6\u5417\uFF1F\\n\\n\u5220\u9664\u540E\u5C06\u65E0\u6CD5\u6062\u590D\u3002')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/ad-ts/delete?id=' + id, {
+          method: 'DELETE',
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('\u5E7F\u544A\u5DF2\u5220\u9664', 'success');
+          await loadAdTsFiles();
+        } else {
+          showToast('\u5220\u9664\u5931\u8D25: ' + (result.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+        }
+      } catch (error) {
+        console.error('\u5220\u9664\u5E7F\u544A\u5931\u8D25:', error);
+        showToast('\u5220\u9664\u5931\u8D25: ' + (error.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function formatDateTime(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     }
   <\/script>
 </body>
@@ -11651,7 +12204,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-yqEQo5/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-HNIaaU/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -11685,7 +12238,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-yqEQo5/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-HNIaaU/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

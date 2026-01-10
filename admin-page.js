@@ -120,6 +120,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab" onclick="showTab('security')">安全监控</button>
       <button class="nav-tab" onclick="showTab('ip-blacklist')">IP黑名单</button>
       <button class="nav-tab" onclick="showTab('homepage-display')">首页展示</button>
+      <button class="nav-tab" onclick="showTab('ad-management')">广告管理</button>
       <button class="nav-tab" onclick="showTab('system-settings')">系统设置</button>
     </div>
     <div id="sources" class="tab-content active">
@@ -498,6 +499,48 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             </label>
           </div>
         </div>
+      </div>
+    </div>
+    <div id="ad-management" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>广告TS文件管理</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="showUploadAdModal()">上传广告</button>
+            <button class="btn" onclick="loadAdTsFiles()">刷新列表</button>
+          </div>
+        </div>
+        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            上传广告TS文件，当用户IP未授权时会播放广告内容。支持上传.ts格式的视频文件。
+          </p>
+          <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius:4px;">
+            <strong style="color:#e65100;">注意事项：</strong>
+            <ul style="margin:8px 0 0 20px;color:#666;">
+              <li>广告文件以Base64格式存储在数据库中，建议文件大小不超过5MB</li>
+              <li>支持多个广告同时活跃，播放时会随机选择一个广告播放</li>
+              <li>支持不同类型的广告（普通广告、通知类广告等）</li>
+              <li>广告时长建议控制在10秒以内</li>
+              <li>禁用所有广告后，未授权IP将返回403错误</li>
+            </ul>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>名称</th>
+              <th>类型</th>
+              <th>描述</th>
+              <th>大小</th>
+              <th>状态</th>
+              <th>创建时间</th>
+              <th>更新时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="adTsTable"></tbody>
+        </table>
       </div>
     </div>
     <div id="system-settings" class="tab-content">
@@ -2315,7 +2358,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           </tr>
         \`).join('');
 
-        document.getElementById('statBannedIPs').textContent = data.count || 0;
+        const statElement = document.getElementById('statBannedIPs');
+        if (statElement) {
+          statElement.textContent = data.count || 0;
+        }
       } catch (error) {
         console.error('加载IP黑名单失败:', error);
         showToast('加载失败: ' + error.error, 'error');
@@ -3070,6 +3116,278 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       } finally {
         hideLoading();
       }
+    }
+
+    // ========== 广告TS文件管理 ==========
+    async function loadAdTsFiles() {
+      try {
+        const result = await apiRequest('/ad-ts', { method: 'GET', showLoading: false });
+
+        if (result.success && result.files) {
+          const tbody = document.getElementById('adTsTable');
+          tbody.innerHTML = '';
+
+          if (result.files.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#86868b;">暂无广告文件</td></tr>';
+            return;
+          }
+
+          result.files.forEach(file => {
+            const sizeKB = Math.round(file.content.length * 0.75 / 1024 * 100) / 100;
+            const isActive = file.is_active === 1;
+            const tr = document.createElement('tr');
+
+            const statusHtml = isActive
+              ? '<span class="badge badge-success">活跃</span>'
+              : '<span class="badge">未启用</span>';
+
+            const actionHtml = isActive
+              ? '<button class="btn btn-warning btn-sm" onclick="disableAdTs(' + file.id + ')">禁用</button>'
+              : '<button class="btn btn-primary btn-sm" onclick="setActiveAd(' + file.id + ')">启用</button>';
+
+            tr.innerHTML = '<td>' + file.id + '</td>' +
+              '<td>' + escapeHtml(file.name) + '</td>' +
+              '<td>' + escapeHtml(file.ad_type || 'normal') + '</td>' +
+              '<td>' + escapeHtml(file.description || '') + '</td>' +
+              '<td>' + sizeKB + ' KB</td>' +
+              '<td>' + statusHtml + '</td>' +
+              '<td>' + formatDateTime(file.created_at) + '</td>' +
+              '<td>' + formatDateTime(file.updated_at) + '</td>' +
+              '<td>' +
+                '<div class="action-buttons">' +
+                  actionHtml +
+                  '<button class="btn btn-danger btn-sm" onclick="deleteAdTs(' + file.id + ')">删除</button>' +
+                '</div>' +
+              '</td>';
+
+            tbody.appendChild(tr);
+          });
+        } else {
+          showToast('加载广告文件列表失败', 'error');
+        }
+      } catch (error) {
+        console.error('加载广告文件列表失败:', error);
+        showToast('加载广告文件列表失败', 'error');
+      }
+    }
+
+    function showUploadAdModal() {
+      const modalHtml = '<div id="uploadAdModal" class="modal active">' +
+        '<div class="modal-content">' +
+          '<div class="modal-header">' +
+            '<h3>上传广告TS文件</h3>' +
+            '<button class="close-btn" onclick="closeUploadAdModal()">&times;</button>' +
+          '</div>' +
+          '<div style="padding:20px;">' +
+            '<div class="form-group">' +
+              '<label>广告名称</label>' +
+              '<input type="text" id="adFileName" placeholder="例如：2024新年广告" style="width:100%;">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>广告类型</label>' +
+              '<select id="adType" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;">' +
+                '<option value="normal">普通广告</option>' +
+                '<option value="notice">通知类广告</option>' +
+                '<option value="promotion">促销广告</option>' +
+                '<option value="other">其他</option>' +
+              '</select>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>广告描述</label>' +
+              '<input type="text" id="adDescription" placeholder="例如：春节促销活动" style="width:100%;">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>选择TS文件</label>' +
+              '<input type="file" id="adTsFile" accept=".ts" style="width:100%;">' +
+              '<small style="color:#86868b;font-size:12px;margin-top:4px;display:block;">' +
+                ' 支持.ts格式，建议文件大小不超过5MB' +
+              '</small>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>' +
+                '<input type="checkbox" id="adIsActive" checked style="margin-right:8px;">' +
+                '启用广告' +
+              '</label>' +
+            '</div>' +
+            '<div class="modal-footer">' +
+              '<button class="btn" onclick="closeUploadAdModal()">取消</button>' +
+              '<button class="btn btn-primary" onclick="uploadAdTs()">上传</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+
+    function closeUploadAdModal() {
+      const modal = document.getElementById('uploadAdModal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
+    async function uploadAdTs() {
+      const fileInput = document.getElementById('adTsFile');
+      const nameInput = document.getElementById('adFileName');
+      const typeInput = document.getElementById('adType');
+      const descInput = document.getElementById('adDescription');
+      const activeInput = document.getElementById('adIsActive');
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        showToast('请选择TS文件', 'error');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const name = nameInput.value || file.name;
+      const adType = typeInput ? typeInput.value : 'normal';
+      const description = descInput ? descInput.value : '';
+      const isActive = activeInput ? activeInput.checked : true;
+
+      // 检查文件类型
+      if (!file.name.endsWith('.ts')) {
+        showToast('只支持.ts格式的文件', 'error');
+        return;
+      }
+
+      // 检查文件大小
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('文件大小不能超过5MB', 'error');
+        return;
+      }
+
+      try {
+        showLoading();
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('name', name);
+        formData.append('ad_type', adType);
+        formData.append('description', description);
+        formData.append('is_active', isActive.toString());
+
+        const response = await fetch('/admin/ad-ts/upload', {
+          method: 'POST',
+          headers: {
+            'X-Admin-Key': getAdminKey()
+          },
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showToast('广告上传成功', 'success');
+          closeUploadAdModal();
+          // 刷新列表
+          await loadAdTsFiles();
+        } else {
+          showToast('广告上传失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        console.error('广告上传失败:', error);
+        showToast('广告上传失败: ' + (error.message || '未知错误'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function setActiveAd(id) {
+      if (!confirm('确定要启用此广告吗？\\n\\n启用后，未授权IP可能会播放此广告。')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/ad-ts/update?id=' + id, {
+          method: 'PUT',
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('广告已启用', 'success');
+          await loadAdTsFiles();
+        } else {
+          showToast('启用失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        console.error('启用广告失败:', error);
+        showToast('启用失败: ' + (error.error || '未知错误'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function disableAdTs(id) {
+      if (!confirm('确定要禁用此广告吗？\\n\\n禁用后，未授权IP将不会播放此广告。')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/ad-ts/disable?id=' + id, {
+          method: 'PUT',
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('广告已禁用', 'success');
+          await loadAdTsFiles();
+        } else {
+          showToast('禁用失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        console.error('禁用广告失败:', error);
+        showToast('禁用失败: ' + (error.error || '未知错误'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function deleteAdTs(id) {
+      if (!confirm('确定要删除此广告文件吗？\\n\\n删除后将无法恢复。')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/ad-ts/delete?id=' + id, {
+          method: 'DELETE',
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('广告已删除', 'success');
+          await loadAdTsFiles();
+        } else {
+          showToast('删除失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        console.error('删除广告失败:', error);
+        showToast('删除失败: ' + (error.error || '未知错误'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function formatDateTime(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     }
   </script>
 </body>
