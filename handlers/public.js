@@ -1,5 +1,5 @@
 // 公开播放列表API - 无需卡密
-import { getDB, getHomepageDisplayConfig, getSystemConfig, generatePlayToken, verifyPlayToken, verifyReferer, encryptWithAES } from '../database.js';
+import { getDB, getHomepageDisplayConfig, getSystemConfig, generatePlayToken, verifyPlayToken, verifyFreeSubPlayToken, verifyReferer, encryptWithAES } from '../database.js';
 import { getAllChannels, getAllGroups, getChannelByHash } from '../utils/channel-cache.js';
 
 // 公开公告API
@@ -612,9 +612,109 @@ export async function handlePublicPlay(request, env, ctx) {
     // 获取系统配置
     const systemConfig = await getSystemConfig();
 
-    // Token验证（如果启用）- 优先验证token
+    // 检查是否是免费订阅请求
+    const freeSubId = url.searchParams.get('freesub');
     const tokenParam = url.searchParams.get('token');
-    if (systemConfig.enable_play_token) {
+
+    // 免费订阅令牌验证
+    if (freeSubId) {
+      if (!tokenParam) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Token required for free subscription'
+        }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      // 验证免费订阅令牌
+      const isValidToken = verifyFreeSubPlayToken(tokenParam, hash, freeSubId);
+      if (!isValidToken) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Invalid or expired free subscription token'
+        }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      // 验证免费订阅是否有效且IP匹配
+      const sub = await db.prepare(`
+        SELECT * FROM free_subscriptions
+        WHERE sub_id = ? AND expired_at > datetime('now')
+      `).bind(freeSubId).first();
+
+      if (!sub) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Free subscription not found or expired'
+        }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      // 获取客户端IP
+      const clientIP = request.headers.get('CF-Connecting-IP') ||
+                      request.headers.get('X-Forwarded-For')?.split(',')[0].trim() ||
+                      request.headers.get('X-Real-IP') ||
+                      'unknown';
+
+      // 检查IP是否匹配
+      if (sub.ip !== clientIP) {
+        console.error('[FreeSub Play] IP mismatch', {
+          subId: freeSubId,
+          expectedIP: sub.ip,
+          actualIP: clientIP
+        });
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'IP address does not match subscription'
+        }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      // 免费订阅验证通过，查询频道并重定向到真实播放地址
+      const channel = await getChannelByHash(env, hash);
+
+      if (!channel || !channel.is_active) {
+        return new Response('Channel not found', { status: 404 });
+      }
+
+      if (channel.source_active === 0) {
+        return new Response('Channel source is inactive', { status: 404 });
+      }
+
+      // 构建播放URL和headers
+      const playUrl = channel.play_url;
+      let headersObj = {};
+      if (channel.headers) {
+        try {
+          headersObj = JSON.parse(channel.headers);
+        } catch (e) {
+          console.error('Failed to parse headers:', e);
+        }
+      }
+
+      console.log('[FreeSub Play] Redirecting to real play URL', {
+        subId: freeSubId,
+        channel: channel.channel_name,
+        playUrl
+      });
+
+      // 重定向到真实播放地址
+      return Response.redirect(playUrl, 302, {
+        'Access-Control-Allow-Origin': '*',
+        ...headersObj
+      });
+    }
+
+    // Token验证（如果启用）- 优先验证token
+    if (systemConfig.enable_play_token && !freeSubId) {
       if (!tokenParam) {
         // 如果没有token，返回需要token的响应，前端应该重新请求获取token
         return new Response(JSON.stringify({

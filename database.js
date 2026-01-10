@@ -17,6 +17,64 @@ export function getDB() {
   return DB;
 }
 
+/**
+ * 生成免费订阅播放令牌（简化版，用于免费订阅）
+ * @param {string} channelHash - 频道哈希
+ * @param {string} subId - 订阅ID
+ * @returns {string} 令牌
+ */
+export function generateFreeSubPlayToken(channelHash, subId) {
+  const timestamp = Date.now();
+  const data = `${channelHash}|${subId}|${timestamp}`;
+  // 使用简单的base64编码
+  const hash = btoa(data);
+  return hash;
+}
+
+/**
+ * 验证免费订阅播放令牌
+ * @param {string} token - 令牌
+ * @param {string} channelHash - 频道哈希
+ * @param {string} subId - 订阅ID
+ * @param {number} maxAge - 最大有效期（毫秒），默认5分钟
+ * @returns {boolean} 是否有效
+ */
+export function verifyFreeSubPlayToken(token, channelHash, subId, maxAge = 5 * 60 * 1000) {
+  try {
+    const data = atob(token);
+    const parts = data.split('|');
+
+    if (parts.length !== 3) {
+      return false;
+    }
+
+    const [hashChannelHash, hashSubId, hashTimestamp] = parts;
+
+    // 验证频道哈希
+    if (hashChannelHash !== channelHash) {
+      return false;
+    }
+
+    // 验证订阅ID
+    if (hashSubId !== subId) {
+      return false;
+    }
+
+    // 验证时间戳
+    const timestamp = parseInt(hashTimestamp, 10);
+    const now = Date.now();
+
+    if (isNaN(timestamp) || now - timestamp > maxAge) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('[verifyFreeSubPlayToken] Error:', error);
+    return false;
+  }
+}
+
 // 创建表结构
 export async function createTables(env) {
   const db = env.DB;
@@ -1397,11 +1455,15 @@ export async function getActiveChannels() {
 /**
  * 生成M3U内容
  */
-export function generateM3UContent(channels, subId) {
+export function generateM3UContent(channels, subId, isFreeSub = false, baseUrl = '') {
   let m3u = '#EXTM3U\n';
 
   // 添加订阅信息注释
-  m3u += '# Free Subscription\n';
+  if (isFreeSub) {
+    m3u += '# Free Subscription\n';
+  } else {
+    m3u += '# Subscription\n';
+  }
   m3u += `# ID: ${subId}\n`;
   m3u += `# Channels: ${channels.length}\n`;
   m3u += `# Generated: ${new Date().toISOString()}\n\n`;
@@ -1420,7 +1482,15 @@ export function generateM3UContent(channels, subId) {
     extinf += `,${channel.channel_name}\n`;
 
     m3u += extinf;
-    m3u += `${channel.play_url}\n`;
+
+    // 免费订阅使用令牌保护的播放地址
+    if (isFreeSub) {
+      const token = generateFreeSubPlayToken(channel.channel_hash, subId);
+      const playUrl = baseUrl || '/api';
+      m3u += `${playUrl}/play/${channel.channel_hash}?token=${encodeURIComponent(token)}&freesub=${subId}\n`;
+    } else {
+      m3u += `${channel.play_url}\n`;
+    }
   }
 
   return m3u;

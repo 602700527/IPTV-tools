@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-26c8Si/checked-fetch.js
+// .wrangler/tmp/bundle-NxI9sx/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-26c8Si/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-NxI9sx/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -63,6 +63,7 @@ __export(database_exports, {
   encryptWithAES: () => encryptWithAES,
   fetchAndParseM3U: () => fetchAndParseM3U,
   generateEncryptionKey: () => generateEncryptionKey,
+  generateFreeSubPlayToken: () => generateFreeSubPlayToken,
   generateM3UContent: () => generateM3UContent,
   generatePlayToken: () => generatePlayToken,
   getActiveAdTsFile: () => getActiveAdTsFile,
@@ -80,6 +81,7 @@ __export(database_exports, {
   updateSecurityConfig: () => updateSecurityConfig,
   updateSyncFilterConfig: () => updateSyncFilterConfig,
   updateSystemConfig: () => updateSystemConfig,
+  verifyFreeSubPlayToken: () => verifyFreeSubPlayToken,
   verifyPlayToken: () => verifyPlayToken,
   verifyReferer: () => verifyReferer
 });
@@ -94,6 +96,37 @@ function getDB() {
     throw new Error("Database not initialized");
   }
   return DB;
+}
+function generateFreeSubPlayToken(channelHash, subId) {
+  const timestamp = Date.now();
+  const data = `${channelHash}|${subId}|${timestamp}`;
+  const hash = btoa(data);
+  return hash;
+}
+function verifyFreeSubPlayToken(token, channelHash, subId, maxAge = 5 * 60 * 1e3) {
+  try {
+    const data = atob(token);
+    const parts = data.split("|");
+    if (parts.length !== 3) {
+      return false;
+    }
+    const [hashChannelHash, hashSubId, hashTimestamp] = parts;
+    if (hashChannelHash !== channelHash) {
+      return false;
+    }
+    if (hashSubId !== subId) {
+      return false;
+    }
+    const timestamp = parseInt(hashTimestamp, 10);
+    const now = Date.now();
+    if (isNaN(timestamp) || now - timestamp > maxAge) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error("[verifyFreeSubPlayToken] Error:", error);
+    return false;
+  }
 }
 async function createTables(env) {
   const db = env.DB;
@@ -1110,9 +1143,13 @@ async function getActiveChannels() {
   `).all();
   return result.results || [];
 }
-function generateM3UContent(channels, subId) {
+function generateM3UContent(channels, subId, isFreeSub = false, baseUrl = "") {
   let m3u = "#EXTM3U\n";
-  m3u += "# Free Subscription\n";
+  if (isFreeSub) {
+    m3u += "# Free Subscription\n";
+  } else {
+    m3u += "# Subscription\n";
+  }
   m3u += `# ID: ${subId}
 `;
   m3u += `# Channels: ${channels.length}
@@ -1132,8 +1169,15 @@ function generateM3UContent(channels, subId) {
     extinf += `,${channel.channel_name}
 `;
     m3u += extinf;
-    m3u += `${channel.play_url}
+    if (isFreeSub) {
+      const token = generateFreeSubPlayToken(channel.channel_hash, subId);
+      const playUrl = baseUrl || "/api";
+      m3u += `${playUrl}/play/${channel.channel_hash}?token=${encodeURIComponent(token)}&freesub=${subId}
 `;
+    } else {
+      m3u += `${channel.play_url}
+`;
+    }
   }
   return m3u;
 }
@@ -1145,6 +1189,8 @@ var init_database = __esm({
     DB = null;
     __name(initDB, "initDB");
     __name(getDB, "getDB");
+    __name(generateFreeSubPlayToken, "generateFreeSubPlayToken");
+    __name(verifyFreeSubPlayToken, "verifyFreeSubPlayToken");
     __name(createTables, "createTables");
     __name(getSecurityConfig, "getSecurityConfig");
     __name(getIPBlacklistConfig, "getIPBlacklistConfig");
@@ -1172,11 +1218,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-26c8Si/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-NxI9sx/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-26c8Si/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-NxI9sx/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -4378,8 +4424,83 @@ async function handlePublicPlay(request, env, ctx) {
   try {
     const db = getDB();
     const systemConfig = await getSystemConfig();
+    const freeSubId = url.searchParams.get("freesub");
     const tokenParam = url.searchParams.get("token");
-    if (systemConfig.enable_play_token) {
+    if (freeSubId) {
+      if (!tokenParam) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: "Token required for free subscription"
+        }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+      const isValidToken = verifyFreeSubPlayToken(tokenParam, hash, freeSubId);
+      if (!isValidToken) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: "Invalid or expired free subscription token"
+        }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+      const sub = await db.prepare(`
+        SELECT * FROM free_subscriptions
+        WHERE sub_id = ? AND expired_at > datetime('now')
+      `).bind(freeSubId).first();
+      if (!sub) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: "Free subscription not found or expired"
+        }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+      const clientIP = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For")?.split(",")[0].trim() || request.headers.get("X-Real-IP") || "unknown";
+      if (sub.ip !== clientIP) {
+        console.error("[FreeSub Play] IP mismatch", {
+          subId: freeSubId,
+          expectedIP: sub.ip,
+          actualIP: clientIP
+        });
+        return new Response(JSON.stringify({
+          success: false,
+          error: "IP address does not match subscription"
+        }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+      const channel2 = await getChannelByHash(env, hash);
+      if (!channel2 || !channel2.is_active) {
+        return new Response("Channel not found", { status: 404 });
+      }
+      if (channel2.source_active === 0) {
+        return new Response("Channel source is inactive", { status: 404 });
+      }
+      const playUrl = channel2.play_url;
+      let headersObj2 = {};
+      if (channel2.headers) {
+        try {
+          headersObj2 = JSON.parse(channel2.headers);
+        } catch (e) {
+          console.error("Failed to parse headers:", e);
+        }
+      }
+      console.log("[FreeSub Play] Redirecting to real play URL", {
+        subId: freeSubId,
+        channel: channel2.channel_name,
+        playUrl
+      });
+      return Response.redirect(playUrl, 302, {
+        "Access-Control-Allow-Origin": "*",
+        ...headersObj2
+      });
+    }
+    if (systemConfig.enable_play_token && !freeSubId) {
       if (!tokenParam) {
         return new Response(JSON.stringify({
           success: false,
@@ -4764,29 +4885,31 @@ async function performCheckIn(subscriptionId, ip) {
   const startDate = currentExpiredAt <= now ? now : currentExpiredAt;
   const newExpiredAt = new Date(startDate);
   newExpiredAt.setDate(newExpiredAt.getDate() + rewardDays);
-  await db.prepare("BEGIN TRANSACTION").run();
   try {
-    await db.prepare(`
-      INSERT INTO checkin_records (
-        subscription_id, checkin_date, reward_days, consecutive_days
-      ) VALUES (?, ?, ?, ?)
-    `).bind(subscriptionId, today, rewardDays, newConsecutiveDays).run();
-    await db.prepare(`
-      UPDATE free_subscriptions
-      SET expired_at = ?,
-          last_checkin = ?,
-          consecutive_days = ?,
-          total_days = total_days + ?,
-          ip_change_count = 0
-      WHERE id = ?
-    `).bind(
-      newExpiredAt.toISOString(),
-      now.toISOString(),
-      newConsecutiveDays,
-      rewardDays,
-      subscriptionId
-    ).run();
-    await db.prepare("COMMIT").run();
+    await db.batch([
+      // 记录签到
+      db.prepare(`
+        INSERT INTO checkin_records (
+          subscription_id, checkin_date, reward_days, consecutive_days
+        ) VALUES (?, ?, ?, ?)
+      `).bind(subscriptionId, today, rewardDays, newConsecutiveDays),
+      // 更新订阅信息
+      db.prepare(`
+        UPDATE free_subscriptions
+        SET expired_at = ?,
+            last_checkin = ?,
+            consecutive_days = ?,
+            total_days = total_days + ?,
+            ip_change_count = 0
+        WHERE id = ?
+      `).bind(
+        newExpiredAt.toISOString(),
+        now.toISOString(),
+        newConsecutiveDays,
+        rewardDays,
+        subscriptionId
+      )
+    ]);
     console.log("[CheckIn] Successful", {
       subId: sub.sub_id,
       rewardDays,
@@ -4804,7 +4927,6 @@ async function performCheckIn(subscriptionId, ip) {
       message: isConsecutive ? `\u8FDE\u7EED\u7B7E\u5230${newConsecutiveDays}\u5929\uFF0C\u83B7\u5F97${rewardDays}\u5929\uFF01` : `\u7B7E\u5230\u6210\u529F\uFF0C\u83B7\u5F97${rewardDays}\u5929\uFF01`
     };
   } catch (error) {
-    await db.prepare("ROLLBACK").run();
     console.error("[CheckIn] Transaction failed:", error);
     return { success: false, reason: "database_error" };
   }
@@ -4956,45 +5078,52 @@ async function handleFreeSubM3U(subId, request, env) {
   if (!validation.valid) {
     return new Response(`Error: ${validation.reason}`, { status: 403 });
   }
-  const channels = await getRandomActiveChannels(env);
+  await db.prepare(`
+    UPDATE free_subscriptions
+    SET ip = ?, updated_at = datetime('now')
+    WHERE sub_id = ?
+  `).bind(ip, subId).run();
+  console.log("[FreeSub M3U] Updated subscription IP", {
+    subId,
+    newIp: ip,
+    oldIp: validation.subscription.ip
+  });
+  const channels = await getRandomActiveChannelsFromKV(env);
   if (!channels || channels.length === 0) {
     return new Response("#EXTM3U\n# No channels available", {
       headers: { "Content-Type": "application/vnd.apple.mpegurl" }
     });
   }
-  const m3uContent = generateM3UContent(channels, subId);
+  const baseUrl = `${url.protocol}//${url.host}/api`;
+  const m3uContent = generateM3UContent(channels, subId, true, baseUrl);
   return new Response(m3uContent, {
     headers: {
       "Content-Type": "application/vnd.apple.mpegurl",
-      "Cache-Control": "public, max-age=300"
-      // 缓存5分钟
+      "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"
+      // 不缓存，因为包含令牌
     }
   });
 }
 __name(handleFreeSubM3U, "handleFreeSubM3U");
-async function getRandomActiveChannels(env) {
-  const db = getDB();
-  const allChannels = await db.prepare(`
-    SELECT c.*, s.name as source_name
-    FROM channels c
-    INNER JOIN sources s ON c.source_id = s.id
-    WHERE c.is_active = 1 AND s.is_active = 1
-    ORDER BY c.group_title, c.channel_name
-  `).all();
-  if (!allChannels.results || allChannels.results.length === 0) {
+async function getRandomActiveChannelsFromKV(env) {
+  const { channels } = await getAllChannels(env);
+  if (!channels || channels.length === 0) {
+    console.log("[FreeSub] No channels available from KV");
     return [];
   }
-  const channels = allChannels.results;
-  const targetCount = Math.max(1, Math.floor(channels.length * 0.3));
+  const activeChannels = channels.filter((c) => c.is_active === 1 && c.source_active === 1);
+  console.log(`[FreeSub] Got ${activeChannels.length} active channels from KV`);
+  const targetCount = Math.max(1, Math.floor(activeChannels.length * 0.3));
   const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
   let seed = 0;
   for (let i = 0; i < today.length; i++) {
     seed += today.charCodeAt(i);
   }
-  const selectedChannels = selectRandomChannels(channels, targetCount, seed);
+  const selectedChannels = selectRandomChannels(activeChannels, targetCount, seed);
+  console.log(`[FreeSub] Selected ${selectedChannels.length} channels (30%)`);
   return selectedChannels;
 }
-__name(getRandomActiveChannels, "getRandomActiveChannels");
+__name(getRandomActiveChannelsFromKV, "getRandomActiveChannelsFromKV");
 function selectRandomChannels(channels, targetCount, seed) {
   const random = /* @__PURE__ */ __name((seed2) => {
     const x = Math.sin(seed2++) * 1e4;
@@ -13285,7 +13414,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-26c8Si/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-NxI9sx/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -13319,7 +13448,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-26c8Si/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-NxI9sx/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

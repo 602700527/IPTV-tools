@@ -1,7 +1,8 @@
 // 免费订阅API处理器
 import { createFreeSubscription, getClientIP, validateFreeSubscriptionWithFingerprint } from './freesub.js';
 import { performCheckIn, getCheckInHistory, getCheckInStats } from './checkin.js';
-import { getDB, getActiveChannels, generateM3UContent } from '../database.js';
+import { getDB, getActiveChannels, generateM3UContent, verifyFreeSubPlayToken } from '../database.js';
+import { getAllChannels } from '../utils/channel-cache.js';
 
 /**
  * 处理免费订阅API请求
@@ -156,8 +157,21 @@ async function handleFreeSubM3U(subId, request, env) {
     return new Response(`Error: ${validation.reason}`, { status: 403 });
   }
 
-  // 获取活跃频道（30%随机）
-  const channels = await getRandomActiveChannels(env);
+  // 更新订阅IP为最新访问IP（新IP顶掉旧IP）
+  await db.prepare(`
+    UPDATE free_subscriptions
+    SET ip = ?, updated_at = datetime('now')
+    WHERE sub_id = ?
+  `).bind(ip, subId).run();
+
+  console.log('[FreeSub M3U] Updated subscription IP', {
+    subId,
+    newIp: ip,
+    oldIp: validation.subscription.ip
+  });
+
+  // 获取活跃频道（从KV缓存中随机提取30%）
+  const channels = await getRandomActiveChannelsFromKV(env);
 
   if (!channels || channels.length === 0) {
     return new Response('#EXTM3U\n# No channels available', {
@@ -165,40 +179,37 @@ async function handleFreeSubM3U(subId, request, env) {
     });
   }
 
-  // 生成M3U内容
-  const m3uContent = generateM3UContent(channels, subId);
+  // 生成M3U内容（使用令牌保护播放地址）
+  const baseUrl = `${url.protocol}//${url.host}/api`;
+  const m3uContent = generateM3UContent(channels, subId, true, baseUrl);
 
   return new Response(m3uContent, {
     headers: {
       'Content-Type': 'application/vnd.apple.mpegurl',
-      'Cache-Control': 'public, max-age=300' // 缓存5分钟
+      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0' // 不缓存，因为包含令牌
     }
   });
 }
 
 /**
- * 获取随机30%的活跃频道
+ * 获取随机30%的活跃频道（从KV缓存）
  */
-async function getRandomActiveChannels(env) {
-  const db = getDB();
+async function getRandomActiveChannelsFromKV(env) {
+  // 从KV缓存获取所有频道
+  const { channels } = await getAllChannels(env);
 
-  // 获取所有活跃频道
-  const allChannels = await db.prepare(`
-    SELECT c.*, s.name as source_name
-    FROM channels c
-    INNER JOIN sources s ON c.source_id = s.id
-    WHERE c.is_active = 1 AND s.is_active = 1
-    ORDER BY c.group_title, c.channel_name
-  `).all();
-
-  if (!allChannels.results || allChannels.results.length === 0) {
+  if (!channels || channels.length === 0) {
+    console.log('[FreeSub] No channels available from KV');
     return [];
   }
 
-  const channels = allChannels.results;
+  // 过滤出活跃频道
+  const activeChannels = channels.filter(c => c.is_active === 1 && c.source_active === 1);
+
+  console.log(`[FreeSub] Got ${activeChannels.length} active channels from KV`);
 
   // 计算需要返回的频道数量（30%）
-  const targetCount = Math.max(1, Math.floor(channels.length * 0.3));
+  const targetCount = Math.max(1, Math.floor(activeChannels.length * 0.3));
 
   // 按日期生成随机种子（同一天返回相同结果）
   const today = new Date().toISOString().split('T')[0];
@@ -208,8 +219,9 @@ async function getRandomActiveChannels(env) {
   }
 
   // 使用种子随机选择频道
-  const selectedChannels = selectRandomChannels(channels, targetCount, seed);
+  const selectedChannels = selectRandomChannels(activeChannels, targetCount, seed);
 
+  console.log(`[FreeSub] Selected ${selectedChannels.length} channels (30%)`);
   return selectedChannels;
 }
 

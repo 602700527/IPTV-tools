@@ -4,6 +4,11 @@
 
 基于IP+指纹方案的免费订阅系统已完成实现。该系统允许用户无需注册即可获得免费订阅地址，每天提供30%的随机频道，通过每日签到延长订阅时长。
 
+**安全机制：**
+- 使用令牌（Token）保护真实播放地址
+- 播放时验证订阅IP是否匹配
+- 令牌有效期5分钟，防止盗链
+
 ## 文件清单
 
 ### 新增文件
@@ -30,7 +35,7 @@
    - `/api/freesub/checkin` - 每日签到
    - `/api/freesub/info` - 获取订阅信息
    - `/api/freesub/history` - 获取签到历史
-   - `/api/freesub/{subId}.m3u` - 获取订阅M3U
+   - `/api/freesub/{subId}.m3u` - 获取订阅M3U（包含令牌保护的播放地址）
 
 5. **freesub-page.js** - 免费订阅前端页面
    - 订阅信息展示
@@ -42,7 +47,9 @@
    - 浏览器控制台测试工具
    - 6个完整测试用例
 
-7. **FREE_SUB_GUIDE.md** - 完整使用指南
+7. **test-freesub-token.js** - 令牌机制测试脚本
+
+8. **FREE_SUB_GUIDE.md** - 完整使用指南
 
 ### 修改文件
 
@@ -51,15 +58,23 @@
    - `checkin_records` 表
    - 相关索引
 
-2. **database.js** - 添加表创建逻辑
+2. **database.js** - 添加表创建逻辑和令牌函数
    - 自动创建免费订阅相关表
+   - `generatePlayToken()` - 生成播放令牌
+   - `verifyPlayToken()` - 验证播放令牌
+   - `generateM3UContent()` - 支持免费订阅令牌模式
 
-3. **worker.js** - 添加路由
+3. **handlers/public.js** - 播放接口增强
+   - 支持免费订阅令牌验证
+   - IP匹配验证
+   - 播放地址保护
+
+4. **worker.js** - 添加路由
    - `/freesub` - 免费订阅页面
    - `/api/freesub/*` - API路由
    - 导入freesub-page.js
 
-4. **playstation-page.js** - 添加入口
+5. **playstation-page.js** - 添加入口
    - 快捷操作添加"免费订阅"按钮
    - 多语言支持
 
@@ -197,12 +212,63 @@ Content-Type: application/json
 ```bash
 GET /api/freesub/free_xxxxxx.m3u?fp=abc123...
 
-# 响应
+# 响应（包含令牌保护的播放地址）
 #EXTM3U
 # Free Subscription
 # ID: free_xxxxxx
 # Channels: 30
 ...
+#EXTINF:-1 tvg-logo="..." group-title="...",央视1
+/api/play/channel_hash_123?token=ABC123&freesub=free_xxxxxx
+```
+
+**重要特性：**
+1. **从KV缓存获取**：频道数据从KV缓存中读取，提升性能
+2. **随机30%频道**：每天随机返回30%的活跃频道，同一天内相同
+3. **IP自动更新**：访问M3U时自动更新订阅IP为当前访问IP（新IP顶掉旧IP）
+
+## 安全机制
+
+### 播放地址令牌保护
+
+1. **M3U中的播放地址**
+   - 不直接返回真实播放URL
+   - 返回带有令牌的代理地址：`/api/play/{hash}?token={token}&freesub={subId}`
+
+2. **令牌生成**
+   - 格式：`base64({channel_hash}|{sub_id}|{timestamp})`
+   - 包含频道哈希、订阅ID和时间戳
+   - 有效期：5分钟
+
+3. **播放验证流程**
+   - 客户端请求 `/api/play/{hash}?token={token}&freesub={subId}`
+   - 验证令牌有效性（频道、订阅、时间）
+   - 验证订阅是否过期
+   - **验证请求IP是否与订阅IP一致**
+   - 通过后**302重定向到真实播放地址**
+   - 客户端会自动跟随重定向到真实的直播流地址
+
+4. **IP绑定保护**
+   - 免费订阅创建时绑定创建者的IP
+   - **每次访问M3U时，自动更新订阅IP为当前访问IP（新IP顶掉旧IP）**
+   - 播放时必须使用最新的IP
+   - IP不匹配返回403错误
+   - 防止订阅地址被分享给其他人
+
+**重要区别：**
+- **免费订阅**：验证通过后302重定向到真实播放地址（客户端可直接播放）
+- **付费订阅**：返回JSON格式的播放地址（需前端处理）
+
+### 令牌示例
+
+```javascript
+// 生成令牌
+const token = generatePlayToken('channel_hash_123', 'free_abc123');
+// token: "Y2hhbm5lbF9oYXNoXzEyM3xmcmVlX2FiYzEyM3wxNzA0MDY0MDAwMDAw"
+
+// 验证令牌
+const isValid = verifyPlayToken(token, 'channel_hash_123', 'free_abc123');
+// 返回: true 或 false
 ```
 
 ## 前端集成

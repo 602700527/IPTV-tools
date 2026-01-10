@@ -80,42 +80,40 @@ export async function performCheckIn(subscriptionId, ip) {
   // 计算新的过期时间
   const currentExpiredAt = new Date(sub.expired_at);
   const now = new Date();
-  
+
   // 如果已过期，从今天开始计算；否则从过期时间开始计算
   const startDate = currentExpiredAt <= now ? now : currentExpiredAt;
   const newExpiredAt = new Date(startDate);
   newExpiredAt.setDate(newExpiredAt.getDate() + rewardDays);
-  
-  // 开始事务
-  await db.prepare('BEGIN TRANSACTION').run();
-  
+
   try {
-    // 记录签到
-    await db.prepare(`
-      INSERT INTO checkin_records (
-        subscription_id, checkin_date, reward_days, consecutive_days
-      ) VALUES (?, ?, ?, ?)
-    `).bind(subscriptionId, today, rewardDays, newConsecutiveDays).run();
-    
-    // 更新订阅信息
-    await db.prepare(`
-      UPDATE free_subscriptions
-      SET expired_at = ?,
-          last_checkin = ?,
-          consecutive_days = ?,
-          total_days = total_days + ?,
-          ip_change_count = 0
-      WHERE id = ?
-    `).bind(
-      newExpiredAt.toISOString(),
-      now.toISOString(),
-      newConsecutiveDays,
-      rewardDays,
-      subscriptionId
-    ).run();
-    
-    await db.prepare('COMMIT').run();
-    
+    // 使用 D1 的事务 API
+    await db.batch([
+      // 记录签到
+      db.prepare(`
+        INSERT INTO checkin_records (
+          subscription_id, checkin_date, reward_days, consecutive_days
+        ) VALUES (?, ?, ?, ?)
+      `).bind(subscriptionId, today, rewardDays, newConsecutiveDays),
+
+      // 更新订阅信息
+      db.prepare(`
+        UPDATE free_subscriptions
+        SET expired_at = ?,
+            last_checkin = ?,
+            consecutive_days = ?,
+            total_days = total_days + ?,
+            ip_change_count = 0
+        WHERE id = ?
+      `).bind(
+        newExpiredAt.toISOString(),
+        now.toISOString(),
+        newConsecutiveDays,
+        rewardDays,
+        subscriptionId
+      )
+    ]);
+
     console.log('[CheckIn] Successful', {
       subId: sub.sub_id,
       rewardDays,
@@ -123,7 +121,7 @@ export async function performCheckIn(subscriptionId, ip) {
       isConsecutive,
       newExpiredAt: newExpiredAt.toISOString()
     });
-    
+
     // 返回结果
     return {
       success: true,
@@ -132,13 +130,12 @@ export async function performCheckIn(subscriptionId, ip) {
       isConsecutive,
       expiredAt: newExpiredAt.toISOString(),
       totalDays: (sub.total_days || 0) + rewardDays,
-      message: isConsecutive 
+      message: isConsecutive
         ? `连续签到${newConsecutiveDays}天，获得${rewardDays}天！`
         : `签到成功，获得${rewardDays}天！`
     };
-    
+
   } catch (error) {
-    await db.prepare('ROLLBACK').run();
     console.error('[CheckIn] Transaction failed:', error);
     return { success: false, reason: 'database_error' };
   }

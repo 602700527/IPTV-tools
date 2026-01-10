@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>免费订阅令牌测试</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+    }
+    .section h2 {
+      margin-top: 0;
+      color: #666;
+      font-size: 18px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .result {
+      margin-top: 15px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .success {
+      border-left: 4px solid #28a745;
+    }
+    .error {
+      border-left: 4px solid #dc3545;
+    }
+    .info {
+      border-left: 4px solid #17a2b8;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: 500;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>免费订阅令牌测试</h1>
+
+    <!-- 测试1：创建免费订阅 -->
+    <div class="section">
+      <h2>1. 创建免费订阅</h2>
+      <button onclick="testCreateSubscription()">创建订阅</button>
+      <div id="result1" class="result info">点击按钮开始测试</div>
+    </div>
+
+    <!-- 测试2：获取M3U -->
+    <div class="section">
+      <h2>2. 获取M3U订阅</h2>
+      <label>订阅ID：</label>
+      <input type="text" id="subIdInput" placeholder="从上一步获取">
+      <button onclick="testGetM3U()">获取M3U</button>
+      <div id="result2" class="result info">点击按钮获取M3U</div>
+    </div>
+
+    <!-- 测试3：测试播放令牌 -->
+    <div class="section">
+      <h2>3. 测试播放令牌</h2>
+      <label>频道Hash：</label>
+      <input type="text" id="channelHashInput" placeholder="从M3U中复制">
+      <label>播放令牌：</label>
+      <input type="text" id="tokenInput" placeholder="从M3U中复制">
+      <button onclick="testPlayToken()">测试令牌</button>
+      <div id="result3" class="result info">点击按钮测试令牌</div>
+    </div>
+
+    <!-- 测试4：IP绑定测试 -->
+    <div class="section">
+      <h2>4. IP绑定测试</h2>
+      <p>说明：尝试从不同IP访问订阅，应该返回403错误</p>
+      <div id="result4" class="result info">需要在不同网络环境下测试</div>
+    </div>
+
+    <!-- 测试5：过期令牌测试 -->
+    <div class="section">
+      <h2>5. 过期令牌测试</h2>
+      <p>说明：等待5分钟后尝试使用相同令牌，应该返回403错误</p>
+      <button onclick="testExpiredToken()">测试过期令牌</button>
+      <div id="result5" class="result info">点击按钮测试</div>
+    </div>
+  </div>
+
+  <script>
+    let currentSubId = '';
+
+    // 生成简单的指纹
+    function generateSimpleFingerprint() {
+      const data = {
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        screen: `${screen.width}x${screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      };
+      const hash = btoa(JSON.stringify(data));
+      return hash.substring(0, 16);
+    }
+
+    // 测试1：创建订阅
+    async function testCreateSubscription() {
+      const resultDiv = document.getElementById('result1');
+      resultDiv.textContent = '正在创建订阅...';
+
+      try {
+        const fingerprint = generateSimpleFingerprint();
+
+        const response = await fetch('/api/freesub/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fingerprint: fingerprint,
+            fingerprintComponents: { test: true }
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          currentSubId = data.subscription.subId;
+          document.getElementById('subIdInput').value = currentSubId;
+          resultDiv.textContent = JSON.stringify(data, null, 2);
+          resultDiv.className = 'result success';
+        } else {
+          resultDiv.textContent = '错误: ' + JSON.stringify(data, null, 2);
+          resultDiv.className = 'result error';
+        }
+      } catch (error) {
+        resultDiv.textContent = '错误: ' + error.message;
+        resultDiv.className = 'result error';
+      }
+    }
+
+    // 测试2：获取M3U
+    async function testGetM3U() {
+      const resultDiv = document.getElementById('result2');
+      const subId = document.getElementById('subIdInput').value;
+
+      if (!subId) {
+        resultDiv.textContent = '请先输入订阅ID';
+        resultDiv.className = 'result error';
+        return;
+      }
+
+      resultDiv.textContent = '正在获取M3U...';
+
+      try {
+        const fingerprint = generateSimpleFingerprint();
+        const response = await fetch(`/api/freesub/${subId}.m3u?fp=${fingerprint}`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const m3uContent = await response.text();
+
+        // 显示前500个字符
+        const preview = m3uContent.length > 500
+          ? m3uContent.substring(0, 500) + '\n... (已截断)'
+          : m3uContent;
+
+        resultDiv.textContent = preview;
+        resultDiv.className = 'result success';
+
+        // 自动提取第一个频道的hash和token
+        const tokenMatch = m3uContent.match(/token=([^&]+)/);
+        if (tokenMatch) {
+          document.getElementById('tokenInput').value = decodeURIComponent(tokenMatch[1]);
+        }
+
+        const hashMatch = m3uContent.match(/\/play\/([^\?]+)/);
+        if (hashMatch) {
+          document.getElementById('channelHashInput').value = hashMatch[1];
+        }
+      } catch (error) {
+        resultDiv.textContent = '错误: ' + error.message;
+        resultDiv.className = 'result error';
+      }
+    }
+
+    // 测试3：测试播放令牌
+    async function testPlayToken() {
+      const resultDiv = document.getElementById('result3');
+      const channelHash = document.getElementById('channelHashInput').value;
+      const token = document.getElementById('tokenInput').value;
+      const subId = document.getElementById('subIdInput').value;
+
+      if (!channelHash || !token || !subId) {
+        resultDiv.textContent = '请先获取M3U以自动填充数据';
+        resultDiv.className = 'result error';
+        return;
+      }
+
+      resultDiv.textContent = '正在测试令牌...';
+
+      try {
+        const response = await fetch(`/api/play/${channelHash}?token=${encodeURIComponent(token)}&freesub=${subId}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          resultDiv.textContent = JSON.stringify(data, null, 2);
+          resultDiv.className = 'result success';
+        } else {
+          const errorData = await response.json();
+          resultDiv.textContent = '错误: ' + JSON.stringify(errorData, null, 2);
+          resultDiv.className = 'result error';
+        }
+      } catch (error) {
+        resultDiv.textContent = '错误: ' + error.message;
+        resultDiv.className = 'result error';
+      }
+    }
+
+    // 测试5：过期令牌
+    async function testExpiredToken() {
+      const resultDiv = document.getElementById('result5');
+      const channelHash = document.getElementById('channelHashInput').value;
+      const token = document.getElementById('tokenInput').value;
+      const subId = document.getElementById('subIdInput').value;
+
+      if (!channelHash || !token || !subId) {
+        resultDiv.textContent = '请先获取M3U以自动填充数据';
+        resultDiv.className = 'result error';
+        return;
+      }
+
+      resultDiv.textContent = '请等待5分钟后点击下面的按钮...';
+      resultDiv.className = 'result info';
+
+      setTimeout(async () => {
+        resultDiv.textContent = '正在测试过期令牌...';
+
+        try {
+          const response = await fetch(`/api/play/${channelHash}?token=${encodeURIComponent(token)}&freesub=${subId}`);
+
+          if (response.ok) {
+            resultDiv.textContent = '警告：令牌仍然有效！这不应该发生。';
+            resultDiv.className = 'result error';
+          } else {
+            const errorData = await response.json();
+            resultDiv.textContent = '✓ 正确：令牌已过期\n' + JSON.stringify(errorData, null, 2);
+            resultDiv.className = 'result success';
+          }
+        } catch (error) {
+          resultDiv.textContent = '错误: ' + error.message;
+          resultDiv.className = 'result error';
+        }
+      }, 5 * 60 * 1000); // 5分钟
+    }
+  </script>
+</body>
+</html>
