@@ -24,8 +24,8 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     .lang-menu button.active{background:#667eea;color:white}
     @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
     .form-group{margin-bottom:18px}
-    .form-group label{display:block;margin-bottom:8px;font-weight:500;color:#1d1d1f;font-size:14px}
-    .form-group input{width:100%;padding:12px 14px;border:2px solid #e5e5ea;border-radius:8px;font-size:16px;transition:border-color .2s;letter-spacing:1px;-webkit-appearance:none}
+    .form-group label{display:block;margin-bottom:6px;font-weight:500;color:#1d1d1f;font-size:14px}
+    .form-group input{width:100%;padding:12px 14px;border:2px solid #e5e5ea;border-radius:8px;font-size:16px;transition:border-color .2s;letter-spacing:1px;-webkit-appearance:none;height:44px}
     .form-group input:focus{outline:none;border-color:#667eea}
     .btn{width:100%;padding:14px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:transform .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent}
     .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(102,126,234,.4)}
@@ -58,6 +58,12 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     .spinner{width:40px;height:40px;border:3px solid #e5e5ea;border-top-color:#667eea;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
     @keyframes spin{to{transform:rotate(360deg)}}
     .loading-text{margin-top:12px;color:#86868b;font-size:14px}
+    .captcha-container{display:flex;gap:10px;align-items:center}
+    .captcha-input{flex:1;padding:0 12px;border:2px solid #e5e5ea;border-radius:8px;font-size:16px;text-align:center;letter-spacing:3px;-webkit-appearance:none;transition:border-color .2s;height:44px}
+    .captcha-input:focus{outline:none;border-color:#667eea}
+    .captcha-canvas{width:100px;height:44px;border:2px solid #e5e5ea;border-radius:8px;cursor:pointer;flex-shrink:0}
+    .captcha-refresh{padding:8px 12px;background:#f5f5f7;border:2px solid #e5e5ea;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;transition:background .2s;-webkit-tap-highlight-color:transparent;height:44px;white-space:nowrap;flex-shrink:0;min-width:60px}
+    .captcha-refresh:hover{background:#e5e5ea}
     @media (max-width:480px){
       body{padding:10px}
       .container{padding:20px;border-radius:12px;padding-top:50px}
@@ -101,6 +107,15 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     <div class="form-group">
       <label for="code" data-i18n="enterCode">Enter activation code</label>
       <input type="text" id="code" data-i18n-placeholder="codePlaceholder" placeholder="Enter your activation code" autocomplete="off">
+    </div>
+
+    <div class="form-group">
+      <label for="captchaInput" data-i18n="captchaLabel">Verification Code</label>
+      <div class="captcha-container">
+        <input type="text" id="captchaInput" placeholder="" maxlength="6">
+        <canvas id="captchaCanvas" width="100" height="44" onclick="refreshCaptcha()"></canvas>
+        <button class="captcha-refresh" onclick="refreshCaptcha()" data-i18n="refreshCaptcha">Refresh</button>
+      </div>
     </div>
 
     <button id="activateBtn" class="btn" onclick="activateCode()" data-i18n="activate">Activate Now</button>
@@ -157,6 +172,8 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
   <script>
     const API_BASE = '/api/activate';
 
+    let captchaCode = '';
+
     const translations = {
       'en': {
         title: '📺 TV Live Service',
@@ -188,7 +205,11 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         networkError: 'Network error, please try again later',
         copiedMsg: 'Subscription URL copied to clipboard',
         days: ' days',
-        maxIPs: '3'
+        maxIPs: '3',
+        captchaLabel: 'Verification Code',
+        refreshCaptcha: 'Refresh',
+        captchaError: 'Please enter verification code',
+        invalidCaptcha: 'Invalid verification code'
       },
       'zh-CN': {
         title: '📺 电视直播服务',
@@ -220,7 +241,11 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         networkError: '网络错误，请稍后重试',
         copiedMsg: '订阅地址已复制到剪贴板',
         days: ' 天',
-        maxIPs: '3'
+        maxIPs: '3',
+        captchaLabel: '验证码',
+        refreshCaptcha: '刷新',
+        captchaError: '请输入验证码',
+        invalidCaptcha: '验证码错误'
       }
     };
 
@@ -310,9 +335,24 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
 
     async function activateCode() {
       const code = document.getElementById('code').value.trim();
+      const captchaInput = document.getElementById('captchaInput').value.trim();
 
       if (!code) {
         showError(t('enterCodeError'));
+        return;
+      }
+
+      if (!captchaInput) {
+        showError(t('captchaError'));
+        return;
+      }
+
+      console.log('Input captcha:', captchaInput, 'Expected:', captchaCode);
+
+      if (captchaInput !== captchaCode) {
+        console.log('Captcha mismatch');
+        showError(t('invalidCaptcha'));
+        refreshCaptcha();
         return;
       }
 
@@ -329,12 +369,15 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         if (response.ok && data.success) {
           showSuccess(t('successMsg'));
           showResult(code, data);
+          refreshCaptcha();
         } else {
           showError(data.error || t('failMsg'));
+          refreshCaptcha();
         }
       } catch (error) {
         console.error('Activation failed:', error);
         showError(t('networkError'));
+        refreshCaptcha();
       } finally {
         showLoading(false);
       }
@@ -374,9 +417,63 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       }
     }
 
+    function refreshCaptcha() {
+      const canvas = document.getElementById('captchaCanvas');
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#f5f5f7';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+      captchaCode = '';
+      for (let i = 0; i < 4; i++) {
+        captchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      console.log('Generated captcha:', captchaCode);
+
+      ctx.font = 'bold 24px Arial';
+      ctx.textBaseline = 'middle';
+
+      for (let i = 0; i < captchaCode.length; i++) {
+        const r = Math.floor(Math.random() * 80) + 60;
+        const g = Math.floor(Math.random() * 80) + 60;
+        const b = Math.floor(Math.random() * 80) + 60;
+        ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+
+        const x = 18 + i * 21;
+        const y = 22 + (Math.random() - 0.5) * 6;
+        const angle = (Math.random() - 0.5) * 0.3;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillText(captchaCode[i], 0, 0);
+        ctx.restore();
+      }
+
+      for (let i = 0; i < 5; i++) {
+        ctx.strokeStyle = 'rgba(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ',0.3)';
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.stroke();
+      }
+
+      for (let i = 0; i < 30; i++) {
+        ctx.fillStyle = 'rgba(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ',0.5)';
+        ctx.beginPath();
+        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+
+      document.getElementById('captchaInput').value = '';
+    }
+
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
       setLanguage(currentLang);
+      refreshCaptcha();
 
       // Support Enter key activation
       document.getElementById('code').addEventListener('keypress', function(e) {
