@@ -629,8 +629,14 @@ export async function handlePublicPlay(request, env, ctx) {
       }
 
       // 验证免费订阅令牌
-      const isValidToken = verifyFreeSubPlayToken(tokenParam, hash, freeSubId);
+      const decodedToken = decodeURIComponent(tokenParam);
+      const isValidToken = verifyFreeSubPlayToken(decodedToken, hash, freeSubId);
       if (!isValidToken) {
+        console.error('[FreeSub Play] Token validation failed', {
+          token: decodedToken.substring(0, 20) + '...',
+          hash,
+          freeSubId
+        });
         return new Response(JSON.stringify({
           success: false,
           error: 'Invalid or expired free subscription token'
