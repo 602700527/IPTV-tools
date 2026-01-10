@@ -6,9 +6,11 @@ import { handleAdminRequest } from './handlers/admin.js';
 import { handleScheduledEvent } from './handlers/scheduler.js';
 import { handleUserActivate } from './handlers/user.js';
 import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement } from './handlers/public.js';
+import { handleFreeSubAPI } from './handlers/freesub-api.js';
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { PLAYSTATION_HTML } from './playstation-page.js';
+import { FREE_SUB_HTML } from './freesub-page.js';
 import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from './pages.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
@@ -127,6 +129,11 @@ export default {
       return new Response(htmlWithConfig, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
+    } else if (path === '/freesub' || path === '/freesub/' || path === '/freesub/index' || path === '/freesub/index.html') {
+      // 免费订阅页面
+      return new Response(FREE_SUB_HTML, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     } else if (path === '/api/activate') {
       // 用户激活API
       return await handleUserActivate(request, env, ctx);
@@ -169,6 +176,9 @@ export default {
       return new Response(generateTermsOfService(), {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
+    } else if (path.startsWith('/api/freesub')) {
+      // 免费订阅API
+      return await handleFreeSubAPI(request, env, ctx);
     } else {
       // 默认响应
       return new Response('Not Found', { status: 404 });

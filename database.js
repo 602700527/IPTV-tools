@@ -313,6 +313,71 @@ export async function createTables(env) {
     console.error('Database: Failed to create ad_ts_files indexes:', e);
   }
 
+  // 创建免费订阅表
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS free_subscriptions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sub_id TEXT NOT NULL UNIQUE,
+        ip TEXT NOT NULL,
+        fingerprint TEXT NOT NULL,
+        fingerprint_components TEXT NOT NULL,
+        expired_at DATETIME NOT NULL,
+        total_days INTEGER DEFAULT 7,
+        consecutive_days INTEGER DEFAULT 1,
+        ip_change_count INTEGER DEFAULT 0,
+        ip_updated_at DATETIME,
+        last_checkin DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    console.log('Database: free_subscriptions table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create free_subscriptions table:', e);
+  }
+
+  // 创建免费订阅索引
+  try {
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_sub_id ON free_subscriptions(sub_id)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_ip ON free_subscriptions(ip)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_fingerprint ON free_subscriptions(fingerprint)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_expired_at ON free_subscriptions(expired_at)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_ip_fingerprint ON free_subscriptions(ip, fingerprint)').run();
+    console.log('Database: free_subscriptions indexes created or already exist');
+  } catch (e) {
+    console.error('Database: Failed to create free_subscriptions indexes:', e);
+  }
+
+  // 创建签到记录表
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS checkin_records (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        subscription_id INTEGER NOT NULL,
+        checkin_date TEXT NOT NULL,
+        reward_days INTEGER DEFAULT 1,
+        consecutive_days INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(subscription_id) REFERENCES free_subscriptions(id) ON DELETE CASCADE,
+        UNIQUE(subscription_id, checkin_date)
+      )
+    `).run();
+    console.log('Database: checkin_records table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create checkin_records table:', e);
+  }
+
+  // 创建签到记录索引
+  try {
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_checkin_records_subscription_id ON checkin_records(subscription_id)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_checkin_records_date ON checkin_records(checkin_date DESC)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_checkin_records_subscription_date ON checkin_records(subscription_id, checkin_date)').run();
+    console.log('Database: checkin_records indexes created or already exist');
+  } catch (e) {
+    console.error('Database: Failed to create checkin_records indexes:', e);
+  }
+
   console.log('Tables created successfully');
 }
 
@@ -1311,3 +1376,53 @@ export async function getActiveAdTsFile(adType = null) {
   const randomIndex = Math.floor(Math.random() * ads.length);
   return ads[randomIndex];
 }
+
+/**
+ * 获取所有活跃频道（用于免费订阅）
+ */
+export async function getActiveChannels() {
+  const db = getDB();
+
+  const result = await db.prepare(`
+    SELECT c.*, s.name as source_name
+    FROM channels c
+    INNER JOIN sources s ON c.source_id = s.id
+    WHERE c.is_active = 1 AND s.is_active = 1
+    ORDER BY c.group_title, c.channel_name
+  `).all();
+
+  return result.results || [];
+}
+
+/**
+ * 生成M3U内容
+ */
+export function generateM3UContent(channels, subId) {
+  let m3u = '#EXTM3U\n';
+
+  // 添加订阅信息注释
+  m3u += '# Free Subscription\n';
+  m3u += `# ID: ${subId}\n`;
+  m3u += `# Channels: ${channels.length}\n`;
+  m3u += `# Generated: ${new Date().toISOString()}\n\n`;
+
+  // 添加频道
+  for (const channel of channels) {
+    const headers = channel.headers ? JSON.parse(channel.headers) : {};
+
+    let extinf = '#EXTINF:-1';
+    if (channel.logo) {
+      extinf += ` tvg-logo="${channel.logo}"`;
+    }
+    if (channel.group_title) {
+      extinf += ` group-title="${channel.group_title}"`;
+    }
+    extinf += `,${channel.channel_name}\n`;
+
+    m3u += extinf;
+    m3u += `${channel.play_url}\n`;
+  }
+
+  return m3u;
+}
+

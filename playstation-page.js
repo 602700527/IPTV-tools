@@ -408,6 +408,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           🎯
           <span class="quick-entry-tip">随机推荐</span>
         </button>
+        <button class="quick-entry ripple" onclick="window.location.href='/freesub'" data-tip-key="freesub">
+          🎁
+          <span class="quick-entry-tip">免费订阅</span>
+        </button>
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" data-tip-key="clearCache" style="display:none;">
           🗑️
           <span class="quick-entry-tip">清除缓存</span>
@@ -603,6 +607,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         history: '播放历史',
         favorites: '我的收藏',
         random: '随机推荐',
+        freesub: '免费订阅',
         clearCache: '清除缓存',
         onlineCount: '人在观看',
         hot: '热门',
@@ -645,6 +650,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         history: 'Watch History',
         favorites: 'My Favorites',
         random: 'Random Picks',
+        freesub: 'Free Subscription',
         clearCache: 'Clear Cache',
         onlineCount: 'viewers online',
         hot: 'HOT',

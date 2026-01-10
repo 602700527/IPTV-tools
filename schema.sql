@@ -140,3 +140,44 @@ CREATE TABLE IF NOT EXISTS subscription_ips (
 -- 创建订阅IP记录索引
 CREATE INDEX IF NOT EXISTS idx_subscription_ips_code_date ON subscription_ips(code, created_date);
 CREATE INDEX IF NOT EXISTS idx_subscription_ips_code_ip_date ON subscription_ips(code, client_ip, created_date);
+
+-- 免费订阅表
+CREATE TABLE IF NOT EXISTS free_subscriptions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  sub_id TEXT NOT NULL UNIQUE,
+  ip TEXT NOT NULL,
+  fingerprint TEXT NOT NULL,
+  fingerprint_components TEXT NOT NULL,
+  expired_at DATETIME NOT NULL,
+  total_days INTEGER DEFAULT 7,
+  consecutive_days INTEGER DEFAULT 1,
+  ip_change_count INTEGER DEFAULT 0,
+  ip_updated_at DATETIME,
+  last_checkin DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 免费订阅索引
+CREATE INDEX IF NOT EXISTS idx_free_subscriptions_sub_id ON free_subscriptions(sub_id);
+CREATE INDEX IF NOT EXISTS idx_free_subscriptions_ip ON free_subscriptions(ip);
+CREATE INDEX IF NOT EXISTS idx_free_subscriptions_fingerprint ON free_subscriptions(fingerprint);
+CREATE INDEX IF NOT EXISTS idx_free_subscriptions_expired_at ON free_subscriptions(expired_at);
+CREATE INDEX IF NOT EXISTS idx_free_subscriptions_ip_fingerprint ON free_subscriptions(ip, fingerprint);
+
+-- 签到记录表
+CREATE TABLE IF NOT EXISTS checkin_records (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  subscription_id INTEGER NOT NULL,
+  checkin_date TEXT NOT NULL,
+  reward_days INTEGER DEFAULT 1,
+  consecutive_days INTEGER DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY(subscription_id) REFERENCES free_subscriptions(id) ON DELETE CASCADE,
+  UNIQUE(subscription_id, checkin_date)
+);
+
+-- 签到记录索引
+CREATE INDEX IF NOT EXISTS idx_checkin_records_subscription_id ON checkin_records(subscription_id);
+CREATE INDEX IF NOT EXISTS idx_checkin_records_date ON checkin_records(checkin_date DESC);
+CREATE INDEX IF NOT EXISTS idx_checkin_records_subscription_date ON checkin_records(subscription_id, checkin_date);
