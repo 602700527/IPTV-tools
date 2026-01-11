@@ -5689,7 +5689,6 @@ var ADMIN_HTML = `<!DOCTYPE html>
       <div class="captcha-container">
         <input type="text" id="captchaInput" placeholder="\u9A8C\u8BC1\u7801" maxlength="4">
         <canvas id="captchaCanvas" width="100" height="44" onclick="refreshCaptcha()"></canvas>
-        <button class="captcha-refresh" onclick="refreshCaptcha()">\u5237\u65B0</button>
       </div>
       <button onclick="login()">\u767B\u5F55</button>
     </div>
@@ -9436,7 +9435,6 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
       <div class="captcha-container">
         <input type="text" id="captchaInput" placeholder="" maxlength="6">
         <canvas id="captchaCanvas" width="100" height="44" onclick="refreshCaptcha()"></canvas>
-        <button class="captcha-refresh" onclick="refreshCaptcha()" data-i18n="refreshCaptcha">Refresh</button>
       </div>
     </div>
 
@@ -13009,7 +13007,6 @@ var FREE_SUB_HTML = `
       <div class="captcha-container">
         <input type="text" class="captcha-input" id="captchaInput" placeholder="\u8F93\u5165\u9A8C\u8BC1\u7801" maxlength="6">
         <canvas class="captcha-canvas" id="captchaCanvas" width="120" height="44" onclick="refreshCaptcha()"></canvas>
-        <button class="captcha-refresh" onclick="refreshCaptcha()">\u5237\u65B0</button>
       </div>
       <button class="checkin-btn" id="checkInBtn" onclick="checkIn()">
         \u7ACB\u5373\u7B7E\u5230

@@ -114,7 +114,6 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       <div class="captcha-container">
         <input type="text" id="captchaInput" placeholder="" maxlength="6">
         <canvas id="captchaCanvas" width="100" height="44" onclick="refreshCaptcha()"></canvas>
-        <button class="captcha-refresh" onclick="refreshCaptcha()" data-i18n="refreshCaptcha">Refresh</button>
       </div>
     </div>
 

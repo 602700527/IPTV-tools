@@ -320,7 +320,6 @@ export const FREE_SUB_HTML = `
       <div class="captcha-container">
         <input type="text" class="captcha-input" id="captchaInput" placeholder="输入验证码" maxlength="6">
         <canvas class="captcha-canvas" id="captchaCanvas" width="120" height="44" onclick="refreshCaptcha()"></canvas>
-        <button class="captcha-refresh" onclick="refreshCaptcha()">刷新</button>
       </div>
       <button class="checkin-btn" id="checkInBtn" onclick="checkIn()">
         立即签到

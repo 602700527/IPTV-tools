@@ -113,7 +113,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <div class="captcha-container">
         <input type="text" id="captchaInput" placeholder="验证码" maxlength="4">
         <canvas id="captchaCanvas" width="100" height="44" onclick="refreshCaptcha()"></canvas>
-        <button class="captcha-refresh" onclick="refreshCaptcha()">刷新</button>
       </div>
       <button onclick="login()">登录</button>
     </div>
