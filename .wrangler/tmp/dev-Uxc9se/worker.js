@@ -9005,7 +9005,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
         return '<tr>' +
           '<td>' + binding.id + '</td>' +
           '<td>' + escapeHtml(binding.action_type_label) + '</td>' +
-          '<td>' + escapeHtml(binding.ad_name || '\u968F\u673A\u9009\u62E9') + '</td>' +
+          '<td>' + escapeHtml(binding.ad_name || '\u4E0D\u64AD\u653E\u5E7F\u544A') + '</td>' +
           '<td>' + escapeHtml(binding.cooldown_display) + '</td>' +
           '<td>' + binding.priority + '</td>' +
           '<td>' + formatDateTime(binding.created_at) + '</td>' +

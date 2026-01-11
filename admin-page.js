@@ -3421,7 +3421,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         return '<tr>' +
           '<td>' + binding.id + '</td>' +
           '<td>' + escapeHtml(binding.action_type_label) + '</td>' +
-          '<td>' + escapeHtml(binding.ad_name || '随机选择') + '</td>' +
+          '<td>' + escapeHtml(binding.ad_name || '不播放广告') + '</td>' +
           '<td>' + escapeHtml(binding.cooldown_display) + '</td>' +
           '<td>' + binding.priority + '</td>' +
           '<td>' + formatDateTime(binding.created_at) + '</td>' +
