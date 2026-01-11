@@ -347,10 +347,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         return;
       }
 
-      console.log('Input captcha:', captchaInput, 'Expected:', captchaCode);
-
       if (captchaInput !== captchaCode) {
-        console.log('Captcha mismatch');
         showError(t('invalidCaptcha'));
         refreshCaptcha();
         return;
@@ -424,26 +421,27 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       ctx.fillStyle = '#f5f5f7';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+      // 只使用大写字母和数字，移除易混淆字符
+      const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
       captchaCode = '';
       for (let i = 0; i < 4; i++) {
         captchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
       }
 
-      console.log('Generated captcha:', captchaCode);
-
-      ctx.font = 'bold 24px Arial';
+      ctx.font = 'bold 28px Arial';
       ctx.textBaseline = 'middle';
 
       for (let i = 0; i < captchaCode.length; i++) {
-        const r = Math.floor(Math.random() * 80) + 60;
-        const g = Math.floor(Math.random() * 80) + 60;
-        const b = Math.floor(Math.random() * 80) + 60;
-        ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+        // 使用深色高对比度颜色
+        const colors = [
+          '#1a1a1a', '#2d3748', '#1a365d', '#742a2a', '#1c4532', '#553c9a', '#744210', '#285e61'
+        ];
+        ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
 
-        const x = 18 + i * 21;
-        const y = 22 + (Math.random() - 0.5) * 6;
-        const angle = (Math.random() - 0.5) * 0.3;
+        const x = 20 + i * 22;
+        const y = 22;
+        // 极小的旋转角度，几乎不旋转
+        const angle = (Math.random() - 0.5) * 0.05;
 
         ctx.save();
         ctx.translate(x, y);
@@ -452,18 +450,35 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         ctx.restore();
       }
 
+      // 添加 5 条干扰线
       for (let i = 0; i < 5; i++) {
-        ctx.strokeStyle = 'rgba(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ',0.3)';
+        ctx.strokeStyle = 'rgba(150, 150, 150, 0.4)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
         ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
         ctx.stroke();
       }
 
-      for (let i = 0; i < 30; i++) {
-        ctx.fillStyle = 'rgba(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ',0.5)';
+      // 添加少量弯曲干扰线
+      for (let i = 0; i < 2; i++) {
+        ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1, 0, 2 * Math.PI);
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.bezierCurveTo(
+          Math.random() * canvas.width, Math.random() * canvas.height,
+          Math.random() * canvas.width, Math.random() * canvas.height,
+          Math.random() * canvas.width, Math.random() * canvas.height
+        );
+        ctx.stroke();
+      }
+
+      // 添加干扰点
+      for (let i = 0; i < 15; i++) {
+        ctx.fillStyle = 'rgba(180, 180, 180, 0.5)';
+        ctx.beginPath();
+        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1.5, 0, 2 * Math.PI);
         ctx.fill();
       }
 

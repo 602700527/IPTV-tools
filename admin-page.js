@@ -15,6 +15,11 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     .login-box button{width:100%;padding:12px;background:#0071e3;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;transition:background .2s}
     .login-box button:hover{background:#0077ed}
     .login-error{color:#ff3b30;text-align:center;margin-bottom:12px;font-size:14px}
+    .captcha-container{display:flex;gap:10px;align-items:center;margin-bottom:16px}
+    .captcha-input{flex:1;padding:12px 16px;border:1px solid #d2d2d7;border-radius:8px;font-size:16px;text-align:center;letter-spacing:3px}
+    .captcha-canvas{width:100px;height:44px;border:1px solid #d2d2d7;border-radius:8px;cursor:pointer;flex-shrink:0}
+    .captcha-refresh{padding:12px 16px;background:#f5f5f7;border:1px solid #d2d2d7;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:background .2s;white-space:nowrap;flex-shrink:0}
+    .captcha-refresh:hover{background:#e5e5ea}
     .container{max-width:1400px;margin:0 auto;padding:20px}
     .header{background:white;padding:20px 30px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.04)}
     .header h1{font-size:24px;font-weight:600}
@@ -105,6 +110,11 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <h2>管理后台登录</h2>
       <div id="loginError" class="login-error" style="display:none;"></div>
       <input type="password" id="adminKey" placeholder="请输入管理员密钥">
+      <div class="captcha-container">
+        <input type="text" id="captchaInput" placeholder="验证码" maxlength="4">
+        <canvas id="captchaCanvas" width="100" height="44" onclick="refreshCaptcha()"></canvas>
+        <button class="captcha-refresh" onclick="refreshCaptcha()">刷新</button>
+      </div>
       <button onclick="login()">登录</button>
     </div>
   </div>
@@ -894,6 +904,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       autoLogin();
     } else {
       document.getElementById('loginOverlay').classList.remove('hidden');
+      refreshCaptcha();
     }
 
     // 页面加载时更新同步指示器
@@ -919,12 +930,28 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       });
     }
 
+    let captchaCode = '';
+
     function login() {
       const key = document.getElementById('adminKey').value;
+      const captchaInput = document.getElementById('captchaInput').value;
+
       if (!key) {
         showLoginError('请输入管理员密钥');
         return;
       }
+
+      if (!captchaInput) {
+        showLoginError('请输入验证码');
+        return;
+      }
+
+      if (captchaInput !== captchaCode) {
+        showLoginError('验证码错误');
+        refreshCaptcha();
+        return;
+      }
+
       adminKey = key;
       // 同时保存到 localStorage 和 sessionStorage
       localStorage.setItem(STORAGE_KEY, key);
@@ -941,12 +968,85 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         } else {
           showLoginError('密钥无效');
           clearAuth();
+          refreshCaptcha();
         }
       })
       .catch(() => {
         showLoginError('登录失败，请重试');
         clearAuth();
+        refreshCaptcha();
       });
+    }
+
+    function refreshCaptcha() {
+      const canvas = document.getElementById('captchaCanvas');
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#f5f5f7';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 只使用大写字母和数字，移除易混淆字符
+      const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+      captchaCode = '';
+      for (let i = 0; i < 4; i++) {
+        captchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      ctx.font = 'bold 28px Arial';
+      ctx.textBaseline = 'middle';
+
+      for (let i = 0; i < captchaCode.length; i++) {
+        // 使用深色高对比度颜色
+        const colors = [
+          '#1a1a1a', '#2d3748', '#1a365d', '#742a2a', '#1c4532', '#553c9a', '#744210', '#285e61'
+        ];
+        ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+
+        const x = 20 + i * 22;
+        const y = 22;
+        // 极小的旋转角度，几乎不旋转
+        const angle = (Math.random() - 0.5) * 0.05;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillText(captchaCode[i], 0, 0);
+        ctx.restore();
+      }
+
+      // 添加 5 条干扰线
+      for (let i = 0; i < 5; i++) {
+        ctx.strokeStyle = 'rgba(150, 150, 150, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.stroke();
+      }
+
+      // 添加少量弯曲干扰线
+      for (let i = 0; i < 2; i++) {
+        ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.bezierCurveTo(
+          Math.random() * canvas.width, Math.random() * canvas.height,
+          Math.random() * canvas.width, Math.random() * canvas.height,
+          Math.random() * canvas.width, Math.random() * canvas.height
+        );
+        ctx.stroke();
+      }
+
+      // 添加干扰点
+      for (let i = 0; i < 15; i++) {
+        ctx.fillStyle = 'rgba(180, 180, 180, 0.5)';
+        ctx.beginPath();
+        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1.5, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+
+      document.getElementById('captchaInput').value = '';
     }
 
     function showLoginError(msg) {
@@ -961,7 +1061,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       document.getElementById('mainContent').style.display = 'none';
       document.getElementById('loginOverlay').classList.remove('hidden');
       document.getElementById('adminKey').value = '';
+      document.getElementById('captchaInput').value = '';
       document.getElementById('loginError').style.display = 'none';
+      refreshCaptcha();
     }
 
     function clearAuth() {

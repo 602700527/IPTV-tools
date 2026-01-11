@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-yrUugs/checked-fetch.js
+// .wrangler/tmp/bundle-IZPxcV/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-yrUugs/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-IZPxcV/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -1418,11 +1418,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-yrUugs/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-IZPxcV/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-yrUugs/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-IZPxcV/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -5591,6 +5591,11 @@ var ADMIN_HTML = `<!DOCTYPE html>
     .login-box button{width:100%;padding:12px;background:#0071e3;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;transition:background .2s}
     .login-box button:hover{background:#0077ed}
     .login-error{color:#ff3b30;text-align:center;margin-bottom:12px;font-size:14px}
+    .captcha-container{display:flex;gap:10px;align-items:center;margin-bottom:16px}
+    .captcha-input{flex:1;padding:12px 16px;border:1px solid #d2d2d7;border-radius:8px;font-size:16px;text-align:center;letter-spacing:3px}
+    .captcha-canvas{width:100px;height:44px;border:1px solid #d2d2d7;border-radius:8px;cursor:pointer;flex-shrink:0}
+    .captcha-refresh{padding:12px 16px;background:#f5f5f7;border:1px solid #d2d2d7;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:background .2s;white-space:nowrap;flex-shrink:0}
+    .captcha-refresh:hover{background:#e5e5ea}
     .container{max-width:1400px;margin:0 auto;padding:20px}
     .header{background:white;padding:20px 30px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.04)}
     .header h1{font-size:24px;font-weight:600}
@@ -5681,6 +5686,11 @@ var ADMIN_HTML = `<!DOCTYPE html>
       <h2>\u7BA1\u7406\u540E\u53F0\u767B\u5F55</h2>
       <div id="loginError" class="login-error" style="display:none;"></div>
       <input type="password" id="adminKey" placeholder="\u8BF7\u8F93\u5165\u7BA1\u7406\u5458\u5BC6\u94A5">
+      <div class="captcha-container">
+        <input type="text" id="captchaInput" placeholder="\u9A8C\u8BC1\u7801" maxlength="4">
+        <canvas id="captchaCanvas" width="100" height="44" onclick="refreshCaptcha()"></canvas>
+        <button class="captcha-refresh" onclick="refreshCaptcha()">\u5237\u65B0</button>
+      </div>
       <button onclick="login()">\u767B\u5F55</button>
     </div>
   </div>
@@ -6470,6 +6480,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
       autoLogin();
     } else {
       document.getElementById('loginOverlay').classList.remove('hidden');
+      refreshCaptcha();
     }
 
     // \u9875\u9762\u52A0\u8F7D\u65F6\u66F4\u65B0\u540C\u6B65\u6307\u793A\u5668
@@ -6495,12 +6506,28 @@ var ADMIN_HTML = `<!DOCTYPE html>
       });
     }
 
+    let captchaCode = '';
+
     function login() {
       const key = document.getElementById('adminKey').value;
+      const captchaInput = document.getElementById('captchaInput').value;
+
       if (!key) {
         showLoginError('\u8BF7\u8F93\u5165\u7BA1\u7406\u5458\u5BC6\u94A5');
         return;
       }
+
+      if (!captchaInput) {
+        showLoginError('\u8BF7\u8F93\u5165\u9A8C\u8BC1\u7801');
+        return;
+      }
+
+      if (captchaInput !== captchaCode) {
+        showLoginError('\u9A8C\u8BC1\u7801\u9519\u8BEF');
+        refreshCaptcha();
+        return;
+      }
+
       adminKey = key;
       // \u540C\u65F6\u4FDD\u5B58\u5230 localStorage \u548C sessionStorage
       localStorage.setItem(STORAGE_KEY, key);
@@ -6517,12 +6544,85 @@ var ADMIN_HTML = `<!DOCTYPE html>
         } else {
           showLoginError('\u5BC6\u94A5\u65E0\u6548');
           clearAuth();
+          refreshCaptcha();
         }
       })
       .catch(() => {
         showLoginError('\u767B\u5F55\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5');
         clearAuth();
+        refreshCaptcha();
       });
+    }
+
+    function refreshCaptcha() {
+      const canvas = document.getElementById('captchaCanvas');
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#f5f5f7';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // \u53EA\u4F7F\u7528\u5927\u5199\u5B57\u6BCD\u548C\u6570\u5B57\uFF0C\u79FB\u9664\u6613\u6DF7\u6DC6\u5B57\u7B26
+      const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+      captchaCode = '';
+      for (let i = 0; i < 4; i++) {
+        captchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      ctx.font = 'bold 28px Arial';
+      ctx.textBaseline = 'middle';
+
+      for (let i = 0; i < captchaCode.length; i++) {
+        // \u4F7F\u7528\u6DF1\u8272\u9AD8\u5BF9\u6BD4\u5EA6\u989C\u8272
+        const colors = [
+          '#1a1a1a', '#2d3748', '#1a365d', '#742a2a', '#1c4532', '#553c9a', '#744210', '#285e61'
+        ];
+        ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+
+        const x = 20 + i * 22;
+        const y = 22;
+        // \u6781\u5C0F\u7684\u65CB\u8F6C\u89D2\u5EA6\uFF0C\u51E0\u4E4E\u4E0D\u65CB\u8F6C
+        const angle = (Math.random() - 0.5) * 0.05;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillText(captchaCode[i], 0, 0);
+        ctx.restore();
+      }
+
+      // \u6DFB\u52A0 5 \u6761\u5E72\u6270\u7EBF
+      for (let i = 0; i < 5; i++) {
+        ctx.strokeStyle = 'rgba(150, 150, 150, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.stroke();
+      }
+
+      // \u6DFB\u52A0\u5C11\u91CF\u5F2F\u66F2\u5E72\u6270\u7EBF
+      for (let i = 0; i < 2; i++) {
+        ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.bezierCurveTo(
+          Math.random() * canvas.width, Math.random() * canvas.height,
+          Math.random() * canvas.width, Math.random() * canvas.height,
+          Math.random() * canvas.width, Math.random() * canvas.height
+        );
+        ctx.stroke();
+      }
+
+      // \u6DFB\u52A0\u5E72\u6270\u70B9
+      for (let i = 0; i < 15; i++) {
+        ctx.fillStyle = 'rgba(180, 180, 180, 0.5)';
+        ctx.beginPath();
+        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1.5, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+
+      document.getElementById('captchaInput').value = '';
     }
 
     function showLoginError(msg) {
@@ -6537,7 +6637,9 @@ var ADMIN_HTML = `<!DOCTYPE html>
       document.getElementById('mainContent').style.display = 'none';
       document.getElementById('loginOverlay').classList.remove('hidden');
       document.getElementById('adminKey').value = '';
+      document.getElementById('captchaInput').value = '';
       document.getElementById('loginError').style.display = 'none';
+      refreshCaptcha();
     }
 
     function clearAuth() {
@@ -9567,10 +9669,7 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
         return;
       }
 
-      console.log('Input captcha:', captchaInput, 'Expected:', captchaCode);
-
       if (captchaInput !== captchaCode) {
-        console.log('Captcha mismatch');
         showError(t('invalidCaptcha'));
         refreshCaptcha();
         return;
@@ -9644,26 +9743,27 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
       ctx.fillStyle = '#f5f5f7';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+      // \u53EA\u4F7F\u7528\u5927\u5199\u5B57\u6BCD\u548C\u6570\u5B57\uFF0C\u79FB\u9664\u6613\u6DF7\u6DC6\u5B57\u7B26
+      const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
       captchaCode = '';
       for (let i = 0; i < 4; i++) {
         captchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
       }
 
-      console.log('Generated captcha:', captchaCode);
-
-      ctx.font = 'bold 24px Arial';
+      ctx.font = 'bold 28px Arial';
       ctx.textBaseline = 'middle';
 
       for (let i = 0; i < captchaCode.length; i++) {
-        const r = Math.floor(Math.random() * 80) + 60;
-        const g = Math.floor(Math.random() * 80) + 60;
-        const b = Math.floor(Math.random() * 80) + 60;
-        ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+        // \u4F7F\u7528\u6DF1\u8272\u9AD8\u5BF9\u6BD4\u5EA6\u989C\u8272
+        const colors = [
+          '#1a1a1a', '#2d3748', '#1a365d', '#742a2a', '#1c4532', '#553c9a', '#744210', '#285e61'
+        ];
+        ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
 
-        const x = 18 + i * 21;
-        const y = 22 + (Math.random() - 0.5) * 6;
-        const angle = (Math.random() - 0.5) * 0.3;
+        const x = 20 + i * 22;
+        const y = 22;
+        // \u6781\u5C0F\u7684\u65CB\u8F6C\u89D2\u5EA6\uFF0C\u51E0\u4E4E\u4E0D\u65CB\u8F6C
+        const angle = (Math.random() - 0.5) * 0.05;
 
         ctx.save();
         ctx.translate(x, y);
@@ -9672,18 +9772,35 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
         ctx.restore();
       }
 
+      // \u6DFB\u52A0 5 \u6761\u5E72\u6270\u7EBF
       for (let i = 0; i < 5; i++) {
-        ctx.strokeStyle = 'rgba(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ',0.3)';
+        ctx.strokeStyle = 'rgba(150, 150, 150, 0.4)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
         ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
         ctx.stroke();
       }
 
-      for (let i = 0; i < 30; i++) {
-        ctx.fillStyle = 'rgba(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ',0.5)';
+      // \u6DFB\u52A0\u5C11\u91CF\u5F2F\u66F2\u5E72\u6270\u7EBF
+      for (let i = 0; i < 2; i++) {
+        ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1, 0, 2 * Math.PI);
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.bezierCurveTo(
+          Math.random() * canvas.width, Math.random() * canvas.height,
+          Math.random() * canvas.width, Math.random() * canvas.height,
+          Math.random() * canvas.width, Math.random() * canvas.height
+        );
+        ctx.stroke();
+      }
+
+      // \u6DFB\u52A0\u5E72\u6270\u70B9
+      for (let i = 0; i < 15; i++) {
+        ctx.fillStyle = 'rgba(180, 180, 180, 0.5)';
+        ctx.beginPath();
+        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1.5, 0, 2 * Math.PI);
         ctx.fill();
       }
 
@@ -13105,28 +13222,28 @@ var FREE_SUB_HTML = `
       ctx.fillStyle = '#f5f5f5';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // \u751F\u6210\u968F\u673A\u9A8C\u8BC1\u7801\uFF084\u4F4D\u6570\u5B57+\u5B57\u6BCD\uFF09
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+      // \u53EA\u4F7F\u7528\u5927\u5199\u5B57\u6BCD\u548C\u6570\u5B57\uFF0C\u79FB\u9664\u6613\u6DF7\u6DC6\u5B57\u7B26
+      const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
       captchaCode = '';
       for (let i = 0; i < 4; i++) {
         captchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
       }
 
       // \u7ED8\u5236\u9A8C\u8BC1\u7801
-      ctx.font = 'bold 24px Arial';
+      ctx.font = 'bold 28px Arial';
       ctx.textBaseline = 'middle';
 
       for (let i = 0; i < captchaCode.length; i++) {
-        // \u968F\u673A\u989C\u8272
-        const r = Math.floor(Math.random() * 100);
-        const g = Math.floor(Math.random() * 100);
-        const b = Math.floor(Math.random() * 100);
-        ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+        // \u4F7F\u7528\u6DF1\u8272\u9AD8\u5BF9\u6BD4\u5EA6\u989C\u8272
+        const colors = [
+          '#1a1a1a', '#2d3748', '#1a365d', '#742a2a', '#1c4532', '#553c9a', '#744210', '#285e61'
+        ];
+        ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
 
-        // \u968F\u673A\u4F4D\u7F6E\u548C\u65CB\u8F6C
-        const x = 20 + i * 25;
-        const y = 22 + (Math.random() - 0.5) * 10;
-        const angle = (Math.random() - 0.5) * 0.4;
+        const x = 20 + i * 22;
+        const y = 22;
+        // \u6781\u5C0F\u7684\u65CB\u8F6C\u89D2\u5EA6\uFF0C\u51E0\u4E4E\u4E0D\u65CB\u8F6C
+        const angle = (Math.random() - 0.5) * 0.05;
 
         ctx.save();
         ctx.translate(x, y);
@@ -13135,20 +13252,35 @@ var FREE_SUB_HTML = `
         ctx.restore();
       }
 
-      // \u6DFB\u52A0\u5E72\u6270\u7EBF
+      // \u6DFB\u52A0 5 \u6761\u5E72\u6270\u7EBF
       for (let i = 0; i < 5; i++) {
-        ctx.strokeStyle = 'rgba(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ',0.3)';
+        ctx.strokeStyle = 'rgba(150, 150, 150, 0.4)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
         ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
         ctx.stroke();
       }
 
-      // \u6DFB\u52A0\u5E72\u6270\u70B9
-      for (let i = 0; i < 30; i++) {
-        ctx.fillStyle = 'rgba(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ',0.5)';
+      // \u6DFB\u52A0\u5C11\u91CF\u5F2F\u66F2\u5E72\u6270\u7EBF
+      for (let i = 0; i < 2; i++) {
+        ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1, 0, 2 * Math.PI);
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.bezierCurveTo(
+          Math.random() * canvas.width, Math.random() * canvas.height,
+          Math.random() * canvas.width, Math.random() * canvas.height,
+          Math.random() * canvas.width, Math.random() * canvas.height
+        );
+        ctx.stroke();
+      }
+
+      // \u6DFB\u52A0\u5E72\u6270\u70B9
+      for (let i = 0; i < 15; i++) {
+        ctx.fillStyle = 'rgba(180, 180, 180, 0.5)';
+        ctx.beginPath();
+        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1.5, 0, 2 * Math.PI);
         ctx.fill();
       }
 
@@ -14296,7 +14428,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-yrUugs/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-IZPxcV/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14330,7 +14462,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-yrUugs/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-IZPxcV/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
