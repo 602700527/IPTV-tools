@@ -3441,6 +3441,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         { value: 'code_channel_not_found', label: '频道不存在卡密播放' },
         { value: 'freesub_normal', label: '免费订阅正常播放' },
         { value: 'freesub_expired', label: '免费订阅过期播放' },
+        { value: 'freesub_unauth', label: '免费订阅IP未授权' },
         { value: 'freesub_channel_not_found', label: '频道不存在免费播放' }
       ];
 

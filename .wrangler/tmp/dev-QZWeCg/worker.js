@@ -3971,6 +3971,7 @@ async function handleAdminRequest(request, env, ctx) {
             "code_channel_not_found": "\u9891\u9053\u4E0D\u5B58\u5728\u5361\u5BC6\u64AD\u653E",
             "freesub_normal": "\u514D\u8D39\u8BA2\u9605\u6B63\u5E38\u64AD\u653E",
             "freesub_expired": "\u514D\u8D39\u8BA2\u9605\u8FC7\u671F\u64AD\u653E",
+            "freesub_unauth": "\u514D\u8D39\u8BA2\u9605IP\u672A\u6388\u6743",
             "freesub_channel_not_found": "\u9891\u9053\u4E0D\u5B58\u5728\u514D\u8D39\u64AD\u653E"
           };
           const formattedBindings = (bindings.results || []).map((b) => ({
@@ -4830,6 +4831,16 @@ async function handlePublicPlay(request, env, ctx) {
           expectedIP: sub.ip,
           actualIP: clientIP
         });
+        const adBinding2 = await getBoundAdByAction("freesub_unauth", clientIP);
+        if (adBinding2) {
+          const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding2.id}.ts`;
+          console.log("[PublicPlay] Redirecting to ad TS file (freesub unauth):", adTsUrl);
+          const headers = new Headers({
+            "Location": adTsUrl,
+            "Cache-Control": "no-store, no-cache, must-revalidate"
+          });
+          return new Response(null, { status: 302, headers });
+        }
         return new Response(JSON.stringify({
           success: false,
           error: "IP address does not match subscription"
@@ -9006,6 +9017,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
         { value: 'code_channel_not_found', label: '\u9891\u9053\u4E0D\u5B58\u5728\u5361\u5BC6\u64AD\u653E' },
         { value: 'freesub_normal', label: '\u514D\u8D39\u8BA2\u9605\u6B63\u5E38\u64AD\u653E' },
         { value: 'freesub_expired', label: '\u514D\u8D39\u8BA2\u9605\u8FC7\u671F\u64AD\u653E' },
+        { value: 'freesub_unauth', label: '\u514D\u8D39\u8BA2\u9605IP\u672A\u6388\u6743' },
         { value: 'freesub_channel_not_found', label: '\u9891\u9053\u4E0D\u5B58\u5728\u514D\u8D39\u64AD\u653E' }
       ];
 

@@ -663,6 +663,20 @@ export async function handlePublicPlay(request, env, ctx) {
           expectedIP: sub.ip,
           actualIP: clientIP
         });
+
+        // 免费订阅IP未授权播放场景 - 检查是否有广告绑定
+        const adBinding = await getBoundAdByAction('freesub_unauth', clientIP);
+        if (adBinding) {
+          // 直接重定向到TS文件
+          const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding.id}.ts`;
+          console.log('[PublicPlay] Redirecting to ad TS file (freesub unauth):', adTsUrl);
+          const headers = new Headers({
+            'Location': adTsUrl,
+            'Cache-Control': 'no-store, no-cache, must-revalidate'
+          });
+          return new Response(null, { status: 302, headers });
+        }
+
         return new Response(JSON.stringify({
           success: false,
           error: 'IP address does not match subscription'

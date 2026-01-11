@@ -1504,6 +1504,7 @@ export async function handleAdminRequest(request, env, ctx) {
             'code_channel_not_found': '频道不存在卡密播放',
             'freesub_normal': '免费订阅正常播放',
             'freesub_expired': '免费订阅过期播放',
+            'freesub_unauth': '免费订阅IP未授权',
             'freesub_channel_not_found': '频道不存在免费播放'
           };
 
