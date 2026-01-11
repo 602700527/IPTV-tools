@@ -105,15 +105,17 @@ async function syncAllSources(db, env) {
         const oldCountResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(source.id).first();
         const oldChannelCount = oldCountResult?.count || 0;
 
-        // 先同步新频道
+        // 先删除旧频道（避免与新频道冲突）
+        console.log(`[Scheduler] Deleting old channels for source ${source.id}`);
+        await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
+        totalDeleted += oldChannelCount;
+        console.log(`[Scheduler] Deleted ${oldChannelCount} old channels for source ${source.id}`);
+
+        // 同步新频道
         console.log(`[Scheduler] Starting fetch and parse for source ${source.id}: ${source.name}`);
         const syncResult = await fetchAndParseM3U(source.url, source.id, filter);
 
         if (syncResult.success && syncResult.channelCount > 0) {
-          // 只有成功获取新频道时才删除旧频道
-          console.log(`[Scheduler] Deleting old channels for source ${source.id}`);
-          await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
-          totalDeleted += oldChannelCount;
           totalAdded += syncResult.channelCount;
 
           results.push({
@@ -126,12 +128,12 @@ async function syncAllSources(db, env) {
           });
           console.log(`[Scheduler] Source ${source.id} synced successfully: deleted ${oldChannelCount}, added ${syncResult.channelCount}`);
         } else {
-          // 同步失败或没有新频道，不删除旧频道
+          // 同步失败或没有新频道
           results.push({
             source_id: source.id,
             source_name: source.name,
             success: false,
-            deleted_channels: 0,
+            deleted_channels: oldChannelCount,
             new_channels: 0,
             error: syncResult.error || 'No channels fetched'
           });
