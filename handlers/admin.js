@@ -1745,3 +1745,64 @@ function generateRandomEncryptionKey(length = 32) {
   return key;
 }
 
+/**
+ * 处理广告TS文件请求
+ * @param {Request} request - 请求对象
+ * @param {object} env - 环境变量
+ * @param {object} ctx - 上下文
+ * @returns {Response} 响应对象
+ */
+export async function handleAdTsFile(request, env, ctx) {
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/');
+  const filename = pathParts[pathParts.length - 1]; // 获取文件名，如 123.ts
+
+  // 提取广告ID
+  const adId = filename.replace('.ts', '');
+  const adIdNum = parseInt(adId);
+
+  if (isNaN(adIdNum)) {
+    return new Response('Invalid ad ID', { status: 400 });
+  }
+
+  const db = getDB();
+
+  // 查询广告TS文件
+  const adFile = await db.prepare('SELECT * FROM ad_ts_files WHERE id = ?').bind(adIdNum).first();
+
+  if (!adFile || !adFile.content) {
+    console.log('[AdTS] Ad file not found or empty content:', adIdNum);
+    return new Response('Ad not found', { status: 404 });
+  }
+
+  console.log('[AdTS] Serving ad file:', adIdNum, 'name:', adFile.name, 'content length:', adFile.content.length);
+
+  // 解码base64内容
+  try {
+    const binaryString = atob(adFile.content);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    console.log('[AdTS] Decoded bytes length:', bytes.length, 'First 10 bytes:', Array.from(bytes.slice(0, 10)));
+
+    // 检查TS魔数（TS文件应该以 0x47 开头）
+    if (bytes.length < 188 || bytes[0] !== 0x47) {
+      console.error('[AdTS] Invalid TS file format, expected 0x47 at start, got:', bytes[0].toString(16));
+    }
+
+    return new Response(bytes, {
+      headers: {
+        'Content-Type': 'video/mp2t',
+        'Cache-Control': 'public, max-age=86400',
+        'Access-Control-Allow-Origin': '*',
+        'Content-Length': bytes.length.toString()
+      }
+    });
+  } catch (error) {
+    console.error('[AdTS] Error decoding ad TS content:', error);
+    return new Response('Error decoding ad content', { status: 500 });
+  }
+}
+

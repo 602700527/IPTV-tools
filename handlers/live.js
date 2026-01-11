@@ -1,5 +1,5 @@
 // 播放请求处理器: /live/{code}/{hash}（简化安全版）
-import { getDB, getSecurityConfig, getActiveAdTsFile } from '../database.js';
+import { getDB, getSecurityConfig, getBoundAdByAction, generateAdM3U8 } from '../database.js';
 import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
 import { addBannedCodeToCache } from '../security/code-ban-cache.js';
 import { incrementPlayCount, getPlayCount, flushCacheToDB, getAuthorizedSubscriptionIPs } from '../utils/cache.js';
@@ -9,11 +9,12 @@ export async function handleLiveRequest(request, env, ctx) {
   try {
     const url = new URL(request.url);
     const pathParts = url.pathname.split('/');
+    const fullBaseUrl = `${url.protocol}//${url.host}`; // 获取完整的 base URL
 
     // 0. IP黑名单检查
     const clientIP = getClientIP(request);
     const ipCheck = await checkIPRateLimit(env, ctx, clientIP, '/live');
-    
+
     if (!ipCheck.allowed) {
       return new Response(ipCheck.message, { status: 403 });
     }
@@ -27,14 +28,20 @@ export async function handleLiveRequest(request, env, ctx) {
     const hash = pathParts[3]; // 频道hash
 
     // 1. 检查缓存 (Cache API) - 只缓存成功的响应
+    // 注意：带Range头的请求不检查缓存，避免VLC的Range请求问题
+    const hasRangeHeader = request.headers.has('Range');
     const cache = caches.default;
     const cacheKey = new Request(url.toString(), request);
     let response = await cache.match(cacheKey);
 
-    if (response) {
+    if (response && !hasRangeHeader) {
       // 缓存命中，检查是否为403错误（禁用、过期或封禁）
       if (response.status === 403) {
         // 忽略缓存的403响应，重新验证
+        response = null;
+      } else if (response.status === 302) {
+        // 忽略缓存的302重定向，重新检查（广告冷却时间可能已过）
+        console.log('[Live] Cache hit with 302, skipping cache');
         response = null;
       } else {
         // 缓存命中且状态正常，直接返回
@@ -54,6 +61,22 @@ export async function handleLiveRequest(request, env, ctx) {
       if (auth && auth.expired_at < now && auth.status === 'active') {
         await db.prepare("UPDATE codes SET status = 'disabled' WHERE code = ?").bind(code).run();
       }
+
+      // 卡密过期播放场景 - 检查是否有广告绑定
+      const adBinding = await getBoundAdByAction('code_expired', clientIP);
+      if (adBinding) {
+        // 直接重定向到TS文件
+        const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding.id}.ts`;
+        console.log('[Live] Redirecting to ad TS file (expired):', adTsUrl);
+        const headers = new Headers({
+          'Location': adTsUrl,
+          'Cache-Control': 'no-store, no-cache, must-revalidate'
+        });
+        response = new Response(null, { status: 302, headers });
+        ctx.waitUntil(cache.put(cacheKey, response.clone()));
+        return response;
+      }
+
       // 卡密无效或已过期
       response = new Response("Forbidden: Invalid or Expired Code", { status: 403 });
       response.headers.set("Cache-Control", "public, max-age=300");
@@ -84,24 +107,24 @@ export async function handleLiveRequest(request, env, ctx) {
     // 检查当前播放IP是否在订阅IP列表中
     // 如果授权IP列表为空（说明是该卡密首次订阅），则允许播放
     if (authorizedIPs.size > 0 && !authorizedIPs.has(clientIP)) {
-      // 获取广告TS文件
-      const adTsFile = await getActiveAdTsFile();
-
-      if (adTsFile && adTsFile.content) {
-        // 返回自定义M3U8，包含广告TS
-        const m3u8Content = generateAdM3U8(adTsFile);
-        response = new Response(m3u8Content, {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/vnd.apple.mpegurl',
-            'Cache-Control': 'public, max-age=60'
-          }
+      // 卡密IP未授权播放场景 - 检查是否有广告绑定
+      const adBinding = await getBoundAdByAction('code_unauth', clientIP);
+      if (adBinding) {
+        // 直接重定向到TS文件
+        const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding.id}.ts`;
+        console.log('[Live] Redirecting to ad TS file (unauth):', adTsUrl);
+        const headers = new Headers({
+          'Location': adTsUrl,
+          'Cache-Control': 'no-store, no-cache, must-revalidate'
         });
-      } else {
-        // 没有广告文件，返回403错误
-        response = new Response("Forbidden: Your IP is not authorized to play (please re-subscribe)", { status: 403 });
-        response.headers.set("Cache-Control", "public, max-age=60");
+        response = new Response(null, { status: 302, headers });
+        ctx.waitUntil(cache.put(cacheKey, response.clone()));
+        return response;
       }
+
+      // 没有广告绑定，返回403错误
+      response = new Response("Forbidden: Your IP is not authorized to play (please re-subscribe)", { status: 403 });
+      response.headers.set("Cache-Control", "public, max-age=60");
       ctx.waitUntil(cache.put(cacheKey, response.clone()));
       return response;
     }
@@ -178,8 +201,39 @@ export async function handleLiveRequest(request, env, ctx) {
     const channel = await getChannelByHash(env, hash);
 
     if (!channel || !channel.is_active) {
+      // 频道不存在卡密播放场景 - 检查是否有广告绑定
+      const adBinding = await getBoundAdByAction('code_channel_not_found', clientIP);
+      if (adBinding) {
+        // 直接重定向到TS文件
+        const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding.id}.ts`;
+        console.log('[Live] Redirecting to ad TS file (channel not found):', adTsUrl);
+        const headers = new Headers({
+          'Location': adTsUrl,
+          'Cache-Control': 'no-store, no-cache, must-revalidate'
+        });
+        response = new Response(null, { status: 302, headers });
+        ctx.waitUntil(cache.put(cacheKey, response.clone()));
+        return response;
+      }
+
       response = new Response("Channel Not Found", { status: 404 });
       response.headers.set("Cache-Control", "public, max-age=300");
+      ctx.waitUntil(cache.put(cacheKey, response.clone()));
+      return response;
+    }
+
+    // 卡密正常播放场景 - 检查是否有广告绑定
+    const adBinding = await getBoundAdByAction('code_normal', clientIP);
+    if (adBinding) {
+      // 有广告需要播放，直接重定向到TS文件
+      const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding.id}.ts`;
+      console.log('[Live] Redirecting to ad TS file:', adTsUrl);
+      const headers = new Headers({
+        'Location': adTsUrl,
+        'Cache-Control': 'no-store, no-cache, must-revalidate'
+      });
+      response = new Response(null, { status: 302, headers });
+      // 不缓存广告重定向响应
       ctx.waitUntil(cache.put(cacheKey, response.clone()));
       return response;
     }
@@ -202,21 +256,5 @@ export async function handleLiveRequest(request, env, ctx) {
   }
 }
 
-// 生成广告M3U8内容
-function generateAdM3U8(adTsFile) {
-  // Base64解码TS内容
-  const tsContent = adTsFile.content;
 
-  // 生成M3U8内容
-  const m3u8 = `#EXTM3U8
-#EXT-X-VERSION:3
-#EXT-X-TARGETDURATION:10.000
-#EXT-X-MEDIA-SEQUENCE:0
-#EXTINF:10.000,
-ad.ts
-#EXT-X-ENDLIST`;
-
-  // 返回M3U8和TS的组合内容
-  return `${m3u8}\n\n${tsContent}`;
-}
 

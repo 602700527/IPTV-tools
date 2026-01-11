@@ -373,19 +373,27 @@ export async function createTables(env) {
 
   // 检查并添加缺失的列（用于迁移旧数据库）
   try {
-    // 检查 ad_ts_files 表是否有 ad_type 列
+    // 检查 ad_ts_files 表结构
     const tableInfo = await db.prepare('PRAGMA table_info(ad_ts_files)').all();
-    const hasAdTypeColumn = tableInfo.results && tableInfo.results.some(col => col.name === 'ad_type');
+    const columns = tableInfo.results || [];
+
+    const hasAdTypeColumn = columns.some(col => col.name === 'ad_type');
+    const hasIsActiveColumn = columns.some(col => col.name === 'is_active');
+    const hasDescriptionColumn = columns.some(col => col.name === 'description');
+
     if (!hasAdTypeColumn) {
       await db.prepare('ALTER TABLE ad_ts_files ADD COLUMN ad_type TEXT DEFAULT "normal"').run();
       console.log('Database: Added ad_type column to ad_ts_files table');
     }
 
-    // 检查是否有 is_active 列
-    const hasIsActiveColumn = tableInfo.results && tableInfo.results.some(col => col.name === 'is_active');
     if (!hasIsActiveColumn) {
       await db.prepare('ALTER TABLE ad_ts_files ADD COLUMN is_active INTEGER DEFAULT 0').run();
       console.log('Database: Added is_active column to ad_ts_files table');
+    }
+
+    if (!hasDescriptionColumn) {
+      await db.prepare('ALTER TABLE ad_ts_files ADD COLUMN description TEXT').run();
+      console.log('Database: Added description column to ad_ts_files table');
     }
   } catch (e) {
     console.error('Database: Failed to migrate ad_ts_files table:', e);
@@ -1623,16 +1631,30 @@ export async function getBoundAdByAction(actionType, clientIP) {
     return null;
   }
 
+  // 如果没有绑定广告ID，返回null（不播放广告）
+  if (!binding.ad_id) {
+    return null;
+  }
+
+  console.log(`[AdBinding] Checking cooldown for action: ${actionType}, IP: ${clientIP}, cooldown: ${binding.cooldown_seconds}s`);
+
   // 检查冷却时间
   if (binding.cooldown_seconds > 0) {
-    const cooldownExpiry = new Date(Date.now() - binding.cooldown_seconds * 1000).toISOString();
+    // 使用SQLite的datetime函数计算冷却时间，确保时区一致
     const recentPlay = await db.prepare(`
-      SELECT COUNT(*) as count FROM ad_play_logs
-      WHERE action_type = ? AND client_ip = ? AND played_at > ?
-    `).bind(actionType, clientIP, cooldownExpiry).first();
+      SELECT COUNT(*) as count,
+             MAX(played_at) as last_played_at,
+             datetime('now') as now,
+             datetime('now', '-' || ? || ' seconds') as cooldown_before
+      FROM ad_play_logs
+      WHERE action_type = ? AND client_ip = ? AND played_at > datetime('now', '-' || ? || ' seconds')
+    `).bind(binding.cooldown_seconds, actionType, clientIP, binding.cooldown_seconds).first();
+
+    console.log('[AdBinding] Cooldown check result:', recentPlay);
 
     if (recentPlay && recentPlay.count > 0) {
       // 在冷却期内，返回null
+      console.log(`[AdBinding] In cooldown period for ${actionType}, last played: ${recentPlay.last_played_at}`);
       return null;
     }
   }
@@ -1643,8 +1665,10 @@ export async function getBoundAdByAction(actionType, clientIP) {
     VALUES (?, ?, datetime('now'))
   `).bind(actionType, clientIP).run();
 
-  // 如果绑定了特定广告，返回该广告
-  if (binding.ad_id && binding.ad_content) {
+  console.log(`[AdBinding] Ad logged for action: ${actionType}, IP: ${clientIP}`);
+
+  // 返回绑定的特定广告
+  if (binding.ad_content) {
     return {
       id: binding.ad_id,
       name: binding.ad_name,
@@ -1654,8 +1678,50 @@ export async function getBoundAdByAction(actionType, clientIP) {
     };
   }
 
-  // 否则随机选择一个活跃广告
-  return await getActiveAdTsFile();
+  // 如果有ad_id但没有content，查询广告详情
+  const adFile = await db.prepare('SELECT * FROM ad_ts_files WHERE id = ? AND is_active = 1').bind(binding.ad_id).first();
+  if (!adFile || !adFile.content) {
+    return null;
+  }
+
+  return {
+    id: adFile.id,
+    name: adFile.name,
+    content: adFile.content,
+    ad_type: adFile.ad_type,
+    cooldown_seconds: binding.cooldown_seconds
+  };
+}
+
+/**
+ * 生成广告M3U8内容
+ * @param {object} adTsFile - 广告文件对象
+ * @param {string} redirectUrl - 广告播放后的重定向URL（可选，未使用）
+ * @param {string} baseUrl - 基础URL（用于生成TS文件路径）
+ * @param {string} fullBaseUrl - 完整的基础URL（如 https://example.com）
+ * @returns {string} M3U8内容
+ */
+export function generateAdM3U8(adTsFile, redirectUrl = null, baseUrl = '/api/ads', fullBaseUrl = null) {
+  console.log('[AdM3U8] Generating M3U8 for ad:', adTsFile.id, 'baseUrl:', baseUrl, 'fullBaseUrl:', fullBaseUrl);
+
+  // 使用相对路径（让VLC自动解析）
+  const tsPath = `${baseUrl}/${adTsFile.id}.ts`;
+
+  console.log('[AdM3U8] TS path:', tsPath);
+
+  // 生成M3U8内容 - 使用标准格式，不使用数组join
+  const m3u8 = '#EXTM3U8\n' +
+                '#EXT-X-VERSION:3\n' +
+                '#EXT-X-TARGETDURATION:10.000\n' +
+                '#EXT-X-MEDIA-SEQUENCE:0\n' +
+                '#EXTINF:10.000,\n' +
+                tsPath + '\n' +
+                '#EXT-X-ENDLIST\n';
+
+  console.log('[AdM3U8] Generated M3U8 length:', m3u8.length);
+  console.log('[AdM3U8] M3U8 preview:', m3u8.substring(0, 100));
+
+  return m3u8;
 }
 
 /**

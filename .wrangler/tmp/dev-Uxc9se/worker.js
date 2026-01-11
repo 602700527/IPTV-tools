@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-2WdlWI/checked-fetch.js
+// .wrangler/tmp/bundle-G4skgl/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-2WdlWI/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-G4skgl/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -64,6 +64,7 @@ __export(database_exports, {
   deleteAdBinding: () => deleteAdBinding,
   encryptWithAES: () => encryptWithAES,
   fetchAndParseM3U: () => fetchAndParseM3U,
+  generateAdM3U8: () => generateAdM3U8,
   generateEncryptionKey: () => generateEncryptionKey,
   generateFreeSubPlayToken: () => generateFreeSubPlayToken,
   generateM3UContent: () => generateM3UContent,
@@ -369,15 +370,21 @@ async function createTables(env) {
   }
   try {
     const tableInfo = await db.prepare("PRAGMA table_info(ad_ts_files)").all();
-    const hasAdTypeColumn = tableInfo.results && tableInfo.results.some((col) => col.name === "ad_type");
+    const columns = tableInfo.results || [];
+    const hasAdTypeColumn = columns.some((col) => col.name === "ad_type");
+    const hasIsActiveColumn = columns.some((col) => col.name === "is_active");
+    const hasDescriptionColumn = columns.some((col) => col.name === "description");
     if (!hasAdTypeColumn) {
       await db.prepare('ALTER TABLE ad_ts_files ADD COLUMN ad_type TEXT DEFAULT "normal"').run();
       console.log("Database: Added ad_type column to ad_ts_files table");
     }
-    const hasIsActiveColumn = tableInfo.results && tableInfo.results.some((col) => col.name === "is_active");
     if (!hasIsActiveColumn) {
       await db.prepare("ALTER TABLE ad_ts_files ADD COLUMN is_active INTEGER DEFAULT 0").run();
       console.log("Database: Added is_active column to ad_ts_files table");
+    }
+    if (!hasDescriptionColumn) {
+      await db.prepare("ALTER TABLE ad_ts_files ADD COLUMN description TEXT").run();
+      console.log("Database: Added description column to ad_ts_files table");
     }
   } catch (e) {
     console.error("Database: Failed to migrate ad_ts_files table:", e);
@@ -1265,13 +1272,22 @@ async function getBoundAdByAction(actionType, clientIP) {
   if (!binding) {
     return null;
   }
+  if (!binding.ad_id) {
+    return null;
+  }
+  console.log(`[AdBinding] Checking cooldown for action: ${actionType}, IP: ${clientIP}, cooldown: ${binding.cooldown_seconds}s`);
   if (binding.cooldown_seconds > 0) {
-    const cooldownExpiry = new Date(Date.now() - binding.cooldown_seconds * 1e3).toISOString();
     const recentPlay = await db.prepare(`
-      SELECT COUNT(*) as count FROM ad_play_logs
-      WHERE action_type = ? AND client_ip = ? AND played_at > ?
-    `).bind(actionType, clientIP, cooldownExpiry).first();
+      SELECT COUNT(*) as count,
+             MAX(played_at) as last_played_at,
+             datetime('now') as now,
+             datetime('now', '-' || ? || ' seconds') as cooldown_before
+      FROM ad_play_logs
+      WHERE action_type = ? AND client_ip = ? AND played_at > datetime('now', '-' || ? || ' seconds')
+    `).bind(binding.cooldown_seconds, actionType, clientIP, binding.cooldown_seconds).first();
+    console.log("[AdBinding] Cooldown check result:", recentPlay);
     if (recentPlay && recentPlay.count > 0) {
+      console.log(`[AdBinding] In cooldown period for ${actionType}, last played: ${recentPlay.last_played_at}`);
       return null;
     }
   }
@@ -1279,7 +1295,8 @@ async function getBoundAdByAction(actionType, clientIP) {
     INSERT INTO ad_play_logs (action_type, client_ip, played_at)
     VALUES (?, ?, datetime('now'))
   `).bind(actionType, clientIP).run();
-  if (binding.ad_id && binding.ad_content) {
+  console.log(`[AdBinding] Ad logged for action: ${actionType}, IP: ${clientIP}`);
+  if (binding.ad_content) {
     return {
       id: binding.ad_id,
       name: binding.ad_name,
@@ -1288,7 +1305,26 @@ async function getBoundAdByAction(actionType, clientIP) {
       cooldown_seconds: binding.cooldown_seconds
     };
   }
-  return await getActiveAdTsFile();
+  const adFile = await db.prepare("SELECT * FROM ad_ts_files WHERE id = ? AND is_active = 1").bind(binding.ad_id).first();
+  if (!adFile || !adFile.content) {
+    return null;
+  }
+  return {
+    id: adFile.id,
+    name: adFile.name,
+    content: adFile.content,
+    ad_type: adFile.ad_type,
+    cooldown_seconds: binding.cooldown_seconds
+  };
+}
+function generateAdM3U8(adTsFile, redirectUrl = null, baseUrl = "/api/ads", fullBaseUrl = null) {
+  console.log("[AdM3U8] Generating M3U8 for ad:", adTsFile.id, "baseUrl:", baseUrl, "fullBaseUrl:", fullBaseUrl);
+  const tsPath = `${baseUrl}/${adTsFile.id}.ts`;
+  console.log("[AdM3U8] TS path:", tsPath);
+  const m3u8 = "#EXTM3U8\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:10.000\n#EXT-X-MEDIA-SEQUENCE:0\n#EXTINF:10.000,\n" + tsPath + "\n#EXT-X-ENDLIST\n";
+  console.log("[AdM3U8] Generated M3U8 length:", m3u8.length);
+  console.log("[AdM3U8] M3U8 preview:", m3u8.substring(0, 100));
+  return m3u8;
 }
 async function getActiveChannels() {
   const db = getDB();
@@ -1377,16 +1413,17 @@ var init_database = __esm({
     __name(deleteAdBinding, "deleteAdBinding");
     __name(getAllAdBindings, "getAllAdBindings");
     __name(getBoundAdByAction, "getBoundAdByAction");
+    __name(generateAdM3U8, "generateAdM3U8");
     __name(getActiveChannels, "getActiveChannels");
     __name(generateM3UContent, "generateM3UContent");
   }
 });
 
-// .wrangler/tmp/bundle-2WdlWI/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-G4skgl/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-2WdlWI/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-G4skgl/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -2174,6 +2211,7 @@ async function handleLiveRequest(request, env, ctx) {
   try {
     const url = new URL(request.url);
     const pathParts = url.pathname.split("/");
+    const fullBaseUrl = `${url.protocol}//${url.host}`;
     const clientIP = getClientIP(request);
     const ipCheck = await checkIPRateLimit(env, ctx, clientIP, "/live");
     if (!ipCheck.allowed) {
@@ -2184,11 +2222,15 @@ async function handleLiveRequest(request, env, ctx) {
     }
     const code = pathParts[2];
     const hash = pathParts[3];
+    const hasRangeHeader = request.headers.has("Range");
     const cache = caches.default;
     const cacheKey = new Request(url.toString(), request);
     let response = await cache.match(cacheKey);
-    if (response) {
+    if (response && !hasRangeHeader) {
       if (response.status === 403) {
+        response = null;
+      } else if (response.status === 302) {
+        console.log("[Live] Cache hit with 302, skipping cache");
         response = null;
       } else {
         return response;
@@ -2200,6 +2242,18 @@ async function handleLiveRequest(request, env, ctx) {
     if (!auth || auth.status !== "active" || auth.expired_at < now) {
       if (auth && auth.expired_at < now && auth.status === "active") {
         await db.prepare("UPDATE codes SET status = 'disabled' WHERE code = ?").bind(code).run();
+      }
+      const adBinding2 = await getBoundAdByAction("code_expired", clientIP);
+      if (adBinding2) {
+        const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding2.id}.ts`;
+        console.log("[Live] Redirecting to ad TS file (expired):", adTsUrl);
+        const headers2 = new Headers({
+          "Location": adTsUrl,
+          "Cache-Control": "no-store, no-cache, must-revalidate"
+        });
+        response = new Response(null, { status: 302, headers: headers2 });
+        ctx.waitUntil(cache.put(cacheKey, response.clone()));
+        return response;
       }
       response = new Response("Forbidden: Invalid or Expired Code", { status: 403 });
       response.headers.set("Cache-Control", "public, max-age=300");
@@ -2218,20 +2272,20 @@ async function handleLiveRequest(request, env, ctx) {
     const authorizedIPs = getAuthorizedSubscriptionIPs(code, today, maxIPs);
     console.log(`[Live] Code: ${code}, IP: ${clientIP}, Authorized IPs: ${Array.from(authorizedIPs).join(", ")}, IsAuthorized: ${authorizedIPs.has(clientIP)}`);
     if (authorizedIPs.size > 0 && !authorizedIPs.has(clientIP)) {
-      const adTsFile = await getActiveAdTsFile();
-      if (adTsFile && adTsFile.content) {
-        const m3u8Content = generateAdM3U8(adTsFile);
-        response = new Response(m3u8Content, {
-          status: 200,
-          headers: {
-            "Content-Type": "application/vnd.apple.mpegurl",
-            "Cache-Control": "public, max-age=60"
-          }
+      const adBinding2 = await getBoundAdByAction("code_unauth", clientIP);
+      if (adBinding2) {
+        const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding2.id}.ts`;
+        console.log("[Live] Redirecting to ad TS file (unauth):", adTsUrl);
+        const headers2 = new Headers({
+          "Location": adTsUrl,
+          "Cache-Control": "no-store, no-cache, must-revalidate"
         });
-      } else {
-        response = new Response("Forbidden: Your IP is not authorized to play (please re-subscribe)", { status: 403 });
-        response.headers.set("Cache-Control", "public, max-age=60");
+        response = new Response(null, { status: 302, headers: headers2 });
+        ctx.waitUntil(cache.put(cacheKey, response.clone()));
+        return response;
       }
+      response = new Response("Forbidden: Your IP is not authorized to play (please re-subscribe)", { status: 403 });
+      response.headers.set("Cache-Control", "public, max-age=60");
       ctx.waitUntil(cache.put(cacheKey, response.clone()));
       return response;
     }
@@ -2275,8 +2329,32 @@ ${banReason}` : banReason;
     incrementPlayCount(code, hash, today);
     const channel = await getChannelByHash(env, hash);
     if (!channel || !channel.is_active) {
+      const adBinding2 = await getBoundAdByAction("code_channel_not_found", clientIP);
+      if (adBinding2) {
+        const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding2.id}.ts`;
+        console.log("[Live] Redirecting to ad TS file (channel not found):", adTsUrl);
+        const headers2 = new Headers({
+          "Location": adTsUrl,
+          "Cache-Control": "no-store, no-cache, must-revalidate"
+        });
+        response = new Response(null, { status: 302, headers: headers2 });
+        ctx.waitUntil(cache.put(cacheKey, response.clone()));
+        return response;
+      }
       response = new Response("Channel Not Found", { status: 404 });
       response.headers.set("Cache-Control", "public, max-age=300");
+      ctx.waitUntil(cache.put(cacheKey, response.clone()));
+      return response;
+    }
+    const adBinding = await getBoundAdByAction("code_normal", clientIP);
+    if (adBinding) {
+      const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding.id}.ts`;
+      console.log("[Live] Redirecting to ad TS file:", adTsUrl);
+      const headers2 = new Headers({
+        "Location": adTsUrl,
+        "Cache-Control": "no-store, no-cache, must-revalidate"
+      });
+      response = new Response(null, { status: 302, headers: headers2 });
       ctx.waitUntil(cache.put(cacheKey, response.clone()));
       return response;
     }
@@ -2293,20 +2371,6 @@ ${banReason}` : banReason;
   }
 }
 __name(handleLiveRequest, "handleLiveRequest");
-function generateAdM3U8(adTsFile) {
-  const tsContent = adTsFile.content;
-  const m3u8 = `#EXTM3U8
-#EXT-X-VERSION:3
-#EXT-X-TARGETDURATION:10.000
-#EXT-X-MEDIA-SEQUENCE:0
-#EXTINF:10.000,
-ad.ts
-#EXT-X-ENDLIST`;
-  return `${m3u8}
-
-${tsContent}`;
-}
-__name(generateAdM3U8, "generateAdM3U8");
 
 // handlers/sub.js
 init_checked_fetch();
@@ -4112,6 +4176,46 @@ function generateRandomEncryptionKey(length = 32) {
   return key;
 }
 __name(generateRandomEncryptionKey, "generateRandomEncryptionKey");
+async function handleAdTsFile(request, env, ctx) {
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split("/");
+  const filename = pathParts[pathParts.length - 1];
+  const adId = filename.replace(".ts", "");
+  const adIdNum = parseInt(adId);
+  if (isNaN(adIdNum)) {
+    return new Response("Invalid ad ID", { status: 400 });
+  }
+  const db = getDB();
+  const adFile = await db.prepare("SELECT * FROM ad_ts_files WHERE id = ?").bind(adIdNum).first();
+  if (!adFile || !adFile.content) {
+    console.log("[AdTS] Ad file not found or empty content:", adIdNum);
+    return new Response("Ad not found", { status: 404 });
+  }
+  console.log("[AdTS] Serving ad file:", adIdNum, "name:", adFile.name, "content length:", adFile.content.length);
+  try {
+    const binaryString = atob(adFile.content);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    console.log("[AdTS] Decoded bytes length:", bytes.length, "First 10 bytes:", Array.from(bytes.slice(0, 10)));
+    if (bytes.length < 188 || bytes[0] !== 71) {
+      console.error("[AdTS] Invalid TS file format, expected 0x47 at start, got:", bytes[0].toString(16));
+    }
+    return new Response(bytes, {
+      headers: {
+        "Content-Type": "video/mp2t",
+        "Cache-Control": "public, max-age=86400",
+        "Access-Control-Allow-Origin": "*",
+        "Content-Length": bytes.length.toString()
+      }
+    });
+  } catch (error) {
+    console.error("[AdTS] Error decoding ad TS content:", error);
+    return new Response("Error decoding ad content", { status: 500 });
+  }
+}
+__name(handleAdTsFile, "handleAdTsFile");
 
 // handlers/user.js
 init_checked_fetch();
@@ -4679,9 +4783,12 @@ async function handlePublicPlay(request, env, ctx) {
   const url = new URL(request.url);
   const pathParts = url.pathname.split("/");
   const hash = pathParts[3];
+  const fullBaseUrl = `${url.protocol}//${url.host}`;
+  const hasRangeHeader = request.headers.has("Range");
   if (!hash) {
     return new Response("Missing channel hash", { status: 400 });
   }
+  const clientIP = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For")?.split(",")[0].trim() || request.headers.get("X-Real-IP") || "unknown";
   try {
     const db = getDB();
     const systemConfig = await getSystemConfig();
@@ -4718,6 +4825,16 @@ async function handlePublicPlay(request, env, ctx) {
         WHERE sub_id = ? AND expired_at > datetime('now')
       `).bind(freeSubId).first();
       if (!sub) {
+        const adBinding2 = await getBoundAdByAction("freesub_expired", clientIP);
+        if (adBinding2) {
+          const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding2.id}.ts`;
+          console.log("[PublicPlay] Redirecting to ad TS file (freesub expired):", adTsUrl);
+          const headers = new Headers({
+            "Location": adTsUrl,
+            "Cache-Control": "no-store, no-cache, must-revalidate"
+          });
+          return new Response(null, { status: 302, headers });
+        }
         return new Response(JSON.stringify({
           success: false,
           error: "Free subscription not found or expired"
@@ -4726,7 +4843,6 @@ async function handlePublicPlay(request, env, ctx) {
           headers: { "Content-Type": "application/json" }
         });
       }
-      const clientIP = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For")?.split(",")[0].trim() || request.headers.get("X-Real-IP") || "unknown";
       if (sub.ip !== clientIP) {
         console.error("[FreeSub Play] IP mismatch", {
           subId: freeSubId,
@@ -4743,10 +4859,30 @@ async function handlePublicPlay(request, env, ctx) {
       }
       const channel2 = await getChannelByHash(env, hash);
       if (!channel2 || !channel2.is_active) {
+        const adBinding2 = await getBoundAdByAction("freesub_channel_not_found", clientIP);
+        if (adBinding2) {
+          const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding2.id}.ts`;
+          console.log("[PublicPlay] Redirecting to ad TS file (channel not found):", adTsUrl);
+          const headers = new Headers({
+            "Location": adTsUrl,
+            "Cache-Control": "no-store, no-cache, must-revalidate"
+          });
+          return new Response(null, { status: 302, headers });
+        }
         return new Response("Channel not found", { status: 404 });
       }
       if (channel2.source_active === 0) {
         return new Response("Channel source is inactive", { status: 404 });
+      }
+      const adBinding = await getBoundAdByAction("freesub_normal", clientIP);
+      if (adBinding) {
+        const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding.id}.ts`;
+        console.log("[PublicPlay] Redirecting to ad TS file (normal):", adTsUrl);
+        const headers = new Headers({
+          "Location": adTsUrl,
+          "Cache-Control": "no-store, no-cache, must-revalidate"
+        });
+        return new Response(null, { status: 302, headers });
       }
       const playUrl = channel2.play_url;
       let headersObj2 = {};
@@ -8872,7 +9008,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
           '<td>' + escapeHtml(binding.ad_name || '\u968F\u673A\u9009\u62E9') + '</td>' +
           '<td>' + escapeHtml(binding.cooldown_display) + '</td>' +
           '<td>' + binding.priority + '</td>' +
-          '<td>' + formatDate(binding.created_at) + '</td>' +
+          '<td>' + formatDateTime(binding.created_at) + '</td>' +
           '<td>' +
             '<button class="btn btn-sm" onclick="editAdBinding(' + binding.id + ')">\u7F16\u8F91</button> ' +
             '<button class="btn btn-danger btn-sm" onclick="deleteAdBinding(' + binding.id + ')">\u5220\u9664</button>' +
@@ -8992,7 +9128,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
 
         if (result.success) {
           showToast('\u4FDD\u5B58\u6210\u529F', 'success');
-          hideModal();
+          hideAdBindingModal();
           await loadAdBindings();
         } else {
           showToast('\u4FDD\u5B58\u5931\u8D25: ' + (result.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
@@ -14106,6 +14242,8 @@ window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
         });
       } else if (path.startsWith("/api/freesub")) {
         return await handleFreeSubAPI(request, env, ctx);
+      } else if (path.startsWith("/api/ads/")) {
+        return await handleAdTsFile(request, env, ctx);
       } else {
         return new Response("Not Found", { status: 404 });
       }
@@ -14165,7 +14303,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-2WdlWI/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-G4skgl/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14199,7 +14337,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-2WdlWI/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-G4skgl/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

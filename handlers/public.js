@@ -1,5 +1,5 @@
 // 公开播放列表API - 无需卡密
-import { getDB, getHomepageDisplayConfig, getSystemConfig, generatePlayToken, verifyPlayToken, verifyFreeSubPlayToken, verifyReferer, encryptWithAES } from '../database.js';
+import { getDB, getHomepageDisplayConfig, getSystemConfig, generatePlayToken, verifyPlayToken, verifyFreeSubPlayToken, verifyReferer, encryptWithAES, getBoundAdByAction, generateAdM3U8 } from '../database.js';
 import { getAllChannels, getAllGroups, getChannelByHash } from '../utils/channel-cache.js';
 
 // 公开公告API
@@ -601,10 +601,20 @@ export async function handlePublicPlay(request, env, ctx) {
   const url = new URL(request.url);
   const pathParts = url.pathname.split('/');
   const hash = pathParts[3]; // /play/{hash}
+  const fullBaseUrl = `${url.protocol}//${url.host}`; // 获取完整的 base URL
+
+  // 带Range头的请求不检查缓存，避免VLC的Range请求问题
+  const hasRangeHeader = request.headers.has('Range');
 
   if (!hash) {
     return new Response('Missing channel hash', { status: 400 });
   }
+
+  // 获取客户端IP
+  const clientIP = request.headers.get('CF-Connecting-IP') ||
+                  request.headers.get('X-Forwarded-For')?.split(',')[0].trim() ||
+                  request.headers.get('X-Real-IP') ||
+                  'unknown';
 
   try {
     const db = getDB();
@@ -653,6 +663,19 @@ export async function handlePublicPlay(request, env, ctx) {
       `).bind(freeSubId).first();
 
       if (!sub) {
+        // 免费订阅过期播放场景 - 检查是否有广告绑定
+        const adBinding = await getBoundAdByAction('freesub_expired', clientIP);
+        if (adBinding) {
+          // 直接重定向到TS文件
+          const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding.id}.ts`;
+          console.log('[PublicPlay] Redirecting to ad TS file (freesub expired):', adTsUrl);
+          const headers = new Headers({
+            'Location': adTsUrl,
+            'Cache-Control': 'no-store, no-cache, must-revalidate'
+          });
+          return new Response(null, { status: 302, headers });
+        }
+
         return new Response(JSON.stringify({
           success: false,
           error: 'Free subscription not found or expired'
@@ -661,12 +684,6 @@ export async function handlePublicPlay(request, env, ctx) {
           headers: { 'Content-Type': 'application/json' }
         });
       }
-
-      // 获取客户端IP
-      const clientIP = request.headers.get('CF-Connecting-IP') ||
-                      request.headers.get('X-Forwarded-For')?.split(',')[0].trim() ||
-                      request.headers.get('X-Real-IP') ||
-                      'unknown';
 
       // 检查IP是否匹配
       if (sub.ip !== clientIP) {
@@ -688,11 +705,37 @@ export async function handlePublicPlay(request, env, ctx) {
       const channel = await getChannelByHash(env, hash);
 
       if (!channel || !channel.is_active) {
+        // 频道不存在免费播放场景 - 检查是否有广告绑定
+        const adBinding = await getBoundAdByAction('freesub_channel_not_found', clientIP);
+        if (adBinding) {
+          // 直接重定向到TS文件
+          const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding.id}.ts`;
+          console.log('[PublicPlay] Redirecting to ad TS file (channel not found):', adTsUrl);
+          const headers = new Headers({
+            'Location': adTsUrl,
+            'Cache-Control': 'no-store, no-cache, must-revalidate'
+          });
+          return new Response(null, { status: 302, headers });
+        }
+
         return new Response('Channel not found', { status: 404 });
       }
 
       if (channel.source_active === 0) {
         return new Response('Channel source is inactive', { status: 404 });
+      }
+
+      // 正常免费播放场景 - 检查是否有广告绑定
+      const adBinding = await getBoundAdByAction('freesub_normal', clientIP);
+      if (adBinding) {
+        // 直接重定向到TS文件
+        const adTsUrl = `${fullBaseUrl}/api/ads/${adBinding.id}.ts`;
+        console.log('[PublicPlay] Redirecting to ad TS file (normal):', adTsUrl);
+        const headers = new Headers({
+          'Location': adTsUrl,
+          'Cache-Control': 'no-store, no-cache, must-revalidate'
+        });
+        return new Response(null, { status: 302, headers });
       }
 
       // 构建播放URL和headers

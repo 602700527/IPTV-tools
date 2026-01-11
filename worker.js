@@ -2,7 +2,7 @@
 import { initDB, createTables } from './database.js';
 import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest } from './handlers/sub.js';
-import { handleAdminRequest } from './handlers/admin.js';
+import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
 import { handleScheduledEvent } from './handlers/scheduler.js';
 import { handleUserActivate } from './handlers/user.js';
 import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement } from './handlers/public.js';
@@ -179,6 +179,9 @@ export default {
     } else if (path.startsWith('/api/freesub')) {
       // 免费订阅API
       return await handleFreeSubAPI(request, env, ctx);
+    } else if (path.startsWith('/api/ads/')) {
+      // 广告TS文件API: /api/ads/{id}.ts
+      return await handleAdTsFile(request, env, ctx);
     } else {
       // 默认响应
       return new Response('Not Found', { status: 404 });

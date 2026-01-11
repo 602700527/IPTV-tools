@@ -3424,7 +3424,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           '<td>' + escapeHtml(binding.ad_name || '随机选择') + '</td>' +
           '<td>' + escapeHtml(binding.cooldown_display) + '</td>' +
           '<td>' + binding.priority + '</td>' +
-          '<td>' + formatDate(binding.created_at) + '</td>' +
+          '<td>' + formatDateTime(binding.created_at) + '</td>' +
           '<td>' +
             '<button class="btn btn-sm" onclick="editAdBinding(' + binding.id + ')">编辑</button> ' +
             '<button class="btn btn-danger btn-sm" onclick="deleteAdBinding(' + binding.id + ')">删除</button>' +
@@ -3544,7 +3544,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
         if (result.success) {
           showToast('保存成功', 'success');
-          hideModal();
+          hideAdBindingModal();
           await loadAdBindings();
         } else {
           showToast('保存失败: ' + (result.error || '未知错误'), 'error');
