@@ -183,14 +183,14 @@ async function handleFreeSubM3U(subId, request, env) {
     });
   }
 
-  // 生成M3U内容（使用令牌保护播放地址）
+  // 生成M3U内容（移除令牌，直接使用subId和IP验证）
   const baseUrl = `${url.protocol}//${url.host}/api`;
   const m3uContent = generateM3UContent(channels, subId, true, baseUrl);
 
   return new Response(m3uContent, {
     headers: {
       'Content-Type': 'application/vnd.apple.mpegurl',
-      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0' // 不缓存，因为包含令牌
+      'Cache-Control': 'public, max-age=300' // 允许缓存5分钟
     }
   });
 }

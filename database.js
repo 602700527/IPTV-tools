@@ -36,10 +36,10 @@ export function generateFreeSubPlayToken(channelHash, subId) {
  * @param {string} token - 令牌
  * @param {string} channelHash - 频道哈希
  * @param {string} subId - 订阅ID
- * @param {number} maxAge - 最大有效期（毫秒），默认5分钟
+ * @param {number} maxAge - 最大有效期（毫秒），默认1小时
  * @returns {boolean} 是否有效
  */
-export function verifyFreeSubPlayToken(token, channelHash, subId, maxAge = 5 * 60 * 1000) {
+export function verifyFreeSubPlayToken(token, channelHash, subId, maxAge = 60 * 60 * 1000) {
   try {
     const data = atob(token);
     const parts = data.split('|');
@@ -1772,11 +1772,10 @@ export function generateM3UContent(channels, subId, isFreeSub = false, baseUrl =
 
     m3u += extinf;
 
-    // 免费订阅使用令牌保护的播放地址
+    // 免费订阅直接使用freesub参数，不使用令牌
     if (isFreeSub) {
-      const token = generateFreeSubPlayToken(channel.channel_hash, subId);
       const playUrl = baseUrl || '/api';
-      m3u += `${playUrl}/play/${channel.channel_hash}?token=${encodeURIComponent(token)}&freesub=${subId}\n`;
+      m3u += `${playUrl}/play/${channel.channel_hash}?freesub=${subId}\n`;
     } else {
       m3u += `${channel.play_url}\n`;
     }

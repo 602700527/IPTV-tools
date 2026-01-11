@@ -246,6 +246,16 @@ async function cleanupOldRecords(db) {
       console.log(`[Scheduler] Cleaned up ${deleteSubResult.meta.changes} old subscription_ips records`);
     }
 
+    // 清理旧的 ad_play_logs 记录（7天前）
+    const deleteAdLogsResult = await db.prepare(`
+      DELETE FROM ad_play_logs
+      WHERE played_at < datetime('now', '-7 days')
+    `).run();
+
+    if (deleteAdLogsResult.meta?.changes > 0) {
+      console.log(`[Scheduler] Cleaned up ${deleteAdLogsResult.meta.changes} old ad_play_logs records`);
+    }
+
   } catch (error) {
     console.error('[Scheduler] Error in cleanupOldRecords:', error);
   }

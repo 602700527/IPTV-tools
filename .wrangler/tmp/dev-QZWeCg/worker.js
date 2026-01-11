@@ -110,7 +110,7 @@ function generateFreeSubPlayToken(channelHash, subId) {
   const hash = btoa(data);
   return hash;
 }
-function verifyFreeSubPlayToken(token, channelHash, subId, maxAge = 5 * 60 * 1e3) {
+function verifyFreeSubPlayToken(token, channelHash, subId, maxAge = 60 * 60 * 1e3) {
   try {
     const data = atob(token);
     const parts = data.split("|");
@@ -1364,9 +1364,8 @@ function generateM3UContent(channels, subId, isFreeSub = false, baseUrl = "") {
 `;
     m3u += extinf;
     if (isFreeSub) {
-      const token = generateFreeSubPlayToken(channel.channel_hash, subId);
       const playUrl = baseUrl || "/api";
-      m3u += `${playUrl}/play/${channel.channel_hash}?token=${encodeURIComponent(token)}&freesub=${subId}
+      m3u += `${playUrl}/play/${channel.channel_hash}?freesub=${subId}
 `;
     } else {
       m3u += `${channel.play_url}
@@ -2707,6 +2706,13 @@ async function cleanupOldRecords(db) {
     `).bind(thirtyDaysAgo).run();
     if (deleteSubResult.meta?.changes > 0) {
       console.log(`[Scheduler] Cleaned up ${deleteSubResult.meta.changes} old subscription_ips records`);
+    }
+    const deleteAdLogsResult = await db.prepare(`
+      DELETE FROM ad_play_logs
+      WHERE played_at < datetime('now', '-7 days')
+    `).run();
+    if (deleteAdLogsResult.meta?.changes > 0) {
+      console.log(`[Scheduler] Cleaned up ${deleteAdLogsResult.meta.changes} old ad_play_logs records`);
     }
   } catch (error) {
     console.error("[Scheduler] Error in cleanupOldRecords:", error);
@@ -4794,33 +4800,7 @@ async function handlePublicPlay(request, env, ctx) {
     const db = getDB();
     const systemConfig = await getSystemConfig();
     const freeSubId = url.searchParams.get("freesub");
-    const tokenParam = url.searchParams.get("token");
     if (freeSubId) {
-      if (!tokenParam) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: "Token required for free subscription"
-        }), {
-          status: 403,
-          headers: { "Content-Type": "application/json" }
-        });
-      }
-      const decodedToken = decodeURIComponent(tokenParam);
-      const isValidToken = verifyFreeSubPlayToken(decodedToken, hash, freeSubId);
-      if (!isValidToken) {
-        console.error("[FreeSub Play] Token validation failed", {
-          token: decodedToken.substring(0, 20) + "...",
-          hash,
-          freeSubId
-        });
-        return new Response(JSON.stringify({
-          success: false,
-          error: "Invalid or expired free subscription token"
-        }), {
-          status: 403,
-          headers: { "Content-Type": "application/json" }
-        });
-      }
       const sub = await db.prepare(`
         SELECT * FROM free_subscriptions
         WHERE sub_id = ? AND expired_at > datetime('now')
@@ -5528,8 +5508,8 @@ async function handleFreeSubM3U(subId, request, env) {
   return new Response(m3uContent, {
     headers: {
       "Content-Type": "application/vnd.apple.mpegurl",
-      "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"
-      // 不缓存，因为包含令牌
+      "Cache-Control": "public, max-age=300"
+      // 允许缓存5分钟
     }
   });
 }

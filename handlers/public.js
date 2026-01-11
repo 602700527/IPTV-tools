@@ -624,38 +624,9 @@ export async function handlePublicPlay(request, env, ctx) {
 
     // 检查是否是免费订阅请求
     const freeSubId = url.searchParams.get('freesub');
-    const tokenParam = url.searchParams.get('token');
 
-    // 免费订阅令牌验证
+    // 免费订阅验证
     if (freeSubId) {
-      if (!tokenParam) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: 'Token required for free subscription'
-        }), {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-
-      // 验证免费订阅令牌
-      const decodedToken = decodeURIComponent(tokenParam);
-      const isValidToken = verifyFreeSubPlayToken(decodedToken, hash, freeSubId);
-      if (!isValidToken) {
-        console.error('[FreeSub Play] Token validation failed', {
-          token: decodedToken.substring(0, 20) + '...',
-          hash,
-          freeSubId
-        });
-        return new Response(JSON.stringify({
-          success: false,
-          error: 'Invalid or expired free subscription token'
-        }), {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-
       // 验证免费订阅是否有效且IP匹配
       const sub = await db.prepare(`
         SELECT * FROM free_subscriptions
