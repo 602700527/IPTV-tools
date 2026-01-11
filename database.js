@@ -371,6 +371,26 @@ export async function createTables(env) {
     console.error('Database: Failed to create ad_ts_files indexes:', e);
   }
 
+  // 检查并添加缺失的列（用于迁移旧数据库）
+  try {
+    // 检查 ad_ts_files 表是否有 ad_type 列
+    const tableInfo = await db.prepare('PRAGMA table_info(ad_ts_files)').all();
+    const hasAdTypeColumn = tableInfo.results && tableInfo.results.some(col => col.name === 'ad_type');
+    if (!hasAdTypeColumn) {
+      await db.prepare('ALTER TABLE ad_ts_files ADD COLUMN ad_type TEXT DEFAULT "normal"').run();
+      console.log('Database: Added ad_type column to ad_ts_files table');
+    }
+
+    // 检查是否有 is_active 列
+    const hasIsActiveColumn = tableInfo.results && tableInfo.results.some(col => col.name === 'is_active');
+    if (!hasIsActiveColumn) {
+      await db.prepare('ALTER TABLE ad_ts_files ADD COLUMN is_active INTEGER DEFAULT 0').run();
+      console.log('Database: Added is_active column to ad_ts_files table');
+    }
+  } catch (e) {
+    console.error('Database: Failed to migrate ad_ts_files table:', e);
+  }
+
   // 创建广告绑定表
   try {
     await db.prepare(`

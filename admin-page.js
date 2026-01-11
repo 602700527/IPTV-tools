@@ -3314,7 +3314,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         const response = await fetch('/admin/ad-ts/upload', {
           method: 'POST',
           headers: {
-            'X-Admin-Key': getAdminKey()
+            'X-Admin-Key': adminKey
           },
           body: formData
         });

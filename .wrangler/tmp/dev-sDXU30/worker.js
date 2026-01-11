@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-Iq0zVF/checked-fetch.js
+// .wrangler/tmp/bundle-2WdlWI/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-Iq0zVF/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-2WdlWI/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -366,6 +366,21 @@ async function createTables(env) {
     console.log("Database: ad_ts_files indexes created or already exist");
   } catch (e) {
     console.error("Database: Failed to create ad_ts_files indexes:", e);
+  }
+  try {
+    const tableInfo = await db.prepare("PRAGMA table_info(ad_ts_files)").all();
+    const hasAdTypeColumn = tableInfo.results && tableInfo.results.some((col) => col.name === "ad_type");
+    if (!hasAdTypeColumn) {
+      await db.prepare('ALTER TABLE ad_ts_files ADD COLUMN ad_type TEXT DEFAULT "normal"').run();
+      console.log("Database: Added ad_type column to ad_ts_files table");
+    }
+    const hasIsActiveColumn = tableInfo.results && tableInfo.results.some((col) => col.name === "is_active");
+    if (!hasIsActiveColumn) {
+      await db.prepare("ALTER TABLE ad_ts_files ADD COLUMN is_active INTEGER DEFAULT 0").run();
+      console.log("Database: Added is_active column to ad_ts_files table");
+    }
+  } catch (e) {
+    console.error("Database: Failed to migrate ad_ts_files table:", e);
   }
   try {
     await db.prepare(`
@@ -1367,11 +1382,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-Iq0zVF/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-2WdlWI/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-Iq0zVF/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-2WdlWI/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -3802,21 +3817,33 @@ async function handleAdminRequest(request, env, ctx) {
             });
           }
           const arrayBuffer = await file.arrayBuffer();
-          const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+          let binary = "";
+          const bytes = new Uint8Array(arrayBuffer);
+          const len = bytes.byteLength;
+          for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          const base64 = btoa(binary);
           const db2 = getDB();
           const now2 = (/* @__PURE__ */ new Date()).toISOString();
-          await db2.prepare(`
-            INSERT INTO ad_ts_files (name, content, ad_type, description, is_active, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-          `).bind(
-            name || file.name,
-            base64,
-            adType,
-            description,
-            isActive ? 1 : 0,
-            now2,
-            now2
-          ).run();
+          try {
+            const result2 = await db2.prepare(`
+              INSERT INTO ad_ts_files (name, content, ad_type, description, is_active, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?)
+            `).bind(
+              name || file.name,
+              base64,
+              adType,
+              description,
+              isActive ? 1 : 0,
+              now2,
+              now2
+            ).run();
+            console.log("[Ad Upload] File uploaded successfully:", name || file.name, "size:", base64.length);
+          } catch (dbError) {
+            console.error("[Ad Upload] Database error:", dbError);
+            throw dbError;
+          }
           return new Response(JSON.stringify({
             success: true,
             message: "\u5E7F\u544ATS\u6587\u4EF6\u4E0A\u4F20\u6210\u529F"
@@ -8735,7 +8762,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
         const response = await fetch('/admin/ad-ts/upload', {
           method: 'POST',
           headers: {
-            'X-Admin-Key': getAdminKey()
+            'X-Admin-Key': adminKey
           },
           body: formData
         });
@@ -14138,7 +14165,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-Iq0zVF/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-2WdlWI/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14172,7 +14199,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-Iq0zVF/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-2WdlWI/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

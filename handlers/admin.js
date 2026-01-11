@@ -1404,23 +1404,36 @@ export async function handleAdminRequest(request, env, ctx) {
 
           // 将文件内容转换为Base64
           const arrayBuffer = await file.arrayBuffer();
-          const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+          let binary = '';
+          const bytes = new Uint8Array(arrayBuffer);
+          const len = bytes.byteLength;
+          for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          const base64 = btoa(binary);
 
           const db = getDB();
           const now = new Date().toISOString();
 
-          await db.prepare(`
-            INSERT INTO ad_ts_files (name, content, ad_type, description, is_active, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-          `).bind(
-            name || file.name,
-            base64,
-            adType,
-            description,
-            isActive ? 1 : 0,
-            now,
-            now
-          ).run();
+          try {
+            const result = await db.prepare(`
+              INSERT INTO ad_ts_files (name, content, ad_type, description, is_active, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?)
+            `).bind(
+              name || file.name,
+              base64,
+              adType,
+              description,
+              isActive ? 1 : 0,
+              now,
+              now
+            ).run();
+
+            console.log('[Ad Upload] File uploaded successfully:', name || file.name, 'size:', base64.length);
+          } catch (dbError) {
+            console.error('[Ad Upload] Database error:', dbError);
+            throw dbError;
+          }
 
           return new Response(JSON.stringify({
             success: true,
