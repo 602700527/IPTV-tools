@@ -1467,20 +1467,120 @@ export async function handleAdminRequest(request, env, ctx) {
         } else if (request.method === 'PUT' && adTsSubAction === 'disable') {
           // 禁用广告TS文件
           const id = url.searchParams.get('id');
+        }
+        break;
+
+      case 'ad-bindings':
+        // 广告绑定管理
+        const adBindingsSubAction = pathParts[3];
+
+        if (request.method === 'GET' && !adBindingsSubAction) {
+          // 获取所有广告绑定列表
+          const db = getDB();
+          const bindings = await db.prepare(`
+            SELECT ab.*, ats.name as ad_name
+            FROM ad_bindings ab
+            LEFT JOIN ad_ts_files ats ON ab.ad_id = ats.id
+            ORDER BY ab.action_type, ab.priority DESC
+          `).all();
+
+          const actionTypeLabels = {
+            'code_normal': '卡密正常播放',
+            'code_expired': '卡密过期播放',
+            'code_unauth': '卡密IP未授权',
+            'code_channel_not_found': '频道不存在卡密播放',
+            'freesub_normal': '免费订阅正常播放',
+            'freesub_expired': '免费订阅过期播放',
+            'freesub_channel_not_found': '频道不存在免费播放'
+          };
+
+          const formattedBindings = (bindings.results || []).map(b => ({
+            ...b,
+            action_type_label: actionTypeLabels[b.action_type] || b.action_type,
+            cooldown_display: b.cooldown_seconds > 0 ? `${b.cooldown_seconds}秒` : '不限制'
+          }));
+
+          return new Response(JSON.stringify({
+            success: true,
+            count: formattedBindings.length,
+            bindings: formattedBindings
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'POST' && adBindingsSubAction === 'create') {
+          // 创建广告绑定
+          const body = await request.json();
+          const { action_type, ad_id, cooldown_seconds, priority } = body;
+
+          if (!action_type) {
+            return new Response(JSON.stringify({ success: false, error: 'action_type is required' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+
+          const db = getDB();
+          const result = await db.prepare(`
+            INSERT INTO ad_bindings (action_type, ad_id, cooldown_seconds, priority)
+            VALUES (?, ?, ?, ?)
+          `).bind(
+            action_type,
+            ad_id || null,
+            cooldown_seconds || 0,
+            priority || 0
+          ).run();
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: '广告绑定创建成功',
+            id: result.meta.last_row_id
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'PUT' && adBindingsSubAction === 'update') {
+          // 更新广告绑定
+          const id = url.searchParams.get('id');
+          if (!id) {
+            return new Response('Missing id parameter', { status: 400 });
+          }
+
+          const body = await request.json();
+          const { ad_id, cooldown_seconds, priority } = body;
+
+          const db = getDB();
+          await db.prepare(`
+            UPDATE ad_bindings
+            SET ad_id = ?,
+                cooldown_seconds = ?,
+                priority = ?,
+                updated_at = datetime('now')
+            WHERE id = ?
+          `).bind(
+            ad_id || null,
+            cooldown_seconds || 0,
+            priority || 0,
+            id
+          ).run();
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: '广告绑定更新成功'
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'DELETE' && adBindingsSubAction === 'delete') {
+          // 删除广告绑定
+          const id = url.searchParams.get('id');
           if (!id) {
             return new Response('Missing id parameter', { status: 400 });
           }
 
           const db = getDB();
-          const now = new Date().toISOString();
-
-          await db.prepare(`
-            UPDATE ad_ts_files SET is_active = 0, updated_at = ? WHERE id = ?
-          `).bind(now, id).run();
+          await db.prepare('DELETE FROM ad_bindings WHERE id = ?').bind(id).run();
 
           return new Response(JSON.stringify({
             success: true,
-            message: '广告TS文件已禁用'
+            message: '广告绑定已删除'
           }), {
             headers: { 'Content-Type': 'application/json' }
           });

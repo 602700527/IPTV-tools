@@ -181,3 +181,20 @@ CREATE TABLE IF NOT EXISTS checkin_records (
 CREATE INDEX IF NOT EXISTS idx_checkin_records_subscription_id ON checkin_records(subscription_id);
 CREATE INDEX IF NOT EXISTS idx_checkin_records_date ON checkin_records(checkin_date DESC);
 CREATE INDEX IF NOT EXISTS idx_checkin_records_subscription_date ON checkin_records(subscription_id, checkin_date);
+
+-- 广告绑定表
+CREATE TABLE IF NOT EXISTS ad_bindings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  action_type TEXT NOT NULL, -- 操作类型：code_normal（卡密正常播放）、code_expired（卡密过期播放）、code_unauth（卡密IP未授权）、code_channel_not_found（频道不存在卡密播放）、freesub_normal（免费订阅正常播放）、freesub_expired（免费订阅过期播放）、freesub_channel_not_found（频道不存在免费播放）
+  ad_id INTEGER, -- 绑定的广告ID（可选，为空则随机选择）
+  cooldown_seconds INTEGER DEFAULT 0, -- 冷却时间（秒），为0则不限制
+  priority INTEGER DEFAULT 0, -- 优先级，数字越大优先级越高
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY(ad_id) REFERENCES ad_ts_files(id) ON DELETE SET NULL
+);
+
+-- 广告绑定索引
+CREATE INDEX IF NOT EXISTS idx_ad_bindings_action ON ad_bindings(action_type);
+CREATE INDEX IF NOT EXISTS idx_ad_bindings_priority ON ad_bindings(priority DESC);
+CREATE INDEX IF NOT EXISTS idx_ad_bindings_ad_id ON ad_bindings(ad_id);

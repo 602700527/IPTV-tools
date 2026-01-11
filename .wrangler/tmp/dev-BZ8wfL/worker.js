@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-NxI9sx/checked-fetch.js
+// .wrangler/tmp/bundle-Iq0zVF/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-NxI9sx/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-Iq0zVF/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -58,8 +58,10 @@ var init_modules_watch_stub = __esm({
 // database.js
 var database_exports = {};
 __export(database_exports, {
+  createAdBinding: () => createAdBinding,
   createTables: () => createTables,
   decryptWithAES: () => decryptWithAES,
+  deleteAdBinding: () => deleteAdBinding,
   encryptWithAES: () => encryptWithAES,
   fetchAndParseM3U: () => fetchAndParseM3U,
   generateEncryptionKey: () => generateEncryptionKey,
@@ -68,6 +70,9 @@ __export(database_exports, {
   generatePlayToken: () => generatePlayToken,
   getActiveAdTsFile: () => getActiveAdTsFile,
   getActiveChannels: () => getActiveChannels,
+  getAdBinding: () => getAdBinding,
+  getAllAdBindings: () => getAllAdBindings,
+  getBoundAdByAction: () => getBoundAdByAction,
   getDB: () => getDB,
   getHomepageDisplayConfig: () => getHomepageDisplayConfig,
   getIPBlacklistConfig: () => getIPBlacklistConfig,
@@ -76,6 +81,7 @@ __export(database_exports, {
   getSystemConfig: () => getSystemConfig,
   initDB: () => initDB,
   parseM3UContent: () => parseM3UContent,
+  updateAdBinding: () => updateAdBinding,
   updateHomepageDisplayConfig: () => updateHomepageDisplayConfig,
   updateIPBlacklistConfig: () => updateIPBlacklistConfig,
   updateSecurityConfig: () => updateSecurityConfig,
@@ -360,6 +366,52 @@ async function createTables(env) {
     console.log("Database: ad_ts_files indexes created or already exist");
   } catch (e) {
     console.error("Database: Failed to create ad_ts_files indexes:", e);
+  }
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS ad_bindings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        action_type TEXT NOT NULL,
+        ad_id INTEGER,
+        cooldown_seconds INTEGER DEFAULT 0,
+        priority INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(ad_id) REFERENCES ad_ts_files(id) ON DELETE SET NULL
+      )
+    `).run();
+    console.log("Database: ad_bindings table created or already exists");
+  } catch (e) {
+    console.error("Database: Failed to create ad_bindings table:", e);
+  }
+  try {
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_ad_bindings_action ON ad_bindings(action_type)").run();
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_ad_bindings_priority ON ad_bindings(priority DESC)").run();
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_ad_bindings_ad_id ON ad_bindings(ad_id)").run();
+    console.log("Database: ad_bindings indexes created or already exist");
+  } catch (e) {
+    console.error("Database: Failed to create ad_bindings indexes:", e);
+  }
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS ad_play_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        action_type TEXT NOT NULL,
+        client_ip TEXT NOT NULL,
+        played_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_date DATE DEFAULT (DATE('now'))
+      )
+    `).run();
+    console.log("Database: ad_play_logs table created or already exists");
+  } catch (e) {
+    console.error("Database: Failed to create ad_play_logs table:", e);
+  }
+  try {
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_ad_play_logs_action_ip_date ON ad_play_logs(action_type, client_ip, created_date)").run();
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_ad_play_logs_played_at ON ad_play_logs(played_at DESC)").run();
+    console.log("Database: ad_play_logs indexes created or already exist");
+  } catch (e) {
+    console.error("Database: Failed to create ad_play_logs indexes:", e);
   }
   try {
     await db.prepare(`
@@ -1132,6 +1184,97 @@ async function getActiveAdTsFile(adType = null) {
   const randomIndex = Math.floor(Math.random() * ads.length);
   return ads[randomIndex];
 }
+async function getAdBinding(actionType) {
+  const db = getDB();
+  const binding = await db.prepare(`
+    SELECT ab.*, ats.name as ad_name, ats.content as ad_content, ats.ad_type as ad_type
+    FROM ad_bindings ab
+    LEFT JOIN ad_ts_files ats ON ab.ad_id = ats.id
+    WHERE ab.action_type = ?
+    ORDER BY ab.priority DESC
+    LIMIT 1
+  `).bind(actionType).first();
+  return binding;
+}
+async function createAdBinding(data) {
+  const db = getDB();
+  const result = await db.prepare(`
+    INSERT INTO ad_bindings (action_type, ad_id, cooldown_seconds, priority)
+    VALUES (?, ?, ?, ?)
+  `).bind(
+    data.action_type,
+    data.ad_id || null,
+    data.cooldown_seconds || 0,
+    data.priority || 0
+  ).run();
+  const binding = await db.prepare(`
+    SELECT * FROM ad_bindings WHERE id = ?
+  `).bind(result.meta.last_row_id).first();
+  return binding;
+}
+async function updateAdBinding(id, data) {
+  const db = getDB();
+  await db.prepare(`
+    UPDATE ad_bindings
+    SET ad_id = ?,
+        cooldown_seconds = ?,
+        priority = ?,
+        updated_at = datetime('now')
+    WHERE id = ?
+  `).bind(
+    data.ad_id || null,
+    data.cooldown_seconds || 0,
+    data.priority || 0,
+    id
+  ).run();
+  return true;
+}
+async function deleteAdBinding(id) {
+  const db = getDB();
+  await db.prepare("DELETE FROM ad_bindings WHERE id = ?").bind(id).run();
+  return true;
+}
+async function getAllAdBindings() {
+  const db = getDB();
+  const result = await db.prepare(`
+    SELECT ab.*, ats.name as ad_name, ats.ad_type as ad_type
+    FROM ad_bindings ab
+    LEFT JOIN ad_ts_files ats ON ab.ad_id = ats.id
+    ORDER BY ab.action_type, ab.priority DESC
+  `).all();
+  return result.results || [];
+}
+async function getBoundAdByAction(actionType, clientIP) {
+  const db = getDB();
+  const binding = await getAdBinding(actionType);
+  if (!binding) {
+    return null;
+  }
+  if (binding.cooldown_seconds > 0) {
+    const cooldownExpiry = new Date(Date.now() - binding.cooldown_seconds * 1e3).toISOString();
+    const recentPlay = await db.prepare(`
+      SELECT COUNT(*) as count FROM ad_play_logs
+      WHERE action_type = ? AND client_ip = ? AND played_at > ?
+    `).bind(actionType, clientIP, cooldownExpiry).first();
+    if (recentPlay && recentPlay.count > 0) {
+      return null;
+    }
+  }
+  await db.prepare(`
+    INSERT INTO ad_play_logs (action_type, client_ip, played_at)
+    VALUES (?, ?, datetime('now'))
+  `).bind(actionType, clientIP).run();
+  if (binding.ad_id && binding.ad_content) {
+    return {
+      id: binding.ad_id,
+      name: binding.ad_name,
+      content: binding.ad_content,
+      ad_type: binding.ad_type,
+      cooldown_seconds: binding.cooldown_seconds
+    };
+  }
+  return await getActiveAdTsFile();
+}
 async function getActiveChannels() {
   const db = getDB();
   const result = await db.prepare(`
@@ -1213,16 +1356,22 @@ var init_database = __esm({
     __name(encryptWithAES, "encryptWithAES");
     __name(decryptWithAES, "decryptWithAES");
     __name(getActiveAdTsFile, "getActiveAdTsFile");
+    __name(getAdBinding, "getAdBinding");
+    __name(createAdBinding, "createAdBinding");
+    __name(updateAdBinding, "updateAdBinding");
+    __name(deleteAdBinding, "deleteAdBinding");
+    __name(getAllAdBindings, "getAllAdBindings");
+    __name(getBoundAdByAction, "getBoundAdByAction");
     __name(getActiveChannels, "getActiveChannels");
     __name(generateM3UContent, "generateM3UContent");
   }
 });
 
-// .wrangler/tmp/bundle-NxI9sx/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-Iq0zVF/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-NxI9sx/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-Iq0zVF/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -3705,17 +3854,102 @@ async function handleAdminRequest(request, env, ctx) {
           });
         } else if (request.method === "PUT" && adTsSubAction === "disable") {
           const id = url.searchParams.get("id");
+        }
+        break;
+      case "ad-bindings":
+        const adBindingsSubAction = pathParts[3];
+        if (request.method === "GET" && !adBindingsSubAction) {
+          const db2 = getDB();
+          const bindings = await db2.prepare(`
+            SELECT ab.*, ats.name as ad_name
+            FROM ad_bindings ab
+            LEFT JOIN ad_ts_files ats ON ab.ad_id = ats.id
+            ORDER BY ab.action_type, ab.priority DESC
+          `).all();
+          const actionTypeLabels = {
+            "code_normal": "\u5361\u5BC6\u6B63\u5E38\u64AD\u653E",
+            "code_expired": "\u5361\u5BC6\u8FC7\u671F\u64AD\u653E",
+            "code_unauth": "\u5361\u5BC6IP\u672A\u6388\u6743",
+            "code_channel_not_found": "\u9891\u9053\u4E0D\u5B58\u5728\u5361\u5BC6\u64AD\u653E",
+            "freesub_normal": "\u514D\u8D39\u8BA2\u9605\u6B63\u5E38\u64AD\u653E",
+            "freesub_expired": "\u514D\u8D39\u8BA2\u9605\u8FC7\u671F\u64AD\u653E",
+            "freesub_channel_not_found": "\u9891\u9053\u4E0D\u5B58\u5728\u514D\u8D39\u64AD\u653E"
+          };
+          const formattedBindings = (bindings.results || []).map((b) => ({
+            ...b,
+            action_type_label: actionTypeLabels[b.action_type] || b.action_type,
+            cooldown_display: b.cooldown_seconds > 0 ? `${b.cooldown_seconds}\u79D2` : "\u4E0D\u9650\u5236"
+          }));
+          return new Response(JSON.stringify({
+            success: true,
+            count: formattedBindings.length,
+            bindings: formattedBindings
+          }), {
+            headers: { "Content-Type": "application/json" }
+          });
+        } else if (request.method === "POST" && adBindingsSubAction === "create") {
+          const body = await request.json();
+          const { action_type, ad_id, cooldown_seconds, priority } = body;
+          if (!action_type) {
+            return new Response(JSON.stringify({ success: false, error: "action_type is required" }), {
+              status: 400,
+              headers: { "Content-Type": "application/json" }
+            });
+          }
+          const db2 = getDB();
+          const result2 = await db2.prepare(`
+            INSERT INTO ad_bindings (action_type, ad_id, cooldown_seconds, priority)
+            VALUES (?, ?, ?, ?)
+          `).bind(
+            action_type,
+            ad_id || null,
+            cooldown_seconds || 0,
+            priority || 0
+          ).run();
+          return new Response(JSON.stringify({
+            success: true,
+            message: "\u5E7F\u544A\u7ED1\u5B9A\u521B\u5EFA\u6210\u529F",
+            id: result2.meta.last_row_id
+          }), {
+            headers: { "Content-Type": "application/json" }
+          });
+        } else if (request.method === "PUT" && adBindingsSubAction === "update") {
+          const id = url.searchParams.get("id");
+          if (!id) {
+            return new Response("Missing id parameter", { status: 400 });
+          }
+          const body = await request.json();
+          const { ad_id, cooldown_seconds, priority } = body;
+          const db2 = getDB();
+          await db2.prepare(`
+            UPDATE ad_bindings
+            SET ad_id = ?,
+                cooldown_seconds = ?,
+                priority = ?,
+                updated_at = datetime('now')
+            WHERE id = ?
+          `).bind(
+            ad_id || null,
+            cooldown_seconds || 0,
+            priority || 0,
+            id
+          ).run();
+          return new Response(JSON.stringify({
+            success: true,
+            message: "\u5E7F\u544A\u7ED1\u5B9A\u66F4\u65B0\u6210\u529F"
+          }), {
+            headers: { "Content-Type": "application/json" }
+          });
+        } else if (request.method === "DELETE" && adBindingsSubAction === "delete") {
+          const id = url.searchParams.get("id");
           if (!id) {
             return new Response("Missing id parameter", { status: 400 });
           }
           const db2 = getDB();
-          const now2 = (/* @__PURE__ */ new Date()).toISOString();
-          await db2.prepare(`
-            UPDATE ad_ts_files SET is_active = 0, updated_at = ? WHERE id = ?
-          `).bind(now2, id).run();
+          await db2.prepare("DELETE FROM ad_bindings WHERE id = ?").bind(id).run();
           return new Response(JSON.stringify({
             success: true,
-            message: "\u5E7F\u544ATS\u6587\u4EF6\u5DF2\u7981\u7528"
+            message: "\u5E7F\u544A\u7ED1\u5B9A\u5DF2\u5220\u9664"
           }), {
             headers: { "Content-Type": "application/json" }
           });
@@ -5699,16 +5933,16 @@ var ADMIN_HTML = `<!DOCTYPE html>
         </div>
         <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
           <p style="color:#86868b;margin-bottom:12px;">
-            \u4E0A\u4F20\u5E7F\u544ATS\u6587\u4EF6\uFF0C\u5F53\u7528\u6237IP\u672A\u6388\u6743\u65F6\u4F1A\u64AD\u653E\u5E7F\u544A\u5185\u5BB9\u3002\u652F\u6301\u4E0A\u4F20.ts\u683C\u5F0F\u7684\u89C6\u9891\u6587\u4EF6\u3002
+            \u4E0A\u4F20\u5E7F\u544ATS\u6587\u4EF6\uFF0C\u5728\u4E0D\u540C\u64AD\u653E\u573A\u666F\u4E0B\u64AD\u653E\u5E7F\u544A\u5185\u5BB9\u3002\u652F\u6301\u4E0A\u4F20.ts\u683C\u5F0F\u7684\u89C6\u9891\u6587\u4EF6\u3002
           </p>
           <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius:4px;">
             <strong style="color:#e65100;">\u6CE8\u610F\u4E8B\u9879\uFF1A</strong>
             <ul style="margin:8px 0 0 20px;color:#666;">
               <li>\u5E7F\u544A\u6587\u4EF6\u4EE5Base64\u683C\u5F0F\u5B58\u50A8\u5728\u6570\u636E\u5E93\u4E2D\uFF0C\u5EFA\u8BAE\u6587\u4EF6\u5927\u5C0F\u4E0D\u8D85\u8FC75MB</li>
-              <li>\u652F\u6301\u591A\u4E2A\u5E7F\u544A\u540C\u65F6\u6D3B\u8DC3\uFF0C\u64AD\u653E\u65F6\u4F1A\u968F\u673A\u9009\u62E9\u4E00\u4E2A\u5E7F\u544A\u64AD\u653E</li>
               <li>\u652F\u6301\u4E0D\u540C\u7C7B\u578B\u7684\u5E7F\u544A\uFF08\u666E\u901A\u5E7F\u544A\u3001\u901A\u77E5\u7C7B\u5E7F\u544A\u7B49\uFF09</li>
               <li>\u5E7F\u544A\u65F6\u957F\u5EFA\u8BAE\u63A7\u5236\u572810\u79D2\u4EE5\u5185</li>
-              <li>\u7981\u7528\u6240\u6709\u5E7F\u544A\u540E\uFF0C\u672A\u6388\u6743IP\u5C06\u8FD4\u56DE403\u9519\u8BEF</li>
+              <li>\u5728\u5E7F\u544A\u7ED1\u5B9A\u7BA1\u7406\u4E2D\uFF0C\u53EF\u4EE5\u4E3A\u4E0D\u540C\u64AD\u653E\u573A\u666F\u7ED1\u5B9A\u7279\u5B9A\u7684\u5E7F\u544A</li>
+              <li>\u5E7F\u544A\u7ED1\u5B9A\u4E2D\u53EF\u4EE5\u8BBE\u7F6E\u51B7\u5374\u65F6\u95F4\u548C\u4F18\u5148\u7EA7</li>
             </ul>
           </div>
         </div>
@@ -5727,6 +5961,46 @@ var ADMIN_HTML = `<!DOCTYPE html>
             </tr>
           </thead>
           <tbody id="adTsTable"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <h3>\u5E7F\u544A\u7ED1\u5B9A\u914D\u7F6E</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="showAdBindingModal()">\u6DFB\u52A0\u7ED1\u5B9A</button>
+            <button class="btn" onclick="loadAdBindings()">\u5237\u65B0\u5217\u8868</button>
+          </div>
+        </div>
+        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            \u914D\u7F6E\u4E0D\u540C\u573A\u666F\u4E0B\u64AD\u653E\u7684\u5E7F\u544A\u3002\u652F\u6301\u7ED1\u5B9A\u6307\u5B9A\u5E7F\u544A\u6216\u968F\u673A\u64AD\u653E\uFF0C\u5E76\u53EF\u8BBE\u7F6E\u51B7\u5374\u65F6\u95F4\u3002
+          </p>
+          <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius:4px;">
+            <strong style="color:#e65100;">\u64CD\u4F5C\u7C7B\u578B\u8BF4\u660E\uFF1A</strong>
+            <ul style="margin:8px 0 0 20px;color:#666;">
+              <li><strong>\u5361\u5BC6\u6B63\u5E38\u64AD\u653E</strong>\uFF1A\u7528\u6237\u4F7F\u7528\u6709\u6548\u5361\u5BC6\u6B63\u5E38\u64AD\u653E\u65F6\u89E6\u53D1</li>
+              <li><strong>\u5361\u5BC6\u8FC7\u671F\u64AD\u653E</strong>\uFF1A\u7528\u6237\u5361\u5BC6\u5DF2\u8FC7\u671F\uFF0C\u5C1D\u8BD5\u64AD\u653E\u65F6\u89E6\u53D1</li>
+              <li><strong>\u5361\u5BC6IP\u672A\u6388\u6743</strong>\uFF1A\u7528\u6237IP\u4E0D\u5728\u5361\u5BC6\u5141\u8BB8\u8303\u56F4\u5185\u65F6\u89E6\u53D1</li>
+              <li><strong>\u514D\u8D39\u8BA2\u9605\u6B63\u5E38\u64AD\u653E</strong>\uFF1A\u514D\u8D39\u8BA2\u9605\u7528\u6237\u6B63\u5E38\u64AD\u653E\u65F6\u89E6\u53D1</li>
+              <li><strong>\u514D\u8D39\u8BA2\u9605\u8FC7\u671F\u64AD\u653E</strong>\uFF1A\u514D\u8D39\u8BA2\u9605\u5DF2\u8FC7\u671F\uFF0C\u5C1D\u8BD5\u64AD\u653E\u65F6\u89E6\u53D1</li>
+            </ul>
+            <strong style="color:#e65100;">\u51B7\u5374\u65F6\u95F4\uFF1A</strong>
+            <p style="margin:8px 0;color:#666;">\u8BBE\u7F6E\u51B7\u5374\u65F6\u95F4\u540E\uFF0C\u540C\u4E00IP\u5728\u6307\u5B9A\u65F6\u95F4\u5185\u4E0D\u4F1A\u91CD\u590D\u770B\u5230\u540C\u4E00\u7C7B\u578B\u7684\u5E7F\u544A\u3002\u8BBE\u7F6E\u4E3A0\u8868\u793A\u4E0D\u9650\u5236\u3002</p>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>\u64CD\u4F5C\u7C7B\u578B</th>
+              <th>\u7ED1\u5B9A\u5E7F\u544A</th>
+              <th>\u51B7\u5374\u65F6\u95F4</th>
+              <th>\u4F18\u5148\u7EA7</th>
+              <th>\u521B\u5EFA\u65F6\u95F4</th>
+              <th>\u64CD\u4F5C</th>
+            </tr>
+          </thead>
+          <tbody id="adBindingTable"></tbody>
         </table>
       </div>
     </div>
@@ -6167,6 +6441,10 @@ var ADMIN_HTML = `<!DOCTYPE html>
         loadIPBlacklist();
       }
       else if (tabName === 'homepage-display') loadHomepageDisplayConfig();
+      else if (tabName === 'ad-management') {
+        loadAdTsFiles();
+        loadAdBindings();
+      }
       else if (tabName === 'system-settings') {
         loadSystemConfig();
         loadAnnouncement(); // \u52A0\u8F7D\u516C\u544A
@@ -8311,6 +8589,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
         const result = await apiRequest('/ad-ts', { method: 'GET', showLoading: false });
 
         if (result.success && result.files) {
+          window.adTsFiles = result.files;
           const tbody = document.getElementById('adTsTable');
           tbody.innerHTML = '';
 
@@ -8526,6 +8805,207 @@ var ADMIN_HTML = `<!DOCTYPE html>
       } catch (error) {
         console.error('\u7981\u7528\u5E7F\u544A\u5931\u8D25:', error);
         showToast('\u7981\u7528\u5931\u8D25: ' + (error.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // ========== \u5E7F\u544A\u7ED1\u5B9A\u7BA1\u7406 ==========
+
+    async function loadAdBindings() {
+      try {
+        showLoading();
+        const result = await apiRequest('/ad-bindings', { showLoading: false });
+
+        if (result.success) {
+          window.adBindings = result.bindings || [];
+          renderAdBindings(window.adBindings);
+        } else {
+          showToast('\u52A0\u8F7D\u5E7F\u544A\u7ED1\u5B9A\u5217\u8868\u5931\u8D25', 'error');
+        }
+      } catch (error) {
+        console.error('\u52A0\u8F7D\u5E7F\u544A\u7ED1\u5B9A\u5931\u8D25:', error);
+        showToast('\u52A0\u8F7D\u5E7F\u544A\u7ED1\u5B9A\u5217\u8868\u5931\u8D25', 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function renderAdBindings(bindings) {
+      const tbody = document.getElementById('adBindingTable');
+      if (!bindings || bindings.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#86868b;">\u6682\u65E0\u5E7F\u544A\u7ED1\u5B9A</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = bindings.map(binding => {
+        return '<tr>' +
+          '<td>' + binding.id + '</td>' +
+          '<td>' + escapeHtml(binding.action_type_label) + '</td>' +
+          '<td>' + escapeHtml(binding.ad_name || '\u968F\u673A\u9009\u62E9') + '</td>' +
+          '<td>' + escapeHtml(binding.cooldown_display) + '</td>' +
+          '<td>' + binding.priority + '</td>' +
+          '<td>' + formatDate(binding.created_at) + '</td>' +
+          '<td>' +
+            '<button class="btn btn-sm" onclick="editAdBinding(' + binding.id + ')">\u7F16\u8F91</button> ' +
+            '<button class="btn btn-danger btn-sm" onclick="deleteAdBinding(' + binding.id + ')">\u5220\u9664</button>' +
+          '</td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    function showAdBindingModal(binding = null) {
+      const actionTypeOptions = [
+        { value: 'code_normal', label: '\u5361\u5BC6\u6B63\u5E38\u64AD\u653E' },
+        { value: 'code_expired', label: '\u5361\u5BC6\u8FC7\u671F\u64AD\u653E' },
+        { value: 'code_unauth', label: '\u5361\u5BC6IP\u672A\u6388\u6743' },
+        { value: 'code_channel_not_found', label: '\u9891\u9053\u4E0D\u5B58\u5728\u5361\u5BC6\u64AD\u653E' },
+        { value: 'freesub_normal', label: '\u514D\u8D39\u8BA2\u9605\u6B63\u5E38\u64AD\u653E' },
+        { value: 'freesub_expired', label: '\u514D\u8D39\u8BA2\u9605\u8FC7\u671F\u64AD\u653E' },
+        { value: 'freesub_channel_not_found', label: '\u9891\u9053\u4E0D\u5B58\u5728\u514D\u8D39\u64AD\u653E' }
+      ];
+
+      let adOptions = '<option value="">\u4E0D\u64AD\u653E\u5E7F\u544A</option>';
+      if (window.adTsFiles && window.adTsFiles.length > 0) {
+        window.adTsFiles.forEach(ad => {
+          const selected = binding && binding.ad_id === ad.id ? 'selected' : '';
+          adOptions += '<option value="' + ad.id + '" ' + selected + '>' + escapeHtml(ad.name) + '</option>';
+        });
+      }
+
+      const modalHtml = '<div id="adBindingModal" class="modal active">' +
+        '<div class="modal-overlay" onclick="hideAdBindingModal()">' +
+          '<div class="modal-content" onclick="event.stopPropagation()">' +
+            '<h3>' + (binding ? '\u7F16\u8F91\u5E7F\u544A\u7ED1\u5B9A' : '\u6DFB\u52A0\u5E7F\u544A\u7ED1\u5B9A') + '</h3>' +
+            '<div class="form-group">' +
+              '<label>\u64CD\u4F5C\u7C7B\u578B</label>' +
+              '<select id="bindingActionType" class="filter-select" style="width:100%;">' +
+                '<option value="">-- \u8BF7\u9009\u62E9 --</option>' +
+                actionTypeOptions.map(opt =>
+                  '<option value="' + opt.value + '" ' + (binding && binding.action_type === opt.value ? 'selected' : '') + '>' +
+                    opt.label +
+                  '</option>'
+                ).join('') +
+              '</select>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>\u7ED1\u5B9A\u5E7F\u544A\uFF08\u53EF\u9009\uFF09</label>' +
+              '<select id="bindingAdId" class="filter-select" style="width:100%;">' +
+                adOptions +
+              '</select>' +
+              '<p style="margin-top:8px;color:#86868b;font-size:12px;">\u9009\u62E9\u8981\u7ED1\u5B9A\u7684\u5E7F\u544A\uFF0C\u7559\u7A7A\u5219\u4E0D\u64AD\u653E\u5E7F\u544A</p>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>\u51B7\u5374\u65F6\u95F4\uFF08\u79D2\uFF09</label>' +
+              '<input type="number" id="bindingCooldown" value="' + (binding ? binding.cooldown_seconds : 0) + '" min="0" placeholder="0\u8868\u793A\u4E0D\u9650\u5236" style="width:100%;">' +
+              '<p style="margin-top:8px;color:#86868b;font-size:12px;">\u540C\u4E00IP\u5728\u6307\u5B9A\u65F6\u95F4\u5185\u4E0D\u4F1A\u91CD\u590D\u770B\u5230\u6B64\u7C7B\u578B\u5E7F\u544A\uFF0C\u8BBE\u7F6E\u4E3A0\u8868\u793A\u4E0D\u9650\u5236</p>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>\u4F18\u5148\u7EA7</label>' +
+              '<input type="number" id="bindingPriority" value="' + (binding ? binding.priority : 0) + '" min="0" max="100" placeholder="\u6570\u5B57\u8D8A\u5927\u4F18\u5148\u7EA7\u8D8A\u9AD8" style="width:100%;">' +
+              '<p style="margin-top:8px;color:#86868b;font-size:12px;">\u4F18\u5148\u7EA7\uFF0C\u6570\u5B57\u8D8A\u5927\u4F18\u5148\u7EA7\u8D8A\u9AD8</p>' +
+            '</div>' +
+            '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">' +
+              '<button class="btn" onclick="hideAdBindingModal()">\u53D6\u6D88</button>' +
+              '<button class="btn btn-primary" onclick="saveAdBinding(' + (binding ? binding.id : '') + ')">\u4FDD\u5B58</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+      const existingModal = document.getElementById('adBindingModal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+
+    function hideAdBindingModal() {
+      const modal = document.getElementById('adBindingModal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
+    async function saveAdBinding(id) {
+      const actionType = document.getElementById('bindingActionType').value;
+      const adId = document.getElementById('bindingAdId').value;
+      const cooldown = parseInt(document.getElementById('bindingCooldown').value, 10);
+      const priority = parseInt(document.getElementById('bindingPriority').value, 10);
+
+      if (!actionType) {
+        showToast('\u8BF7\u9009\u62E9\u64CD\u4F5C\u7C7B\u578B', 'error');
+        return;
+      }
+
+      if (isNaN(cooldown) || cooldown < 0) {
+        showToast('\u51B7\u5374\u65F6\u95F4\u5FC5\u987B\u5927\u4E8E\u7B49\u4E8E0', 'error');
+        return;
+      }
+
+      if (isNaN(priority) || priority < 0) {
+        showToast('\u4F18\u5148\u7EA7\u5FC5\u987B\u5927\u4E8E\u7B49\u4E8E0', 'error');
+        return;
+      }
+
+      try {
+        showLoading();
+        const url = id ? '/ad-bindings/update?id=' + id : '/ad-bindings/create';
+        const method = id ? 'PUT' : 'POST';
+        const result = await apiRequest(url, {
+          method: method,
+          body: JSON.stringify({
+            action_type: actionType,
+            ad_id: adId ? parseInt(adId, 10) : null,
+            cooldown_seconds: cooldown,
+            priority: priority
+          }),
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('\u4FDD\u5B58\u6210\u529F', 'success');
+          hideModal();
+          await loadAdBindings();
+        } else {
+          showToast('\u4FDD\u5B58\u5931\u8D25: ' + (result.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+        }
+      } catch (error) {
+        console.error('\u4FDD\u5B58\u5E7F\u544A\u7ED1\u5B9A\u5931\u8D25:', error);
+        showToast('\u4FDD\u5B58\u5931\u8D25: ' + (error.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function editAdBinding(id) {
+      const binding = window.adBindings && window.adBindings.find(b => b.id === id);
+      if (binding) {
+        showAdBindingModal(binding);
+      }
+    }
+
+    async function deleteAdBinding(id) {
+      if (!confirm('\u786E\u5B9A\u8981\u5220\u9664\u6B64\u5E7F\u544A\u7ED1\u5B9A\u5417\uFF1F')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/ad-bindings/delete?id=' + id, {
+          method: 'DELETE',
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('\u5220\u9664\u6210\u529F', 'success');
+          await loadAdBindings();
+        } else {
+          showToast('\u5220\u9664\u5931\u8D25: ' + (result.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+        }
+      } catch (error) {
+        console.error('\u5220\u9664\u5E7F\u544A\u7ED1\u5B9A\u5931\u8D25:', error);
+        showToast('\u5220\u9664\u5931\u8D25: ' + (error.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
       } finally {
         hideLoading();
       }
@@ -13658,7 +14138,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-NxI9sx/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-Iq0zVF/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -13692,7 +14172,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-NxI9sx/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-Iq0zVF/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

@@ -371,6 +371,60 @@ export async function createTables(env) {
     console.error('Database: Failed to create ad_ts_files indexes:', e);
   }
 
+  // 创建广告绑定表
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS ad_bindings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        action_type TEXT NOT NULL,
+        ad_id INTEGER,
+        cooldown_seconds INTEGER DEFAULT 0,
+        priority INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(ad_id) REFERENCES ad_ts_files(id) ON DELETE SET NULL
+      )
+    `).run();
+    console.log('Database: ad_bindings table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create ad_bindings table:', e);
+  }
+
+  // 创建广告绑定索引
+  try {
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_ad_bindings_action ON ad_bindings(action_type)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_ad_bindings_priority ON ad_bindings(priority DESC)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_ad_bindings_ad_id ON ad_bindings(ad_id)').run();
+    console.log('Database: ad_bindings indexes created or already exist');
+  } catch (e) {
+    console.error('Database: Failed to create ad_bindings indexes:', e);
+  }
+
+  // 创建广告播放日志表
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS ad_play_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        action_type TEXT NOT NULL,
+        client_ip TEXT NOT NULL,
+        played_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_date DATE DEFAULT (DATE('now'))
+      )
+    `).run();
+    console.log('Database: ad_play_logs table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create ad_play_logs table:', e);
+  }
+
+  // 创建广告播放日志索引
+  try {
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_ad_play_logs_action_ip_date ON ad_play_logs(action_type, client_ip, created_date)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_ad_play_logs_played_at ON ad_play_logs(played_at DESC)').run();
+    console.log('Database: ad_play_logs indexes created or already exist');
+  } catch (e) {
+    console.error('Database: Failed to create ad_play_logs indexes:', e);
+  }
+
   // 创建免费订阅表
   try {
     await db.prepare(`
@@ -1433,6 +1487,155 @@ export async function getActiveAdTsFile(adType = null) {
   // 随机选择一个广告
   const randomIndex = Math.floor(Math.random() * ads.length);
   return ads[randomIndex];
+}
+
+/**
+ * 获取广告绑定配置
+ * @param {string} actionType - 操作类型
+ * @returns {object|null} 广告绑定配置
+ */
+export async function getAdBinding(actionType) {
+  const db = getDB();
+
+  const binding = await db.prepare(`
+    SELECT ab.*, ats.name as ad_name, ats.content as ad_content, ats.ad_type as ad_type
+    FROM ad_bindings ab
+    LEFT JOIN ad_ts_files ats ON ab.ad_id = ats.id
+    WHERE ab.action_type = ?
+    ORDER BY ab.priority DESC
+    LIMIT 1
+  `).bind(actionType).first();
+
+  return binding;
+}
+
+/**
+ * 创建广告绑定
+ * @param {object} data - 绑定数据
+ * @returns {object} 创建的绑定
+ */
+export async function createAdBinding(data) {
+  const db = getDB();
+
+  const result = await db.prepare(`
+    INSERT INTO ad_bindings (action_type, ad_id, cooldown_seconds, priority)
+    VALUES (?, ?, ?, ?)
+  `).bind(
+    data.action_type,
+    data.ad_id || null,
+    data.cooldown_seconds || 0,
+    data.priority || 0
+  ).run();
+
+  const binding = await db.prepare(`
+    SELECT * FROM ad_bindings WHERE id = ?
+  `).bind(result.meta.last_row_id).first();
+
+  return binding;
+}
+
+/**
+ * 更新广告绑定
+ * @param {number} id - 绑定ID
+ * @param {object} data - 绑定数据
+ * @returns {boolean} 是否成功
+ */
+export async function updateAdBinding(id, data) {
+  const db = getDB();
+
+  await db.prepare(`
+    UPDATE ad_bindings
+    SET ad_id = ?,
+        cooldown_seconds = ?,
+        priority = ?,
+        updated_at = datetime('now')
+    WHERE id = ?
+  `).bind(
+    data.ad_id || null,
+    data.cooldown_seconds || 0,
+    data.priority || 0,
+    id
+  ).run();
+
+  return true;
+}
+
+/**
+ * 删除广告绑定
+ * @param {number} id - 绑定ID
+ * @returns {boolean} 是否成功
+ */
+export async function deleteAdBinding(id) {
+  const db = getDB();
+
+  await db.prepare('DELETE FROM ad_bindings WHERE id = ?').bind(id).run();
+  return true;
+}
+
+/**
+ * 获取所有广告绑定
+ * @returns {array} 绑定列表
+ */
+export async function getAllAdBindings() {
+  const db = getDB();
+
+  const result = await db.prepare(`
+    SELECT ab.*, ats.name as ad_name, ats.ad_type as ad_type
+    FROM ad_bindings ab
+    LEFT JOIN ad_ts_files ats ON ab.ad_id = ats.id
+    ORDER BY ab.action_type, ab.priority DESC
+  `).all();
+
+  return result.results || [];
+}
+
+/**
+ * 根据操作类型获取绑定广告（检查冷却时间）
+ * @param {string} actionType - 操作类型
+ * @param {string} clientIP - 客户端IP
+ * @returns {object|null} 广告数据
+ */
+export async function getBoundAdByAction(actionType, clientIP) {
+  const db = getDB();
+
+  const binding = await getAdBinding(actionType);
+  if (!binding) {
+    return null;
+  }
+
+  // 检查冷却时间
+  if (binding.cooldown_seconds > 0) {
+    const cooldownExpiry = new Date(Date.now() - binding.cooldown_seconds * 1000).toISOString();
+    const recentPlay = await db.prepare(`
+      SELECT COUNT(*) as count FROM ad_play_logs
+      WHERE action_type = ? AND client_ip = ? AND played_at > ?
+    `).bind(actionType, clientIP, cooldownExpiry).first();
+
+    if (recentPlay && recentPlay.count > 0) {
+      // 在冷却期内，返回null
+      return null;
+    }
+  }
+
+  // 记录播放日志
+  await db.prepare(`
+    INSERT INTO ad_play_logs (action_type, client_ip, played_at)
+    VALUES (?, ?, datetime('now'))
+  `).bind(actionType, clientIP).run();
+
+  // 如果绑定了特定广告，返回该广告
+  if (binding.ad_id && binding.ad_content) {
+    return {
+      id: binding.ad_id,
+      name: binding.ad_name,
+      content: binding.ad_content,
+      ad_type: binding.ad_type,
+      cooldown_seconds: binding.cooldown_seconds
+    };
+  }
+
+  // 否则随机选择一个活跃广告
+  return await getActiveAdTsFile();
 }
 
 /**

@@ -512,16 +512,16 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
         <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
           <p style="color:#86868b;margin-bottom:12px;">
-            上传广告TS文件，当用户IP未授权时会播放广告内容。支持上传.ts格式的视频文件。
+            上传广告TS文件，在不同播放场景下播放广告内容。支持上传.ts格式的视频文件。
           </p>
           <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius:4px;">
             <strong style="color:#e65100;">注意事项：</strong>
             <ul style="margin:8px 0 0 20px;color:#666;">
               <li>广告文件以Base64格式存储在数据库中，建议文件大小不超过5MB</li>
-              <li>支持多个广告同时活跃，播放时会随机选择一个广告播放</li>
               <li>支持不同类型的广告（普通广告、通知类广告等）</li>
               <li>广告时长建议控制在10秒以内</li>
-              <li>禁用所有广告后，未授权IP将返回403错误</li>
+              <li>在广告绑定管理中，可以为不同播放场景绑定特定的广告</li>
+              <li>广告绑定中可以设置冷却时间和优先级</li>
             </ul>
           </div>
         </div>
@@ -540,6 +540,46 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             </tr>
           </thead>
           <tbody id="adTsTable"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <h3>广告绑定配置</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="showAdBindingModal()">添加绑定</button>
+            <button class="btn" onclick="loadAdBindings()">刷新列表</button>
+          </div>
+        </div>
+        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            配置不同场景下播放的广告。支持绑定指定广告或随机播放，并可设置冷却时间。
+          </p>
+          <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius:4px;">
+            <strong style="color:#e65100;">操作类型说明：</strong>
+            <ul style="margin:8px 0 0 20px;color:#666;">
+              <li><strong>卡密正常播放</strong>：用户使用有效卡密正常播放时触发</li>
+              <li><strong>卡密过期播放</strong>：用户卡密已过期，尝试播放时触发</li>
+              <li><strong>卡密IP未授权</strong>：用户IP不在卡密允许范围内时触发</li>
+              <li><strong>免费订阅正常播放</strong>：免费订阅用户正常播放时触发</li>
+              <li><strong>免费订阅过期播放</strong>：免费订阅已过期，尝试播放时触发</li>
+            </ul>
+            <strong style="color:#e65100;">冷却时间：</strong>
+            <p style="margin:8px 0;color:#666;">设置冷却时间后，同一IP在指定时间内不会重复看到同一类型的广告。设置为0表示不限制。</p>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>操作类型</th>
+              <th>绑定广告</th>
+              <th>冷却时间</th>
+              <th>优先级</th>
+              <th>创建时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="adBindingTable"></tbody>
         </table>
       </div>
     </div>
@@ -980,6 +1020,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         loadIPBlacklist();
       }
       else if (tabName === 'homepage-display') loadHomepageDisplayConfig();
+      else if (tabName === 'ad-management') {
+        loadAdTsFiles();
+        loadAdBindings();
+      }
       else if (tabName === 'system-settings') {
         loadSystemConfig();
         loadAnnouncement(); // 加载公告
@@ -3124,6 +3168,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         const result = await apiRequest('/ad-ts', { method: 'GET', showLoading: false });
 
         if (result.success && result.files) {
+          window.adTsFiles = result.files;
           const tbody = document.getElementById('adTsTable');
           tbody.innerHTML = '';
 
@@ -3339,6 +3384,207 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       } catch (error) {
         console.error('禁用广告失败:', error);
         showToast('禁用失败: ' + (error.error || '未知错误'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // ========== 广告绑定管理 ==========
+
+    async function loadAdBindings() {
+      try {
+        showLoading();
+        const result = await apiRequest('/ad-bindings', { showLoading: false });
+
+        if (result.success) {
+          window.adBindings = result.bindings || [];
+          renderAdBindings(window.adBindings);
+        } else {
+          showToast('加载广告绑定列表失败', 'error');
+        }
+      } catch (error) {
+        console.error('加载广告绑定失败:', error);
+        showToast('加载广告绑定列表失败', 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function renderAdBindings(bindings) {
+      const tbody = document.getElementById('adBindingTable');
+      if (!bindings || bindings.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#86868b;">暂无广告绑定</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = bindings.map(binding => {
+        return '<tr>' +
+          '<td>' + binding.id + '</td>' +
+          '<td>' + escapeHtml(binding.action_type_label) + '</td>' +
+          '<td>' + escapeHtml(binding.ad_name || '随机选择') + '</td>' +
+          '<td>' + escapeHtml(binding.cooldown_display) + '</td>' +
+          '<td>' + binding.priority + '</td>' +
+          '<td>' + formatDate(binding.created_at) + '</td>' +
+          '<td>' +
+            '<button class="btn btn-sm" onclick="editAdBinding(' + binding.id + ')">编辑</button> ' +
+            '<button class="btn btn-danger btn-sm" onclick="deleteAdBinding(' + binding.id + ')">删除</button>' +
+          '</td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    function showAdBindingModal(binding = null) {
+      const actionTypeOptions = [
+        { value: 'code_normal', label: '卡密正常播放' },
+        { value: 'code_expired', label: '卡密过期播放' },
+        { value: 'code_unauth', label: '卡密IP未授权' },
+        { value: 'code_channel_not_found', label: '频道不存在卡密播放' },
+        { value: 'freesub_normal', label: '免费订阅正常播放' },
+        { value: 'freesub_expired', label: '免费订阅过期播放' },
+        { value: 'freesub_channel_not_found', label: '频道不存在免费播放' }
+      ];
+
+      let adOptions = '<option value="">不播放广告</option>';
+      if (window.adTsFiles && window.adTsFiles.length > 0) {
+        window.adTsFiles.forEach(ad => {
+          const selected = binding && binding.ad_id === ad.id ? 'selected' : '';
+          adOptions += '<option value="' + ad.id + '" ' + selected + '>' + escapeHtml(ad.name) + '</option>';
+        });
+      }
+
+      const modalHtml = '<div id="adBindingModal" class="modal active">' +
+        '<div class="modal-overlay" onclick="hideAdBindingModal()">' +
+          '<div class="modal-content" onclick="event.stopPropagation()">' +
+            '<h3>' + (binding ? '编辑广告绑定' : '添加广告绑定') + '</h3>' +
+            '<div class="form-group">' +
+              '<label>操作类型</label>' +
+              '<select id="bindingActionType" class="filter-select" style="width:100%;">' +
+                '<option value="">-- 请选择 --</option>' +
+                actionTypeOptions.map(opt =>
+                  '<option value="' + opt.value + '" ' + (binding && binding.action_type === opt.value ? 'selected' : '') + '>' +
+                    opt.label +
+                  '</option>'
+                ).join('') +
+              '</select>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>绑定广告（可选）</label>' +
+              '<select id="bindingAdId" class="filter-select" style="width:100%;">' +
+                adOptions +
+              '</select>' +
+              '<p style="margin-top:8px;color:#86868b;font-size:12px;">选择要绑定的广告，留空则不播放广告</p>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>冷却时间（秒）</label>' +
+              '<input type="number" id="bindingCooldown" value="' + (binding ? binding.cooldown_seconds : 0) + '" min="0" placeholder="0表示不限制" style="width:100%;">' +
+              '<p style="margin-top:8px;color:#86868b;font-size:12px;">同一IP在指定时间内不会重复看到此类型广告，设置为0表示不限制</p>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>优先级</label>' +
+              '<input type="number" id="bindingPriority" value="' + (binding ? binding.priority : 0) + '" min="0" max="100" placeholder="数字越大优先级越高" style="width:100%;">' +
+              '<p style="margin-top:8px;color:#86868b;font-size:12px;">优先级，数字越大优先级越高</p>' +
+            '</div>' +
+            '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">' +
+              '<button class="btn" onclick="hideAdBindingModal()">取消</button>' +
+              '<button class="btn btn-primary" onclick="saveAdBinding(' + (binding ? binding.id : '') + ')">保存</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+      const existingModal = document.getElementById('adBindingModal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+
+    function hideAdBindingModal() {
+      const modal = document.getElementById('adBindingModal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
+    async function saveAdBinding(id) {
+      const actionType = document.getElementById('bindingActionType').value;
+      const adId = document.getElementById('bindingAdId').value;
+      const cooldown = parseInt(document.getElementById('bindingCooldown').value, 10);
+      const priority = parseInt(document.getElementById('bindingPriority').value, 10);
+
+      if (!actionType) {
+        showToast('请选择操作类型', 'error');
+        return;
+      }
+
+      if (isNaN(cooldown) || cooldown < 0) {
+        showToast('冷却时间必须大于等于0', 'error');
+        return;
+      }
+
+      if (isNaN(priority) || priority < 0) {
+        showToast('优先级必须大于等于0', 'error');
+        return;
+      }
+
+      try {
+        showLoading();
+        const url = id ? '/ad-bindings/update?id=' + id : '/ad-bindings/create';
+        const method = id ? 'PUT' : 'POST';
+        const result = await apiRequest(url, {
+          method: method,
+          body: JSON.stringify({
+            action_type: actionType,
+            ad_id: adId ? parseInt(adId, 10) : null,
+            cooldown_seconds: cooldown,
+            priority: priority
+          }),
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('保存成功', 'success');
+          hideModal();
+          await loadAdBindings();
+        } else {
+          showToast('保存失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        console.error('保存广告绑定失败:', error);
+        showToast('保存失败: ' + (error.error || '未知错误'), 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function editAdBinding(id) {
+      const binding = window.adBindings && window.adBindings.find(b => b.id === id);
+      if (binding) {
+        showAdBindingModal(binding);
+      }
+    }
+
+    async function deleteAdBinding(id) {
+      if (!confirm('确定要删除此广告绑定吗？')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/ad-bindings/delete?id=' + id, {
+          method: 'DELETE',
+          showLoading: false
+        });
+
+        if (result.success) {
+          showToast('删除成功', 'success');
+          await loadAdBindings();
+        } else {
+          showToast('删除失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        console.error('删除广告绑定失败:', error);
+        showToast('删除失败: ' + (error.error || '未知错误'), 'error');
       } finally {
         hideLoading();
       }
