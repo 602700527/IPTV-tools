@@ -5084,7 +5084,7 @@ async function createFreeSubscription(ip, fingerprint, fingerprintComponents, en
     const db = getDB();
     const subId = generateSubscriptionId();
     const expiredAt = /* @__PURE__ */ new Date();
-    expiredAt.setDate(expiredAt.getDate() + 7);
+    expiredAt.setDate(expiredAt.getDate() + 3);
     const existing = await db.prepare(`
       SELECT id, fingerprint, expired_at
       FROM free_subscriptions

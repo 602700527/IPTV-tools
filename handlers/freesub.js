@@ -24,9 +24,9 @@ export async function createFreeSubscription(ip, fingerprint, fingerprintCompone
     // 生成唯一的订阅ID
     const subId = generateSubscriptionId();
 
-    // 计算过期时间（默认7天）
+    // 计算过期时间（默认3天）
     const expiredAt = new Date();
-    expiredAt.setDate(expiredAt.getDate() + 7);
+    expiredAt.setDate(expiredAt.getDate() + 3);
 
     // 检查该IP是否已有活跃的免费订阅
     const existing = await db.prepare(`
