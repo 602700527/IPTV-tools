@@ -3019,6 +3019,7 @@ async function handleAdminRequest(request, env, ctx) {
           const durationMin = url.searchParams.get("duration_min") || "";
           const durationMax = url.searchParams.get("duration_max") || "";
           const remark = url.searchParams.get("remark") || "";
+          const codeSearch = url.searchParams.get("code_search") || "";
           let codesQuery = "SELECT * FROM codes";
           const countQuery2 = "SELECT COUNT(*) as total FROM codes";
           const params2 = [];
@@ -3026,6 +3027,10 @@ async function handleAdminRequest(request, env, ctx) {
           if (statusFilter) {
             whereConditions2.push("status = ?");
             params2.push(statusFilter);
+          }
+          if (codeSearch) {
+            whereConditions2.push("code LIKE ?");
+            params2.push("%" + codeSearch + "%");
           }
           if (expiredFrom) {
             whereConditions2.push("expired_at >= ?");
@@ -5790,6 +5795,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
         </div>
         <div id="advancedFilterPanel" class="card" style="display:none;margin-bottom:16px;padding:16px;background:#f9f9fb;">
           <div class="form-row" style="margin-bottom:12px;">
+            <div class="form-group"><label>\u5361\u5BC6</label><input type="text" id="codeFilter" placeholder="\u8F93\u5165\u5361\u5BC6\u5173\u952E\u8BCD" class="search-box" style="width:200px;"></div>
             <div class="form-group"><label>\u72B6\u6001</label><select class="filter-select" id="codeStatusFilter" onchange="resetCodePage()"><option value="">\u5168\u90E8</option><option value="unused">\u672A\u4F7F\u7528</option><option value="active">\u6D3B\u8DC3</option><option value="disabled">\u7981\u7528</option></select></div>
             <div class="form-group"><label>\u6709\u6548\u671F(\u5929)</label><div style="display:flex;gap:8px;"><input type="number" id="durationMin" placeholder="\u6700\u5C0F" class="search-box" style="width:80px;"><span>-</span><input type="number" id="durationMax" placeholder="\u6700\u5927" class="search-box" style="width:80px;"></div></div>
             <div class="form-group"><label>\u8FC7\u671F\u65F6\u95F4</label><div style="display:flex;gap:8px;"><input type="date" id="expiredFrom" class="search-box"><span>-</span><input type="date" id="expiredTo" class="search-box"></div></div>
@@ -7285,6 +7291,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
       try {
         showLoading();
         let url = '/codes';
+        const codeFilter = document.getElementById('codeFilter').value.trim();
         const statusFilter = document.getElementById('codeStatusFilter').value;
         const durationMin = document.getElementById('durationMin').value;
         const durationMax = document.getElementById('durationMax').value;
@@ -7298,6 +7305,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
           page: currentCodePage,
           page_size: pageSize
         });
+        if (codeFilter) params.append('code_search', codeFilter);
         if (statusFilter) params.append('status', statusFilter);
         if (durationMin) params.append('duration_min', durationMin);
         if (durationMax) params.append('duration_max', durationMax);
@@ -7390,6 +7398,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
     }
 
     function clearCodeFilters() {
+      document.getElementById('codeFilter').value = '';
       document.getElementById('codeStatusFilter').value = '';
       document.getElementById('durationMin').value = '';
       document.getElementById('durationMax').value = '';

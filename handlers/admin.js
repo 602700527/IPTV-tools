@@ -299,6 +299,7 @@ export async function handleAdminRequest(request, env, ctx) {
           const durationMin = url.searchParams.get('duration_min') || '';
           const durationMax = url.searchParams.get('duration_max') || '';
           const remark = url.searchParams.get('remark') || '';
+          const codeSearch = url.searchParams.get('code_search') || '';
 
           let codesQuery = 'SELECT * FROM codes';
           const countQuery = 'SELECT COUNT(*) as total FROM codes';
@@ -308,6 +309,10 @@ export async function handleAdminRequest(request, env, ctx) {
           if (statusFilter) {
             whereConditions.push('status = ?');
             params.push(statusFilter);
+          }
+          if (codeSearch) {
+            whereConditions.push('code LIKE ?');
+            params.push('%' + codeSearch + '%');
           }
           if (expiredFrom) {
             whereConditions.push('expired_at >= ?');
