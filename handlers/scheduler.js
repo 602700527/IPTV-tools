@@ -24,8 +24,8 @@ export async function handleScheduledEvent(event, env, ctx) {
     const hour = new Date().getHours();
     const minute = new Date().getMinutes();
 
-    // 每天2:40执行数据源同步
-    if (hour === 2 && minute === 40) {
+    // 每天3:00执行数据源同步（在缓存刷新之前）
+    if (hour === 3 && minute === 0) {
       if (syncInProgress) {
         console.log('[Scheduler] Data source sync already in progress, skipping');
         return;
@@ -39,8 +39,8 @@ export async function handleScheduledEvent(event, env, ctx) {
       } finally {
         syncInProgress = false;
       }
-    } else {
-      // 每10分钟刷新缓存
+    } else if ((hour === 9 || hour === 21) && minute === 0) {
+      // 每天9:00, 15:00, 21:00刷新缓存（确保数据源同步完成）
       if (cacheRefreshInProgress) {
         console.log('[Scheduler] Cache refresh already in progress, skipping');
         return;
@@ -54,6 +54,8 @@ export async function handleScheduledEvent(event, env, ctx) {
       } finally {
         cacheRefreshInProgress = false;
       }
+    } else {
+      console.log(`[Scheduler] No task scheduled for this time (${hour}:${minute})`);
     }
 
   } catch (error) {

@@ -601,6 +601,7 @@ export async function handlePublicPlay(request, env, ctx) {
   const url = new URL(request.url);
   const pathParts = url.pathname.split('/');
   const hash = pathParts[3]; // /play/{hash}
+  const tokenParam = url.searchParams.get('token'); // 获取token参数
   const fullBaseUrl = `${url.protocol}//${url.host}`; // 获取完整的 base URL
 
   // 带Range头的请求不检查缓存，避免VLC的Range请求问题
