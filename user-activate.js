@@ -7,63 +7,64 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
   <title>Activation - TV Live Service</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:15px}
-    .container{background:white;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);padding:30px;max-width:480px;width:100%;position:relative}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:15px}
+    .container{background:#141414;backdrop-filter:blur(20px);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:30px;max-width:480px;width:100%;position:relative;border:1px solid rgba(255,255,255,.1)}
     .logo{text-align:center;margin-bottom:25px}
-    .logo h1{font-size:24px;font-weight:700;color:#1d1d1f;margin-bottom:6px}
-    .logo p{color:#86868b;font-size:13px}
+    .logo h1{font-size:24px;font-weight:700;color:#fff;margin-bottom:8px}
+    .logo p{color:rgba(255,255,255,.6);font-size:14px}
     .lang-switch{position:absolute;top:20px;right:20px;z-index:10}
     .lang-dropdown{position:relative;display:inline-block}
-    .lang-btn{background:#667eea;color:white;border:none;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:background .2s;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent}
-    .lang-btn:hover{background:#764ba2}
+    .lang-btn{background:#e50914;color:white;border:none;padding:8px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:background .2s;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent}
+    .lang-btn:hover{background:#f7262c}
     .lang-btn:after{content:"▼";font-size:9px}
-    .lang-menu{display:none;position:absolute;top:calc(100%+8px);right:0;background:white;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);min-width:120px;overflow:hidden;animation:fadeIn .2s ease}
+    .lang-menu{display:none;position:absolute;top:calc(100%+8px);right:0;background:#1a1a1a;backdrop-filter:blur(10px);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.3);min-width:120px;overflow:hidden;animation:fadeIn .2s ease;border:1px solid rgba(255,255,255,.15)}
     .lang-menu.show{display:block}
-    .lang-menu button{display:block;width:100%;padding:10px 16px;background:none;border:none;text-align:left;font-size:13px;color:#1d1d1f;cursor:pointer;transition:background .2s}
-    .lang-menu button:hover{background:#f5f5f7}
-    .lang-menu button.active{background:#667eea;color:white}
+    .lang-menu button{display:block;width:100%;padding:10px 16px;background:none;border:none;text-align:left;font-size:13px;color:rgba(255,255,255,.8);cursor:pointer;transition:background .2s}
+    .lang-menu button:hover{background:rgba(229,9,20,.15)}
+    .lang-menu button.active{background:#e50914;color:white}
     @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
     .form-group{margin-bottom:18px}
-    .form-group label{display:block;margin-bottom:6px;font-weight:500;color:#1d1d1f;font-size:14px}
-    .form-group input{width:100%;padding:12px 14px;border:2px solid #e5e5ea;border-radius:8px;font-size:16px;transition:border-color .2s;letter-spacing:1px;-webkit-appearance:none;height:44px}
-    .form-group input:focus{outline:none;border-color:#667eea}
-    .btn{width:100%;padding:14px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:transform .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent}
-    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(102,126,234,.4)}
+    .form-group label{display:block;margin-bottom:6px;font-weight:500;color:rgba(255,255,255,.8);font-size:14px}
+    .form-group input{width:100%;padding:12px 14px;border:2px solid rgba(255,255,255,.2);border-radius:10px;font-size:16px;transition:border-color .2s;letter-spacing:1px;-webkit-appearance:none;height:44px;background:rgba(255,255,255,.05);color:#fff}
+    .form-group input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
+    .form-group input::placeholder{color:rgba(255,255,255,.4)}
+    .btn{width:100%;padding:14px;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;transition:transform .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 14px rgba(229,9,20,.3)}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(229,9,20,.4)}
     .btn:active{transform:translateY(0);scale:.98}
-    .btn:disabled{background:#d2d2d7;cursor:not-allowed;transform:none;scale:1}
-    .error{color:#ff3b30;text-align:center;margin-bottom:12px;font-size:14px;display:none;padding:12px;background:#ffebee;border-radius:8px}
-    .success{color:#34c759;text-align:center;margin-bottom:12px;font-size:14px;display:none;padding:12px;background:#e8f5e9;border-radius:8px}
-    .result{display:none;margin-top:25px;padding:20px;background:#f5f5f7;border-radius:12px}
+    .btn:disabled{background:rgba(229,9,20,.3);cursor:not-allowed;transform:none;scale:1;box-shadow:none}
+    .error{color:#ff3b30;text-align:center;margin-bottom:12px;font-size:14px;display:none;padding:12px;background:rgba(255,59,48,.15);border:1px solid rgba(255,59,48,.3);border-radius:10px}
+    .success{color:#34c759;text-align:center;margin-bottom:12px;font-size:14px;display:none;padding:12px;background:rgba(52,199,89,.15);border:1px solid rgba(52,199,89,.3);border-radius:10px}
+    .result{display:none;margin-top:25px;padding:20px;background:rgba(255,255,255,.03);border-radius:16px;border:1px solid rgba(255,255,255,.08)}
     .result.active{display:block}
-    .result h3{font-size:16px;font-weight:600;margin-bottom:14px;color:#1d1d1f}
-    .info-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e5e5ea}
+    .result h3{font-size:16px;font-weight:600;margin-bottom:14px;color:#fff}
+    .info-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.1)}
     .info-item:last-child{border-bottom:none}
-    .info-label{color:#86868b;font-size:13px}
-    .info-value{color:#1d1d1f;font-weight:500;font-size:13px}
-    .sub-url-container{margin-top:14px;padding:14px;background:#667eea;border-radius:8px}
-    .sub-url-label{color:white;font-size:11px;margin-bottom:6px}
-    .sub-url{color:white;font-size:12px;font-weight:600;word-break:break-all;line-height:1.6;cursor:pointer}
-    .sub-url:hover{opacity:.9}
-    .copy-btn{width:100%;margin-top:14px;padding:12px;background:#0071e3;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;-webkit-tap-highlight-color:transparent}
-    .copy-btn:hover{background:#0077ed}
+    .info-label{color:rgba(255,255,255,.6);font-size:13px}
+    .info-value{color:#fff;font-weight:500;font-size:13px}
+    .sub-url-container{margin-top:14px;padding:14px;background:rgba(229,9,20,.1);border-radius:10px;border:1px solid rgba(229,9,20,.3)}
+    .sub-url-label{color:rgba(229,9,20,.9);font-size:11px;margin-bottom:6px;font-weight:500}
+    .sub-url{color:rgba(255,255,255,.9);font-size:12px;font-weight:600;word-break:break-all;line-height:1.6;cursor:pointer}
+    .sub-url:hover{opacity:.8}
+    .copy-btn{width:100%;margin-top:14px;padding:12px;background:#e50914;color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;-webkit-tap-highlight-color:transparent}
+    .copy-btn:hover{background:#f7262c}
     .copy-btn:active{scale:.98}
-    .instructions{margin-top:16px;padding:14px;background:#fff3e0;border-radius:8px;border-left:4px solid #ff9800}
-    .instructions h4{color:#e65100;margin-bottom:10px;font-size:13px}
+    .instructions{margin-top:16px;padding:14px;background:rgba(255,204,0,.1);border-radius:10px;border-left:4px solid #ffcc00}
+    .instructions h4{color:#ffcc00;margin-bottom:10px;font-size:13px}
     .instructions ul{list-style:none;padding:0}
-    .instructions li{padding:5px 0;color:#86868b;font-size:12px;line-height:1.5}
-    .instructions li:before{content:"✓";color:#ff9800;margin-right:6px;font-weight:bold}
+    .instructions li{padding:5px 0;color:rgba(255,255,255,.7);font-size:12px;line-height:1.5}
+    .instructions li:before{content:"✓";color:#ffcc00;margin-right:6px;font-weight:bold}
     .instructions.warning li:before{content:"⚠️";margin-right:6px}
     .loading{display:none;text-align:center;padding:20px}
     .loading.active{display:block}
-    .spinner{width:40px;height:40px;border:3px solid #e5e5ea;border-top-color:#667eea;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
+    .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#e50914;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .loading-text{margin-top:12px;color:#86868b;font-size:14px}
+    .loading-text{margin-top:12px;color:rgba(255,255,255,.6);font-size:14px}
     .captcha-container{display:flex;gap:10px;align-items:center}
-    .captcha-input{flex:1;padding:0 12px;border:2px solid #e5e5ea;border-radius:8px;font-size:16px;text-align:center;letter-spacing:3px;-webkit-appearance:none;transition:border-color .2s;height:44px}
-    .captcha-input:focus{outline:none;border-color:#667eea}
-    .captcha-canvas{width:100px;height:44px;border:2px solid #e5e5ea;border-radius:8px;cursor:pointer;flex-shrink:0}
-    .captcha-refresh{padding:8px 12px;background:#f5f5f7;border:2px solid #e5e5ea;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;transition:background .2s;-webkit-tap-highlight-color:transparent;height:44px;white-space:nowrap;flex-shrink:0;min-width:60px}
-    .captcha-refresh:hover{background:#e5e5ea}
+    .captcha-input{flex:1;padding:0 12px;border:2px solid rgba(255,255,255,.2);border-radius:10px;font-size:16px;text-align:center;letter-spacing:2px;-webkit-appearance:none;transition:border-color .2s;height:44px;background:rgba(255,255,255,.05);color:#fff}
+    .captcha-input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
+    .captcha-canvas{width:100px;height:44px;border:2px solid rgba(255,255,255,.2);border-radius:10px;cursor:pointer;flex-shrink:0;background:rgba(255,255,255,.05)}
+    .captcha-refresh{padding:8px 12px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;transition:background .2s;-webkit-tap-highlight-color:transparent;height:44px;white-space:nowrap;flex-shrink:0;min-width:60px;color:rgba(255,255,255,.7)}
+    .captcha-refresh:hover{background:rgba(255,255,255,.15)}
     @media (max-width:480px){
       body{padding:10px}
       .container{padding:20px;border-radius:12px;padding-top:50px}
@@ -156,8 +157,8 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
           <li data-i18n="instr5">Do not use software to test playlist, may trigger system defense</li>
         </ul>
       </div>
-      <div class="instructions warning" style="margin-top: 12px; background: #fff3e0; border-left-color: #ff9800;">
-        <h4 data-i18n="ipRestrictions" style="color: #e65100;">⚠️ Important Notice</h4>
+      <div class="instructions warning" style="margin-top: 12px; background: rgba(255, 59, 48, 0.1); border-left-color: #ff3b30;">
+        <h4 data-i18n="ipRestrictions" style="color: #ff3b30;">⚠️ Important Notice</h4>
         <ul>
           <li data-i18n="instr6">Sharing subscription or playback URLs will trigger IP limit detection</li>
           <li data-i18n="instr7">Abuse or sharing may result in code being banned or disabled</li>

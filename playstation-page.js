@@ -329,7 +329,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .mobile-actions{display:flex;gap:10px;margin-bottom:20px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:5px}
       .mobile-actions::-webkit-scrollbar{display:none}
       .mobile-actions::-webkit-scrollbar{display:none}
-      .mobile-action-btn{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:70px;padding:12px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);flex-shrink:0}
+      .mobile-action-btn{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:65px;padding:12px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);flex-shrink:0}
       .mobile-action-btn:hover{background:rgba(255,255,255,.1);color:#fff}
       .mobile-action-btn .icon{font-size:24px}
       .mobile-action-btn .label{font-size:11px;color:rgba(255,255,255,.6);white-space:nowrap}
@@ -365,7 +365,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .header{padding:0 10px}
       .logo{font-size:16px}
       .mobile-menu{width:100%}
-      .mobile-action-btn{min-width:60px;padding:10px 6px}
+      .mobile-action-btn{min-width:55px;padding:10px 6px}
       .mobile-action-btn .icon{font-size:20px}
       .mobile-action-btn .label{font-size:10px}
       .main{margin-top:60px}
@@ -455,6 +455,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         </div>
         <div class="mobile-action-btn" onclick="handleMobileAction('random')">
           <span class="icon">🎯</span>
+        </div>
+        <div class="mobile-action-btn" onclick="handleMobileAction('freesub')">
+          <span class="icon">🎁</span>
+        </div>
+        <div class="mobile-action-btn" onclick="handleMobileAction('clearCache')">
+          <span class="icon">🗑️</span>
         </div>
       </div>
     </div>
@@ -833,6 +839,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           break;
         case 'random':
           showRandomInMain();
+          break;
+        case 'freesub':
+          window.location.href = '/freesub';
+          break;
+        case 'clearCache':
+          clearCache();
+          loadChannels(1, true);
+          showPlayingIndicator(t('cacheCleared'));
           break;
       }
     }

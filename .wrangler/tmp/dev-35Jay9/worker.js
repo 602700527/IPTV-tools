@@ -9393,63 +9393,64 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
   <title>Activation - TV Live Service</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:15px}
-    .container{background:white;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);padding:30px;max-width:480px;width:100%;position:relative}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:15px}
+    .container{background:#141414;backdrop-filter:blur(20px);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:30px;max-width:480px;width:100%;position:relative;border:1px solid rgba(255,255,255,.1)}
     .logo{text-align:center;margin-bottom:25px}
-    .logo h1{font-size:24px;font-weight:700;color:#1d1d1f;margin-bottom:6px}
-    .logo p{color:#86868b;font-size:13px}
+    .logo h1{font-size:24px;font-weight:700;color:#fff;margin-bottom:8px}
+    .logo p{color:rgba(255,255,255,.6);font-size:14px}
     .lang-switch{position:absolute;top:20px;right:20px;z-index:10}
     .lang-dropdown{position:relative;display:inline-block}
-    .lang-btn{background:#667eea;color:white;border:none;padding:8px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:background .2s;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent}
-    .lang-btn:hover{background:#764ba2}
+    .lang-btn{background:#e50914;color:white;border:none;padding:8px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:background .2s;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent}
+    .lang-btn:hover{background:#f7262c}
     .lang-btn:after{content:"\u25BC";font-size:9px}
-    .lang-menu{display:none;position:absolute;top:calc(100%+8px);right:0;background:white;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);min-width:120px;overflow:hidden;animation:fadeIn .2s ease}
+    .lang-menu{display:none;position:absolute;top:calc(100%+8px);right:0;background:#1a1a1a;backdrop-filter:blur(10px);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.3);min-width:120px;overflow:hidden;animation:fadeIn .2s ease;border:1px solid rgba(255,255,255,.15)}
     .lang-menu.show{display:block}
-    .lang-menu button{display:block;width:100%;padding:10px 16px;background:none;border:none;text-align:left;font-size:13px;color:#1d1d1f;cursor:pointer;transition:background .2s}
-    .lang-menu button:hover{background:#f5f5f7}
-    .lang-menu button.active{background:#667eea;color:white}
+    .lang-menu button{display:block;width:100%;padding:10px 16px;background:none;border:none;text-align:left;font-size:13px;color:rgba(255,255,255,.8);cursor:pointer;transition:background .2s}
+    .lang-menu button:hover{background:rgba(229,9,20,.15)}
+    .lang-menu button.active{background:#e50914;color:white}
     @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
     .form-group{margin-bottom:18px}
-    .form-group label{display:block;margin-bottom:6px;font-weight:500;color:#1d1d1f;font-size:14px}
-    .form-group input{width:100%;padding:12px 14px;border:2px solid #e5e5ea;border-radius:8px;font-size:16px;transition:border-color .2s;letter-spacing:1px;-webkit-appearance:none;height:44px}
-    .form-group input:focus{outline:none;border-color:#667eea}
-    .btn{width:100%;padding:14px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:transform .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent}
-    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(102,126,234,.4)}
+    .form-group label{display:block;margin-bottom:6px;font-weight:500;color:rgba(255,255,255,.8);font-size:14px}
+    .form-group input{width:100%;padding:12px 14px;border:2px solid rgba(255,255,255,.2);border-radius:10px;font-size:16px;transition:border-color .2s;letter-spacing:1px;-webkit-appearance:none;height:44px;background:rgba(255,255,255,.05);color:#fff}
+    .form-group input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
+    .form-group input::placeholder{color:rgba(255,255,255,.4)}
+    .btn{width:100%;padding:14px;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;transition:transform .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 14px rgba(229,9,20,.3)}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(229,9,20,.4)}
     .btn:active{transform:translateY(0);scale:.98}
-    .btn:disabled{background:#d2d2d7;cursor:not-allowed;transform:none;scale:1}
-    .error{color:#ff3b30;text-align:center;margin-bottom:12px;font-size:14px;display:none;padding:12px;background:#ffebee;border-radius:8px}
-    .success{color:#34c759;text-align:center;margin-bottom:12px;font-size:14px;display:none;padding:12px;background:#e8f5e9;border-radius:8px}
-    .result{display:none;margin-top:25px;padding:20px;background:#f5f5f7;border-radius:12px}
+    .btn:disabled{background:rgba(229,9,20,.3);cursor:not-allowed;transform:none;scale:1;box-shadow:none}
+    .error{color:#ff3b30;text-align:center;margin-bottom:12px;font-size:14px;display:none;padding:12px;background:rgba(255,59,48,.15);border:1px solid rgba(255,59,48,.3);border-radius:10px}
+    .success{color:#34c759;text-align:center;margin-bottom:12px;font-size:14px;display:none;padding:12px;background:rgba(52,199,89,.15);border:1px solid rgba(52,199,89,.3);border-radius:10px}
+    .result{display:none;margin-top:25px;padding:20px;background:rgba(255,255,255,.03);border-radius:16px;border:1px solid rgba(255,255,255,.08)}
     .result.active{display:block}
-    .result h3{font-size:16px;font-weight:600;margin-bottom:14px;color:#1d1d1f}
-    .info-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e5e5ea}
+    .result h3{font-size:16px;font-weight:600;margin-bottom:14px;color:#fff}
+    .info-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.1)}
     .info-item:last-child{border-bottom:none}
-    .info-label{color:#86868b;font-size:13px}
-    .info-value{color:#1d1d1f;font-weight:500;font-size:13px}
-    .sub-url-container{margin-top:14px;padding:14px;background:#667eea;border-radius:8px}
-    .sub-url-label{color:white;font-size:11px;margin-bottom:6px}
-    .sub-url{color:white;font-size:12px;font-weight:600;word-break:break-all;line-height:1.6;cursor:pointer}
-    .sub-url:hover{opacity:.9}
-    .copy-btn{width:100%;margin-top:14px;padding:12px;background:#0071e3;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;-webkit-tap-highlight-color:transparent}
-    .copy-btn:hover{background:#0077ed}
+    .info-label{color:rgba(255,255,255,.6);font-size:13px}
+    .info-value{color:#fff;font-weight:500;font-size:13px}
+    .sub-url-container{margin-top:14px;padding:14px;background:rgba(229,9,20,.1);border-radius:10px;border:1px solid rgba(229,9,20,.3)}
+    .sub-url-label{color:rgba(229,9,20,.9);font-size:11px;margin-bottom:6px;font-weight:500}
+    .sub-url{color:rgba(255,255,255,.9);font-size:12px;font-weight:600;word-break:break-all;line-height:1.6;cursor:pointer}
+    .sub-url:hover{opacity:.8}
+    .copy-btn{width:100%;margin-top:14px;padding:12px;background:#e50914;color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;-webkit-tap-highlight-color:transparent}
+    .copy-btn:hover{background:#f7262c}
     .copy-btn:active{scale:.98}
-    .instructions{margin-top:16px;padding:14px;background:#fff3e0;border-radius:8px;border-left:4px solid #ff9800}
-    .instructions h4{color:#e65100;margin-bottom:10px;font-size:13px}
+    .instructions{margin-top:16px;padding:14px;background:rgba(255,204,0,.1);border-radius:10px;border-left:4px solid #ffcc00}
+    .instructions h4{color:#ffcc00;margin-bottom:10px;font-size:13px}
     .instructions ul{list-style:none;padding:0}
-    .instructions li{padding:5px 0;color:#86868b;font-size:12px;line-height:1.5}
-    .instructions li:before{content:"\u2713";color:#ff9800;margin-right:6px;font-weight:bold}
+    .instructions li{padding:5px 0;color:rgba(255,255,255,.7);font-size:12px;line-height:1.5}
+    .instructions li:before{content:"\u2713";color:#ffcc00;margin-right:6px;font-weight:bold}
     .instructions.warning li:before{content:"\u26A0\uFE0F";margin-right:6px}
     .loading{display:none;text-align:center;padding:20px}
     .loading.active{display:block}
-    .spinner{width:40px;height:40px;border:3px solid #e5e5ea;border-top-color:#667eea;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
+    .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#e50914;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .loading-text{margin-top:12px;color:#86868b;font-size:14px}
+    .loading-text{margin-top:12px;color:rgba(255,255,255,.6);font-size:14px}
     .captcha-container{display:flex;gap:10px;align-items:center}
-    .captcha-input{flex:1;padding:0 12px;border:2px solid #e5e5ea;border-radius:8px;font-size:16px;text-align:center;letter-spacing:3px;-webkit-appearance:none;transition:border-color .2s;height:44px}
-    .captcha-input:focus{outline:none;border-color:#667eea}
-    .captcha-canvas{width:100px;height:44px;border:2px solid #e5e5ea;border-radius:8px;cursor:pointer;flex-shrink:0}
-    .captcha-refresh{padding:8px 12px;background:#f5f5f7;border:2px solid #e5e5ea;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;transition:background .2s;-webkit-tap-highlight-color:transparent;height:44px;white-space:nowrap;flex-shrink:0;min-width:60px}
-    .captcha-refresh:hover{background:#e5e5ea}
+    .captcha-input{flex:1;padding:0 12px;border:2px solid rgba(255,255,255,.2);border-radius:10px;font-size:16px;text-align:center;letter-spacing:2px;-webkit-appearance:none;transition:border-color .2s;height:44px;background:rgba(255,255,255,.05);color:#fff}
+    .captcha-input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
+    .captcha-canvas{width:100px;height:44px;border:2px solid rgba(255,255,255,.2);border-radius:10px;cursor:pointer;flex-shrink:0;background:rgba(255,255,255,.05)}
+    .captcha-refresh{padding:8px 12px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;transition:background .2s;-webkit-tap-highlight-color:transparent;height:44px;white-space:nowrap;flex-shrink:0;min-width:60px;color:rgba(255,255,255,.7)}
+    .captcha-refresh:hover{background:rgba(255,255,255,.15)}
     @media (max-width:480px){
       body{padding:10px}
       .container{padding:20px;border-radius:12px;padding-top:50px}
@@ -9542,8 +9543,8 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
           <li data-i18n="instr5">Do not use software to test playlist, may trigger system defense</li>
         </ul>
       </div>
-      <div class="instructions warning" style="margin-top: 12px; background: #fff3e0; border-left-color: #ff9800;">
-        <h4 data-i18n="ipRestrictions" style="color: #e65100;">\u26A0\uFE0F Important Notice</h4>
+      <div class="instructions warning" style="margin-top: 12px; background: rgba(255, 59, 48, 0.1); border-left-color: #ff3b30;">
+        <h4 data-i18n="ipRestrictions" style="color: #ff3b30;">\u26A0\uFE0F Important Notice</h4>
         <ul>
           <li data-i18n="instr6">Sharing subscription or playback URLs will trigger IP limit detection</li>
           <li data-i18n="instr7">Abuse or sharing may result in code being banned or disabled</li>
@@ -10227,7 +10228,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       .mobile-actions{display:flex;gap:10px;margin-bottom:20px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:5px}
       .mobile-actions::-webkit-scrollbar{display:none}
       .mobile-actions::-webkit-scrollbar{display:none}
-      .mobile-action-btn{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:70px;padding:12px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);flex-shrink:0}
+      .mobile-action-btn{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:65px;padding:12px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);flex-shrink:0}
       .mobile-action-btn:hover{background:rgba(255,255,255,.1);color:#fff}
       .mobile-action-btn .icon{font-size:24px}
       .mobile-action-btn .label{font-size:11px;color:rgba(255,255,255,.6);white-space:nowrap}
@@ -10263,7 +10264,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       .header{padding:0 10px}
       .logo{font-size:16px}
       .mobile-menu{width:100%}
-      .mobile-action-btn{min-width:60px;padding:10px 6px}
+      .mobile-action-btn{min-width:55px;padding:10px 6px}
       .mobile-action-btn .icon{font-size:20px}
       .mobile-action-btn .label{font-size:10px}
       .main{margin-top:60px}
@@ -10353,6 +10354,12 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         </div>
         <div class="mobile-action-btn" onclick="handleMobileAction('random')">
           <span class="icon">\u{1F3AF}</span>
+        </div>
+        <div class="mobile-action-btn" onclick="handleMobileAction('freesub')">
+          <span class="icon">\u{1F381}</span>
+        </div>
+        <div class="mobile-action-btn" onclick="handleMobileAction('clearCache')">
+          <span class="icon">\u{1F5D1}\uFE0F</span>
         </div>
       </div>
     </div>
@@ -10731,6 +10738,14 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           break;
         case 'random':
           showRandomInMain();
+          break;
+        case 'freesub':
+          window.location.href = '/freesub';
+          break;
+        case 'clearCache':
+          clearCache();
+          loadChannels(1, true);
+          showPlayingIndicator(t('cacheCleared'));
           break;
       }
     }
@@ -12901,7 +12916,7 @@ var FREE_SUB_HTML = `
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>\u514D\u8D39\u8BA2\u9605 - \u514D\u8D39\u89C2\u770B\u7CBE\u9009\u9891\u9053</title>
   <style>
     * {
@@ -12912,50 +12927,71 @@ var FREE_SUB_HTML = `
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #0a0a0a;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 15px;
     }
 
     .container {
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      max-width: 600px;
+      background: #141414;
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      max-width: 480px;
       width: 100%;
-      padding: 40px;
+      padding: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
     }
 
     .header {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
     .header h1 {
-      color: #333;
-      font-size: 28px;
-      margin-bottom: 10px;
+      color: #fff;
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
 
     .header p {
-      color: #666;
+      color: rgba(255, 255, 255, 0.6);
       font-size: 14px;
     }
 
-    .card {
-      background: #f8f9fa;
+    .notice {
+      background: rgba(255, 204, 0, 0.15);
+      border: 1px solid rgba(255, 204, 0, 0.3);
+      color: #ffcc00;
+      padding: 12px 16px;
       border-radius: 12px;
-      padding: 20px;
+      font-size: 13px;
       margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .notice-icon {
+      margin-right: 6px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .card h2 {
-      color: #333;
+      color: #fff;
       font-size: 18px;
-      margin-bottom: 15px;
+      margin-bottom: 16px;
+      font-weight: 600;
     }
 
     .subscription-info {
@@ -12963,72 +12999,102 @@ var FREE_SUB_HTML = `
     }
 
     .subscription-id {
-      font-size: 20px;
-      font-weight: bold;
-      color: #667eea;
+      font-size: 18px;
+      font-weight: 700;
+      color: #e50914;
       word-break: break-all;
       margin: 10px 0;
     }
 
     .subscription-url {
       font-family: monospace;
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      border: 2px dashed #ddd;
-      margin: 15px 0;
+      background: rgba(229, 9, 20, 0.1);
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(229, 9, 20, 0.3);
+      margin: 14px 0;
       word-break: break-all;
       font-size: 12px;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.6;
     }
 
     .subscription-status {
       display: flex;
       justify-content: space-around;
       margin-top: 20px;
+      gap: 10px;
     }
 
     .status-item {
       text-align: center;
+      min-width: 0;
     }
 
     .status-value {
-      font-size: 24px;
-      font-weight: bold;
-      color: #667eea;
+      font-size: 20px;
+      font-weight: 700;
+      color: #e50914;
     }
 
     .status-label {
-      font-size: 12px;
-      color: #666;
-      margin-top: 5px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 4px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .feature-text-full {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 3px 0;
     }
 
     .checkin-btn {
       width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 14px;
+      background: linear-gradient(135deg, #e50914 0%, #b81d24 100%);
       color: white;
       border: none;
-      border-radius: 10px;
-      font-size: 18px;
-      font-weight: bold;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
       margin-top: 15px;
+      box-shadow: 0 4px 14px rgba(229, 9, 20, 0.3);
     }
 
     .checkin-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4);
+    }
+
+    .checkin-btn:active {
+      transform: translateY(0);
+      scale: 0.98;
     }
 
     .checkin-btn:disabled {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
 
     .message {
-      padding: 15px;
+      padding: 12px;
       border-radius: 8px;
       margin-top: 15px;
       font-size: 14px;
@@ -13036,140 +13102,182 @@ var FREE_SUB_HTML = `
     }
 
     .message.success {
-      background: #d4edda;
-      color: #155724;
+      background: rgba(52, 199, 89, 0.2);
+      border: 1px solid rgba(52, 199, 89, 0.3);
+      color: #34c759;
       display: block;
     }
 
     .message.error {
-      background: #f8d7da;
-      color: #721c24;
+      background: rgba(255, 59, 48, 0.2);
+      border: 1px solid rgba(255, 59, 48, 0.3);
+      color: #ff3b30;
       display: block;
     }
 
     .message.info {
-      background: #d1ecf1;
-      color: #0c5460;
+      background: rgba(0, 122, 255, 0.2);
+      border: 1px solid rgba(0, 122, 255, 0.3);
+      color: #007aff;
       display: block;
     }
 
-    .features {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 8px;
-      margin-top: 20px;
-      padding: 15px;
-      background: #f8f9fa;
+    .copy-btn {
+      background: #e50914;
+      color: white;
+      border: none;
+      padding: 10px 16px;
       border-radius: 8px;
-      border: 1px solid #e9ecef;
+      cursor: pointer;
+      font-size: 13px;
+      margin-top: 12px;
+      transition: background 0.2s;
+      font-weight: 500;
     }
 
-    .feature-text-full {
-      color: #495057;
-      font-size: 13px;
-      line-height: 1.5;
-      padding: 4px 0;
+    .copy-btn:hover {
+      background: #f7262c;
+    }
+
+    .copy-btn:active {
+      scale: 0.98;
+    }
+
+    .captcha-container {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 15px;
+      width: 100%;
+    }
+
+    .captcha-input {
+      flex: 1;
+      min-width: 0;
+      padding: 0 10px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      font-size: 16px;
+      text-align: center;
+      letter-spacing: 2px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      transition: border-color 0.2s;
+      height: 44px;
+    }
+
+    .captcha-input:focus {
+      outline: none;
+      border-color: #e50914;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .captcha-canvas {
+      width: 90px;
+      height: 44px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.05);
+      flex-shrink: 0;
     }
 
     .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 2px solid #fff;
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .loading.active {
+      display: block;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top-color: #e50914;
       border-radius: 50%;
-      border-top-color: transparent;
-      animation: spin 0.8s linear infinite;
-      margin-right: 10px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
     }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
 
-    .notice {
-      background: #fff3cd;
-      border: 1px solid #ffc107;
-      color: #856404;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 13px;
-      margin-bottom: 20px;
-    }
-
-    .notice-icon {
-      margin-right: 8px;
-    }
-
-    .features {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .feature-text-full {
-      color: #666;
-      font-size: 13px;
-      line-height: 1.6;
-      padding: 10px 0;
-    }
-
-    .copy-btn {
-      background: #667eea;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 12px;
-      margin-top: 10px;
-    }
-
-    .copy-btn:hover {
-      background: #5568d3;
-    }
-
-    .captcha-container {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .captcha-input {
-      flex: 1;
-      padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      font-size: 16px;
-      text-align: center;
-      letter-spacing: 3px;
-    }
-
-    .captcha-input:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-
-    .captcha-canvas {
-      width: 120px;
-      height: 44px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .captcha-refresh {
-      padding: 8px 12px;
-      background: #f0f0f0;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      cursor: pointer;
+    .loading-text {
+      margin-top: 12px;
+      color: rgba(255, 255, 255, 0.6);
       font-size: 14px;
-      transition: background 0.2s;
     }
 
-    .captcha-refresh:hover {
-      background: #e0e0e0;
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      
+      .container {
+        padding: 20px;
+        border-radius: 12px;
+      }
+      
+      .header h1 {
+        font-size: 20px;
+      }
+      
+      .header p {
+        font-size: 12px;
+      }
+      
+      .subscription-id {
+        font-size: 16px;
+      }
+      
+      .subscription-url {
+        font-size: 11px;
+        padding: 12px;
+      }
+      
+      .status-value {
+        font-size: 18px;
+      }
+      
+      .status-label {
+        font-size: 10px;
+      }
+      
+      .checkin-btn {
+        padding: 13px;
+        font-size: 15px;
+      }
+      
+      .copy-btn {
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+      
+      .features {
+        padding: 12px;
+      }
+      
+      .feature-text-full {
+        font-size: 12px;
+      }
+      
+      .captcha-container {
+        gap: 6px;
+      }
+      
+      .captcha-input {
+        font-size: 14px;
+        letter-spacing: 1px;
+        padding: 0 8px;
+      }
+      
+      .captcha-canvas {
+        width: 75px;
+      }
     }
   </style>
 </head>
@@ -13211,12 +13319,12 @@ var FREE_SUB_HTML = `
 
     <div class="card">
       <h2>\u{1F4C5} \u6BCF\u65E5\u7B7E\u5230</h2>
-      <p style="text-align: center; color: #666; margin-bottom: 15px; font-size: 14px;">
+      <p style="text-align: center; color: rgba(255, 255, 255, 0.5); margin-bottom: 15px; font-size: 14px;">
         \u7B7E\u5230\u53EF\u5EF6\u957F\u8BA2\u9605\u65F6\u957F\uFF0C\u8FDE\u7EED\u7B7E\u5230\u6709\u989D\u5916\u5956\u52B1\uFF01
       </p>
       <div class="captcha-container">
         <input type="text" class="captcha-input" id="captchaInput" placeholder="\u8F93\u5165\u9A8C\u8BC1\u7801" maxlength="6">
-        <canvas class="captcha-canvas" id="captchaCanvas" width="120" height="44" onclick="refreshCaptcha()"></canvas>
+        <canvas class="captcha-canvas" id="captchaCanvas" width="90" height="44" onclick="refreshCaptcha()"></canvas>
       </div>
       <button class="checkin-btn" id="checkInBtn" onclick="checkIn()">
         \u7ACB\u5373\u7B7E\u5230
@@ -13437,7 +13545,7 @@ var FREE_SUB_HTML = `
       }
 
       // \u7ED8\u5236\u9A8C\u8BC1\u7801
-      ctx.font = 'bold 28px Arial';
+      ctx.font = 'bold 22px Arial';
       ctx.textBaseline = 'middle';
 
       for (let i = 0; i < captchaCode.length; i++) {
@@ -13447,7 +13555,7 @@ var FREE_SUB_HTML = `
         ];
         ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
 
-        const x = 20 + i * 22;
+        const x = 15 + i * 18;
         const y = 22;
         // \u6781\u5C0F\u7684\u65CB\u8F6C\u89D2\u5EA6\uFF0C\u51E0\u4E4E\u4E0D\u65CB\u8F6C
         const angle = (Math.random() - 0.5) * 0.05;

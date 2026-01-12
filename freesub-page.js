@@ -4,7 +4,7 @@ export const FREE_SUB_HTML = `
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>免费订阅 - 免费观看精选频道</title>
   <style>
     * {
@@ -15,50 +15,71 @@ export const FREE_SUB_HTML = `
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #0a0a0a;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 15px;
     }
 
     .container {
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      max-width: 600px;
+      background: #141414;
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      max-width: 480px;
       width: 100%;
-      padding: 40px;
+      padding: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
     }
 
     .header {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
     .header h1 {
-      color: #333;
-      font-size: 28px;
-      margin-bottom: 10px;
+      color: #fff;
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
 
     .header p {
-      color: #666;
+      color: rgba(255, 255, 255, 0.6);
       font-size: 14px;
     }
 
-    .card {
-      background: #f8f9fa;
+    .notice {
+      background: rgba(255, 204, 0, 0.15);
+      border: 1px solid rgba(255, 204, 0, 0.3);
+      color: #ffcc00;
+      padding: 12px 16px;
       border-radius: 12px;
-      padding: 20px;
+      font-size: 13px;
       margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .notice-icon {
+      margin-right: 6px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .card h2 {
-      color: #333;
+      color: #fff;
       font-size: 18px;
-      margin-bottom: 15px;
+      margin-bottom: 16px;
+      font-weight: 600;
     }
 
     .subscription-info {
@@ -66,72 +87,102 @@ export const FREE_SUB_HTML = `
     }
 
     .subscription-id {
-      font-size: 20px;
-      font-weight: bold;
-      color: #667eea;
+      font-size: 18px;
+      font-weight: 700;
+      color: #e50914;
       word-break: break-all;
       margin: 10px 0;
     }
 
     .subscription-url {
       font-family: monospace;
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      border: 2px dashed #ddd;
-      margin: 15px 0;
+      background: rgba(229, 9, 20, 0.1);
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(229, 9, 20, 0.3);
+      margin: 14px 0;
       word-break: break-all;
       font-size: 12px;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.6;
     }
 
     .subscription-status {
       display: flex;
       justify-content: space-around;
       margin-top: 20px;
+      gap: 10px;
     }
 
     .status-item {
       text-align: center;
+      min-width: 0;
     }
 
     .status-value {
-      font-size: 24px;
-      font-weight: bold;
-      color: #667eea;
+      font-size: 20px;
+      font-weight: 700;
+      color: #e50914;
     }
 
     .status-label {
-      font-size: 12px;
-      color: #666;
-      margin-top: 5px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 4px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .feature-text-full {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 3px 0;
     }
 
     .checkin-btn {
       width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 14px;
+      background: linear-gradient(135deg, #e50914 0%, #b81d24 100%);
       color: white;
       border: none;
-      border-radius: 10px;
-      font-size: 18px;
-      font-weight: bold;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
       margin-top: 15px;
+      box-shadow: 0 4px 14px rgba(229, 9, 20, 0.3);
     }
 
     .checkin-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4);
+    }
+
+    .checkin-btn:active {
+      transform: translateY(0);
+      scale: 0.98;
     }
 
     .checkin-btn:disabled {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
 
     .message {
-      padding: 15px;
+      padding: 12px;
       border-radius: 8px;
       margin-top: 15px;
       font-size: 14px;
@@ -139,140 +190,182 @@ export const FREE_SUB_HTML = `
     }
 
     .message.success {
-      background: #d4edda;
-      color: #155724;
+      background: rgba(52, 199, 89, 0.2);
+      border: 1px solid rgba(52, 199, 89, 0.3);
+      color: #34c759;
       display: block;
     }
 
     .message.error {
-      background: #f8d7da;
-      color: #721c24;
+      background: rgba(255, 59, 48, 0.2);
+      border: 1px solid rgba(255, 59, 48, 0.3);
+      color: #ff3b30;
       display: block;
     }
 
     .message.info {
-      background: #d1ecf1;
-      color: #0c5460;
+      background: rgba(0, 122, 255, 0.2);
+      border: 1px solid rgba(0, 122, 255, 0.3);
+      color: #007aff;
       display: block;
     }
 
-    .features {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 8px;
-      margin-top: 20px;
-      padding: 15px;
-      background: #f8f9fa;
+    .copy-btn {
+      background: #e50914;
+      color: white;
+      border: none;
+      padding: 10px 16px;
       border-radius: 8px;
-      border: 1px solid #e9ecef;
+      cursor: pointer;
+      font-size: 13px;
+      margin-top: 12px;
+      transition: background 0.2s;
+      font-weight: 500;
     }
 
-    .feature-text-full {
-      color: #495057;
-      font-size: 13px;
-      line-height: 1.5;
-      padding: 4px 0;
+    .copy-btn:hover {
+      background: #f7262c;
+    }
+
+    .copy-btn:active {
+      scale: 0.98;
+    }
+
+    .captcha-container {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 15px;
+      width: 100%;
+    }
+
+    .captcha-input {
+      flex: 1;
+      min-width: 0;
+      padding: 0 10px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      font-size: 16px;
+      text-align: center;
+      letter-spacing: 2px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      transition: border-color 0.2s;
+      height: 44px;
+    }
+
+    .captcha-input:focus {
+      outline: none;
+      border-color: #e50914;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .captcha-canvas {
+      width: 90px;
+      height: 44px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.05);
+      flex-shrink: 0;
     }
 
     .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 2px solid #fff;
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .loading.active {
+      display: block;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top-color: #e50914;
       border-radius: 50%;
-      border-top-color: transparent;
-      animation: spin 0.8s linear infinite;
-      margin-right: 10px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
     }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
 
-    .notice {
-      background: #fff3cd;
-      border: 1px solid #ffc107;
-      color: #856404;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 13px;
-      margin-bottom: 20px;
-    }
-
-    .notice-icon {
-      margin-right: 8px;
-    }
-
-    .features {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .feature-text-full {
-      color: #666;
-      font-size: 13px;
-      line-height: 1.6;
-      padding: 10px 0;
-    }
-
-    .copy-btn {
-      background: #667eea;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 12px;
-      margin-top: 10px;
-    }
-
-    .copy-btn:hover {
-      background: #5568d3;
-    }
-
-    .captcha-container {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .captcha-input {
-      flex: 1;
-      padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      font-size: 16px;
-      text-align: center;
-      letter-spacing: 3px;
-    }
-
-    .captcha-input:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-
-    .captcha-canvas {
-      width: 120px;
-      height: 44px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .captcha-refresh {
-      padding: 8px 12px;
-      background: #f0f0f0;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      cursor: pointer;
+    .loading-text {
+      margin-top: 12px;
+      color: rgba(255, 255, 255, 0.6);
       font-size: 14px;
-      transition: background 0.2s;
     }
 
-    .captcha-refresh:hover {
-      background: #e0e0e0;
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      
+      .container {
+        padding: 20px;
+        border-radius: 12px;
+      }
+      
+      .header h1 {
+        font-size: 20px;
+      }
+      
+      .header p {
+        font-size: 12px;
+      }
+      
+      .subscription-id {
+        font-size: 16px;
+      }
+      
+      .subscription-url {
+        font-size: 11px;
+        padding: 12px;
+      }
+      
+      .status-value {
+        font-size: 18px;
+      }
+      
+      .status-label {
+        font-size: 10px;
+      }
+      
+      .checkin-btn {
+        padding: 13px;
+        font-size: 15px;
+      }
+      
+      .copy-btn {
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+      
+      .features {
+        padding: 12px;
+      }
+      
+      .feature-text-full {
+        font-size: 12px;
+      }
+      
+      .captcha-container {
+        gap: 6px;
+      }
+      
+      .captcha-input {
+        font-size: 14px;
+        letter-spacing: 1px;
+        padding: 0 8px;
+      }
+      
+      .captcha-canvas {
+        width: 75px;
+      }
     }
   </style>
 </head>
@@ -314,12 +407,12 @@ export const FREE_SUB_HTML = `
 
     <div class="card">
       <h2>📅 每日签到</h2>
-      <p style="text-align: center; color: #666; margin-bottom: 15px; font-size: 14px;">
+      <p style="text-align: center; color: rgba(255, 255, 255, 0.5); margin-bottom: 15px; font-size: 14px;">
         签到可延长订阅时长，连续签到有额外奖励！
       </p>
       <div class="captcha-container">
         <input type="text" class="captcha-input" id="captchaInput" placeholder="输入验证码" maxlength="6">
-        <canvas class="captcha-canvas" id="captchaCanvas" width="120" height="44" onclick="refreshCaptcha()"></canvas>
+        <canvas class="captcha-canvas" id="captchaCanvas" width="90" height="44" onclick="refreshCaptcha()"></canvas>
       </div>
       <button class="checkin-btn" id="checkInBtn" onclick="checkIn()">
         立即签到
@@ -540,7 +633,7 @@ export const FREE_SUB_HTML = `
       }
 
       // 绘制验证码
-      ctx.font = 'bold 28px Arial';
+      ctx.font = 'bold 22px Arial';
       ctx.textBaseline = 'middle';
 
       for (let i = 0; i < captchaCode.length; i++) {
@@ -550,7 +643,7 @@ export const FREE_SUB_HTML = `
         ];
         ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
 
-        const x = 20 + i * 22;
+        const x = 15 + i * 18;
         const y = 22;
         // 极小的旋转角度，几乎不旋转
         const angle = (Math.random() - 0.5) * 0.05;
