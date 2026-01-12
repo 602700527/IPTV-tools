@@ -81,7 +81,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   }
   </script>
 
-  <title>IPTV Live - 免费高清电视观看平台</title>
+  <title>IPTV Live - Free HD Live TV Streaming Platform</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff}
@@ -817,7 +817,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       document.documentElement.lang = lang;
 
       // 更新SEO信息
-      updateSEO(lang);
+      updateSEOMeta();
 
       // 保存语言设置
       localStorage.setItem('iptv_language', lang);
@@ -1033,25 +1033,60 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     // 动态更新页面SEO元信息
     function updateSEOMeta() {
+      const isZhCN = currentLanguage === 'zh-CN';
+
       // 更新页面标题
-      let title = 'IPTV Live - 免费高清电视在线观看平台';
-      let description = 'IPTV Live提供免费的在线直播服务，包含2000+高清频道，支持体育、新闻、娱乐、电影等全类型频道，无需注册，一键播放，多设备同步观看。';
+      let title, description;
 
       if (currentGroup) {
-        title = currentGroup + ' - IPTV Live 免费电视直播';
-        description = '观看' + currentGroup + '频道直播，IPTV Live提供' + currentGroup + '相关的免费高清直播内容，实时更新，画面清晰，播放流畅。';
+        if (isZhCN) {
+          title = currentGroup + ' - IPTV Live 免费电视直播';
+          description = '观看' + currentGroup + '频道直播，IPTV Live提供' + currentGroup + '相关的免费高清直播内容，实时更新，画面清晰，播放流畅。';
+        } else {
+          title = currentGroup + ' - IPTV Live Live TV';
+          description = 'Watch ' + currentGroup + ' channels live on IPTV Live with free HD streaming, real-time updates, clear picture quality and smooth playback.';
+        }
       } else if (currentSearch) {
-        title = currentSearch + ' - IPTV Live 搜索结果';
-        description = '搜索"' + currentSearch + '"的频道，找到' + totalChannels + '个相关频道，IPTV Live免费高清电视在线观看平台。';
+        if (isZhCN) {
+          title = currentSearch + ' - IPTV Live 搜索结果';
+          description = '搜索"' + currentSearch + '"的频道，找到' + totalChannels + '个相关频道，IPTV Live免费高清电视在线观看平台。';
+        } else {
+          title = currentSearch + ' - IPTV Live Search Results';
+          description = 'Search for "' + currentSearch + '" channels, found ' + totalChannels + ' related channels on IPTV Live free HD TV streaming platform.';
+        }
       } else if (currentGroup === 'history') {
-        title = '播放历史 - IPTV Live';
-        description = '查看您的观看历史记录，IPTV Live自动保存最近观看的频道，方便快速访问。';
+        if (isZhCN) {
+          title = '播放历史 - IPTV Live';
+          description = '查看您的观看历史记录，IPTV Live自动保存最近观看的频道，方便快速访问。';
+        } else {
+          title = 'Watch History - IPTV Live';
+          description = 'View your watch history. IPTV Live automatically saves your recently watched channels for quick access.';
+        }
       } else if (currentGroup === 'favorites') {
-        title = '我的收藏 - IPTV Live';
-        description = '管理您收藏的频道，IPTV Live收藏功能让您快速访问喜爱的内容。';
+        if (isZhCN) {
+          title = '我的收藏 - IPTV Live';
+          description = '管理您收藏的频道，IPTV Live收藏功能让您快速访问喜爱的内容。';
+        } else {
+          title = 'My Favorites - IPTV Live';
+          description = 'Manage your favorite channels. IPTV Live favorites feature allows you to quickly access your favorite content.';
+        }
       } else if (currentGroup === 'random') {
-        title = '随机推荐 - IPTV Live';
-        description = '随机发现精彩频道，IPTV Live智能推荐让您探索更多优质直播内容。';
+        if (isZhCN) {
+          title = '随机推荐 - IPTV Live';
+          description = '随机发现精彩频道，IPTV Live智能推荐让您探索更多优质直播内容。';
+        } else {
+          title = 'Random Picks - IPTV Live';
+          description = 'Discover amazing channels randomly. IPTV Live smart recommendations help you explore more quality live content.';
+        }
+      } else {
+        // 默认页面
+        if (isZhCN) {
+          title = 'IPTV Live - 免费高清电视在线观看平台';
+          description = 'IPTV Live提供免费的在线直播服务，包含2000+高清频道，支持体育、新闻、娱乐、电影等全类型频道，无需注册，一键播放，多设备同步观看。';
+        } else {
+          title = 'IPTV Live - Free HD Live TV Streaming Platform';
+          description = 'IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback, multi-device sync.';
+        }
       }
 
       // 更新document title
@@ -1063,6 +1098,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       updateMetaTag('property', 'og:description', description);
       updateMetaTag('name', 'twitter:title', title);
       updateMetaTag('name', 'twitter:description', description);
+
+      // 更新 og:locale
+      updateMetaTag('property', 'og:locale', isZhCN ? 'zh_CN' : 'en_US');
     }
 
     // 更新或创建meta标签
@@ -2766,8 +2804,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         const emptyState = document.getElementById('emptyState');
         container.innerHTML = '';
         emptyState.style.display = 'block';
-        document.querySelector('.empty-title').textContent = '还没有收藏';
-        document.querySelector('.empty-desc').textContent = '点击频道卡片上的星星添加收藏';
+        document.querySelector('.empty-title').textContent = t('noFavorites');
+        document.querySelector('.empty-desc').textContent = t('noFavoritesDesc');
         return;
       }
 

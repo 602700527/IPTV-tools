@@ -9925,7 +9925,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   }
   <\/script>
 
-  <title>IPTV Live - \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u89C2\u770B\u5E73\u53F0</title>
+  <title>IPTV Live - Free HD Live TV Streaming Platform</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff}
@@ -10661,7 +10661,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       document.documentElement.lang = lang;
 
       // \u66F4\u65B0SEO\u4FE1\u606F
-      updateSEO(lang);
+      updateSEOMeta();
 
       // \u4FDD\u5B58\u8BED\u8A00\u8BBE\u7F6E
       localStorage.setItem('iptv_language', lang);
@@ -10877,25 +10877,60 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
     // \u52A8\u6001\u66F4\u65B0\u9875\u9762SEO\u5143\u4FE1\u606F
     function updateSEOMeta() {
+      const isZhCN = currentLanguage === 'zh-CN';
+
       // \u66F4\u65B0\u9875\u9762\u6807\u9898
-      let title = 'IPTV Live - \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0';
-      let description = 'IPTV Live\u63D0\u4F9B\u514D\u8D39\u7684\u5728\u7EBF\u76F4\u64AD\u670D\u52A1\uFF0C\u5305\u542B2000+\u9AD8\u6E05\u9891\u9053\uFF0C\u652F\u6301\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u7B49\u5168\u7C7B\u578B\u9891\u9053\uFF0C\u65E0\u9700\u6CE8\u518C\uFF0C\u4E00\u952E\u64AD\u653E\uFF0C\u591A\u8BBE\u5907\u540C\u6B65\u89C2\u770B\u3002';
+      let title, description;
 
       if (currentGroup) {
-        title = currentGroup + ' - IPTV Live \u514D\u8D39\u7535\u89C6\u76F4\u64AD';
-        description = '\u89C2\u770B' + currentGroup + '\u9891\u9053\u76F4\u64AD\uFF0CIPTV Live\u63D0\u4F9B' + currentGroup + '\u76F8\u5173\u7684\u514D\u8D39\u9AD8\u6E05\u76F4\u64AD\u5185\u5BB9\uFF0C\u5B9E\u65F6\u66F4\u65B0\uFF0C\u753B\u9762\u6E05\u6670\uFF0C\u64AD\u653E\u6D41\u7545\u3002';
+        if (isZhCN) {
+          title = currentGroup + ' - IPTV Live \u514D\u8D39\u7535\u89C6\u76F4\u64AD';
+          description = '\u89C2\u770B' + currentGroup + '\u9891\u9053\u76F4\u64AD\uFF0CIPTV Live\u63D0\u4F9B' + currentGroup + '\u76F8\u5173\u7684\u514D\u8D39\u9AD8\u6E05\u76F4\u64AD\u5185\u5BB9\uFF0C\u5B9E\u65F6\u66F4\u65B0\uFF0C\u753B\u9762\u6E05\u6670\uFF0C\u64AD\u653E\u6D41\u7545\u3002';
+        } else {
+          title = currentGroup + ' - IPTV Live Live TV';
+          description = 'Watch ' + currentGroup + ' channels live on IPTV Live with free HD streaming, real-time updates, clear picture quality and smooth playback.';
+        }
       } else if (currentSearch) {
-        title = currentSearch + ' - IPTV Live \u641C\u7D22\u7ED3\u679C';
-        description = '\u641C\u7D22"' + currentSearch + '"\u7684\u9891\u9053\uFF0C\u627E\u5230' + totalChannels + '\u4E2A\u76F8\u5173\u9891\u9053\uFF0CIPTV Live\u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0\u3002';
+        if (isZhCN) {
+          title = currentSearch + ' - IPTV Live \u641C\u7D22\u7ED3\u679C';
+          description = '\u641C\u7D22"' + currentSearch + '"\u7684\u9891\u9053\uFF0C\u627E\u5230' + totalChannels + '\u4E2A\u76F8\u5173\u9891\u9053\uFF0CIPTV Live\u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0\u3002';
+        } else {
+          title = currentSearch + ' - IPTV Live Search Results';
+          description = 'Search for "' + currentSearch + '" channels, found ' + totalChannels + ' related channels on IPTV Live free HD TV streaming platform.';
+        }
       } else if (currentGroup === 'history') {
-        title = '\u64AD\u653E\u5386\u53F2 - IPTV Live';
-        description = '\u67E5\u770B\u60A8\u7684\u89C2\u770B\u5386\u53F2\u8BB0\u5F55\uFF0CIPTV Live\u81EA\u52A8\u4FDD\u5B58\u6700\u8FD1\u89C2\u770B\u7684\u9891\u9053\uFF0C\u65B9\u4FBF\u5FEB\u901F\u8BBF\u95EE\u3002';
+        if (isZhCN) {
+          title = '\u64AD\u653E\u5386\u53F2 - IPTV Live';
+          description = '\u67E5\u770B\u60A8\u7684\u89C2\u770B\u5386\u53F2\u8BB0\u5F55\uFF0CIPTV Live\u81EA\u52A8\u4FDD\u5B58\u6700\u8FD1\u89C2\u770B\u7684\u9891\u9053\uFF0C\u65B9\u4FBF\u5FEB\u901F\u8BBF\u95EE\u3002';
+        } else {
+          title = 'Watch History - IPTV Live';
+          description = 'View your watch history. IPTV Live automatically saves your recently watched channels for quick access.';
+        }
       } else if (currentGroup === 'favorites') {
-        title = '\u6211\u7684\u6536\u85CF - IPTV Live';
-        description = '\u7BA1\u7406\u60A8\u6536\u85CF\u7684\u9891\u9053\uFF0CIPTV Live\u6536\u85CF\u529F\u80FD\u8BA9\u60A8\u5FEB\u901F\u8BBF\u95EE\u559C\u7231\u7684\u5185\u5BB9\u3002';
+        if (isZhCN) {
+          title = '\u6211\u7684\u6536\u85CF - IPTV Live';
+          description = '\u7BA1\u7406\u60A8\u6536\u85CF\u7684\u9891\u9053\uFF0CIPTV Live\u6536\u85CF\u529F\u80FD\u8BA9\u60A8\u5FEB\u901F\u8BBF\u95EE\u559C\u7231\u7684\u5185\u5BB9\u3002';
+        } else {
+          title = 'My Favorites - IPTV Live';
+          description = 'Manage your favorite channels. IPTV Live favorites feature allows you to quickly access your favorite content.';
+        }
       } else if (currentGroup === 'random') {
-        title = '\u968F\u673A\u63A8\u8350 - IPTV Live';
-        description = '\u968F\u673A\u53D1\u73B0\u7CBE\u5F69\u9891\u9053\uFF0CIPTV Live\u667A\u80FD\u63A8\u8350\u8BA9\u60A8\u63A2\u7D22\u66F4\u591A\u4F18\u8D28\u76F4\u64AD\u5185\u5BB9\u3002';
+        if (isZhCN) {
+          title = '\u968F\u673A\u63A8\u8350 - IPTV Live';
+          description = '\u968F\u673A\u53D1\u73B0\u7CBE\u5F69\u9891\u9053\uFF0CIPTV Live\u667A\u80FD\u63A8\u8350\u8BA9\u60A8\u63A2\u7D22\u66F4\u591A\u4F18\u8D28\u76F4\u64AD\u5185\u5BB9\u3002';
+        } else {
+          title = 'Random Picks - IPTV Live';
+          description = 'Discover amazing channels randomly. IPTV Live smart recommendations help you explore more quality live content.';
+        }
+      } else {
+        // \u9ED8\u8BA4\u9875\u9762
+        if (isZhCN) {
+          title = 'IPTV Live - \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0';
+          description = 'IPTV Live\u63D0\u4F9B\u514D\u8D39\u7684\u5728\u7EBF\u76F4\u64AD\u670D\u52A1\uFF0C\u5305\u542B2000+\u9AD8\u6E05\u9891\u9053\uFF0C\u652F\u6301\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u7B49\u5168\u7C7B\u578B\u9891\u9053\uFF0C\u65E0\u9700\u6CE8\u518C\uFF0C\u4E00\u952E\u64AD\u653E\uFF0C\u591A\u8BBE\u5907\u540C\u6B65\u89C2\u770B\u3002';
+        } else {
+          title = 'IPTV Live - Free HD Live TV Streaming Platform';
+          description = 'IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback, multi-device sync.';
+        }
       }
 
       // \u66F4\u65B0document title
@@ -10907,6 +10942,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       updateMetaTag('property', 'og:description', description);
       updateMetaTag('name', 'twitter:title', title);
       updateMetaTag('name', 'twitter:description', description);
+
+      // \u66F4\u65B0 og:locale
+      updateMetaTag('property', 'og:locale', isZhCN ? 'zh_CN' : 'en_US');
     }
 
     // \u66F4\u65B0\u6216\u521B\u5EFAmeta\u6807\u7B7E
@@ -12610,8 +12648,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         const emptyState = document.getElementById('emptyState');
         container.innerHTML = '';
         emptyState.style.display = 'block';
-        document.querySelector('.empty-title').textContent = '\u8FD8\u6CA1\u6709\u6536\u85CF';
-        document.querySelector('.empty-desc').textContent = '\u70B9\u51FB\u9891\u9053\u5361\u7247\u4E0A\u7684\u661F\u661F\u6DFB\u52A0\u6536\u85CF';
+        document.querySelector('.empty-title').textContent = t('noFavorites');
+        document.querySelector('.empty-desc').textContent = t('noFavoritesDesc');
         return;
       }
 
