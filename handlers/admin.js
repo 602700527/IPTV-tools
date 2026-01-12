@@ -963,6 +963,12 @@ export async function handleAdminRequest(request, env, ctx) {
           if (data.url_encryption_key !== undefined) {
             config.url_encryption_key = data.url_encryption_key;
           }
+          if (data.enable_anti_debug !== undefined) {
+            config.enable_anti_debug = data.enable_anti_debug;
+          }
+          if (data.disable_console_logs !== undefined) {
+            config.disable_console_logs = data.disable_console_logs;
+          }
           if (data.rotate_encryption_key === true) {
             // 自动轮换密钥
             const newKey = generateRandomEncryptionKey();

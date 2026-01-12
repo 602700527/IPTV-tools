@@ -758,6 +758,33 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               </ul>
             </div>
           </div>
+          <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e5e5ea;">
+            <h4 style="margin-bottom:16px;color:#000;font-size:16px;">🛡️ 调试防护</h4>
+            <div style="margin-bottom:16px;">
+              <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+                <input type="checkbox" id="enableAntiDebug" style="margin-right:12px;">
+                <span style="font-size:14px;">启用调试防护</span>
+              </label>
+              <p style="margin-top:8px;color:#86868b;font-size:12px;">禁用开发者工具，阻止右键菜单、F12、Ctrl+Shift+I 等快捷键，防止代码分析</p>
+            </div>
+            <div style="margin-bottom:16px;">
+              <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+                <input type="checkbox" id="disableConsoleLogs" style="margin-right:12px;">
+                <span style="font-size:14px;">禁用控制台日志输出</span>
+              </label>
+              <p style="margin-top:8px;color:#86868b;font-size:12px;">移除所有 console.log、console.error 等输出，防止通过控制台查看调试信息</p>
+            </div>
+            <div style="background:#ffebee;border-left:4px solid #f44336;padding:12px;border-radius:4px;margin-top:12px;">
+              <strong style="color:#c62828;">⚠️ 防护说明：</strong>
+              <ul style="margin:8px 0 0 20px;color:#c62828;font-size:13px;line-height:1.6;">
+                <li><strong>右键禁用：</strong>禁用页面右键菜单</li>
+                <li><strong>快捷键拦截：</strong>阻止 F12、Ctrl+Shift+I、Ctrl+U 等开发者快捷键</li>
+                <li><strong>调试器检测：</strong>检测开发者工具打开并清空页面</li>
+                <li><strong>禁用日志：</strong>完全移除控制台输出，提高代码分析难度</li>
+                <li><strong>限制：</strong>只能提高破解难度，无法完全阻止</li>
+              </ul>
+            </div>
+          </div>
           <div style="background:#e8f5e9;border-left:4px solid #2e7d32;padding:12px;border-radius:4px;margin-top:12px;">
             <strong style="color:#1b5e20;">🔒 Token安全特性说明：</strong>
             <ul style="margin:8px 0 0 20px;color:#1b5e20;font-size:13px;line-height:1.6;">
@@ -2954,6 +2981,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           document.getElementById('enableBurnAfterRead').checked = data.config.enable_burn_after_read !== undefined ? data.config.enable_burn_after_read : true;
           document.getElementById('enableURLEncryption').checked = data.config.enable_url_encryption !== undefined ? data.config.enable_url_encryption : false;
           document.getElementById('urlEncryptionKey').value = data.config.url_encryption_key || '';
+          document.getElementById('enableAntiDebug').checked = data.config.enable_anti_debug !== undefined ? data.config.enable_anti_debug : false;
+          document.getElementById('disableConsoleLogs').checked = data.config.disable_console_logs !== undefined ? data.config.disable_console_logs : false;
         } else {
           showToast('加载配置失败', 'error');
         }
@@ -2975,7 +3004,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           enable_ip_bind: document.getElementById('enableIPBind').checked,
           enable_burn_after_read: document.getElementById('enableBurnAfterRead').checked,
           enable_url_encryption: document.getElementById('enableURLEncryption').checked,
-          url_encryption_key: document.getElementById('urlEncryptionKey').value.trim()
+          url_encryption_key: document.getElementById('urlEncryptionKey').value.trim(),
+          enable_anti_debug: document.getElementById('enableAntiDebug').checked,
+          disable_console_logs: document.getElementById('disableConsoleLogs').checked
         };
 
         // 验证配置值

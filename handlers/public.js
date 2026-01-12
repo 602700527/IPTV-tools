@@ -931,7 +931,9 @@ export async function handlePublicConfig(request, env, ctx) {
     const publicConfig = {
       enable_play_token: systemConfig.enable_play_token,
       enable_url_encryption: systemConfig.enable_url_encryption,
-      url_encryption_key: systemConfig.url_encryption_key || ''
+      url_encryption_key: systemConfig.url_encryption_key || '',
+      enable_anti_debug: systemConfig.enable_anti_debug,
+      disable_console_logs: systemConfig.disable_console_logs
     };
 
     return new Response(JSON.stringify({

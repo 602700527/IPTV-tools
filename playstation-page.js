@@ -597,6 +597,109 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       }
     })();
 
+    // 调试防护功能
+    (function() {
+      let antiDebugEnabled = false;
+      let consoleLogsDisabled = false;
+
+      // 从服务器配置加载调试防护设置
+      async function checkAntiDebugConfig() {
+        try {
+          const response = await fetch(window.location.origin + '/api/config');
+          const result = await response.json();
+          if (result.success && result.config) {
+            antiDebugEnabled = result.config.enable_anti_debug || false;
+            consoleLogsDisabled = result.config.disable_console_logs || false;
+
+            if (antiDebugEnabled) {
+              enableAntiDebug();
+            }
+
+            if (consoleLogsDisabled) {
+              disableConsoleLogs();
+            }
+          }
+        } catch (e) {
+          console.log('无法获取调试配置');
+        }
+      }
+
+      // 启用调试防护
+      function enableAntiDebug() {
+        console.log('[AntiDebug] 调试防护已启用');
+
+        // 1. 禁用右键菜单
+        document.addEventListener('contextmenu', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        });
+
+        // 2. 禁用常见开发者快捷键
+        document.addEventListener('keydown', function(e) {
+          // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
+          if (
+            e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) ||
+            (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) ||
+            (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) ||
+            (e.ctrlKey && (e.key === 'U' || e.key === 'u'))
+          ) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
+        }, true);
+
+        // 3. 检测开发者工具（通过调试器检测）
+        setInterval(function() {
+          const start = performance.now();
+          debugger;
+          const end = performance.now();
+          if (end - start > 100) {
+            // 如果检测到调试器，清空页面
+            document.body.innerHTML = '';
+            window.location.reload();
+          }
+        }, 2000);
+
+        // 4. 检测窗口尺寸变化（开发者工具打开时窗口高度会改变）
+        const threshold = 160;
+        const initialHeight = window.innerHeight;
+        window.addEventListener('resize', function() {
+          const currentHeight = window.innerHeight;
+          if (currentHeight < initialHeight - threshold) {
+            // 可能是开发者工具打开，刷新页面
+            setTimeout(function() {
+              if (window.innerHeight < initialHeight - threshold) {
+                window.location.reload();
+              }
+            }, 100);
+          }
+        });
+      }
+
+      // 禁用控制台日志输出
+      function disableConsoleLogs() {
+        const consoleMethods = ['log', 'warn', 'error', 'info', 'debug', 'trace'];
+        consoleMethods.forEach(function(method) {
+          const original = console[method];
+          console[method] = function() {
+            // 完全移除所有输出
+            // 可以选择性地将重要错误发送到服务器
+            // 但这里为了安全考虑，完全禁用输出
+          };
+        });
+      }
+
+      // 页面加载后检查配置
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', checkAntiDebugConfig);
+      } else {
+        checkAntiDebugConfig();
+      }
+    })();
+
     // ========== 语言配置和翻译 ==========
     const translations = {
       'zh-CN': {

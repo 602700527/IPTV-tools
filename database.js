@@ -200,6 +200,9 @@ export async function createTables(env) {
     // URL加密配置
     'enable_url_encryption': 'false',
     'url_encryption_key': '',
+    // 调试防护配置
+    'enable_anti_debug': 'false',
+    'disable_console_logs': 'false',
     // 同步过滤规则配置（JSON格式）
     'sync_filter_config': '{}'
   };
@@ -637,8 +640,8 @@ export async function updateHomepageDisplayConfig(config) {
 // 获取系统安全配置
 export async function getSystemConfig() {
   const db = getDB();
-  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?, ?, ?)')
-    .bind('enable_ref_check', 'ref_whitelist', 'enable_play_token', 'play_token_expire_seconds', 'homepage_display_config', 'enable_ip_bind', 'enable_burn_after_read', 'enable_url_encryption', 'url_encryption_key')
+  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    .bind('enable_ref_check', 'ref_whitelist', 'enable_play_token', 'play_token_expire_seconds', 'homepage_display_config', 'enable_ip_bind', 'enable_burn_after_read', 'enable_url_encryption', 'url_encryption_key', 'enable_anti_debug', 'disable_console_logs')
     .all();
 
   const config = {
@@ -650,7 +653,9 @@ export async function getSystemConfig() {
     enable_ip_bind: false,
     enable_burn_after_read: false,
     enable_url_encryption: false,
-    url_encryption_key: ''
+    url_encryption_key: '',
+    enable_anti_debug: false,
+    disable_console_logs: false
   };
 
   settings.results?.forEach(row => {
@@ -676,6 +681,10 @@ export async function getSystemConfig() {
       config.enable_url_encryption = row.value === 'true';
     } else if (row.key === 'url_encryption_key') {
       config.url_encryption_key = row.value || '';
+    } else if (row.key === 'enable_anti_debug') {
+      config.enable_anti_debug = row.value === 'true';
+    } else if (row.key === 'disable_console_logs') {
+      config.disable_console_logs = row.value === 'true';
     }
   });
 
@@ -782,6 +791,18 @@ export async function updateSystemConfig(config) {
   if (config.url_encryption_key !== undefined) {
     await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
       .bind(config.url_encryption_key || '', 'url_encryption_key')
+      .run();
+  }
+
+  if (config.enable_anti_debug !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.enable_anti_debug.toString(), 'enable_anti_debug')
+      .run();
+  }
+
+  if (config.disable_console_logs !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.disable_console_logs.toString(), 'disable_console_logs')
       .run();
   }
 }

@@ -234,6 +234,9 @@ async function createTables(env) {
     // URL加密配置
     "enable_url_encryption": "false",
     "url_encryption_key": "",
+    // 调试防护配置
+    "enable_anti_debug": "false",
+    "disable_console_logs": "false",
     // 同步过滤规则配置（JSON格式）
     "sync_filter_config": "{}"
   };
@@ -585,7 +588,7 @@ async function updateHomepageDisplayConfig(config) {
 }
 async function getSystemConfig() {
   const db = getDB();
-  const settings = await db.prepare("SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?, ?, ?)").bind("enable_ref_check", "ref_whitelist", "enable_play_token", "play_token_expire_seconds", "homepage_display_config", "enable_ip_bind", "enable_burn_after_read", "enable_url_encryption", "url_encryption_key").all();
+  const settings = await db.prepare("SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind("enable_ref_check", "ref_whitelist", "enable_play_token", "play_token_expire_seconds", "homepage_display_config", "enable_ip_bind", "enable_burn_after_read", "enable_url_encryption", "url_encryption_key", "enable_anti_debug", "disable_console_logs").all();
   const config = {
     enable_ref_check: false,
     ref_whitelist: "",
@@ -595,7 +598,9 @@ async function getSystemConfig() {
     enable_ip_bind: false,
     enable_burn_after_read: false,
     enable_url_encryption: false,
-    url_encryption_key: ""
+    url_encryption_key: "",
+    enable_anti_debug: false,
+    disable_console_logs: false
   };
   settings.results?.forEach((row) => {
     if (row.key === "enable_ref_check") {
@@ -620,6 +625,10 @@ async function getSystemConfig() {
       config.enable_url_encryption = row.value === "true";
     } else if (row.key === "url_encryption_key") {
       config.url_encryption_key = row.value || "";
+    } else if (row.key === "enable_anti_debug") {
+      config.enable_anti_debug = row.value === "true";
+    } else if (row.key === "disable_console_logs") {
+      config.disable_console_logs = row.value === "true";
     }
   });
   return config;
@@ -686,6 +695,12 @@ async function updateSystemConfig(config) {
   }
   if (config.url_encryption_key !== void 0) {
     await db.prepare("UPDATE settings SET value = ? WHERE key = ?").bind(config.url_encryption_key || "", "url_encryption_key").run();
+  }
+  if (config.enable_anti_debug !== void 0) {
+    await db.prepare("UPDATE settings SET value = ? WHERE key = ?").bind(config.enable_anti_debug.toString(), "enable_anti_debug").run();
+  }
+  if (config.disable_console_logs !== void 0) {
+    await db.prepare("UPDATE settings SET value = ? WHERE key = ?").bind(config.disable_console_logs.toString(), "disable_console_logs").run();
   }
 }
 function generateEncryptionKey(length = 32) {
@@ -3545,6 +3560,12 @@ async function handleAdminRequest(request, env, ctx) {
           if (data.url_encryption_key !== void 0) {
             config.url_encryption_key = data.url_encryption_key;
           }
+          if (data.enable_anti_debug !== void 0) {
+            config.enable_anti_debug = data.enable_anti_debug;
+          }
+          if (data.disable_console_logs !== void 0) {
+            config.disable_console_logs = data.disable_console_logs;
+          }
           if (data.rotate_encryption_key === true) {
             const newKey = generateRandomEncryptionKey();
             config.url_encryption_key = newKey;
@@ -5049,7 +5070,9 @@ async function handlePublicConfig(request, env, ctx) {
     const publicConfig = {
       enable_play_token: systemConfig.enable_play_token,
       enable_url_encryption: systemConfig.enable_url_encryption,
-      url_encryption_key: systemConfig.url_encryption_key || ""
+      url_encryption_key: systemConfig.url_encryption_key || "",
+      enable_anti_debug: systemConfig.enable_anti_debug,
+      disable_console_logs: systemConfig.disable_console_logs
     };
     return new Response(JSON.stringify({
       success: true,
@@ -6339,6 +6362,33 @@ var ADMIN_HTML = `<!DOCTYPE html>
                 <li><strong>\u81EA\u52A8\u8F6E\u6362\uFF1A</strong>\u5EFA\u8BAE\u5B9A\u671F\u8F6E\u6362\u5BC6\u94A5\uFF08\u5982\u6BCF\u6708\u4E00\u6B21\uFF09\u4EE5\u589E\u5F3A\u5B89\u5168\u6027</li>
                 <li><strong>\u524D\u7AEF\u540C\u6B65\uFF1A</strong>\u8F6E\u6362\u5BC6\u94A5\u540E\uFF0C\u524D\u7AEF\u9875\u9762\u9700\u8981\u91CD\u65B0\u52A0\u8F7D\u624D\u80FD\u83B7\u53D6\u65B0\u5BC6\u94A5</li>
                 <li><strong>\u517C\u5BB9\u6027\uFF1A</strong>\u542F\u7528\u52A0\u5BC6\u540E\uFF0C\u64AD\u653E\u5668\u9700\u8981\u652F\u6301\u89E3\u5BC6\uFF08Hls.js \u5DF2\u652F\u6301\uFF09</li>
+              </ul>
+            </div>
+          </div>
+          <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e5e5ea;">
+            <h4 style="margin-bottom:16px;color:#000;font-size:16px;">\u{1F6E1}\uFE0F \u8C03\u8BD5\u9632\u62A4</h4>
+            <div style="margin-bottom:16px;">
+              <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+                <input type="checkbox" id="enableAntiDebug" style="margin-right:12px;">
+                <span style="font-size:14px;">\u542F\u7528\u8C03\u8BD5\u9632\u62A4</span>
+              </label>
+              <p style="margin-top:8px;color:#86868b;font-size:12px;">\u7981\u7528\u5F00\u53D1\u8005\u5DE5\u5177\uFF0C\u963B\u6B62\u53F3\u952E\u83DC\u5355\u3001F12\u3001Ctrl+Shift+I \u7B49\u5FEB\u6377\u952E\uFF0C\u9632\u6B62\u4EE3\u7801\u5206\u6790</p>
+            </div>
+            <div style="margin-bottom:16px;">
+              <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+                <input type="checkbox" id="disableConsoleLogs" style="margin-right:12px;">
+                <span style="font-size:14px;">\u7981\u7528\u63A7\u5236\u53F0\u65E5\u5FD7\u8F93\u51FA</span>
+              </label>
+              <p style="margin-top:8px;color:#86868b;font-size:12px;">\u79FB\u9664\u6240\u6709 console.log\u3001console.error \u7B49\u8F93\u51FA\uFF0C\u9632\u6B62\u901A\u8FC7\u63A7\u5236\u53F0\u67E5\u770B\u8C03\u8BD5\u4FE1\u606F</p>
+            </div>
+            <div style="background:#ffebee;border-left:4px solid #f44336;padding:12px;border-radius:4px;margin-top:12px;">
+              <strong style="color:#c62828;">\u26A0\uFE0F \u9632\u62A4\u8BF4\u660E\uFF1A</strong>
+              <ul style="margin:8px 0 0 20px;color:#c62828;font-size:13px;line-height:1.6;">
+                <li><strong>\u53F3\u952E\u7981\u7528\uFF1A</strong>\u7981\u7528\u9875\u9762\u53F3\u952E\u83DC\u5355</li>
+                <li><strong>\u5FEB\u6377\u952E\u62E6\u622A\uFF1A</strong>\u963B\u6B62 F12\u3001Ctrl+Shift+I\u3001Ctrl+U \u7B49\u5F00\u53D1\u8005\u5FEB\u6377\u952E</li>
+                <li><strong>\u8C03\u8BD5\u5668\u68C0\u6D4B\uFF1A</strong>\u68C0\u6D4B\u5F00\u53D1\u8005\u5DE5\u5177\u6253\u5F00\u5E76\u6E05\u7A7A\u9875\u9762</li>
+                <li><strong>\u7981\u7528\u65E5\u5FD7\uFF1A</strong>\u5B8C\u5168\u79FB\u9664\u63A7\u5236\u53F0\u8F93\u51FA\uFF0C\u63D0\u9AD8\u4EE3\u7801\u5206\u6790\u96BE\u5EA6</li>
+                <li><strong>\u9650\u5236\uFF1A</strong>\u53EA\u80FD\u63D0\u9AD8\u7834\u89E3\u96BE\u5EA6\uFF0C\u65E0\u6CD5\u5B8C\u5168\u963B\u6B62</li>
               </ul>
             </div>
           </div>
@@ -8538,6 +8588,8 @@ var ADMIN_HTML = `<!DOCTYPE html>
           document.getElementById('enableBurnAfterRead').checked = data.config.enable_burn_after_read !== undefined ? data.config.enable_burn_after_read : true;
           document.getElementById('enableURLEncryption').checked = data.config.enable_url_encryption !== undefined ? data.config.enable_url_encryption : false;
           document.getElementById('urlEncryptionKey').value = data.config.url_encryption_key || '';
+          document.getElementById('enableAntiDebug').checked = data.config.enable_anti_debug !== undefined ? data.config.enable_anti_debug : false;
+          document.getElementById('disableConsoleLogs').checked = data.config.disable_console_logs !== undefined ? data.config.disable_console_logs : false;
         } else {
           showToast('\u52A0\u8F7D\u914D\u7F6E\u5931\u8D25', 'error');
         }
@@ -8559,7 +8611,9 @@ var ADMIN_HTML = `<!DOCTYPE html>
           enable_ip_bind: document.getElementById('enableIPBind').checked,
           enable_burn_after_read: document.getElementById('enableBurnAfterRead').checked,
           enable_url_encryption: document.getElementById('enableURLEncryption').checked,
-          url_encryption_key: document.getElementById('urlEncryptionKey').value.trim()
+          url_encryption_key: document.getElementById('urlEncryptionKey').value.trim(),
+          enable_anti_debug: document.getElementById('enableAntiDebug').checked,
+          disable_console_logs: document.getElementById('disableConsoleLogs').checked
         };
 
         // \u9A8C\u8BC1\u914D\u7F6E\u503C
@@ -10438,6 +10492,109 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         alert('\u6B64\u9875\u9762\u65E0\u6CD5\u5728\u5F53\u524D\u57DF\u540D\u8FD0\u884C\uFF0C\u8BF7\u8BBF\u95EE\u539F\u59CB\u7AD9\u70B9');
         document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#fff;background:#000;"><h1>\u8BBF\u95EE\u88AB\u62D2\u7EDD</h1></div>';
         throw new Error('Domain mismatch');
+      }
+    })();
+
+    // \u8C03\u8BD5\u9632\u62A4\u529F\u80FD
+    (function() {
+      let antiDebugEnabled = false;
+      let consoleLogsDisabled = false;
+
+      // \u4ECE\u670D\u52A1\u5668\u914D\u7F6E\u52A0\u8F7D\u8C03\u8BD5\u9632\u62A4\u8BBE\u7F6E
+      async function checkAntiDebugConfig() {
+        try {
+          const response = await fetch(window.location.origin + '/api/config');
+          const result = await response.json();
+          if (result.success && result.config) {
+            antiDebugEnabled = result.config.enable_anti_debug || false;
+            consoleLogsDisabled = result.config.disable_console_logs || false;
+
+            if (antiDebugEnabled) {
+              enableAntiDebug();
+            }
+
+            if (consoleLogsDisabled) {
+              disableConsoleLogs();
+            }
+          }
+        } catch (e) {
+          console.log('\u65E0\u6CD5\u83B7\u53D6\u8C03\u8BD5\u914D\u7F6E');
+        }
+      }
+
+      // \u542F\u7528\u8C03\u8BD5\u9632\u62A4
+      function enableAntiDebug() {
+        console.log('[AntiDebug] \u8C03\u8BD5\u9632\u62A4\u5DF2\u542F\u7528');
+
+        // 1. \u7981\u7528\u53F3\u952E\u83DC\u5355
+        document.addEventListener('contextmenu', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        });
+
+        // 2. \u7981\u7528\u5E38\u89C1\u5F00\u53D1\u8005\u5FEB\u6377\u952E
+        document.addEventListener('keydown', function(e) {
+          // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
+          if (
+            e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) ||
+            (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) ||
+            (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) ||
+            (e.ctrlKey && (e.key === 'U' || e.key === 'u'))
+          ) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
+        }, true);
+
+        // 3. \u68C0\u6D4B\u5F00\u53D1\u8005\u5DE5\u5177\uFF08\u901A\u8FC7\u8C03\u8BD5\u5668\u68C0\u6D4B\uFF09
+        setInterval(function() {
+          const start = performance.now();
+          debugger;
+          const end = performance.now();
+          if (end - start > 100) {
+            // \u5982\u679C\u68C0\u6D4B\u5230\u8C03\u8BD5\u5668\uFF0C\u6E05\u7A7A\u9875\u9762
+            document.body.innerHTML = '';
+            window.location.reload();
+          }
+        }, 2000);
+
+        // 4. \u68C0\u6D4B\u7A97\u53E3\u5C3A\u5BF8\u53D8\u5316\uFF08\u5F00\u53D1\u8005\u5DE5\u5177\u6253\u5F00\u65F6\u7A97\u53E3\u9AD8\u5EA6\u4F1A\u6539\u53D8\uFF09
+        const threshold = 160;
+        const initialHeight = window.innerHeight;
+        window.addEventListener('resize', function() {
+          const currentHeight = window.innerHeight;
+          if (currentHeight < initialHeight - threshold) {
+            // \u53EF\u80FD\u662F\u5F00\u53D1\u8005\u5DE5\u5177\u6253\u5F00\uFF0C\u5237\u65B0\u9875\u9762
+            setTimeout(function() {
+              if (window.innerHeight < initialHeight - threshold) {
+                window.location.reload();
+              }
+            }, 100);
+          }
+        });
+      }
+
+      // \u7981\u7528\u63A7\u5236\u53F0\u65E5\u5FD7\u8F93\u51FA
+      function disableConsoleLogs() {
+        const consoleMethods = ['log', 'warn', 'error', 'info', 'debug', 'trace'];
+        consoleMethods.forEach(function(method) {
+          const original = console[method];
+          console[method] = function() {
+            // \u5B8C\u5168\u79FB\u9664\u6240\u6709\u8F93\u51FA
+            // \u53EF\u4EE5\u9009\u62E9\u6027\u5730\u5C06\u91CD\u8981\u9519\u8BEF\u53D1\u9001\u5230\u670D\u52A1\u5668
+            // \u4F46\u8FD9\u91CC\u4E3A\u4E86\u5B89\u5168\u8003\u8651\uFF0C\u5B8C\u5168\u7981\u7528\u8F93\u51FA
+          };
+        });
+      }
+
+      // \u9875\u9762\u52A0\u8F7D\u540E\u68C0\u67E5\u914D\u7F6E
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', checkAntiDebugConfig);
+      } else {
+        checkAntiDebugConfig();
       }
     })();
 
