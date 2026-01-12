@@ -3,7 +3,7 @@ import { initDB, createTables } from './database.js';
 import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest } from './handlers/sub.js';
 import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
-import { handleScheduledEvent } from './handlers/scheduler.js';
+import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } from './handlers/scheduler.js';
 import { handleUserActivate } from './handlers/user.js';
 import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement } from './handlers/public.js';
 import { handleFreeSubAPI } from './handlers/freesub-api.js';
@@ -182,6 +182,85 @@ export default {
     } else if (path.startsWith('/api/ads/')) {
       // 广告TS文件API: /api/ads/{id}.ts
       return await handleAdTsFile(request, env, ctx);
+    } else if (path.startsWith('/test/')) {
+      // 测试路由：只允许在本地开发环境使用（localhost 或 127.0.0.1）
+      const clientIP = request.headers.get('cf-connecting-ip') || url.hostname;
+      const isLocalhost = clientIP === '127.0.0.1' ||
+                         clientIP === '::1' ||
+                         url.hostname === 'localhost' ||
+                         url.hostname.startsWith('127.') ||
+                         url.hostname.startsWith('192.168.') ||
+                         url.hostname.startsWith('10.');
+
+      if (!isLocalhost) {
+        return new Response(JSON.stringify({ success: false, error: 'Test routes only available in local development' }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+
+      if (path === '/test/scheduled') {
+        // 测试路由：模拟定时任务执行（根据当前时间判断执行哪个任务）
+        const mockEvent = {
+          scheduledTime: new Date()
+        };
+        try {
+          await handleScheduledEvent(mockEvent, env, ctx);
+          return new Response(JSON.stringify({ success: true, message: 'Scheduled event executed based on current time' }), {
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        } catch (error) {
+          return new Response(JSON.stringify({ success: false, error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+      } else if (path === '/test/sync') {
+        // 测试路由：手动触发数据源同步（绕过时间限制）
+        try {
+          const db = await initDB(env);
+          await syncAllSources(db, env);
+          return new Response(JSON.stringify({ success: true, message: 'Data source sync completed' }), {
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        } catch (error) {
+          return new Response(JSON.stringify({ success: false, error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+      } else if (path === '/test/cache') {
+        // 测试路由：手动触发缓存刷新（绕过时间限制）
+        try {
+          const db = await initDB(env);
+          await refreshCache(db, env);
+          return new Response(JSON.stringify({ success: true, message: 'Cache refresh completed' }), {
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        } catch (error) {
+          return new Response(JSON.stringify({ success: false, error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+      } else if (path === '/test/sync-all') {
+        // 测试路由：完整的同步+缓存刷新流程
+        try {
+          const db = await initDB(env);
+          await syncAllSources(db, env);
+          await refreshCache(db, env);
+          return new Response(JSON.stringify({ success: true, message: 'Full sync and cache refresh completed' }), {
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        } catch (error) {
+          return new Response(JSON.stringify({ success: false, error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+      } else {
+        return new Response('Not Found', { status: 404 });
+      }
     } else {
       // 默认响应
       return new Response('Not Found', { status: 404 });

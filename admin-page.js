@@ -843,6 +843,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     const STORAGE_KEY = 'admin_auth_key';
     const SYNC_KEY = 'admin_sync_status';
     let adminKey = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
+    let captchaCode = '';
     let currentChannelPage = 1;
     let totalChannelPages = 1;
     let totalChannels = 0;
@@ -928,8 +929,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         document.getElementById('loginOverlay').classList.remove('hidden');
       });
     }
-
-    let captchaCode = '';
 
     function login() {
       const key = document.getElementById('adminKey').value;

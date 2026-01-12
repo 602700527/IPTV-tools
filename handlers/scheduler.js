@@ -7,6 +7,9 @@ import { flushCacheToDB } from '../utils/cache.js';
 let syncInProgress = false;
 let cacheRefreshInProgress = false;
 
+// 导出内部函数供测试使用
+export { syncAllSources, refreshCache };
+
 export async function handleScheduledEvent(event, env, ctx) {
   try {
     const now = new Date().toISOString();
