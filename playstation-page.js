@@ -953,7 +953,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     // 解密密钥（需要与服务器端SECRET_KEY保持一致）
     // 注意：生产环境中不应该在前端硬编码密钥，应该通过其他方式传递
     // 这里为了演示，使用一个默认值。实际部署时应该通过环境变量或配置注入
-    const DECRYPTION_KEY = window.DECRYPTION_KEY || 'default-secret-key';
+    let DECRYPTION_KEY = window.DECRYPTION_KEY || 'default-secret-key';
 
     const API_BASE = '/api';
     let currentLanguage = 'en';  // 当前语言
@@ -2083,7 +2083,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
       console.log('视频源类型:', { url: playUrl, isHls });
 
-      if (isHls && Hls.isSupported()) {
+      if (isHls && typeof Hls !== 'undefined' && Hls.isSupported()) {
         // 使用 Hls.js 播放
         console.log('使用 Hls.js 播放');
         currentHls = new Hls({
@@ -2120,8 +2120,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           }
         });
       } else {
-        // 非HLS源，使用原生video播放
-        console.log('使用原生video播放（非HLS）');
+        // 非HLS源或Hls.js未加载，使用原生video播放
+        if (isHls && typeof Hls === 'undefined') {
+          console.warn('Hls.js 未加载，尝试使用原生video播放');
+        } else {
+          console.log('使用原生video播放（非HLS）');
+        }
         video.src = playUrl;
         video.load();
 

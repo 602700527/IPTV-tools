@@ -10797,7 +10797,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     // \u89E3\u5BC6\u5BC6\u94A5\uFF08\u9700\u8981\u4E0E\u670D\u52A1\u5668\u7AEFSECRET_KEY\u4FDD\u6301\u4E00\u81F4\uFF09
     // \u6CE8\u610F\uFF1A\u751F\u4EA7\u73AF\u5883\u4E2D\u4E0D\u5E94\u8BE5\u5728\u524D\u7AEF\u786C\u7F16\u7801\u5BC6\u94A5\uFF0C\u5E94\u8BE5\u901A\u8FC7\u5176\u4ED6\u65B9\u5F0F\u4F20\u9012
     // \u8FD9\u91CC\u4E3A\u4E86\u6F14\u793A\uFF0C\u4F7F\u7528\u4E00\u4E2A\u9ED8\u8BA4\u503C\u3002\u5B9E\u9645\u90E8\u7F72\u65F6\u5E94\u8BE5\u901A\u8FC7\u73AF\u5883\u53D8\u91CF\u6216\u914D\u7F6E\u6CE8\u5165
-    const DECRYPTION_KEY = window.DECRYPTION_KEY || 'default-secret-key';
+    let DECRYPTION_KEY = window.DECRYPTION_KEY || 'default-secret-key';
 
     const API_BASE = '/api';
     let currentLanguage = 'en';  // \u5F53\u524D\u8BED\u8A00
@@ -11927,7 +11927,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
       console.log('\u89C6\u9891\u6E90\u7C7B\u578B:', { url: playUrl, isHls });
 
-      if (isHls && Hls.isSupported()) {
+      if (isHls && typeof Hls !== 'undefined' && Hls.isSupported()) {
         // \u4F7F\u7528 Hls.js \u64AD\u653E
         console.log('\u4F7F\u7528 Hls.js \u64AD\u653E');
         currentHls = new Hls({
@@ -11964,8 +11964,12 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           }
         });
       } else {
-        // \u975EHLS\u6E90\uFF0C\u4F7F\u7528\u539F\u751Fvideo\u64AD\u653E
-        console.log('\u4F7F\u7528\u539F\u751Fvideo\u64AD\u653E\uFF08\u975EHLS\uFF09');
+        // \u975EHLS\u6E90\u6216Hls.js\u672A\u52A0\u8F7D\uFF0C\u4F7F\u7528\u539F\u751Fvideo\u64AD\u653E
+        if (isHls && typeof Hls === 'undefined') {
+          console.warn('Hls.js \u672A\u52A0\u8F7D\uFF0C\u5C1D\u8BD5\u4F7F\u7528\u539F\u751Fvideo\u64AD\u653E');
+        } else {
+          console.log('\u4F7F\u7528\u539F\u751Fvideo\u64AD\u653E\uFF08\u975EHLS\uFF09');
+        }
         video.src = playUrl;
         video.load();
 
