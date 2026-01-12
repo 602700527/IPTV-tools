@@ -100,13 +100,13 @@ export async function createFreeSubscription(ip, fingerprint, fingerprintCompone
       sub_id, ip, fingerprint, fingerprint_components,
       expired_at, total_days, consecutive_days
     ) VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).bind(
+  `  ).bind(
     subId,
     ip,
     fingerprint,
     JSON.stringify(fingerprintComponents),
     expiredAt.toISOString(),
-    7,    // 初始7天
+    3,    // 初始3天
     0     // 初始连续签到0天
   ).run();
 
