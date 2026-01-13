@@ -10550,6 +10550,10 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       <span style="font-size:12px;color:rgba(255,255,255,.6);" data-i18n="cloudflareBadge">\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4</span>
 
     </div>
+    <!-- \u514D\u8D23\u58F0\u660E -->
+    <div style="margin-top:15px;font-size:11px;color:rgba(255,255,255,.4);line-height:1.5;">
+      <span data-i18n="disclaimerContent">\u672C\u7AD9\u64AD\u653E\u94FE\u63A5\u8D44\u6E90\u5747\u6765\u6E90\u4E8E\u516C\u5F00\u7F51\u7EDC\uFF0C\u672C\u7AD9\u4E0D\u4EA7\u51FA\u548C\u50A8\u5B58\u4EFB\u4F55\u5185\u5BB9\u3002\u5982\u6709\u7248\u6743\u6216\u5185\u5BB9\u95EE\u9898\uFF0C\u8BF7\u8054\u7CFB\u5185\u5BB9\u5B9E\u9645\u4EA7\u51FA\u8005\u3002</span>
+    </div>
   </footer>
 
   <div class="player-wrapper collapsed" id="playerWrapper">
@@ -10740,7 +10744,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         toastSuccess: '\u6210\u529F',
         toastError: '\u64AD\u653E\u5931\u8D25',
         toastWarning: '\u63D0\u793A',
-        toastInfo: '\u63D0\u793A'
+        toastInfo: '\u63D0\u793A',
+        disclaimerTitle: '\u514D\u8D23\u58F0\u660E',
+        disclaimerContent: '\u672C\u7AD9\u64AD\u653E\u94FE\u63A5\u8D44\u6E90\u5747\u6765\u6E90\u4E8E\u516C\u5F00\u7F51\u7EDC\uFF0C\u672C\u7AD9\u4E0D\u4EA7\u51FA\u548C\u50A8\u5B58\u4EFB\u4F55\u5185\u5BB9\u3002\u5982\u6709\u7248\u6743\u6216\u5185\u5BB9\u95EE\u9898\uFF0C\u8BF7\u8054\u7CFB\u5185\u5BB9\u5B9E\u9645\u4EA7\u51FA\u8005\u3002'
       },
       'en': {
         title: 'IPTV Live - Free Live TV',
@@ -10790,7 +10796,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         toastSuccess: 'Success',
         toastError: 'Playback Failed',
         toastWarning: 'Notice',
-        toastInfo: 'Info'
+        toastInfo: 'Info',
+        disclaimerTitle: 'Disclaimer',
+        disclaimerContent: 'All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.'
       }
     };
 

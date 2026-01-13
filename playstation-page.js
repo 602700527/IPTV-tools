@@ -566,6 +566,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       <span style="font-size:12px;color:rgba(255,255,255,.6);" data-i18n="cloudflareBadge">本站由 Cloudflare 提供加速与安全保护</span>
 
     </div>
+    <!-- 免责声明 -->
+    <div style="margin-top:15px;font-size:11px;color:rgba(255,255,255,.4);line-height:1.5;">
+      <span data-i18n="disclaimerContent">本站播放链接资源均来源于公开网络，本站不产出和储存任何内容。如有版权或内容问题，请联系内容实际产出者。</span>
+    </div>
   </footer>
 
   <div class="player-wrapper collapsed" id="playerWrapper">
@@ -756,7 +760,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         toastSuccess: '成功',
         toastError: '播放失败',
         toastWarning: '提示',
-        toastInfo: '提示'
+        toastInfo: '提示',
+        disclaimerTitle: '免责声明',
+        disclaimerContent: '本站播放链接资源均来源于公开网络，本站不产出和储存任何内容。如有版权或内容问题，请联系内容实际产出者。'
       },
       'en': {
         title: 'IPTV Live - Free Live TV',
@@ -806,7 +812,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         toastSuccess: 'Success',
         toastError: 'Playback Failed',
         toastWarning: 'Notice',
-        toastInfo: 'Info'
+        toastInfo: 'Info',
+        disclaimerTitle: 'Disclaimer',
+        disclaimerContent: 'All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.'
       }
     };
 
