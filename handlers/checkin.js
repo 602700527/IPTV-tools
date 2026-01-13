@@ -52,8 +52,18 @@ export async function performCheckIn(subscriptionId, ip) {
     };
   }
 
-  // 计算上次签到日期
-  const lastCheckInDate = sub.last_checkin_date || sub.created_at ? new Date(sub.created_at).toISOString().split('T')[0] : null;
+  // 计算上次签到日期和连续天数
+  const lastCheckInRecord = await db.prepare(`
+    SELECT checkin_date, consecutive_days
+    FROM checkin_records
+    WHERE subscription_id = ?
+    ORDER BY checkin_date DESC
+    LIMIT 1
+  `).bind(subscriptionId).first();
+
+  const lastCheckInDate = lastCheckInRecord ? lastCheckInRecord.checkin_date : null;
+  const lastConsecutiveDays = lastCheckInRecord ? lastCheckInRecord.consecutive_days : 0;
+
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayDate = yesterday.toISOString().split('T')[0];
@@ -64,7 +74,7 @@ export async function performCheckIn(subscriptionId, ip) {
 
   if (lastCheckInDate === yesterdayDate) {
     // 连续签到
-    newConsecutiveDays = (sub.consecutive_days || 0) + 1;
+    newConsecutiveDays = lastConsecutiveDays + 1;
     isConsecutive = true;
   } else if (lastCheckInDate === today) {
     // 已经签到过了（包括创建当天的0天记录）
