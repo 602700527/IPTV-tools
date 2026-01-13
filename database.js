@@ -128,9 +128,24 @@ export async function createTables(env) {
     CREATE INDEX IF NOT EXISTS idx_channels_is_active ON channels(is_active)
   `).run();
 
-  // 创建source_id索引（优化删除操作）
+  // 创建source_id索引（优化删除操作和JOIN查询）
   await db.prepare(`
     CREATE INDEX IF NOT EXISTS idx_channels_source_id ON channels(source_id)
+  `).run();
+
+  // 创建group_title索引（优化分组查询）
+  await db.prepare(`
+    CREATE INDEX IF NOT EXISTS idx_channels_group_title ON channels(group_title)
+  `).run();
+
+  // 创建is_active+source_id组合索引（优化频道列表查询）
+  await db.prepare(`
+    CREATE INDEX IF NOT EXISTS idx_channels_active_source ON channels(is_active, source_id)
+  `).run();
+
+  // 创建group_title优化索引（优化DISTINCT查询）
+  await db.prepare(`
+    CREATE INDEX IF NOT EXISTS idx_channels_group_title_optimized ON channels(group_title, is_active)
   `).run();
 
   // 创建源is_active索引（优化订阅查询）

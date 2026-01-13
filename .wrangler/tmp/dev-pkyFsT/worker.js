@@ -179,6 +179,15 @@ async function createTables(env) {
     CREATE INDEX IF NOT EXISTS idx_channels_source_id ON channels(source_id)
   `).run();
   await db.prepare(`
+    CREATE INDEX IF NOT EXISTS idx_channels_group_title ON channels(group_title)
+  `).run();
+  await db.prepare(`
+    CREATE INDEX IF NOT EXISTS idx_channels_active_source ON channels(is_active, source_id)
+  `).run();
+  await db.prepare(`
+    CREATE INDEX IF NOT EXISTS idx_channels_group_title_optimized ON channels(group_title, is_active)
+  `).run();
+  await db.prepare(`
     CREATE INDEX IF NOT EXISTS idx_sources_is_active ON sources(is_active)
   `).run();
   await db.prepare(`
@@ -4595,7 +4604,7 @@ async function handlePublicChannels(request, env, ctx) {
     const db = getDB();
     const displayConfig = await getHomepageDisplayConfig();
     console.log("[PublicChannels] displayConfig\u914D\u7F6E:", JSON.stringify(displayConfig));
-    const useCache = !search && !group && (!displayConfig.sources || displayConfig.sources.length === 0) && (!displayConfig.groups || displayConfig.groups.length === 0) && (!displayConfig.hosts || displayConfig.hosts.length === 0) && (displayConfig.hasHeaders === null || displayConfig.hasHeaders === void 0);
+    const useCache = (!displayConfig.sources || displayConfig.sources.length === 0) && (!displayConfig.groups || displayConfig.groups.length === 0) && (!displayConfig.hosts || displayConfig.hosts.length === 0) && (displayConfig.hasHeaders === null || displayConfig.hasHeaders === void 0);
     console.log("[PublicChannels] useCache:", useCache, "search:", search, "group:", group, "sources:", displayConfig.sources, "groups:", displayConfig.groups, "hosts:", displayConfig.hosts, "hasHeaders:", displayConfig.hasHeaders);
     let shouldUseCache = useCache;
     let allChannels, allGroups, total;
@@ -4607,8 +4616,50 @@ async function handlePublicChannels(request, env, ctx) {
         console.log("[PublicChannels] \u7F13\u5B58\u7ED3\u679C - channels:", cacheResult.channels?.length || 0, "fromCache:", cacheResult.fromCache, "groups:", groupsResult.groups?.length || 0, "fromCache:", groupsResult.fromCache);
         allChannels = cacheResult.channels || [];
         allGroups = groupsResult.groups || [];
-        if (allChannels.length > 0) {
-          allChannels.sort((a, b) => {
+        let filteredChannels = allChannels;
+        if (displayConfig.sources && displayConfig.sources.length > 0) {
+          filteredChannels = filteredChannels.filter(
+            (c) => c.is_active && c.source_active && displayConfig.sources.includes(c.source_id)
+          );
+        } else {
+          filteredChannels = filteredChannels.filter(
+            (c) => c.is_active && c.source_active
+          );
+        }
+        if (displayConfig.groups && displayConfig.groups.length > 0) {
+          filteredChannels = filteredChannels.filter(
+            (c) => displayConfig.groups.includes(c.group_title)
+          );
+        }
+        if (displayConfig.hosts && displayConfig.hosts.length > 0) {
+          filteredChannels = filteredChannels.filter(
+            (c) => displayConfig.hosts.some((host) => c.play_url && c.play_url.includes(host))
+          );
+        }
+        if (displayConfig.hasHeaders !== null && displayConfig.hasHeaders !== void 0) {
+          console.log("[PublicChannels] hasHeaders\u8FC7\u6EE4\u914D\u7F6E:", displayConfig.hasHeaders);
+          if (displayConfig.hasHeaders === true) {
+            filteredChannels = filteredChannels.filter(
+              (c) => c.headers && c.headers !== "{}" && c.headers !== "" && c.headers.length > 2
+            );
+          } else {
+            filteredChannels = filteredChannels.filter(
+              (c) => !c.headers || c.headers === "{}" || c.headers === ""
+            );
+          }
+          console.log("[PublicChannels] hasHeaders\u6761\u4EF6\u5DF2\u6DFB\u52A0");
+        }
+        if (search) {
+          const searchLower = search.toLowerCase();
+          filteredChannels = filteredChannels.filter(
+            (c) => c.channel_name && c.channel_name.toLowerCase().includes(searchLower) || c.group_title && c.group_title.toLowerCase().includes(searchLower)
+          );
+        }
+        if (group) {
+          filteredChannels = filteredChannels.filter((c) => c.group_title === group);
+        }
+        if (filteredChannels.length > 0) {
+          filteredChannels.sort((a, b) => {
             const groupA = a.group_title || "";
             const groupB = b.group_title || "";
             if (groupA !== groupB) {
@@ -4619,10 +4670,20 @@ async function handlePublicChannels(request, env, ctx) {
             return nameA.localeCompare(nameB, "zh-CN", { numeric: true });
           });
         }
-        total = allChannels.length;
+        total = filteredChannels.length;
         const offset = (page - 1) * pageSize;
         const totalPages = Math.ceil(total / pageSize);
-        const paginatedChannels = allChannels.slice(offset, offset + pageSize);
+        const paginatedChannels = filteredChannels.slice(offset, offset + pageSize);
+        let filteredGroups = allGroups;
+        if (displayConfig.groups && displayConfig.groups.length > 0) {
+          filteredGroups = filteredGroups.filter((g) => displayConfig.groups.includes(g));
+        }
+        if (search) {
+          const searchLower = search.toLowerCase();
+          filteredGroups = filteredGroups.filter(
+            (g) => g.toLowerCase().includes(searchLower)
+          );
+        }
         const pagination = {
           page,
           page_size: pageSize,
@@ -4634,7 +4695,7 @@ async function handlePublicChannels(request, env, ctx) {
         return new Response(JSON.stringify({
           success: true,
           channels: paginatedChannels,
-          groups: allGroups,
+          groups: filteredGroups,
           pagination
         }), {
           headers: {

@@ -292,9 +292,8 @@ export async function handlePublicChannels(request, env, ctx) {
     const displayConfig = await getHomepageDisplayConfig();
     console.log('[PublicChannels] displayConfig配置:', JSON.stringify(displayConfig));
 
-    // 如果没有复杂的过滤条件（搜索、分组过滤、配置过滤），优先使用 KV 缓存
-    const useCache = !search && !group &&
-                    (!displayConfig.sources || displayConfig.sources.length === 0) &&
+    // 优先尝试从 KV 缓存获取所有频道数据（即使有搜索也优先使用缓存）
+    const useCache = (!displayConfig.sources || displayConfig.sources.length === 0) &&
                     (!displayConfig.groups || displayConfig.groups.length === 0) &&
                     (!displayConfig.hosts || displayConfig.hosts.length === 0) &&
                     (displayConfig.hasHeaders === null || displayConfig.hasHeaders === undefined);
@@ -312,9 +311,68 @@ export async function handlePublicChannels(request, env, ctx) {
         allChannels = cacheResult.channels || [];
         allGroups = groupsResult.groups || [];
 
-        // 对缓存数据进行排序（与数据库查询的排序逻辑一致）
-        if (allChannels.length > 0) {
-          allChannels.sort((a, b) => {
+        // 在内存中进行过滤（包括搜索、分组过滤、配置过滤）
+        let filteredChannels = allChannels;
+
+        // 数据源过滤
+        if (displayConfig.sources && displayConfig.sources.length > 0) {
+          filteredChannels = filteredChannels.filter(c =>
+            c.is_active && c.source_active &&
+            displayConfig.sources.includes(c.source_id)
+          );
+        } else {
+          // 默认只显示激活的频道和数据源
+          filteredChannels = filteredChannels.filter(c =>
+            c.is_active && c.source_active
+          );
+        }
+
+        // 分组过滤
+        if (displayConfig.groups && displayConfig.groups.length > 0) {
+          filteredChannels = filteredChannels.filter(c =>
+            displayConfig.groups.includes(c.group_title)
+          );
+        }
+
+        // Host 过滤
+        if (displayConfig.hosts && displayConfig.hosts.length > 0) {
+          filteredChannels = filteredChannels.filter(c =>
+            displayConfig.hosts.some(host => c.play_url && c.play_url.includes(host))
+          );
+        }
+
+        // 请求头过滤
+        if (displayConfig.hasHeaders !== null && displayConfig.hasHeaders !== undefined) {
+          console.log('[PublicChannels] hasHeaders过滤配置:', displayConfig.hasHeaders);
+          if (displayConfig.hasHeaders === true) {
+            filteredChannels = filteredChannels.filter(c =>
+              c.headers && c.headers !== '{}' && c.headers !== '' && c.headers.length > 2
+            );
+          } else {
+            filteredChannels = filteredChannels.filter(c =>
+              !c.headers || c.headers === '{}' || c.headers === ''
+            );
+          }
+          console.log('[PublicChannels] hasHeaders条件已添加');
+        }
+
+        // 搜索过滤
+        if (search) {
+          const searchLower = search.toLowerCase();
+          filteredChannels = filteredChannels.filter(c =>
+            (c.channel_name && c.channel_name.toLowerCase().includes(searchLower)) ||
+            (c.group_title && c.group_title.toLowerCase().includes(searchLower))
+          );
+        }
+
+        // 分组过滤
+        if (group) {
+          filteredChannels = filteredChannels.filter(c => c.group_title === group);
+        }
+
+        // 对过滤后的数据进行排序（与数据库查询的排序逻辑一致）
+        if (filteredChannels.length > 0) {
+          filteredChannels.sort((a, b) => {
             const groupA = a.group_title || '';
             const groupB = b.group_title || '';
             if (groupA !== groupB) {
@@ -327,14 +385,26 @@ export async function handlePublicChannels(request, env, ctx) {
         }
 
         // 计算总数
-        total = allChannels.length;
+        total = filteredChannels.length;
 
         // 分页处理
         const offset = (page - 1) * pageSize;
         const totalPages = Math.ceil(total / pageSize);
 
         // 分页获取频道数据
-        const paginatedChannels = allChannels.slice(offset, offset + pageSize);
+        const paginatedChannels = filteredChannels.slice(offset, offset + pageSize);
+
+        // 分组列表也进行过滤（不受group过滤影响）
+        let filteredGroups = allGroups;
+        if (displayConfig.groups && displayConfig.groups.length > 0) {
+          filteredGroups = filteredGroups.filter(g => displayConfig.groups.includes(g));
+        }
+        if (search) {
+          const searchLower = search.toLowerCase();
+          filteredGroups = filteredGroups.filter(g =>
+            g.toLowerCase().includes(searchLower)
+          );
+        }
 
         // 分页信息
         const pagination = {
@@ -349,7 +419,7 @@ export async function handlePublicChannels(request, env, ctx) {
         return new Response(JSON.stringify({
           success: true,
           channels: paginatedChannels,
-          groups: allGroups,
+          groups: filteredGroups,
           pagination
         }), {
           headers: {
