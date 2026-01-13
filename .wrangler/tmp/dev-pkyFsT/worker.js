@@ -10239,9 +10239,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     .toast-container{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none}
     .toast{min-width:320px;max-width:500px;padding:16px 20px;border-radius:10px;color:#fff;font-size:14px;line-height:1.5;box-shadow:0 8px 30px rgba(0,0,0,.4);pointer-events:auto;backdrop-filter:blur(10px);animation:toastSlideIn 0.3s ease;transition:all 0.2s}
     .toast.error{background:rgba(26,26,26,.5);border:1px solid rgba(255,255,255,.1)}
-    .toast.warning{background:linear-gradient(135deg,rgba(234,179,8,.9) 0%,rgba(245,158,11,.9) 100%);border:1px solid rgba(251,191,36,.3)}
-    .toast.success{background:linear-gradient(135deg,rgba(34,197,94,.9) 0%,rgba(22,163,74,.9) 100%);border:1px solid rgba(74,222,128,.3)}
-    .toast.info{background:linear-gradient(135deg,rgba(59,130,246,.9) 0%,rgba(37,99,235,.9) 100%);border:1px solid rgba(96,165,250,.3)}
+    .toast.warning{background:linear-gradient(135deg,rgba(234,179,8,.5) 0%,rgba(245,158,11,.5) 100%);border:1px solid rgba(251,191,36,.3)}
+    .toast.success{background:linear-gradient(135deg,rgba(34,197,94,.5) 0%,rgba(22,163,74,.5) 100%);border:1px solid rgba(74,222,128,.3)}
+    .toast.info{background:linear-gradient(135deg,rgba(59,130,246,.5) 0%,rgba(37,99,235,.5) 100%);border:1px solid rgba(96,165,250,.3)}
     .toast-title{font-weight:600;margin-bottom:4px;font-size:15px}
     .toast-message{color:rgba(255,255,255,.85);white-space:pre-wrap}
     .toast-close{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.15);border:none;cursor:pointer;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
@@ -10731,7 +10731,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         cloudflareBadge: '\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4',
         toastRefresh: '\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u540E\u518D\u8BD5\u3002',
         toastBrowserLimit: '\u53D7\u6D4F\u89C8\u5668\u9650\u5236\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BF7<a href="/freesub" style="color:#ffcc00;text-decoration:underline;">\u83B7\u53D6\u8BA2\u9605</a>\u5E76\u6DFB\u52A0\u5230\u5BA2\u6237\u7AEF\u4E2D\u4F7F\u7528\u3002',
-        toastChannelLost: '\u8BE5\u9891\u9053\u6570\u636E\u5DF2\u4E22\u5931\uFF0C\u8BF7\u6E05\u9664\u7F13\u5B58\u540E\u518D\u8BD5\u3002'
+        toastChannelLost: '\u8BE5\u9891\u9053\u6570\u636E\u5DF2\u4E22\u5931\uFF0C\u8BF7\u6E05\u9664\u7F13\u5B58\u540E\u518D\u8BD5\u3002',
+        toastSuccess: '\u6210\u529F',
+        toastError: '\u64AD\u653E\u5931\u8D25',
+        toastWarning: '\u63D0\u793A',
+        toastInfo: '\u63D0\u793A'
       },
       'en': {
         title: 'IPTV Live - Free Live TV',
@@ -10777,7 +10781,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         cloudflareBadge: 'This site is powered by Cloudflare for acceleration and security',
         toastRefresh: 'Cannot play, please refresh the page and try again.',
         toastBrowserLimit: 'Cannot play due to browser limitations. Please <a href="/freesub" style="color:#ffcc00;text-decoration:underline;">get subscription URL</a> and use a player client.',
-        toastChannelLost: 'Channel data has been lost, please clear cache and try again.'
+        toastChannelLost: 'Channel data has been lost, please clear cache and try again.',
+        toastSuccess: 'Success',
+        toastError: 'Playback Failed',
+        toastWarning: 'Notice',
+        toastInfo: 'Info'
       }
     };
 
@@ -11241,17 +11249,17 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       let title = '';
       switch (type) {
         case 'error':
-          title = '\u274C \u64AD\u653E\u5931\u8D25';
+          title = '\u274C ' + t('toastError');
           break;
         case 'warning':
-          title = '\u26A0\uFE0F \u63D0\u793A';
+          title = '\u26A0\uFE0F ' + t('toastWarning');
           break;
         case 'success':
-          title = '\u2705 \u6210\u529F';
+          title = '\u2705 ' + t('toastSuccess');
           break;
         case 'info':
         default:
-          title = '\u2139\uFE0F \u63D0\u793A';
+          title = '\u2139\uFE0F ' + t('toastInfo');
           break;
       }
 
@@ -11793,7 +11801,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           // \u91CD\u65B0\u52A0\u8F7D\u9891\u9053\u5217\u8868
           loadChannels(1, true);
           // \u663E\u793A\u63D0\u793A
-          showPlayingIndicator(t('cacheCleared'));
+          showToast(t('cacheCleared'), 'success');
           break;
       }
     }

@@ -260,9 +260,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .toast-container{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none}
     .toast{min-width:320px;max-width:500px;padding:16px 20px;border-radius:10px;color:#fff;font-size:14px;line-height:1.5;box-shadow:0 8px 30px rgba(0,0,0,.4);pointer-events:auto;backdrop-filter:blur(10px);animation:toastSlideIn 0.3s ease;transition:all 0.2s}
     .toast.error{background:rgba(26,26,26,.5);border:1px solid rgba(255,255,255,.1)}
-    .toast.warning{background:linear-gradient(135deg,rgba(234,179,8,.9) 0%,rgba(245,158,11,.9) 100%);border:1px solid rgba(251,191,36,.3)}
-    .toast.success{background:linear-gradient(135deg,rgba(34,197,94,.9) 0%,rgba(22,163,74,.9) 100%);border:1px solid rgba(74,222,128,.3)}
-    .toast.info{background:linear-gradient(135deg,rgba(59,130,246,.9) 0%,rgba(37,99,235,.9) 100%);border:1px solid rgba(96,165,250,.3)}
+    .toast.warning{background:linear-gradient(135deg,rgba(234,179,8,.5) 0%,rgba(245,158,11,.5) 100%);border:1px solid rgba(251,191,36,.3)}
+    .toast.success{background:linear-gradient(135deg,rgba(34,197,94,.5) 0%,rgba(22,163,74,.5) 100%);border:1px solid rgba(74,222,128,.3)}
+    .toast.info{background:linear-gradient(135deg,rgba(59,130,246,.5) 0%,rgba(37,99,235,.5) 100%);border:1px solid rgba(96,165,250,.3)}
     .toast-title{font-weight:600;margin-bottom:4px;font-size:15px}
     .toast-message{color:rgba(255,255,255,.85);white-space:pre-wrap}
     .toast-close{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.15);border:none;cursor:pointer;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
@@ -752,7 +752,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         cloudflareBadge: '本站由 Cloudflare 提供加速与安全保护',
         toastRefresh: '无法播放，请刷新页面后再试。',
         toastBrowserLimit: '受浏览器限制无法播放，请<a href="/freesub" style="color:#ffcc00;text-decoration:underline;">获取订阅</a>并添加到客户端中使用。',
-        toastChannelLost: '该频道数据已丢失，请清除缓存后再试。'
+        toastChannelLost: '该频道数据已丢失，请清除缓存后再试。',
+        toastSuccess: '成功',
+        toastError: '播放失败',
+        toastWarning: '提示',
+        toastInfo: '提示'
       },
       'en': {
         title: 'IPTV Live - Free Live TV',
@@ -798,7 +802,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         cloudflareBadge: 'This site is powered by Cloudflare for acceleration and security',
         toastRefresh: 'Cannot play, please refresh the page and try again.',
         toastBrowserLimit: 'Cannot play due to browser limitations. Please <a href="/freesub" style="color:#ffcc00;text-decoration:underline;">get subscription URL</a> and use a player client.',
-        toastChannelLost: 'Channel data has been lost, please clear cache and try again.'
+        toastChannelLost: 'Channel data has been lost, please clear cache and try again.',
+        toastSuccess: 'Success',
+        toastError: 'Playback Failed',
+        toastWarning: 'Notice',
+        toastInfo: 'Info'
       }
     };
 
@@ -1262,17 +1270,17 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       let title = '';
       switch (type) {
         case 'error':
-          title = '❌ 播放失败';
+          title = '❌ ' + t('toastError');
           break;
         case 'warning':
-          title = '⚠️ 提示';
+          title = '⚠️ ' + t('toastWarning');
           break;
         case 'success':
-          title = '✅ 成功';
+          title = '✅ ' + t('toastSuccess');
           break;
         case 'info':
         default:
-          title = 'ℹ️ 提示';
+          title = 'ℹ️ ' + t('toastInfo');
           break;
       }
 
@@ -1814,7 +1822,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           // 重新加载频道列表
           loadChannels(1, true);
           // 显示提示
-          showPlayingIndicator(t('cacheCleared'));
+          showToast(t('cacheCleared'), 'success');
           break;
       }
     }
