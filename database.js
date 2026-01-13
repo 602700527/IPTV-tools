@@ -1367,36 +1367,53 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
     const BATCH_SIZE = 500; // 每批500条
     let processedCount = 0;
 
-    for (let i = 0; i < channels.length; i += BATCH_SIZE) {
-      const batch = channels.slice(i, i + BATCH_SIZE);
-      const statements = batch.map(channel =>
-        db.prepare(`
-          INSERT INTO channels (source_id, channel_name, group_title, logo, play_url, headers, channel_hash, is_active)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `).bind(
-          channel.source_id,
-          channel.channel_name,
-          channel.group_title || '',
-          channel.logo || '',
-          channel.play_url,
-          channel.headers,
-          channel.channel_hash,
-          1  // is_active 使用数字1
-        )
-      );
+    // 使用事务确保数据一致性
+    try {
+      // 开始事务
+      await db.batch([db.prepare('BEGIN TRANSACTION')]);
+      console.log(`[Sync] Transaction started for source ${sourceId}`);
 
-      try {
-        await db.batch(statements);
-        processedCount += batch.length;
-        console.log(`[Sync] Batch processed: ${processedCount}/${channels.length}`);
-      } catch (batchError) {
-        console.error(`[Sync] Batch insert error at batch ${i}:`, batchError);
-        // 记录第一个失败的数据用于调试
-        if (batch.length > 0) {
-          console.error('[Sync] First channel data:', batch[0]);
+      for (let i = 0; i < channels.length; i += BATCH_SIZE) {
+        const batch = channels.slice(i, i + BATCH_SIZE);
+        const statements = batch.map(channel =>
+          db.prepare(`
+            INSERT INTO channels (source_id, channel_name, group_title, logo, play_url, headers, channel_hash, is_active)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            channel.source_id,
+            channel.channel_name,
+            channel.group_title || '',
+            channel.logo || '',
+            channel.play_url,
+            channel.headers,
+            channel.channel_hash,
+            1  // is_active 使用数字1
+          )
+        );
+
+        try {
+          await db.batch(statements);
+          processedCount += batch.length;
+          console.log(`[Sync] Batch processed: ${processedCount}/${channels.length}`);
+        } catch (batchError) {
+          console.error(`[Sync] Batch insert error at batch ${i}:`, batchError);
+          // 记录第一个失败的数据用于调试
+          if (batch.length > 0) {
+            console.error('[Sync] First channel data:', batch[0]);
+          }
+          // 回滚事务
+          await db.batch([db.prepare('ROLLBACK')]);
+          console.log(`[Sync] Transaction rolled back for source ${sourceId}`);
+          throw batchError;
         }
-        throw batchError;
       }
+
+      // 提交事务
+      await db.batch([db.prepare('COMMIT')]);
+      console.log(`[Sync] Transaction committed for source ${sourceId}, ${processedCount} channels inserted`);
+    } catch (transactionError) {
+      console.error(`[Sync] Transaction error for source ${sourceId}:`, transactionError);
+      throw transactionError;
     }
   }
 
