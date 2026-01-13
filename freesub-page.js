@@ -35,6 +35,89 @@ export const FREE_SUB_HTML = `
       position: relative;
     }
 
+    .lang-switch {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+    }
+
+    .lang-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .lang-btn {
+      background: #e50914;
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .lang-btn:hover {
+      background: #f7262c;
+    }
+
+    .lang-btn:after {
+      content: "▼";
+      font-size: 9px;
+    }
+
+    .lang-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: #1a1a1a;
+      backdrop-filter: blur(10px);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      min-width: 120px;
+      overflow: hidden;
+      animation: fadeIn 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .lang-menu.show {
+      display: block;
+    }
+
+    .lang-menu button {
+      display: block;
+      width: 100%;
+      padding: 10px 16px;
+      background: none;
+      border: none;
+      text-align: left;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .lang-menu button:hover {
+      background: rgba(229, 9, 20, 0.15);
+    }
+
+    .lang-menu button.active {
+      background: #e50914;
+      color: white;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .header {
       text-align: center;
       margin-bottom: 25px;
@@ -304,65 +387,81 @@ export const FREE_SUB_HTML = `
       body {
         padding: 10px;
       }
-      
+
       .container {
         padding: 20px;
         border-radius: 12px;
+        padding-top: 50px;
       }
-      
+
+      .lang-switch {
+        top: 15px;
+        right: 15px;
+      }
+
+      .lang-btn {
+        padding: 6px 14px;
+        font-size: 12px;
+      }
+
+      .lang-menu button {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
       .header h1 {
         font-size: 20px;
       }
-      
+
       .header p {
         font-size: 12px;
       }
-      
+
       .subscription-id {
         font-size: 16px;
       }
-      
+
       .subscription-url {
         font-size: 11px;
         padding: 12px;
       }
-      
+
       .status-value {
         font-size: 18px;
       }
-      
+
       .status-label {
         font-size: 10px;
       }
-      
+
       .checkin-btn {
         padding: 13px;
         font-size: 15px;
       }
-      
+
       .copy-btn {
         font-size: 12px;
         padding: 8px 12px;
       }
-      
+
       .features {
         padding: 12px;
       }
-      
+
       .feature-text-full {
         font-size: 12px;
       }
-      
+
       .captcha-container {
         gap: 6px;
       }
-      
+
       .captcha-input {
         font-size: 14px;
         letter-spacing: 1px;
         padding: 0 8px;
       }
-      
+
       .captcha-canvas {
         width: 75px;
       }
@@ -371,59 +470,69 @@ export const FREE_SUB_HTML = `
 </head>
 <body>
   <div class="container">
+    <div class="lang-switch">
+      <div class="lang-dropdown">
+        <button class="lang-btn" onclick="toggleLangMenu()" id="currentLangBtn">简体</button>
+        <div class="lang-menu" id="langMenu">
+          <button onclick="setLanguage('en')" id="langEn">English</button>
+          <button onclick="setLanguage('zh-CN')" id="langZh">简体中文</button>
+        </div>
+      </div>
+    </div>
     <div class="header">
-      <h1>🎁 免费订阅</h1>
-      <p>每天随机精选频道，每日签到续期</p>
+      <h1 data-i18n="title">🎁 免费订阅</h1>
+      <p data-i18n="subtitle">每天随机精选频道，每日签到续期</p>
     </div>
 
     <div class="notice">
       <span class="notice-icon">⚠️</span>
-      <strong>注意：</strong>订阅地址与您的IP和浏览器绑定，请勿分享给他人使用
+      <strong data-i18n="noticeLabel">注意：</strong>
+      <span data-i18n="noticeText">订阅地址与您的IP和浏览器绑定，请勿分享给他人使用</span>
     </div>
 
     <div class="card">
-      <h2>📺 订阅信息</h2>
+      <h2 data-i18n="subscriptionInfo">📺 订阅信息</h2>
       <div class="subscription-info" id="subscriptionInfo">
-        <p class="subscription-id" id="subId">加载中...</p>
+        <p class="subscription-id" id="subId" data-i18n="loading">加载中...</p>
         <p class="subscription-url" id="subUrl"></p>
-        <button class="copy-btn" onclick="copySubscriptionUrl()">复制订阅地址</button>
+        <button class="copy-btn" onclick="copySubscriptionUrl()" data-i18n="copyUrl">复制订阅地址</button>
 
         <div class="subscription-status">
           <div class="status-item">
             <div class="status-value" id="daysLeft">-</div>
-            <div class="status-label">剩余天数</div>
+            <div class="status-label" data-i18n="daysLeftLabel">剩余天数</div>
           </div>
           <div class="status-item">
             <div class="status-value" id="consecutiveDays">-</div>
-            <div class="status-label">连续签到</div>
+            <div class="status-label" data-i18n="consecutiveDaysLabel">连续签到</div>
           </div>
           <div class="status-item">
-            <div class="status-value" id="channelCount">随机精选</div>
-            <div class="status-label">频道数量</div>
+            <div class="status-value" id="channelCount" data-i18n="randomChannels">随机精选</div>
+            <div class="status-label" data-i18n="channelCountLabel">频道数量</div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <h2>📅 每日签到</h2>
-      <p style="text-align: center; color: rgba(255, 255, 255, 0.5); margin-bottom: 15px; font-size: 14px;">
+      <h2 data-i18n="dailyCheckIn">📅 每日签到</h2>
+      <p style="text-align: center; color: rgba(255, 255, 255, 0.5); margin-bottom: 15px; font-size: 14px;" data-i18n="checkInDesc">
         签到可延长订阅时长，连续签到有额外奖励！
       </p>
       <div class="captcha-container">
-        <input type="text" class="captcha-input" id="captchaInput" placeholder="输入验证码" maxlength="6">
+        <input type="text" class="captcha-input" id="captchaInput" data-i18n-placeholder="captchaPlaceholder" placeholder="输入验证码" maxlength="6">
         <canvas class="captcha-canvas" id="captchaCanvas" width="90" height="44" onclick="refreshCaptcha()"></canvas>
       </div>
-      <button class="checkin-btn" id="checkInBtn" onclick="checkIn()">
+      <button class="checkin-btn" id="checkInBtn" onclick="checkIn()" data-i18n="checkInNow">
         立即签到
       </button>
       <div class="message" id="message"></div>
     </div>
 
     <div class="features">
-      <div class="feature-text-full">• 首次签到有效期3天，每天签到+1天</div>
-      <div class="feature-text-full">• 连续7天额外+2天</div>
-      <div class="feature-text-full">• 连续30天额外+7天，最多累计30天</div>
+      <div class="feature-text-full" data-i18n="feature1">• 首次签到有效期3天，每天签到+1天</div>
+      <div class="feature-text-full" data-i18n="feature2">• 连续7天额外+2天</div>
+      <div class="feature-text-full" data-i18n="feature3">• 连续30天额外+7天，最多累计30天</div>
     </div>
   </div>
 
@@ -433,13 +542,130 @@ export const FREE_SUB_HTML = `
     let fingerprint = null;
     let fingerprintComponents = null;
     let captchaCode = '';
+    let currentLang = localStorage.getItem('freesub_lang') || 'zh-CN';
+
+    // 多语言翻译
+    const translations = {
+      'en': {
+        title: '🎁 Free Subscription',
+        subtitle: 'Daily selected channels, check in to extend',
+        noticeLabel: 'Notice:',
+        noticeText: 'Subscription URL is bound to your IP and browser, do not share with others',
+        subscriptionInfo: '📺 Subscription Info',
+        loading: 'Loading...',
+        copyUrl: 'Copy Subscription URL',
+        daysLeftLabel: 'Days Left',
+        consecutiveDaysLabel: 'Check-in Streak',
+        channelCountLabel: 'Channel Count',
+        randomChannels: 'Random Selection',
+        dailyCheckIn: '📅 Daily Check-in',
+        checkInDesc: 'Check in to extend subscription, bonus rewards for consecutive days!',
+        checkInNow: 'Check In Now',
+        feature1: '• First check-in: 3 days, +1 day per check-in',
+        feature2: '• 7-day streak: +2 bonus days',
+        feature3: '• 30-day streak: +7 bonus days, max 30 days total',
+        captchaPlaceholder: 'Enter code',
+        checkInProgress: 'Checking in...',
+        successCheckIn: 'Check-in successful! Got {days} day(s), streak: {streak}',
+        alreadyCheckedIn: 'Already checked in today',
+        enterCaptcha: 'Please enter verification code',
+        captchaError: 'Invalid verification code',
+        networkError: 'Network error, please try again later',
+        fingerprintError: 'Fingerprint generation failed, please refresh page',
+        copiedSuccess: 'Subscription URL copied to clipboard',
+        copyFailed: 'Copy failed, please copy manually',
+        days: ' days'
+      },
+      'zh-CN': {
+        title: '🎁 免费订阅',
+        subtitle: '每天随机精选频道，每日签到续期',
+        noticeLabel: '注意：',
+        noticeText: '订阅地址与您的IP和浏览器绑定，请勿分享给他人使用',
+        subscriptionInfo: '📺 订阅信息',
+        loading: '加载中...',
+        copyUrl: '复制订阅地址',
+        daysLeftLabel: '剩余天数',
+        consecutiveDaysLabel: '连续签到',
+        channelCountLabel: '频道数量',
+        randomChannels: '随机精选',
+        dailyCheckIn: '📅 每日签到',
+        checkInDesc: '签到可延长订阅时长，连续签到有额外奖励！',
+        checkInNow: '立即签到',
+        feature1: '• 首次签到有效期3天，每天签到+1天',
+        feature2: '• 连续7天额外+2天',
+        feature3: '• 连续30天额外+7天，最多累计30天',
+        captchaPlaceholder: '输入验证码',
+        checkInProgress: '签到中...',
+        successCheckIn: '签到成功！获得{days}天，连续签到{streak}天',
+        alreadyCheckedIn: '今日已签到',
+        enterCaptcha: '请输入验证码',
+        captchaError: '验证码错误',
+        networkError: '网络错误，请稍后重试',
+        fingerprintError: '指纹生成失败，请刷新页面重试',
+        copiedSuccess: '订阅地址已复制到剪贴板',
+        copyFailed: '复制失败，请手动复制',
+        days: '天'
+      }
+    };
+
+    function t(key) {
+      return translations[currentLang][key] || translations['zh-CN'][key] || key;
+    }
 
     // 页面加载时执行
     window.addEventListener('DOMContentLoaded', async () => {
+      setLanguage(currentLang);
       await generateFingerprint();
       await loadSubscription();
       refreshCaptcha();
     });
+
+    // 切换语言菜单
+    function toggleLangMenu() {
+      const menu = document.getElementById('langMenu');
+      menu.classList.toggle('show');
+    }
+
+    // 设置语言
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('freesub_lang', lang);
+
+      // 更新按钮状态
+      document.getElementById('langEn').classList.toggle('active', lang === 'en');
+      document.getElementById('langZh').classList.toggle('active', lang === 'zh-CN');
+
+      // 更新当前语言按钮
+      const langNames = { 'en': 'EN', 'zh-CN': '简体' };
+      document.getElementById('currentLangBtn').textContent = langNames[lang] || '简体';
+
+      // 关闭菜单
+      document.getElementById('langMenu').classList.remove('show');
+
+      // 更新 HTML lang 属性
+      document.documentElement.lang = lang;
+
+      // 更新文档标题
+      document.title = lang === 'en' ? 'Free Subscription - TV Live Service' : '免费订阅 - 电视直播服务';
+
+      // 更新所有带 data-i18n 的元素
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t(key);
+      });
+
+      // 更新占位符
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.placeholder = t(key);
+      });
+
+      // 更新订阅信息中的随机精选文本
+      const channelCountEl = document.getElementById('channelCount');
+      if (channelCountEl && channelCountEl.textContent === '随机精选' || channelCountEl.textContent === 'Random Selection') {
+        channelCountEl.textContent = t('randomChannels');
+      }
+    }
 
     // 生成指纹
     async function generateFingerprint() {
@@ -470,7 +696,7 @@ export const FREE_SUB_HTML = `
 
       } catch (error) {
         console.error('指纹生成失败:', error);
-        showMessage('指纹生成失败，请刷新页面重试', 'error');
+        showMessage(t('fingerprintError'), 'error');
       }
     }
 
@@ -495,11 +721,11 @@ export const FREE_SUB_HTML = `
           displaySubscription(data.subscription);
           await loadSubscriptionInfo();
         } else {
-          showMessage(data.error || '加载失败', 'error');
+          showMessage(data.error || t('loading') + ' failed', 'error');
         }
       } catch (error) {
         console.error('加载订阅失败:', error);
-        showMessage('网络错误，请稍后重试', 'error');
+        showMessage(t('networkError'), 'error');
       }
     }
 
@@ -548,19 +774,19 @@ export const FREE_SUB_HTML = `
 
       // 验证验证码
       if (!captchaValue) {
-        showMessage('请输入验证码', 'error');
+        showMessage(t('enterCaptcha'), 'error');
         return;
       }
 
       if (captchaValue !== captchaCode) {
-        showMessage('验证码错误', 'error');
+        showMessage(t('captchaError'), 'error');
         refreshCaptcha();
         return;
       }
 
       const btn = document.getElementById('checkInBtn');
       btn.disabled = true;
-      btn.innerHTML = '<span class="loading"></span>签到中...';
+      btn.innerHTML = '<span class="loading"></span>' + t('checkInProgress');
 
       try {
         const response = await fetch('/api/freesub/checkin', {
@@ -578,21 +804,21 @@ export const FREE_SUB_HTML = `
         const data = await response.json();
 
         if (data.success) {
-          showMessage(\`签到成功！获得\${data.rewardDays}天，连续签到\${data.consecutiveDays}天\`, 'success');
+          showMessage(t('successCheckIn').replace('{days}', data.rewardDays).replace('{streak}', data.consecutiveDays), 'success');
           await loadSubscriptionInfo();
           refreshCaptcha();
         } else {
-          showMessage(data.reason === 'already_checked_in' ? '今日已签到' : data.error || '签到失败', 'error');
+          showMessage(data.reason === 'already_checked_in' ? t('alreadyCheckedIn') : data.error || t('checkInProgress') + ' failed', 'error');
           if (data.reason === 'invalid_captcha') {
             refreshCaptcha();
           }
         }
       } catch (error) {
         console.error('签到失败:', error);
-        showMessage('网络错误，请稍后重试', 'error');
+        showMessage(t('networkError'), 'error');
       } finally {
         btn.disabled = false;
-        btn.textContent = '立即签到';
+        btn.textContent = t('checkInNow');
       }
     }
 
@@ -600,9 +826,9 @@ export const FREE_SUB_HTML = `
     function copySubscriptionUrl() {
       const url = document.getElementById('subUrl').textContent;
       navigator.clipboard.writeText(url).then(() => {
-        showMessage('订阅地址已复制到剪贴板', 'success');
+        showMessage(t('copiedSuccess'), 'success');
       }).catch(() => {
-        showMessage('复制失败，请手动复制', 'error');
+        showMessage(t('copyFailed'), 'error');
       });
     }
 
@@ -690,6 +916,14 @@ export const FREE_SUB_HTML = `
       // 清空输入框
       document.getElementById('captchaInput').value = '';
     }
+
+    // 点击页面外部关闭语言菜单
+    document.addEventListener('click', function(e) {
+      const dropdown = document.querySelector('.lang-dropdown');
+      if (!dropdown.contains(e.target)) {
+        document.getElementById('langMenu').classList.remove('show');
+      }
+    });
   </script>
 </body>
 </html>
