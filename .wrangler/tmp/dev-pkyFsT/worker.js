@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-xoBhab/checked-fetch.js
+// .wrangler/tmp/bundle-zkV838/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-xoBhab/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-zkV838/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -1433,11 +1433,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-xoBhab/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-zkV838/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-xoBhab/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-zkV838/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -10156,9 +10156,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     .channel-card.playing .channel-poster .playing-indicator{position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.7);padding:4px 8px;border-radius:4px;color:#fff;z-index:5}
 
     /* Toast \u63D0\u793A\u7EC4\u4EF6\uFF08\u5DF2\u9690\u85CF\uFF09 */
-    /* .toast-container{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none}
+    .toast-container{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none}
     .toast{min-width:320px;max-width:500px;padding:16px 20px;border-radius:10px;color:#fff;font-size:14px;line-height:1.5;box-shadow:0 8px 30px rgba(0,0,0,.4);pointer-events:auto;backdrop-filter:blur(10px);animation:toastSlideIn 0.3s ease;transition:all 0.2s}
-    .toast.error{background:linear-gradient(135deg,rgba(231,9,20,.9) 0%,rgba(220,38,38,.9) 100%);border:1px solid rgba(239,68,68,.3)}
+    .toast.error{background:rgba(26,26,26,.5);border:1px solid rgba(255,255,255,.1)}
     .toast.warning{background:linear-gradient(135deg,rgba(234,179,8,.9) 0%,rgba(245,158,11,.9) 100%);border:1px solid rgba(251,191,36,.3)}
     .toast.success{background:linear-gradient(135deg,rgba(34,197,94,.9) 0%,rgba(22,163,74,.9) 100%);border:1px solid rgba(74,222,128,.3)}
     .toast.info{background:linear-gradient(135deg,rgba(59,130,246,.9) 0%,rgba(37,99,235,.9) 100%);border:1px solid rgba(96,165,250,.3)}
@@ -10168,7 +10168,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     .toast-close:hover{background:rgba(255,255,255,.25);transform:scale(1.1)}
     @keyframes toastSlideIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
     @keyframes toastSlideOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-20px)}}
-    .toast.hiding{animation:toastSlideOut 0.3s ease forwards} */
+    .toast.hiding{animation:toastSlideOut 0.3s ease forwards}
 
     /* \u516C\u544A\u6837\u5F0F - \u5F39\u7A97\u5F0F\u901A\u77E5 */
     .announcement-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(4px)}
@@ -10445,8 +10445,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     <div class="loading-text" id="loadingText">Loading...</div>
   </div>
 
-      <!-- Toast \u63D0\u793A\u5BB9\u5668\uFF08\u5DF2\u9690\u85CF\uFF09 -->
-  <!-- <div class="toast-container" id="toastContainer"></div> -->
+      <!-- Toast \u63D0\u793A\u5BB9\u5668 -->
+  <div class="toast-container" id="toastContainer"></div>
 
   <footer class="footer">
     <p>&copy; 2024 IPTV Live. <span data-i18n="footerCopyright">\u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0</span></p>
@@ -10648,7 +10648,10 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         sitemap: '\u7F51\u7AD9\u5730\u56FE',
         privacyPolicy: '\u9690\u79C1\u653F\u7B56',
         termsOfService: '\u670D\u52A1\u6761\u6B3E',
-        cloudflareBadge: '\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4'
+        cloudflareBadge: '\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4',
+        toastRefresh: '\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u540E\u518D\u8BD5\u3002',
+        toastBrowserLimit: '\u53D7\u6D4F\u89C8\u5668\u9650\u5236\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BF7<a href="/freesub" style="color:#ffcc00;text-decoration:underline;">\u83B7\u53D6\u8BA2\u9605</a>\u5E76\u6DFB\u52A0\u5230\u5BA2\u6237\u7AEF\u4E2D\u4F7F\u7528\u3002',
+        toastChannelLost: '\u8BE5\u9891\u9053\u6570\u636E\u5DF2\u4E22\u5931\uFF0C\u8BF7\u6E05\u9664\u7F13\u5B58\u540E\u518D\u8BD5\u3002'
       },
       'en': {
         title: 'IPTV Live - Free Live TV',
@@ -10691,7 +10694,10 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         sitemap: 'Sitemap',
         privacyPolicy: 'Privacy Policy',
         termsOfService: 'Terms of Service',
-        cloudflareBadge: 'This site is powered by Cloudflare for acceleration and security'
+        cloudflareBadge: 'This site is powered by Cloudflare for acceleration and security',
+        toastRefresh: 'Cannot play, please refresh the page and try again.',
+        toastBrowserLimit: 'Cannot play due to browser limitations. Please <a href="/freesub" style="color:#ffcc00;text-decoration:underline;">get subscription URL</a> and use a player client.',
+        toastChannelLost: 'Channel data has been lost, please clear cache and try again.'
       }
     };
 
@@ -11201,6 +11207,80 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           toast.parentNode.removeChild(toast);
         }
       }, 300);
+    }
+
+    // \u64AD\u653E\u9519\u8BEF\u901A\u77E5 - \u5355\u6761\u663E\u793A\uFF0C10\u79D2\u81EA\u52A8\u6D88\u5931
+    let currentPlayErrorToast = null;
+    let playErrorToastTimeout = null;
+
+    function showPlayErrorToast(errorType) {
+      // \u6E05\u9664\u4E4B\u524D\u7684\u5B9A\u65F6\u5668
+      if (playErrorToastTimeout) {
+        clearTimeout(playErrorToastTimeout);
+        playErrorToastTimeout = null;
+      }
+
+      // \u5982\u679C\u5DF2\u6709 toast \u6B63\u5728\u5C55\u793A\uFF0C\u76F4\u63A5\u79FB\u9664\uFF08\u4E0D\u6267\u884C\u6ED1\u51FA\u52A8\u753B\uFF09
+      if (currentPlayErrorToast && currentPlayErrorToast.parentNode) {
+        currentPlayErrorToast.parentNode.removeChild(currentPlayErrorToast);
+      }
+
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+
+      // \u6839\u636E\u9519\u8BEF\u7C7B\u578B\u83B7\u53D6\u63D0\u793A\u4FE1\u606F
+      let message;
+      switch (errorType) {
+        case 'hls_not_loaded':
+          message = t('toastBrowserLimit');
+          break;
+        case 'token_failed':
+        case 'key_sync':
+        case 'security_check':
+          message = t('toastRefresh');
+          break;
+        case 'channel_lost':
+          message = t('toastChannelLost');
+          break;
+        case 'network':
+        case 'decrypt_error':
+        case 'media_error':
+        case 'cors':
+        case 'http_link':
+          message = t('toastBrowserLimit');
+          break;
+        default:
+          message = t('toastRefresh');
+      }
+
+      const toast = document.createElement('div');
+      toast.className = 'toast error';
+      toast.innerHTML = \`
+        <div style="position:relative;padding-right:30px">
+          <div class="toast-title">\${currentLanguage === 'zh-CN' ? '\u26A0\uFE0F \u64AD\u653E\u5931\u8D25' : '\u26A0\uFE0F Playback Failed'}</div>
+          <div class="toast-message">\${message}</div>
+          <button class="toast-close">&times;</button>
+        </div>
+      \`;
+
+      container.appendChild(toast);
+
+      // \u4FDD\u5B58\u5F53\u524D toast
+      currentPlayErrorToast = toast;
+
+      // \u70B9\u51FB\u5173\u95ED\u6309\u94AE
+      const closeBtn = toast.querySelector('.toast-close');
+      closeBtn.onclick = () => {
+        removeToast(toast);
+        currentPlayErrorToast = null;
+      };
+
+      // 10\u79D2\u540E\u81EA\u52A8\u79FB\u9664
+      playErrorToastTimeout = setTimeout(() => {
+        removeToast(toast);
+        currentPlayErrorToast = null;
+        playErrorToastTimeout = null;
+      }, 10000);
     }
 
     // \u9875\u9762\u52A0\u8F7D\u65F6\u83B7\u53D6\u9891\u9053\u5217\u8868
@@ -11853,6 +11933,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
                 signal: playController.signal
               });
             } else {
+              showPlayErrorToast('token_failed');
               throw new Error('Failed to get token');
             }
           })
@@ -11860,6 +11941,16 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
             // \u518D\u6B21\u68C0\u67E5
             if (requestId !== currentPlayRequestId) {
               throw new Error('Request cancelled');
+            }
+            // \u68C0\u67E5\u54CD\u5E94\u72B6\u6001
+            if (!res.ok) {
+              if (res.status === 403) {
+                showPlayErrorToast('security_check');
+              } else {
+                showPlayErrorToast('network');
+              }
+              closePlayer();
+              return;
             }
             return res.json();
           })
@@ -11901,6 +11992,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
                     // \u66F4\u65B0\u5BC6\u94A5\u5931\u8D25\u6216\u5DF2\u91CD\u8BD5\u8FC7\uFF0C\u5173\u95ED\u64AD\u653E\u5668
                     console.error('[PlayChannel] Decryption failed, cannot play');
+                    showPlayErrorToast('decrypt_error');
                     closePlayer();
                   });
                 return; // \u5F02\u6B65\u89E3\u5BC6\uFF0C\u63D0\u524D\u8FD4\u56DE
@@ -11910,6 +12002,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
               startPlay(playUrl, video);
             } else {
               console.error('Channel temporarily unavailable');
+              showPlayErrorToast('channel_lost');
               closePlayer();
             }
           })
@@ -11919,6 +12012,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
               return;  // \u9759\u9ED8\u5904\u7406\u53D6\u6D88\u7684\u9519\u8BEF
             }
             console.error('[PlayChannel] Playback failed:', error);
+            showPlayErrorToast('network');
             closePlayer();
           })
           .finally(() => {
@@ -11939,6 +12033,16 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
             if (requestId !== currentPlayRequestId) {
               throw new Error('Request cancelled');
             }
+            // \u68C0\u67E5\u54CD\u5E94\u72B6\u6001
+            if (!res.ok) {
+              if (res.status === 403) {
+                showPlayErrorToast('security_check');
+              } else {
+                showPlayErrorToast('network');
+              }
+              closePlayer();
+              return;
+            }
             return res.json();
           })
           .then(data => {
@@ -11979,6 +12083,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
                     // \u66F4\u65B0\u5BC6\u94A5\u5931\u8D25\u6216\u5DF2\u91CD\u8BD5\u8FC7\uFF0C\u5173\u95ED\u64AD\u653E\u5668
                     console.error('[PlayChannel] Decryption failed, cannot play');
+                    showPlayErrorToast('decrypt_error');
                     closePlayer();
                   });
                 return; // \u5F02\u6B65\u89E3\u5BC6\uFF0C\u63D0\u524D\u8FD4\u56DE
@@ -11988,6 +12093,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
               startPlay(playUrl, video);
             } else {
               console.error('Channel temporarily unavailable');
+              showPlayErrorToast('channel_lost');
               closePlayer();
             }
           })
@@ -11997,6 +12103,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
               return;  // \u9759\u9ED8\u5904\u7406\u53D6\u6D88\u7684\u9519\u8BEF
             }
             console.error('[PlayChannel] Playback failed:', error);
+            showPlayErrorToast('network');
             closePlayer();
           })
           .finally(() => {
@@ -12089,6 +12196,12 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     function startPlay(playUrl, video) {
       console.log('\u5F00\u59CB\u64AD\u653E:', playUrl);
 
+      // \u68C0\u6D4B\u662F\u5426\u4E3A\u975EHTTPS\u94FE\u63A5
+      if (!playUrl.startsWith('https://') && !playUrl.startsWith('http://')) {
+        showPlayErrorToast('http_link');
+        return;
+      }
+
       // \u68C0\u6D4B\u6E90\u7C7B\u578B
       const isHls = playUrl.includes('.m3u8') ||
                      playUrl.includes('m3u8') ||
@@ -12123,14 +12236,22 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
             switch (data.type) {
               case Hls.ErrorTypes.NETWORK_ERROR:
                 console.error('\u7F51\u7EDC\u9519\u8BEF:', data);
+                // \u68C0\u6D4B\u662F\u5426\u4E3A CORS \u9519\u8BEF\uFF08\u9519\u8BEF\u8BE6\u60C5\u5305\u542B cors\uFF09
+                if (data.details && data.details.toLowerCase().includes('cors')) {
+                  showPlayErrorToast('cors');
+                } else {
+                  showPlayErrorToast('network');
+                }
                 break;
               case Hls.ErrorTypes.MEDIA_ERROR:
                 console.log('\u5C1D\u8BD5\u6062\u590D\u5A92\u4F53\u9519\u8BEF');
                 currentHls.recoverMediaError();
+                showPlayErrorToast('media_error');
                 break;
               default:
                 console.log('\u65E0\u6CD5\u6062\u590D\u7684\u9519\u8BEF\uFF0C\u9500\u6BC1Hls\u5B9E\u4F8B');
                 currentHls.destroy();
+                showPlayErrorToast('media_error');
                 break;
             }
           }
@@ -12139,6 +12260,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         // \u975EHLS\u6E90\u6216Hls.js\u672A\u52A0\u8F7D\uFF0C\u4F7F\u7528\u539F\u751Fvideo\u64AD\u653E
         if (isHls && typeof Hls === 'undefined') {
           console.warn('Hls.js \u672A\u52A0\u8F7D\uFF0C\u5C1D\u8BD5\u4F7F\u7528\u539F\u751Fvideo\u64AD\u653E');
+          showPlayErrorToast('hls_not_loaded');
         } else {
           console.log('\u4F7F\u7528\u539F\u751Fvideo\u64AD\u653E\uFF08\u975EHLS\uFF09');
         }
@@ -12148,6 +12270,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         video.addEventListener('error', function(e) {
           const errorCode = video.error ? video.error.code : 0;
           console.error('\u539F\u751Fvideo\u9519\u8BEF:', errorCode, video.error);
+          showPlayErrorToast('media_error');
         });
 
         video.addEventListener('play', function() {
@@ -14810,7 +14933,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-xoBhab/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-zkV838/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14844,7 +14967,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-xoBhab/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-zkV838/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

@@ -257,9 +257,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .channel-card.playing .channel-poster .playing-indicator{position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.7);padding:4px 8px;border-radius:4px;color:#fff;z-index:5}
 
     /* Toast 提示组件（已隐藏） */
-    /* .toast-container{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none}
+    .toast-container{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none}
     .toast{min-width:320px;max-width:500px;padding:16px 20px;border-radius:10px;color:#fff;font-size:14px;line-height:1.5;box-shadow:0 8px 30px rgba(0,0,0,.4);pointer-events:auto;backdrop-filter:blur(10px);animation:toastSlideIn 0.3s ease;transition:all 0.2s}
-    .toast.error{background:linear-gradient(135deg,rgba(231,9,20,.9) 0%,rgba(220,38,38,.9) 100%);border:1px solid rgba(239,68,68,.3)}
+    .toast.error{background:rgba(26,26,26,.5);border:1px solid rgba(255,255,255,.1)}
     .toast.warning{background:linear-gradient(135deg,rgba(234,179,8,.9) 0%,rgba(245,158,11,.9) 100%);border:1px solid rgba(251,191,36,.3)}
     .toast.success{background:linear-gradient(135deg,rgba(34,197,94,.9) 0%,rgba(22,163,74,.9) 100%);border:1px solid rgba(74,222,128,.3)}
     .toast.info{background:linear-gradient(135deg,rgba(59,130,246,.9) 0%,rgba(37,99,235,.9) 100%);border:1px solid rgba(96,165,250,.3)}
@@ -269,7 +269,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .toast-close:hover{background:rgba(255,255,255,.25);transform:scale(1.1)}
     @keyframes toastSlideIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
     @keyframes toastSlideOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-20px)}}
-    .toast.hiding{animation:toastSlideOut 0.3s ease forwards} */
+    .toast.hiding{animation:toastSlideOut 0.3s ease forwards}
 
     /* 公告样式 - 弹窗式通知 */
     .announcement-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(4px)}
@@ -546,8 +546,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     <div class="loading-text" id="loadingText">Loading...</div>
   </div>
 
-      <!-- Toast 提示容器（已隐藏） -->
-  <!-- <div class="toast-container" id="toastContainer"></div> -->
+      <!-- Toast 提示容器 -->
+  <div class="toast-container" id="toastContainer"></div>
 
   <footer class="footer">
     <p>&copy; 2024 IPTV Live. <span data-i18n="footerCopyright">免费高清电视在线观看平台</span></p>
@@ -749,7 +749,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         sitemap: '网站地图',
         privacyPolicy: '隐私政策',
         termsOfService: '服务条款',
-        cloudflareBadge: '本站由 Cloudflare 提供加速与安全保护'
+        cloudflareBadge: '本站由 Cloudflare 提供加速与安全保护',
+        toastRefresh: '无法播放，请刷新页面后再试。',
+        toastBrowserLimit: '受浏览器限制无法播放，请<a href="/freesub" style="color:#ffcc00;text-decoration:underline;">获取订阅</a>并添加到客户端中使用。',
+        toastChannelLost: '该频道数据已丢失，请清除缓存后再试。'
       },
       'en': {
         title: 'IPTV Live - Free Live TV',
@@ -792,7 +795,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         sitemap: 'Sitemap',
         privacyPolicy: 'Privacy Policy',
         termsOfService: 'Terms of Service',
-        cloudflareBadge: 'This site is powered by Cloudflare for acceleration and security'
+        cloudflareBadge: 'This site is powered by Cloudflare for acceleration and security',
+        toastRefresh: 'Cannot play, please refresh the page and try again.',
+        toastBrowserLimit: 'Cannot play due to browser limitations. Please <a href="/freesub" style="color:#ffcc00;text-decoration:underline;">get subscription URL</a> and use a player client.',
+        toastChannelLost: 'Channel data has been lost, please clear cache and try again.'
       }
     };
 
@@ -1302,6 +1308,80 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           toast.parentNode.removeChild(toast);
         }
       }, 300);
+    }
+
+    // 播放错误通知 - 单条显示，10秒自动消失
+    let currentPlayErrorToast = null;
+    let playErrorToastTimeout = null;
+
+    function showPlayErrorToast(errorType) {
+      // 清除之前的定时器
+      if (playErrorToastTimeout) {
+        clearTimeout(playErrorToastTimeout);
+        playErrorToastTimeout = null;
+      }
+
+      // 如果已有 toast 正在展示，直接移除（不执行滑出动画）
+      if (currentPlayErrorToast && currentPlayErrorToast.parentNode) {
+        currentPlayErrorToast.parentNode.removeChild(currentPlayErrorToast);
+      }
+
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+
+      // 根据错误类型获取提示信息
+      let message;
+      switch (errorType) {
+        case 'hls_not_loaded':
+          message = t('toastBrowserLimit');
+          break;
+        case 'token_failed':
+        case 'key_sync':
+        case 'security_check':
+          message = t('toastRefresh');
+          break;
+        case 'channel_lost':
+          message = t('toastChannelLost');
+          break;
+        case 'network':
+        case 'decrypt_error':
+        case 'media_error':
+        case 'cors':
+        case 'http_link':
+          message = t('toastBrowserLimit');
+          break;
+        default:
+          message = t('toastRefresh');
+      }
+
+      const toast = document.createElement('div');
+      toast.className = 'toast error';
+      toast.innerHTML = \`
+        <div style="position:relative;padding-right:30px">
+          <div class="toast-title">\${currentLanguage === 'zh-CN' ? '⚠️ 播放失败' : '⚠️ Playback Failed'}</div>
+          <div class="toast-message">\${message}</div>
+          <button class="toast-close">&times;</button>
+        </div>
+      \`;
+
+      container.appendChild(toast);
+
+      // 保存当前 toast
+      currentPlayErrorToast = toast;
+
+      // 点击关闭按钮
+      const closeBtn = toast.querySelector('.toast-close');
+      closeBtn.onclick = () => {
+        removeToast(toast);
+        currentPlayErrorToast = null;
+      };
+
+      // 10秒后自动移除
+      playErrorToastTimeout = setTimeout(() => {
+        removeToast(toast);
+        currentPlayErrorToast = null;
+        playErrorToastTimeout = null;
+      }, 10000);
     }
 
     // 页面加载时获取频道列表
@@ -1954,6 +2034,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
                 signal: playController.signal
               });
             } else {
+              showPlayErrorToast('token_failed');
               throw new Error('Failed to get token');
             }
           })
@@ -1961,6 +2042,16 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             // 再次检查
             if (requestId !== currentPlayRequestId) {
               throw new Error('Request cancelled');
+            }
+            // 检查响应状态
+            if (!res.ok) {
+              if (res.status === 403) {
+                showPlayErrorToast('security_check');
+              } else {
+                showPlayErrorToast('network');
+              }
+              closePlayer();
+              return;
             }
             return res.json();
           })
@@ -2002,6 +2093,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
                     // 更新密钥失败或已重试过，关闭播放器
                     console.error('[PlayChannel] Decryption failed, cannot play');
+                    showPlayErrorToast('decrypt_error');
                     closePlayer();
                   });
                 return; // 异步解密，提前返回
@@ -2011,6 +2103,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
               startPlay(playUrl, video);
             } else {
               console.error('Channel temporarily unavailable');
+              showPlayErrorToast('channel_lost');
               closePlayer();
             }
           })
@@ -2020,6 +2113,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
               return;  // 静默处理取消的错误
             }
             console.error('[PlayChannel] Playback failed:', error);
+            showPlayErrorToast('network');
             closePlayer();
           })
           .finally(() => {
@@ -2040,6 +2134,16 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             if (requestId !== currentPlayRequestId) {
               throw new Error('Request cancelled');
             }
+            // 检查响应状态
+            if (!res.ok) {
+              if (res.status === 403) {
+                showPlayErrorToast('security_check');
+              } else {
+                showPlayErrorToast('network');
+              }
+              closePlayer();
+              return;
+            }
             return res.json();
           })
           .then(data => {
@@ -2080,6 +2184,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
                     // 更新密钥失败或已重试过，关闭播放器
                     console.error('[PlayChannel] Decryption failed, cannot play');
+                    showPlayErrorToast('decrypt_error');
                     closePlayer();
                   });
                 return; // 异步解密，提前返回
@@ -2089,6 +2194,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
               startPlay(playUrl, video);
             } else {
               console.error('Channel temporarily unavailable');
+              showPlayErrorToast('channel_lost');
               closePlayer();
             }
           })
@@ -2098,6 +2204,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
               return;  // 静默处理取消的错误
             }
             console.error('[PlayChannel] Playback failed:', error);
+            showPlayErrorToast('network');
             closePlayer();
           })
           .finally(() => {
@@ -2190,6 +2297,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     function startPlay(playUrl, video) {
       console.log('开始播放:', playUrl);
 
+      // 检测是否为非HTTPS链接
+      if (!playUrl.startsWith('https://') && !playUrl.startsWith('http://')) {
+        showPlayErrorToast('http_link');
+        return;
+      }
+
       // 检测源类型
       const isHls = playUrl.includes('.m3u8') ||
                      playUrl.includes('m3u8') ||
@@ -2224,14 +2337,22 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             switch (data.type) {
               case Hls.ErrorTypes.NETWORK_ERROR:
                 console.error('网络错误:', data);
+                // 检测是否为 CORS 错误（错误详情包含 cors）
+                if (data.details && data.details.toLowerCase().includes('cors')) {
+                  showPlayErrorToast('cors');
+                } else {
+                  showPlayErrorToast('network');
+                }
                 break;
               case Hls.ErrorTypes.MEDIA_ERROR:
                 console.log('尝试恢复媒体错误');
                 currentHls.recoverMediaError();
+                showPlayErrorToast('media_error');
                 break;
               default:
                 console.log('无法恢复的错误，销毁Hls实例');
                 currentHls.destroy();
+                showPlayErrorToast('media_error');
                 break;
             }
           }
@@ -2240,6 +2361,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         // 非HLS源或Hls.js未加载，使用原生video播放
         if (isHls && typeof Hls === 'undefined') {
           console.warn('Hls.js 未加载，尝试使用原生video播放');
+          showPlayErrorToast('hls_not_loaded');
         } else {
           console.log('使用原生video播放（非HLS）');
         }
@@ -2249,6 +2371,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         video.addEventListener('error', function(e) {
           const errorCode = video.error ? video.error.code : 0;
           console.error('原生video错误:', errorCode, video.error);
+          showPlayErrorToast('media_error');
         });
 
         video.addEventListener('play', function() {
