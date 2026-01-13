@@ -1,5 +1,6 @@
 // 数据库初始化和表结构管理
 let DB = null;
+let tablesCreated = false;  // 防止重复创建表和索引
 
 // 初始化数据库连接
 export async function initDB(env) {
@@ -77,14 +78,19 @@ export function verifyFreeSubPlayToken(token, channelHash, subId, maxAge = 60 * 
 
 // 创建表结构
 export async function createTables(env) {
+  // 如果已经创建过，直接返回
+  if (tablesCreated) {
+    return;
+  }
+
   const db = env.DB;
 
   // 创建直播源配置表
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS sources (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT, 
-      url TEXT, 
+      name TEXT,
+      url TEXT,
       type TEXT DEFAULT 'm3u',
       parse_mode TEXT DEFAULT 'strict',
       last_updated DATETIME
@@ -537,6 +543,7 @@ export async function createTables(env) {
   }
 
   console.log('Tables created successfully');
+  tablesCreated = true;  // 标记表已创建，避免重复执行
 }
 
 // 获取安全配置

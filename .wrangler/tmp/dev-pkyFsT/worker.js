@@ -136,12 +136,15 @@ function verifyFreeSubPlayToken(token, channelHash, subId, maxAge = 60 * 60 * 1e
   }
 }
 async function createTables(env) {
+  if (tablesCreated) {
+    return;
+  }
   const db = env.DB;
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS sources (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT, 
-      url TEXT, 
+      name TEXT,
+      url TEXT,
       type TEXT DEFAULT 'm3u',
       parse_mode TEXT DEFAULT 'strict',
       last_updated DATETIME
@@ -505,6 +508,7 @@ async function createTables(env) {
     console.error("Database: Failed to create checkin_records indexes:", e);
   }
   console.log("Tables created successfully");
+  tablesCreated = true;
 }
 async function getSecurityConfig() {
   const db = getDB();
@@ -1409,12 +1413,13 @@ function generateM3UContent(channels, subId, isFreeSub = false, baseUrl = "") {
   }
   return m3u;
 }
-var DB;
+var DB, tablesCreated;
 var init_database = __esm({
   "database.js"() {
     init_checked_fetch();
     init_modules_watch_stub();
     DB = null;
+    tablesCreated = false;
     __name(initDB, "initDB");
     __name(getDB, "getDB");
     __name(generateFreeSubPlayToken, "generateFreeSubPlayToken");
