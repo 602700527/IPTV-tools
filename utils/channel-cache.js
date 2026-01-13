@@ -179,8 +179,10 @@ export async function getChannelByHash(env, channelHash) {
         s.name as source_name,
         s.is_active as source_active
       FROM channels c
-      LEFT JOIN sources s ON c.source_id = s.id
+      INNER JOIN sources s ON c.source_id = s.id
       WHERE c.channel_hash = ?
+        AND c.is_active = 1
+        AND s.is_active = 1
     `).bind(channelHash).first();
 
     return channel;

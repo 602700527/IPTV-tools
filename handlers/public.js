@@ -293,10 +293,8 @@ export async function handlePublicChannels(request, env, ctx) {
     console.log('[PublicChannels] displayConfig配置:', JSON.stringify(displayConfig));
 
     // 优先尝试从 KV 缓存获取所有频道数据（即使有搜索也优先使用缓存）
-    const useCache = (!displayConfig.sources || displayConfig.sources.length === 0) &&
-                    (!displayConfig.groups || displayConfig.groups.length === 0) &&
-                    (!displayConfig.hosts || displayConfig.hosts.length === 0) &&
-                    (displayConfig.hasHeaders === null || displayConfig.hasHeaders === undefined);
+    // 只有不使用缓存的场景：配置了 host 过滤（因为 play_url LIKE 无法在缓存中高效过滤）
+    const useCache = (!displayConfig.hosts || displayConfig.hosts.length === 0);
 
     console.log('[PublicChannels] useCache:', useCache, 'search:', search, 'group:', group, 'sources:', displayConfig.sources, 'groups:', displayConfig.groups, 'hosts:', displayConfig.hosts, 'hasHeaders:', displayConfig.hasHeaders);
 

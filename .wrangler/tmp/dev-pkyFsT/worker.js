@@ -2130,8 +2130,10 @@ async function getChannelByHash(env, channelHash) {
         s.name as source_name,
         s.is_active as source_active
       FROM channels c
-      LEFT JOIN sources s ON c.source_id = s.id
+      INNER JOIN sources s ON c.source_id = s.id
       WHERE c.channel_hash = ?
+        AND c.is_active = 1
+        AND s.is_active = 1
     `).bind(channelHash).first();
     return channel;
   } catch (error) {
@@ -4620,7 +4622,7 @@ async function handlePublicChannels(request, env, ctx) {
     const db = getDB();
     const displayConfig = await getHomepageDisplayConfig();
     console.log("[PublicChannels] displayConfig\u914D\u7F6E:", JSON.stringify(displayConfig));
-    const useCache = (!displayConfig.sources || displayConfig.sources.length === 0) && (!displayConfig.groups || displayConfig.groups.length === 0) && (!displayConfig.hosts || displayConfig.hosts.length === 0) && (displayConfig.hasHeaders === null || displayConfig.hasHeaders === void 0);
+    const useCache = !displayConfig.hosts || displayConfig.hosts.length === 0;
     console.log("[PublicChannels] useCache:", useCache, "search:", search, "group:", group, "sources:", displayConfig.sources, "groups:", displayConfig.groups, "hosts:", displayConfig.hosts, "hasHeaders:", displayConfig.hasHeaders);
     let shouldUseCache = useCache;
     let allChannels, allGroups, total;
