@@ -10511,9 +10511,18 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- Canonical URL -->
   <link rel="canonical" href="https://iptv-search.com">
 
-  <!-- Favicon -->
+  <!-- Favicon - Google\u641C\u7D22\u7ED3\u679C\u9700\u8981 -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="shortcut icon" href="/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any">
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <!-- Apple Touch Icon - iOS\u8BBE\u5907 -->
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+  <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png" sizes="180x180">
+
+  <!-- Android/iOS\u56FE\u6807 -->
+  <meta name="msapplication-TileImage" content="/icon-192.png">
+  <meta name="msapplication-TileColor" content="#e50914">
 
   <!-- \u79FB\u52A8\u7AEF\u4F18\u5316 -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -10521,6 +10530,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="IPTV Live">
   <meta name="theme-color" content="#e50914">
+
+  <!-- Open Graph\u56FE\u6807 -->
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/svg+xml">
 
   <!-- \u7ED3\u6784\u5316\u6570\u636E (JSON-LD) -->
   <script type="application/ld+json" id="structured-data">
@@ -15437,6 +15451,57 @@ var FAVICON_SVG = `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" x
     <rect x="12" y="18" width="4" height="2" rx="1" fill="#0a0a0a" />
   </g>
 </svg>`;
+var APPLE_TOUCH_ICON_SVG = `<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="appleIconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b81d24;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <rect width="180" height="180" rx="40" fill="url(#appleIconGradient)" />
+
+  <g transform="translate(30, 25)">
+    <rect x="5" y="5" width="110" height="80" rx="12" fill="#0a0a0a" />
+    <path d="M55 30 L95 52.5 L55 75 Z" fill="#e50914" />
+    <rect x="25" y="95" width="25" height="12" rx="4" fill="#0a0a0a" />
+    <rect x="70" y="95" width="25" height="12" rx="4" fill="#0a0a0a" />
+  </g>
+</svg>`;
+var ICON_192_SVG = `<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="icon192Gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b81d24;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <rect width="192" height="192" rx="42" fill="url(#icon192Gradient)" />
+
+  <g transform="translate(32, 27)">
+    <rect x="6" y="6" width="116" height="88" rx="12" fill="#0a0a0a" />
+    <path d="M58 36 L98 58 L58 80 Z" fill="#e50914" />
+    <rect x="26" y="104" width="28" height="12" rx="4" fill="#0a0a0a" />
+    <rect x="74" y="104" width="28" height="12" rx="4" fill="#0a0a0a" />
+  </g>
+</svg>`;
+var FAVICON_ICO_SVG = `<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="faviconIcoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b81d24;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <rect width="48" height="48" rx="10" fill="url(#faviconIcoGradient)" />
+
+  <g transform="translate(7, 7)">
+    <rect x="1" y="1" width="32" height="24" rx="3" fill="#0a0a0a" />
+    <path d="M15 9 L25 14 L15 19 Z" fill="#e50914" />
+    <rect x="7" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+    <rect x="21" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+  </g>
+</svg>`;
 var OG_IMAGE_SVG = `<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -15577,8 +15642,29 @@ var worker_default = {
           }
         });
       }
-      if (path === "/favicon.svg" || path === "/favicon.ico") {
+      if (path === "/favicon.svg") {
         return new Response(FAVICON_SVG, {
+          headers: {
+            "Content-Type": "image/svg+xml",
+            "Cache-Control": "public, max-age=86400"
+          }
+        });
+      } else if (path === "/favicon.ico") {
+        return new Response(FAVICON_ICO_SVG, {
+          headers: {
+            "Content-Type": "image/x-icon",
+            "Cache-Control": "public, max-age=86400"
+          }
+        });
+      } else if (path === "/apple-touch-icon.png") {
+        return new Response(APPLE_TOUCH_ICON_SVG, {
+          headers: {
+            "Content-Type": "image/svg+xml",
+            "Cache-Control": "public, max-age=86400"
+          }
+        });
+      } else if (path === "/icon-192.png") {
+        return new Response(ICON_192_SVG, {
           headers: {
             "Content-Type": "image/svg+xml",
             "Cache-Control": "public, max-age=86400"

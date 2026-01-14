@@ -14,7 +14,7 @@ import { FREE_SUB_HTML } from './freesub-page.js';
 import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from './pages.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
-import { LOGO_SVG, FAVICON_SVG, OG_IMAGE_SVG } from './assets.js';
+import { LOGO_SVG, FAVICON_SVG, OG_IMAGE_SVG, APPLE_TOUCH_ICON_SVG, ICON_192_SVG, FAVICON_ICO_SVG } from './assets.js';
 import { testD1Connection } from './test-d1.js';
 
 // 缓存初始化标记（防止重复初始化）
@@ -52,9 +52,33 @@ export default {
     }
 
     // 静态文件处理
-    if (path === '/favicon.svg' || path === '/favicon.ico') {
+    if (path === '/favicon.svg') {
       // Favicon SVG
       return new Response(FAVICON_SVG, {
+        headers: {
+          'Content-Type': 'image/svg+xml',
+          'Cache-Control': 'public, max-age=86400'
+        }
+      });
+    } else if (path === '/favicon.ico') {
+      // Favicon ICO (使用SVG格式，浏览器兼容)
+      return new Response(FAVICON_ICO_SVG, {
+        headers: {
+          'Content-Type': 'image/x-icon',
+          'Cache-Control': 'public, max-age=86400'
+        }
+      });
+    } else if (path === '/apple-touch-icon.png') {
+      // Apple Touch Icon (iOS设备)
+      return new Response(APPLE_TOUCH_ICON_SVG, {
+        headers: {
+          'Content-Type': 'image/svg+xml',
+          'Cache-Control': 'public, max-age=86400'
+        }
+      });
+    } else if (path === '/icon-192.png') {
+      // Android PWA图标
+      return new Response(ICON_192_SVG, {
         headers: {
           'Content-Type': 'image/svg+xml',
           'Cache-Control': 'public, max-age=86400'

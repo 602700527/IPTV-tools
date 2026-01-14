@@ -33,9 +33,18 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- Canonical URL -->
   <link rel="canonical" href="https://iptv-search.com">
 
-  <!-- Favicon -->
+  <!-- Favicon - Google搜索结果需要 -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="shortcut icon" href="/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any">
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <!-- Apple Touch Icon - iOS设备 -->
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+  <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png" sizes="180x180">
+
+  <!-- Android/iOS图标 -->
+  <meta name="msapplication-TileImage" content="/icon-192.png">
+  <meta name="msapplication-TileColor" content="#e50914">
 
   <!-- 移动端优化 -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -43,6 +52,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="IPTV Live">
   <meta name="theme-color" content="#e50914">
+
+  <!-- Open Graph图标 -->
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/svg+xml">
 
   <!-- 结构化数据 (JSON-LD) -->
   <script type="application/ld+json" id="structured-data">
