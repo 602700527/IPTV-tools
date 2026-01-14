@@ -237,6 +237,29 @@ export default {
             headers: { 'Content-Type': 'application/json; charset=utf-8' }
           });
         }
+      } else if (path === '/test/force-scheduled') {
+        // 测试路由：强制执行所有定时任务（忽略时间限制）
+        const mockEvent = {
+          scheduledTime: new Date()
+        };
+        try {
+          const db = await initDB(env);
+          console.log('[Test] Force executing data source sync...');
+          await syncAllSources(db, env);
+          console.log('[Test] Force executing cache refresh...');
+          await refreshCache(db, env);
+          return new Response(JSON.stringify({ 
+            success: true, 
+            message: 'All scheduled tasks completed (sync + cache refresh)' 
+          }), {
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        } catch (error) {
+          return new Response(JSON.stringify({ success: false, error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
       } else if (path === '/test/sync') {
         // 测试路由：手动触发数据源同步（绕过时间限制）
         try {

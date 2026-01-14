@@ -1,5 +1,5 @@
 // 定时任务处理器：自动同步已启用的数据源和刷新缓存
-import { getDB, fetchAndParseM3U, initDB, getSyncFilterConfig } from '../database.js';
+import { getDB, fetchAndParseM3U, fetchAndParseM3UOnly, initDB, getSyncFilterConfig } from '../database.js';
 import { cacheChannelsToKV } from '../utils/channel-cache.js';
 import { flushCacheToDB } from '../utils/cache.js';
 
@@ -68,7 +68,7 @@ export async function handleScheduledEvent(event, env, ctx) {
   }
 }
 
-// 同步所有数据源（每天2:40执行）
+// 同步所有数据源（每天3:00执行）
 async function syncAllSources(db, env) {
   try {
     // 获取同步过滤规则配置
@@ -101,51 +101,47 @@ async function syncAllSources(db, env) {
     const results = [];
     let totalDeleted = 0;
     let totalAdded = 0;
+    const syncData = {}; // 暂存每个源的新数据 {sourceId: {channels, adBindings}}
 
+    // 第一步：获取所有数据源的新数据（不删除旧数据）
     for (const source of enabledSources) {
       try {
-        console.log(`[Scheduler] Syncing source ${source.id}: ${source.name}`);
+        console.log(`[Scheduler] Fetching data for source ${source.id}: ${source.name}`);
 
-        // 获取旧的频道数量
-        const oldCountResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(source.id).first();
-        const oldChannelCount = oldCountResult?.count || 0;
-
-        // 先删除旧频道（避免与新频道冲突）
-        console.log(`[Scheduler] Deleting old channels for source ${source.id}`);
-        await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
-        totalDeleted += oldChannelCount;
-        console.log(`[Scheduler] Deleted ${oldChannelCount} old channels for source ${source.id}`);
-
-        // 同步新频道
-        console.log(`[Scheduler] Starting fetch and parse for source ${source.id}: ${source.name}`);
-        const syncResult = await fetchAndParseM3U(source.url, source.id, filter);
+        // 同步新频道（只获取数据，不删除）
+        const syncResult = await fetchAndParseM3UOnly(source.url, source.id, filter);
 
         if (syncResult.success && syncResult.channelCount > 0) {
-          totalAdded += syncResult.channelCount;
+          // 暂存新数据
+          syncData[source.id] = {
+            channels: syncResult.channels,
+            adBindings: syncResult.adBindings,
+            channelCount: syncResult.channelCount
+          };
 
           results.push({
             source_id: source.id,
             source_name: source.name,
             success: true,
-            deleted_channels: oldChannelCount,
+            deleted_channels: 0,
             new_channels: syncResult.channelCount,
             error: null
           });
-          console.log(`[Scheduler] Source ${source.id} synced successfully: deleted ${oldChannelCount}, added ${syncResult.channelCount}`);
+          console.log(`[Scheduler] Source ${source.id} data fetched: ${syncResult.channelCount} channels`);
         } else {
-          // 同步失败或没有新频道
+          // 获取数据失败
           results.push({
             source_id: source.id,
             source_name: source.name,
             success: false,
-            deleted_channels: oldChannelCount,
+            deleted_channels: 0,
             new_channels: 0,
             error: syncResult.error || 'No channels fetched'
           });
-          console.error(`[Scheduler] Source ${source.id} sync failed: ${syncResult.error}`);
+          console.error(`[Scheduler] Source ${source.id} fetch failed: ${syncResult.error}`);
         }
       } catch (error) {
-        console.error(`[Scheduler] Error syncing source ${source.id}:`, error);
+        console.error(`[Scheduler] Error fetching source ${source.id}:`, error);
         results.push({
           source_id: source.id,
           source_name: source.name,
@@ -157,28 +153,134 @@ async function syncAllSources(db, env) {
       }
     }
 
-    // 记录同步结果
-    const successCount = results.filter(r => r.success).length;
-    const failCount = results.filter(r => !r.success).length;
+    // 第二步：只有所有数据源都成功获取数据后，才删除旧数据并写入新数据
+    const successSources = results.filter(r => r.success);
+    const failedSources = results.filter(r => !r.success);
 
-    console.log(`[Scheduler] Sync completed: ${successCount}/${enabledSources.length} sources synced, ${failCount} failed`);
+    if (failedSources.length > 0) {
+      console.log(`[Scheduler] ${failedSources.length} source(s) failed to fetch data, skipping database update`);
+      console.log(`[Scheduler] Only ${successSources.length} source(s) will be updated`);
+    }
+
+    // 只更新成功获取数据的源
+    for (const result of successSources) {
+      const sourceId = result.source_id;
+      const newData = syncData[sourceId];
+
+      if (!newData) {
+        console.error(`[Scheduler] No data found for source ${sourceId}, skipping`);
+        continue;
+      }
+
+      try {
+        // 获取旧的频道数量
+        const oldCountResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(sourceId).first();
+        const oldChannelCount = oldCountResult?.count || 0;
+
+        // 删除旧频道
+        console.log(`[Scheduler] Deleting old channels for source ${sourceId}`);
+        await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(sourceId).run();
+        totalDeleted += oldChannelCount;
+
+        // 写入新频道数据（直接使用暂存的数据）
+        console.log(`[Scheduler] Writing new channels for source ${sourceId}`);
+        await writeChannelsToDB(db, newData.channels, newData.adBindings, sourceId);
+        totalAdded += newData.channelCount;
+
+        // 更新源的同步时间
+        const now = new Date().toISOString();
+        await db.prepare(`UPDATE sources SET last_updated = ? WHERE id = ?`).bind(now, sourceId).run();
+        console.log(`[Scheduler] Updated last_updated time for source ${sourceId}`);
+
+        // 更新结果中的删除数量
+        result.deleted_channels = oldChannelCount;
+        console.log(`[Scheduler] Source ${sourceId} synced successfully: deleted ${oldChannelCount}, added ${newData.channelCount}`);
+      } catch (error) {
+        console.error(`[Scheduler] Error writing data for source ${sourceId}:`, error);
+        result.success = false;
+        result.error = `Data write failed: ${error.message}`;
+        result.new_channels = 0;
+      }
+    }
+
+    // 记录同步结果
+    const finalSuccessCount = results.filter(r => r.success).length;
+    const finalFailCount = results.filter(r => !r.success).length;
+
+    console.log(`[Scheduler] Sync completed: ${finalSuccessCount}/${enabledSources.length} sources synced, ${finalFailCount} failed`);
     console.log(`[Scheduler] Total: ${totalDeleted} channels deleted, ${totalAdded} channels added`);
 
     // 清理过期的记录
     await cleanupOldRecords(db);
 
-    // 缓存频道数据到 KV
-    console.log('[Scheduler] Caching channels to KV...');
-    const cacheResult = await cacheChannelsToKV(env);
-    if (cacheResult.success) {
-      console.log(`[Scheduler] Cached ${cacheResult.cachedCount} channels to KV`);
+    // 第三步：只有在所有源都同步成功后，才缓存频道数据到KV
+    if (finalFailCount === 0) {
+      console.log('[Scheduler] All sources synced successfully, caching channels to KV...');
+      const cacheResult = await cacheChannelsToKV(env);
+      if (cacheResult.success) {
+        console.log(`[Scheduler] Cached ${cacheResult.cachedCount} channels to KV`);
+      } else {
+        console.error('[Scheduler] Failed to cache channels:', cacheResult.error);
+      }
     } else {
-      console.error('[Scheduler] Failed to cache channels:', cacheResult.error);
+      console.log(`[Scheduler] Some sources failed (${finalFailCount}), skipping KV cache refresh to maintain stability`);
     }
 
   } catch (error) {
     console.error('[Scheduler] Error in syncAllSources:', error);
     throw error;
+  }
+}
+
+// 写入频道数据到数据库
+async function writeChannelsToDB(db, channels, adBindings, sourceId) {
+  if (!channels || channels.length === 0) {
+    return;
+  }
+
+  // 使用批量插入提高性能
+  const channelStatements = channels.map(channel =>
+    db.prepare(`
+      INSERT INTO channels (source_id, channel_name, group_title, logo, play_url, headers, channel_hash, is_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      sourceId,
+      channel.channel_name || '',
+      channel.group_title || '',
+      channel.logo || '',
+      channel.url || '',
+      channel.headers || '{}',
+      channel.hash || '',
+      1  // is_active = 1
+    )
+  );
+
+  if (channelStatements.length > 0) {
+    await db.batch(channelStatements);
+  }
+
+  // 批量插入广告绑定（如果表存在）
+  if (adBindings && adBindings.length > 0) {
+    try {
+      const adStatements = adBindings.map(binding =>
+        db.prepare(`
+          INSERT INTO ad_bindings (source_id, channel_hash, ad_url, ad_duration)
+          VALUES (?, ?, ?, ?)
+        `).bind(
+          sourceId,
+          binding.channel_hash,
+          binding.ad_url || '',
+          binding.ad_duration || 0
+        )
+      );
+
+      if (adStatements.length > 0) {
+        await db.batch(adStatements);
+      }
+    } catch (adError) {
+      // 如果ad_bindings表不存在，忽略错误
+      console.warn('[Scheduler] Failed to insert ad bindings:', adError.message);
+    }
   }
 }
 
@@ -291,29 +393,35 @@ export async function manualSyncAll(env, filter = null) {
 
     const enabledSources = sources.results;
     const results = [];
+    const syncData = {}; // 暂存每个源的新数据 {sourceId: {channels, adBindings}}
 
-    // 逐个同步源
+    // 第一步：获取所有数据源的新数据（不删除旧数据）
     for (const source of enabledSources) {
       try {
-        const oldCountResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(source.id).first();
-        const oldChannelCount = oldCountResult?.count || 0;
+        console.log(`[Scheduler] Fetching data for source ${source.id}: ${source.name}`);
 
-        // 先同步新频道
-        const syncResult = await fetchAndParseM3U(source.url, source.id, filter);
+        // 同步新频道（只获取数据，不删除）
+        const syncResult = await fetchAndParseM3UOnly(source.url, source.id, filter);
 
         if (syncResult.success && syncResult.channelCount > 0) {
-          // 只有成功获取新频道时才删除旧频道
-          await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(source.id).run();
+          // 暂存新数据
+          syncData[source.id] = {
+            channels: syncResult.channels,
+            adBindings: syncResult.adBindings,
+            channelCount: syncResult.channelCount
+          };
 
           results.push({
             source_id: source.id,
             source_name: source.name,
             success: true,
-            deleted_channels: oldChannelCount,
+            deleted_channels: 0,
             new_channels: syncResult.channelCount,
             error: null
           });
+          console.log(`[Scheduler] Source ${source.id} data fetched: ${syncResult.channelCount} channels`);
         } else {
+          // 获取数据失败
           results.push({
             source_id: source.id,
             source_name: source.name,
@@ -322,8 +430,10 @@ export async function manualSyncAll(env, filter = null) {
             new_channels: 0,
             error: syncResult.error || 'No channels fetched'
           });
+          console.error(`[Scheduler] Source ${source.id} fetch failed: ${syncResult.error}`);
         }
       } catch (error) {
+        console.error(`[Scheduler] Error fetching source ${source.id}:`, error);
         results.push({
           source_id: source.id,
           source_name: source.name,
@@ -335,10 +445,64 @@ export async function manualSyncAll(env, filter = null) {
       }
     }
 
+    // 第二步：只更新成功获取数据的源
+    for (const result of results) {
+      if (!result.success) continue;
+
+      const sourceId = result.source_id;
+      const newData = syncData[sourceId];
+
+      if (!newData) {
+        console.error(`[Scheduler] No data found for source ${sourceId}, skipping`);
+        continue;
+      }
+
+      try {
+        // 获取旧的频道数量
+        const oldCountResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(sourceId).first();
+        const oldChannelCount = oldCountResult?.count || 0;
+
+        // 删除旧频道
+        console.log(`[Scheduler] Deleting old channels for source ${sourceId}`);
+        await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(sourceId).run();
+
+        // 写入新频道数据（直接使用暂存的数据）
+        console.log(`[Scheduler] Writing new channels for source ${sourceId}`);
+        await writeChannelsToDB(db, newData.channels, newData.adBindings, sourceId);
+
+        // 更新源的同步时间
+        const now = new Date().toISOString();
+        await db.prepare(`UPDATE sources SET last_updated = ? WHERE id = ?`).bind(now, sourceId).run();
+        console.log(`[Scheduler] Updated last_updated time for source ${sourceId}`);
+
+        // 更新结果中的删除数量
+        result.deleted_channels = oldChannelCount;
+        console.log(`[Scheduler] Source ${sourceId} synced successfully: deleted ${oldChannelCount}, added ${newData.channelCount}`);
+      } catch (error) {
+        console.error(`[Scheduler] Error writing data for source ${sourceId}:`, error);
+        result.success = false;
+        result.error = `Data write failed: ${error.message}`;
+        result.new_channels = 0;
+      }
+    }
+
     const successCount = results.filter(r => r.success).length;
     const failCount = results.filter(r => !r.success).length;
 
     console.log(`[Scheduler] Manual sync completed: ${successCount}/${enabledSources.length} sources synced, ${failCount} failed`);
+
+    // 第三步：只有在所有源都同步成功后，才缓存频道数据到KV
+    if (failCount === 0) {
+      console.log('[Scheduler] All sources synced successfully, caching channels to KV...');
+      const cacheResult = await cacheChannelsToKV(env);
+      if (cacheResult.success) {
+        console.log(`[Scheduler] Cached ${cacheResult.cachedCount} channels to KV`);
+      } else {
+        console.error('[Scheduler] Failed to cache channels:', cacheResult.error);
+      }
+    } else {
+      console.log(`[Scheduler] Some sources failed (${failCount}), skipping KV cache refresh to maintain stability`);
+    }
 
     return {
       success: true,

@@ -356,14 +356,15 @@ export async function flushCacheToDB(env, ctx) {
     }
 
     if (playBatch.length > 0) {
-      for (const { code, channelHash, count } of playBatch) {
-        // 使用 INSERT OR REPLACE 更新计数
-        await db.prepare(`
+      // 使用 batch API 批量插入，减少数据库操作次数
+      const statements = playBatch.map(({ code, channelHash, count }) =>
+        db.prepare(`
           INSERT OR REPLACE INTO play_counts (code, channel_hash, play_count, created_date, updated_at)
           VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-        `).bind(code, channelHash, count, today).run();
-      }
+        `).bind(code, channelHash, count, today)
+      );
 
+      await db.batch(statements);
       console.log(`Flushed ${playBatch.length} play count records to play_counts table`);
     }
 
@@ -377,31 +378,54 @@ export async function flushCacheToDB(env, ctx) {
     }
 
     if (ipBatch.length > 0) {
-      for (const { ip, path, count } of ipBatch) {
-        const existing = await db.prepare(`
-          SELECT request_count FROM ip_access_logs
-          WHERE ip = ? AND path = ? AND created_date = ?
-        `).bind(ip, path, today).first();
+      // 优化：先批量查询已存在的记录，减少数据库往返次数
+      const existingRecords = await db.prepare(`
+        SELECT ip, path, request_count FROM ip_access_logs
+        WHERE created_date = ?
+      `).bind(today).all();
 
-        if (existing) {
-          // 只在计数有变化时才更新
-          if (existing.request_count !== count) {
-            await db.prepare(`
+      const existingMap = new Map();
+      existingRecords.results?.forEach(record => {
+        const key = `${record.ip}:${record.path}`;
+        existingMap.set(key, record.request_count);
+      });
+
+      const updateStatements = [];
+      const insertStatements = [];
+
+      for (const { ip, path, count } of ipBatch) {
+        const key = `${ip}:${path}`;
+        const existingCount = existingMap.get(key);
+
+        if (existingCount !== undefined && existingCount !== count) {
+          // 更新现有记录
+          updateStatements.push(
+            db.prepare(`
               UPDATE ip_access_logs
               SET request_count = ?, last_access = CURRENT_TIMESTAMP
               WHERE ip = ? AND path = ? AND created_date = ?
-            `).bind(count, ip, path, today).run();
-          }
-        } else {
+            `).bind(count, ip, path, today)
+          );
+        } else if (existingCount === undefined) {
           // 插入新记录
-          await db.prepare(`
-            INSERT INTO ip_access_logs (ip, path, request_count, created_date)
-            VALUES (?, ?, ?, ?)
-          `).bind(ip, path, count, today).run();
+          insertStatements.push(
+            db.prepare(`
+              INSERT INTO ip_access_logs (ip, path, request_count, created_date)
+              VALUES (?, ?, ?, ?)
+            `).bind(ip, path, count, today)
+          );
         }
       }
 
-      console.log(`Flushed ${ipBatch.length} IP access records`);
+      // 批量执行更新和插入
+      if (updateStatements.length > 0) {
+        await db.batch(updateStatements);
+      }
+      if (insertStatements.length > 0) {
+        await db.batch(insertStatements);
+      }
+
+      console.log(`Flushed ${ipBatch.length} IP access records (${updateStatements.length} updated, ${insertStatements.length} inserted)`);
     }
 
     // 3. 批量写入订阅IP到 subscription_ips 表
@@ -434,26 +458,42 @@ export async function flushCacheToDB(env, ctx) {
     console.log(`[Flush] Collected ${subIPBatch.length} subscription IP records to flush`);
 
     if (subIPBatch.length > 0) {
+      // 优化：先批量查询已存在的记录，减少数据库往返次数
+      const existingRecords = await db.prepare(`
+        SELECT code, client_ip, subscribed_at, created_date FROM subscription_ips
+        WHERE created_date = ?
+      `).bind(today).all();
+
+      const existingSet = new Set();
+      existingRecords.results?.forEach(record => {
+        const key = `${record.code}:${record.client_ip}:${record.subscribed_at}:${record.created_date}`;
+        existingSet.add(key);
+      });
+
+      const insertStatements = [];
       let insertedCount = 0;
       let skippedCount = 0;
 
       for (const { code, ip, subscribed_at, date } of subIPBatch) {
-        // 检查是否已存在（去重）
-        const existing = await db.prepare(`
-          SELECT id FROM subscription_ips
-          WHERE code = ? AND client_ip = ? AND subscribed_at = ? AND created_date = ?
-        `).bind(code, ip, subscribed_at, date).first();
+        const key = `${code}:${ip}:${subscribed_at}:${date}`;
 
-        if (!existing) {
+        if (!existingSet.has(key)) {
           // 插入新记录
-          await db.prepare(`
-            INSERT INTO subscription_ips (code, client_ip, subscribed_at, created_date)
-            VALUES (?, ?, ?, ?)
-          `).bind(code, ip, subscribed_at, date).run();
+          insertStatements.push(
+            db.prepare(`
+              INSERT INTO subscription_ips (code, client_ip, subscribed_at, created_date)
+              VALUES (?, ?, ?, ?)
+            `).bind(code, ip, subscribed_at, date)
+          );
           insertedCount++;
         } else {
           skippedCount++;
         }
+      }
+
+      // 批量插入
+      if (insertStatements.length > 0) {
+        await db.batch(insertStatements);
       }
 
       console.log(`Flushed ${insertedCount} subscription IP records (skipped ${skippedCount} duplicates, cleaned ${cleanedCount} expired IPs)`);

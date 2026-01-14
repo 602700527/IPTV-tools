@@ -1418,6 +1418,311 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
   return channels.length;
 }
 
+// 只解析M3U内容，不写入数据库（用于优化的同步逻辑）
+export async function parseM3UContentOnly(content, sourceId, filter = {}) {
+  const channels = [];
+  let globalHeaders = {};
+
+  // 用于跟踪已处理的播放地址（过滤重复URL）
+  const processedUrls = new Set();
+
+  // 确保 sourceId 是整数
+  sourceId = parseInt(sourceId);
+  if (isNaN(sourceId) || sourceId <= 0) {
+    throw new Error('Invalid source ID');
+  }
+
+  // 提取全局头部信息（User-Agent等）
+  const extm3uMatch = content.match(/^#EXTM3U\s*(.*)$/m);
+  if (extm3uMatch) {
+    const extm3uLine = extm3uMatch[1];
+    const uaMatch = extm3uLine.match(/user-agent\s*=\s*"([^"]+)"/i);
+    if (uaMatch) {
+      globalHeaders['User-Agent'] = uaMatch[1];
+    }
+  }
+
+  // 基于 #EXTINF 块进行分割
+  const blocks = content.split(/^#EXTINF:/m);
+  console.log(`[Sync] Found ${blocks.length - 1} potential channels in M3U`);
+
+  // 跳过第一个空块（#EXTM3U之前的部分）
+  for (const block of blocks) {
+    if (!block.trim()) continue;
+
+    const lines = block.trim().split('\n');
+    if (lines.length === 0) continue;
+
+    const currentChannel = {
+      source_id: sourceId,
+      headers: {...globalHeaders}
+    };
+
+    // 解析 EXTINF 行
+    const extinfLine = '#EXTINF:' + lines[0];
+
+    // 提取频道名称
+    const nameMatch = extinfLine.match(/,([^,\n]+)$/);
+    if (nameMatch) {
+      currentChannel.channel_name = nameMatch[1].trim();
+      currentChannel.channel_name = normalizeChannelName(currentChannel.channel_name);
+    } else {
+      const idMatch = extinfLine.match(/tvg-id="([^"]+)"/i);
+      if (idMatch) {
+        currentChannel.channel_name = idMatch[1].trim();
+        currentChannel.channel_name = normalizeChannelName(currentChannel.channel_name);
+      } else {
+        currentChannel.channel_name = 'Unknown';
+        console.warn('[Sync] No channel name found for line:', extinfLine.substring(0, 100));
+      }
+    }
+
+    // 提取组名
+    const groupMatch = extinfLine.match(/group-title\s*=\s*"([^"]+)"/i);
+    if (groupMatch) {
+      currentChannel.group_title = groupMatch[1];
+    }
+
+    // 提取logo
+    const logoMatch = extinfLine.match(/tvg-logo\s*=\s*"([^"]+)"/i);
+    if (logoMatch) {
+      currentChannel.logo = logoMatch[1];
+    }
+
+    // 提取 tvg-id, tvg-name, tvg-logo, tvg-chno
+    const tvgIdMatch = extinfLine.match(/tvg-id\s*=\s*"([^"]+)"/i);
+    if (tvgIdMatch) {
+      currentChannel.tvg_id = tvgIdMatch[1];
+    }
+    const tvgNameMatch = extinfLine.match(/tvg-name\s*=\s*"([^"]+)"/i);
+    if (tvgNameMatch) {
+      currentChannel.tvg_name = tvgNameMatch[1];
+    }
+    const tvgLogoMatch = extinfLine.match(/tvg-logo\s*=\s*"([^"]+)"/i);
+    if (tvgLogoMatch) {
+      currentChannel.tvg_logo = tvgLogoMatch[1];
+    }
+    const tvgChnoMatch = extinfLine.match(/tvg-chno\s*=\s*"([^"]+)"/i);
+    if (tvgChnoMatch) {
+      currentChannel.tvg_chno = tvgChnoMatch[1];
+    }
+
+    // 提取 http-user-agent、ua、user_agent
+    const uaMatch = extinfLine.match(/http-user-agent\s*=\s*"([^"]+)"/i);
+    if (uaMatch) {
+      currentChannel.headers['User-Agent'] = uaMatch[1];
+    }
+    const uaMatch2 = extinfLine.match(/ua\s*=\s*"([^"]+)"/i);
+    if (uaMatch2) {
+      currentChannel.headers['User-Agent'] = uaMatch2[1];
+    }
+    const uaMatch3 = extinfLine.match(/user_agent\s*=\s*"([^"]+)"/i);
+    if (uaMatch3) {
+      currentChannel.headers['User-Agent'] = uaMatch3[1];
+    }
+
+    // 提取 http-header
+    const httpHeaderMatch = extinfLine.match(/http-header\s*=\s*"([^"]+)"/i);
+    if (httpHeaderMatch) {
+      let parts = httpHeaderMatch[1].split('=', 2);
+      if (parts.length !== 2 || parts[0].trim() === '') {
+        parts = httpHeaderMatch[1].split(':', 2);
+      }
+      if (parts.length === 2) {
+        const headerKey = parts[0].trim();
+        const headerValue = parts[1].trim();
+        currentChannel.headers[headerKey] = headerValue;
+      }
+    }
+
+    // 提取 Referer
+    const httpRefererMatch = extinfLine.match(/http-referer\s*=\s*"([^"]+)"/i);
+    if (httpRefererMatch) {
+      currentChannel.headers['Referer'] = httpRefererMatch[1];
+    }
+    const refererMatch = extinfLine.match(/(?:^|[^-])referer\s*=\s*"([^"]+)"/i);
+    if (refererMatch) {
+      currentChannel.headers['Referer'] = refererMatch[1];
+    }
+
+    // 查找 URL 行
+    let urlLine = null;
+    let vlcOptProcessed = false;
+
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      if (!vlcOptProcessed && line.startsWith('#EXTVLCOPT:')) {
+        const vlcUAMatch = line.match(/http-user-agent\s*=\s*([^\s]+)/i);
+        if (vlcUAMatch) {
+          currentChannel.headers['User-Agent'] = vlcUAMatch[1];
+        }
+        const vlcRefererMatch = line.match(/http-referrer\s*=\s*([^\s]+)/i);
+        if (vlcRefererMatch) {
+          currentChannel.headers['Referer'] = vlcRefererMatch[1];
+        }
+        vlcOptProcessed = true;
+        continue;
+      }
+
+      if (!line.startsWith('#') && line) {
+        urlLine = line;
+        break;
+      }
+    }
+
+    if (!urlLine) continue;
+
+    currentChannel.play_url = urlLine;
+
+    // 应用过滤条件
+    if (filter) {
+      if (filter.excludeGroups && filter.excludeGroups.length > 0) {
+        if (currentChannel.group_title && filter.excludeGroups.some(keyword =>
+          currentChannel.group_title.toLowerCase().includes(keyword.toLowerCase())
+        )) {
+          console.log(`[Filter] Excluding group: "${currentChannel.group_title}"`);
+          continue;
+        }
+      }
+
+      if (filter.excludeUrls && filter.excludeUrls.length > 0) {
+        if (currentChannel.play_url && filter.excludeUrls.some(keyword =>
+          currentChannel.play_url.toLowerCase().includes(keyword.toLowerCase())
+        )) {
+          console.log(`[Filter] Excluding URL: "${currentChannel.play_url}"`);
+          continue;
+        }
+      }
+
+      if (filter.excludeNames && filter.excludeNames.length > 0) {
+        if (currentChannel.channel_name && filter.excludeNames.some(keyword =>
+          currentChannel.channel_name.toLowerCase().includes(keyword.toLowerCase())
+        )) {
+          console.log(`[Filter] Excluding channel: "${currentChannel.channel_name}"`);
+          continue;
+        }
+      }
+
+      if (filter.excludeDuplicateUrls && currentChannel.play_url) {
+        if (processedUrls.has(currentChannel.play_url)) {
+          console.log(`[Filter] Excluding duplicate URL: "${currentChannel.play_url}"`);
+          continue;
+        }
+        processedUrls.add(currentChannel.play_url);
+      }
+
+      if (currentChannel.group_title && filter.groupRenameRules && filter.groupRenameRules.length > 0) {
+        const shouldExclude = filter.groupRenameExclude && filter.groupRenameExclude.length > 0 &&
+          filter.groupRenameExclude.some(exclude => 
+            currentChannel.group_title.toLowerCase().includes(exclude.toLowerCase())
+          );
+        
+        if (!shouldExclude) {
+          for (const rule of filter.groupRenameRules) {
+            if (currentChannel.group_title.toLowerCase().includes(rule.keyword.toLowerCase())) {
+              currentChannel.group_title = rule.newName;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    // 生成channel_hash
+    const encoder = new TextEncoder();
+    const data = encoder.encode(urlLine);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    currentChannel.channel_hash = hashHex.substring(0, 8);
+
+    // 数据验证
+    currentChannel.channel_name = currentChannel.channel_name || 'Unknown';
+    currentChannel.group_title = currentChannel.group_title || '';
+    currentChannel.logo = currentChannel.logo || '';
+    currentChannel.url = currentChannel.play_url;
+    currentChannel.hash = currentChannel.channel_hash;
+
+    // 将headers转为JSON字符串（如果为空则存空对象）
+    currentChannel.headers = Object.keys(currentChannel.headers).length > 0
+      ? JSON.stringify(currentChannel.headers)
+      : JSON.stringify({});
+
+    // 限制字段长度
+    if (currentChannel.channel_name && currentChannel.channel_name.length > 500) {
+      currentChannel.channel_name = currentChannel.channel_name.substring(0, 500);
+    }
+    if (currentChannel.play_url && currentChannel.play_url.length > 2000) {
+      console.warn(`[Sync] URL too long, truncating: ${currentChannel.play_url.substring(0, 50)}...`);
+      continue;
+    }
+    if (currentChannel.logo && currentChannel.logo.length > 500) {
+      currentChannel.logo = currentChannel.logo.substring(0, 500);
+    }
+
+    channels.push(currentChannel);
+  }
+
+  // 对频道进行排序
+  if (channels.length > 0) {
+    channels.sort((a, b) => {
+      const groupA = a.group_title || '';
+      const groupB = b.group_title || '';
+      if (groupA !== groupB) {
+        return groupA.localeCompare(groupB, 'zh-CN', { numeric: true });
+      }
+      return customChannelSort(a, b);
+    });
+    console.log(`[Sync] Channels sorted`);
+  }
+
+  return { channels, channelCount: channels.length };
+}
+
+// 从远程URL获取M3U内容并解析（只解析，不写入数据库）
+export async function fetchAndParseM3UOnly(sourceUrl, sourceId, filter = null) {
+  try {
+    console.log(`[Sync] Fetching M3U from: ${sourceUrl} for source ID: ${sourceId}`);
+    if (filter) {
+      console.log(`[Sync] Filters:`, filter);
+    }
+    
+    const fetchStartTime = Date.now();
+    const response = await fetch(sourceUrl);
+    const fetchEndTime = Date.now();
+    console.log(`[Sync] Fetch completed in ${fetchEndTime - fetchStartTime}ms`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch M3U: ${response.status} ${response.statusText}`);
+    }
+
+    const content = await response.text();
+    console.log(`[Sync] M3U content size: ${content.length} bytes`);
+    
+    if (!content || !content.startsWith('#EXTM3U')) {
+      console.error(`[Sync] Invalid M3U content`);
+      throw new Error('Invalid M3U content');
+    }
+
+    const parseStartTime = Date.now();
+    const result = await parseM3UContentOnly(content, sourceId, filter);
+    const parseEndTime = Date.now();
+    console.log(`[Sync] Parse completed in ${parseEndTime - parseStartTime}ms`);
+
+    console.log(`[Sync] Successfully parsed ${result.channelCount} channels`);
+    return { 
+      success: true, 
+      channelCount: result.channelCount,
+      channels: result.channels,
+      adBindings: []
+    };
+  } catch (error) {
+    console.error(`[Sync] Error fetching and parsing M3U: ${error.message}`);
+    return { success: false, error: error.message, channelCount: 0, channels: [], adBindings: [] };
+  }
+}
+
 // 从远程URL获取M3U内容并解析
 export async function fetchAndParseM3U(sourceUrl, sourceId, filter = null) {
   try {
