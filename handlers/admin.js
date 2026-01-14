@@ -1423,6 +1423,18 @@ export async function handleAdminRequest(request, env, ctx) {
           }
           const base64 = btoa(binary);
 
+          // 检查 Base64 编码后的大小（D1 限制约 1MB，但实际可能有 1.5MB 左右的余量）
+          // Base64 编码后大小约为原始大小的 4/3
+          if (base64.length > 1.5 * 1024 * 1024) {
+            return new Response(JSON.stringify({
+              success: false,
+              error: `文件大小超出数据库限制 (${(file.size / 1024).toFixed(2)}KB)，编码后 ${(base64.length / 1024).toFixed(2)}KB > 1.5MB`
+            }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+
           const db = getDB();
           const now = new Date().toISOString();
 

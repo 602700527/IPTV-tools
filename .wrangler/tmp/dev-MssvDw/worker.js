@@ -4340,6 +4340,15 @@ async function handleAdminRequest(request, env, ctx) {
             binary += String.fromCharCode(bytes[i]);
           }
           const base64 = btoa(binary);
+          if (base64.length > 1.5 * 1024 * 1024) {
+            return new Response(JSON.stringify({
+              success: false,
+              error: `\u6587\u4EF6\u5927\u5C0F\u8D85\u51FA\u6570\u636E\u5E93\u9650\u5236 (${(file.size / 1024).toFixed(2)}KB)\uFF0C\u7F16\u7801\u540E ${(base64.length / 1024).toFixed(2)}KB > 1.5MB`
+            }), {
+              status: 400,
+              headers: { "Content-Type": "application/json" }
+            });
+          }
           const db2 = getDB();
           const now2 = (/* @__PURE__ */ new Date()).toISOString();
           try {
@@ -6611,7 +6620,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
           <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius:4px;">
             <strong style="color:#e65100;">\u6CE8\u610F\u4E8B\u9879\uFF1A</strong>
             <ul style="margin:8px 0 0 20px;color:#666;">
-              <li>\u5E7F\u544A\u6587\u4EF6\u4EE5Base64\u683C\u5F0F\u5B58\u50A8\u5728\u6570\u636E\u5E93\u4E2D\uFF0C\u5EFA\u8BAE\u6587\u4EF6\u5927\u5C0F\u4E0D\u8D85\u8FC75MB</li>
+              <li>\u5E7F\u544A\u6587\u4EF6\u4EE5Base64\u683C\u5F0F\u5B58\u50A8\u5728\u6570\u636E\u5E93\u4E2D\uFF0C\u5EFA\u8BAE\u6587\u4EF6\u5927\u5C0F\u4E0D\u8D85\u8FC71MB</li>
               <li>\u652F\u6301\u4E0D\u540C\u7C7B\u578B\u7684\u5E7F\u544A\uFF08\u666E\u901A\u5E7F\u544A\u3001\u901A\u77E5\u7C7B\u5E7F\u544A\u7B49\uFF09</li>
               <li>\u5E7F\u544A\u65F6\u957F\u5EFA\u8BAE\u63A7\u5236\u572810\u79D2\u4EE5\u5185</li>
               <li>\u5728\u5E7F\u544A\u7ED1\u5B9A\u7BA1\u7406\u4E2D\uFF0C\u53EF\u4EE5\u4E3A\u4E0D\u540C\u64AD\u653E\u573A\u666F\u7ED1\u5B9A\u7279\u5B9A\u7684\u5E7F\u544A</li>
@@ -9464,7 +9473,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
               '<label>\u9009\u62E9TS\u6587\u4EF6</label>' +
               '<input type="file" id="adTsFile" accept=".ts" style="width:100%;">' +
               '<small style="color:#86868b;font-size:12px;margin-top:4px;display:block;">' +
-                ' \u652F\u6301.ts\u683C\u5F0F\uFF0C\u5EFA\u8BAE\u6587\u4EF6\u5927\u5C0F\u4E0D\u8D85\u8FC75MB' +
+                ' \u652F\u6301.ts\u683C\u5F0F\uFF0C\u5EFA\u8BAE\u6587\u4EF6\u5927\u5C0F\u4E0D\u8D85\u8FC71MB' +
               '</small>' +
             '</div>' +
             '<div class="form-group">' +
@@ -9514,11 +9523,9 @@ var ADMIN_HTML = `<!DOCTYPE html>
         return;
       }
 
-      // \u68C0\u67E5\u6587\u4EF6\u5927\u5C0F
-      if (file.size > 5 * 1024 * 1024) {
-        showToast('\u6587\u4EF6\u5927\u5C0F\u4E0D\u80FD\u8D85\u8FC75MB', 'error');
-        return;
-      }
+      // \u6CE8\u610F\uFF1A\u524D\u7AEF\u4E0D\u505A\u786C\u6027\u9650\u5236\uFF0C\u8BA9\u540E\u7AEF\u68C0\u67E5 Base64 \u7F16\u7801\u540E\u7684\u5B9E\u9645\u5927\u5C0F
+      // D1 \u5B9E\u9645\u9650\u5236\u7EA6 1.5MB\uFF0CBase64 \u7F16\u7801\u540E\u7EA6\u4E3A\u539F\u59CB\u5927\u5C0F\u7684 4/3
+      // \u5EFA\u8BAE\u6587\u4EF6\u5927\u5C0F\u4E0D\u8D85\u8FC7 1MB \u4EE5\u786E\u4FDD\u5B89\u5168
 
       try {
         showLoading();

@@ -527,7 +527,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius:4px;">
             <strong style="color:#e65100;">注意事项：</strong>
             <ul style="margin:8px 0 0 20px;color:#666;">
-              <li>广告文件以Base64格式存储在数据库中，建议文件大小不超过5MB</li>
+              <li>广告文件以Base64格式存储在数据库中，建议文件大小不超过1MB</li>
               <li>支持不同类型的广告（普通广告、通知类广告等）</li>
               <li>广告时长建议控制在10秒以内</li>
               <li>在广告绑定管理中，可以为不同播放场景绑定特定的广告</li>
@@ -3380,7 +3380,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               '<label>选择TS文件</label>' +
               '<input type="file" id="adTsFile" accept=".ts" style="width:100%;">' +
               '<small style="color:#86868b;font-size:12px;margin-top:4px;display:block;">' +
-                ' 支持.ts格式，建议文件大小不超过5MB' +
+                ' 支持.ts格式，建议文件大小不超过1MB' +
               '</small>' +
             '</div>' +
             '<div class="form-group">' +
@@ -3430,11 +3430,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         return;
       }
 
-      // 检查文件大小
-      if (file.size > 5 * 1024 * 1024) {
-        showToast('文件大小不能超过5MB', 'error');
-        return;
-      }
+      // 注意：前端不做硬性限制，让后端检查 Base64 编码后的实际大小
+      // D1 实际限制约 1.5MB，Base64 编码后约为原始大小的 4/3
+      // 建议文件大小不超过 1MB 以确保安全
 
       try {
         showLoading();
