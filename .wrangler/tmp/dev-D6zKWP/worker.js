@@ -4795,6 +4795,25 @@ __name(handleUserActivate, "handleUserActivate");
 init_checked_fetch();
 init_modules_watch_stub();
 init_database();
+async function generateETag(content) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(content);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hash));
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `"${hashHex}"`;
+}
+__name(generateETag, "generateETag");
+function determineCacheTime(search, group, fromCache) {
+  if (search || group) {
+    return 300;
+  }
+  if (fromCache) {
+    return 43200;
+  }
+  return 60;
+}
+__name(determineCacheTime, "determineCacheTime");
 async function handlePublicAnnouncement(request, env, ctx) {
   try {
     const db = getDB();
@@ -4812,13 +4831,17 @@ async function handlePublicAnnouncement(request, env, ctx) {
         headers: { "Content-Type": "application/json" }
       });
     }
-    return new Response(JSON.stringify({
+    const responseBody = JSON.stringify({
       success: true,
       data: announcementResult
-    }), {
+    });
+    const etag = await generateETag(responseBody);
+    return new Response(responseBody, {
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"
+        "Cache-Control": "public, max-age=300",
+        // 5分钟缓存
+        "ETag": etag
       }
     });
   } catch (error) {
@@ -5128,17 +5151,20 @@ async function handlePublicChannels(request, env, ctx) {
           has_prev: page > 1,
           has_next: page < totalPages
         };
-        return new Response(JSON.stringify({
+        const responseBody = JSON.stringify({
           success: true,
           channels: paginatedChannels,
           groups: filteredGroups,
           pagination
-        }), {
+        });
+        const etag = await generateETag(responseBody);
+        const cacheTime = determineCacheTime(search, group, true);
+        console.log("[PublicChannels] ETag:", etag.substring(0, 20) + "...", "Cache time:", cacheTime + "s");
+        return new Response(responseBody, {
           headers: {
             "Content-Type": "application/json",
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            "Pragma": "no-cache",
-            "Expires": "0"
+            "Cache-Control": `public, max-age=${cacheTime}`,
+            "ETag": etag
           }
         });
       } catch (cacheError) {
@@ -5278,19 +5304,22 @@ async function handlePublicChannels(request, env, ctx) {
         groupsCount: groups.length
       };
       console.log("[PublicChannels] \u8C03\u8BD5\u4FE1\u606F:", JSON.stringify(debugInfo));
-      return new Response(JSON.stringify({
+      const responseBody = JSON.stringify({
         success: true,
         channels,
         groups,
         pagination,
         debug: debugInfo
         // 添加调试信息
-      }), {
+      });
+      const etag = await generateETag(responseBody);
+      const cacheTime = determineCacheTime(search, group, false);
+      console.log("[PublicChannels] ETag:", etag.substring(0, 20) + "...", "Cache time:", cacheTime + "s", "From DB: true");
+      return new Response(responseBody, {
         headers: {
           "Content-Type": "application/json",
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-          "Pragma": "no-cache",
-          "Expires": "0"
+          "Cache-Control": `public, max-age=${cacheTime}`,
+          "ETag": etag
         }
       });
     }
@@ -5571,13 +5600,17 @@ async function handlePublicConfig(request, env, ctx) {
       enable_anti_debug: systemConfig.enable_anti_debug,
       disable_console_logs: systemConfig.disable_console_logs
     };
-    return new Response(JSON.stringify({
+    const responseBody = JSON.stringify({
       success: true,
       config: publicConfig
-    }), {
+    });
+    const etag = await generateETag(responseBody);
+    return new Response(responseBody, {
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"
+        "Cache-Control": "public, max-age=600",
+        // 10分钟缓存
+        "ETag": etag
       }
     });
   } catch (error) {
@@ -15577,9 +15610,17 @@ window.DECRYPTION_KEY = '${decryptionKey}';
 window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
 `
         );
+        const encoder = new TextEncoder();
+        const data = encoder.encode(htmlWithConfig);
+        const hash = await crypto.subtle.digest("SHA-256", data);
+        const hashArray = Array.from(new Uint8Array(hash));
+        const etag = `"${hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")}"`;
         return new Response(htmlWithConfig, {
           headers: {
             "Content-Type": "text/html; charset=utf-8",
+            "Cache-Control": "public, max-age=600",
+            // 10分钟缓存
+            "ETag": etag,
             "X-Frame-Options": "DENY",
             // 禁止在iframe中加载
             "Content-Security-Policy": "frame-ancestors 'none'",
@@ -15639,6 +15680,10 @@ window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
       } else if (path === "/robots.txt") {
         return new Response(generateRobotsTxt(), {
           headers: { "Content-Type": "text/plain; charset=utf-8" }
+        });
+      } else if (path === "/ads.txt") {
+        return new Response("google.com, pub-2205598928191137, DIRECT, f08c47fec0942fa0", {
+          headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=86400" }
         });
       } else if (path === "/privacy-policy") {
         return new Response(generatePrivacyPolicy(), {

@@ -84,18 +84,27 @@ export default {
       // 注入允许的域名配置和解密密钥
       const systemConfig = await getSystemConfig();
       const allowedDomains = [url.hostname];
-      const decryptionKey = systemConfig.enable_url_encryption && systemConfig.url_encryption_key 
-        ? systemConfig.url_encryption_key 
+      const decryptionKey = systemConfig.enable_url_encryption && systemConfig.url_encryption_key
+        ? systemConfig.url_encryption_key
         : env.SECRET_KEY || 'default-secret-key';
-      
+
       const htmlWithConfig = PLAYSTATION_HTML.replace(
         '<script>',
         `<script>window.ALLOWED_DOMAINS = ${JSON.stringify(allowedDomains)};\nwindow.DECRYPTION_KEY = '${decryptionKey}';\nwindow.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};\n`
       );
 
+      // 生成ETag（基于HTML内容）
+      const encoder = new TextEncoder();
+      const data = encoder.encode(htmlWithConfig);
+      const hash = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hash));
+      const etag = `"${hashArray.map(b => b.toString(16).padStart(2, '0')).join('')}"`;
+
       return new Response(htmlWithConfig, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'public, max-age=600', // 10分钟缓存
+          'ETag': etag,
           'X-Frame-Options': 'DENY', // 禁止在iframe中加载
           'Content-Security-Policy': "frame-ancestors 'none'", // 禁止被嵌入任何框架
           'Referrer-Policy': 'strict-origin-when-cross-origin',
@@ -166,6 +175,11 @@ export default {
       // Robots.txt
       return new Response(generateRobotsTxt(), {
         headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+      });
+    } else if (path === '/ads.txt') {
+      // AdSense 验证文件
+      return new Response('google.com, pub-2205598928191137, DIRECT, f08c47fec0942fa0', {
+        headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=86400' }
       });
     } else if (path === '/privacy-policy') {
       // 隐私政策

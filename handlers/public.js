@@ -2,6 +2,40 @@
 import { getDB, getHomepageDisplayConfig, getSystemConfig, generatePlayToken, verifyPlayToken, verifyFreeSubPlayToken, verifyReferer, encryptWithAES, getBoundAdByAction, generateAdM3U8 } from '../database.js';
 import { getAllChannels, getAllGroups, getChannelByHash } from '../utils/channel-cache.js';
 
+/**
+ * 生成ETag（基于内容SHA256哈希）
+ * @param {string} content - 要计算哈希的内容
+ * @returns {Promise<string>} ETag字符串
+ */
+async function generateETag(content) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(content);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hash));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return `"${hashHex}"`;
+}
+
+/**
+ * 根据请求类型确定缓存时间
+ * @param {string} search - 搜索关键词
+ * @param {string} group - 分组过滤
+ * @param {boolean} fromCache - 是否从KV缓存读取
+ * @returns {number} 缓存时间（秒）
+ */
+function determineCacheTime(search, group, fromCache) {
+  // 有搜索或分组过滤的请求：缓存5分钟
+  if (search || group) {
+    return 300; // 5分钟
+  }
+  // 从KV缓存的默认请求：缓存12小时
+  if (fromCache) {
+    return 43200; // 12小时
+  }
+  // 从数据库查询的请求：缓存1分钟（数据可能不是最新的）
+  return 60; // 1分钟
+}
+
 // 公开公告API
 export async function handlePublicAnnouncement(request, env, ctx) {
   try {
@@ -24,13 +58,20 @@ export async function handlePublicAnnouncement(request, env, ctx) {
       });
     }
 
-    return new Response(JSON.stringify({
+    // 构建响应体
+    const responseBody = JSON.stringify({
       success: true,
       data: announcementResult
-    }), {
+    });
+
+    // 生成ETag
+    const etag = await generateETag(responseBody);
+
+    return new Response(responseBody, {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+        'Cache-Control': 'public, max-age=300', // 5分钟缓存
+        'ETag': etag
       }
     });
   } catch (error) {
@@ -414,17 +455,27 @@ export async function handlePublicChannels(request, env, ctx) {
           has_next: page < totalPages
         };
 
-        return new Response(JSON.stringify({
+        // 构建响应体
+        const responseBody = JSON.stringify({
           success: true,
           channels: paginatedChannels,
           groups: filteredGroups,
           pagination
-        }), {
+        });
+
+        // 生成ETag
+        const etag = await generateETag(responseBody);
+
+        // 确定缓存时间（从KV缓存的请求）
+        const cacheTime = determineCacheTime(search, group, true);
+
+        console.log('[PublicChannels] ETag:', etag.substring(0, 20) + '...', 'Cache time:', cacheTime + 's');
+
+        return new Response(responseBody, {
           headers: {
             'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
+            'Cache-Control': `public, max-age=${cacheTime}`,
+            'ETag': etag
           }
         });
       } catch (cacheError) {
@@ -632,18 +683,28 @@ export async function handlePublicChannels(request, env, ctx) {
 
     console.log('[PublicChannels] 调试信息:', JSON.stringify(debugInfo));
 
-    return new Response(JSON.stringify({
+    // 构建响应体
+    const responseBody = JSON.stringify({
       success: true,
       channels,
       groups,
       pagination,
       debug: debugInfo  // 添加调试信息
-    }), {
+    });
+
+    // 生成ETag
+    const etag = await generateETag(responseBody);
+
+    // 确定缓存时间（从数据库查询的请求）
+    const cacheTime = determineCacheTime(search, group, false);
+
+    console.log('[PublicChannels] ETag:', etag.substring(0, 20) + '...', 'Cache time:', cacheTime + 's', 'From DB: true');
+
+    return new Response(responseBody, {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+        'Cache-Control': `public, max-age=${cacheTime}`,
+        'ETag': etag
       }
     });
     }
@@ -1004,13 +1065,20 @@ export async function handlePublicConfig(request, env, ctx) {
       disable_console_logs: systemConfig.disable_console_logs
     };
 
-    return new Response(JSON.stringify({
+    // 构建响应体
+    const responseBody = JSON.stringify({
       success: true,
       config: publicConfig
-    }), {
+    });
+
+    // 生成ETag
+    const etag = await generateETag(responseBody);
+
+    return new Response(responseBody, {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+        'Cache-Control': 'public, max-age=600', // 10分钟缓存
+        'ETag': etag
       }
     });
   } catch (error) {
