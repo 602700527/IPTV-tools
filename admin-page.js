@@ -48,6 +48,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     .btn-sm{padding:4px 8px;font-size:12px}
     table{width:100%;border-collapse:collapse}
     th,td{padding:12px;text-align:left;border-bottom:1px solid #f5f5f7}
+    th:first-child,td:first-child{text-align:center;width:40px;}
     th{background:#f5f5f7;font-weight:600;font-size:13px;color:#86868b;text-transform:uppercase}
     tr:hover{background:#f9f9fb}
     .badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
@@ -203,6 +204,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <h3>卡密列表</h3>
           <div>
             <button class="btn btn-success" onclick="toggleAdvancedFilter()">高级查询</button>
+            <button class="btn btn-danger" onclick="batchDeleteCodes()">批量删除选中</button>
             <button class="btn btn-primary" onclick="exportCodesCSV()">导出CSV</button>
             <button class="btn btn-primary" onclick="showImportCodeModal()">批量导入</button>
             <button class="btn btn-primary" onclick="showGenerateCodeModal()">生成卡密</button>
@@ -226,7 +228,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <button class="btn" onclick="clearCodeFilters()">重置</button>
           </div>
         </div>
-        <table><thead><tr><th>卡密</th><th>状态</th><th>有效期(天)</th><th>最大IP数</th><th>激活时间</th><th>过期时间</th><th>备注</th><th>操作</th></tr></thead><tbody id="codesTable"></tbody></table>
+        <table><thead><tr><th><input type="checkbox" id="selectAllCodes" onclick="toggleSelectAllCodes()" style="width:auto;"></th><th>卡密</th><th>状态</th><th>有效期(天)</th><th>最大IP数</th><th>激活时间</th><th>过期时间</th><th>备注</th><th>操作</th></tr></thead><tbody id="codesTable"></tbody></table>
         <div id="codePagination" class="pagination"></div>
       </div>
     </div>
@@ -1776,6 +1778,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             const status = statusMap[code.status] || { text: code.status, class: 'badge-warning' };
             return \`
               <tr>
+                <td><input type="checkbox" class="code-checkbox" value="\${escapeHtml(code.code)}" style="width:auto;"></td>
                 <td><span class="code-display">\${escapeHtml(code.code)}</span></td>
                 <td><span class="badge \${status.class}">\${status.text}</span></td>
                 <td>\${code.duration_days}</td>
@@ -1838,6 +1841,46 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     function toggleAdvancedFilter() {
       const panel = document.getElementById('advancedFilterPanel');
       panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function toggleSelectAllCodes() {
+      const selectAll = document.getElementById('selectAllCodes');
+      const checkboxes = document.querySelectorAll('.code-checkbox');
+      checkboxes.forEach(cb => cb.checked = selectAll.checked);
+    }
+
+    async function batchDeleteCodes() {
+      const checkboxes = document.querySelectorAll('.code-checkbox:checked');
+      const codesToDelete = Array.from(checkboxes).map(cb => cb.value);
+
+      if (codesToDelete.length === 0) {
+        showToast('请先选择要删除的卡密', 'info');
+        return;
+      }
+
+      if (!confirm(\`确定要删除选中的 \${codesToDelete.length} 个卡密吗？此操作不可恢复！\`)) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/codes?action=batch_delete', {
+          method: 'POST',
+          body: JSON.stringify({ codes: codesToDelete })
+        });
+
+        showToast(\`成功删除 \${codesToDelete.length} 个卡密\`, 'success');
+
+        // 清空选择
+        document.getElementById('selectAllCodes').checked = false;
+
+        // 刷新列表
+        loadCodes();
+      } catch (error) {
+        showToast('批量删除失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
     }
 
     function clearCodeFilters() {

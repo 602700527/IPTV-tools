@@ -246,7 +246,37 @@ export async function handleAdminRequest(request, env, ctx) {
 
       case 'codes':
         // 处理卡密管理
-        if (request.method === 'GET') {
+        if (request.method === 'POST' && url.searchParams.get('action') === 'batch_delete') {
+          // 批量删除卡密
+          const data = await request.json();
+          const { codes } = data;
+
+          if (!Array.isArray(codes) || codes.length === 0) {
+            return new Response(JSON.stringify({ success: false, error: 'Invalid codes array' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+
+          const db = getDB();
+          let deleted = 0;
+
+          for (const code of codes) {
+            if (!code) continue;
+            const result = await db.prepare('DELETE FROM codes WHERE code = ?').bind(code).run();
+            if (result.meta.changes > 0) {
+              deleted++;
+            }
+          }
+
+          return new Response(JSON.stringify({
+            success: true,
+            deleted,
+            message: `Deleted ${deleted} codes`
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'GET') {
           // 导出CSV功能
           if (url.searchParams.get('action') === 'export') {
             const codes = await getCodesForExport(url.searchParams);
@@ -557,25 +587,20 @@ export async function handleAdminRequest(request, env, ctx) {
               });
             }
 
-            const now = new Date().toISOString();
-            const expiredAt = new Date();
-            expiredAt.setTime(expiredAt.getTime() + data.duration_days * 24 * 60 * 60 * 1000);
-
+            // 生成卡密时只设置 status='unused' 和 duration_days
+            // activated_at 和 expired_at 在激活时设置
             await db.prepare(`
-              INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, remark)
-              VALUES (?, 'unused', ?, ?, ?, ?, ?)
+              INSERT INTO codes (code, status, duration_days, max_ips, remark)
+              VALUES (?, 'unused', ?, ?, ?)
             `).bind(
               code,
               data.duration_days,
-              now,
-              expiredAt.toISOString(),
               data.max_ips || 3,
               data.remark || ''
             ).run();
 
             codes.push({
               code,
-              expired_at: expiredAt.toISOString(),
               remark: data.remark || ''
             });
           }

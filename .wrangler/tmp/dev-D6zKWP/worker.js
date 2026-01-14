@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-PnOf0R/checked-fetch.js
+// .wrangler/tmp/bundle-NetmwX/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-PnOf0R/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-NetmwX/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -1692,11 +1692,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-PnOf0R/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-NetmwX/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-PnOf0R/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-NetmwX/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -3406,7 +3406,32 @@ async function handleAdminRequest(request, env, ctx) {
           headers: { "Content-Type": "application/json" }
         });
       case "codes":
-        if (request.method === "GET") {
+        if (request.method === "POST" && url.searchParams.get("action") === "batch_delete") {
+          const data = await request.json();
+          const { codes } = data;
+          if (!Array.isArray(codes) || codes.length === 0) {
+            return new Response(JSON.stringify({ success: false, error: "Invalid codes array" }), {
+              status: 400,
+              headers: { "Content-Type": "application/json" }
+            });
+          }
+          const db2 = getDB();
+          let deleted = 0;
+          for (const code of codes) {
+            if (!code) continue;
+            const result2 = await db2.prepare("DELETE FROM codes WHERE code = ?").bind(code).run();
+            if (result2.meta.changes > 0) {
+              deleted++;
+            }
+          }
+          return new Response(JSON.stringify({
+            success: true,
+            deleted,
+            message: `Deleted ${deleted} codes`
+          }), {
+            headers: { "Content-Type": "application/json" }
+          });
+        } else if (request.method === "GET") {
           if (url.searchParams.get("action") === "export") {
             const codes2 = await getCodesForExport(url.searchParams);
             let csv = "\u5361\u5BC6,\u72B6\u6001,\u6709\u6548\u671F(\u5929),\u6700\u5927IP\u6570,\u6FC0\u6D3B\u65F6\u95F4,\u8FC7\u671F\u65F6\u95F4,\u5907\u6CE8\n";
@@ -3666,23 +3691,17 @@ async function handleAdminRequest(request, env, ctx) {
                 headers: { "Content-Type": "application/json" }
               });
             }
-            const now2 = (/* @__PURE__ */ new Date()).toISOString();
-            const expiredAt = /* @__PURE__ */ new Date();
-            expiredAt.setTime(expiredAt.getTime() + data.duration_days * 24 * 60 * 60 * 1e3);
             await db2.prepare(`
-              INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, remark)
-              VALUES (?, 'unused', ?, ?, ?, ?, ?)
+              INSERT INTO codes (code, status, duration_days, max_ips, remark)
+              VALUES (?, 'unused', ?, ?, ?)
             `).bind(
               code,
               data.duration_days,
-              now2,
-              expiredAt.toISOString(),
               data.max_ips || 3,
               data.remark || ""
             ).run();
             codes.push({
               code,
-              expired_at: expiredAt.toISOString(),
               remark: data.remark || ""
             });
           }
@@ -6141,6 +6160,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
     .btn-sm{padding:4px 8px;font-size:12px}
     table{width:100%;border-collapse:collapse}
     th,td{padding:12px;text-align:left;border-bottom:1px solid #f5f5f7}
+    th:first-child,td:first-child{text-align:center;width:40px;}
     th{background:#f5f5f7;font-weight:600;font-size:13px;color:#86868b;text-transform:uppercase}
     tr:hover{background:#f9f9fb}
     .badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
@@ -6296,6 +6316,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
           <h3>\u5361\u5BC6\u5217\u8868</h3>
           <div>
             <button class="btn btn-success" onclick="toggleAdvancedFilter()">\u9AD8\u7EA7\u67E5\u8BE2</button>
+            <button class="btn btn-danger" onclick="batchDeleteCodes()">\u6279\u91CF\u5220\u9664\u9009\u4E2D</button>
             <button class="btn btn-primary" onclick="exportCodesCSV()">\u5BFC\u51FACSV</button>
             <button class="btn btn-primary" onclick="showImportCodeModal()">\u6279\u91CF\u5BFC\u5165</button>
             <button class="btn btn-primary" onclick="showGenerateCodeModal()">\u751F\u6210\u5361\u5BC6</button>
@@ -6319,7 +6340,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
             <button class="btn" onclick="clearCodeFilters()">\u91CD\u7F6E</button>
           </div>
         </div>
-        <table><thead><tr><th>\u5361\u5BC6</th><th>\u72B6\u6001</th><th>\u6709\u6548\u671F(\u5929)</th><th>\u6700\u5927IP\u6570</th><th>\u6FC0\u6D3B\u65F6\u95F4</th><th>\u8FC7\u671F\u65F6\u95F4</th><th>\u5907\u6CE8</th><th>\u64CD\u4F5C</th></tr></thead><tbody id="codesTable"></tbody></table>
+        <table><thead><tr><th><input type="checkbox" id="selectAllCodes" onclick="toggleSelectAllCodes()" style="width:auto;"></th><th>\u5361\u5BC6</th><th>\u72B6\u6001</th><th>\u6709\u6548\u671F(\u5929)</th><th>\u6700\u5927IP\u6570</th><th>\u6FC0\u6D3B\u65F6\u95F4</th><th>\u8FC7\u671F\u65F6\u95F4</th><th>\u5907\u6CE8</th><th>\u64CD\u4F5C</th></tr></thead><tbody id="codesTable"></tbody></table>
         <div id="codePagination" class="pagination"></div>
       </div>
     </div>
@@ -7869,6 +7890,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
             const status = statusMap[code.status] || { text: code.status, class: 'badge-warning' };
             return \`
               <tr>
+                <td><input type="checkbox" class="code-checkbox" value="\${escapeHtml(code.code)}" style="width:auto;"></td>
                 <td><span class="code-display">\${escapeHtml(code.code)}</span></td>
                 <td><span class="badge \${status.class}">\${status.text}</span></td>
                 <td>\${code.duration_days}</td>
@@ -7931,6 +7953,46 @@ var ADMIN_HTML = `<!DOCTYPE html>
     function toggleAdvancedFilter() {
       const panel = document.getElementById('advancedFilterPanel');
       panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function toggleSelectAllCodes() {
+      const selectAll = document.getElementById('selectAllCodes');
+      const checkboxes = document.querySelectorAll('.code-checkbox');
+      checkboxes.forEach(cb => cb.checked = selectAll.checked);
+    }
+
+    async function batchDeleteCodes() {
+      const checkboxes = document.querySelectorAll('.code-checkbox:checked');
+      const codesToDelete = Array.from(checkboxes).map(cb => cb.value);
+
+      if (codesToDelete.length === 0) {
+        showToast('\u8BF7\u5148\u9009\u62E9\u8981\u5220\u9664\u7684\u5361\u5BC6', 'info');
+        return;
+      }
+
+      if (!confirm(\`\u786E\u5B9A\u8981\u5220\u9664\u9009\u4E2D\u7684 \${codesToDelete.length} \u4E2A\u5361\u5BC6\u5417\uFF1F\u6B64\u64CD\u4F5C\u4E0D\u53EF\u6062\u590D\uFF01\`)) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const result = await apiRequest('/codes?action=batch_delete', {
+          method: 'POST',
+          body: JSON.stringify({ codes: codesToDelete })
+        });
+
+        showToast(\`\u6210\u529F\u5220\u9664 \${codesToDelete.length} \u4E2A\u5361\u5BC6\`, 'success');
+
+        // \u6E05\u7A7A\u9009\u62E9
+        document.getElementById('selectAllCodes').checked = false;
+
+        // \u5237\u65B0\u5217\u8868
+        loadCodes();
+      } catch (error) {
+        showToast('\u6279\u91CF\u5220\u9664\u5931\u8D25: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
     }
 
     function clearCodeFilters() {
@@ -15769,7 +15831,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-PnOf0R/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-NetmwX/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -15803,7 +15865,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-PnOf0R/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-NetmwX/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
