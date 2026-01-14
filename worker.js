@@ -15,6 +15,7 @@ import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTerm
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 import { LOGO_SVG, FAVICON_SVG, OG_IMAGE_SVG } from './assets.js';
+import { testD1Connection } from './test-d1.js';
 
 // 缓存初始化标记（防止重复初始化）
 let cacheInitialized = false;
@@ -182,6 +183,27 @@ export default {
     } else if (path.startsWith('/api/ads/')) {
       // 广告TS文件API: /api/ads/{id}.ts
       return await handleAdTsFile(request, env, ctx);
+    } else if (path === '/api/test/db') {
+      // 生产环境 D1 测试路由（需要简单验证）
+      const testKey = url.searchParams.get('key');
+      if (testKey !== env.ADMIN_KEY) {
+        return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+
+      try {
+        const result = await testD1Connection(env);
+        return new Response(JSON.stringify(result), {
+          headers: { 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (error) {
+        return new Response(JSON.stringify({ success: false, error: error.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
     } else if (path.startsWith('/test/')) {
       // 测试路由：只允许在本地开发环境使用（localhost 或 127.0.0.1）
       const clientIP = request.headers.get('cf-connecting-ip') || url.hostname;
@@ -250,6 +272,19 @@ export default {
           await syncAllSources(db, env);
           await refreshCache(db, env);
           return new Response(JSON.stringify({ success: true, message: 'Full sync and cache refresh completed' }), {
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        } catch (error) {
+          return new Response(JSON.stringify({ success: false, error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+      } else if (path === '/test/d1') {
+        // 测试路由：D1 数据库诊断
+        try {
+          const result = await testD1Connection(env);
+          return new Response(JSON.stringify(result), {
             headers: { 'Content-Type': 'application/json; charset=utf-8' }
           });
         } catch (error) {

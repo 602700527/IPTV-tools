@@ -108,19 +108,18 @@ export async function createTables(env) {
     }
   }
 
-  // 创建频道表
+  // 创建频道表（注意：D1 不支持 FOREIGN KEY，所以移除外键约束）
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS channels (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       source_id INTEGER,
-      channel_name TEXT, 
+      channel_name TEXT,
       group_title TEXT,
       logo TEXT,
-      play_url TEXT, 
+      play_url TEXT,
       headers TEXT,
       channel_hash TEXT,
-      is_active BOOLEAN DEFAULT 1,
-      FOREIGN KEY(source_id) REFERENCES sources(id)
+      is_active BOOLEAN DEFAULT 1
     )
   `).run();
 
@@ -423,7 +422,7 @@ export async function createTables(env) {
     console.error('Database: Failed to migrate ad_ts_files table:', e);
   }
 
-  // 创建广告绑定表
+  // 创建广告绑定表（注意：D1 不支持 FOREIGN KEY，所以移除外键约束）
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS ad_bindings (
@@ -433,8 +432,7 @@ export async function createTables(env) {
         cooldown_seconds INTEGER DEFAULT 0,
         priority INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(ad_id) REFERENCES ad_ts_files(id) ON DELETE SET NULL
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `).run();
     console.log('Database: ad_bindings table created or already exists');
@@ -513,7 +511,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create free_subscriptions indexes:', e);
   }
 
-  // 创建签到记录表
+  // 创建签到记录表（注意：D1 不支持 FOREIGN KEY，所以移除外键约束）
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS checkin_records (
@@ -523,7 +521,6 @@ export async function createTables(env) {
         reward_days INTEGER DEFAULT 1,
         consecutive_days INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(subscription_id) REFERENCES free_subscriptions(id) ON DELETE CASCADE,
         UNIQUE(subscription_id, checkin_date)
       )
     `).run();
@@ -1374,12 +1371,9 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
     const BATCH_SIZE = 500; // 每批500条
     let processedCount = 0;
 
-    // 使用事务确保数据一致性
+    // D1 的 batch API 本身就是原子的，不需要手动使用 BEGIN/COMMIT
+    // 批量插入频道
     try {
-      // 开始事务
-      await db.batch([db.prepare('BEGIN TRANSACTION')]);
-      console.log(`[Sync] Transaction started for source ${sourceId}`);
-
       for (let i = 0; i < channels.length; i += BATCH_SIZE) {
         const batch = channels.slice(i, i + BATCH_SIZE);
         const statements = batch.map(channel =>
@@ -1408,18 +1402,14 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
           if (batch.length > 0) {
             console.error('[Sync] First channel data:', batch[0]);
           }
-          // 回滚事务
-          await db.batch([db.prepare('ROLLBACK')]);
-          console.log(`[Sync] Transaction rolled back for source ${sourceId}`);
+          // D1 的 batch 操作是原子的，失败会自动回滚
           throw batchError;
         }
       }
 
-      // 提交事务
-      await db.batch([db.prepare('COMMIT')]);
-      console.log(`[Sync] Transaction committed for source ${sourceId}, ${processedCount} channels inserted`);
+      console.log(`[Sync] All batches completed for source ${sourceId}, ${processedCount} channels inserted`);
     } catch (transactionError) {
-      console.error(`[Sync] Transaction error for source ${sourceId}:`, transactionError);
+      console.error(`[Sync] Batch insert error for source ${sourceId}:`, transactionError);
       throw transactionError;
     }
   }
