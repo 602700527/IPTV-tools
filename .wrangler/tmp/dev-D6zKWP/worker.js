@@ -14360,6 +14360,8 @@ var FREE_SUB_HTML = `
 
         const data = await response.json();
 
+        console.log('[loadSubscription] API response:', data);
+
         if (data.success) {
           subId = data.subscription.subId;
           displaySubscription(data.subscription);
@@ -14375,10 +14377,17 @@ var FREE_SUB_HTML = `
 
     // \u663E\u793A\u8BA2\u9605\u4FE1\u606F
     function displaySubscription(sub) {
+      console.log('[displaySubscription] Received subscription data:', sub);
+
       document.getElementById('subId').textContent = sub.subId;
       const subUrl = \`\${window.location.origin}/api/freesub/\${sub.subId}.m3u?fp=\${fingerprint}\`;
       document.getElementById('subUrl').textContent = subUrl;
-      document.getElementById('consecutiveDays').textContent = sub.consecutiveDays || 0;
+
+      // \u786E\u4FDDconsecutiveDays\u6709\u503C
+      const consecutiveDays = sub.consecutiveDays !== undefined ? sub.consecutiveDays : (sub.consecutive_days !== undefined ? sub.consecutive_days : 0);
+      console.log('[displaySubscription] consecutiveDays value:', consecutiveDays, 'raw data:', sub);
+
+      document.getElementById('consecutiveDays').textContent = consecutiveDays;
 
       // \u8BA1\u7B97\u5269\u4F59\u5929\u6570
       const expiredAt = new Date(sub.expiredAt);
@@ -14402,6 +14411,8 @@ var FREE_SUB_HTML = `
         });
 
         const data = await response.json();
+
+        console.log('[loadSubscriptionInfo] API response:', data);
 
         if (data.success) {
           displaySubscription(data.subscription);

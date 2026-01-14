@@ -716,6 +716,8 @@ export const FREE_SUB_HTML = `
 
         const data = await response.json();
 
+        console.log('[loadSubscription] API response:', data);
+
         if (data.success) {
           subId = data.subscription.subId;
           displaySubscription(data.subscription);
@@ -731,10 +733,17 @@ export const FREE_SUB_HTML = `
 
     // 显示订阅信息
     function displaySubscription(sub) {
+      console.log('[displaySubscription] Received subscription data:', sub);
+
       document.getElementById('subId').textContent = sub.subId;
       const subUrl = \`\${window.location.origin}/api/freesub/\${sub.subId}.m3u?fp=\${fingerprint}\`;
       document.getElementById('subUrl').textContent = subUrl;
-      document.getElementById('consecutiveDays').textContent = sub.consecutiveDays || 0;
+
+      // 确保consecutiveDays有值
+      const consecutiveDays = sub.consecutiveDays !== undefined ? sub.consecutiveDays : (sub.consecutive_days !== undefined ? sub.consecutive_days : 0);
+      console.log('[displaySubscription] consecutiveDays value:', consecutiveDays, 'raw data:', sub);
+
+      document.getElementById('consecutiveDays').textContent = consecutiveDays;
 
       // 计算剩余天数
       const expiredAt = new Date(sub.expiredAt);
@@ -758,6 +767,8 @@ export const FREE_SUB_HTML = `
         });
 
         const data = await response.json();
+
+        console.log('[loadSubscriptionInfo] API response:', data);
 
         if (data.success) {
           displaySubscription(data.subscription);
