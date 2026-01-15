@@ -994,6 +994,21 @@ export async function handleGetPlayToken(request, env, ctx) {
   }
 
   try {
+    // 获取客户端真实IP（考虑CF代理）
+    const clientIp = request.headers.get('CF-Connecting-IP') ||
+                    request.headers.get('X-Forwarded-For')?.split(',')[0] ||
+                    'unknown';
+
+    // 检查 Cloudflare Cache API 缓存
+    const cacheKey = `token:${hash}:${clientIp}`;
+    const cache = caches.default;
+    const cachedResponse = await cache.match(new Request(url.toString()));
+
+    if (cachedResponse) {
+      console.log('[GetPlayToken] Cache hit for hash:', hash);
+      return cachedResponse;
+    }
+
     const db = getDB();
 
     // 获取系统配置
@@ -1024,24 +1039,24 @@ export async function handleGetPlayToken(request, env, ctx) {
       return new Response('Channel not found', { status: 404 });
     }
 
-    // 获取客户端真实IP（考虑CF代理）
-    const clientIp = request.headers.get('CF-Connecting-IP') || 
-                    request.headers.get('X-Forwarded-For')?.split(',')[0] ||
-                    'unknown';
-
     // 生成带IP绑定的token（将IP哈希后存入nonce，服务器验证时对比）
     const token = await generatePlayToken(hash, clientIp, env.SECRET_KEY || 'default-secret-key');
 
-    return new Response(JSON.stringify({
+    const response = new Response(JSON.stringify({
       success: true,
       token: token,
       expire_seconds: systemConfig.play_token_expire_seconds
     }), {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate'
+        'Cache-Control': 'public, max-age=30'  // 缓存30秒
       }
     });
+
+    // 缓存响应（在后台异步执行）
+    ctx.waitUntil(cache.put(new Request(url.toString()), response.clone()));
+
+    return response;
 
   } catch (error) {
     console.error('生成token失败:', error);

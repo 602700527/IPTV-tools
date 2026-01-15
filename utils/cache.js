@@ -368,7 +368,10 @@ export async function flushCacheToDB(env, ctx) {
       console.log(`Flushed ${playBatch.length} play count records to play_counts table`);
     }
 
-    // 2. 批量写入 IP 访问计数
+    // 2. 批量写入 IP 访问计数 - 已禁用以减少数据库写入
+    // IP访问日志不再持久化到数据库，仅用于内存限流检查
+    // 如果需要持久化，请取消注释以下代码
+    /*
     const ipBatch = [];
     for (const [key, count] of ipAccessCache.entries()) {
       const [ip, path, date] = key.split(':');
@@ -427,6 +430,8 @@ export async function flushCacheToDB(env, ctx) {
 
       console.log(`Flushed ${ipBatch.length} IP access records (${updateStatements.length} updated, ${insertStatements.length} inserted)`);
     }
+    */
+    console.log('IP access logging disabled to reduce database writes');
 
     // 3. 批量写入订阅IP到 subscription_ips 表
     // 注意：不立即清空订阅IP缓存，只清理过期的IP

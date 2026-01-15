@@ -105,9 +105,9 @@ export async function checkIPRateLimit(env, ctx, ip, path) {
     }
   }
 
-  // 增加本次请求的计数到缓存
-  pathRequests = incrementIPAccess(ip, path, today);
-  todayRequests = getIPTotalAccess(ip, today);
+  // 增加本次请求的计数到缓存（仅用于限流检查，不写入数据库）
+  pathRequests++;
+  todayRequests++;
 
   // 4. 获取配置的阈值
   const config = await getIPBlacklistConfig();
