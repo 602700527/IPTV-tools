@@ -1580,8 +1580,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         const paramsStr = params.toString();
         const cacheKey = getCacheKey('channels', paramsStr);
 
-        // 优先从分组缓存读取分组数据
-        if (updateGroups) {
+        // 优先从分组缓存读取分组数据（强制刷新时跳过）
+        if (updateGroups && !forceRefresh) {
           const cachedGroups = getCachedGroups();
           if (cachedGroups) {
             allGroups = cachedGroups;
@@ -1698,11 +1698,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         if (item.dataset.group === currentGroup) {
           item.classList.add('active');
         }
-
-        // 添加波纹效果
-        item.addEventListener('click', function(e) {
-          createRipple(item);
-        });
       });
 
       // 更新移动端分组选中状态
@@ -1781,10 +1776,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         overlay.classList.remove('open');
       }
 
-      // 添加点击波纹效果
+      // 添加点击波纹效果（排除"全部频道"按钮）
       const escapedGroup = escapeHtml(group);
       const clickedItem = document.querySelector(\`.group-item[data-group="\${escapedGroup}"]\`);
-      if (clickedItem) {
+      if (clickedItem && group !== '') {
+        // 只对非"全部频道"按钮添加波纹效果
         createRipple(clickedItem);
       }
 
@@ -1793,6 +1789,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
       currentGroup = group;
       currentPage = 1; // 重置到第一页
+
+      // 清空搜索框和搜索状态
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.value = '';
+      }
+      currentSearch = '';
 
       // 更新标题
       if (group === 'history') {
@@ -1827,8 +1830,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         return;
       }
 
-      // 重新加载频道
-      loadChannels(1);
+      // 重新加载频道（强制更新分组列表）
+      loadChannels(1, true);
     }
 
     // 处理频道点击

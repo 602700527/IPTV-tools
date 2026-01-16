@@ -34,12 +34,16 @@ export async function cacheChannelsToKV(env) {
         AND s.is_active = 1
     `).all();
 
-    // 查询所有分组
+    // 查询所有分组（只包括启用的源）
     const groupsResult = await db.prepare(`
-      SELECT DISTINCT group_title
-      FROM channels
-      WHERE group_title IS NOT NULL AND group_title != ''
-      ORDER BY group_title
+      SELECT DISTINCT c.group_title
+      FROM channels c
+      INNER JOIN sources s ON c.source_id = s.id
+      WHERE c.group_title IS NOT NULL
+        AND c.group_title != ''
+        AND c.is_active = 1
+        AND s.is_active = 1
+      ORDER BY c.group_title
     `).all();
 
     const groups = (groupsResult.results || []).map(r => r.group_title);

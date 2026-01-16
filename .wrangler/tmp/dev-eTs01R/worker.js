@@ -2275,10 +2275,14 @@ async function cacheChannelsToKV(env) {
         AND s.is_active = 1
     `).all();
     const groupsResult = await db.prepare(`
-      SELECT DISTINCT group_title
-      FROM channels
-      WHERE group_title IS NOT NULL AND group_title != ''
-      ORDER BY group_title
+      SELECT DISTINCT c.group_title
+      FROM channels c
+      INNER JOIN sources s ON c.source_id = s.id
+      WHERE c.group_title IS NOT NULL
+        AND c.group_title != ''
+        AND c.is_active = 1
+        AND s.is_active = 1
+      ORDER BY c.group_title
     `).all();
     const groups = (groupsResult.results || []).map((r) => r.group_title);
     const version = Date.now();
@@ -12116,8 +12120,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         const paramsStr = params.toString();
         const cacheKey = getCacheKey('channels', paramsStr);
 
-        // \u4F18\u5148\u4ECE\u5206\u7EC4\u7F13\u5B58\u8BFB\u53D6\u5206\u7EC4\u6570\u636E
-        if (updateGroups) {
+        // \u4F18\u5148\u4ECE\u5206\u7EC4\u7F13\u5B58\u8BFB\u53D6\u5206\u7EC4\u6570\u636E\uFF08\u5F3A\u5236\u5237\u65B0\u65F6\u8DF3\u8FC7\uFF09
+        if (updateGroups && !forceRefresh) {
           const cachedGroups = getCachedGroups();
           if (cachedGroups) {
             allGroups = cachedGroups;
@@ -12234,11 +12238,6 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         if (item.dataset.group === currentGroup) {
           item.classList.add('active');
         }
-
-        // \u6DFB\u52A0\u6CE2\u7EB9\u6548\u679C
-        item.addEventListener('click', function(e) {
-          createRipple(item);
-        });
       });
 
       // \u66F4\u65B0\u79FB\u52A8\u7AEF\u5206\u7EC4\u9009\u4E2D\u72B6\u6001
@@ -12317,10 +12316,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         overlay.classList.remove('open');
       }
 
-      // \u6DFB\u52A0\u70B9\u51FB\u6CE2\u7EB9\u6548\u679C
+      // \u6DFB\u52A0\u70B9\u51FB\u6CE2\u7EB9\u6548\u679C\uFF08\u6392\u9664"\u5168\u90E8\u9891\u9053"\u6309\u94AE\uFF09
       const escapedGroup = escapeHtml(group);
       const clickedItem = document.querySelector(\`.group-item[data-group="\${escapedGroup}"]\`);
-      if (clickedItem) {
+      if (clickedItem && group !== '') {
+        // \u53EA\u5BF9\u975E"\u5168\u90E8\u9891\u9053"\u6309\u94AE\u6DFB\u52A0\u6CE2\u7EB9\u6548\u679C
         createRipple(clickedItem);
       }
 
@@ -12329,6 +12329,13 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
       currentGroup = group;
       currentPage = 1; // \u91CD\u7F6E\u5230\u7B2C\u4E00\u9875
+
+      // \u6E05\u7A7A\u641C\u7D22\u6846\u548C\u641C\u7D22\u72B6\u6001
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.value = '';
+      }
+      currentSearch = '';
 
       // \u66F4\u65B0\u6807\u9898
       if (group === 'history') {
@@ -12363,8 +12370,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         return;
       }
 
-      // \u91CD\u65B0\u52A0\u8F7D\u9891\u9053
-      loadChannels(1);
+      // \u91CD\u65B0\u52A0\u8F7D\u9891\u9053\uFF08\u5F3A\u5236\u66F4\u65B0\u5206\u7EC4\u5217\u8868\uFF09
+      loadChannels(1, true);
     }
 
     // \u5904\u7406\u9891\u9053\u70B9\u51FB
