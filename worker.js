@@ -15,7 +15,6 @@ import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTerm
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 import { LOGO_SVG, FAVICON_SVG, OG_IMAGE_SVG, APPLE_TOUCH_ICON_SVG, ICON_192_SVG, FAVICON_ICO_SVG } from './assets.js';
-import { testD1Connection } from './test-d1.js';
 
 // 缓存初始化标记（防止重复初始化）
 let cacheInitialized = false;
@@ -232,8 +231,7 @@ export default {
       }
 
       try {
-        const result = await testD1Connection(env);
-        return new Response(JSON.stringify(result), {
+        return new Response(JSON.stringify({ success: true, message: 'D1 connection test removed' }), {
           headers: { 'Content-Type': 'application/json; charset=utf-8' }
         });
       } catch (error) {
@@ -342,10 +340,9 @@ export default {
           });
         }
       } else if (path === '/test/d1') {
-        // 测试路由：D1 数据库诊断
+        // 测试路由：D1 数据库诊断（已移除）
         try {
-          const result = await testD1Connection(env);
-          return new Response(JSON.stringify(result), {
+          return new Response(JSON.stringify({ success: true, message: 'D1 connection test removed' }), {
             headers: { 'Content-Type': 'application/json; charset=utf-8' }
           });
         } catch (error) {
