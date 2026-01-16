@@ -92,6 +92,11 @@ export async function handleFreeSubAPI(request, env, ctx) {
       const stats = await getCheckInStats(validation.subscription.id);
       const history = await getCheckInHistory(validation.subscription.id, 30);
 
+      console.log('[FreeSub Info] Returning subscription info:', {
+        consecutiveDays: validation.subscription.consecutiveDays,
+        statsMaxConsecutive: stats.maxConsecutive
+      });
+
       return jsonResponse({
         success: true,
         subscription: validation.subscription,
