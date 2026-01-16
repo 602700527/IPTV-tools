@@ -881,7 +881,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           break;
         case 'clearCache':
           clearCache();
-          loadChannels(1, true);
+          loadChannels(1, true, true);  // 强制刷新，跳过缓存
           showPlayingIndicator(t('cacheCleared'));
           break;
       }
@@ -1521,19 +1521,38 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     // 清除缓存
     function clearCache() {
       try {
+        // 清除所有 iptv 相关的缓存
         const keys = Object.keys(localStorage);
         keys.forEach(key => {
-          if (key.startsWith(CACHE_PREFIX) || key === GROUPS_CACHE_KEY) {
+          if (key.startsWith(CACHE_PREFIX) || 
+              key === GROUPS_CACHE_KEY || 
+              key.startsWith('iptv_')) {
             localStorage.removeItem(key);
           }
         });
         console.log('[Cache] 已清除所有缓存');
+        
+        // 清除当前页面的所有频道和分组数据
+        allChannels = [];
+        allGroups = [];
+        currentPage = 1;
+        totalPages = 1;
+        totalChannels = 0;
+        currentSearch = '';
+        currentGroup = '';
+        
+        // 清空搜索框
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+          searchInput.value = '';
+        }
+        
       } catch (error) {
         console.error('[Cache] 清除缓存失败:', error);
       }
     }
     
-    async function loadChannels(page = 1, updateGroups = true) {
+    async function loadChannels(page = 1, updateGroups = true, forceRefresh = false) {
       // 请求节流：如果正在加载，保存待加载请求
       if (isLoadingChannels) {
         console.log('[LoadChannels] 正在加载，保存待加载请求:', { page, updateGroups });
@@ -1572,8 +1591,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           }
         }
 
-        // 尝试从缓存读取
-        const cachedData = getFromCache(cacheKey);
+        // 尝试从缓存读取（强制刷新时跳过）
+        const cachedData = forceRefresh ? null : getFromCache(cacheKey);
         if (cachedData) {
           // 使用缓存数据
           currentPage = cachedData.pagination?.page || 1;
@@ -1599,8 +1618,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           return;
         }
 
-        // 缓存未命中，从服务器获取
-        const response = await fetch(API_BASE + '/channels?' + paramsStr);
+        // 缓存未命中或强制刷新，从服务器获取
+        const response = await fetch(API_BASE + '/channels?' + paramsStr, {
+          cache: 'no-store'  // 强制不使用浏览器缓存
+        });
         const data = await response.json();
 
 
@@ -1841,8 +1862,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         case 'clearCache':
           // 清除缓存并刷新
           clearCache();
-          // 重新加载频道列表
-          loadChannels(1, true);
+          // 重新加载频道列表（强制刷新，跳过缓存）
+          loadChannels(1, true, true);
           // 显示提示
           showToast(t('cacheCleared'), 'success');
           break;

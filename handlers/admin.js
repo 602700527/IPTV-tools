@@ -1324,15 +1324,34 @@ export async function handleAdminRequest(request, env, ctx) {
           });
         }
 
-        // 清空缓存
+        // 清空缓存并重新生成
         if (cacheSubAction === 'clear' && request.method === 'POST') {
+          console.log('[Admin] Clearing cache and regenerating...');
+          
+          // 先清除旧缓存
           const cleared = await clearChannelCache(env);
-          return new Response(JSON.stringify({
-            success: cleared,
-            message: cleared ? '缓存已清空' : '缓存清空失败'
-          }), {
-            headers: { 'Content-Type': 'application/json' }
-          });
+          
+          if (cleared) {
+            // 立即重新生成缓存
+            const result = await cacheChannelsToKV(env);
+            
+            return new Response(JSON.stringify({
+              success: true,
+              message: '缓存已清空并重新生成',
+              channels: result.channels || 0,
+              groups: result.groups || 0,
+              version: result.version
+            }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } else {
+            return new Response(JSON.stringify({
+              success: false,
+              message: '缓存清空失败'
+            }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
         }
 
         return new Response('Invalid cache action', { status: 400 });
