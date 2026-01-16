@@ -14,7 +14,7 @@ export async function cacheChannelsToKV(env) {
   try {
     const db = getDB();
 
-    // 查询所有频道（包括源信息）
+    // 查询所有频道（只包括启用的源和启用的频道）
     const channels = await db.prepare(`
       SELECT
         c.id,
@@ -29,7 +29,9 @@ export async function cacheChannelsToKV(env) {
         s.name as source_name,
         s.is_active as source_active
       FROM channels c
-      LEFT JOIN sources s ON c.source_id = s.id
+      INNER JOIN sources s ON c.source_id = s.id
+      WHERE c.is_active = 1
+        AND s.is_active = 1
     `).all();
 
     // 查询所有分组
@@ -225,7 +227,9 @@ export async function getAllChannels(env) {
         s.name as source_name,
         s.is_active as source_active
       FROM channels c
-      LEFT JOIN sources s ON c.source_id = s.id
+      INNER JOIN sources s ON c.source_id = s.id
+      WHERE c.is_active = 1
+        AND s.is_active = 1
     `).all();
 
     return {
@@ -261,10 +265,14 @@ export async function getAllGroups(env) {
     // KV 中没有，从数据库查询
     const db = getDB();
     const result = await db.prepare(`
-      SELECT DISTINCT group_title
-      FROM channels
-      WHERE group_title IS NOT NULL AND group_title != ''
-      ORDER BY group_title
+      SELECT DISTINCT c.group_title
+      FROM channels c
+      INNER JOIN sources s ON c.source_id = s.id
+      WHERE c.group_title IS NOT NULL
+        AND c.group_title != ''
+        AND c.is_active = 1
+        AND s.is_active = 1
+      ORDER BY c.group_title
     `).all();
 
     return {
