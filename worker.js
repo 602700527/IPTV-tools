@@ -128,12 +128,10 @@ export default {
           'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'public, max-age=600', // 10分钟缓存
           'ETag': etag,
-          'X-Frame-Options': '', // 完全移除
-          'Content-Security-Policy': '', // 完全移除
-          'Referrer-Policy': 'strict-origin-when-cross-origin',
-          'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
-          'Access-Control-Allow-Origin': '*',
-          'X-XSS-Protection': '0'
+          'X-Frame-Options': 'DENY', // 禁止在iframe中加载
+          'X-Content-Type-Options': 'nosniff', // 防止MIME类型嗅探
+          'Referrer-Policy': 'strict-origin-when-cross-origin', // 严格的引用策略
+          'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=()' // 限制敏感权限
         }
       });
     } else if (path === '/api/config') {
