@@ -389,8 +389,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .channel-group{font-size:11px}
     }
   </style>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137"
-     crossorigin="anonymous"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137"
+     crossorigin="anonymous">
+  </script>
 </head>
 <body>
   <header class="header">
@@ -497,9 +498,29 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     <aside class="sidebar" id="sidebar">
       <div class="group-item active" data-group="" onclick="filterByGroup('')">全部频道</div>
       <div id="groupList"></div>
+
+      <!-- 侧边栏广告位 -->
+      <div class="ad-sidebar">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2205598928191137"
+             data-ad-slot="9663554756"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
     </aside>
 
     <div class="content">
+      <!-- 顶部横幅广告位 -->
+      <div class="ad-banner-top">
+        <ins class="adsbygoogle ad-responsive"
+             style="display:block"
+             data-ad-client="ca-pub-2205598928191137"
+             data-ad-slot="4008350895"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
+
       <div id="loading" class="loading">
         <div class="spinner"></div>
         <span class="loading-text">Loading...</span>
@@ -533,6 +554,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         <div class="channels-grid" id="channelsGrid"></div>
         <div class="pagination" id="pagination"></div>
 
+        <!-- 底部横幅广告位 -->
+        <div class="ad-banner-bottom">
+          <ins class="adsbygoogle ad-responsive"
+               style="display:block"
+               data-ad-client="ca-pub-2205598928191137"
+               data-ad-slot="3690665702"
+               data-ad-format="horizontal"
+               data-full-width-responsive="true"></ins>
+        </div>
 
       </div>
 
@@ -540,6 +570,16 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         <div class="empty-icon">📺</div>
         <div class="empty-title">未找到频道</div>
         <div class="empty-desc">请尝试其他搜索词或分组</div>
+      </div>
+
+      <!-- 移动端底部广告 -->
+      <div class="ad-mobile-bottom">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2205598928191137"
+             data-ad-slot="3690665702"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
       </div>
 
     </div>
@@ -606,6 +646,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
+    // Google AdSense 初始化
+    (adsbygoogle = window.adsbygoogle || []).push({});
+
     // 安全检测：阻止在非原始域名上运行（防止代理）
     (function() {
       const currentDomain = window.location.hostname;

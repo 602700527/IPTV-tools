@@ -6,6 +6,11 @@ export const FREE_SUB_HTML = `
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>免费订阅 - 免费观看精选频道</title>
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137"
+          crossorigin="anonymous"></script>
+
   <style>
     * {
       margin: 0;
@@ -466,6 +471,19 @@ export const FREE_SUB_HTML = `
         width: 75px;
       }
     }
+
+    /* 广告位样式 */
+    .ad-wrapper {
+      display: flex;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    .ad-ins {
+      display: block;
+      width: 100%;
+      max-width: 300px;
+    }
   </style>
 </head>
 <body>
@@ -534,9 +552,22 @@ export const FREE_SUB_HTML = `
       <div class="feature-text-full" data-i18n="feature2">• 连续7天额外+2天</div>
       <div class="feature-text-full" data-i18n="feature3">• 连续30天额外+7天，最多累计30天</div>
     </div>
+
+    <!-- 广告位 -->
+    <div class="ad-wrapper">
+      <ins class="adsbygoogle ad-ins"
+           style="display:block"
+           data-ad-client="ca-pub-2205598928191137"
+           data-ad-slot="YOUR_FREESUB_AD_SLOT"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
   </div>
 
   <script>
+    // Google AdSense 初始化
+    (adsbygoogle = window.adsbygoogle || []).push({});
+
     // 全局变量
     let subId = null;
     let fingerprint = null;

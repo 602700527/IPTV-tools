@@ -10929,8 +10929,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       .channel-group{font-size:11px}
     }
   </style>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137"
-     crossorigin="anonymous"><\/script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137"
+     crossorigin="anonymous">
+  <\/script>
 </head>
 <body>
   <header class="header">
@@ -11037,9 +11038,29 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     <aside class="sidebar" id="sidebar">
       <div class="group-item active" data-group="" onclick="filterByGroup('')">\u5168\u90E8\u9891\u9053</div>
       <div id="groupList"></div>
+
+      <!-- \u4FA7\u8FB9\u680F\u5E7F\u544A\u4F4D -->
+      <div class="ad-sidebar">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2205598928191137"
+             data-ad-slot="9663554756"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
     </aside>
 
     <div class="content">
+      <!-- \u9876\u90E8\u6A2A\u5E45\u5E7F\u544A\u4F4D -->
+      <div class="ad-banner-top">
+        <ins class="adsbygoogle ad-responsive"
+             style="display:block"
+             data-ad-client="ca-pub-2205598928191137"
+             data-ad-slot="4008350895"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
+
       <div id="loading" class="loading">
         <div class="spinner"></div>
         <span class="loading-text">Loading...</span>
@@ -11073,6 +11094,15 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         <div class="channels-grid" id="channelsGrid"></div>
         <div class="pagination" id="pagination"></div>
 
+        <!-- \u5E95\u90E8\u6A2A\u5E45\u5E7F\u544A\u4F4D -->
+        <div class="ad-banner-bottom">
+          <ins class="adsbygoogle ad-responsive"
+               style="display:block"
+               data-ad-client="ca-pub-2205598928191137"
+               data-ad-slot="3690665702"
+               data-ad-format="horizontal"
+               data-full-width-responsive="true"></ins>
+        </div>
 
       </div>
 
@@ -11080,6 +11110,16 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         <div class="empty-icon">\u{1F4FA}</div>
         <div class="empty-title">\u672A\u627E\u5230\u9891\u9053</div>
         <div class="empty-desc">\u8BF7\u5C1D\u8BD5\u5176\u4ED6\u641C\u7D22\u8BCD\u6216\u5206\u7EC4</div>
+      </div>
+
+      <!-- \u79FB\u52A8\u7AEF\u5E95\u90E8\u5E7F\u544A -->
+      <div class="ad-mobile-bottom">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2205598928191137"
+             data-ad-slot="3690665702"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
       </div>
 
     </div>
@@ -11146,6 +11186,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"><\/script>
   <script>
+    // Google AdSense \u521D\u59CB\u5316
+    (adsbygoogle = window.adsbygoogle || []).push({});
+
     // \u5B89\u5168\u68C0\u6D4B\uFF1A\u963B\u6B62\u5728\u975E\u539F\u59CB\u57DF\u540D\u4E0A\u8FD0\u884C\uFF08\u9632\u6B62\u4EE3\u7406\uFF09
     (function() {
       const currentDomain = window.location.hostname;
@@ -13736,6 +13779,11 @@ var FREE_SUB_HTML = `
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>\u514D\u8D39\u8BA2\u9605 - \u514D\u8D39\u89C2\u770B\u7CBE\u9009\u9891\u9053</title>
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137"
+          crossorigin="anonymous"><\/script>
+
   <style>
     * {
       margin: 0;
@@ -14196,6 +14244,19 @@ var FREE_SUB_HTML = `
         width: 75px;
       }
     }
+
+    /* \u5E7F\u544A\u4F4D\u6837\u5F0F */
+    .ad-wrapper {
+      display: flex;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    .ad-ins {
+      display: block;
+      width: 100%;
+      max-width: 300px;
+    }
   </style>
 </head>
 <body>
@@ -14264,9 +14325,22 @@ var FREE_SUB_HTML = `
       <div class="feature-text-full" data-i18n="feature2">\u2022 \u8FDE\u7EED7\u5929\u989D\u5916+2\u5929</div>
       <div class="feature-text-full" data-i18n="feature3">\u2022 \u8FDE\u7EED30\u5929\u989D\u5916+7\u5929\uFF0C\u6700\u591A\u7D2F\u8BA130\u5929</div>
     </div>
+
+    <!-- \u5E7F\u544A\u4F4D -->
+    <div class="ad-wrapper">
+      <ins class="adsbygoogle ad-ins"
+           style="display:block"
+           data-ad-client="ca-pub-2205598928191137"
+           data-ad-slot="YOUR_FREESUB_AD_SLOT"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
   </div>
 
   <script>
+    // Google AdSense \u521D\u59CB\u5316
+    (adsbygoogle = window.adsbygoogle || []).push({});
+
     // \u5168\u5C40\u53D8\u91CF
     let subId = null;
     let fingerprint = null;
