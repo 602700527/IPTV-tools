@@ -136,6 +136,46 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .quick-entry-tip{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;white-space:nowrap;font-size:12px;color:rgba(255,255,255,.6);opacity:0;transition:opacity .2s;pointer-events:none}
     .quick-entry:hover .quick-entry-tip{opacity:1}
 
+    .auth-btn{padding:8px 20px;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+    .auth-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(229,9,20,.4)}
+    .auth-btn:active{transform:translateY(0);scale:.98}
+
+    .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:2000;backdrop-filter:blur(10px);opacity:0;transition:opacity .3s}
+    .modal-overlay.open{display:flex;align-items:center;justify-content:center;opacity:1}
+    .modal{background:#1a1a1a;border-radius:16px;padding:30px;max-width:420px;width:90%;position:relative;transform:scale(.9);transition:transform .3s;border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+    .modal-overlay.open .modal{transform:scale(1)}
+    .modal-close{position:absolute;top:15px;right:15px;background:none;border:none;color:rgba(255,255,255,.6);font-size:24px;cursor:pointer;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .modal-close:hover{color:#fff;background:rgba(255,255,255,.1)}
+    .modal-title{font-size:24px;font-weight:700;color:#fff;margin-bottom:25px;text-align:center}
+    .modal-form{display:flex;flex-direction:column;gap:15px}
+    .form-group{display:flex;flex-direction:column;gap:6px}
+    .form-label{font-size:14px;font-weight:500;color:rgba(255,255,255,.8)}
+    .form-input{padding:12px 16px;border:2px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.05);color:#fff;font-size:15px;transition:all .2s}
+    .form-input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
+    .form-input::placeholder{color:rgba(255,255,255,.4)}
+    .form-input.error{border-color:#ff3b30}
+    .form-error{color:#ff3b30;font-size:13px;display:none}
+    .form-error.show{display:block}
+    .form-help{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px}
+    .btn-primary{padding:14px 20px;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(229,9,20,.4)}
+    .btn-primary:active{transform:translateY(0);scale:.98}
+    .btn-primary:disabled{background:rgba(229,9,20,.3);cursor:not-allowed;transform:none;scale:1;box-shadow:none}
+    .btn-secondary{padding:12px 16px;background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+    .btn-secondary:hover{background:rgba(255,255,255,.15)}
+    .btn-secondary:active{background:rgba(255,255,255,.2);scale:.98}
+    .btn-secondary.disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
+    .modal-footer{margin-top:20px;text-align:center;font-size:14px;color:rgba(255,255,255,.6)}
+    .modal-footer a{color:#e50914;text-decoration:none;font-weight:500}
+    .modal-footer a:hover{text-decoration:underline}
+    .verification-inputs{display:flex;gap:8px;justify-content:center;margin:10px 0}
+    .verification-input{width:50px;height:50px;border:2px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.05);color:#fff;font-size:24px;font-weight:600;text-align:center;transition:all .2s}
+    .verification-input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
+    .verification-input.error{border-color:#ff3b30}
+    .resend-link{color:rgba(255,255,255,.6);font-size:13px;text-decoration:none;cursor:pointer}
+    .resend-link:hover{color:#e50914;text-decoration:underline}
+    .resend-link.disabled{color:rgba(255,255,255,.3);cursor:not-allowed;pointer-events:none}
+
     .main{display:flex;margin-top:70px;min-height:calc(100vh - 70px)}
     .sidebar{width:260px;background:#141414;border-right:1px solid rgba(255,255,255,.1);overflow-y:auto;padding:20px 0;position:fixed;height:calc(100vh - 70px)}
     .group-item{padding:12px 24px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;font-size:14px;border-left:3px solid transparent}
@@ -449,6 +489,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             <div class="lang-dropdown-item" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">简体中文</div>
             <div class="lang-dropdown-item active" data-lang="en" onclick="switchLanguage('en')">English</div>
           </div>
+        </div>
+        <div id="authButtons">
+          <button class="auth-btn ripple" onclick="openLoginModal()">登录</button>
         </div>
       </div>
     </div>
@@ -1161,7 +1204,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let DECRYPTION_KEY = window.DECRYPTION_KEY || 'default-secret-key';
 
     const API_BASE = '/api';
+    const AUTH_API_BASE = '/api/auth';
     let currentLanguage = 'en';  // 当前语言
+    let authToken = localStorage.getItem('auth_token') || null;
+    let currentUser = JSON.parse(localStorage.getItem('current_user') || 'null');
     let allChannels = [];
     let allGroups = [];
     let currentGroup = '';
@@ -1175,6 +1221,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let pageSize = 50;
     let totalPages = 1;
     let totalChannels = 0;
+
+    // 认证状态
+    let pendingVerifyEmail = null;
+    let resendTimer = null;
+    let resendCountdown = 60;
 
     // 系统配置
     let systemConfig = {
@@ -1193,8 +1244,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let currentPlayingChannel = null;  // 当前播放的频道
     let isLoadingChannels = false;  // 防止重复加载频道
     let pendingChannelLoad = null;  // 待处理的频道加载请求
-    // let lastErrorTime = 0;  // 防止重复显示相同错误（已禁用）
-    // let lastErrorMsg = '';   // 记录上一条错误消息（已禁用）
+    let lastErrorTime = 0;  // 防止重复显示相同错误
+    let lastErrorMsg = '';   // 记录上一条错误消息
 
     // 从 localStorage 读取用户语言设置
     const savedLanguage = localStorage.getItem('iptv_language');
@@ -3234,6 +3285,606 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // 如果启用了AdSense，广告会自动加载
       console.log('Page loaded, AdSense ready');
     });
+
+    // ========== 用户认证相关函数 ==========
+
+    // 打开登录模态框
+    function openLoginModal() {
+      document.getElementById('loginModal').classList.add('open');
+      showLoginForm();
+    }
+
+    // 关闭认证模态框
+    function closeAuthModal() {
+      document.getElementById('loginModal').classList.remove('open');
+      clearAuthForms();
+      if (resendTimer) {
+        clearInterval(resendTimer);
+        resendTimer = null;
+      }
+    }
+
+    // 清空表单
+    function clearAuthForms() {
+      document.querySelectorAll('.form-input').forEach(input => {
+        input.value = '';
+        input.classList.remove('error');
+      });
+      document.querySelectorAll('.form-error').forEach(error => {
+        error.textContent = '';
+        error.classList.remove('show');
+      });
+      document.querySelectorAll('.verification-input').forEach(input => {
+        input.value = '';
+        input.classList.remove('error');
+      });
+      document.getElementById('verifyError').textContent = '';
+      pendingVerifyEmail = null;
+    }
+
+    // 显示登录表单
+    function showLoginForm() {
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('verifyForm').style.display = 'none';
+      clearAuthForms();
+      resetRegisterCodeCountdown();
+    }
+
+    // 显示注册表单
+    function showRegisterForm() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('verifyForm').style.display = 'none';
+      clearAuthForms();
+      resetRegisterCodeCountdown();
+    }
+
+    // 显示验证表单
+    // 保存注册时的密码用于验证后自动登录
+    let pendingVerifyPassword = null;
+
+    function showVerifyForm(email, password = null, autoSend = false) {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('verifyForm').style.display = 'block';
+      pendingVerifyEmail = email;
+      pendingVerifyPassword = password; // 保存密码
+
+      // 如果不是自动发送，重置发送按钮状态
+      if (!autoSend) {
+        const resendLink = document.getElementById('resendLink');
+        resendLink.classList.remove('disabled');
+        resendLink.textContent = '获取验证码';
+        if (resendTimer) {
+          clearInterval(resendTimer);
+          resendTimer = null;
+        }
+        resendCountdown = 0;
+      }
+
+      // 聚焦第一个输入框
+      setTimeout(() => {
+        document.querySelector('.verification-input').focus();
+      }, 100);
+    }
+
+    // 处理注册
+    async function handleRegister() {
+      const email = document.getElementById('registerEmail').value.trim();
+      const password = document.getElementById('registerPassword').value;
+      const code = document.getElementById('registerCode').value.trim();
+
+      // 验证邮箱和密码
+      let hasError = false;
+
+      if (!email) {
+        showInputError('registerEmail', '邮箱不能为空');
+        hasError = true;
+      } else if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+        showInputError('registerEmail', '邮箱格式不正确');
+        hasError = true;
+      } else {
+        hideInputError('registerEmail');
+      }
+
+      if (!password) {
+        showInputError('registerPassword', '密码不能为空');
+        hasError = true;
+      } else if (password.length < 8) {
+        showInputError('registerPassword', '密码至少需要8个字符');
+        hasError = true;
+      } else {
+        hideInputError('registerPassword');
+      }
+
+      if (!code) {
+        document.getElementById('registerCodeError').textContent = '请输入验证码';
+        document.getElementById('registerCodeError').classList.add('show');
+        hasError = true;
+      } else if (code.length !== 6) {
+        document.getElementById('registerCodeError').textContent = '请输入6位验证码';
+        document.getElementById('registerCodeError').classList.add('show');
+        hasError = true;
+      } else {
+        document.getElementById('registerCodeError').classList.remove('show');
+      }
+
+      if (hasError) return;
+
+      try {
+        const response = await fetch(AUTH_API_BASE + '/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password, verification_code: code })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          // 注册成功，自动登录
+          authToken = data.token;
+          currentUser = data.user;
+          localStorage.setItem('auth_token', authToken);
+          localStorage.setItem('current_user', JSON.stringify(currentUser));
+
+          showToast('注册成功', 'success');
+          closeAuthModal();
+          updateAuthUI();
+        } else {
+          showToast(data.error || '注册失败', 'error');
+          document.getElementById('registerCode').classList.add('error');
+        }
+      } catch (error) {
+        console.error('注册失败:', error);
+        showToast('网络错误，请稍后重试', 'error');
+      }
+    }
+
+    // 发送注册验证码
+    async function handleSendRegisterCode() {
+      const email = document.getElementById('registerEmail').value.trim();
+
+      if (!email) {
+        showInputError('registerEmail', '请先输入邮箱');
+        return;
+      }
+
+      if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+        showInputError('registerEmail', '邮箱格式不正确');
+        return;
+      }
+
+      hideInputError('registerEmail');
+
+      const sendCodeBtn = document.getElementById('sendCodeBtn');
+      if (sendCodeBtn.classList.contains('disabled')) return;
+
+      try {
+        const response = await fetch(AUTH_API_BASE + '/send-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          showToast('验证码已发送到您的邮箱', 'success');
+          startRegisterCodeCountdown();
+        } else {
+          showToast(data.error || '发送验证码失败', 'error');
+        }
+      } catch (error) {
+        console.error('发送验证码失败:', error);
+        showToast('网络错误，请稍后重试', 'error');
+      }
+    }
+
+    // 开始注册验证码倒计时
+    let registerCodeCountdown = 0;
+    let registerCodeTimer = null;
+
+    function startRegisterCodeCountdown() {
+      registerCodeCountdown = 60;
+      const sendCodeBtn = document.getElementById('sendCodeBtn');
+      sendCodeBtn.classList.add('disabled');
+      updateRegisterCodeBtn();
+
+      if (registerCodeTimer) {
+        clearInterval(registerCodeTimer);
+      }
+
+      registerCodeTimer = setInterval(() => {
+        registerCodeCountdown--;
+        updateRegisterCodeBtn();
+
+        if (registerCodeCountdown <= 0) {
+          clearInterval(registerCodeTimer);
+          registerCodeTimer = null;
+          sendCodeBtn.classList.remove('disabled');
+        }
+      }, 1000);
+    }
+
+    // 更新注册验证码按钮文本
+    function updateRegisterCodeBtn() {
+      const sendCodeBtn = document.getElementById('sendCodeBtn');
+      if (registerCodeCountdown > 0) {
+        sendCodeBtn.textContent = \`重新发送 (\${registerCodeCountdown}s)\`;
+      } else {
+        sendCodeBtn.textContent = '获取验证码';
+      }
+    }
+
+    // 重置注册验证码倒计时
+    function resetRegisterCodeCountdown() {
+      if (registerCodeTimer) {
+        clearInterval(registerCodeTimer);
+        registerCodeTimer = null;
+      }
+      registerCodeCountdown = 0;
+      const sendCodeBtn = document.getElementById('sendCodeBtn');
+      if (sendCodeBtn) {
+        sendCodeBtn.classList.remove('disabled');
+        sendCodeBtn.textContent = '获取验证码';
+      }
+    }
+
+    // 发送验证码
+    async function sendVerificationCode(email, password = null) {
+      try {
+        const response = await fetch(AUTH_API_BASE + '/send-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          showToast('验证码已发送到您的邮箱', 'success');
+          // 启动倒计时
+          startResendCountdown();
+        } else {
+          showToast(data.error || '发送验证码失败', 'error');
+        }
+      } catch (error) {
+        console.error('发送验证码失败:', error);
+        showToast('网络错误，请稍后重试', 'error');
+      }
+    }
+
+    // 处理验证码输入
+    function handleVerificationInput(input) {
+      const index = parseInt(input.dataset.index);
+      const value = input.value;
+
+      // 只允许数字
+      input.value = value.replace(/\\D/g, '');
+
+      // 自动跳到下一个输入框
+      if (input.value.length === 1 && index < 5) {
+        document.querySelector(\`.verification-input[data-index="\${index + 1}"]\`).focus();
+      }
+    }
+
+    // 处理验证码键盘事件
+    function handleVerificationKeydown(event, input) {
+      const index = parseInt(input.dataset.index);
+
+      // Backspace 键处理
+      if (event.key === 'Backspace' && !input.value && index > 0) {
+        event.preventDefault();
+        document.querySelector(\`.verification-input[data-index="\${index - 1}"]\`).focus();
+      }
+    }
+
+    // 处理邮箱验证
+    async function handleVerifyEmail() {
+      const inputs = document.querySelectorAll('.verification-input');
+      let code = '';
+      inputs.forEach(input => {
+        code += input.value;
+      });
+
+      if (code.length !== 6) {
+        document.getElementById('verifyError').textContent = '请输入完整的6位验证码';
+        return;
+      }
+
+      try {
+        const response = await fetch(AUTH_API_BASE + '/verify?email=' + encodeURIComponent(pendingVerifyEmail) + '&code=' + code);
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          showToast('邮箱验证成功', 'success');
+          // 使用返回的 token 自动登录
+          authToken = data.token;
+          currentUser = data.user;
+          localStorage.setItem('auth_token', authToken);
+          localStorage.setItem('current_user', JSON.stringify(currentUser));
+
+          closeAuthModal();
+          updateAuthUI();
+        } else {
+          showToast(data.error || '验证失败', 'error');
+          inputs.forEach(input => {
+            input.classList.add('error');
+          });
+        }
+      } catch (error) {
+        console.error('验证失败:', error);
+        showToast('网络错误，请稍后重试', 'error');
+      }
+    }
+
+    // 重新发送验证码
+    async function handleResendCode() {
+      if (!pendingVerifyEmail) return;
+
+      const resendLink = document.getElementById('resendLink');
+      if (resendLink.classList.contains('disabled')) return;
+
+      await sendVerificationCode(pendingVerifyEmail);
+    }
+
+    // 开始重发倒计时
+    function startResendCountdown() {
+      resendCountdown = 60;
+      const resendLink = document.getElementById('resendLink');
+      resendLink.classList.add('disabled');
+      updateResendLink();
+
+      if (resendTimer) {
+        clearInterval(resendTimer);
+      }
+
+      resendTimer = setInterval(() => {
+        resendCountdown--;
+        updateResendLink();
+
+        if (resendCountdown <= 0) {
+          clearInterval(resendTimer);
+          resendTimer = null;
+          resendLink.classList.remove('disabled');
+        }
+      }, 1000);
+    }
+
+    // 更新重发链接文本
+    function updateResendLink() {
+      const resendLink = document.getElementById('resendLink');
+      if (resendCountdown > 0) {
+        resendLink.textContent = \`重新发送验证码 (\${resendCountdown}s)\`;
+      } else {
+        resendLink.textContent = '获取验证码';
+      }
+    }
+
+    // 处理登录
+    async function handleLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      // 验证
+      let hasError = false;
+
+      if (!email) {
+        showInputError('loginEmail', '邮箱不能为空');
+        hasError = true;
+      } else {
+        hideInputError('loginEmail');
+      }
+
+      if (!password) {
+        showInputError('loginPassword', '密码不能为空');
+        hasError = true;
+      } else {
+        hideInputError('loginPassword');
+      }
+
+      if (hasError) return;
+
+      await performLogin(email, password);
+    }
+
+    // 执行登录
+    async function performLogin(email, password) {
+      try {
+        const response = await fetch(AUTH_API_BASE + '/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          authToken = data.token;
+          currentUser = data.user;
+          localStorage.setItem('auth_token', authToken);
+          localStorage.setItem('current_user', JSON.stringify(currentUser));
+
+          showToast('登录成功', 'success');
+          closeAuthModal();
+          updateAuthUI();
+        } else {
+          if (data.needVerification) {
+            // 需要验证邮箱
+            showToast('请先验证邮箱', 'warning');
+            showVerifyForm(email);
+          } else {
+            showToast(data.error || '登录失败', 'error');
+          }
+        }
+      } catch (error) {
+        console.error('登录失败:', error);
+        showToast('网络错误，请稍后重试', 'error');
+      }
+    }
+
+    // 处理登出
+    async function handleLogout() {
+      const currentToken = localStorage.getItem('auth_token');
+      try {
+        if (currentToken) {
+          await fetch(AUTH_API_BASE + '/logout', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + currentToken
+            }
+          });
+        }
+      } catch (error) {
+        console.error('登出失败:', error);
+      } finally {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('current_user');
+        authToken = null;
+        currentUser = null;
+        showToast('已退出登录', 'success');
+        updateAuthUI();
+      }
+    }
+
+    // 更新认证UI
+    function updateAuthUI() {
+      const authButtonsDiv = document.getElementById('authButtons');
+
+      // 每次都从 localStorage 重新获取最新的登录状态
+      const currentToken = localStorage.getItem('auth_token');
+      const currentUserData = JSON.parse(localStorage.getItem('current_user') || 'null');
+
+      if (currentToken && currentUserData) {
+        // 已登录状态 - 显示账户按钮
+        authButtonsDiv.innerHTML = \`
+          <a href="/account" class="quick-entry ripple" style="text-decoration:none;">
+            👤
+            <span class="quick-entry-tip">账户</span>
+          </a>
+        \`;
+      } else {
+        // 未登录状态 - 使用不同颜色的用户图标，表示需要登录
+        authButtonsDiv.innerHTML = \`
+          <button class="quick-entry ripple" onclick="openLoginModal()">
+            🙋
+            <span class="quick-entry-tip">登录</span>
+          </button>
+        \`;
+      }
+    }
+
+    // 显示输入错误
+    function showInputError(inputId, message) {
+      const input = document.getElementById(inputId);
+      const errorDiv = document.getElementById(inputId + 'Error');
+      input.classList.add('error');
+      errorDiv.textContent = message;
+      errorDiv.classList.add('show');
+    }
+
+    // 隐藏输入错误
+    function hideInputError(inputId) {
+      const input = document.getElementById(inputId);
+      const errorDiv = document.getElementById(inputId + 'Error');
+      input.classList.remove('error');
+      errorDiv.classList.remove('show');
+    }
+
+    // 页面加载时更新认证UI
+    updateAuthUI();
   </script>
+
+  <!-- 登录/注册模态框 -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeAuthModal()">×</button>
+      
+      <!-- 登录表单 -->
+      <div id="loginForm">
+        <h2 class="modal-title">登录</h2>
+        <div class="modal-form">
+          <div class="form-group">
+            <label class="form-label">邮箱</label>
+            <input type="email" class="form-input" id="loginEmail" placeholder="请输入邮箱">
+            <div class="form-error" id="loginEmailError"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">密码</label>
+            <input type="password" class="form-input" id="loginPassword" placeholder="请输入密码（至少8位）">
+            <div class="form-error" id="loginPasswordError"></div>
+          </div>
+          <button class="btn-primary" onclick="handleLogin()">登录</button>
+        </div>
+        <div class="modal-footer">
+          还没有账号？<a href="#" onclick="showRegisterForm()">立即注册</a>
+        </div>
+      </div>
+
+      <!-- 注册表单 -->
+      <div id="registerForm" style="display:none;">
+        <h2 class="modal-title">注册</h2>
+        <div class="modal-form">
+          <div class="form-group">
+            <label class="form-label">邮箱</label>
+            <input type="email" class="form-input" id="registerEmail" placeholder="请输入邮箱">
+            <div class="form-error" id="registerEmailError"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">密码</label>
+            <input type="password" class="form-input" id="registerPassword" placeholder="请输入密码（至少8位）">
+            <div class="form-error" id="registerPasswordError"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">邮箱验证码</label>
+            <div style="display:flex;gap:10px;">
+              <input type="text" class="form-input" id="registerCode" placeholder="请输入6位验证码" maxlength="6" oninput="this.value=this.value.replace(/\\D/g,'')" style="flex:1;">
+              <button type="button" class="btn-secondary" id="sendCodeBtn" onclick="handleSendRegisterCode()">获取验证码</button>
+            </div>
+            <div class="form-error" id="registerCodeError"></div>
+          </div>
+          <button class="btn-primary" onclick="handleRegister()">注册</button>
+        </div>
+        <div class="modal-footer">
+          已有账号？<a href="#" onclick="showLoginForm()">立即登录</a>
+        </div>
+      </div>
+
+      <!-- 邮箱验证表单 -->
+      <div id="verifyForm" style="display:none;">
+        <h2 class="modal-title">邮箱验证</h2>
+        <p style="text-align:center;color:rgba(255,255,255,.6);font-size:14px;margin-bottom:20px;">
+          请点击下方按钮获取验证码
+        </p>
+        <div class="modal-form">
+          <div class="form-group">
+            <label class="form-label">请输入6位验证码</label>
+            <div class="verification-inputs">
+              <input type="text" class="verification-input" maxlength="1" data-index="0" oninput="handleVerificationInput(this)" onkeydown="handleVerificationKeydown(event,this)">
+              <input type="text" class="verification-input" maxlength="1" data-index="1" oninput="handleVerificationInput(this)" onkeydown="handleVerificationKeydown(event,this)">
+              <input type="text" class="verification-input" maxlength="1" data-index="2" oninput="handleVerificationInput(this)" onkeydown="handleVerificationKeydown(event,this)">
+              <input type="text" class="verification-input" maxlength="1" data-index="3" oninput="handleVerificationInput(this)" onkeydown="handleVerificationKeydown(event,this)">
+              <input type="text" class="verification-input" maxlength="1" data-index="4" oninput="handleVerificationInput(this)" onkeydown="handleVerificationKeydown(event,this)">
+              <input type="text" class="verification-input" maxlength="1" data-index="5" oninput="handleVerificationInput(this)" onkeydown="handleVerificationKeydown(event,this)">
+            </div>
+            <div class="form-error" id="verifyError"></div>
+          </div>
+          <button class="btn-primary" id="verifyBtn" onclick="handleVerifyEmail()">验证邮箱</button>
+          <div style="text-align:center;margin-top:15px;">
+            <a class="resend-link" id="resendLink" onclick="handleResendCode()">获取验证码</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>`;

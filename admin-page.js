@@ -127,6 +127,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab active" onclick="showTab('sources')">直播源管理</button>
       <button class="nav-tab" onclick="showTab('channels')">频道管理</button>
       <button class="nav-tab" onclick="showTab('codes')">卡密管理</button>
+      <button class="nav-tab" onclick="showTab('users')">账户管理</button>
+      <button class="nav-tab" onclick="showTab('orders')">订单管理</button>
       <button class="nav-tab" onclick="showTab('security')">安全监控</button>
       <button class="nav-tab" onclick="showTab('ip-blacklist')">IP黑名单</button>
       <button class="nav-tab" onclick="showTab('homepage-display')">首页展示</button>
@@ -593,6 +595,58 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           </thead>
           <tbody id="adBindingTable"></tbody>
         </table>
+      </div>
+    </div>
+    <div id="users" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>账户管理</h3>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="userSearch" placeholder="搜索邮箱..." style="padding:8px 12px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;" oninput="handleUserSearch()">
+          </div>
+        </div>
+        <div id="usersList" style="margin-top:20px;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr style="background:#f5f5f7;text-align:left;">
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">ID</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">邮箱</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">邮箱验证</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">注册时间</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody"></tbody>
+          </table>
+          <div id="usersPagination" style="margin-top:20px;display:flex;justify-content:center;gap:8px;"></div>
+        </div>
+      </div>
+    </div>
+    <div id="orders" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>订单管理</h3>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="orderUserFilter" placeholder="筛选用户邮箱..." style="padding:8px 12px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;" oninput="filterOrders()">
+          </div>
+        </div>
+        <div id="ordersList" style="margin-top:20px;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr style="background:#f5f5f7;text-align:left;">
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">订单ID</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">用户邮箱</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">卡密</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">有效期</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">金额</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">状态</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">创建时间</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody"></tbody>
+          </table>
+          <div id="ordersPagination" style="margin-top:20px;display:flex;justify-content:center;gap:8px;"></div>
+        </div>
       </div>
     </div>
     <div id="system-settings" class="tab-content">
@@ -1139,6 +1193,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       }
       else if (tabName === 'channels') { loadSources(); loadChannels(); }
       else if (tabName === 'codes') loadCodes();
+      else if (tabName === 'users') loadUsers();
+      else if (tabName === 'orders') loadOrders();
       else if (tabName === 'security') {
         loadSecurityConfig();
         document.getElementById('quotaInfo').style.display = 'none';
@@ -3811,6 +3867,217 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
+    }
+
+    // ========== 用户管理相关函数 ==========
+    let userPage = 1;
+    let userPageSize = 20;
+    let totalUserPages = 1;
+    let totalUsers = 0;
+
+    async function loadUsers() {
+      const response = await fetch(API_BASE + '/users?page=' + userPage + '&pageSize=' + userPageSize + '&search=' + encodeURIComponent(document.getElementById('userSearch').value), {
+        headers: { 'X-Admin-Key': adminKey }
+      });
+      const data = await response.json();
+      if (data.success) {
+        totalUsers = data.pagination.total;
+        totalUserPages = data.pagination.totalPages;
+        renderUsers(data.users);
+        renderUserPagination();
+      }
+    }
+
+    function renderUsers(users) {
+      const tbody = document.getElementById('usersTableBody');
+      if (users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#86868b;">暂无用户数据</td></tr>';
+        return;
+      }
+      tbody.innerHTML = users.map(user => {
+        const createdDate = new Date(user.created_at);
+        return \`
+          <tr style="border-bottom:1px solid #e5e5ea;">
+            <td style="padding:12px;">\${user.id}</td>
+            <td style="padding:12px;">\${escapeHtml(user.email)}</td>
+            <td style="padding:12px;">
+              <span style="padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;background:\${user.is_verified ? '#e8f5e9' : '#ffebee'};color:\${user.is_verified ? '#1b5e20' : '#c62828'};">
+                \${user.is_verified ? '已验证' : '未验证'}
+              </span>
+            </td>
+            <td style="padding:12px;">\${formatDateTime(createdDate)}</td>
+            <td style="padding:12px;">
+              <button class="btn" onclick="toggleUserVerification(\${user.id}, \${user.is_verified})" style="padding:4px 12px;font-size:12px;">
+                \${user.is_verified ? '取消验证' : '通过验证'}
+              </button>
+              <button class="btn" onclick="deleteUser(\${user.id})" style="padding:4px 12px;font-size:12px;background:#f44336;color:white;">删除</button>
+            </td>
+          </tr>
+        \`;
+      }).join('');
+    }
+
+    function renderUserPagination() {
+      const container = document.getElementById('usersPagination');
+      if (totalUserPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+      let html = \`<span class="pagination-info">共 \${totalUsers} 个用户，第 \${userPage}/\${totalUserPages} 页</span>\`;
+      html += \`<button onclick="goToUserPage(1)" \${userPage === 1 ? 'disabled' : ''}>首页</button>\`;
+      html += \`<button onclick="goToUserPage(\${userPage - 1})" \${userPage === 1 ? 'disabled' : ''}>上一页</button>\`;
+      const maxButtons = 5;
+      let startPage = Math.max(1, userPage - Math.floor(maxButtons / 2));
+      let endPage = Math.min(totalUserPages, startPage + maxButtons - 1);
+      if (endPage - startPage + 1 < maxButtons) {
+        startPage = Math.max(1, endPage - maxButtons + 1);
+      }
+      for (let i = startPage; i <= endPage; i++) {
+        html += \`<button onclick="goToUserPage(\${i})" class="\${i === userPage ? 'active' : ''}">\${i}</button>\`;
+      }
+      html += \`<button onclick="goToUserPage(\${userPage + 1})" \${userPage === totalUserPages ? 'disabled' : ''}>下一页</button>\`;
+      html += \`<button onclick="goToUserPage(\${totalUserPages})" \${userPage === totalUserPages ? 'disabled' : ''}>末页</button>\`;
+      container.innerHTML = html;
+    }
+
+    function goToUserPage(page) {
+      if (page < 1 || page > totalUserPages || page === userPage) return;
+      userPage = page;
+      loadUsers();
+    }
+
+    async function toggleUserVerification(id, currentStatus) {
+      if (!confirm(\`确定要\${currentStatus ? '取消验证' : '通过验证'}此用户吗？\`)) return;
+      const response = await fetch(API_BASE + '/users', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
+        body: JSON.stringify({ id, is_verified: !currentStatus })
+      });
+      const data = await response.json();
+      if (data.success) {
+        showToast('用户状态更新成功', 'success');
+        loadUsers();
+      } else {
+        showToast(data.error || '操作失败', 'error');
+      }
+    }
+
+    async function deleteUser(id) {
+      if (!confirm('确定要删除此用户吗？此操作不可恢复！')) return;
+      const response = await fetch(API_BASE + '/users?id=' + id, {
+        method: 'DELETE',
+        headers: { 'X-Admin-Key': adminKey }
+      });
+      const data = await response.json();
+      if (data.success) {
+        showToast('用户删除成功', 'success');
+        loadUsers();
+      } else {
+        showToast(data.error || '删除失败', 'error');
+      }
+    }
+
+    let userSearchTimeout = null;
+    function handleUserSearch() {
+      clearTimeout(userSearchTimeout);
+      userSearchTimeout = setTimeout(() => {
+        userPage = 1;
+        loadUsers();
+      }, 300);
+    }
+
+    // ========== 订单管理相关函数 ==========
+    let orderPage = 1;
+    let orderPageSize = 20;
+    let totalOrderPages = 1;
+    let totalOrders = 0;
+
+    async function loadOrders() {
+      const userFilter = document.getElementById('orderUserFilter').value;
+      let url = API_BASE + '/orders?page=' + orderPage + '&pageSize=' + orderPageSize;
+      if (userFilter) url += '&userId=' + userFilter;
+      const response = await fetch(url);
+      const data = await response.json();
+      if (data.success) {
+        totalOrders = data.pagination.total;
+        totalOrderPages = data.pagination.totalPages;
+        renderOrders(data.orders);
+        renderOrderPagination();
+      }
+    }
+
+    function renderOrders(orders) {
+      const tbody = document.getElementById('ordersTableBody');
+      if (orders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:#86868b;">暂无订单数据</td></tr>';
+        return;
+      }
+      tbody.innerHTML = orders.map(order => {
+        const createdDate = new Date(order.created_at);
+        const statusClass = {
+          'completed': '#e8f5e9',
+          'pending': '#fff3e0',
+          'cancelled': '#ffebee'
+        }[order.status] || '#f5f5f7';
+        const statusText = {
+          'completed': '已完成',
+          'pending': '待处理',
+          'cancelled': '已取消'
+        }[order.status] || order.status;
+        return \`
+          <tr style="border-bottom:1px solid #e5e5ea;">
+            <td style="padding:12px;">\${escapeHtml(order.order_id)}</td>
+            <td style="padding:12px;">\${escapeHtml(order.email)}</td>
+            <td style="padding:12px;">\${order.code ? escapeHtml(order.code) : '-'}</td>
+            <td style="padding:12px;">\${order.duration_days ? order.duration_days + ' 天' : '-'}</td>
+            <td style="padding:12px;">\${order.amount ? '¥' + order.amount.toFixed(2) : '-'}</td>
+            <td style="padding:12px;">
+              <span style="padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;background:\${statusClass};">
+                \${statusText}
+              </span>
+            </td>
+            <td style="padding:12px;">\${formatDateTime(createdDate)}</td>
+          </tr>
+        \`;
+      }).join('');
+    }
+
+    function renderOrderPagination() {
+      const container = document.getElementById('ordersPagination');
+      if (totalOrderPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+      let html = \`<span class="pagination-info">共 \${totalOrders} 个订单，第 \${orderPage}/\${totalOrderPages} 页</span>\`;
+      html += \`<button onclick="goToOrderPage(1)" \${orderPage === 1 ? 'disabled' : ''}>首页</button>\`;
+      html += \`<button onclick="goToOrderPage(\${orderPage - 1})" \${orderPage === 1 ? 'disabled' : ''}>上一页</button>\`;
+      const maxButtons = 5;
+      let startPage = Math.max(1, orderPage - Math.floor(maxButtons / 2));
+      let endPage = Math.min(totalOrderPages, startPage + maxButtons - 1);
+      if (endPage - startPage + 1 < maxButtons) {
+        startPage = Math.max(1, endPage - maxButtons + 1);
+      }
+      for (let i = startPage; i <= endPage; i++) {
+        html += \`<button onclick="goToOrderPage(\${i})" class="\${i === orderPage ? 'active' : ''}">\${i}</button>\`;
+      }
+      html += \`<button onclick="goToOrderPage(\${orderPage + 1})" \${orderPage === totalOrderPages ? 'disabled' : ''}>下一页</button>\`;
+      html += \`<button onclick="goToOrderPage(\${totalOrderPages})" \${orderPage === totalOrderPages ? 'disabled' : ''}>末页</button>\`;
+      container.innerHTML = html;
+    }
+
+    function goToOrderPage(page) {
+      if (page < 1 || page > totalOrderPages || page === orderPage) return;
+      orderPage = page;
+      loadOrders();
+    }
+
+    let orderFilterTimeout = null;
+    function filterOrders() {
+      clearTimeout(orderFilterTimeout);
+      orderFilterTimeout = setTimeout(() => {
+        orderPage = 1;
+        loadOrders();
+      }, 300);
     }
   </script>
 </body>

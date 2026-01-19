@@ -7,8 +7,18 @@ import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } fro
 import { handleUserActivate } from './handlers/user.js';
 import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement } from './handlers/public.js';
 import { handleFreeSubAPI } from './handlers/freesub-api.js';
+import {
+  handleRegister,
+  handleSendVerificationCode,
+  handleVerifyEmail,
+  handleLogin,
+  handleLogout,
+  handleGetUserInfo,
+  handleGetOrderHistory
+} from './handlers/auth.js';
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
+import { ACCOUNT_HTML } from './account-page.js';
 import { PLAYSTATION_HTML } from './playstation-page.js';
 import { FREE_SUB_HTML } from './freesub-page.js';
 import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from './pages.js';
@@ -170,6 +180,37 @@ export default {
     } else if (path === '/api/activate') {
       // 用户激活API
       return await handleUserActivate(request, env, ctx);
+    } else if (path === '/api/auth/register') {
+      // 用户注册
+      return await handleRegister(request, env, ctx);
+    } else if (path === '/api/auth/send-code') {
+      // 发送验证码
+      return await handleSendVerificationCode(request, env, ctx);
+    } else if (path === '/api/auth/verify') {
+      // 验证邮箱
+      return await handleVerifyEmail(request, env, ctx);
+    } else if (path === '/api/auth/login') {
+      // 用户登录
+      return await handleLogin(request, env, ctx);
+    } else if (path === '/api/auth/logout') {
+      // 用户登出
+      return await handleLogout(request, env, ctx);
+    } else if (path === '/api/auth/user') {
+      // 获取用户信息
+      return await handleGetUserInfo(request, env, ctx);
+    } else if (path === '/api/auth/orders') {
+      // 获取订单历史
+      return await handleGetOrderHistory(request, env, ctx);
+    } else if (path === '/account' || path === '/account/' || path === '/account/index' || path === '/account/index.html') {
+      // 用户账户页面
+      const timezone = env.TIMEZONE || 'Asia/Shanghai';
+      const htmlWithConfig = ACCOUNT_HTML.replace(
+        '<script>',
+        `<script>window.TIMEZONE = '${timezone}';\n`
+      );
+      return new Response(htmlWithConfig, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     } else if (path === '/admin' || path === '/admin/' || path === '/admin/index' || path === '/admin/index.html') {
       // 管理后台页面（注入时区配置）
       const timezone = env.TIMEZONE || 'Asia/Shanghai';

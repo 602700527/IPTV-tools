@@ -539,6 +539,82 @@ export async function createTables(env) {
     console.error('Database: Failed to create checkin_records indexes:', e);
   }
 
+  // 创建用户系统表
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        is_verified BOOLEAN DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)').run();
+    console.log('Database: users table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create users table:', e);
+  }
+
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS email_verifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL,
+        code TEXT NOT NULL,
+        expires_at DATETIME NOT NULL,
+        is_used BOOLEAN DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_email_verifications_email ON email_verifications(email)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_email_verifications_code ON email_verifications(code)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_email_verifications_expires ON email_verifications(expires_at)').run();
+    console.log('Database: email_verifications table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create email_verifications table:', e);
+  }
+
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS user_sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        token TEXT UNIQUE NOT NULL,
+        expires_at DATETIME NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_user_sessions_token ON user_sessions(token)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_user_sessions_expires ON user_sessions(expires_at)').run();
+    console.log('Database: user_sessions table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create user_sessions table:', e);
+  }
+
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS user_orders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        order_id TEXT UNIQUE NOT NULL,
+        code TEXT,
+        duration_days INTEGER,
+        amount REAL,
+        status TEXT DEFAULT 'completed',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_user_orders_user_id ON user_orders(user_id)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_user_orders_order_id ON user_orders(order_id)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_user_orders_created ON user_orders(created_at DESC)').run();
+    console.log('Database: user_orders table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create user_orders table:', e);
+  }
+
   console.log('Tables created successfully');
   tablesCreated = true;  // 标记表已创建，避免重复执行
 }

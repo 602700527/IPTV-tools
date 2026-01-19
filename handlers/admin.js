@@ -1668,6 +1668,128 @@ export async function handleAdminRequest(request, env, ctx) {
         }
         break;
 
+      case 'users':
+        // 用户管理
+        if (request.method === 'GET') {
+          // 获取用户列表
+          const page = parseInt(url.searchParams.get('page') || '1');
+          const pageSize = parseInt(url.searchParams.get('pageSize') || '20');
+          const search = url.searchParams.get('search') || '';
+
+          let query = 'SELECT * FROM users';
+          let countQuery = 'SELECT COUNT(*) as total FROM users';
+          const params = [];
+
+          if (search) {
+            query += ' WHERE email LIKE ?';
+            countQuery += ' WHERE email LIKE ?';
+            params.push(`%${search}%`);
+          }
+
+          query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+
+          const offset = (page - 1) * pageSize;
+          const users = await getDB().prepare(query).bind(...params, pageSize, offset).all();
+          const totalResult = await getDB().prepare(countQuery).bind(...params).first();
+          const total = totalResult.total;
+
+          return new Response(JSON.stringify({
+            success: true,
+            users: users.results || [],
+            pagination: {
+              page,
+              pageSize,
+              total,
+              totalPages: Math.ceil(total / pageSize)
+            }
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'PUT') {
+          // 更新用户状态
+          const body = await request.json();
+          const { id, is_verified } = body;
+
+          if (!id) {
+            return new Response(JSON.stringify({ success: false, error: '用户ID不能为空' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+
+          await getDB().prepare(`
+            UPDATE users SET is_verified = ?, updated_at = datetime('now')
+            WHERE id = ?
+          `).bind(is_verified ? 1 : 0, id).run();
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: '用户状态更新成功'
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'DELETE') {
+          // 删除用户
+          const id = url.searchParams.get('id');
+
+          if (!id) {
+            return new Response(JSON.stringify({ success: false, error: '用户ID不能为空' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+
+          await getDB().prepare('DELETE FROM users WHERE id = ?').bind(id).run();
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: '用户删除成功'
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        break;
+
+      case 'orders':
+        // 订单管理
+        if (request.method === 'GET') {
+          // 获取订单列表
+          const page = parseInt(url.searchParams.get('page') || '1');
+          const pageSize = parseInt(url.searchParams.get('pageSize') || '20');
+          const userId = url.searchParams.get('userId');
+
+          let query = 'SELECT o.*, u.email FROM user_orders o JOIN users u ON o.user_id = u.id';
+          let countQuery = 'SELECT COUNT(*) as total FROM user_orders o';
+          const params = [];
+
+          if (userId) {
+            query += ' WHERE o.user_id = ?';
+            countQuery += ' WHERE o.user_id = ?';
+            params.push(userId);
+          }
+
+          query += ' ORDER BY o.created_at DESC LIMIT ? OFFSET ?';
+
+          const offset = (page - 1) * pageSize;
+          const orders = await getDB().prepare(query).bind(...params, pageSize, offset).all();
+          const totalResult = await getDB().prepare(countQuery).bind(...params).first();
+          const total = totalResult.total;
+
+          return new Response(JSON.stringify({
+            success: true,
+            orders: orders.results || [],
+            pagination: {
+              page,
+              pageSize,
+              total,
+              totalPages: Math.ceil(total / pageSize)
+            }
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        break;
+
       default:
         return new Response('Invalid admin action', { status: 400 });
     }

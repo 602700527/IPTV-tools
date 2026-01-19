@@ -20,6 +20,10 @@ database_id = "9c7c22f1-fa0e-48da-8874-19731483c550"
 ADMIN_KEY = "admin-key-please-change-in-production"
 # 时区设置（东八区）
 TIMEZONE = "Asia/Shanghai"
+# 邮件服务配置
+RESEND_API_KEY = "re_SV65wtWn_6zDFiwGvPFRRv3gbcLDACDKe"
+FROM_EMAIL = "support@iptv-search.com"
+APP_URL = "https://iptv-search.com"
 
 # 定时触发器 (用于自动同步启用的数据源和刷新缓存)
 # Cron表达式格式: 分 时 日 月 周
