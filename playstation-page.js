@@ -871,7 +871,47 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         toastWarning: '提示',
         toastInfo: '提示',
         disclaimerTitle: '免责声明',
-        disclaimerContent: '本站播放链接资源均来源于公开网络，本站不产出和储存任何内容。如有版权或内容问题，请联系内容实际产出者。'
+        disclaimerContent: '本站播放链接资源均来源于公开网络，本站不产出和储存任何内容。如有版权或内容问题，请联系内容实际产出者。',
+        // 登录注册相关
+        loginTitle: '登录',
+        registerTitle: '注册',
+        email: '邮箱',
+        password: '密码',
+        emailCode: '邮箱验证码',
+        emailPlaceholder: '请输入邮箱',
+        passwordPlaceholder: '请输入密码（至少8位）',
+        codePlaceholder: '请输入6位验证码',
+        loginBtn: '登录',
+        registerBtn: '注册',
+        getCode: '获取验证码',
+        noAccount: '还没有账号？',
+        registerNow: '立即注册',
+        hasAccount: '已有账号？',
+        loginNow: '立即登录',
+        verifyEmailTitle: '邮箱验证',
+        verifyEmailDesc: '请点击下方按钮获取验证码',
+        enter6DigitCode: '请输入6位验证码',
+        verifyEmailBtn: '验证邮箱',
+        resendCode: '重新发送验证码',
+        resendCountdown: '重新发送验证码 ({count}秒)',
+        getCodeCountdown: '重新发送 ({count}秒)',
+        // 注册相关提示
+        emailEmpty: '邮箱不能为空',
+        emailInvalid: '邮箱格式不正确',
+        passwordEmpty: '密码不能为空',
+        passwordTooShort: '密码至少需要8个字符',
+        enterCodeFirst: '请先输入邮箱',
+        enterCode: '请输入验证码',
+        enter6DigitCode2: '请输入6位验证码',
+        codeSent: '验证码已发送到您的邮箱',
+        sendCodeFailed: '发送验证码失败',
+        networkError: '网络错误，请稍后重试',
+        registerSuccess: '注册成功',
+        registerFailed: '注册失败',
+        // 登录相关提示
+        loginSuccess: '登录成功',
+        loginFailed: '登录失败',
+        needVerifyEmail: '请先验证邮箱'
       },
       'en': {
         title: 'IPTV Live - Free Live TV',
@@ -923,7 +963,47 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         toastWarning: 'Notice',
         toastInfo: 'Info',
         disclaimerTitle: 'Disclaimer',
-        disclaimerContent: 'All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.'
+        disclaimerContent: 'All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.',
+        // 登录注册相关
+        loginTitle: 'Login',
+        registerTitle: 'Register',
+        email: 'Email',
+        password: 'Password',
+        emailCode: 'Email Verification Code',
+        emailPlaceholder: 'Enter email',
+        passwordPlaceholder: 'Enter password (min 8 characters)',
+        codePlaceholder: 'Enter 6-digit code',
+        loginBtn: 'Login',
+        registerBtn: 'Register',
+        getCode: 'Get Code',
+        noAccount: "Don't have an account?",
+        registerNow: 'Register Now',
+        hasAccount: 'Already have an account?',
+        loginNow: 'Login Now',
+        verifyEmailTitle: 'Email Verification',
+        verifyEmailDesc: 'Click the button below to get verification code',
+        enter6DigitCode: 'Enter 6-digit verification code',
+        verifyEmailBtn: 'Verify Email',
+        resendCode: 'Resend Code',
+        resendCountdown: 'Resend ({count}s)',
+        getCodeCountdown: 'Resend ({count}s)',
+        // 注册相关提示
+        emailEmpty: 'Email cannot be empty',
+        emailInvalid: 'Invalid email format',
+        passwordEmpty: 'Password cannot be empty',
+        passwordTooShort: 'Password must be at least 8 characters',
+        enterCodeFirst: 'Please enter email first',
+        enterCode: 'Please enter verification code',
+        enter6DigitCode2: 'Please enter 6-digit verification code',
+        codeSent: 'Verification code has been sent to your email',
+        sendCodeFailed: 'Failed to send verification code',
+        networkError: 'Network error, please try again later',
+        registerSuccess: 'Registration successful',
+        registerFailed: 'Registration failed',
+        // 登录相关提示
+        loginSuccess: 'Login successful',
+        loginFailed: 'Login failed',
+        needVerifyEmail: 'Please verify your email first'
       }
     };
 
@@ -1096,6 +1176,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         }
       });
 
+      // 更新所有带有 data-i18n-placeholder 属性的元素
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (key) {
+          el.placeholder = t(key);
+        }
+      });
+
       // 更新移动端全部频道分组
       const mobileAllChannelsItem = document.querySelector('.mobile-group-item[data-group=""]');
       if (mobileAllChannelsItem) {
@@ -1111,6 +1199,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           btn.setAttribute('title', t(tipKey));
         }
       });
+
+      // 更新注册表单的获取验证码按钮
+      const sendCodeBtn = document.getElementById('sendCodeBtn');
+      if (sendCodeBtn && !registerCodeTimer) {
+        // 只有在没有倒计时时才更新按钮文本
+        sendCodeBtn.textContent = t('getCode');
+      }
 
       // 更新在线人数文本
       document.getElementById('onlineCountText').textContent = t('onlineCount');
@@ -1247,11 +1342,19 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let lastErrorTime = 0;  // 防止重复显示相同错误
     let lastErrorMsg = '';   // 记录上一条错误消息
 
-    // 从 localStorage 读取用户语言设置
-    const savedLanguage = localStorage.getItem('iptv_language');
-    if (savedLanguage && ['zh-CN', 'en'].includes(savedLanguage)) {
-      currentLanguage = savedLanguage;
+    // 智能判断浏览器语言
+    function detectBrowserLanguage() {
+      const savedLanguage = localStorage.getItem('iptv_language');
+      if (savedLanguage && ['zh-CN', 'en'].includes(savedLanguage)) {
+        return savedLanguage;
+      }
+      
+      const browserLang = navigator.language || navigator.userLanguage || 'en';
+      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
     }
+
+    // 初始化语言
+    currentLanguage = detectBrowserLanguage();
 
     // 页面加载时获取频道列表
     window.addEventListener('DOMContentLoaded', async () => {
@@ -3355,7 +3458,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       if (!autoSend) {
         const resendLink = document.getElementById('resendLink');
         resendLink.classList.remove('disabled');
-        resendLink.textContent = '获取验证码';
+        resendLink.textContent = t('getCode');
         if (resendTimer) {
           clearInterval(resendTimer);
           resendTimer = null;
@@ -3379,31 +3482,31 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       let hasError = false;
 
       if (!email) {
-        showInputError('registerEmail', '邮箱不能为空');
+        showInputError('registerEmail', t('emailEmpty'));
         hasError = true;
       } else if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
-        showInputError('registerEmail', '邮箱格式不正确');
+        showInputError('registerEmail', t('emailInvalid'));
         hasError = true;
       } else {
         hideInputError('registerEmail');
       }
 
       if (!password) {
-        showInputError('registerPassword', '密码不能为空');
+        showInputError('registerPassword', t('passwordEmpty'));
         hasError = true;
       } else if (password.length < 8) {
-        showInputError('registerPassword', '密码至少需要8个字符');
+        showInputError('registerPassword', t('passwordTooShort'));
         hasError = true;
       } else {
         hideInputError('registerPassword');
       }
 
       if (!code) {
-        document.getElementById('registerCodeError').textContent = '请输入验证码';
+        document.getElementById('registerCodeError').textContent = t('enterCode');
         document.getElementById('registerCodeError').classList.add('show');
         hasError = true;
       } else if (code.length !== 6) {
-        document.getElementById('registerCodeError').textContent = '请输入6位验证码';
+        document.getElementById('registerCodeError').textContent = t('enter6DigitCode2');
         document.getElementById('registerCodeError').classList.add('show');
         hasError = true;
       } else {
@@ -3430,16 +3533,16 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           localStorage.setItem('auth_token', authToken);
           localStorage.setItem('current_user', JSON.stringify(currentUser));
 
-          showToast('注册成功', 'success');
+          showToast(t('registerSuccess'), 'success');
           closeAuthModal();
           updateAuthUI();
         } else {
-          showToast(data.error || '注册失败', 'error');
+          showToast(data.error || t('registerFailed'), 'error');
           document.getElementById('registerCode').classList.add('error');
         }
       } catch (error) {
         console.error('注册失败:', error);
-        showToast('网络错误，请稍后重试', 'error');
+        showToast(t('networkError'), 'error');
       }
     }
 
@@ -3448,12 +3551,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       const email = document.getElementById('registerEmail').value.trim();
 
       if (!email) {
-        showInputError('registerEmail', '请先输入邮箱');
+        showInputError('registerEmail', t('enterCodeFirst'));
         return;
       }
 
       if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
-        showInputError('registerEmail', '邮箱格式不正确');
+        showInputError('registerEmail', t('emailInvalid'));
         return;
       }
 
@@ -3474,14 +3577,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         const data = await response.json();
 
         if (response.ok && data.success) {
-          showToast('验证码已发送到您的邮箱', 'success');
+          showToast(t('codeSent'), 'success');
           startRegisterCodeCountdown();
         } else {
-          showToast(data.error || '发送验证码失败', 'error');
+          showToast(data.error || t('sendCodeFailed'), 'error');
         }
       } catch (error) {
         console.error('发送验证码失败:', error);
-        showToast('网络错误，请稍后重试', 'error');
+        showToast(t('networkError'), 'error');
       }
     }
 
@@ -3515,9 +3618,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     function updateRegisterCodeBtn() {
       const sendCodeBtn = document.getElementById('sendCodeBtn');
       if (registerCodeCountdown > 0) {
-        sendCodeBtn.textContent = \`重新发送 (\${registerCodeCountdown}s)\`;
+        const text = t('getCodeCountdown').replace('{count}', registerCodeCountdown);
+        sendCodeBtn.textContent = text;
       } else {
-        sendCodeBtn.textContent = '获取验证码';
+        sendCodeBtn.textContent = t('getCode');
       }
     }
 
@@ -3531,7 +3635,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       const sendCodeBtn = document.getElementById('sendCodeBtn');
       if (sendCodeBtn) {
         sendCodeBtn.classList.remove('disabled');
-        sendCodeBtn.textContent = '获取验证码';
+        sendCodeBtn.textContent = t('getCode');
       }
     }
 
@@ -3662,9 +3766,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     function updateResendLink() {
       const resendLink = document.getElementById('resendLink');
       if (resendCountdown > 0) {
-        resendLink.textContent = \`重新发送验证码 (\${resendCountdown}s)\`;
+        const text = t('resendCountdown').replace('{count}', resendCountdown);
+        resendLink.textContent = text;
       } else {
-        resendLink.textContent = '获取验证码';
+        resendLink.textContent = t('getCode');
       }
     }
 
@@ -3677,14 +3782,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       let hasError = false;
 
       if (!email) {
-        showInputError('loginEmail', '邮箱不能为空');
+        showInputError('loginEmail', t('emailEmpty'));
         hasError = true;
       } else {
         hideInputError('loginEmail');
       }
 
       if (!password) {
-        showInputError('loginPassword', '密码不能为空');
+        showInputError('loginPassword', t('passwordEmpty'));
         hasError = true;
       } else {
         hideInputError('loginPassword');
@@ -3714,21 +3819,21 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           localStorage.setItem('auth_token', authToken);
           localStorage.setItem('current_user', JSON.stringify(currentUser));
 
-          showToast('登录成功', 'success');
+          showToast(t('loginSuccess'), 'success');
           closeAuthModal();
           updateAuthUI();
         } else {
           if (data.needVerification) {
             // 需要验证邮箱
-            showToast('请先验证邮箱', 'warning');
+            showToast(t('needVerifyEmail'), 'warning');
             showVerifyForm(email);
           } else {
-            showToast(data.error || '登录失败', 'error');
+            showToast(data.error || t('loginFailed'), 'error');
           }
         }
       } catch (error) {
         console.error('登录失败:', error);
-        showToast('网络错误，请稍后重试', 'error');
+        showToast(t('networkError'), 'error');
       }
     }
 
@@ -3817,63 +3922,63 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       
       <!-- 登录表单 -->
       <div id="loginForm">
-        <h2 class="modal-title">登录</h2>
+        <h2 class="modal-title" data-i18n="loginTitle">登录</h2>
         <div class="modal-form">
           <div class="form-group">
-            <label class="form-label">邮箱</label>
-            <input type="email" class="form-input" id="loginEmail" placeholder="请输入邮箱">
+            <label class="form-label" data-i18n="email">邮箱</label>
+            <input type="email" class="form-input" id="loginEmail" data-i18n-placeholder="emailPlaceholder" placeholder="请输入邮箱">
             <div class="form-error" id="loginEmailError"></div>
           </div>
           <div class="form-group">
-            <label class="form-label">密码</label>
-            <input type="password" class="form-input" id="loginPassword" placeholder="请输入密码（至少8位）">
+            <label class="form-label" data-i18n="password">密码</label>
+            <input type="password" class="form-input" id="loginPassword" data-i18n-placeholder="passwordPlaceholder" placeholder="请输入密码（至少8位）">
             <div class="form-error" id="loginPasswordError"></div>
           </div>
-          <button class="btn-primary" onclick="handleLogin()">登录</button>
+          <button class="btn-primary" onclick="handleLogin()" data-i18n="loginBtn">登录</button>
         </div>
         <div class="modal-footer">
-          还没有账号？<a href="#" onclick="showRegisterForm()">立即注册</a>
+          <span data-i18n="noAccount">还没有账号？</span><a href="#" onclick="showRegisterForm()" data-i18n="registerNow">立即注册</a>
         </div>
       </div>
 
       <!-- 注册表单 -->
       <div id="registerForm" style="display:none;">
-        <h2 class="modal-title">注册</h2>
+        <h2 class="modal-title" data-i18n="registerTitle">注册</h2>
         <div class="modal-form">
           <div class="form-group">
-            <label class="form-label">邮箱</label>
-            <input type="email" class="form-input" id="registerEmail" placeholder="请输入邮箱">
+            <label class="form-label" data-i18n="email">邮箱</label>
+            <input type="email" class="form-input" id="registerEmail" data-i18n-placeholder="emailPlaceholder" placeholder="请输入邮箱">
             <div class="form-error" id="registerEmailError"></div>
           </div>
           <div class="form-group">
-            <label class="form-label">密码</label>
-            <input type="password" class="form-input" id="registerPassword" placeholder="请输入密码（至少8位）">
+            <label class="form-label" data-i18n="password">密码</label>
+            <input type="password" class="form-input" id="registerPassword" data-i18n-placeholder="passwordPlaceholder" placeholder="请输入密码（至少8位）">
             <div class="form-error" id="registerPasswordError"></div>
           </div>
           <div class="form-group">
-            <label class="form-label">邮箱验证码</label>
+            <label class="form-label" data-i18n="emailCode">邮箱验证码</label>
             <div style="display:flex;gap:10px;">
-              <input type="text" class="form-input" id="registerCode" placeholder="请输入6位验证码" maxlength="6" oninput="this.value=this.value.replace(/\\D/g,'')" style="flex:1;">
-              <button type="button" class="btn-secondary" id="sendCodeBtn" onclick="handleSendRegisterCode()">获取验证码</button>
+              <input type="text" class="form-input" id="registerCode" data-i18n-placeholder="codePlaceholder" placeholder="请输入6位验证码" maxlength="6" oninput="this.value=this.value.replace(/\\D/g,'')" style="flex:1;">
+              <button type="button" class="btn-secondary" id="sendCodeBtn" onclick="handleSendRegisterCode()" data-i18n="getCode">获取验证码</button>
             </div>
             <div class="form-error" id="registerCodeError"></div>
           </div>
-          <button class="btn-primary" onclick="handleRegister()">注册</button>
+          <button class="btn-primary" onclick="handleRegister()" data-i18n="registerBtn">注册</button>
         </div>
         <div class="modal-footer">
-          已有账号？<a href="#" onclick="showLoginForm()">立即登录</a>
+          <span data-i18n="hasAccount">已有账号？</span><a href="#" onclick="showLoginForm()" data-i18n="loginNow">立即登录</a>
         </div>
       </div>
 
       <!-- 邮箱验证表单 -->
       <div id="verifyForm" style="display:none;">
-        <h2 class="modal-title">邮箱验证</h2>
-        <p style="text-align:center;color:rgba(255,255,255,.6);font-size:14px;margin-bottom:20px;">
+        <h2 class="modal-title" data-i18n="verifyEmailTitle">邮箱验证</h2>
+        <p style="text-align:center;color:rgba(255,255,255,.6);font-size:14px;margin-bottom:20px;" data-i18n="verifyEmailDesc">
           请点击下方按钮获取验证码
         </p>
         <div class="modal-form">
           <div class="form-group">
-            <label class="form-label">请输入6位验证码</label>
+            <label class="form-label" data-i18n="enter6DigitCode">请输入6位验证码</label>
             <div class="verification-inputs">
               <input type="text" class="verification-input" maxlength="1" data-index="0" oninput="handleVerificationInput(this)" onkeydown="handleVerificationKeydown(event,this)">
               <input type="text" class="verification-input" maxlength="1" data-index="1" oninput="handleVerificationInput(this)" onkeydown="handleVerificationKeydown(event,this)">
@@ -3884,9 +3989,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             </div>
             <div class="form-error" id="verifyError"></div>
           </div>
-          <button class="btn-primary" id="verifyBtn" onclick="handleVerifyEmail()">验证邮箱</button>
+          <button class="btn-primary" id="verifyBtn" onclick="handleVerifyEmail()" data-i18n="verifyEmailBtn">验证邮箱</button>
           <div style="text-align:center;margin-top:15px;">
-            <a class="resend-link" id="resendLink" onclick="handleResendCode()">获取验证码</a>
+            <a class="resend-link" id="resendLink" onclick="handleResendCode()" data-i18n="getCode">获取验证码</a>
           </div>
         </div>
       </div>

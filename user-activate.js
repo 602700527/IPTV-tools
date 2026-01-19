@@ -249,7 +249,16 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       }
     };
 
-    let currentLang = localStorage.getItem('activate_lang') || 'en';
+    // 智能判断浏览器语言
+    function detectBrowserLanguage() {
+      const savedLang = localStorage.getItem('activate_lang');
+      if (savedLang) return savedLang;
+      
+      const browserLang = navigator.language || navigator.userLanguage || 'en';
+      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
+    }
+
+    let currentLang = detectBrowserLanguage();
 
     function t(key) {
       return translations[currentLang][key] || translations['en'][key] || key;
@@ -259,6 +268,14 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       const menu = document.getElementById('langMenu');
       menu.classList.toggle('show');
     }
+
+    // 立即执行语言设置，避免闪烁
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => setLanguage(currentLang));
+    } else {
+      setLanguage(currentLang);
+    }
+
 
     function setLanguage(lang) {
       currentLang = lang;
@@ -487,7 +504,6 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
-      setLanguage(currentLang);
       refreshCaptcha();
 
       // Support Enter key activation

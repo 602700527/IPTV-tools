@@ -573,7 +573,19 @@ export const FREE_SUB_HTML = `
     let fingerprint = null;
     let fingerprintComponents = null;
     let captchaCode = '';
-    let currentLang = localStorage.getItem('freesub_lang') || 'zh-CN';
+    // 智能判断浏览器语言
+    function detectBrowserLanguage() {
+      const savedLang = localStorage.getItem('freesub_lang');
+      if (savedLang) {
+        return savedLang;
+      }
+      
+      const browserLang = navigator.language || navigator.userLanguage || 'zh-CN';
+      // 简体中文使用 zh-CN，其他语言使用英文
+      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
+    }
+
+    let currentLang = detectBrowserLanguage();
 
     // 多语言翻译
     const translations = {
@@ -643,9 +655,15 @@ export const FREE_SUB_HTML = `
       return translations[currentLang][key] || translations['zh-CN'][key] || key;
     }
 
+    // 立即执行语言设置，避免闪烁
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => setLanguage(currentLang));
+    } else {
+      setLanguage(currentLang);
+    }
+
     // 页面加载时执行
     window.addEventListener('DOMContentLoaded', async () => {
-      setLanguage(currentLang);
       await generateFingerprint();
       await loadSubscription();
       refreshCaptcha();

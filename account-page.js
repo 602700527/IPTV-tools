@@ -4,7 +4,7 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>用户中心 - TV Live Service</title>
+  <title data-i18n-title="pageTitle">用户中心 - TV Live Service</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;min-height:100vh;padding:15px}
@@ -15,6 +15,18 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
     .logout-btn:hover{background:#e50914;color:#fff}
     
     .nav-tabs{display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:15px}
+    
+    .lang-switch{position:absolute;top:15px;right:15px;z-index:10}
+    .lang-dropdown{position:relative;display:inline-block}
+    .lang-btn{background:#e50914;color:#fff;border:none;padding:8px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:background .2s;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent}
+    .lang-btn:hover{background:#f7262c}
+    .lang-btn:after{content:"▼";font-size:9px}
+    .lang-menu{display:none;position:absolute;top:calc(100% + 8px);right:0;background:#1a1a1a;backdrop-filter:blur(10px);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.3);min-width:120px;overflow:hidden;animation:fadeIn .2s ease;border:1px solid rgba(255,255,255,.15)}
+    .lang-menu.show{display:block}
+    .lang-menu button{display:block;width:100%;padding:10px 16px;background:none;border:none;text-align:left;font-size:13px;color:rgba(255,255,255,.8);cursor:pointer;transition:background .2s}
+    .lang-menu button:hover{background:rgba(229,9,20,.15)}
+    .lang-menu button.active{background:#e50914;color:#fff}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
     .nav-tab{background:transparent;color:rgba(255,255,255,.6);border:none;padding:12px 20px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;transition:all .2s;-webkit-tap-highlight-color:transparent}
     .nav-tab:hover{color:#fff;background:rgba(255,255,255,.05)}
     .nav-tab.active{color:#fff;background:#e50914}
@@ -76,14 +88,23 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
 </head>
 <body>
   <div class="container">
+    <div class="lang-switch">
+      <div class="lang-dropdown">
+        <button class="lang-btn" onclick="toggleLangMenu()" id="currentLangBtn">简体</button>
+        <div class="lang-menu" id="langMenu">
+          <button onclick="setLanguage('en')" id="langEn">English</button>
+          <button onclick="setLanguage('zh-CN')" id="langZh">简体中文</button>
+        </div>
+      </div>
+    </div>
     <div class="header">
-      <h1>👤 用户中心</h1>
-      <button class="logout-btn" onclick="logout()">退出登录</button>
+      <h1 data-i18n="userCenter">👤 用户中心</h1>
+      <button class="logout-btn" onclick="logout()" data-i18n="logout">退出登录</button>
     </div>
     
     <div class="nav-tabs">
-      <button class="nav-tab active" onclick="switchTab('info')">账户信息</button>
-      <button class="nav-tab" onclick="switchTab('orders')">订单历史</button>
+      <button class="nav-tab active" onclick="switchTab('info')" data-i18n="accountInfo">账户信息</button>
+      <button class="nav-tab" onclick="switchTab('orders')" data-i18n="orderHistory">订单历史</button>
     </div>
     
     <div id="infoTab" class="tab-content active">
@@ -107,6 +128,110 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
   
   <script>
     const API_BASE = '/api/auth';
+    let currentLang = localStorage.getItem('account_lang') || 'zh-CN';
+
+    const translations = {
+      'en': {
+        pageTitle: 'User Center - TV Live Service',
+        userCenter: '👤 User Center',
+        logout: 'Logout',
+        accountInfo: 'Account Info',
+        orderHistory: 'Order History',
+        email: 'Email',
+        emailStatus: 'Email Status',
+        registeredAt: 'Registered At',
+        updatedAt: 'Updated At',
+        verified: 'Verified',
+        unverified: 'Unverified',
+        noOrders: 'No orders yet',
+        orderId: 'Order ID',
+        orderDate: 'Order Date',
+        orderType: 'Order Type',
+        paymentMethod: 'Payment Method',
+        amount: 'Amount',
+        status: 'Status',
+        statusCompleted: 'Completed',
+        statusPending: 'Pending',
+        statusCancelled: 'Cancelled',
+        loadUserInfoFailed: 'Failed to load user information',
+        networkError: 'Network error, please try again later',
+        logoutSuccess: 'Logged out successfully'
+      },
+      'zh-CN': {
+        pageTitle: '用户中心 - TV Live Service',
+        userCenter: '👤 用户中心',
+        logout: '退出登录',
+        accountInfo: '账户信息',
+        orderHistory: '订单历史',
+        email: '邮箱',
+        emailStatus: '邮箱状态',
+        registeredAt: '注册时间',
+        updatedAt: '更新时间',
+        verified: '已验证',
+        unverified: '未验证',
+        noOrders: '暂无订单记录',
+        orderId: '订单号',
+        orderDate: '下单时间',
+        orderType: '订单类型',
+        paymentMethod: '支付方式',
+        amount: '金额',
+        status: '状态',
+        statusCompleted: '已完成',
+        statusPending: '处理中',
+        statusCancelled: '已取消',
+        loadUserInfoFailed: '加载用户信息失败',
+        networkError: '网络错误，请稍后重试',
+        logoutSuccess: '已退出登录'
+      }
+    };
+
+    function t(key) {
+      return translations[currentLang][key] || translations['zh-CN'][key] || key;
+    }
+
+    // 智能判断浏览器语言
+    function detectBrowserLanguage() {
+      const savedLang = localStorage.getItem('account_lang');
+      if (savedLang) return savedLang;
+      
+      const browserLang = navigator.language || navigator.userLanguage || 'zh-CN';
+      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
+    }
+
+    // 切换语言菜单
+    function toggleLangMenu() {
+      document.getElementById('langMenu').classList.toggle('show');
+    }
+
+    // 设置语言
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('account_lang', lang);
+
+      document.getElementById('langEn').classList.toggle('active', lang === 'en');
+      document.getElementById('langZh').classList.toggle('active', lang === 'zh-CN');
+      document.getElementById('currentLangBtn').textContent = lang === 'en' ? 'EN' : '简体';
+      document.getElementById('langMenu').classList.remove('show');
+      document.documentElement.lang = lang;
+
+      const titleKey = document.querySelector('[data-i18n-title]');
+      if (titleKey) {
+        const key = titleKey.getAttribute('data-i18n-title');
+        document.title = t(key);
+      }
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t(key);
+      });
+    }
+
+    // 页面加载时执行
+    window.addEventListener('DOMContentLoaded', () => {
+      currentLang = detectBrowserLanguage();
+      setLanguage(currentLang);
+    });
+
     
     // 获取当前有效的token
     function getToken() {
@@ -185,31 +310,31 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
           
           userInfoDiv.innerHTML = \`
             <div class="info-item">
-              <span class="info-label">邮箱</span>
+              <span class="info-label">\${t('email')}</span>
               <span class="info-value">\${user.email}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">邮箱状态</span>
-              <span class="info-value">\${user.is_verified ? '已验证' : '未验证'}</span>
+              <span class="info-label">\${t('emailStatus')}</span>
+              <span class="info-value">\${user.is_verified ? t('verified') : t('unverified')}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">注册时间</span>
-              <span class="info-value">\${createdDate.toLocaleString('zh-CN')}</span>
+              <span class="info-label">\${t('registeredAt')}</span>
+              <span class="info-value">\${createdDate.toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US')}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">更新时间</span>
-              <span class="info-value">\${updatedDate.toLocaleString('zh-CN')}</span>
+              <span class="info-label">\${t('updatedAt')}</span>
+              <span class="info-value">\${updatedDate.toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US')}</span>
             </div>
           \`;
         } else {
-          showToast(data.error || '加载用户信息失败', 'error');
+          showToast(data.error || t('loadUserInfoFailed'), 'error');
           if (response.status === 401) {
             window.location.href = '/';
           }
         }
       } catch (error) {
         console.error('加载用户信息失败:', error);
-        showToast('网络错误，请稍后重试', 'error');
+        showToast(t('networkError'), 'error');
       } finally {
         loadingDiv.classList.remove('active');
       }
@@ -240,7 +365,7 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                <p>暂无订单记录</p>
+                <p>\${t('noOrders')}</p>
               </div>
             \`;
           } else {
@@ -248,33 +373,34 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
               const createdDate = new Date(order.created_at);
               const statusClass = order.status.toLowerCase();
               const statusText = {
-                'completed': '已完成',
-                'pending': '待处理',
-                'cancelled': '已取消'
+                'completed': t('statusCompleted'),
+                'pending': t('statusPending'),
+                'cancelled': t('statusCancelled')
               }[order.status] || order.status;
+              const dayUnit = currentLang === 'zh-CN' ? ' 天' : ' days';
               
               return \`
                 <div class="order-card">
                   <div class="order-header">
-                    <span class="order-id">订单#\${order.order_id}</span>
+                    <span class="order-id">\${t('orderId')}#\${order.order_id}</span>
                     <span class="order-status \${statusClass}">\${statusText}</span>
                   </div>
                   <div class="order-details">
                     <div class="order-detail-item">
-                      <div class="order-detail-label">卡密</div>
+                      <div class="order-detail-label">Code</div>
                       <div class="order-detail-value">\${order.code || '-'}</div>
                     </div>
                     <div class="order-detail-item">
-                      <div class="order-detail-label">有效期</div>
-                      <div class="order-detail-value">\${order.duration_days ? order.duration_days + ' 天' : '-'}</div>
+                      <div class="order-detail-label">Validity</div>
+                      <div class="order-detail-value">\${order.duration_days ? order.duration_days + dayUnit : '-'}</div>
                     </div>
                     <div class="order-detail-item">
-                      <div class="order-detail-label">金额</div>
+                      <div class="order-detail-label">\${t('amount')}</div>
                       <div class="order-detail-value">\${order.amount ? '¥' + order.amount.toFixed(2) : '-'}</div>
                     </div>
                     <div class="order-detail-item">
-                      <div class="order-detail-label">创建时间</div>
-                      <div class="order-detail-value">\${createdDate.toLocaleString('zh-CN')}</div>
+                      <div class="order-detail-label">\${t('orderDate')}</div>
+                      <div class="order-detail-value">\${createdDate.toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US')}</div>
                     </div>
                   </div>
                 </div>
@@ -282,14 +408,14 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
             }).join('');
           }
         } else {
-          showToast(data.error || '加载订单历史失败', 'error');
+          showToast(data.error || t('loadUserInfoFailed'), 'error');
           if (response.status === 401) {
             window.location.href = '/';
           }
         }
       } catch (error) {
         console.error('加载订单历史失败:', error);
-        showToast('网络错误，请稍后重试', 'error');
+        showToast(t('networkError'), 'error');
       } finally {
         loadingDiv.classList.remove('active');
       }
@@ -307,7 +433,7 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
         console.error('登出失败:', error);
       } finally {
         localStorage.removeItem('auth_token');
-        showToast('已退出登录', 'success');
+        showToast(t('logoutSuccess'), 'success');
         setTimeout(() => {
           window.location.href = '/';
         }, 500);
