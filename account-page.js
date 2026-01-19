@@ -118,6 +118,36 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
       window.location.href = '/';
     }
     
+    // 验证token是否有效
+    async function validateToken() {
+      try {
+        const response = await fetch(API_BASE + '/user', {
+          headers: {
+            'Authorization': 'Bearer ' + getToken()
+          }
+        });
+        
+        if (response.status === 401) {
+          // token无效，清除登录态并返回首页
+          localStorage.removeItem('auth_token');
+          window.location.href = '/';
+          return false;
+        }
+        return response.ok;
+      } catch (error) {
+        console.error('验证token失败:', error);
+        return false;
+      }
+    }
+    
+    // 页面加载时验证token
+    (async () => {
+      const isValid = await validateToken();
+      if (!isValid) {
+        window.location.href = '/';
+      }
+    })();
+    
     function switchTab(tab) {
       document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
