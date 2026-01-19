@@ -22,23 +22,21 @@ CREATE TABLE IF NOT EXISTS channels (
   FOREIGN KEY(source_id) REFERENCES sources(id)
 );
 
--- 创建频道哈希索引
+-- 创建频道哈希索引（播放验证必需）
 CREATE INDEX IF NOT EXISTS idx_channel_hash ON channels(channel_hash);
 
--- 创建频道is_active索引（优化订阅查询）
-CREATE INDEX IF NOT EXISTS idx_channels_is_active ON channels(is_active);
+-- 删除单列索引（被组合索引覆盖）
+-- DROP INDEX IF EXISTS idx_channels_is_active;
+-- DROP INDEX IF EXISTS idx_channels_source_id;
 
--- 创建频道source_id索引（优化JOIN查询）
-CREATE INDEX IF NOT EXISTS idx_channels_source_id ON channels(source_id);
-
--- 创建频道group_title索引（优化分组查询）
-CREATE INDEX IF NOT EXISTS idx_channels_group_title ON channels(group_title);
-
--- 创建频道is_active+source_id组合索引（优化频道列表查询）
+-- 创建频道is_active+source_id组合索引（核心查询索引，覆盖大部分JOIN和过滤查询）
 CREATE INDEX IF NOT EXISTS idx_channels_active_source ON channels(is_active, source_id);
 
--- 创建频道group_title去重索引（优化DISTINCT查询）
-CREATE INDEX IF NOT EXISTS idx_channels_group_title_notnull ON channels(group_title) WHERE group_title IS NOT NULL AND group_title != '';
+-- 创建频道group_title索引（分组查询必需）
+CREATE INDEX IF NOT EXISTS idx_channels_group_title ON channels(group_title);
+
+-- 注意: 已删除 idx_channels_group_title_notnull 索引以减少写入开销
+-- 该索引对DISTINCT查询的优化有限，idx_channels_group_title 已足够
 
 -- 创建源is_active索引（优化订阅查询）
 CREATE INDEX IF NOT EXISTS idx_sources_is_active ON sources(is_active);

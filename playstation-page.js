@@ -374,6 +374,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .pagination{flex-wrap:wrap;gap:6px;padding:15px 0}
       .pagination button{padding:6px 12px;font-size:12px}
       .pagination-info{width:100%;text-align:center;margin-bottom:10px}
+      /* 移动端 Toast 通知样式 - 与 PC 端保持一致 */
+      .toast-container{top:80px}
+      .toast{min-width:280px;max-width:90vw;padding:14px 16px;font-size:13px}
+      .toast-title{font-size:14px}
+      .toast-message{font-size:13px}
+      /* 移动端禁用频道卡片的焦点红色外框 */
+      .channel-card:focus,.channel-card:focus-visible{outline:none;border-color:transparent;box-shadow:none}
+      /* 移动端禁用按钮的焦点样式 */
+      button:focus,button:focus-visible{outline:none}
     }
     @media (max-width:480px){
       .header{padding:0 10px}
