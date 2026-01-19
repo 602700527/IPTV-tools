@@ -16,11 +16,13 @@ import {
   handleGetUserInfo,
   handleGetOrderHistory
 } from './handlers/auth.js';
+import { handleCreateCode, handlePayPalWebhook } from './handlers/subscription-api.js';
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { ACCOUNT_HTML } from './account-page.js';
 import { PLAYSTATION_HTML } from './playstation-page.js';
 import { FREE_SUB_HTML } from './freesub-page.js';
+import { SUBSCRIPTION_HTML } from './subscription-page.js';
 import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from './pages.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
@@ -201,6 +203,17 @@ export default {
     } else if (path === '/api/auth/orders') {
       // 获取订单历史
       return await handleGetOrderHistory(request, env, ctx);
+    } else if (path === '/api/subscription/create-code') {
+      // 创建订阅卡密
+      return await handleCreateCode(request, env, ctx);
+    } else if (path === '/api/subscription/paypal-webhook') {
+      // PayPal Webhook
+      return await handlePayPalWebhook(request, env, ctx);
+    } else if (path === '/subscription' || path === '/subscription/' || path === '/subscription/index' || path === '/subscription/index.html') {
+      // 订阅购买页面
+      return new Response(SUBSCRIPTION_HTML, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     } else if (path === '/account' || path === '/account/' || path === '/account/index' || path === '/account/index.html') {
       // 用户账户页面
       const timezone = env.TIMEZONE || 'Asia/Shanghai';

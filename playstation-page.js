@@ -476,6 +476,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           🎁
           <span class="quick-entry-tip">免费订阅</span>
         </button>
+        <button class="quick-entry ripple" onclick="window.location.href='/subscription'" data-tip-key="subscription">
+          🎫
+          <span class="quick-entry-tip">订阅购买</span>
+        </button>
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" data-tip-key="clearCache">
           🗑️
           <span class="quick-entry-tip">清除缓存</span>
@@ -922,6 +926,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         favorites: 'My Favorites',
         random: 'Random Picks',
         freesub: 'Free Subscription',
+        subscription: 'Purchase Subscription',
         clearCache: 'Clear Cache',
         onlineCount: 'viewers online',
         hot: 'HOT',
