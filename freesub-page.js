@@ -1,4 +1,6 @@
 // 免费订阅页面HTML
+import { NAVBAR_CSS, renderNavbar, NAVBAR_JS, NAVBAR_TRANSLATIONS } from './components/navbar.js';
+
 export const FREE_SUB_HTML = `
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -12,115 +14,18 @@ export const FREE_SUB_HTML = `
           crossorigin="anonymous"></script>
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background: #0a0a0a;
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       padding: 15px;
+      color: #fff;
     }
 
     .container {
-      background: #141414;
-      backdrop-filter: blur(20px);
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
       max-width: 480px;
-      width: 100%;
-      padding: 30px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      position: relative;
-    }
-
-    .lang-switch {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 10;
-    }
-
-    .lang-dropdown {
-      position: relative;
-      display: inline-block;
-    }
-
-    .lang-btn {
-      background: #e50914;
-      color: white;
-      border: none;
-      padding: 8px 18px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      transition: background 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .lang-btn:hover {
-      background: #f7262c;
-    }
-
-    .lang-btn:after {
-      content: "▼";
-      font-size: 9px;
-    }
-
-    .lang-menu {
-      display: none;
-      position: absolute;
-      top: calc(100% + 8px);
-      right: 0;
-      background: #1a1a1a;
-      backdrop-filter: blur(10px);
-      border-radius: 10px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      min-width: 120px;
-      overflow: hidden;
-      animation: fadeIn 0.2s ease;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    .lang-menu.show {
-      display: block;
-    }
-
-    .lang-menu button {
-      display: block;
-      width: 100%;
-      padding: 10px 16px;
-      background: none;
-      border: none;
-      text-align: left;
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.8);
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .lang-menu button:hover {
-      background: rgba(229, 9, 20, 0.15);
-    }
-
-    .lang-menu button.active {
-      background: #e50914;
-      color: white;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
+      margin: 0 auto;
+      padding: 20px;
     }
 
     .header {
@@ -153,6 +58,15 @@ export const FREE_SUB_HTML = `
 
     .notice-icon {
       margin-right: 6px;
+    }
+
+    .main-card {
+      background: #141414;
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      padding: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .card {
@@ -389,29 +303,13 @@ export const FREE_SUB_HTML = `
     }
 
     @media (max-width: 480px) {
-      body {
-        padding: 10px;
+      .container {
+        padding: 15px 10px;
       }
 
-      .container {
+      .main-card {
         padding: 20px;
         border-radius: 12px;
-        padding-top: 50px;
-      }
-
-      .lang-switch {
-        top: 15px;
-        right: 15px;
-      }
-
-      .lang-btn {
-        padding: 6px 14px;
-        font-size: 12px;
-      }
-
-      .lang-menu button {
-        padding: 8px 12px;
-        font-size: 12px;
       }
 
       .header h1 {
@@ -494,28 +392,20 @@ export const FREE_SUB_HTML = `
 </head>
 <body>
   <div class="container">
-    <div class="lang-switch">
-      <div class="lang-dropdown">
-        <button class="lang-btn" onclick="toggleLangMenu()" id="currentLangBtn">简体</button>
-        <div class="lang-menu" id="langMenu">
-          <button onclick="setLanguage('en')" id="langEn">English</button>
-          <button onclick="setLanguage('zh-CN')" id="langZh">简体中文</button>
-        </div>
+    <div class="main-card">
+      <div class="header">
+        <h1 data-i18n="title">🎁 免费订阅</h1>
+        <p data-i18n="subtitle">每天随机精选频道，每日签到续期</p>
       </div>
-    </div>
-    <div class="header">
-      <h1 data-i18n="title">🎁 免费订阅</h1>
-      <p data-i18n="subtitle">每天随机精选频道，每日签到续期</p>
-    </div>
 
-    <div class="notice">
-      <span class="notice-icon">⚠️</span>
-      <strong data-i18n="noticeLabel">注意：</strong>
-      <span data-i18n="noticeText">订阅地址与您的IP和浏览器绑定，请勿分享给他人使用</span>
-    </div>
+      <div class="notice">
+        <span class="notice-icon">⚠️</span>
+        <strong data-i18n="noticeLabel">注意：</strong>
+        <span data-i18n="noticeText">订阅地址与您的IP和浏览器绑定，请勿分享给他人使用</span>
+      </div>
 
-    <div class="card">
-      <h2 data-i18n="subscriptionInfo">📺 订阅信息</h2>
+      <div class="card">
+        <h2 data-i18n="subscriptionInfo">📺 订阅信息</h2>
       <div class="subscription-info" id="subscriptionInfo">
         <p class="subscription-id" id="subId" data-i18n="loading">加载中...</p>
         <p class="subscription-url" id="subUrl"></p>
@@ -686,18 +576,17 @@ export const FREE_SUB_HTML = `
       currentLang = lang;
       localStorage.setItem('freesub_lang', lang);
 
-      // 更新按钮状态
-      document.getElementById('langEn').classList.toggle('active', lang === 'en');
-      document.getElementById('langZh').classList.toggle('active', lang === 'zh-CN');
+      const langEn = document.getElementById('langEn');
+      const langZh = document.getElementById('langZh');
+      if (langEn) langEn.classList.toggle('active', lang === 'en');
+      if (langZh) langZh.classList.toggle('active', lang === 'zh-CN');
 
-      // 更新当前语言按钮
-      const langNames = { 'en': 'EN', 'zh-CN': '简体' };
-      document.getElementById('currentLangBtn').textContent = langNames[lang] || '简体';
+      const currentLangBtn = document.getElementById('currentLangBtn');
+      if (currentLangBtn) currentLangBtn.textContent = lang === 'en' ? 'EN' : '简体';
 
-      // 关闭菜单
-      document.getElementById('langMenu').classList.remove('show');
+      const langMenu = document.getElementById('langMenu');
+      if (langMenu) langMenu.classList.remove('show');
 
-      // 更新 HTML lang 属性
       document.documentElement.lang = lang;
 
       // 更新文档标题

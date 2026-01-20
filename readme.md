@@ -13,17 +13,22 @@
 
 ```
 cfworker2/
-├── worker.js             # Worker 主入口文件（路由分发）
-├── database.js           # 数据库初始化、表结构管理、M3U解析
-├── admin-page.js         # 管理后台页面（包含完整HTML和JavaScript）
-├── admin.html            # 管理后台静态页面
+├── worker.js                  # Worker 主入口文件（路由分发）
+├── database.js                # 数据库初始化、表结构管理、M3U解析
+├── admin-page.js              # 管理后台页面（包含完整HTML和JavaScript）
+├── admin.html                 # 管理后台静态页面
+├── playstation-page.js         # 首页（频道浏览和播放）
+├── subscription-page.js        # 会员订阅页面
+├── subscription-choice-page.js  # 订阅选择页面（引导用户选择免费或付费订阅）
+├── freesub-page.js            # 免费订阅页面
+├── account-page.js            # 用户账户页面
 ├── handlers/
-│   ├── live.js           # 播放请求处理器（/live/{code}/{hash}）
-│   ├── sub.js            # 订阅请求处理器（/sub/{code}.m3u）
-│   ├── admin.js          # 管理后台API处理器
-│   ├── scheduler.js      # 定时任务处理器
-│   ├── public.js         # 公共API处理器
-│   └── freesub-api.js    # 免费订阅API处理器
+│   ├── live.js               # 播放请求处理器（/live/{code}/{hash}）
+│   ├── sub.js                # 订阅请求处理器（/sub/{code}.m3u）
+│   ├── admin.js              # 管理后台API处理器
+│   ├── scheduler.js          # 定时任务处理器
+│   ├── public.js             # 公共API处理器
+│   └── freesub-api.js       # 免费订阅API处理器
 ├── security/
 │   ├── ip-blacklist.js   # IP黑名单安全系统
 │   └── code-ban-cache.js # 卡密封禁缓存
@@ -220,19 +225,52 @@ https://your-domain.com/live/{卡密}/{频道hash}
 - 同一 IP 在冷却时间内不会重复看到同一广告
 - 减少用户体验负面影响
 
-### 6. 免费订阅系统
+### 6. 订阅系统
 
-#### 6.1 功能特点
+#### 6.1 订阅选择页面
+
+**订阅选择页面 (/subscription-choice)**
+
+专业的订阅计划展示页面，帮助用户选择最适合的订阅方案：
+
+**设计特点：**
+- 现代化 UI 设计，采用深色主题配合红色品牌色
+- 响应式布局，支持桌面端和移动端
+- 清晰的功能对比表格，一目了然
+- 卡片式计划展示，突出会员订阅优势
+- 动画交互效果，提升用户体验
+- 信任标志展示，增强用户信心
+
+**功能模块：**
+1. **Hero 区域**：吸引眼球的标题和徽章
+2. **计划卡片**：
+   - 免费订阅：展示基础功能和限制
+   - 会员订阅：突出优势功能，带"推荐"标签
+3. **详细对比表格**：免费 vs 会员的全面功能对比
+4. **信任标志**：安全、稳定、精选、服务四大保障
+5. **底部 CTA**：引导用户立即订阅
+6. **导航栏**：链接到首页、订阅页面、免费订阅页面
+
+**用户体验优化：**
+- 点击卡片任何位置即可跳转
+- 滚动动画，元素渐入效果
+- 移动端友好的响应式设计
+- Google AdSense 广告位集成
+
+#### 6.2 免费订阅系统
+
+##### 6.2.1 功能特点
 
 - 无需卡密的订阅模式
 - 生成免费订阅 ID
 - 每日访问限制（防滥用）
 - IP 授权机制
+- 每日签到续期
 
-#### 6.2 订阅流程
+##### 6.2.2 订阅流程
 
 ```
-访问 /freesub 页面 → 生成订阅 ID → 获取订阅链接 → 播放
+访问 /subscription-choice 页面 → 选择免费订阅 → 跳转 /freesub 页面 → 生成订阅 ID → 获取订阅链接 → 播放
 ```
 
 #### 6.3 播放验证

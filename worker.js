@@ -23,6 +23,7 @@ import { ACCOUNT_HTML } from './account-page.js';
 import { PLAYSTATION_HTML } from './playstation-page.js';
 import { FREE_SUB_HTML } from './freesub-page.js';
 import { SUBSCRIPTION_HTML } from './subscription-page.js';
+import { SUBSCRIPTION_CHOICE_HTML } from './subscription-choice-page.js';
 import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from './pages.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
@@ -140,10 +141,10 @@ export default {
           'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'public, max-age=600', // 10分钟缓存
           'ETag': etag,
-          'X-Frame-Options': 'SAMEORIGIN', // 允许同源iframe（某些广告需要）
-          'X-Content-Type-Options': 'nosniff', // 防止MIME类型嗅探
-          'Referrer-Policy': 'strict-origin-when-cross-origin', // 严格的引用策略
-          'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=()' // 限制敏感权限
+          // 'X-Frame-Options': 'SAMEORIGIN', // 暂时禁用防止嵌入
+          // 'X-Content-Type-Options': 'nosniff', // 防止MIME类型嗅探
+          // 'Referrer-Policy': 'strict-origin-when-cross-origin', // 严格的引用策略
+          // 'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=()' // 限制敏感权限
         }
       });
     } else if (path === '/api/config') {
@@ -172,6 +173,11 @@ export default {
         `<script>window.TIMEZONE = '${timezone}';\n`
       );
       return new Response(htmlWithConfig, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/subscription-choice' || path === '/subscription-choice/' || path === '/subscription-choice/index' || path === '/subscription-choice/index.html') {
+      // 订阅选择页面
+      return new Response(SUBSCRIPTION_CHOICE_HTML, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     } else if (path === '/freesub' || path === '/freesub/' || path === '/freesub/index' || path === '/freesub/index.html') {

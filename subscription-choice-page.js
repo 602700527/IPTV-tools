@@ -1,0 +1,773 @@
+// 订阅选择页面 - 引导用户选择免费订阅或会员订阅
+import { NAVBAR_CSS, renderNavbar, NAVBAR_JS, NAVBAR_TRANSLATIONS } from './components/navbar.js';
+
+export const SUBSCRIPTION_CHOICE_HTML = `
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>选择订阅计划 - IPTV Live</title>
+  <meta name="description" content="选择适合您的订阅计划，免费订阅或会员订阅，享受高质量直播体验">
+  
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137"
+          crossorigin="anonymous"></script>
+
+  <style>
+    ${NAVBAR_CSS}
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #141414 50%, #1a0a0a 100%);
+      min-height: 100vh;
+      color: #fff;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Hero 区域 */
+    .hero {
+      text-align: center;
+      padding: 80px 20px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(229, 9, 20, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, rgba(229, 9, 20, 0.2), rgba(255, 59, 48, 0.2));
+      border: 1px solid rgba(229, 9, 20, 0.3);
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(229, 9, 20, 0); }
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #fff 0%, #e50914 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+
+    /* 计划卡片 */
+    .plans-section {
+      padding: 60px 0;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 50px;
+      font-size: 16px;
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 30px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .plan-card {
+      background: rgba(20, 20, 20, 0.8);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 40px 30px;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .plan-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s;
+    }
+
+    .plan-card:hover::before {
+      transform: translateX(100%);
+    }
+
+    .plan-card:hover {
+      transform: translateY(-10px);
+      border-color: rgba(229, 9, 20, 0.3);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(229, 9, 20, 0.1);
+    }
+
+    .plan-card.free {
+      background: linear-gradient(135deg, rgba(20, 20, 20, 0.9), rgba(30, 30, 30, 0.9));
+    }
+
+    .plan-card.premium {
+      background: linear-gradient(135deg, rgba(229, 9, 20, 0.1), rgba(184, 29, 36, 0.1));
+      border-color: rgba(229, 9, 20, 0.3);
+    }
+
+    .plan-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 40px;
+    }
+
+    .plan-card.free .plan-icon {
+      background: linear-gradient(135deg, #4a4a4a, #3a3a3a);
+    }
+
+    .plan-card.premium .plan-icon {
+      background: linear-gradient(135deg, #e50914, #b81d24);
+      animation: glow 2s infinite;
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(229, 9, 20, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(229, 9, 20, 0.5); }
+    }
+
+    .plan-title {
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .plan-card.premium .plan-title {
+      background: linear-gradient(135deg, #e50914, #ff3b30);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .plan-description {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin: 30px 0;
+    }
+
+    .plan-features li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 15px;
+    }
+
+    .plan-features li:last-child {
+      border-bottom: none;
+    }
+
+    .feature-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .feature-check {
+      color: #34c759;
+    }
+
+    .feature-cross {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .plan-price {
+      text-align: center;
+      margin: 30px 0;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .price-value {
+      font-size: 48px;
+      font-weight: 800;
+    }
+
+    .price-period {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+    }
+
+    .plan-cta {
+      width: 100%;
+      padding: 16px 32px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .plan-card.free .plan-cta {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .plan-card.free .plan-cta:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .plan-card.premium .plan-cta {
+      background: linear-gradient(135deg, #e50914, #b81d24);
+      color: white;
+      box-shadow: 0 8px 24px rgba(229, 9, 20, 0.4);
+    }
+
+    .plan-card.premium .plan-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(229, 9, 20, 0.5);
+    }
+
+    /* 信任标志 */
+    .trust-section {
+      padding: 60px 0;
+      text-align: center;
+    }
+
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .trust-item {
+      padding: 20px;
+    }
+
+    .trust-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .trust-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .trust-desc {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* 底部 CTA */
+    .bottom-cta {
+      text-align: center;
+      padding: 80px 20px;
+      background: linear-gradient(135deg, rgba(229, 9, 20, 0.1), rgba(184, 29, 36, 0.1));
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .bottom-cta h2 {
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+
+    .bottom-cta p {
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-button {
+      display: inline-block;
+      padding: 18px 48px;
+      background: linear-gradient(135deg, #e50914, #b81d24);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 18px;
+      transition: all 0.3s;
+      box-shadow: 0 8px 24px rgba(229, 9, 20, 0.4);
+    }
+
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(229, 9, 20, 0.5);
+    }
+
+    /* 页脚 */
+    .footer {
+      text-align: center;
+      padding: 40px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 13px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 20px;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: #e50914;
+    }
+
+    /* 广告位 */
+    .ad-banner {
+      display: flex;
+      justify-content: center;
+      padding: 10px 0;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    ins.adsbygoogle {
+      display: block !important;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 32px;
+      }
+
+      .hero p {
+        font-size: 16px;
+      }
+
+      .plans-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .plan-card {
+        padding: 30px 20px;
+      }
+
+      .trust-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .bottom-cta h2 {
+        font-size: 24px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .trust-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  ${renderNavbar(true)}
+
+  <!-- Hero 区域 -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge" data-i18n="heroBadge">🚀 全新升级 限时优惠</div>
+      <h1 data-i18n="heroTitle">选择最适合您的订阅计划</h1>
+      <p data-i18n="heroSubtitle">从免费体验到尊享会员，满足不同需求。立即开始您的 IPTV 直播之旅。</p>
+    </div>
+  </section>
+
+  <!-- 计划卡片 -->
+  <section class="plans-section">
+    <div class="container">
+      <h2 class="section-title" data-i18n="plansTitle">订阅计划</h2>
+      <p class="section-subtitle" data-i18n="plansSubtitle">灵活选择，随时升级</p>
+      
+      <div class="plans-grid">
+        <!-- 免费订阅卡片 -->
+        <div class="plan-card free" onclick="window.location.href='/freesub'">
+          <div class="plan-icon">🎁</div>
+          <h3 class="plan-title" data-i18n="freePlanTitle">免费订阅</h3>
+          <p class="plan-description" data-i18n="freePlanDesc">体验精选频道，每日签到续期</p>
+          
+          <ul class="plan-features">
+            <li>
+              <span class="feature-icon feature-check">✓</span>
+              <span data-i18n="freeFeature1">随机精选部分频道</span>
+            </li>
+            <li>
+              <span class="feature-icon feature-check">✓</span>
+              <span data-i18n="featureHistory">频道收藏/历史记录</span>
+            </li>
+            <li>
+              <span class="feature-icon feature-check">✓</span>
+              <span data-i18n="featureDailyUpdate">每日更新</span>
+            </li>
+            <li>
+              <span class="feature-icon feature-cross">✗</span>
+              <span data-i18n="featureHD">1080P/4K</span>
+            </li>
+            <li>
+              <span class="feature-icon feature-cross">✗</span>
+              <span data-i18n="featureMultiIP">支持多IP、多设备同时使用</span>
+            </li>
+            <li>
+              <span class="feature-icon feature-cross">✗</span>
+              <span data-i18n="featureNoCheckin">无需签到</span>
+            </li>
+            <li>
+              <span class="feature-icon feature-cross">✗</span>
+              <span data-i18n="featureNoAds">无广告</span>
+            </li>
+          </ul>
+
+          <div class="plan-price">
+            <span class="price-value" data-i18n="freePrice">免费</span>
+            <span class="price-period" data-i18n="freePricePeriod">永久免费</span>
+          </div>
+
+          <button class="plan-cta" data-i18n="freeCta">开始体验</button>
+        </div>
+
+        <!-- 会员订阅卡片 -->
+        <div class="plan-card premium" onclick="window.location.href='/subscription'">
+          <div class="plan-icon">👑</div>
+          <h3 class="plan-title" data-i18n="premiumPlanTitle">会员订阅</h3>
+          <p class="plan-description" data-i18n="premiumPlanDesc">完整频道库，尊享高清画质</p>
+          
+          <ul class="plan-features">
+            <li>
+              <span class="feature-icon feature-check">✓</span>
+              <span data-i18n="featureFullLib">完整频道库</span>
+            </li>
+            <li>
+              <span class="feature-icon feature-check">✓</span>
+              <span data-i18n="featureHistory">频道收藏/历史记录</span>
+            </li>
+            <li>
+              <span class="feature-icon feature-check">✓</span>
+              <span data-i18n="featureDailyUpdate">每日更新</span>
+            </li>
+            <li>
+              <span class="feature-icon feature-check">✓</span>
+              <span data-i18n="featureHD">1080P/4K</span>
+            </li>
+            <li>
+              <span class="feature-icon feature-check">✓</span>
+              <span data-i18n="featureMultiIP">支持多IP、多设备同时使用</span>
+            </li>
+            <li>
+              <span class="feature-icon feature-check">✓</span>
+              <span data-i18n="featureNoCheckin">无需签到</span>
+            </li>
+            <li>
+              <span class="feature-icon feature-check">✓</span>
+              <span data-i18n="featureNoAds">无广告</span>
+            </li>
+          </ul>
+
+          <div class="plan-price">
+            <span class="price-value">$3.5</span>
+            <span class="price-period" data-i18n="pricePeriod">/月起</span>
+          </div>
+
+          <button class="plan-cta" data-i18n="premiumCta">立即订阅</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 广告位 -->
+  <div class="ad-banner">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-2205598928191137"
+         data-ad-slot="7749583692"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </div>
+
+  <!-- 信任标志 -->
+  <section class="trust-section">
+    <div class="container">
+      <h2 class="section-title" data-i18n="trustTitle">为什么选择我们</h2>
+      <p class="section-subtitle" data-i18n="trustSubtitle">专业可靠的服务保障</p>
+      
+      <div class="trust-grid">
+        <div class="trust-item">
+          <div class="trust-icon">🔒</div>
+          <h3 class="trust-title" data-i18n="trust1Title">安全可靠</h3>
+          <p class="trust-desc" data-i18n="trust1Desc">采用最先进的加密技术，保护您的隐私安全</p>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">⚡</div>
+          <h3 class="trust-title" data-i18n="trust2Title">极速稳定</h3>
+          <p class="trust-desc" data-i18n="trust2Desc">全球 CDN 加速，99.9% 在线率保证</p>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">🎯</div>
+          <h3 class="trust-title" data-i18n="trust3Title">精选内容</h3>
+          <p class="trust-desc" data-i18n="trust3Desc">专业团队精选，确保内容质量</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 底部 CTA -->
+  <section class="bottom-cta">
+    <div class="container">
+      <h2 data-i18n="ctaTitle">准备好开始了吗？</h2>
+      <p data-i18n="ctaSubtitle">立即选择适合您的订阅计划，开启精彩直播体验</p>
+      <a href="/subscription" class="cta-button" data-i18n="ctaButton">立即订阅会员</a>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="/privacy-policy" data-i18n="footerPrivacy">隐私政策</a>
+      <a href="/terms" data-i18n="footerTerms">服务条款</a>
+      <a href="/sitemap.xml" data-i18n="footerSitemap">网站地图</a>
+    </div>
+    <p data-i18n="footerCopyright">&copy; 2024 IPTV Live. All rights reserved.</p>
+    <p style="margin-top: 10px;" data-i18n="footerCloudflare">由 Cloudflare 提供加速与安全保护</p>
+  </footer>
+
+  <script>
+    ${NAVBAR_JS}
+
+    // 页面特定翻译
+    const pageTranslations = {
+      ...NAVBAR_TRANSLATIONS,
+      'zh-CN': {
+        ...NAVBAR_TRANSLATIONS['zh-CN'],
+        heroBadge: '🚀 全新升级 限时优惠',
+        heroTitle: '选择最适合您的订阅计划',
+        heroSubtitle: '从免费体验到尊享会员，满足不同需求。立即开始您的 IPTV 直播之旅。',
+        plansTitle: '订阅计划',
+        plansSubtitle: '灵活选择，随时升级',
+        freePlanTitle: '免费订阅',
+        freePlanDesc: '体验精选频道，每日签到续期',
+        freeFeature1: '随机精选部分频道',
+        featureHistory: '频道收藏/历史记录',
+        featureDailyUpdate: '每日更新',
+        featureHD: '1080P/4K',
+        featureMultiIP: '支持多IP、多设备同时使用',
+        featureNoCheckin: '无需签到',
+        featureNoAds: '无广告',
+        freePrice: '免费',
+        freePricePeriod: '永久免费',
+        freeCta: '开始体验',
+        premiumPlanTitle: '会员订阅',
+        premiumPlanDesc: '完整频道库，尊享高清画质',
+        featureFullLib: '完整频道库',
+        pricePeriod: '/月起',
+        premiumCta: '立即订阅',
+        trustTitle: '为什么选择我们',
+        trustSubtitle: '专业可靠的服务保障',
+        trust1Title: '安全可靠',
+        trust1Desc: '采用最先进的加密技术，保护您的隐私安全',
+        trust2Title: '极速稳定',
+        trust2Desc: '全球 CDN 加速，99.9% 在线率保证',
+        trust3Title: '精选内容',
+        trust3Desc: '专业团队精选，确保内容质量',
+        ctaTitle: '准备好开始了吗？',
+        ctaSubtitle: '立即选择适合您的订阅计划，开启精彩直播体验',
+        ctaButton: '立即订阅会员',
+        footerPrivacy: '隐私政策',
+        footerTerms: '服务条款',
+        footerSitemap: '网站地图',
+        footerCopyright: '&copy; 2024 IPTV Live. All rights reserved.',
+        footerCloudflare: '由 Cloudflare 提供加速与安全保护'
+      },
+      'en': {
+        ...NAVBAR_TRANSLATIONS['en'],
+        heroBadge: '🚀 New Upgrade Limited Offer',
+        heroTitle: 'Choose the subscription plan that suits you',
+        heroSubtitle: 'From free trial to premium membership, meet different needs. Start your IPTV live journey now.',
+        plansTitle: 'Subscription Plans',
+        plansSubtitle: 'Flexible choice, upgrade anytime',
+        freePlanTitle: 'Free Subscription',
+        freePlanDesc: 'Experience selected channels, daily check-in renewal',
+        freeFeature1: 'Random selected channels',
+        featureHistory: 'Channel favorites/history',
+        featureDailyUpdate: 'Daily updates',
+        featureHD: '1080P/4K',
+        featureMultiIP: 'Multi-IP & multi-device support',
+        featureNoCheckin: 'No check-in required',
+        featureNoAds: 'Ad-free',
+        freePrice: 'Free',
+        freePricePeriod: 'Forever free',
+        freeCta: 'Get Started',
+        premiumPlanTitle: 'Premium Subscription',
+        premiumPlanDesc: 'Full channel library, HD quality',
+        featureFullLib: 'Full channel library',
+        pricePeriod: '/month starting',
+        premiumCta: 'Subscribe Now',
+        trustTitle: 'Why Choose Us',
+        trustSubtitle: 'Professional and reliable service',
+        trust1Title: 'Secure & Reliable',
+        trust1Desc: 'Advanced encryption technology to protect your privacy',
+        trust2Title: 'Fast & Stable',
+        trust2Desc: 'Global CDN acceleration, 99.9% uptime guarantee',
+        trust3Title: 'Curated Content',
+        trust3Desc: 'Professional team ensures content quality',
+        ctaTitle: 'Ready to Start?',
+        ctaSubtitle: 'Choose the plan that suits you and start an amazing live streaming experience',
+        ctaButton: 'Subscribe Now',
+        footerPrivacy: 'Privacy Policy',
+        footerTerms: 'Terms of Service',
+        footerSitemap: 'Sitemap',
+        footerCopyright: '&copy; 2024 IPTV Live. All rights reserved.',
+        footerCloudflare: 'Powered by Cloudflare for acceleration and security'
+      }
+    };
+
+    // 获取翻译函数
+    function getTranslations() {
+      return pageTranslations;
+    }
+
+    // 更新页面标题函数
+    function updateTitle(lang) {
+      document.title = lang === 'zh-CN' 
+        ? '选择订阅计划 - IPTV Live' 
+        : 'Choose Subscription Plan - IPTV Live';
+    }
+
+    // 智能判断浏览器语言
+    function detectBrowserLanguage() {
+      const savedLang = localStorage.getItem('choice_lang');
+      if (savedLang) return savedLang;
+
+      const browserLang = navigator.language || navigator.userLanguage || 'en';
+      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
+    }
+
+    let currentLang = detectBrowserLanguage();
+
+    function t(key) {
+      return pageTranslations[currentLang][key] || pageTranslations['en'][key] || key;
+    }
+
+    // Google AdSense 初始化
+    (adsbygoogle = window.adsbygoogle || []).push({});
+
+    // 添加卡片点击动画效果
+    document.querySelectorAll('.plan-card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        // 如果点击的是按钮，不触发卡片点击
+        if (e.target.classList.contains('plan-cta')) {
+          return;
+        }
+        
+        // 添加点击动画
+        this.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+          this.style.transform = '';
+          // 触发跳转
+          const url = this.classList.contains('free') ? '/freesub' : '/subscription';
+          window.location.href = url;
+        }, 150);
+      });
+    });
+
+    // 添加滚动动画
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.plan-card, .trust-item').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(30px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
+
+    // 页面加载时初始化语言
+    document.addEventListener('DOMContentLoaded', () => {
+      setLanguage(currentLang);
+    });
+  </script>
+</body>
+</html>
+`;
