@@ -3875,18 +3875,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       const currentUserData = JSON.parse(localStorage.getItem('current_user') || 'null');
 
       if (currentToken && currentUserData) {
-        // 已登录状态 - 使用 quick-entry 样式对齐
+        // 已登录状态 - 只显示账户按钮
         authButtonsDiv.innerHTML = \`
-          <div style="display:flex;gap:8px;">
-            <a href="/account" class="quick-entry ripple" style="text-decoration:none;">
-              👤
-              <span class="quick-entry-tip">账户</span>
-            </a>
-            <button class="quick-entry ripple" onclick="handleLogout()">
-              🚪
-              <span class="quick-entry-tip">退出</span>
-            </button>
-          </div>
+          <a href="/account" class="quick-entry ripple" style="text-decoration:none;">
+            👤
+            <span class="quick-entry-tip">账户</span>
+          </a>
         \`;
       } else {
         // 未登录状态 - 使用不同颜色的用户图标，表示需要登录

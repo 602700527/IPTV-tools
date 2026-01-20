@@ -581,9 +581,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     // 时长配置
     const durationOptions = [
       { days: 30, basePrice: 5, pricePerIP: 1.5, discount: 0, name: 'month_1' },
-      { days: 90, basePrice: 12, pricePerIP: 2.5, discount: 0, name: 'month_3' },
+      { days: 90, basePrice: 10, pricePerIP: 2.5, discount: 0, name: 'month_3' },
       { days: 180, basePrice: 20, pricePerIP: 4, discount: 10, name: 'month_6' },
-      { days: 365, basePrice: 35, pricePerIP: 7, discount: 20, name: 'month_12' }
+      { days: 365, basePrice: 40, pricePerIP: 7, discount: 20, name: 'month_12' }
     ];
 
     // IP数量配置
@@ -601,9 +601,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     // 多语言翻译
     const translations = {
       'zh-CN': {
-        pageTitle: '订阅购买 - 电视直播服务',
-        title: '🎫 订阅购买',
-        subtitle: '选择适合您的订阅套餐，享受高清直播服务',
+        pageTitle: '会员订阅 - 电视直播服务',
+        title: '🎫 会员订阅',
+        subtitle: '选择适合您的会员套餐，享受高清直播服务',
         selectIPs: '选择IP数量',
         payWithPayPal: '使用 PayPal 支付',
         processing: '处理中...',
@@ -639,8 +639,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         }
       },
       'en': {
-        pageTitle: 'Subscription Purchase - TV Live Service',
-        title: '🎫 Subscribe',
+        pageTitle: 'Membership - TV Live Service',
+        title: '🎫 Membership',
         subtitle: 'Choose the plan that suits you, enjoy HD live streaming',
         selectIPs: 'Select IP Count',
         payWithPayPal: 'Pay with PayPal',

@@ -8,15 +8,16 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;min-height:100vh;padding:15px}
-    .container{background:#141414;backdrop-filter:blur(20px);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:30px;max-width:600px;width:100%;margin:0 auto}
-    .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
-    .header h1{font-size:24px;font-weight:700;color:#fff}
-    .logout-btn{background:rgba(229,9,20,.2);color:#e50914;border:1px solid #e50914;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;-webkit-tap-highlight-color:transparent}
+    .container{background:#141414;backdrop-filter:blur(20px);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:30px;max-width:600px;width:100%;margin:0 auto;position:relative}
+    .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;gap:10px}
+    .header h1{font-size:24px;font-weight:700;color:#fff;flex:1}
+    .header-actions{display:flex;align-items:center;gap:10px}
+    .logout-btn{background:rgba(229,9,20,.2);color:#e50914;border:1px solid #e50914;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;-webkit-tap-highlight-color:transparent;white-space:nowrap}
     .logout-btn:hover{background:#e50914;color:#fff}
-    
+
     .nav-tabs{display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:15px}
-    
-    .lang-switch{position:absolute;top:15px;right:15px;z-index:10}
+
+    .lang-switch{position:relative;display:inline-block}
     .lang-dropdown{position:relative;display:inline-block}
     .lang-btn{background:#e50914;color:#fff;border:none;padding:8px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:background .2s;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent}
     .lang-btn:hover{background:#f7262c}
@@ -88,18 +89,20 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
 </head>
 <body>
   <div class="container">
-    <div class="lang-switch">
-      <div class="lang-dropdown">
-        <button class="lang-btn" onclick="toggleLangMenu()" id="currentLangBtn">简体</button>
-        <div class="lang-menu" id="langMenu">
-          <button onclick="setLanguage('en')" id="langEn">English</button>
-          <button onclick="setLanguage('zh-CN')" id="langZh">简体中文</button>
-        </div>
-      </div>
-    </div>
     <div class="header">
       <h1 data-i18n="userCenter">👤 用户中心</h1>
-      <button class="logout-btn" onclick="logout()" data-i18n="logout">退出登录</button>
+      <div class="header-actions">
+        <button class="logout-btn" onclick="logout()" data-i18n="logout">退出登录</button>
+        <div class="lang-switch">
+          <div class="lang-dropdown">
+            <button class="lang-btn" onclick="toggleLangMenu()" id="currentLangBtn">简体</button>
+            <div class="lang-menu" id="langMenu">
+              <button onclick="setLanguage('en')" id="langEn">English</button>
+              <button onclick="setLanguage('zh-CN')" id="langZh">简体中文</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     
     <div class="nav-tabs">
@@ -128,7 +131,17 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
   
   <script>
     const API_BASE = '/api/auth';
-    let currentLang = localStorage.getItem('account_lang') || 'zh-CN';
+
+    // 智能判断浏览器语言
+    function detectBrowserLanguage() {
+      const savedLang = localStorage.getItem('account_lang');
+      if (savedLang) return savedLang;
+
+      const browserLang = navigator.language || navigator.userLanguage || 'zh-CN';
+      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
+    }
+
+    let currentLang = detectBrowserLanguage();
 
     const translations = {
       'en': {
@@ -191,15 +204,6 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
       return translations[currentLang][key] || translations['zh-CN'][key] || key;
     }
 
-    // 智能判断浏览器语言
-    function detectBrowserLanguage() {
-      const savedLang = localStorage.getItem('account_lang');
-      if (savedLang) return savedLang;
-      
-      const browserLang = navigator.language || navigator.userLanguage || 'zh-CN';
-      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
-    }
-
     // 切换语言菜单
     function toggleLangMenu() {
       document.getElementById('langMenu').classList.toggle('show');
@@ -228,13 +232,13 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
       });
     }
 
-    // 页面加载时执行
-    window.addEventListener('DOMContentLoaded', () => {
-      currentLang = detectBrowserLanguage();
+    // 页面加载时立即执行语言设置
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => setLanguage(currentLang));
+    } else {
       setLanguage(currentLang);
-    });
+    }
 
-    
     // 获取当前有效的token
     function getToken() {
       return localStorage.getItem('auth_token');
@@ -386,7 +390,7 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
               return \`
                 <div class="order-card">
                   <div class="order-header">
-                    <span class="order-id">\${t('orderId')}#\${order.order_id}</span>
+                    <span class="order-id">\${t('orderId')}：\${order.order_id}</span>
                     <span class="order-status \${statusClass}">\${statusText}</span>
                   </div>
                   <div class="order-details">

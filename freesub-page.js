@@ -737,21 +737,54 @@ export const FREE_SUB_HTML = `
         };
 
         // 生成哈希
-        const encoder = new TextEncoder();
-        const data = encoder.encode(JSON.stringify(fingerprintComponents));
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        fingerprint = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        let hashString;
+        if (window.crypto && window.crypto.subtle) {
+          // 优先使用 Web Crypto API (需要 HTTPS 或 localhost)
+          const encoder = new TextEncoder();
+          const data = encoder.encode(JSON.stringify(fingerprintComponents));
+          const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          hashString = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        } else {
+          // 降级方案：使用简单的哈希算法
+          hashString = simpleHash(JSON.stringify(fingerprintComponents));
+        }
 
+        fingerprint = hashString;
+        console.log('[generateFingerprint] Fingerprint generated:', fingerprint);
       } catch (error) {
-        console.error('指纹生成失败:', error);
-        showMessage(t('fingerprintError'), 'error');
+        console.error('[generateFingerprint] 指纹生成失败:', error);
+        // 降级使用简单哈希
+        try {
+          fingerprint = simpleHash(JSON.stringify(fingerprintComponents));
+          console.log('[generateFingerprint] Using fallback hash:', fingerprint);
+        } catch (fallbackError) {
+          console.error('[generateFingerprint] 降级哈希也失败:', fallbackError);
+          showMessage(t('fingerprintError'), 'error');
+        }
       }
+    }
+
+    // 简单哈希函数（降级方案）
+    function simpleHash(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // 转换为32位整数
+      }
+      // 转换为16进制字符串
+      return Math.abs(hash).toString(16).padStart(32, '0');
     }
 
     // 加载订阅信息
     async function loadSubscription() {
       try {
+        console.log('[loadSubscription] Request body:', {
+          fingerprint: fingerprint,
+          fingerprintComponents: fingerprintComponents
+        });
+
         const response = await fetch('/api/freesub/create', {
           method: 'POST',
           headers: {
@@ -775,7 +808,7 @@ export const FREE_SUB_HTML = `
           showMessage(data.error || t('loading') + ' failed', 'error');
         }
       } catch (error) {
-        console.error('加载订阅失败:', error);
+        console.error('[loadSubscription] 加载订阅失败:', error);
         showMessage(t('networkError'), 'error');
       }
     }
