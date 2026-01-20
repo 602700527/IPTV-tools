@@ -24,6 +24,11 @@ TIMEZONE = "Asia/Shanghai"
 RESEND_API_KEY = "re_SV65wtWn_6zDFiwGvPFRRv3gbcLDACDKe"
 FROM_EMAIL = "support@iptv-search.com"
 APP_URL = "https://iptv-search.com"
+# PayPal 配置 (请在生产环境中替换为真实值)
+PAYPAL_CLIENT_ID = "AWTHgTJIdRyIazSB9Y7IAtsodC-Kx44P6qE-PXoWXT3l279ilp4QsQI2f6-Ukyw-mg9YekVirtigpUFp"
+PAYPAL_CLIENT_SECRET = "EApsOsFBHy9l47QoMYfJ_Awp3oNv51clzJ9jqbDcNYlQAXqBKhyBdv5lDigO6Iikj2YBVwkycyzuOWKW"
+PAYPAL_WEBHOOK_ID = "20U189468S853431W"
+PAYPAL_MODE = "sandbox"  # sandbox: 测试环境, live: 生产环境
 
 # 定时触发器 (用于自动同步启用的数据源和刷新缓存)
 # Cron表达式格式: 分 时 日 月 周

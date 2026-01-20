@@ -149,6 +149,7 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
         orderType: 'Order Type',
         paymentMethod: 'Payment Method',
         amount: 'Amount',
+        subUrl: 'Subscription URL',
         status: 'Status',
         statusCompleted: 'Completed',
         statusPending: 'Pending',
@@ -175,6 +176,7 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
         orderType: '订单类型',
         paymentMethod: '支付方式',
         amount: '金额',
+        subUrl: '订阅地址',
         status: '状态',
         statusCompleted: '已完成',
         statusPending: '处理中',
@@ -378,7 +380,9 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
                 'cancelled': t('statusCancelled')
               }[order.status] || order.status;
               const dayUnit = currentLang === 'zh-CN' ? ' 天' : ' days';
-              
+              const baseUrl = window.location.origin;
+              const subUrl = order.code ? \`\${baseUrl}/sub/\${order.code}.m3u\` : '-';
+
               return \`
                 <div class="order-card">
                   <div class="order-header">
@@ -391,12 +395,16 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
                       <div class="order-detail-value">\${order.code || '-'}</div>
                     </div>
                     <div class="order-detail-item">
+                      <div class="order-detail-label">\${t('subUrl')}</div>
+                      <div class="order-detail-value" style="font-size: 12px; word-break: break-all;">\${subUrl}</div>
+                    </div>
+                    <div class="order-detail-item">
                       <div class="order-detail-label">Validity</div>
                       <div class="order-detail-value">\${order.duration_days ? order.duration_days + dayUnit : '-'}</div>
                     </div>
                     <div class="order-detail-item">
                       <div class="order-detail-label">\${t('amount')}</div>
-                      <div class="order-detail-value">\${order.amount ? '¥' + order.amount.toFixed(2) : '-'}</div>
+                      <div class="order-detail-value">\${order.amount ? '$' + order.amount.toFixed(2) : '-'}</div>
                     </div>
                     <div class="order-detail-item">
                       <div class="order-detail-label">\${t('orderDate')}</div>

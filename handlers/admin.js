@@ -1757,15 +1757,20 @@ export async function handleAdminRequest(request, env, ctx) {
           const page = parseInt(url.searchParams.get('page') || '1');
           const pageSize = parseInt(url.searchParams.get('pageSize') || '20');
           const userId = url.searchParams.get('userId');
+          const emailFilter = url.searchParams.get('email');
 
           let query = 'SELECT o.*, u.email FROM user_orders o JOIN users u ON o.user_id = u.id';
-          let countQuery = 'SELECT COUNT(*) as total FROM user_orders o';
+          let countQuery = 'SELECT COUNT(*) as total FROM user_orders o JOIN users u ON o.user_id = u.id';
           const params = [];
 
           if (userId) {
             query += ' WHERE o.user_id = ?';
             countQuery += ' WHERE o.user_id = ?';
             params.push(userId);
+          } else if (emailFilter) {
+            query += ' WHERE u.email LIKE ?';
+            countQuery += ' WHERE u.email LIKE ?';
+            params.push('%' + emailFilter + '%');
           }
 
           query += ' ORDER BY o.created_at DESC LIMIT ? OFFSET ?';

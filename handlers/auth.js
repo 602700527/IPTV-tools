@@ -528,16 +528,19 @@ export async function handleGetOrderHistory(request, env, ctx) {
     }
 
     // 查询订单历史
-    const orders = await db.prepare(`
+    const ordersResult = await db.prepare(`
       SELECT * FROM user_orders
       WHERE user_id = ?
       ORDER BY created_at DESC
       LIMIT 50
     `).bind(session.user_id).all();
 
+    // D1 返回结果在 results 字段中
+    const orders = ordersResult.results || [];
+
     return new Response(JSON.stringify({
       success: true,
-      orders: orders.results || []
+      orders: orders
     }), {
       headers: { 'Content-Type': 'application/json' }
     });

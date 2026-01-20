@@ -637,6 +637,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
                 <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">订单ID</th>
                 <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">用户邮箱</th>
                 <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">卡密</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">订阅地址</th>
                 <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">有效期</th>
                 <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">金额</th>
                 <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">状态</th>
@@ -3995,8 +3996,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     async function loadOrders() {
       const userFilter = document.getElementById('orderUserFilter').value;
       let url = API_BASE + '/orders?page=' + orderPage + '&pageSize=' + orderPageSize;
-      if (userFilter) url += '&userId=' + userFilter;
-      const response = await fetch(url);
+      if (userFilter) url += '&email=' + encodeURIComponent(userFilter);
+      const response = await fetch(url, {
+        headers: { 'X-Admin-Key': adminKey }
+      });
       const data = await response.json();
       if (data.success) {
         totalOrders = data.pagination.total;
@@ -4009,9 +4012,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     function renderOrders(orders) {
       const tbody = document.getElementById('ordersTableBody');
       if (orders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:#86868b;">暂无订单数据</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:#86868b;">暂无订单数据</td></tr>';
         return;
       }
+      const baseUrl = window.location.origin;
       tbody.innerHTML = orders.map(order => {
         const createdDate = new Date(order.created_at);
         const statusClass = {
@@ -4024,13 +4028,15 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           'pending': '待处理',
           'cancelled': '已取消'
         }[order.status] || order.status;
+        const subUrl = order.code ? \`\${baseUrl}/sub/\${order.code}.m3u\` : '-';
         return \`
           <tr style="border-bottom:1px solid #e5e5ea;">
             <td style="padding:12px;">\${escapeHtml(order.order_id)}</td>
             <td style="padding:12px;">\${escapeHtml(order.email)}</td>
             <td style="padding:12px;">\${order.code ? escapeHtml(order.code) : '-'}</td>
+            <td style="padding:12px;font-size:12px;word-break:break-all;max-width:250px;">\${subUrl}</td>
             <td style="padding:12px;">\${order.duration_days ? order.duration_days + ' 天' : '-'}</td>
-            <td style="padding:12px;">\${order.amount ? '¥' + order.amount.toFixed(2) : '-'}</td>
+            <td style="padding:12px;">\${order.amount ? '$' + order.amount.toFixed(2) : '-'}</td>
             <td style="padding:12px;">
               <span style="padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;background:\${statusClass};">
                 \${statusText}

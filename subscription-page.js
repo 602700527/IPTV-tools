@@ -300,76 +300,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       backdrop-filter: blur(20px);
       border-radius: 16px;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 30px;
+      padding: 40px 30px;
       text-align: center;
-    }
-
-    .paypal-button {
-      background: linear-gradient(135deg, #0070ba 0%, #005ea6 100%);
-      color: white;
-      border: none;
-      padding: 16px 40px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-flex;
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 12px;
-      -webkit-tap-highlight-color: transparent;
+      justify-content: center;
+      min-height: 200px;
     }
 
-    .paypal-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 112, 186, 0.4);
-    }
-
-    .paypal-button:active {
-      transform: translateY(0);
-    }
-
-    .paypal-button:disabled {
-      background: rgba(0, 112, 186, 0.3);
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .paypal-icon {
-      width: 24px;
-      height: 24px;
-    }
-
-    .test-section {
-      background: rgba(255, 204, 0, 0.1);
-      border: 1px solid rgba(255, 204, 0, 0.3);
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 30px;
-    }
-
-    .test-section h3 {
-      color: #ffcc00;
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 15px;
-    }
-
-    .test-button {
-      background: rgba(255, 204, 0, 0.2);
-      color: #ffcc00;
-      border: 1px solid rgba(255, 204, 0, 0.4);
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .test-button:hover {
-      background: rgba(255, 204, 0, 0.3);
+    #paypal-button-container {
+      margin: 0 auto;
+      max-width: 300px;
     }
 
     .success-modal {
@@ -427,9 +369,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       padding: 15px;
       margin-bottom: 15px;
       font-family: 'Courier New', monospace;
-      font-size: 18px;
+      font-size: 13px;
       font-weight: 600;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
+      word-break: break-all;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .copy-button {
@@ -591,17 +538,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     </div>
 
     <div class="payment-section">
-      <button class="paypal-button" id="payButton" onclick="processPayment()">
-        <svg class="paypal-icon" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M7.076 21.337H2.47a.7.7 0 0 1-.693-.592L0 4.528A.702.702 0 0 1 .693 3.75H6.93c.44 0 .813.3.915.713L8.85 11h6.272c2.947 0 5.354-1.938 5.976-4.715l.268-1.218a.702.702 0 0 1 .683-.552h3.744a.702.702 0 0 1 .683.862l-.267 1.218C25.814 9.78 22.528 12.75 18.625 12.75H11.5l-1.325 6a.702.702 0 0 1-.683.552H7.076z"/>
-        </svg>
-        <span data-i18n="payWithPayPal">使用 PayPal 支付</span>
-      </button>
-    </div>
-
-    <div class="test-section">
-      <h3 data-i18n="testMode">🧪 测试模式</h3>
-      <button class="test-button" id="testButton" onclick="testPayment()" data-i18n="testPayment">模拟支付成功</button>
+      <div id="paypal-button-container"></div>
     </div>
 
     <div id="loading" class="loading">
@@ -616,11 +553,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <div class="success-content">
       <div class="success-icon">🎉</div>
       <h2 class="success-title" data-i18n="paymentSuccess">支付成功！</h2>
-      <p class="success-message" data-i18n="codeGenerated">您的订阅卡密已生成</p>
-      <div class="code-display" id="generatedCode">-</div>
-      <button class="copy-button" onclick="copyCode()" data-i18n="copyCode">复制卡密</button>
+      <p class="success-message" data-i18n="subUrlGenerated">您的订阅地址已生成</p>
+      <div class="code-display" id="generatedCode" style="font-size: 14px; word-break: break-all;">-</div>
+      <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">复制订阅地址</button>
       <br><br>
-      <button class="close-button" onclick="closeModal()" data-i18n="goToActivate">前往激活页面</button>
+      <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin-top: 15px;">您可以直接使用此订阅地址在播放器中添加</p>
+      <button class="close-button" onclick="closeModal()" data-i18n="closeButton">关闭</button>
     </div>
   </div>
 
@@ -668,13 +606,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         subtitle: '选择适合您的订阅套餐，享受高清直播服务',
         selectIPs: '选择IP数量',
         payWithPayPal: '使用 PayPal 支付',
-        testMode: '🧪 测试模式',
-        testPayment: '模拟支付成功',
         processing: '处理中...',
         paymentSuccess: '支付成功！',
-        codeGenerated: '您的订阅卡密已生成',
-        copyCode: '复制卡密',
-        goToActivate: '前往激活页面',
+        subUrlGenerated: '您的订阅地址已生成',
+        copyUrl: '复制订阅地址',
+        closeButton: '关闭',
         loginNow: '立即登录',
         loginHint: '请先登录以完成支付',
         feature_hd_quality: 'HD 高清画质',
@@ -708,13 +644,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         subtitle: 'Choose the plan that suits you, enjoy HD live streaming',
         selectIPs: 'Select IP Count',
         payWithPayPal: 'Pay with PayPal',
-        testMode: '🧪 Test Mode',
-        testPayment: 'Simulate Successful Payment',
         processing: 'Processing...',
         paymentSuccess: 'Payment Successful!',
-        codeGenerated: 'Your subscription code has been generated',
-        copyCode: 'Copy Code',
-        goToActivate: 'Go to Activation Page',
+        subUrlGenerated: 'Your subscription URL has been generated',
+        copyUrl: 'Copy URL',
+        closeButton: 'Close',
         loginNow: 'Login Now',
         loginHint: 'Please login to complete payment',
         feature_hd_quality: 'HD Quality',
@@ -749,7 +683,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     function formatPrice(price, currency = 'USD') {
-      return \`\${currency} \${price.toFixed(2)}\`;
+      return '$' + price.toFixed(2);
     }
 
     function calculatePrice(plan, ipCount) {
@@ -872,9 +806,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       hideError();
 
       try {
-        // 模拟 PayPal 支付流程
-        await simulatePayPalPayment();
-
+        // PayPal 按钮会自动处理支付流程
+        // 这里不需要额外操作，等待用户完成 PayPal 支付
       } catch (error) {
         console.error('Payment error:', error);
         showError(t('error').paymentError);
@@ -883,90 +816,110 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     async function testPayment() {
-      if (!selectedPlan) {
-        showError(t('error').selectPlan);
-        return;
-      }
-
-      if (!isLoggedIn()) {
-        // 显示登录提示模态框
-        showLoginModal();
-        return;
-      }
-
-      showLoading(true);
-      hideError();
-
-      try {
-        // 测试模式：直接生成卡密
-        const response = await fetch(API_BASE + '/subscription/create-code', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + getToken()
-          },
-          body: JSON.stringify({
-            duration_days: selectedDuration.days,
-            max_ips: selectedIPs,
-            test_mode: true
-          })
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-          showSuccessModal(data.code);
-        } else {
-          showError(data.error || t('error').paymentError);
-        }
-      } catch (error) {
-        console.error('Test payment error:', error);
-        showError(t('error').networkError);
-      } finally {
-        showLoading(false);
-      }
+      // 已移除模拟支付功能
+      console.warn('testPayment function is deprecated');
     }
 
-    async function simulatePayPalPayment() {
-      // 真实的 PayPal 支付流程
-      const price = calculatePrice(selectedDuration, selectedIPs);
+    // 初始化 PayPal 按钮
+    function initPayPal() {
+      // 动态加载 PayPal SDK
+      // 使用后端注入的 PayPal Client ID
+      const paypalClientId = window.PAYPAL_CLIENT_ID || 'AWTHgTJIdRyIazSB9Y7IAtsodC-Kx44P6qE-PXoWXT3l279ilp4QsQI2f6-Ukyw-mg9YekVirtigpUFp';
+      const paypalMode = window.PAYPAL_MODE || 'sandbox';
+      const script = document.createElement('script');
+      script.src = 'https://www.paypal.com/sdk/js?client-id=' + paypalClientId + '&currency=USD';
+      script.addEventListener('load', () => {
+        if (window.paypal) {
+          window.paypal.Buttons({
+            style: {
+              layout: 'vertical',
+              color: 'gold',
+              shape: 'rect',
+              label: 'paypal'
+            },
+            createOrder: async function(data, actions) {
+              if (!selectedDuration) {
+                showError(t('error').selectPlan);
+                return null;
+              }
 
-      // 这里应该集成真实的 PayPal SDK
-      // const paypal = require('@paypal/checkout-server-sdk');
-      // 实际支付流程：
-      // 1. 创建 PayPal 订单
-      // 2. 用户完成支付
-      // 3. PayPal 回调通知服务器
-      // 4. 服务器生成卡密
+              if (!isLoggedIn()) {
+                showLoginModal();
+                return null;
+              }
 
-      // 模拟支付成功后的回调
-      const response = await fetch(API_BASE + '/subscription/create-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + getToken()
-        },
-        body: JSON.stringify({
-          duration_days: plan.days,
-          max_ips: selectedIPs,
-          payment_id: 'paypal_' + Date.now(),
-          amount: price.discounted
-        })
+              const price = calculatePrice(selectedDuration, selectedIPs);
+
+              // 调用后端创建 PayPal 订单
+              try {
+                const response = await fetch(API_BASE + '/subscription/paypal/create-order', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + getToken()
+                  },
+                  body: JSON.stringify({
+                    duration_days: selectedDuration.days,
+                    max_ips: selectedIPs,
+                    amount: price.discounted
+                  })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success && result.orderId) {
+                  return result.orderId;
+                } else {
+                  throw new Error(result.error || 'Failed to create PayPal order');
+                }
+              } catch (error) {
+                console.error('Create order error:', error);
+                showError(error.message);
+                return null;
+              }
+            },
+            onApprove: async function(data, actions) {
+              // 用户批准支付后调用
+              try {
+                const response = await fetch(API_BASE + '/subscription/paypal/capture-order', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + getToken()
+                  },
+                  body: JSON.stringify({
+                    orderID: data.orderID
+                  })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                  showSuccessModal(result.subUrl);
+                } else {
+                  throw new Error(result.error || 'Payment capture failed');
+                }
+              } catch (error) {
+                console.error('Capture order error:', error);
+                showError(error.message);
+              }
+            },
+            onError: function(err) {
+              console.error('PayPal error:', err);
+              showError(t('error').paymentError);
+            }
+          }).render('#paypal-button-container');
+        }
       });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        showSuccessModal(data.code);
-      } else {
-        throw new Error(data.error || 'Payment failed');
-      }
+      script.onerror = () => {
+        console.error('Failed to load PayPal SDK');
+        showError('PayPal SDK 加载失败，请刷新页面重试');
+      };
+      document.body.appendChild(script);
     }
 
     function showLoading(show) {
       document.getElementById('loading').classList.toggle('show', show);
-      document.getElementById('payButton').disabled = show;
-      document.getElementById('testButton').disabled = show;
     }
 
     function showError(message) {
@@ -999,24 +952,23 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         alignItems: 'center',
         justifyContent: 'center'
       });
-      modal.innerHTML = '<div style="background: #141414; border-radius: 20px; padding: 40px; max-width: 400px; text-align: center; border: 2px solid #e50914; box-shadow: 0 20px 60px rgba(229, 9, 20, 0.3);"><div style="font-size: 48px; margin-bottom: 20px;">🔐</div><h2 style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px;">' + t('error').notLoggedIn + '</h2><p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 30px; line-height: 1.6;">' + t('loginHint') + '</p><button onclick="window.location.href=\\"/account\\"" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s;">' + t('loginNow') + '</button><button onclick="document.getElementById(\\'loginModal\\').remove()" style="background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); padding: 16px 30px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; margin-top: 15px; transition: all 0.2s;">' + (currentLang === 'zh-CN' ? '稍后登录' : 'Login Later') + '</button></div>';
+      modal.innerHTML = '<div style="background: #141414; border-radius: 20px; padding: 40px; max-width: 400px; text-align: center; border: 2px solid #e50914; box-shadow: 0 20px 60px rgba(229, 9, 20, 0.3);"><div style="font-size: 48px; margin-bottom: 20px;">🔐</div><h2 style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px;">' + t('error').notLoggedIn + '</h2><p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 30px; line-height: 1.6;">' + t('loginHint') + '</p><button onclick="window.location.href=' + "'/'" + '" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s;">' + t('loginNow') + '</button><button onclick="document.getElementById(' + "'loginModal'" + ').remove()" style="background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); padding: 16px 30px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; margin-top: 15px; transition: all 0.2s;">' + (currentLang === 'zh-CN' ? '稍后登录' : 'Login Later') + '</button></div>';
       document.body.appendChild(modal);
     }
 
-    function showSuccessModal(code) {
-      document.getElementById('generatedCode').textContent = code;
+    function showSuccessModal(subUrl) {
+      document.getElementById('generatedCode').textContent = subUrl;
       document.getElementById('successModal').classList.add('show');
     }
 
     function closeModal() {
       document.getElementById('successModal').classList.remove('show');
-      window.location.href = '/activate';
     }
 
     function copyCode() {
-      const code = document.getElementById('generatedCode').textContent;
-      navigator.clipboard.writeText(code).then(() => {
-        alert('Code copied!');
+      const subUrl = document.getElementById('generatedCode').textContent;
+      navigator.clipboard.writeText(subUrl).then(() => {
+        alert(currentLang === 'zh-CN' ? '订阅地址已复制到剪贴板！' : 'Subscription URL copied to clipboard!');
       }).catch(err => {
         console.error('Copy failed:', err);
       });
@@ -1055,6 +1007,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     // 页面加载时直接渲染套餐,不检查登录状态
     document.addEventListener('DOMContentLoaded', () => {
       renderPlans();
+      initPayPal();
     });
   </script>
 </body>
