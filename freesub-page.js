@@ -477,12 +477,18 @@ export const FREE_SUB_HTML = `
       display: flex;
       justify-content: center;
       padding: 10px 0;
+      min-height: 90px;
     }
 
     .ad-ins {
       display: block;
       width: 100%;
       max-width: 300px;
+      min-height: 90px;
+    }
+
+    ins.adsbygoogle {
+      display: block !important;
     }
   </style>
 </head>
@@ -558,7 +564,7 @@ export const FREE_SUB_HTML = `
       <ins class="adsbygoogle ad-ins"
            style="display:block"
            data-ad-client="ca-pub-2205598928191137"
-           data-ad-slot="YOUR_FREESUB_AD_SLOT"
+           data-ad-slot="9847284765"
            data-ad-format="auto"
            data-full-width-responsive="true"></ins>
     </div>

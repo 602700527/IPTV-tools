@@ -223,12 +223,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .close-modal:hover{background:rgba(231,9,20,.4)}
 
     /* AdSense 广告位样式 */
-    .ad-banner-top{display:flex;justify-content:center;padding:10px;background:rgba(0,0,0,.2);margin-bottom:10px}
-    .ad-banner-bottom{display:flex;justify-content:center;padding:10px;background:rgba(0,0,0,.2);margin-top:10px}
-    .ad-sidebar{margin-bottom:20px}
-    .ad-responsive{width:100%;max-width:728px}
-    .ad-mobile-top{display:none;padding:10px;background:rgba(0,0,0,.2);margin-bottom:10px}
-    .ad-mobile-bottom{display:none;padding:10px;background:rgba(0,0,0,.2);margin-top:10px}
+    .ad-banner-top{display:flex;justify-content:center;padding:10px;background:rgba(0,0,0,.2);margin-bottom:10px;min-height:90px}
+    .ad-banner-bottom{display:flex;justify-content:center;padding:10px;background:rgba(0,0,0,.2);margin-top:10px;min-height:90px}
+    .ad-sidebar{margin-bottom:20px;min-height:250px}
+    .ad-responsive{width:100%;min-height:90px}
+    .ad-mobile-top{display:none;padding:10px;background:rgba(0,0,0,.2);margin-bottom:10px;min-height:90px}
+    .ad-mobile-bottom{display:none;padding:10px;background:rgba(0,0,0,.2);margin-top:10px;min-height:90px}
+    ins.adsbygoogle{display:block !important}
 
     .loading{display:flex;align-items:center;justify-content:center;padding:60px;color:rgba(255,255,255,.5)}
     .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#e50914;border-radius:50%;animation:spin 1s linear infinite}
@@ -561,7 +562,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
              style="display:block"
              data-ad-client="ca-pub-2205598928191137"
              data-ad-slot="9663554756"
-             data-ad-format="auto"
+             data-ad-format="vertical"
              data-full-width-responsive="true"></ins>
       </div>
     </aside>
@@ -616,7 +617,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
                style="display:block"
                data-ad-client="ca-pub-2205598928191137"
                data-ad-slot="3690665702"
-               data-ad-format="horizontal"
+               data-ad-format="auto"
                data-full-width-responsive="true"></ins>
         </div>
 
@@ -3381,7 +3382,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     // ========== Google AdSense 广告控制 ==========
 
-
     // 动态加载广告（可选）
     function loadAdsenseAds() {
       // 如果需要动态加载广告，可以在这里实现
@@ -3390,8 +3390,27 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     // 页面加载完成后尝试加载广告
     window.addEventListener('load', () => {
-      // 如果启用了AdSense，广告会自动加载
-      console.log('Page loaded, AdSense ready');
+      // 确保 adsbygoogle 数组存在并推送广告
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      console.log('Page loaded, AdSense ads pushed');
+    });
+
+    // 初始化所有广告位
+    function initAdsenseAds() {
+      const adSlots = document.querySelectorAll('ins.adsbygoogle');
+      adSlots.forEach((adSlot, index) => {
+        // 延迟加载广告，避免页面阻塞
+        setTimeout(() => {
+          (adsbygoogle = window.adsbygoogle || []).push({});
+          console.log('Ad slot ' + (index + 1) + ' loaded');
+        }, index * 100);
+      });
+    }
+
+    // 在 DOMContentLoaded 后初始化广告
+    document.addEventListener('DOMContentLoaded', () => {
+      // 等待一小段时间后初始化广告
+      setTimeout(initAdsenseAds, 500);
     });
 
     // ========== 用户认证相关函数 ==========

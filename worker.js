@@ -140,7 +140,7 @@ export default {
           'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'public, max-age=600', // 10分钟缓存
           'ETag': etag,
-          'X-Frame-Options': 'DENY', // 禁止在iframe中加载
+          'X-Frame-Options': 'SAMEORIGIN', // 允许同源iframe（某些广告需要）
           'X-Content-Type-Options': 'nosniff', // 防止MIME类型嗅探
           'Referrer-Policy': 'strict-origin-when-cross-origin', // 严格的引用策略
           'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=()' // 限制敏感权限
