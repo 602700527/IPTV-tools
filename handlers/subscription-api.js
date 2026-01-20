@@ -164,10 +164,11 @@ export async function handleCreateCode(request, env, ctx) {
 // 根据天数获取套餐配置
 function getPlanByDays(days) {
   const plans = {
-    30: { basePrice: 2, pricePerIP: 1.5, discount: 0 },
-    90: { basePrice: 6, pricePerIP: 2.5, discount: 0 },
-    180: { basePrice: 12, pricePerIP: 4, discount: 10 },
-    365: { basePrice: 24, pricePerIP: 7, discount: 20 }
+    30: { basePrice: 5, pricePerIP: 1.5, discount: 0 },
+    60: { basePrice: 8, pricePerIP: 2, discount: 0 },
+    90: { basePrice: 12, pricePerIP: 2.5, discount: 0 },
+    180: { basePrice: 20, pricePerIP: 4, discount: 10 },
+    365: { basePrice: 35, pricePerIP: 7, discount: 20 }
   };
 
   return plans[days] || { basePrice: 5, pricePerIP: 1.5, discount: 0 };

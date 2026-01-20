@@ -25,18 +25,18 @@ RESEND_API_KEY = "re_SV65wtWn_6zDFiwGvPFRRv3gbcLDACDKe"
 FROM_EMAIL = "support@iptv-search.com"
 APP_URL = "https://iptv-search.com"
 
-PAYPAL_MODE = "sandbox"  # sandbox: 测试环境, live: 生产环境
+PAYPAL_MODE = "live"  # sandbox: 测试环境, live: 生产环境
 
 # PayPal 配置 (沙盒)
-PAYPAL_CLIENT_ID = "AWTHgTJIdRyIazSB9Y7IAtsodC-Kx44P6qE-PXoWXT3l279ilp4QsQI2f6-Ukyw-mg9YekVirtigpUFp"
-PAYPAL_CLIENT_SECRET = "EApsOsFBHy9l47QoMYfJ_Awp3oNv51clzJ9jqbDcNYlQAXqBKhyBdv5lDigO6Iikj2YBVwkycyzuOWKW"
-PAYPAL_WEBHOOK_ID = "20U189468S853431W"
+#PAYPAL_CLIENT_ID = "AWTHgTJIdRyIazSB9Y7IAtsodC-Kx44P6qE-PXoWXT3l279ilp4QsQI2f6-Ukyw-mg9YekVirtigpUFp"
+#PAYPAL_CLIENT_SECRET = "EApsOsFBHy9l47QoMYfJ_Awp3oNv51clzJ9jqbDcNYlQAXqBKhyBdv5lDigO6Iikj2YBVwkycyzuOWKW"
+#PAYPAL_WEBHOOK_ID = "20U189468S853431W"
 
 
 # PayPal 配置 (生产环境)
-#PAYPAL_CLIENT_ID = "AVH4ZyBQ-cFj8sufFaIJrk3zchkJJFwrJSIOy4UkWvml_oikgsxXM2cq9s_QaYcIDfiToImTEcmMyAZD"
-#PAYPAL_CLIENT_SECRET = "EGKhwilhHpUQ8wnohzLQLVnAnvfgtt622a-HOu1hYQMwe0zWu9hTGhd09aM0FSn-qfsU66T2_aszEjhm"
-#PAYPAL_WEBHOOK_ID = "0HB69156TY635861A"
+PAYPAL_CLIENT_ID = "AVH4ZyBQ-cFj8sufFaIJrk3zchkJJFwrJSIOy4UkWvml_oikgsxXM2cq9s_QaYcIDfiToImTEcmMyAZD"
+PAYPAL_CLIENT_SECRET = "EGKhwilhHpUQ8wnohzLQLVnAnvfgtt622a-HOu1hYQMwe0zWu9hTGhd09aM0FSn-qfsU66T2_aszEjhm"
+PAYPAL_WEBHOOK_ID = "0HB69156TY635861A"
 
 # 定时触发器 (用于自动同步启用的数据源和刷新缓存)
 # Cron表达式格式: 分 时 日 月 周

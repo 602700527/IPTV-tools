@@ -473,9 +473,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           🎯
           <span class="quick-entry-tip">随机推荐</span>
         </button>
-        <button class="quick-entry ripple" onclick="window.location.href='/subscription-choice'" data-tip-key="subscription">
-          💎
-          <span class="quick-entry-tip">订阅计划</span>
+        <button class="quick-entry ripple" onclick="window.location.href='/freesub'" data-tip-key="freesub">
+          🎁
+          <span class="quick-entry-tip">免费订阅</span>
+        </button>
+        <button class="quick-entry ripple" onclick="window.location.href='/subscription'" data-tip-key="subscription">
+          🎫
+          <span class="quick-entry-tip">订阅购买</span>
         </button>
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" data-tip-key="clearCache">
           🗑️
@@ -830,7 +834,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         history: '播放历史',
         favorites: '我的收藏',
         random: '随机推荐',
-        subscription: '订阅计划',
+        freesub: '免费订阅',
         clearCache: '清除缓存',
         onlineCount: '人在观看',
         hot: '热门',
@@ -865,7 +869,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         termsOfService: '服务条款',
         cloudflareBadge: '本站由 Cloudflare 提供加速与安全保护',
         toastRefresh: '无法播放，请刷新页面后再试。',
-        toastBrowserLimit: '受浏览器限制无法播放，请<a href="/subscription-choice" style="color:#ffcc00;text-decoration:underline;">获取订阅</a>并添加到客户端中使用。',
+        toastBrowserLimit: '受浏览器限制无法播放，请<a href="/freesub" style="color:#ffcc00;text-decoration:underline;">获取订阅</a>并添加到客户端中使用。',
         toastChannelLost: '该频道数据已丢失，请清除缓存后再试。',
         toastSuccess: '成功',
         toastError: '播放失败',
@@ -922,7 +926,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         history: 'Watch History',
         favorites: 'My Favorites',
         random: 'Random Picks',
-        subscription: 'Subscription Plans',
+        freesub: 'Free Subscription',
+        subscription: 'Purchase Subscription',
         clearCache: 'Clear Cache',
         onlineCount: 'viewers online',
         hot: 'HOT',
@@ -957,7 +962,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         termsOfService: 'Terms of Service',
         cloudflareBadge: 'This site is powered by Cloudflare for acceleration and security',
         toastRefresh: 'Cannot play, please refresh the page and try again.',
-        toastBrowserLimit: 'Cannot play due to browser limitations. Please <a href="/subscription-choice" style="color:#ffcc00;text-decoration:underline;">get subscription URL</a> and use a player client.',
+        toastBrowserLimit: 'Cannot play due to browser limitations. Please <a href="/freesub" style="color:#ffcc00;text-decoration:underline;">get subscription URL</a> and use a player client.',
         toastChannelLost: 'Channel data has been lost, please clear cache and try again.',
         toastSuccess: 'Success',
         toastError: 'Playback Failed',
@@ -1052,8 +1057,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         case 'random':
           showRandomInMain();
           break;
-        case 'subscription':
-          window.location.href = '/subscription-choice';
+        case 'freesub':
+          window.location.href = '/freesub';
           break;
         case 'clearCache':
           clearCache();

@@ -1,6 +1,4 @@
 // 订阅支付页面HTML
-import { NAVBAR_CSS, renderNavbar, NAVBAR_JS, NAVBAR_TRANSLATIONS } from './components/navbar.js';
-
 export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -8,6 +6,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title data-i18n-title="pageTitle">订阅购买 - TV Live Service</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background: #0a0a0a;
@@ -36,6 +40,89 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .header p {
       color: rgba(255, 255, 255, 0.6);
       font-size: 14px;
+    }
+
+    .lang-switch {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+    }
+
+    .lang-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .lang-btn {
+      background: #e50914;
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .lang-btn:hover {
+      background: #f7262c;
+    }
+
+    .lang-btn:after {
+      content: "▼";
+      font-size: 9px;
+    }
+
+    .lang-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: #1a1a1a;
+      backdrop-filter: blur(10px);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      min-width: 120px;
+      overflow: hidden;
+      animation: fadeIn 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .lang-menu.show {
+      display: block;
+    }
+
+    .lang-menu button {
+      display: block;
+      width: 100%;
+      padding: 10px 16px;
+      background: none;
+      border: none;
+      text-align: left;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .lang-menu button:hover {
+      background: rgba(229, 9, 20, 0.15);
+    }
+
+    .lang-menu button.active {
+      background: #e50914;
+      color: white;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .plans-container {
@@ -254,31 +341,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       text-align: center;
       border: 2px solid #34c759;
       box-shadow: 0 20px 60px rgba(52, 199, 89, 0.3);
-      position: relative;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: rgba(255, 255, 255, 0.8);
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .modal-close:hover {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
     }
 
     .success-icon {
@@ -437,10 +499,30 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         padding: 14px 30px;
         font-size: 15px;
       }
+
+      .lang-switch {
+        top: 15px;
+        right: 15px;
+      }
+
+      .lang-btn {
+        padding: 6px 14px;
+        font-size: 12px;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="lang-switch">
+    <div class="lang-dropdown">
+      <button class="lang-btn" onclick="toggleLangMenu()" id="currentLangBtn">简体</button>
+      <div class="lang-menu" id="langMenu">
+        <button onclick="setLanguage('en')" id="langEn">English</button>
+        <button onclick="setLanguage('zh-CN')" id="langZh">简体中文</button>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
     <div class="header">
       <h1 data-i18n="title">🎫 订阅购买</h1>
@@ -469,15 +551,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
   <div id="successModal" class="success-modal">
     <div class="success-content">
-      <button class="modal-close" onclick="closeModal()">×</button>
       <div class="success-icon">🎉</div>
       <h2 class="success-title" data-i18n="paymentSuccess">支付成功！</h2>
       <p class="success-message" data-i18n="subUrlGenerated">您的订阅地址已生成</p>
       <div class="code-display" id="generatedCode" style="font-size: 14px; word-break: break-all;">-</div>
       <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">复制订阅地址</button>
       <br><br>
-      <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin-top: 15px;" data-i18n="addUrlToPlayer">* 请在播放器中添加此订阅地址以享受精彩节目</p>
-      <p style="color: rgba(255, 255, 255, 0.5); font-size: 11px; margin-top: 10px; line-height: 1.5;" data-i18n="orderHistoryHint">此窗口关闭后您可以在账户中查看订单历史</p>
+      <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin-top: 15px;">您可以直接使用此订阅地址在播放器中添加</p>
+      <button class="close-button" onclick="closeModal()" data-i18n="closeButton">关闭</button>
     </div>
   </div>
 
@@ -499,10 +580,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     // 时长配置
     const durationOptions = [
-      { days: 30, basePrice: 2, pricePerIP: 1.5, discount: 0, name: 'month_1' },
-      { days: 90, basePrice: 6, pricePerIP: 2.5, discount: 0, name: 'month_3' },
-      { days: 180, basePrice: 12, pricePerIP: 4, discount: 10, name: 'month_6' },
-      { days: 365, basePrice: 24, pricePerIP: 7, discount: 20, name: 'month_12' }
+      { days: 30, basePrice: 5, pricePerIP: 1.5, discount: 0, name: 'month_1' },
+      { days: 90, basePrice: 10, pricePerIP: 2.5, discount: 0, name: 'month_3' },
+      { days: 180, basePrice: 20, pricePerIP: 4, discount: 10, name: 'month_6' },
+      { days: 365, basePrice: 40, pricePerIP: 7, discount: 20, name: 'month_12' }
     ];
 
     // IP数量配置
@@ -529,8 +610,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         paymentSuccess: '支付成功！',
         subUrlGenerated: '您的订阅地址已生成',
         copyUrl: '复制订阅地址',
-        addUrlToPlayer: '* 请在播放器中添加此订阅地址以享受精彩节目',
-        orderHistoryHint: '此窗口关闭后您可以在账户中查看订单历史',
         closeButton: '关闭',
         loginNow: '立即登录',
         loginHint: '请先登录以完成支付',
@@ -569,8 +648,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         paymentSuccess: 'Payment Successful!',
         subUrlGenerated: 'Your subscription URL has been generated',
         copyUrl: 'Copy URL',
-        addUrlToPlayer: '* Please add this subscription URL to your player to enjoy great content',
-        orderHistoryHint: 'After closing this window, you can view order history in your account',
         closeButton: 'Close',
         loginNow: 'Login Now',
         loginHint: 'Please login to complete payment',
@@ -792,24 +869,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
                 if (response.ok && result.success && result.orderId) {
                   return result.orderId;
-                } else if (response.status === 401) {
-                  throw new Error('Unauthorized: ' + (result.error || 'Invalid token'));
                 } else {
                   throw new Error(result.error || 'Failed to create PayPal order');
                 }
               } catch (error) {
                 console.error('Create order error:', error);
-
-                // 检查是否是认证错误（包括 token 失效）
-                if (error.message && (error.message.includes('401') || error.message.includes('Unauthorized') || error.message.includes('Invalid token') || error.message.includes('notLoggedIn'))) {
-                  showError(t('error').notLoggedIn);
-                  setTimeout(() => showLoginModal(), 1000);
-                  return null;
-                } else if (error.message) {
-                  showError(error.message);
-                } else {
-                  showError(t('error').paymentError);
-                }
+                showError(error.message);
                 return null;
               }
             },
@@ -831,23 +896,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
                 if (response.ok && result.success) {
                   showSuccessModal(result.subUrl);
-                } else if (response.status === 401) {
-                  throw new Error('Unauthorized: ' + (result.error || 'Invalid token'));
                 } else {
                   throw new Error(result.error || 'Payment capture failed');
                 }
               } catch (error) {
                 console.error('Capture order error:', error);
-
-                // 检查是否是认证错误（包括 token 失效）
-                if (error.message && (error.message.includes('401') || error.message.includes('Unauthorized') || error.message.includes('Invalid token') || error.message.includes('notLoggedIn'))) {
-                  showError(t('error').notLoggedIn);
-                  setTimeout(() => showLoginModal(), 1000);
-                } else if (error.message) {
-                  showError(error.message);
-                } else {
-                  showError(t('error').paymentError);
-                }
+                showError(error.message);
               }
             },
             onError: function(err) {
@@ -920,20 +974,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       });
     }
 
+    function toggleLangMenu() {
+      document.getElementById('langMenu').classList.toggle('show');
+    }
+
     function setLanguage(lang) {
       currentLang = lang;
       localStorage.setItem('subscription_lang', lang);
 
-      const langEn = document.getElementById('langEn');
-      const langZh = document.getElementById('langZh');
-      if (langEn) langEn.classList.toggle('active', lang === 'en');
-      if (langZh) langZh.classList.toggle('active', lang === 'zh-CN');
-
-      const currentLangBtn = document.getElementById('currentLangBtn');
-      if (currentLangBtn) currentLangBtn.textContent = lang === 'en' ? 'EN' : '简体';
-
-      const langMenu = document.getElementById('langMenu');
-      if (langMenu) langMenu.classList.remove('show');
+      document.getElementById('langEn').classList.toggle('active', lang === 'en');
+      document.getElementById('langZh').classList.toggle('active', lang === 'zh-CN');
+      document.getElementById('currentLangBtn').textContent = lang === 'en' ? 'EN' : '简体';
+      document.getElementById('langMenu').classList.remove('show');
       document.documentElement.lang = lang;
 
       document.title = t('pageTitle');
