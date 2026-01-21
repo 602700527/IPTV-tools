@@ -8,7 +8,7 @@ export const FREE_SUB_HTML = `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>免费订阅 - 免费观看精选频道</title>
+  <title data-i18n-title="pageTitle">免费订阅 - TV Live Service</title>
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137"
@@ -24,8 +24,8 @@ export const FREE_SUB_HTML = `
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background: #0a0a0a;
-      color: #fff;
       min-height: 100vh;
+      color: #fff;
       display: flex;
       flex-direction: column;
     }
@@ -33,34 +33,23 @@ export const FREE_SUB_HTML = `
     .main-content {
       flex: 1;
       width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 15px;
     }
 
     .container {
-      background: #141414;
-      backdrop-filter: blur(20px);
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-      max-width: 480px;
-      width: 100%;
-      padding: 30px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
     }
 
     .header {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 30px;
     }
 
     .header h1 {
-      color: #fff;
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .header p {
@@ -70,104 +59,188 @@ export const FREE_SUB_HTML = `
 
     .notice {
       background: rgba(255, 204, 0, 0.15);
-      border: 1px solid rgba(255, 204, 0, 0.3);
-      color: #ffcc00;
-      padding: 12px 16px;
+      border: 2px solid rgba(255, 204, 0, 0.3);
       border-radius: 12px;
-      font-size: 13px;
-      margin-bottom: 20px;
-      line-height: 1.6;
+      padding: 16px 20px;
+      margin-bottom: 30px;
     }
 
     .notice-icon {
-      margin-right: 6px;
+      font-size: 16px;
+      margin-right: 8px;
     }
 
-    .card {
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 16px;
-      padding: 22px;
-      margin-bottom: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    .notice-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
     }
 
-    .card h2 {
-      color: #fff;
-      font-size: 18px;
-      margin-bottom: 16px;
+    .notice-text {
+      color: #ffcc00;
+      font-size: 14px;
+      flex: 1;
+    }
+
+    .notice-text strong {
       font-weight: 600;
     }
 
-    .subscription-info {
-      text-align: center;
+    .card {
+      background: #141414;
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 20px;
     }
 
     .subscription-id {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
       color: #e50914;
+      text-align: center;
+      margin-bottom: 15px;
       word-break: break-all;
-      margin: 10px 0;
     }
 
     .subscription-url {
-      font-family: monospace;
+      font-family: 'Courier New', monospace;
       background: rgba(229, 9, 20, 0.1);
-      padding: 14px;
-      border-radius: 10px;
-      border: 1px solid rgba(229, 9, 20, 0.3);
-      margin: 14px 0;
+      border: 2px solid rgba(229, 9, 20, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 15px 0;
       word-break: break-all;
-      font-size: 12px;
+      font-size: 13px;
       color: rgba(255, 255, 255, 0.9);
       line-height: 1.6;
     }
 
-    .subscription-status {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 20px;
-      gap: 10px;
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 25px;
     }
 
     .status-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 20px 15px;
       text-align: center;
-      min-width: 0;
-    }
-
-    .status-value {
-      font-size: 20px;
-      font-weight: 700;
-      color: #e50914;
-    }
-
-    .status-label {
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.5);
-      margin-top: 4px;
-    }
-
-    .features {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-top: 20px;
-      padding: 16px;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 12px;
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .feature-text-full {
+    .status-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #e50914;
+      margin-bottom: 5px;
+    }
+
+    .status-label {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .features {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
       color: rgba(255, 255, 255, 0.7);
-      font-size: 13px;
+      font-size: 14px;
       line-height: 1.6;
-      padding: 3px 0;
+    }
+
+    .feature-item::before {
+      content: '✓';
+      color: #34c759;
+      font-weight: 700;
+      margin-right: 12px;
+      font-size: 16px;
+    }
+
+    .checkin-section {
+      margin-bottom: 20px;
+    }
+
+    .checkin-section h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 15px;
+    }
+
+    .checkin-desc {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .captcha-container {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .captcha-input {
+      flex: 1;
+      padding: 14px 16px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      font-size: 16px;
+      text-align: center;
+      letter-spacing: 2px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      transition: all 0.3s ease;
+      flex-shrink: 1;
+    }
+
+    .captcha-input:focus {
+      outline: none;
+      border-color: #e50914;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .captcha-canvas {
+      width: 100px;
+      height: 44px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.05);
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .captcha-canvas:hover {
+      border-color: rgba(229, 9, 20, 0.5);
+      background: rgba(229, 9, 20, 0.1);
     }
 
     .checkin-btn {
       width: 100%;
-      padding: 14px;
+      padding: 16px;
       background: linear-gradient(135deg, #e50914 0%, #b81d24 100%);
       color: white;
       border: none;
@@ -175,8 +248,7 @@ export const FREE_SUB_HTML = `
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      margin-top: 15px;
+      transition: all 0.3s ease;
       box-shadow: 0 4px 14px rgba(229, 9, 20, 0.3);
     }
 
@@ -198,92 +270,49 @@ export const FREE_SUB_HTML = `
     }
 
     .message {
-      padding: 12px;
-      border-radius: 8px;
+      padding: 14px 18px;
+      border-radius: 10px;
       margin-top: 15px;
       font-size: 14px;
       display: none;
     }
 
     .message.success {
-      background: rgba(52, 199, 89, 0.2);
+      background: rgba(52, 199, 89, 0.15);
       border: 1px solid rgba(52, 199, 89, 0.3);
       color: #34c759;
       display: block;
     }
 
     .message.error {
-      background: rgba(255, 59, 48, 0.2);
+      background: rgba(255, 59, 48, 0.15);
       border: 1px solid rgba(255, 59, 48, 0.3);
       color: #ff3b30;
       display: block;
     }
 
-    .message.info {
-      background: rgba(0, 122, 255, 0.2);
-      border: 1px solid rgba(0, 122, 255, 0.3);
-      color: #007aff;
-      display: block;
-    }
-
     .copy-btn {
+      width: 100%;
       background: #e50914;
       color: white;
       border: none;
-      padding: 10px 16px;
-      border-radius: 8px;
+      padding: 14px;
+      border-radius: 10px;
       cursor: pointer;
-      font-size: 13px;
-      margin-top: 12px;
-      transition: background 0.2s;
-      font-weight: 500;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin-top: 15px;
     }
 
     .copy-btn:hover {
       background: #f7262c;
+      transform: translateY(-2px);
     }
 
     .copy-btn:active {
+      transform: translateY(0);
       scale: 0.98;
-    }
-
-    .captcha-container {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin-top: 15px;
-      width: 100%;
-    }
-
-    .captcha-input {
-      flex: 1;
-      min-width: 0;
-      padding: 0 10px;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 10px;
-      font-size: 16px;
-      text-align: center;
-      letter-spacing: 2px;
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
-      transition: border-color 0.2s;
-      height: 44px;
-    }
-
-    .captcha-input:focus {
-      outline: none;
-      border-color: #e50914;
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .captcha-canvas {
-      width: 90px;
-      height: 44px;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 10px;
-      cursor: pointer;
-      background: rgba(255, 255, 255, 0.05);
-      flex-shrink: 0;
     }
 
     .loading {
@@ -303,24 +332,18 @@ export const FREE_SUB_HTML = `
       border-top-color: #e50914;
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin: 0 auto;
+      margin: 0 auto 15px;
     }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
 
-    .loading-text {
-      margin-top: 12px;
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 14px;
-    }
-
     /* 广告位样式 */
     .ad-wrapper {
       display: flex;
       justify-content: center;
-      padding: 10px 0;
+      padding: 20px 0;
       min-height: 90px;
     }
 
@@ -340,23 +363,44 @@ export const FREE_SUB_HTML = `
     }
 
     @media (max-width: 768px) {
+      .container {
+        padding: 30px 15px;
+      }
+
+      .header h1 {
+        font-size: 24px;
+      }
+
+      .status-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .status-value {
+        font-size: 24px;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      .captcha-canvas {
+        width: 90px;
+      }
+
+      .checkin-btn {
+        padding: 14px;
+        font-size: 15px;
+      }
+
       body {
         padding-top: 60px !important;
       }
     }
 
     @media (max-width: 480px) {
-      body {
-        padding-top: 50px !important;
-      }
-
-      .main-content {
-        padding: 10px;
-      }
-
       .container {
-        padding: 20px;
-        border-radius: 12px;
+        padding: 20px 10px;
       }
 
       .header h1 {
@@ -367,53 +411,62 @@ export const FREE_SUB_HTML = `
         font-size: 12px;
       }
 
+      .notice {
+        padding: 12px 15px;
+      }
+
+      .notice-content {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .card {
+        padding: 15px;
+      }
+
       .subscription-id {
-        font-size: 16px;
+        font-size: 18px;
       }
 
       .subscription-url {
-        font-size: 11px;
+        font-size: 12px;
         padding: 12px;
       }
 
       .status-value {
-        font-size: 18px;
+        font-size: 20px;
       }
 
-      .status-label {
-        font-size: 10px;
+      .captcha-container {
+        gap: 10px;
+      }
+
+      .captcha-input {
+        padding: 12px 14px;
+        font-size: 14px;
+        letter-spacing: 1px;
       }
 
       .checkin-btn {
         padding: 13px;
-        font-size: 15px;
+        font-size: 14px;
       }
 
       .copy-btn {
-        font-size: 12px;
-        padding: 8px 12px;
+        padding: 12px;
+        font-size: 14px;
       }
 
       .features {
-        padding: 12px;
+        padding: 15px;
       }
 
-      .feature-text-full {
-        font-size: 12px;
+      .feature-item {
+        font-size: 13px;
       }
 
-      .captcha-container {
-        gap: 6px;
-      }
-
-      .captcha-input {
-        font-size: 14px;
-        letter-spacing: 1px;
-        padding: 0 8px;
-      }
-
-      .captcha-canvas {
-        width: 75px;
+      body {
+        padding-top: 50px !important;
       }
     }
   </style>
@@ -428,54 +481,56 @@ export const FREE_SUB_HTML = `
       </div>
 
       <div class="notice">
-        <span class="notice-icon">⚠️</span>
-        <strong data-i18n="noticeLabel">注意：</strong>
-        <span data-i18n="noticeText">订阅地址与您的IP和浏览器绑定，请勿分享给他人使用</span>
-      </div>
-
-      <div class="card">
-        <h2 data-i18n="subscriptionInfo">📺 订阅信息</h2>
-        <div class="subscription-info" id="subscriptionInfo">
-          <p class="subscription-id" id="subId" data-i18n="loading">加载中...</p>
-          <p class="subscription-url" id="subUrl"></p>
-          <button class="copy-btn" onclick="copySubscriptionUrl()" data-i18n="copyUrl">复制订阅地址</button>
-
-          <div class="subscription-status">
-            <div class="status-item">
-              <div class="status-value" id="daysLeft">-</div>
-              <div class="status-label" data-i18n="daysLeftLabel">剩余天数</div>
-            </div>
-            <div class="status-item">
-              <div class="status-value" id="consecutiveDays">-</div>
-              <div class="status-label" data-i18n="consecutiveDaysLabel">连续签到</div>
-            </div>
-            <div class="status-item">
-              <div class="status-value" id="channelCount" data-i18n="randomChannels">随机精选</div>
-              <div class="status-label" data-i18n="channelCountLabel">频道数量</div>
-            </div>
+        <div class="notice-content">
+          <span class="notice-icon">⚠️</span>
+          <div class="notice-text">
+            <strong data-i18n="noticeLabel">注意：</strong>
+            <span data-i18n="noticeText">订阅地址与您的IP和浏览器绑定，请勿分享给他人使用</span>
           </div>
         </div>
       </div>
 
       <div class="card">
+        <h2 data-i18n="subscriptionInfo">📺 订阅信息</h2>
+        <p class="subscription-id" id="subId" data-i18n="loading">加载中...</p>
+        <p class="subscription-url" id="subUrl"></p>
+        <button class="copy-btn" onclick="copySubscriptionUrl()" data-i18n="copyUrl">复制订阅地址</button>
+
+        <div class="status-grid">
+          <div class="status-item">
+            <div class="status-value" id="daysLeft">-</div>
+            <div class="status-label" data-i18n="daysLeftLabel">剩余天数</div>
+          </div>
+          <div class="status-item">
+            <div class="status-value" id="consecutiveDays">-</div>
+            <div class="status-label" data-i18n="consecutiveDaysLabel">连续签到</div>
+          </div>
+          <div class="status-item">
+            <div class="status-value" id="channelCount" data-i18n="randomChannels">随机精选</div>
+            <div class="status-label" data-i18n="channelCountLabel">频道数量</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card checkin-section">
         <h2 data-i18n="dailyCheckIn">📅 每日签到</h2>
-        <p style="text-align: center; color: rgba(255, 255, 255, 0.5); margin-bottom: 15px; font-size: 14px;" data-i18n="checkInDesc">
+        <p class="checkin-desc" data-i18n="checkInDesc">
           签到可延长订阅时长，连续签到有额外奖励！
         </p>
         <div class="captcha-container">
           <input type="text" class="captcha-input" id="captchaInput" data-i18n-placeholder="captchaPlaceholder" placeholder="输入验证码" maxlength="6">
-          <canvas class="captcha-canvas" id="captchaCanvas" width="90" height="44" onclick="refreshCaptcha()"></canvas>
+          <canvas class="captcha-canvas" id="captchaCanvas" width="100" height="44" onclick="refreshCaptcha()"></canvas>
         </div>
         <button class="checkin-btn" id="checkInBtn" onclick="checkIn()" data-i18n="checkInNow">
           立即签到
         </button>
         <div class="message" id="message"></div>
-      </div>
 
-      <div class="features">
-        <div class="feature-text-full" data-i18n="feature1">• 首次签到有效期3天，每天签到+1天</div>
-        <div class="feature-text-full" data-i18n="feature2">• 连续7天额外+2天</div>
-        <div class="feature-text-full" data-i18n="feature3">• 连续30天额外+7天，最多累计30天</div>
+        <div class="features">
+          <div class="feature-item" data-i18n="feature1">首次签到有效期3天，每天签到+1天</div>
+          <div class="feature-item" data-i18n="feature2">连续7天额外+2天</div>
+          <div class="feature-item" data-i18n="feature3">连续30天额外+7天，最多累计30天</div>
+        </div>
       </div>
 
       <!-- 广告位 -->
@@ -518,6 +573,7 @@ export const FREE_SUB_HTML = `
     // 多语言翻译
     const translations = {
       'en': {
+        pageTitle: 'Free Subscription - IPTV Live',
         title: '🎁 Free Subscription',
         subtitle: 'Daily selected channels, check in to extend',
         noticeLabel: 'Notice:',
@@ -532,9 +588,9 @@ export const FREE_SUB_HTML = `
         dailyCheckIn: '📅 Daily Check-in',
         checkInDesc: 'Check in to extend subscription, bonus rewards for consecutive days!',
         checkInNow: 'Check In Now',
-        feature1: '• First check-in: 3 days, +1 day per check-in',
-        feature2: '• 7-day streak: +2 bonus days',
-        feature3: '• 30-day streak: +7 bonus days, max 30 days total',
+        feature1: 'First check-in: 3 days, +1 day per check-in',
+        feature2: '7-day streak: +2 bonus days',
+        feature3: '30-day streak: +7 bonus days, max 30 days total',
         captchaPlaceholder: 'Enter code',
         checkInProgress: 'Checking in...',
         successCheckIn: 'Check-in successful! Got {days} day(s), streak: {streak}',
@@ -548,6 +604,7 @@ export const FREE_SUB_HTML = `
         days: ' days'
       },
       'zh-CN': {
+        pageTitle: '免费订阅 - IPTV Live',
         title: '🎁 免费订阅',
         subtitle: '每天随机精选频道，每日签到续期',
         noticeLabel: '注意：',
@@ -562,9 +619,9 @@ export const FREE_SUB_HTML = `
         dailyCheckIn: '📅 每日签到',
         checkInDesc: '签到可延长订阅时长，连续签到有额外奖励！',
         checkInNow: '立即签到',
-        feature1: '• 首次签到有效期3天，每天签到+1天',
-        feature2: '• 连续7天额外+2天',
-        feature3: '• 连续30天额外+7天，最多累计30天',
+        feature1: '首次签到有效期3天，每天签到+1天',
+        feature2: '连续7天额外+2天',
+        feature3: '连续30天额外+7天，最多累计30天',
         captchaPlaceholder: '输入验证码',
         checkInProgress: '签到中...',
         successCheckIn: '签到成功！获得{days}天，连续签到{streak}天',
@@ -583,10 +640,11 @@ export const FREE_SUB_HTML = `
       return translations[currentLang][key] || translations['zh-CN'][key] || key;
     }
 
+    // 设置页面标题
+    document.title = translations[currentLang].title + ' - IPTV Live';
+
     // 页面加载时执行
     window.addEventListener('DOMContentLoaded', async () => {
-      // 设置语言
-      setLanguage(currentLang);
       await generateFingerprint();
       await loadSubscription();
       refreshCaptcha();
@@ -838,7 +896,7 @@ export const FREE_SUB_HTML = `
         ];
         ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
 
-        const x = 15 + i * 18;
+        const x = 20 + i * 18;
         const y = 22;
         // 极小的旋转角度，几乎不旋转
         const angle = (Math.random() - 0.5) * 0.05;
@@ -884,34 +942,6 @@ export const FREE_SUB_HTML = `
 
       // 清空输入框
       document.getElementById('captchaInput').value = '';
-    }
-
-    // 语言切换函数
-    function setLanguage(lang) {
-      currentLang = lang;
-      localStorage.setItem('freesub_lang', lang);
-      
-      // 更新 HTML lang 属性
-      document.documentElement.lang = lang;
-      
-      // 更新标题
-      document.title = translations[lang].title + ' - IPTV Live';
-      
-      // 更新所有带有 data-i18n 的元素
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (translations[lang] && translations[lang][key]) {
-          el.textContent = translations[lang][key];
-        }
-      });
-      
-      // 更新 placeholder
-      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-        const key = el.getAttribute('data-i18n-placeholder');
-        if (translations[lang] && translations[lang][key]) {
-          el.placeholder = translations[lang][key];
-        }
-      });
     }
   </script>
 </body>
