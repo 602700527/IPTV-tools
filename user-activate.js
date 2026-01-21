@@ -1,6 +1,6 @@
 // 用户卡密激活页面内容
 export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -249,12 +249,13 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       }
     };
 
-    // 智能判断浏览器语言
+    // 智能判断浏览器语言 - 默认英文，简中才显示简中
     function detectBrowserLanguage() {
       const savedLang = localStorage.getItem('activate_lang');
       if (savedLang) return savedLang;
       
       const browserLang = navigator.language || navigator.userLanguage || 'en';
+      // 默认英文，仅简体中文环境显示简体中文
       return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
     }
 
