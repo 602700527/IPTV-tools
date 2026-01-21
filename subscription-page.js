@@ -1,4 +1,7 @@
 // 订阅支付页面HTML
+import { PAGE_HEADER } from './components/page-header.js';
+import { PAGE_FOOTER } from './components/page-footer.js';
+
 export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -40,89 +43,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .header p {
       color: rgba(255, 255, 255, 0.6);
       font-size: 14px;
-    }
-
-    .lang-switch {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 10;
-    }
-
-    .lang-dropdown {
-      position: relative;
-      display: inline-block;
-    }
-
-    .lang-btn {
-      background: #e50914;
-      color: white;
-      border: none;
-      padding: 8px 18px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      transition: background 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .lang-btn:hover {
-      background: #f7262c;
-    }
-
-    .lang-btn:after {
-      content: "▼";
-      font-size: 9px;
-    }
-
-    .lang-menu {
-      display: none;
-      position: absolute;
-      top: calc(100% + 8px);
-      right: 0;
-      background: #1a1a1a;
-      backdrop-filter: blur(10px);
-      border-radius: 10px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      min-width: 120px;
-      overflow: hidden;
-      animation: fadeIn 0.2s ease;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    .lang-menu.show {
-      display: block;
-    }
-
-    .lang-menu button {
-      display: block;
-      width: 100%;
-      padding: 10px 16px;
-      background: none;
-      border: none;
-      text-align: left;
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.8);
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .lang-menu button:hover {
-      background: rgba(229, 9, 20, 0.15);
-    }
-
-    .lang-menu button.active {
-      background: #e50914;
-      color: white;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     .plans-container {
@@ -510,22 +430,29 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         font-size: 12px;
       }
     }
+
+    body {
+      padding-top: 70px !important;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding-top: 60px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding-top: 50px !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="lang-switch">
-    <div class="lang-dropdown">
-      <button class="lang-btn" onclick="toggleLangMenu()" id="currentLangBtn">简体</button>
-      <div class="lang-menu" id="langMenu">
-        <button onclick="setLanguage('en')" id="langEn">English</button>
-        <button onclick="setLanguage('zh-CN')" id="langZh">简体中文</button>
-      </div>
-    </div>
-  </div>
-
+  ${PAGE_HEADER}
   <div class="container">
     <div class="header">
-      <h1 data-i18n="title">🎫 订阅购买</h1>
+      <h1 data-i18n="title">👑 会员订阅</h1>
       <p data-i18n="subtitle">选择适合您的订阅套餐，享受高清直播服务</p>
     </div>
 
@@ -548,6 +475,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     <div id="errorMessage" class="error-message" style="display: none;"></div>
   </div>
+  ${PAGE_FOOTER}
 
   <div id="successModal" class="success-modal">
     <div class="success-content">
@@ -602,7 +530,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     const translations = {
       'zh-CN': {
         pageTitle: '会员订阅 - 电视直播服务',
-        title: '🎫 会员订阅',
+        title: '👑 会员订阅',
         subtitle: '选择适合您的会员套餐，享受高清直播服务',
         selectIPs: '选择IP数量',
         payWithPayPal: '使用 PayPal 支付',
@@ -640,7 +568,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       },
       'en': {
         pageTitle: 'Membership - TV Live Service',
-        title: '🎫 Membership',
+        title: '👑 Membership',
         subtitle: 'Choose the plan that suits you, enjoy HD live streaming',
         selectIPs: 'Select IP Count',
         payWithPayPal: 'Pay with PayPal',
@@ -972,36 +900,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }).catch(err => {
         console.error('Copy failed:', err);
       });
-    }
-
-    function toggleLangMenu() {
-      document.getElementById('langMenu').classList.toggle('show');
-    }
-
-    function setLanguage(lang) {
-      currentLang = lang;
-      localStorage.setItem('subscription_lang', lang);
-
-      document.getElementById('langEn').classList.toggle('active', lang === 'en');
-      document.getElementById('langZh').classList.toggle('active', lang === 'zh-CN');
-      document.getElementById('currentLangBtn').textContent = lang === 'en' ? 'EN' : '简体';
-      document.getElementById('langMenu').classList.remove('show');
-      document.documentElement.lang = lang;
-
-      document.title = t('pageTitle');
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        el.textContent = t(key);
-      });
-
-      renderPlans();
-    }
-
-    // 立即执行语言设置
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => setLanguage(currentLang));
-    } else {
-      setLanguage(currentLang);
     }
 
     // 页面加载时直接渲染套餐,不检查登录状态
