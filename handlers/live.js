@@ -56,7 +56,7 @@ export async function handleLiveRequest(request, env, ctx) {
     const auth = await db.prepare("SELECT status, expired_at, max_ips, banned_until FROM codes WHERE code = ?").bind(code).first();
 
     const now = new Date().toISOString();
-    if (!auth || auth.status !== 'active' || auth.expired_at < now) {
+    if (!auth || auth.status !== 'active' || (auth.expired_at && auth.expired_at < now)) {
       // 如果卡密已过期，自动设置为禁用状态
       if (auth && auth.expired_at < now && auth.status === 'active') {
         await db.prepare("UPDATE codes SET status = 'disabled' WHERE code = ?").bind(code).run();

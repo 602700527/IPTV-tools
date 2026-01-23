@@ -874,7 +874,17 @@ export const ADMIN_HTML = `<!DOCTYPE html>
   <div id="generateCodeModal" class="modal">
     <div class="modal-content">
       <div class="modal-header"><h3>生成卡密</h3><button class="close-btn" onclick="closeGenerateCodeModal()">&times;</button></div>
-      <div class="form-row"><div class="form-group"><label>生成数量</label><input type="number" id="generateCount" value="1" min="1" max="100"></div><div class="form-group"><label>有效期(天)</label><input type="number" id="generateDuration" value="30" min="1"></div></div>
+      <div class="form-row"><div class="form-group"><label>生成数量</label><input type="number" id="generateCount" value="1" min="1" max="100"></div><div class="form-group">
+        <label>有效期(天)</label>
+        <select id="generateDuration" onchange="togglePermanentCode()">
+          <option value="30">30天</option>
+          <option value="60">60天</option>
+          <option value="90">90天</option>
+          <option value="180">180天</option>
+          <option value="365">365天</option>
+          <option value="-1">永久</option>
+        </select>
+      </div></div>
       <div class="form-row"><div class="form-group"><label>最大IP数</label><input type="number" id="generateMaxIps" value="3" min="1"></div><div class="form-group"><label>备注</label><input type="text" id="generateRemark" placeholder="可选备注"></div></div>
       <div class="modal-footer"><button class="btn" onclick="closeGenerateCodeModal()">取消</button><button class="btn btn-primary" onclick="generateCodes()">生成</button></div>
     </div>
@@ -905,6 +915,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <li>激活时间和过期时间为可选字段，可留空</li>
           <li>日期格式：北京时间格式（YYYY-MM-DD HH:mm:ss 或 YYYY-MM-DD）</li>
           <li>示例：ABC12345,30,2024-01-01 10:00:00,2024-02-01 10:00:00,VIP卡密</li>
+          <li><strong>永久卡密：</strong>有效期字段设为 -1，过期时间字段留空</li>
+          <li>永久卡密示例：PERM12345,-1,,,永久VIP</li>
         </ul>
       </div>
       <div class="form-group"><label>选择CSV文件</label><input type="file" id="importFile" accept=".csv" onchange="handleImportFileSelect()"></div>

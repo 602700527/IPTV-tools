@@ -16,14 +16,18 @@ export async function generateActivationCode(env, durationDays, maxIPs, userId, 
   const now = new Date();
 
   // 计算过期时间
-  const expiredAt = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
+  let expiredAt = null;
+  // 永久卡密（duration_days = -1）不设置过期时间
+  if (durationDays !== -1) {
+    expiredAt = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
+  }
 
   try {
     // 生成卡密，状态为 active（已激活），激活时间为当天
     await env.DB.prepare(`
       INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, remark)
       VALUES (?, 'active', ?, ?, ?, ?, ?)
-    `).bind(code, durationDays, now.toISOString(), expiredAt.toISOString(), maxIPs, isTestMode ? `Test purchase by user ${userId}` : `User ${userId} purchase`).run();
+    `).bind(code, durationDays, now.toISOString(), expiredAt ? expiredAt.toISOString() : null, maxIPs, isTestMode ? `Test purchase by user ${userId}` : `User ${userId} purchase`).run();
 
     // 获取生成的卡密ID
     const generatedCode = await env.DB.prepare('SELECT code FROM codes WHERE code = ?').bind(code).first();
@@ -37,7 +41,7 @@ export async function generateActivationCode(env, durationDays, maxIPs, userId, 
       success: true,
       code: code,
       subUrl: subUrl,
-      expiredAt: expiredAt.toISOString(),
+      expiredAt: expiredAt ? expiredAt.toISOString() : null,
       activatedAt: now.toISOString()
     };
   } catch (error) {
@@ -87,11 +91,11 @@ export async function handleCreateCode(request, env, ctx) {
     const body = await request.json();
     const { duration_days, max_ips = 3, test_mode = false, payment_id = null } = body;
 
-    // 验证参数
-    if (!duration_days || duration_days < 1 || duration_days > 365) {
+    // 验证参数（允许 -1 表示永久卡密）
+    if (!duration_days || (duration_days !== -1 && (duration_days < 1 || duration_days > 365))) {
       return new Response(JSON.stringify({
         success: false,
-        error: 'Invalid duration_days (1-365)'
+        error: 'Invalid duration_days (1-365 or -1 for permanent)'
       }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
@@ -223,11 +227,11 @@ export async function handleCreatePayPalOrder(request, env, ctx) {
     const body = await request.json();
     const { duration_days, max_ips, amount } = body;
 
-    // 验证参数
-    if (!duration_days || duration_days < 1 || duration_days > 365) {
+    // 验证参数（允许 -1 表示永久卡密）
+    if (!duration_days || (duration_days !== -1 && (duration_days < 1 || duration_days > 365))) {
       return new Response(JSON.stringify({
         success: false,
-        error: 'Invalid duration_days (1-365)'
+        error: 'Invalid duration_days (1-365 or -1 for permanent)'
       }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }

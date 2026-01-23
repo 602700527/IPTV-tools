@@ -419,8 +419,13 @@ export async function handleAdminRequest(request, env, ctx) {
           }
 
           // 计算过期时间
-          const expiredAt = new Date();
-          expiredAt.setTime(expiredAt.getTime() + code.duration_days * 24 * 60 * 60 * 1000);
+          let expiredAt = new Date();
+          // 如果 duration_days 为 -1 表示永久卡密
+          if (code.duration_days === -1) {
+            expiredAt = null; // 永久卡密不设置过期时间
+          } else {
+            expiredAt.setTime(expiredAt.getTime() + code.duration_days * 24 * 60 * 60 * 1000);
+          }
 
           // 激活卡密
           await getDB().prepare(`
@@ -428,14 +433,14 @@ export async function handleAdminRequest(request, env, ctx) {
             WHERE code = ?
           `).bind(
             now,
-            expiredAt.toISOString(),
+            expiredAt ? expiredAt.toISOString() : null,
             data.code
           ).run();
 
           return new Response(JSON.stringify({
             success: true,
             activated_at: now,
-            expired_at: expiredAt.toISOString()
+            expired_at: expiredAt ? expiredAt.toISOString() : null
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
@@ -487,6 +492,9 @@ export async function handleAdminRequest(request, env, ctx) {
                   if (expired_at) {
                     updateFields.push('expired_at = ?');
                     updateParams.push(parseBeijingTime(expired_at));
+                  } else if (duration_days === -1) {
+                    updateFields.push('expired_at = ?');
+                    updateParams.push(null); // 永久卡密
                   } else {
                     const defaultExpiredAt = new Date();
                     defaultExpiredAt.setTime(defaultExpiredAt.getTime() + duration_days * 24 * 60 * 60 * 1000);
@@ -519,6 +527,8 @@ export async function handleAdminRequest(request, env, ctx) {
 
                 if (expired_at) {
                   expiredAtISO = parseBeijingTime(expired_at);
+                } else if (duration_days === -1) {
+                  expiredAtISO = null; // 永久卡密
                 } else {
                   const defaultExpiredAt = new Date();
                   defaultExpiredAt.setTime(defaultExpiredAt.getTime() + duration_days * 24 * 60 * 60 * 1000);

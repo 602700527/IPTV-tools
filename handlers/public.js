@@ -459,7 +459,7 @@ export async function handlePublicChannels(request, env, ctx) {
         const responseBody = JSON.stringify({
           success: true,
           channels: paginatedChannels,
-          groups: filteredGroups,
+          groups: filteredGroups.map(g => ({ name: g })),
           pagination
         });
 
@@ -686,8 +686,8 @@ export async function handlePublicChannels(request, env, ctx) {
     // 构建响应体
     const responseBody = JSON.stringify({
       success: true,
-      channels,
-      groups,
+      channels: channels,
+      groups: groups.map(g => ({ name: g })),
       pagination,
       debug: debugInfo  // 添加调试信息
     });
