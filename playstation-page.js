@@ -473,13 +473,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           🎯
           <span class="quick-entry-tip">随机推荐</span>
         </button>
-        <button class="quick-entry ripple" onclick="window.location.href='/freesub'" data-tip-key="freesub">
-          🎁
-          <span class="quick-entry-tip">免费订阅</span>
-        </button>
-        <button class="quick-entry ripple" onclick="window.location.href='/subscription'" data-tip-key="subscription">
-          🎫
-          <span class="quick-entry-tip">订阅购买</span>
+        <button class="quick-entry ripple" onclick="window.location.href='/plans'" data-tip-key="plans">
+          💎
+          <span class="quick-entry-tip">订阅计划</span>
         </button>
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" data-tip-key="clearCache">
           🗑️
@@ -834,7 +830,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         history: '播放历史',
         favorites: '我的收藏',
         random: '随机推荐',
-        freesub: '免费订阅',
+        plans: '订阅计划',
         clearCache: '清除缓存',
         onlineCount: '人在观看',
         hot: '热门',
@@ -926,8 +922,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         history: 'Watch History',
         favorites: 'My Favorites',
         random: 'Random Picks',
-        freesub: 'Free Subscription',
-        subscription: 'Purchase Subscription',
+        plans: 'Subscription Plans',
         clearCache: 'Clear Cache',
         onlineCount: 'viewers online',
         hot: 'HOT',
@@ -3906,7 +3901,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         // 未登录状态 - 使用不同颜色的用户图标，表示需要登录
         authButtonsDiv.innerHTML = \`
           <button class="quick-entry ripple" onclick="openLoginModal()">
-            🙋
+            👤
             <span class="quick-entry-tip">登录</span>
           </button>
         \`;

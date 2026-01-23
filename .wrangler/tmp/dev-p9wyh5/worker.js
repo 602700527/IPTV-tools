@@ -13032,13 +13032,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           \u{1F3AF}
           <span class="quick-entry-tip">\u968F\u673A\u63A8\u8350</span>
         </button>
-        <button class="quick-entry ripple" onclick="window.location.href='/freesub'" data-tip-key="freesub">
-          \u{1F381}
-          <span class="quick-entry-tip">\u514D\u8D39\u8BA2\u9605</span>
-        </button>
-        <button class="quick-entry ripple" onclick="window.location.href='/subscription'" data-tip-key="subscription">
-          \u{1F3AB}
-          <span class="quick-entry-tip">\u8BA2\u9605\u8D2D\u4E70</span>
+        <button class="quick-entry ripple" onclick="window.location.href='/plans'" data-tip-key="plans">
+          \u{1F48E}
+          <span class="quick-entry-tip">\u8BA2\u9605\u8BA1\u5212</span>
         </button>
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" data-tip-key="clearCache">
           \u{1F5D1}\uFE0F
@@ -13393,7 +13389,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         history: '\u64AD\u653E\u5386\u53F2',
         favorites: '\u6211\u7684\u6536\u85CF',
         random: '\u968F\u673A\u63A8\u8350',
-        freesub: '\u514D\u8D39\u8BA2\u9605',
+        plans: '\u8BA2\u9605\u8BA1\u5212',
         clearCache: '\u6E05\u9664\u7F13\u5B58',
         onlineCount: '\u4EBA\u5728\u89C2\u770B',
         hot: '\u70ED\u95E8',
@@ -13485,8 +13481,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         history: 'Watch History',
         favorites: 'My Favorites',
         random: 'Random Picks',
-        freesub: 'Free Subscription',
-        subscription: 'Purchase Subscription',
+        plans: 'Subscription Plans',
         clearCache: 'Clear Cache',
         onlineCount: 'viewers online',
         hot: 'HOT',
@@ -16465,7 +16460,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         // \u672A\u767B\u5F55\u72B6\u6001 - \u4F7F\u7528\u4E0D\u540C\u989C\u8272\u7684\u7528\u6237\u56FE\u6807\uFF0C\u8868\u793A\u9700\u8981\u767B\u5F55
         authButtonsDiv.innerHTML = \`
           <button class="quick-entry ripple" onclick="openLoginModal()">
-            \u{1F64B}
+            \u{1F464}
             <span class="quick-entry-tip">\u767B\u5F55</span>
           </button>
         \`;
@@ -18731,6 +18726,616 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
+// plans-page.js
+init_checked_fetch();
+init_modules_watch_stub();
+var PLANS_HTML = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title data-i18n-title="pageTitle">\u8BA2\u9605\u8BA1\u5212 - TV Live Service</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #0a0a0a;
+      min-height: 100vh;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding-top: 70px;
+    }
+
+    .main-content {
+      flex: 1;
+      width: 100%;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+
+    .plans-page-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .plans-page-header h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #e50914 0%, #b81d24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .plans-page-header p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 16px;
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 60px;
+    }
+
+    .plan-card {
+      background: #141414;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 32px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .plan-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .plan-card.premium {
+      background: linear-gradient(135deg, rgba(229, 9, 20, 0.08) 0%, rgba(184, 29, 36, 0.08) 100%);
+      border: 2px solid rgba(229, 9, 20, 0.3);
+    }
+
+    .plan-card.premium::before {
+      content: '\u63A8\u8350';
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      background: linear-gradient(135deg, #e50914 0%, #b81d24 100%);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .plan-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .plan-badge.free {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .plan-badge.premium {
+      background: linear-gradient(135deg, #e50914 0%, #b81d24 100%);
+      color: #fff;
+    }
+
+    .plan-name {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .plan-price {
+      font-size: 40px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .plan-price .period {
+      font-size: 15px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .plan-description {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 24px;
+    }
+
+    .plan-features li {
+      display: flex;
+      align-items: center;
+      padding: 10px 0;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+    }
+
+    .plan-features li.disabled {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .plan-features li svg {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .plan-features li.enabled svg {
+      color: #22c55e;
+    }
+
+    .plan-features li.disabled svg {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .plan-button {
+      display: block;
+      width: 100%;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .plan-button.free {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .plan-button.free:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .plan-button.premium {
+      background: linear-gradient(135deg, #e50914 0%, #b81d24 100%);
+      color: #fff;
+    }
+
+    .plan-button.premium:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
+    }
+
+    .faq-section {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .faq-section h2 {
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .faq-item {
+      background: #141414;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      padding: 16px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s ease;
+    }
+
+    .faq-question:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .faq-question::after {
+      content: '+';
+      font-size: 20px;
+      font-weight: 300;
+      transition: transform 0.3s ease;
+    }
+
+    .faq-item.active .faq-question::after {
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .faq-item.active .faq-answer {
+      max-height: 200px;
+    }
+
+    .faq-answer-content {
+      padding: 0 20px 16px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .plans-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .plan-card.premium::before {
+        right: 16px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding-top: 60px;
+      }
+
+      .container {
+        padding: 30px 15px;
+      }
+
+      .plans-page-header h1 {
+        font-size: 28px;
+      }
+
+      .plans-page-header p {
+        font-size: 14px;
+      }
+
+      .plans-grid {
+        gap: 20px;
+      }
+
+      .plan-card {
+        padding: 24px 20px;
+      }
+
+      .plan-price {
+        font-size: 32px;
+      }
+
+      .faq-section h2 {
+        font-size: 22px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding-top: 50px;
+      }
+
+      .plans-page-header h1 {
+        font-size: 24px;
+      }
+
+      .plan-card {
+        padding: 20px 16px;
+      }
+
+      .plan-price {
+        font-size: 28px;
+      }
+
+      .plan-features li {
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  ${PAGE_HEADER}
+
+  <main class="main-content">
+    <div class="container">
+      <div class="plans-page-header">
+        <h1 data-i18n="headerTitle">\u9009\u62E9\u6700\u9002\u5408\u60A8\u7684\u8BA2\u9605\u8BA1\u5212</h1>
+        <p data-i18n="headerDesc">\u514D\u8D39\u8BD5\u7528\u6216\u5347\u7EA7\u5230\u4F1A\u5458\uFF0C\u4EAB\u53D7\u66F4\u4F18\u8D28\u7684\u670D\u52A1\u4F53\u9A8C</p>
+      </div>
+
+      <div class="plans-grid">
+        <!-- \u514D\u8D39\u8BA1\u5212 -->
+        <div class="plan-card">
+          <span class="plan-badge free" data-i18n="freeBadge">\u514D\u8D39\u8BA1\u5212</span>
+          <div class="plan-name" data-i18n="freeName">\u57FA\u7840\u8BA2\u9605</div>
+          <div class="plan-price">
+            Free<span class="period" data-i18n="freePeriod">/ \u6C38\u4E45</span>
+          </div>
+          <p class="plan-description" data-i18n="freeDesc">\u9002\u5408\u8F7B\u5EA6\u4F7F\u7528\u7684\u7528\u6237\uFF0C\u63D0\u4F9B\u57FA\u7840\u7684\u76F4\u64AD\u9891\u9053\u8BBF\u95EE\u6743\u9650</p>
+
+          <ul class="plan-features">
+            <li class="enabled">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span data-i18n="freeFeature1">\u968F\u673A\u7CBE\u9009\u90E8\u5206\u9891\u9053</span>
+            </li>
+            <li class="enabled">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span data-i18n="freeFeature2">\u6BCF\u65E5\u66F4\u65B0</span>
+            </li>
+            <li class="enabled">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span data-i18n="freeFeature3">\u652F\u6301\u624B\u673A/\u5E73\u677F/\u667A\u80FD\u7535\u89C6/\u7535\u89C6\u76D2\u5B50/\u6295\u5F71\u4EEA/\u7535\u8111\u64AD\u653E</span>
+            </li>
+            <li class="disabled">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+              <span data-i18n="vipFeature4">1080P/4K \u753B\u8D28</span>
+            </li>
+            <li class="disabled">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+              <span data-i18n="vipFeature5">\u65E0\u5E7F\u544A</span>
+            </li>
+            <li class="disabled">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+              <span data-i18n="vipFeature6">\u65E0\u9700\u7B7E\u5230</span>
+            </li>
+            <li class="disabled">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+              <span data-i18n="vipFeature7">\u652F\u6301\u591AIP\u3001\u591A\u8BBE\u5907\u540C\u65F6\u89C2\u770B</span>
+            </li>
+          </ul>
+
+          <a href="/freesub" class="plan-button free" data-i18n="freeButton">\u5F00\u59CB\u514D\u8D39\u8BA2\u9605</a>
+        </div>
+
+        <!-- \u4F1A\u5458\u8BA1\u5212 -->
+        <div class="plan-card premium">
+          <span class="plan-badge premium" data-i18n="premiumBadge">\u4F1A\u5458\u8BA1\u5212</span>
+          <div class="plan-name" data-i18n="premiumName">VIP \u8BA2\u9605</div>
+          <div class="plan-price">
+            $6.5<span class="period" data-i18n="premiumPeriod">/ \u6708</span>
+          </div>
+          <p class="plan-description" data-i18n="premiumDesc">\u89E3\u9501\u5168\u90E8\u529F\u80FD\uFF0C\u4EAB\u53D7\u6781\u81F4\u7684\u89C2\u770B\u4F53\u9A8C</p>
+
+          <ul class="plan-features">
+            <li class="enabled">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span data-i18n="vipFeature1">\u5B8C\u6574\u9891\u9053\u5E93</span>
+            </li>
+            <li class="enabled">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span data-i18n="vipFeature2">\u6BCF\u65E5\u66F4\u65B0</span>
+            </li>
+            <li class="enabled">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span data-i18n="vipFeature3">\u652F\u6301\u624B\u673A/\u5E73\u677F/\u667A\u80FD\u7535\u89C6/\u7535\u89C6\u76D2\u5B50/\u6295\u5F71\u4EEA/\u7535\u8111\u64AD\u653E</span>
+            </li>
+            <li class="enabled">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span data-i18n="vipFeature4">1080P/4K \u753B\u8D28</span>
+            </li>
+            <li class="enabled">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span data-i18n="vipFeature5">\u65E0\u5E7F\u544A</span>
+            </li>
+            <li class="enabled">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span data-i18n="vipFeature6">\u65E0\u9700\u7B7E\u5230</span>
+            </li>
+            <li class="enabled">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span data-i18n="vipFeature7">\u652F\u6301\u591AIP\u3001\u591A\u8BBE\u5907\u540C\u65F6\u89C2\u770B</span>
+            </li>
+          </ul>
+
+          <a href="/subscription" class="plan-button premium" data-i18n="premiumButton">\u7ACB\u5373\u8BA2\u9605</a>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="faq-section">
+        <h2 data-i18n="faqTitle">\u5E38\u89C1\u95EE\u9898</h2>
+        <div class="faq-item">
+          <div class="faq-question" data-i18n="faq1">\u514D\u8D39\u8BA1\u5212\u9700\u8981\u4ED8\u8D39\u5417\uFF1F</div>
+          <div class="faq-answer">
+            <div class="faq-answer-content" data-i18n="faq1Answer">\u514D\u8D39\u8BA1\u5212\u5B8C\u5168\u514D\u8D39\uFF0C\u60A8\u53EA\u9700\u8981\u6BCF\u5929\u7B7E\u5230\u5373\u53EF\u4FDD\u6301\u8BA2\u9605\u6709\u6548\u3002\u7B7E\u5230\u7B80\u5355\u5FEB\u901F\uFF0C\u53EA\u9700\u51E0\u79D2\u949F\u5373\u53EF\u5B8C\u6210\u3002</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" data-i18n="faq2">VIP \u8BA2\u9605\u53EF\u4EE5\u968F\u65F6\u53D6\u6D88\u5417\uFF1F</div>
+          <div class="faq-answer">
+            <div class="faq-answer-content" data-i18n="faq2Answer">\u662F\u7684\uFF0C\u60A8\u53EF\u4EE5\u968F\u65F6\u53D6\u6D88\u8BA2\u9605\u3002\u53D6\u6D88\u540E\u670D\u52A1\u5C06\u5728\u5F53\u524D\u8BA2\u9605\u671F\u7ED3\u675F\u540E\u505C\u6B62\uFF0C\u4E0D\u4F1A\u4EA7\u751F\u989D\u5916\u8D39\u7528\u3002</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" data-i18n="faq3">\u5982\u4F55\u5347\u7EA7\u5230 VIP \u8BA2\u9605\uFF1F</div>
+          <div class="faq-answer">
+            <div class="faq-answer-content" data-i18n="faq3Answer">\u70B9\u51FB\u4E0A\u65B9"\u7ACB\u5373\u8BA2\u9605"\u6309\u94AE\uFF0C\u9009\u62E9\u5408\u9002\u7684\u5957\u9910\u5373\u53EF\u5347\u7EA7\u3002\u652F\u6301\u591A\u79CD\u652F\u4ED8\u65B9\u5F0F\uFF0C\u5B89\u5168\u5FEB\u6377\u3002</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" data-i18n="faq4">VIP \u8BA2\u9605\u652F\u6301\u54EA\u4E9B\u64AD\u653E\u5668\uFF1F</div>
+          <div class="faq-answer">
+            <div class="faq-answer-content" data-i18n="faq4Answer">VIP \u8BA2\u9605\u652F\u6301\u4E3B\u6D41 IPTV \u64AD\u653E\u5668\uFF08\u5982 APTV\u3001Televizo\u3001IPTV Smarters\u3001TiviMate\u3001KODI\uFF09\u3001Web \u64AD\u653E\u5668\u548C\u4E13\u7528 App\uFF0C\u8986\u76D6\u5404\u79CD\u8BBE\u5907\u5E73\u53F0\u3002</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  ${PAGE_FOOTER}
+
+  <script>
+    // FAQ \u5C55\u5F00/\u6536\u8D77
+    document.querySelectorAll('.faq-question').forEach(item => {
+      item.addEventListener('click', () => {
+        const parent = item.parentElement;
+        parent.classList.toggle('active');
+      });
+    });
+
+    // \u667A\u80FD\u8BED\u8A00\u68C0\u6D4B - \u9ED8\u8BA4\u82F1\u6587\uFF0C\u7B80\u4E2D\u624D\u663E\u793A\u7B80\u4E2D
+    function detectBrowserLanguage() {
+      const savedLang = localStorage.getItem('plans_lang');
+      if (savedLang) return savedLang;
+
+      const browserLang = navigator.language || navigator.userLanguage || 'en';
+      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
+    }
+
+    // \u7FFB\u8BD1\u914D\u7F6E
+    const translations = {
+      'zh-CN': {
+        'pageTitle': '\u8BA2\u9605\u8BA1\u5212 - TV Live Service',
+        'headerTitle': '\u9009\u62E9\u6700\u9002\u5408\u60A8\u7684\u8BA2\u9605\u8BA1\u5212',
+        'headerDesc': '\u514D\u8D39\u8BD5\u7528\u6216\u5347\u7EA7\u5230\u4F1A\u5458\uFF0C\u4EAB\u53D7\u66F4\u4F18\u8D28\u7684\u670D\u52A1\u4F53\u9A8C',
+        'freeBadge': '\u514D\u8D39\u8BA1\u5212',
+        'freeName': '\u57FA\u7840\u8BA2\u9605',
+        'freePeriod': '/ \u6C38\u4E45',
+        'freeDesc': '\u9002\u5408\u8F7B\u5EA6\u4F7F\u7528\u7684\u7528\u6237\uFF0C\u63D0\u4F9B\u57FA\u7840\u7684\u76F4\u64AD\u9891\u9053\u8BBF\u95EE\u6743\u9650',
+        'premiumBadge': '\u4F1A\u5458\u8BA1\u5212',
+        'premiumName': 'VIP \u8BA2\u9605',
+        'premiumPeriod': '/ \u6708',
+        'premiumDesc': '\u89E3\u9501\u5168\u90E8\u529F\u80FD\uFF0C\u4EAB\u53D7\u6781\u81F4\u7684\u89C2\u770B\u4F53\u9A8C',
+        'freeButton': '\u5F00\u59CB\u514D\u8D39\u8BA2\u9605',
+        'premiumButton': '\u7ACB\u5373\u8BA2\u9605',
+        'recommended': '\u63A8\u8350',
+        'faqTitle': '\u5E38\u89C1\u95EE\u9898',
+        'faq1': '\u514D\u8D39\u8BA1\u5212\u9700\u8981\u4ED8\u8D39\u5417\uFF1F',
+        'faq1Answer': '\u514D\u8D39\u8BA1\u5212\u5B8C\u5168\u514D\u8D39\uFF0C\u60A8\u53EA\u9700\u8981\u6BCF\u5929\u7B7E\u5230\u5373\u53EF\u4FDD\u6301\u8BA2\u9605\u6709\u6548\u3002\u7B7E\u5230\u7B80\u5355\u5FEB\u901F\uFF0C\u53EA\u9700\u51E0\u79D2\u949F\u5373\u53EF\u5B8C\u6210\u3002',
+        'faq2': 'VIP \u8BA2\u9605\u53EF\u4EE5\u968F\u65F6\u53D6\u6D88\u5417\uFF1F',
+        'faq2Answer': '\u662F\u7684\uFF0C\u60A8\u53EF\u4EE5\u968F\u65F6\u53D6\u6D88\u8BA2\u9605\u3002\u53D6\u6D88\u540E\u670D\u52A1\u5C06\u5728\u5F53\u524D\u8BA2\u9605\u671F\u7ED3\u675F\u540E\u505C\u6B62\uFF0C\u4E0D\u4F1A\u4EA7\u751F\u989D\u5916\u8D39\u7528\u3002',
+        'faq3': '\u5982\u4F55\u5347\u7EA7\u5230 VIP \u8BA2\u9605\uFF1F',
+        'faq3Answer': '\u70B9\u51FB\u4E0A\u65B9"\u7ACB\u5373\u8BA2\u9605"\u6309\u94AE\uFF0C\u9009\u62E9\u5408\u9002\u7684\u5957\u9910\u5373\u53EF\u5347\u7EA7\u3002\u652F\u6301\u591A\u79CD\u652F\u4ED8\u65B9\u5F0F\uFF0C\u5B89\u5168\u5FEB\u6377\u3002',
+        'faq4': 'VIP \u8BA2\u9605\u652F\u6301\u54EA\u4E9B\u64AD\u653E\u5668\uFF1F',
+        'faq4Answer': 'VIP \u8BA2\u9605\u652F\u6301\u4E3B\u6D41 IPTV \u64AD\u653E\u5668\uFF08\u5982 APTV\u3001Televizo\u3001IPTV Smarters\u3001TiviMate\u3001KODI\uFF09\u3001Web \u64AD\u653E\u5668\u548C\u4E13\u7528 App\uFF0C\u8986\u76D6\u5404\u79CD\u8BBE\u5907\u5E73\u53F0\u3002',
+        // Features
+        'freeFeature1': '\u968F\u673A\u7CBE\u9009\u90E8\u5206\u9891\u9053',
+        'freeFeature2': '\u6BCF\u65E5\u66F4\u65B0',
+        'freeFeature3': '\u652F\u6301\u624B\u673A/\u5E73\u677F/\u667A\u80FD\u7535\u89C6/\u7535\u89C6\u76D2\u5B50/\u6295\u5F71\u4EEA/\u7535\u8111\u64AD\u653E',
+        'vipFeature1': '\u5B8C\u6574\u9891\u9053\u5E93',
+        'vipFeature2': '\u6BCF\u65E5\u66F4\u65B0',
+        'vipFeature3': '\u652F\u6301\u624B\u673A/\u5E73\u677F/\u667A\u80FD\u7535\u89C6/\u7535\u89C6\u76D2\u5B50/\u6295\u5F71\u4EEA/\u7535\u8111\u64AD\u653E',
+        'vipFeature4': '1080P/4K \u753B\u8D28',
+        'vipFeature5': '\u65E0\u5E7F\u544A',
+        'vipFeature6': '\u65E0\u9700\u7B7E\u5230',
+        'vipFeature7': '\u652F\u6301\u591AIP\u3001\u591A\u8BBE\u5907\u540C\u65F6\u89C2\u770B'
+      },
+      'en': {
+        'pageTitle': 'Subscription Plans - TV Live Service',
+        'headerTitle': 'Choose the plan that fits you',
+        'headerDesc': 'Try for free or upgrade to premium for better experience',
+        'freeBadge': 'Free Plan',
+        'freeName': 'Basic',
+        'freePeriod': '/ Forever',
+        'freeDesc': 'Perfect for light users with basic channel access',
+        'premiumBadge': 'Premium Plan',
+        'premiumName': 'VIP Subscription',
+        'premiumPeriod': '/ Month',
+        'premiumDesc': 'Unlock all features and enjoy premium experience',
+        'freeButton': 'Start Free',
+        'premiumButton': 'Subscribe Now',
+        'recommended': 'Recommended',
+        'faqTitle': 'FAQ',
+        'faq1': 'Is the free plan really free?',
+        'faq1Answer': 'Yes, the free plan is completely free. You just need to sign in daily to keep your subscription active.',
+        'faq2': 'Can I cancel VIP anytime?',
+        'faq2Answer': 'Yes, you can cancel anytime. The service will continue until the end of your current billing period.',
+        'faq3': 'How to upgrade to VIP?',
+        'faq3Answer': 'Click "Subscribe Now" button and choose your plan. We support multiple secure payment methods.',
+        'faq4': 'What players are supported?',
+        'faq4Answer': 'VIP subscription supports major IPTV players (APTV, Televizo, IPTV Smarters, TiviMate, Kodi), web player and dedicated apps, covering various device platforms.',
+        // Features
+        'freeFeature1': 'Random selected channels',
+        'freeFeature2': 'Daily updates',
+        'freeFeature3': 'Supports mobile/tablet/smart TV/TV box/projector/computer',
+        'vipFeature1': 'Full channel library',
+        'vipFeature2': 'Daily updates',
+        'vipFeature3': 'Supports mobile/tablet/smart TV/TV box/projector/computer',
+        'vipFeature4': '1080P/4K quality',
+        'vipFeature5': 'Ad-free',
+        'vipFeature6': 'No check-in required',
+        'vipFeature7': 'Supports multi-IP and multi-device viewing'
+      }
+    };
+
+    // \u521D\u59CB\u5316\u8BED\u8A00
+    let currentLang = detectBrowserLanguage();
+    updateLanguage(currentLang);
+
+    function updateLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('plans_lang', lang);
+      document.documentElement.lang = lang;
+      document.title = translations[lang]['pageTitle'];
+
+      // \u66F4\u65B0\u6240\u6709\u5E26 data-i18n \u5C5E\u6027\u7684\u5143\u7D20
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+          el.textContent = translations[lang][key];
+        }
+      });
+    }
+  <\/script>
+</body>
+</html>`;
+
 // pages.js
 init_checked_fetch();
 init_modules_watch_stub();
@@ -19546,6 +20151,10 @@ window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
         return await handleCapturePayPalOrder(request, env, ctx);
       } else if (path === "/api/subscription/paypal-webhook") {
         return await handlePayPalWebhook(request, env, ctx);
+      } else if (path === "/plans" || path === "/plans/" || path === "/plans/index" || path === "/plans/index.html") {
+        return new Response(PLANS_HTML, {
+          headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
       } else if (path === "/subscription" || path === "/subscription/" || path === "/subscription/index" || path === "/subscription/index.html") {
         const paypalClientId = env.PAYPAL_CLIENT_ID || "";
         const paypalMode = env.PAYPAL_MODE || "sandbox";

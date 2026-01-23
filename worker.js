@@ -23,6 +23,7 @@ import { ACCOUNT_HTML } from './account-page.js';
 import { PLAYSTATION_HTML } from './playstation-page.js';
 import { FREE_SUB_HTML } from './freesub-page.js';
 import { SUBSCRIPTION_HTML } from './subscription-page.js';
+import { PLANS_HTML } from './plans-page.js';
 import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from './pages.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
@@ -215,6 +216,11 @@ export default {
     } else if (path === '/api/subscription/paypal-webhook') {
       // PayPal Webhook
       return await handlePayPalWebhook(request, env, ctx);
+    } else if (path === '/plans' || path === '/plans/' || path === '/plans/index' || path === '/plans/index.html') {
+      // 订阅计划页面
+      return new Response(PLANS_HTML, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     } else if (path === '/subscription' || path === '/subscription/' || path === '/subscription/index' || path === '/subscription/index.html') {
       // 订阅购买页面（注入 PayPal 配置）
       const paypalClientId = env.PAYPAL_CLIENT_ID || '';
