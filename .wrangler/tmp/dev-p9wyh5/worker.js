@@ -12680,7 +12680,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
     /* \u8BED\u8A00\u5207\u6362\u4E0B\u62C9\u5217\u8868 */
     .lang-switcher{position:relative}
-    .lang-dropdown{position:relative;display:inline-block}
+    .lang-dropdown{position:relative;display:inline-block;overflow:visible}
     .lang-dropdown-menu{position:absolute;top:100%;right:0;margin-top:8px;background:#1a1a1a;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 0;min-width:120px;opacity:0;visibility:hidden;transform:translateY(-10px);transition:all .2s;z-index:1000}
     .lang-dropdown.open .lang-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
     .lang-dropdown-item{padding:10px 20px;cursor:pointer;transition:background .15s;color:rgba(255,255,255,.8);font-size:14px}
@@ -12688,11 +12688,12 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     .lang-dropdown-item.active{background:rgba(229,9,20,.2);color:#fff;font-weight:600}
 
     /* \u5FEB\u6377\u5165\u53E3\u6309\u94AE */
-    .quick-entries{display:flex;gap:8px;margin-left:0}
+    .quick-entries{display:flex;gap:8px;margin-left:0;overflow:visible}
     .quick-entry{position:relative;width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .quick-entry svg{width:18px;height:18px}
     .quick-entry:hover{background:rgba(255,255,255,.2);color:#fff}
     .quick-entry-badge{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;background:#e50914;border-radius:9px;font-size:11px;font-weight:600;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 5px;display:none}
-    .quick-entry-tip{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;white-space:nowrap;font-size:12px;color:rgba(255,255,255,.6);opacity:0;transition:opacity .2s;pointer-events:none}
+    .quick-entry-tip{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;white-space:nowrap;font-size:12px;color:rgba(255,255,255,.6);opacity:0;transition:opacity .2s;pointer-events:none;z-index:10;background:rgba(0,0,0,.8);padding:4px 8px;border-radius:4px}
     .quick-entry:hover .quick-entry-tip{opacity:1}
 
     .auth-btn{padding:8px 20px;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
@@ -12945,7 +12946,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       .mobile-actions::-webkit-scrollbar{display:none}
       .mobile-action-btn{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:65px;padding:12px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);flex-shrink:0}
       .mobile-action-btn:hover{background:rgba(255,255,255,.1);color:#fff}
-      .mobile-action-btn .icon{font-size:24px}
+      .mobile-action-btn .icon svg{width:24px;height:24px}
       .mobile-action-btn .label{font-size:11px;color:rgba(255,255,255,.6);white-space:nowrap}
       .mobile-lang-menu{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:5px}
       .mobile-lang-menu::-webkit-scrollbar{display:none}
@@ -12989,13 +12990,16 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       .logo{font-size:16px}
       .mobile-menu{width:100%}
       .mobile-action-btn{min-width:55px;padding:10px 6px}
-      .mobile-action-btn .icon{font-size:20px}
+      .mobile-action-btn .icon svg{width:20px;height:20px}
       .mobile-action-btn .label{font-size:10px}
       .main{margin-top:60px}
       .channels-grid{grid-template-columns:repeat(2,1fr);gap:8px}
       .channel-card{padding:8px}
       .channel-name{font-size:13px}
       .channel-group{font-size:11px}
+      /* \u79FB\u52A8\u7AEF\u9A8C\u8BC1\u7801\u8F93\u5165\u6846\u9002\u914D */
+      #registerCode{flex:1 !important;min-width:0}
+      #sendCodeBtn{white-space:normal !important;font-size:12px !important;padding:8px 12px !important;flex-shrink:0}
     }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137"
@@ -13019,30 +13023,30 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       </div>
       <div class="quick-entries">
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'history')" data-tip-key="history">
-          \u{1F550}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           <span class="quick-entry-tip">\u64AD\u653E\u5386\u53F2</span>
           <span class="quick-entry-badge" id="historyBadge" style="display:none;">0</span>
         </button>
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'favorites')" data-tip-key="favorites">
-          \u2B50
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
           <span class="quick-entry-tip">\u6211\u7684\u6536\u85CF</span>
           <span class="quick-entry-badge" id="favoritesBadge" style="display:none;">0</span>
         </button>
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'random')" data-tip-key="random">
-          \u{1F3AF}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line><circle cx="16" cy="8" r="2" fill="currentColor"></circle><circle cx="8" cy="16" r="2" fill="currentColor"></circle></svg>
           <span class="quick-entry-tip">\u968F\u673A\u63A8\u8350</span>
         </button>
         <button class="quick-entry ripple" onclick="window.location.href='/plans'" data-tip-key="plans">
-          \u{1F48E}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
           <span class="quick-entry-tip">\u8BA2\u9605\u8BA1\u5212</span>
         </button>
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" data-tip-key="clearCache">
-          \u{1F5D1}\uFE0F
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
           <span class="quick-entry-tip">\u6E05\u9664\u7F13\u5B58</span>
         </button>
         <div class="lang-dropdown" id="langDropdown">
           <button class="quick-entry ripple lang-switcher" onclick="toggleLangDropdown()">
-            \u{1F310}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
             <span class="quick-entry-tip">\u5207\u6362\u8BED\u8A00</span>
           </button>
           <div class="lang-dropdown-menu">
@@ -13075,19 +13079,22 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       <div class="mobile-section-title" data-i18n="quickActions">\u5FEB\u6377\u64CD\u4F5C</div>
       <div class="mobile-actions">
         <div class="mobile-action-btn" onclick="handleMobileAction('history')">
-          <span class="icon">\u{1F550}</span>
+          <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
         </div>
         <div class="mobile-action-btn" onclick="handleMobileAction('favorites')">
-          <span class="icon">\u2B50</span>
+          <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></span>
         </div>
         <div class="mobile-action-btn" onclick="handleMobileAction('random')">
-          <span class="icon">\u{1F3AF}</span>
+          <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line><circle cx="16" cy="8" r="2" fill="currentColor"></circle><circle cx="8" cy="16" r="2" fill="currentColor"></circle></svg></span>
         </div>
-        <div class="mobile-action-btn" onclick="handleMobileAction('freesub')">
-          <span class="icon">\u{1F381}</span>
+        <div class="mobile-action-btn" onclick="handleMobileAction('plans')">
+          <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></span>
+        </div>
+        <div class="mobile-action-btn" onclick="handleMobileAction('account')">
+          <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
         </div>
         <div class="mobile-action-btn" onclick="handleMobileAction('clearCache')">
-          <span class="icon">\u{1F5D1}\uFE0F</span>
+          <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></span>
         </div>
       </div>
     </div>
@@ -13424,7 +13431,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         termsOfService: '\u670D\u52A1\u6761\u6B3E',
         cloudflareBadge: '\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4',
         toastRefresh: '\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u540E\u518D\u8BD5\u3002',
-        toastBrowserLimit: '\u53D7\u6D4F\u89C8\u5668\u9650\u5236\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BF7<a href="/freesub" style="color:#ffcc00;text-decoration:underline;">\u83B7\u53D6\u8BA2\u9605</a>\u5E76\u6DFB\u52A0\u5230\u5BA2\u6237\u7AEF\u4E2D\u4F7F\u7528\u3002',
+        toastBrowserLimit: '\u53D7\u6D4F\u89C8\u5668\u9650\u5236\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BF7<a href="/plans" style="color:#ffcc00;text-decoration:underline;">\u83B7\u53D6\u8BA2\u9605</a>\u5E76\u6DFB\u52A0\u5230\u5BA2\u6237\u7AEF\u4E2D\u4F7F\u7528\u3002',
         toastChannelLost: '\u8BE5\u9891\u9053\u6570\u636E\u5DF2\u4E22\u5931\uFF0C\u8BF7\u6E05\u9664\u7F13\u5B58\u540E\u518D\u8BD5\u3002',
         toastSuccess: '\u6210\u529F',
         toastError: '\u64AD\u653E\u5931\u8D25',
@@ -13516,7 +13523,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         termsOfService: 'Terms of Service',
         cloudflareBadge: 'This site is powered by Cloudflare for acceleration and security',
         toastRefresh: 'Cannot play, please refresh the page and try again.',
-        toastBrowserLimit: 'Cannot play due to browser limitations. Please <a href="/freesub" style="color:#ffcc00;text-decoration:underline;">get subscription URL</a> and use a player client.',
+        toastBrowserLimit: 'Cannot play due to browser limitations. Please <a href="/plans" style="color:#ffcc00;text-decoration:underline;">get subscription URL</a> and use a player client.',
         toastChannelLost: 'Channel data has been lost, please clear cache and try again.',
         toastSuccess: 'Success',
         toastError: 'Playback Failed',
@@ -13611,8 +13618,17 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         case 'random':
           showRandomInMain();
           break;
-        case 'freesub':
-          window.location.href = '/freesub';
+        case 'plans':
+          window.location.href = '/plans';
+          break;
+        case 'account':
+          const currentToken = localStorage.getItem('auth_token');
+          const currentUserData = JSON.parse(localStorage.getItem('current_user') || 'null');
+          if (currentToken && currentUserData) {
+            window.location.href = '/account';
+          } else {
+            openLoginModal();
+          }
           break;
         case 'clearCache':
           clearCache();
@@ -14442,7 +14458,10 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     
     function renderGroups() {
       const container = document.getElementById('groupList');
-      container.innerHTML = allGroups.map(group =>
+      // \u5904\u7406 groups \u53EF\u80FD\u662F\u5BF9\u8C61\u6570\u7EC4 [{name: 'xxx'}] \u6216\u5B57\u7B26\u4E32\u6570\u7EC4 ['xxx']
+      const groupNames = allGroups.map(g => typeof g === 'string' ? g : g.name);
+
+      container.innerHTML = groupNames.map(group =>
         \`<div class="group-item ripple" data-group="\${escapeHtml(group)}" onclick="filterByGroup('\${escapeHtml(group)}')">
           \${escapeHtml(group)}
         </div>\`
@@ -14452,7 +14471,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       const mobileContainer = document.getElementById('mobileGroupList');
       if (mobileContainer) {
         mobileContainer.innerHTML = \`<div class="mobile-group-item active" data-group="" onclick="filterByGroup('')">\${t('allChannels')}</div>\` +
-          allGroups.map(group =>
+          groupNames.map(group =>
             \`<div class="mobile-group-item" data-group="\${escapeHtml(group)}" onclick="filterByGroup(&apos;\${escapeHtml(group)}&apos;)">
               \${escapeHtml(group)}
             </div>\`
@@ -16452,7 +16471,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         // \u5DF2\u767B\u5F55\u72B6\u6001 - \u53EA\u663E\u793A\u8D26\u6237\u6309\u94AE
         authButtonsDiv.innerHTML = \`
           <a href="/account" class="quick-entry ripple" style="text-decoration:none;">
-            \u{1F464}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             <span class="quick-entry-tip">\u8D26\u6237</span>
           </a>
         \`;
@@ -16460,7 +16479,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         // \u672A\u767B\u5F55\u72B6\u6001 - \u4F7F\u7528\u4E0D\u540C\u989C\u8272\u7684\u7528\u6237\u56FE\u6807\uFF0C\u8868\u793A\u9700\u8981\u767B\u5F55
         authButtonsDiv.innerHTML = \`
           <button class="quick-entry ripple" onclick="openLoginModal()">
-            \u{1F464}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             <span class="quick-entry-tip">\u767B\u5F55</span>
           </button>
         \`;
@@ -18749,12 +18768,12 @@ var PLANS_HTML = `<!DOCTYPE html>
       color: #fff;
       display: flex;
       flex-direction: column;
-      padding-top: 70px;
     }
 
     .main-content {
       flex: 1;
       width: 100%;
+      margin-top: 80px;
     }
 
     .container {
@@ -18810,17 +18829,7 @@ var PLANS_HTML = `<!DOCTYPE html>
       border: 2px solid rgba(229, 9, 20, 0.3);
     }
 
-    .plan-card.premium::before {
-      content: '\u63A8\u8350';
-      position: absolute;
-      top: -10px;
-      right: 20px;
-      background: linear-gradient(135deg, #e50914 0%, #b81d24 100%);
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
+    
 
     .plan-badge {
       display: inline-block;
@@ -18998,15 +19007,11 @@ var PLANS_HTML = `<!DOCTYPE html>
       .plans-grid {
         grid-template-columns: 1fr;
       }
-
-      .plan-card.premium::before {
-        right: 16px;
-      }
     }
 
     @media (max-width: 768px) {
-      body {
-        padding-top: 60px;
+      .main-content {
+        margin-top: 70px;
       }
 
       .container {
@@ -19035,6 +19040,167 @@ var PLANS_HTML = `<!DOCTYPE html>
 
       .faq-section h2 {
         font-size: 22px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-content {
+        margin-top: 60px;
+      }
+
+      .container {
+        padding: 20px 12px;
+      }
+
+      .plans-page-header {
+        margin-bottom: 30px;
+      }
+
+      .plans-page-header h1 {
+        font-size: 24px;
+      }
+
+      .plans-page-header p {
+        font-size: 13px;
+      }
+
+      .plan-card {
+        padding: 20px 16px;
+      }
+
+      .plan-badge {
+        font-size: 11px;
+        padding: 3px 10px;
+      }
+
+      .plan-name {
+        font-size: 20px;
+      }
+
+      .plan-price {
+        font-size: 28px;
+      }
+
+      .plan-price .period {
+        font-size: 13px;
+      }
+
+      .plan-description {
+        font-size: 13px;
+      }
+
+      .plan-features li {
+        font-size: 13px;
+      }
+
+      .plan-features li svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .plan-button {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+
+      .faq-section h2 {
+        font-size: 20px;
+      }
+
+      .faq-question {
+        padding: 14px 16px;
+        font-size: 14px;
+      }
+
+      .faq-answer-content {
+        font-size: 13px;
+      }
+    }
+
+      .plan-card {
+        padding: 24px 20px;
+      }
+
+      .plan-price {
+        font-size: 32px;
+      }
+
+      .faq-section h2 {
+        font-size: 22px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-content {
+        margin-top: 60px;
+      }
+
+      .container {
+        padding: 20px 12px;
+      }
+
+      .plans-page-header {
+        margin-bottom: 30px;
+      }
+
+      .plans-page-header h1 {
+        font-size: 24px;
+      }
+
+      .plans-page-header p {
+        font-size: 13px;
+      }
+
+      .plan-card {
+        padding: 20px 16px;
+      }
+
+      .plan-badge {
+        font-size: 11px;
+        padding: 3px 10px;
+      }
+
+      .plan-name {
+        font-size: 20px;
+      }
+
+      .plan-price {
+        font-size: 28px;
+      }
+
+      .plan-price .period {
+        font-size: 13px;
+      }
+
+      .plan-description {
+        font-size: 13px;
+      }
+
+      .plan-features li {
+        font-size: 13px;
+      }
+
+      .plan-features li svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .plan-button {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+
+      .faq-section h2 {
+        font-size: 20px;
+      }
+
+      .faq-question {
+        padding: 14px 16px;
+        font-size: 14px;
+      }
+
+      .faq-answer-content {
+        font-size: 13px;
       }
     }
 

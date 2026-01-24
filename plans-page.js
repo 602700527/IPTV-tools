@@ -22,12 +22,12 @@ export const PLANS_HTML = `<!DOCTYPE html>
       color: #fff;
       display: flex;
       flex-direction: column;
-      padding-top: 70px;
     }
 
     .main-content {
       flex: 1;
       width: 100%;
+      margin-top: 80px;
     }
 
     .container {
@@ -83,17 +83,7 @@ export const PLANS_HTML = `<!DOCTYPE html>
       border: 2px solid rgba(229, 9, 20, 0.3);
     }
 
-    .plan-card.premium::before {
-      content: '推荐';
-      position: absolute;
-      top: -10px;
-      right: 20px;
-      background: linear-gradient(135deg, #e50914 0%, #b81d24 100%);
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
+    
 
     .plan-badge {
       display: inline-block;
@@ -271,15 +261,11 @@ export const PLANS_HTML = `<!DOCTYPE html>
       .plans-grid {
         grid-template-columns: 1fr;
       }
-
-      .plan-card.premium::before {
-        right: 16px;
-      }
     }
 
     @media (max-width: 768px) {
-      body {
-        padding-top: 60px;
+      .main-content {
+        margin-top: 70px;
       }
 
       .container {
@@ -308,6 +294,167 @@ export const PLANS_HTML = `<!DOCTYPE html>
 
       .faq-section h2 {
         font-size: 22px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-content {
+        margin-top: 60px;
+      }
+
+      .container {
+        padding: 20px 12px;
+      }
+
+      .plans-page-header {
+        margin-bottom: 30px;
+      }
+
+      .plans-page-header h1 {
+        font-size: 24px;
+      }
+
+      .plans-page-header p {
+        font-size: 13px;
+      }
+
+      .plan-card {
+        padding: 20px 16px;
+      }
+
+      .plan-badge {
+        font-size: 11px;
+        padding: 3px 10px;
+      }
+
+      .plan-name {
+        font-size: 20px;
+      }
+
+      .plan-price {
+        font-size: 28px;
+      }
+
+      .plan-price .period {
+        font-size: 13px;
+      }
+
+      .plan-description {
+        font-size: 13px;
+      }
+
+      .plan-features li {
+        font-size: 13px;
+      }
+
+      .plan-features li svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .plan-button {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+
+      .faq-section h2 {
+        font-size: 20px;
+      }
+
+      .faq-question {
+        padding: 14px 16px;
+        font-size: 14px;
+      }
+
+      .faq-answer-content {
+        font-size: 13px;
+      }
+    }
+
+      .plan-card {
+        padding: 24px 20px;
+      }
+
+      .plan-price {
+        font-size: 32px;
+      }
+
+      .faq-section h2 {
+        font-size: 22px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-content {
+        margin-top: 60px;
+      }
+
+      .container {
+        padding: 20px 12px;
+      }
+
+      .plans-page-header {
+        margin-bottom: 30px;
+      }
+
+      .plans-page-header h1 {
+        font-size: 24px;
+      }
+
+      .plans-page-header p {
+        font-size: 13px;
+      }
+
+      .plan-card {
+        padding: 20px 16px;
+      }
+
+      .plan-badge {
+        font-size: 11px;
+        padding: 3px 10px;
+      }
+
+      .plan-name {
+        font-size: 20px;
+      }
+
+      .plan-price {
+        font-size: 28px;
+      }
+
+      .plan-price .period {
+        font-size: 13px;
+      }
+
+      .plan-description {
+        font-size: 13px;
+      }
+
+      .plan-features li {
+        font-size: 13px;
+      }
+
+      .plan-features li svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .plan-button {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+
+      .faq-section h2 {
+        font-size: 20px;
+      }
+
+      .faq-question {
+        padding: 14px 16px;
+        font-size: 14px;
+      }
+
+      .faq-answer-content {
+        font-size: 13px;
       }
     }
 

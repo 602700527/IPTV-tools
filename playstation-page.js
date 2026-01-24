@@ -121,7 +121,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     /* 语言切换下拉列表 */
     .lang-switcher{position:relative}
-    .lang-dropdown{position:relative;display:inline-block}
+    .lang-dropdown{position:relative;display:inline-block;overflow:visible}
     .lang-dropdown-menu{position:absolute;top:100%;right:0;margin-top:8px;background:#1a1a1a;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 0;min-width:120px;opacity:0;visibility:hidden;transform:translateY(-10px);transition:all .2s;z-index:1000}
     .lang-dropdown.open .lang-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
     .lang-dropdown-item{padding:10px 20px;cursor:pointer;transition:background .15s;color:rgba(255,255,255,.8);font-size:14px}
@@ -129,11 +129,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .lang-dropdown-item.active{background:rgba(229,9,20,.2);color:#fff;font-weight:600}
 
     /* 快捷入口按钮 */
-    .quick-entries{display:flex;gap:8px;margin-left:0}
+    .quick-entries{display:flex;gap:8px;margin-left:0;overflow:visible}
     .quick-entry{position:relative;width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .quick-entry svg{width:18px;height:18px}
     .quick-entry:hover{background:rgba(255,255,255,.2);color:#fff}
     .quick-entry-badge{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;background:#e50914;border-radius:9px;font-size:11px;font-weight:600;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 5px;display:none}
-    .quick-entry-tip{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;white-space:nowrap;font-size:12px;color:rgba(255,255,255,.6);opacity:0;transition:opacity .2s;pointer-events:none}
+    .quick-entry-tip{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;white-space:nowrap;font-size:12px;color:rgba(255,255,255,.6);opacity:0;transition:opacity .2s;pointer-events:none;z-index:10;background:rgba(0,0,0,.8);padding:4px 8px;border-radius:4px}
     .quick-entry:hover .quick-entry-tip{opacity:1}
 
     .auth-btn{padding:8px 20px;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
@@ -386,7 +387,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .mobile-actions::-webkit-scrollbar{display:none}
       .mobile-action-btn{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:65px;padding:12px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);flex-shrink:0}
       .mobile-action-btn:hover{background:rgba(255,255,255,.1);color:#fff}
-      .mobile-action-btn .icon{font-size:24px}
+      .mobile-action-btn .icon svg{width:24px;height:24px}
       .mobile-action-btn .label{font-size:11px;color:rgba(255,255,255,.6);white-space:nowrap}
       .mobile-lang-menu{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:5px}
       .mobile-lang-menu::-webkit-scrollbar{display:none}
@@ -430,13 +431,16 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .logo{font-size:16px}
       .mobile-menu{width:100%}
       .mobile-action-btn{min-width:55px;padding:10px 6px}
-      .mobile-action-btn .icon{font-size:20px}
+      .mobile-action-btn .icon svg{width:20px;height:20px}
       .mobile-action-btn .label{font-size:10px}
       .main{margin-top:60px}
       .channels-grid{grid-template-columns:repeat(2,1fr);gap:8px}
       .channel-card{padding:8px}
       .channel-name{font-size:13px}
       .channel-group{font-size:11px}
+      /* 移动端验证码输入框适配 */
+      #registerCode{flex:1 !important;min-width:0}
+      #sendCodeBtn{white-space:normal !important;font-size:12px !important;padding:8px 12px !important;flex-shrink:0}
     }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137"
@@ -460,30 +464,30 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       </div>
       <div class="quick-entries">
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'history')" data-tip-key="history">
-          🕐
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           <span class="quick-entry-tip">播放历史</span>
           <span class="quick-entry-badge" id="historyBadge" style="display:none;">0</span>
         </button>
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'favorites')" data-tip-key="favorites">
-          ⭐
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
           <span class="quick-entry-tip">我的收藏</span>
           <span class="quick-entry-badge" id="favoritesBadge" style="display:none;">0</span>
         </button>
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'random')" data-tip-key="random">
-          🎯
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line><circle cx="16" cy="8" r="2" fill="currentColor"></circle><circle cx="8" cy="16" r="2" fill="currentColor"></circle></svg>
           <span class="quick-entry-tip">随机推荐</span>
         </button>
         <button class="quick-entry ripple" onclick="window.location.href='/plans'" data-tip-key="plans">
-          💎
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
           <span class="quick-entry-tip">订阅计划</span>
         </button>
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" data-tip-key="clearCache">
-          🗑️
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
           <span class="quick-entry-tip">清除缓存</span>
         </button>
         <div class="lang-dropdown" id="langDropdown">
           <button class="quick-entry ripple lang-switcher" onclick="toggleLangDropdown()">
-            🌐
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
             <span class="quick-entry-tip">切换语言</span>
           </button>
           <div class="lang-dropdown-menu">
@@ -516,19 +520,22 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       <div class="mobile-section-title" data-i18n="quickActions">快捷操作</div>
       <div class="mobile-actions">
         <div class="mobile-action-btn" onclick="handleMobileAction('history')">
-          <span class="icon">🕐</span>
+          <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
         </div>
         <div class="mobile-action-btn" onclick="handleMobileAction('favorites')">
-          <span class="icon">⭐</span>
+          <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></span>
         </div>
         <div class="mobile-action-btn" onclick="handleMobileAction('random')">
-          <span class="icon">🎯</span>
+          <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line><circle cx="16" cy="8" r="2" fill="currentColor"></circle><circle cx="8" cy="16" r="2" fill="currentColor"></circle></svg></span>
         </div>
-        <div class="mobile-action-btn" onclick="handleMobileAction('freesub')">
-          <span class="icon">🎁</span>
+        <div class="mobile-action-btn" onclick="handleMobileAction('plans')">
+          <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg></span>
+        </div>
+        <div class="mobile-action-btn" onclick="handleMobileAction('account')">
+          <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
         </div>
         <div class="mobile-action-btn" onclick="handleMobileAction('clearCache')">
-          <span class="icon">🗑️</span>
+          <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></span>
         </div>
       </div>
     </div>
@@ -865,7 +872,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         termsOfService: '服务条款',
         cloudflareBadge: '本站由 Cloudflare 提供加速与安全保护',
         toastRefresh: '无法播放，请刷新页面后再试。',
-        toastBrowserLimit: '受浏览器限制无法播放，请<a href="/freesub" style="color:#ffcc00;text-decoration:underline;">获取订阅</a>并添加到客户端中使用。',
+        toastBrowserLimit: '受浏览器限制无法播放，请<a href="/plans" style="color:#ffcc00;text-decoration:underline;">获取订阅</a>并添加到客户端中使用。',
         toastChannelLost: '该频道数据已丢失，请清除缓存后再试。',
         toastSuccess: '成功',
         toastError: '播放失败',
@@ -957,7 +964,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         termsOfService: 'Terms of Service',
         cloudflareBadge: 'This site is powered by Cloudflare for acceleration and security',
         toastRefresh: 'Cannot play, please refresh the page and try again.',
-        toastBrowserLimit: 'Cannot play due to browser limitations. Please <a href="/freesub" style="color:#ffcc00;text-decoration:underline;">get subscription URL</a> and use a player client.',
+        toastBrowserLimit: 'Cannot play due to browser limitations. Please <a href="/plans" style="color:#ffcc00;text-decoration:underline;">get subscription URL</a> and use a player client.',
         toastChannelLost: 'Channel data has been lost, please clear cache and try again.',
         toastSuccess: 'Success',
         toastError: 'Playback Failed',
@@ -1052,8 +1059,17 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         case 'random':
           showRandomInMain();
           break;
-        case 'freesub':
-          window.location.href = '/freesub';
+        case 'plans':
+          window.location.href = '/plans';
+          break;
+        case 'account':
+          const currentToken = localStorage.getItem('auth_token');
+          const currentUserData = JSON.parse(localStorage.getItem('current_user') || 'null');
+          if (currentToken && currentUserData) {
+            window.location.href = '/account';
+          } else {
+            openLoginModal();
+          }
           break;
         case 'clearCache':
           clearCache();
@@ -1883,7 +1899,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     
     function renderGroups() {
       const container = document.getElementById('groupList');
-      container.innerHTML = allGroups.map(group =>
+      // 处理 groups 可能是对象数组 [{name: 'xxx'}] 或字符串数组 ['xxx']
+      const groupNames = allGroups.map(g => typeof g === 'string' ? g : g.name);
+
+      container.innerHTML = groupNames.map(group =>
         \`<div class="group-item ripple" data-group="\${escapeHtml(group)}" onclick="filterByGroup('\${escapeHtml(group)}')">
           \${escapeHtml(group)}
         </div>\`
@@ -1893,7 +1912,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       const mobileContainer = document.getElementById('mobileGroupList');
       if (mobileContainer) {
         mobileContainer.innerHTML = \`<div class="mobile-group-item active" data-group="" onclick="filterByGroup('')">\${t('allChannels')}</div>\` +
-          allGroups.map(group =>
+          groupNames.map(group =>
             \`<div class="mobile-group-item" data-group="\${escapeHtml(group)}" onclick="filterByGroup(&apos;\${escapeHtml(group)}&apos;)">
               \${escapeHtml(group)}
             </div>\`
@@ -3893,7 +3912,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         // 已登录状态 - 只显示账户按钮
         authButtonsDiv.innerHTML = \`
           <a href="/account" class="quick-entry ripple" style="text-decoration:none;">
-            👤
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             <span class="quick-entry-tip">账户</span>
           </a>
         \`;
@@ -3901,7 +3920,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         // 未登录状态 - 使用不同颜色的用户图标，表示需要登录
         authButtonsDiv.innerHTML = \`
           <button class="quick-entry ripple" onclick="openLoginModal()">
-            👤
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             <span class="quick-entry-tip">登录</span>
           </button>
         \`;
