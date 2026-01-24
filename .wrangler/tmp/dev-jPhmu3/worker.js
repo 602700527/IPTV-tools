@@ -12944,6 +12944,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     ::-webkit-scrollbar-thumb:hover{background:#555}
 
     .header{position:fixed;top:0;left:0;right:0;height:70px;background:rgba(20,20,20,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.1);z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 40px}
+    .logo-link{text-decoration:none;cursor:pointer;transition:opacity .2s}
+    .logo-link:hover{opacity:0.8}
     .logo{display:flex;align-items:center;gap:10px}
     .logo img{height:40px;width:auto}
     .logo-text{font-size:24px;font-weight:800;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -13289,9 +13291,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 <body>
   <header class="header">
     <div class="header-left">
-      <div class="logo">
-        <img src="/logo.svg" alt="IPTV Live Logo" />
-      </div>
+      <a href="/" class="logo-link">
+        <div class="logo">
+          <img src="/logo.svg" alt="IPTV Live Logo" />
+        </div>
+      </a>
       <div class="online-counter">
         <span class="online-dot"></span>
         <span class="online-count" id="onlineCount">0</span> <span id="onlineCountText">\u4EBA\u5728\u89C2\u770B</span>
