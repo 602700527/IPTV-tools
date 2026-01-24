@@ -615,6 +615,26 @@ export async function createTables(env) {
     console.error('Database: Failed to create user_orders table:', e);
   }
 
+  // 创建密码重置令牌表
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        token TEXT UNIQUE NOT NULL,
+        expires_at DATETIME NOT NULL,
+        is_used BOOLEAN DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_token ON password_reset_tokens(token)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user_id ON password_reset_tokens(user_id)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_expires ON password_reset_tokens(expires_at)').run();
+    console.log('Database: password_reset_tokens table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create password_reset_tokens table:', e);
+  }
+
   console.log('Tables created successfully');
   tablesCreated = true;  // 标记表已创建，避免重复执行
 }

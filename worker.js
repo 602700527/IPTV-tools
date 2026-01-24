@@ -14,7 +14,9 @@ import {
   handleLogin,
   handleLogout,
   handleGetUserInfo,
-  handleGetOrderHistory
+  handleGetOrderHistory,
+  handleForgotPassword,
+  handleResetPassword
 } from './handlers/auth.js';
 import { handleCreateCode, handleCreatePayPalOrder, handleCapturePayPalOrder, handlePayPalWebhook } from './handlers/subscription-api.js';
 import { ADMIN_HTML } from './admin-page.js';
@@ -24,6 +26,7 @@ import { PLAYSTATION_HTML } from './playstation-page.js';
 import { FREE_SUB_HTML } from './freesub-page.js';
 import { SUBSCRIPTION_HTML } from './subscription-page.js';
 import { PLANS_HTML } from './plans-page.js';
+import { RESET_PASSWORD_HTML } from './reset-password-page.js';
 import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from './pages.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
@@ -198,6 +201,12 @@ export default {
     } else if (path === '/api/auth/logout') {
       // 用户登出
       return await handleLogout(request, env, ctx);
+    } else if (path === '/api/auth/forgot-password') {
+      // 忘记密码 - 发送重置链接
+      return await handleForgotPassword(request, env, ctx);
+    } else if (path === '/api/auth/reset-password') {
+      // 重置密码
+      return await handleResetPassword(request, env, ctx);
     } else if (path === '/api/auth/user') {
       // 获取用户信息
       return await handleGetUserInfo(request, env, ctx);
@@ -219,6 +228,11 @@ export default {
     } else if (path === '/plans' || path === '/plans/' || path === '/plans/index' || path === '/plans/index.html') {
       // 订阅计划页面
       return new Response(PLANS_HTML, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/reset-password' || path === '/reset-password/' || path === '/reset-password/index' || path === '/reset-password/index.html') {
+      // 重置密码页面
+      return new Response(RESET_PASSWORD_HTML, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     } else if (path === '/subscription' || path === '/subscription/' || path === '/subscription/index' || path === '/subscription/index.html') {

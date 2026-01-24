@@ -224,9 +224,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .close-modal:hover{background:rgba(231,9,20,.4)}
 
     /* AdSense 广告位样式 */
-    .ad-banner-top{display:flex;justify-content:center;padding:10px;background:rgba(0,0,0,.2);margin-bottom:10px;min-height:90px}
-    .ad-banner-bottom{display:flex;justify-content:center;padding:10px;background:rgba(0,0,0,.2);margin-top:10px;min-height:90px}
-    .ad-sidebar{margin-bottom:20px;min-height:250px}
+    .ad-banner-top{display:flex;justify-content:center;align-items:center;padding:10px;background:rgba(0,0,0,.2);margin-bottom:10px;min-height:90px}
+    .ad-banner-bottom{display:flex;justify-content:center;align-items:center;padding:10px;background:rgba(0,0,0,.2);margin-top:10px;min-height:90px}
+    .ad-sidebar{display:flex;justify-content:center;align-items:center;margin-bottom:20px;min-height:250px}
     .ad-responsive{width:100%;min-height:90px}
     .ad-mobile-top{display:none;padding:10px;background:rgba(0,0,0,.2);margin-bottom:10px;min-height:90px}
     .ad-mobile-bottom{display:none;padding:10px;background:rgba(0,0,0,.2);margin-top:10px;min-height:90px}
@@ -613,33 +613,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         <div class="section-title" id="sectionTitle">全部频道</div>
         <div class="channels-grid" id="channelsGrid"></div>
         <div class="pagination" id="pagination"></div>
-
-        <!-- 底部横幅广告位 -->
-        <div class="ad-banner-bottom">
-          <ins class="adsbygoogle ad-responsive"
-               style="display:block"
-               data-ad-client="ca-pub-2205598928191137"
-               data-ad-slot="3690665702"
-               data-ad-format="auto"
-               data-full-width-responsive="true"></ins>
-        </div>
-
       </div>
 
       <div id="emptyState" class="empty-state" style="display:none;">
         <div class="empty-icon">📺</div>
         <div class="empty-title">未找到频道</div>
         <div class="empty-desc">请尝试其他搜索词或分组</div>
-      </div>
-
-      <!-- 移动端底部广告 -->
-      <div class="ad-mobile-bottom">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-2205598928191137"
-             data-ad-slot="3690665702"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
       </div>
 
     </div>
@@ -892,6 +871,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         loginBtn: '登录',
         registerBtn: '注册',
         getCode: '获取验证码',
+        forgotPassword: '忘记密码？',
+        forgotPasswordTitle: '重置密码',
+        forgotPasswordDesc: '请输入您的注册邮箱，我们将发送重置链接到您的邮箱',
+        sendResetLink: '发送重置链接',
+        backToLogin: '返回登录',
+        sending: '发送中...',
+        resetLinkSent: '重置链接已发送，请查收邮件',
+        emailFormatError: '邮箱格式不正确',
         noAccount: '还没有账号？',
         registerNow: '立即注册',
         hasAccount: '已有账号？',
@@ -977,6 +964,21 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         registerTitle: 'Register',
         email: 'Email',
         password: 'Password',
+        emailCode: 'Email Verification Code',
+        emailPlaceholder: 'Enter your email',
+        passwordPlaceholder: 'Enter password (at least 8 characters)',
+        codePlaceholder: 'Enter 6-digit code',
+        loginBtn: 'Login',
+        registerBtn: 'Register',
+        getCode: 'Get Code',
+        forgotPassword: 'Forgot Password?',
+        forgotPasswordTitle: 'Reset Password',
+        forgotPasswordDesc: 'Enter your registered email and we will send a reset link to your email',
+        sendResetLink: 'Send Reset Link',
+        backToLogin: 'Back to Login',
+        sending: 'Sending...',
+        resetLinkSent: 'Reset link has been sent to your email',
+        emailFormatError: 'Invalid email format',
         emailCode: 'Email Verification Code',
         emailPlaceholder: 'Enter email',
         passwordPlaceholder: 'Enter password (min 8 characters)',
@@ -3439,7 +3441,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     // 关闭认证模态框
     function closeAuthModal() {
       document.getElementById('loginModal').classList.remove('open');
-      clearAuthForms();
+      showLoginForm();  // 重置为登录表单
       if (resendTimer) {
         clearInterval(resendTimer);
         resendTimer = null;
@@ -3466,20 +3468,87 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     // 显示登录表单
     function showLoginForm() {
+      clearAuthForms();
       document.getElementById('loginForm').style.display = 'block';
       document.getElementById('registerForm').style.display = 'none';
       document.getElementById('verifyForm').style.display = 'none';
+      document.getElementById('forgotPasswordForm').style.display = 'none';
+    }
+
+    // 显示忘记密码表单
+    function showForgotPasswordForm() {
       clearAuthForms();
-      resetRegisterCodeCountdown();
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('verifyForm').style.display = 'none';
+      document.getElementById('forgotPasswordForm').style.display = 'block';
     }
 
     // 显示注册表单
     function showRegisterForm() {
+      clearAuthForms();
       document.getElementById('loginForm').style.display = 'none';
       document.getElementById('registerForm').style.display = 'block';
       document.getElementById('verifyForm').style.display = 'none';
-      clearAuthForms();
-      resetRegisterCodeCountdown();
+      document.getElementById('forgotPasswordForm').style.display = 'none';
+    }
+
+    // 处理发送重置链接
+    async function handleSendResetLink() {
+      const email = document.getElementById('forgotEmail').value.trim();
+      const emailError = document.getElementById('forgotEmailError');
+      const sendResetBtn = document.getElementById('sendResetBtn');
+
+      // 验证邮箱
+      if (!email) {
+        emailError.textContent = t('emailPlaceholder');
+        emailError.classList.add('show');
+        document.getElementById('forgotEmail').classList.add('error');
+        return;
+      }
+
+      const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+      if (!emailRegex.test(email)) {
+        emailError.textContent = t('emailFormatError');
+        emailError.classList.add('show');
+        document.getElementById('forgotEmail').classList.add('error');
+        return;
+      }
+
+      // 清除错误
+      emailError.textContent = '';
+      emailError.classList.remove('show');
+      document.getElementById('forgotEmail').classList.remove('error');
+
+      // 禁用按钮
+      sendResetBtn.disabled = true;
+      sendResetBtn.textContent = t('sending') || '发送中...';
+
+      try {
+        const response = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showToast(t('resetLinkSent') || '重置链接已发送，请查收邮件', 'success');
+          setTimeout(() => {
+            showLoginForm();
+          }, 2000);
+        } else {
+          throw new Error(result.error || '发送失败');
+        }
+      } catch (error) {
+        showToast(error.message || '发送失败，请稍后重试', 'error');
+      } finally {
+        sendResetBtn.disabled = false;
+        sendResetBtn.textContent = t('sendResetLink');
+      }
     }
 
     // 显示验证表单
@@ -3968,6 +4037,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             <div class="form-error" id="loginPasswordError"></div>
           </div>
           <button class="btn-primary" onclick="handleLogin()" data-i18n="loginBtn">登录</button>
+          <div style="text-align:center;margin-top:12px;">
+            <a href="#" onclick="showForgotPasswordForm()" style="color:rgba(255,255,255,.6);font-size:14px;text-decoration:none;" data-i18n="forgotPassword">忘记密码？</a>
+          </div>
         </div>
         <div class="modal-footer">
           <span data-i18n="noAccount">还没有账号？</span><a href="#" onclick="showRegisterForm()" data-i18n="registerNow">立即注册</a>
@@ -4026,6 +4098,25 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           <div style="text-align:center;margin-top:15px;">
             <a class="resend-link" id="resendLink" onclick="handleResendCode()" data-i18n="getCode">获取验证码</a>
           </div>
+        </div>
+      </div>
+
+      <!-- 忘记密码表单 -->
+      <div id="forgotPasswordForm" style="display:none;">
+        <h2 class="modal-title" data-i18n="forgotPasswordTitle">重置密码</h2>
+        <p style="text-align:center;color:rgba(255,255,255,.6);font-size:14px;margin-bottom:20px;" data-i18n="forgotPasswordDesc">
+          请输入您的注册邮箱，我们将发送重置链接到您的邮箱
+        </p>
+        <div class="modal-form">
+          <div class="form-group">
+            <label class="form-label" data-i18n="email">邮箱</label>
+            <input type="email" class="form-input" id="forgotEmail" data-i18n-placeholder="emailPlaceholder" placeholder="请输入邮箱">
+            <div class="form-error" id="forgotEmailError"></div>
+          </div>
+          <button class="btn-primary" id="sendResetBtn" onclick="handleSendResetLink()" data-i18n="sendResetLink">发送重置链接</button>
+        </div>
+        <div class="modal-footer">
+          <a href="#" onclick="showLoginForm()" data-i18n="backToLogin">返回登录</a>
         </div>
       </div>
     </div>

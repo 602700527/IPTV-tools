@@ -498,6 +498,288 @@ export async function handleGetUserInfo(request, env, ctx) {
 }
 
 /**
+ * 生成随机token（用于密码重置）
+ */
+function generateResetToken() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < 64; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
+}
+
+/**
+ * 生成密码重置邮件HTML
+ */
+function generateResetEmailHtml(email, resetUrl) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>重置密码 - TV Live Service</title>
+      <style>
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+          background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+          margin: 0;
+          padding: 20px;
+          color: #fff;
+        }
+        .container {
+          max-width: 600px;
+          margin: 40px auto;
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(10px);
+          border-radius: 16px;
+          padding: 40px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo {
+          text-align: center;
+          margin-bottom: 30px;
+          font-size: 32px;
+          font-weight: 700;
+        }
+        .logo span {
+          color: #e50914;
+        }
+        .content {
+          line-height: 1.6;
+        }
+        .button {
+          display: inline-block;
+          padding: 14px 30px;
+          background: linear-gradient(135deg, #e50914 0%, #b81d24 100%);
+          color: #fff;
+          text-decoration: none;
+          border-radius: 8px;
+          font-weight: 600;
+          margin: 20px 0;
+          box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
+        }
+        .button:hover {
+          transform: translateY(-2px);
+        }
+        .footer {
+          margin-top: 30px;
+          padding-top: 20px;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.5);
+          text-align: center;
+        }
+        .warning {
+          background: rgba(255, 193, 7, 0.1);
+          border: 1px solid rgba(255, 193, 7, 0.3);
+          border-radius: 8px;
+          padding: 15px;
+          margin: 20px 0;
+          font-size: 14px;
+          color: #ffc107;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="logo">
+          IPTV<span>Live</span>
+        </div>
+        <div class="content">
+          <h2 style="margin-top: 0;">密码重置请求</h2>
+          <p>您好，</p>
+          <p>我们收到了您的密码重置请求。如果这是您发起的操作，请点击下方按钮设置新密码：</p>
+          <p style="text-align: center;">
+            <a href="${resetUrl}" class="button">重置密码</a>
+          </p>
+          <div class="warning">
+            <strong>安全提示：</strong>该链接将在 1 小时后失效，请尽快使用。如果您没有发起此请求，请忽略此邮件。
+          </div>
+          <p>如果您无法点击上方按钮，请复制以下链接到浏览器地址栏：</p>
+          <p style="word-break: break-all; color: rgba(255, 255, 255, 0.6); font-size: 12px;">${resetUrl}</p>
+        </div>
+        <div class="footer">
+          <p>此邮件由系统自动发送，请勿回复。</p>
+          <p>&copy; ${new Date().getFullYear()} IPTV Live. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+/**
+ * 忘记密码 - 发送重置链接
+ */
+export async function handleForgotPassword(request, env, ctx) {
+  try {
+    const { email } = await request.json();
+
+    // 验证输入
+    if (!email) {
+      return new Response(JSON.stringify({ success: false, error: '邮箱不能为空' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 验证邮箱格式
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return new Response(JSON.stringify({ success: false, error: '邮箱格式不正确' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const db = getDB();
+
+    // 检查用户是否存在（为了安全，即使用户不存在也返回成功）
+    const user = await db.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
+
+    if (!user) {
+      // 不暴露用户是否存在的信息
+      return new Response(JSON.stringify({
+        success: true,
+        message: '如果该邮箱已注册，重置链接已发送'
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 生成重置token
+    const token = generateResetToken();
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1小时后过期
+
+    // 保存token
+    await db.prepare(`
+      INSERT INTO password_reset_tokens (user_id, token, expires_at)
+      VALUES (?, ?, ?)
+    `).bind(user.id, token, expiresAt.toISOString()).run();
+
+    // 生成重置链接
+    const appUrl = env.APP_URL || 'http://127.0.0.1:8787';
+    const resetUrl = `${appUrl}/reset-password?token=${token}`;
+
+    console.log('发送密码重置邮件:', { email, resetUrl });
+
+    // 发送邮件
+    try {
+      const html = generateResetEmailHtml(email, resetUrl);
+      await sendEmail(email, '重置密码 - IPTV Live', html, env);
+    } catch (emailError) {
+      console.error('发送邮件失败:', emailError);
+      // 即使邮件发送失败，也返回成功（为了安全，不暴露用户是否存在）
+      return new Response(JSON.stringify({
+        success: true,
+        message: '重置链接已发送到您的邮箱'
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      message: '重置链接已发送到您的邮箱'
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('发送重置链接失败:', error);
+    return new Response(JSON.stringify({ success: false, error: '服务器错误' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * 重置密码
+ */
+export async function handleResetPassword(request, env, ctx) {
+  try {
+    const { token, new_password } = await request.json();
+
+    // 验证输入
+    if (!token || !new_password) {
+      return new Response(JSON.stringify({ success: false, error: '缺少必要参数' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 验证密码强度
+    if (new_password.length < 8) {
+      return new Response(JSON.stringify({ success: false, error: '密码至少需要 8 个字符' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const db = getDB();
+    const now = new Date();
+
+    // 验证token
+    const resetToken = await db.prepare(`
+      SELECT * FROM password_reset_tokens
+      WHERE token = ? AND is_used = 0
+      ORDER BY created_at DESC
+      LIMIT 1
+    `).bind(token).first();
+
+    if (!resetToken) {
+      return new Response(JSON.stringify({ success: false, error: '重置链接无效或已过期' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 检查token是否过期
+    if (new Date(resetToken.expires_at) < now) {
+      return new Response(JSON.stringify({ success: false, error: '重置链接已过期，请重新申请' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 生成新密码哈希
+    const passwordHash = await hashPassword(new_password);
+
+    // 更新用户密码
+    await db.prepare(`
+      UPDATE users
+      SET password_hash = ?, updated_at = ?
+      WHERE id = ?
+    `).bind(passwordHash, now.toISOString(), resetToken.user_id).run();
+
+    // 标记token为已使用
+    await db.prepare(`
+      UPDATE password_reset_tokens
+      SET is_used = 1
+      WHERE token = ?
+    `).bind(token).run();
+
+    return new Response(JSON.stringify({
+      success: true,
+      message: '密码重置成功'
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('重置密码失败:', error);
+    return new Response(JSON.stringify({ success: false, error: '服务器错误' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+
+/**
  * 获取订单历史
  */
 export async function handleGetOrderHistory(request, env, ctx) {
