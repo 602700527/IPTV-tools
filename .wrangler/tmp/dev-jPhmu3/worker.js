@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-JoccSa/checked-fetch.js
+// .wrangler/tmp/bundle-Jz4dBJ/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-JoccSa/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-Jz4dBJ/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -1781,11 +1781,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-JoccSa/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-Jz4dBJ/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-JoccSa/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-Jz4dBJ/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -8562,8 +8562,10 @@ var ADMIN_HTML = `<!DOCTYPE html>
           <option value="90">90\u5929</option>
           <option value="180">180\u5929</option>
           <option value="365">365\u5929</option>
+          <option value="custom">\u81EA\u5B9A\u4E49</option>
           <option value="-1">\u6C38\u4E45</option>
         </select>
+        <input type="number" id="generateDurationCustom" value="7" min="1" max="3650" placeholder="\u81EA\u5B9A\u4E49\u5929\u6570" style="display:none;width:100%;margin-top:8px;">
       </div></div>
       <div class="form-row"><div class="form-group"><label>\u6700\u5927IP\u6570</label><input type="number" id="generateMaxIps" value="3" min="1"></div><div class="form-group"><label>\u5907\u6CE8</label><input type="text" id="generateRemark" placeholder="\u53EF\u9009\u5907\u6CE8"></div></div>
       <div class="modal-footer"><button class="btn" onclick="closeGenerateCodeModal()">\u53D6\u6D88</button><button class="btn btn-primary" onclick="generateCodes()">\u751F\u6210</button></div>
@@ -9701,6 +9703,8 @@ var ADMIN_HTML = `<!DOCTYPE html>
     function showGenerateCodeModal() {
       document.getElementById('generateCount').value = 1;
       document.getElementById('generateDuration').value = 30;
+      document.getElementById('generateDurationCustom').value = 7;
+      document.getElementById('generateDurationCustom').style.display = 'none';
       document.getElementById('generateMaxIps').value = 3;
       document.getElementById('generateRemark').value = '';
       document.getElementById('generateCodeModal').classList.add('active');
@@ -9710,9 +9714,37 @@ var ADMIN_HTML = `<!DOCTYPE html>
       document.getElementById('generateCodeModal').classList.remove('active');
     }
 
+    function togglePermanentCode() {
+      const durationSelect = document.getElementById('generateDuration');
+      const customInput = document.getElementById('generateDurationCustom');
+
+      if (durationSelect.value === 'custom') {
+        customInput.style.display = 'block';
+      } else {
+        customInput.style.display = 'none';
+      }
+    }
+
     async function generateCodes() {
       const count = parseInt(document.getElementById('generateCount').value);
-      const durationDays = parseInt(document.getElementById('generateDuration').value);
+      const durationSelect = document.getElementById('generateDuration');
+      const customInput = document.getElementById('generateDurationCustom');
+      let durationDays = parseInt(durationSelect.value);
+
+      // \u5982\u679C\u9009\u62E9\u81EA\u5B9A\u4E49\uFF0C\u4F7F\u7528\u81EA\u5B9A\u4E49\u8F93\u5165\u6846\u7684\u503C
+      if (durationSelect.value === 'custom') {
+        durationDays = parseInt(customInput.value);
+
+        if (!durationDays || durationDays < 1) {
+          showToast('\u81EA\u5B9A\u4E49\u5929\u6570\u5FC5\u987B\u5927\u4E8E0', 'error');
+          return;
+        }
+        if (durationDays > 3650) {
+          showToast('\u81EA\u5B9A\u4E49\u5929\u6570\u4E0D\u80FD\u8D85\u8FC73650\u5929', 'error');
+          return;
+        }
+      }
+
       const maxIps = parseInt(document.getElementById('generateMaxIps').value);
       const remark = document.getElementById('generateRemark').value.trim();
 
@@ -21306,7 +21338,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-JoccSa/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-Jz4dBJ/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -21340,7 +21372,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-JoccSa/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-Jz4dBJ/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

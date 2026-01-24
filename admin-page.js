@@ -882,8 +882,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <option value="90">90天</option>
           <option value="180">180天</option>
           <option value="365">365天</option>
+          <option value="custom">自定义</option>
           <option value="-1">永久</option>
         </select>
+        <input type="number" id="generateDurationCustom" value="7" min="1" max="3650" placeholder="自定义天数" style="display:none;width:100%;margin-top:8px;">
       </div></div>
       <div class="form-row"><div class="form-group"><label>最大IP数</label><input type="number" id="generateMaxIps" value="3" min="1"></div><div class="form-group"><label>备注</label><input type="text" id="generateRemark" placeholder="可选备注"></div></div>
       <div class="modal-footer"><button class="btn" onclick="closeGenerateCodeModal()">取消</button><button class="btn btn-primary" onclick="generateCodes()">生成</button></div>
@@ -2021,6 +2023,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     function showGenerateCodeModal() {
       document.getElementById('generateCount').value = 1;
       document.getElementById('generateDuration').value = 30;
+      document.getElementById('generateDurationCustom').value = 7;
+      document.getElementById('generateDurationCustom').style.display = 'none';
       document.getElementById('generateMaxIps').value = 3;
       document.getElementById('generateRemark').value = '';
       document.getElementById('generateCodeModal').classList.add('active');
@@ -2030,9 +2034,37 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       document.getElementById('generateCodeModal').classList.remove('active');
     }
 
+    function togglePermanentCode() {
+      const durationSelect = document.getElementById('generateDuration');
+      const customInput = document.getElementById('generateDurationCustom');
+
+      if (durationSelect.value === 'custom') {
+        customInput.style.display = 'block';
+      } else {
+        customInput.style.display = 'none';
+      }
+    }
+
     async function generateCodes() {
       const count = parseInt(document.getElementById('generateCount').value);
-      const durationDays = parseInt(document.getElementById('generateDuration').value);
+      const durationSelect = document.getElementById('generateDuration');
+      const customInput = document.getElementById('generateDurationCustom');
+      let durationDays = parseInt(durationSelect.value);
+
+      // 如果选择自定义，使用自定义输入框的值
+      if (durationSelect.value === 'custom') {
+        durationDays = parseInt(customInput.value);
+
+        if (!durationDays || durationDays < 1) {
+          showToast('自定义天数必须大于0', 'error');
+          return;
+        }
+        if (durationDays > 3650) {
+          showToast('自定义天数不能超过3650天', 'error');
+          return;
+        }
+      }
+
       const maxIps = parseInt(document.getElementById('generateMaxIps').value);
       const remark = document.getElementById('generateRemark').value.trim();
 
