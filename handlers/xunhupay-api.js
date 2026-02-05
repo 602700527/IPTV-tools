@@ -1,0 +1,675 @@
+// 虎皮椒支付 API 处理
+import { generateActivationCode } from './subscription-api.js';
+
+/**
+ * 生成虎皮椒签名
+ * @param {object} data - 待签名的数据
+ * @param {string} appSecret - 应用密钥
+ * @returns {string} MD5签名
+ */
+function generateXunhuPayHash(data, appSecret) {
+  // 1. 按参数名ASCII码从小到大排序
+  const sortedKeys = Object.keys(data).sort();
+  
+  // 2. 拼接字符串，跳过空值和hash字段
+  const stringA = sortedKeys
+    .filter(key => key !== 'hash' && key !== 'HASH' && data[key] !== '' && data[key] !== null)
+    .map(key => `${key}=${data[key]}`)
+    .join('&');
+  
+  // 3. 在最后拼接appSecret
+  const stringSignTemp = stringA + appSecret;
+  
+  // 4. MD5加密
+  return md5(stringSignTemp);
+}
+
+/**
+ * MD5哈希函数（简化版，实际使用crypto.subtle）
+ * @param {string} str - 待哈希字符串
+ * @returns {string} MD5哈希值
+ */
+async function md5(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest('MD5', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * 创建虎皮椒支付订单
+ */
+export async function handleCreateXunhuPayOrder(request, env, ctx) {
+  try {
+    // 验证用户身份
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Unauthorized'
+      }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const token = authHeader.substring(7);
+
+    // 验证 token 并获取用户信息
+    const user = await env.DB.prepare(`
+      SELECT u.id, u.email
+      FROM users u
+      INNER JOIN user_sessions s ON u.id = s.user_id
+      WHERE s.token = ? AND s.expires_at > datetime('now')
+    `).bind(token).first();
+
+    if (!user) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Invalid token'
+      }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const body = await request.json();
+    const { duration_days, max_ips, payment_method } = body;
+
+    // 验证参数
+    if (!duration_days || (duration_days !== -1 && (duration_days < 1 || duration_days > 365))) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Invalid duration_days (1-365 or -1 for permanent)'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (![1, 2, 3, 5].includes(max_ips)) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Invalid max_ips (1, 2, 3, or 5)'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (!['alipay', 'wechat'].includes(payment_method)) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Invalid payment method (alipay or wechat)'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 计算价格
+    const plan = getPlanByDays(duration_days);
+    const price = calculatePrice(plan, max_ips);
+
+    // 根据支付方式获取对应的配置
+    let appId, appSecret;
+    if (payment_method === 'alipay') {
+      appId = env.XUNHUPAY_ALIPAY_APP_ID;
+      appSecret = env.XUNHUPAY_ALIPAY_APP_SECRET;
+    } else if (payment_method === 'wechat') {
+      appId = env.XUNHUPAY_WECHAT_APP_ID;
+      appSecret = env.XUNHUPAY_WECHAT_APP_SECRET;
+    }
+
+    const gatewayUrl = env.XUNHUPAY_GATEWAY || 'https://api.xunhuweb.com/payment/do.html';
+
+    if (!appId || !appSecret) {
+      console.error('[XunhuPay] Configuration missing for payment method:', payment_method);
+      return new Response(JSON.stringify({
+        success: false,
+        error: `XunhuPay ${payment_method} not configured`
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 生成订单号
+    const tradeOrderId = `TV${Date.now()}${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const nonceStr = Math.random().toString(36).substring(2, 15);
+    const timestamp = Math.floor(Date.now() / 1000);
+
+    // 构建请求数据
+    const url = new URL(request.url);
+    const baseUrl = `${url.protocol}//${url.host}`;
+    const notifyUrl = `${baseUrl}/api/payment/xunhupay/notify`;
+    const returnUrl = `${baseUrl}/account?payment=success`;
+    const callbackUrl = `${baseUrl}/account?payment=cancelled`;
+
+    const requestData = {
+      version: '1.1',
+      appid: appId,
+      trade_order_id: tradeOrderId,
+      total_fee: price.discounted.toFixed(2),
+      title: `TV订阅 ${duration_days}天 ${max_ips}IP`,
+      time: timestamp,
+      notify_url: notifyUrl,
+      return_url: returnUrl,
+      callback_url: callbackUrl,
+      nonce_str: nonceStr,
+      attach: JSON.stringify({ user_id: user.id, duration_days, max_ips }),
+      plugins: 'cf-worker-tv' // 可选，用于识别对接程序
+    };
+
+    // 生成签名
+    requestData.hash = await generateXunhuPayHash(requestData, appSecret);
+
+    console.log('[XunhuPay] Request data:', requestData);
+
+    // 将订单数据提交到虎皮椒支付网关
+    const formData = new FormData();
+    Object.keys(requestData).forEach(key => {
+      formData.append(key, requestData[key]);
+    });
+
+    const xunhuResponse = await fetch(gatewayUrl, {
+      method: 'POST',
+      body: formData
+    });
+
+    const xunhuResponseText = await xunhuResponse.text();
+    console.log('[XunhuPay] Response status:', xunhuResponse.status);
+    console.log('[XunhuPay] Response text:', xunhuResponseText);
+
+    // 虎皮椒返回的数据可能是 JSON 或 URL-encoded
+    let paymentData;
+    try {
+      // 尝试解析 JSON
+      paymentData = JSON.parse(xunhuResponseText);
+      console.log('[XunhuPay] Parsed JSON:', paymentData);
+    } catch (e) {
+      // 如果不是 JSON，可能是 URL-encoded 格式
+      console.log('[XunhuPay] Failed to parse as JSON, trying URL-encoded');
+      const params = new URLSearchParams(xunhuResponseText);
+      paymentData = {};
+      params.forEach((value, key) => {
+        paymentData[key.toLowerCase()] = value; // 统一转小写
+      });
+      console.log('[XunhuPay] Parsed URL-encoded:', paymentData);
+    }
+
+    // 检查虎皮椒响应
+    const errcode = paymentData.errcode !== undefined ? paymentData.errcode : 0;
+    if (errcode !== 0) {
+      console.error('[XunhuPay] Failed to create order:', paymentData);
+      return new Response(JSON.stringify({
+        success: false,
+        error: paymentData?.errmsg || 'Failed to create payment order'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 标准化参数名（处理大小写不一致的情况）
+    const standardizedPaymentData = {
+      openid: paymentData.openid || paymentData.ORDERID || paymentData.orderid || '',
+      url_qrcode: paymentData.url_qrcode || paymentData.URL_QRCODE || '',
+      url: paymentData.url || paymentData.URL || '',
+      errcode: paymentData.errcode || paymentData.ERRCODE || 0,
+      errmsg: paymentData.errmsg || paymentData.ERRMSG || '',
+      hash: paymentData.hash || paymentData.HASH || ''
+    };
+
+    console.log('[XunhuPay] Standardized payment data:', standardizedPaymentData);
+
+    // 保存订单信息到数据库
+    await env.DB.prepare(`
+      INSERT INTO xunhupay_orders (order_id, user_id, trade_order_id, payment_method, amount, duration_days, max_ips, status, xunhupay_order_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+    `).bind(tradeOrderId, user.id, tradeOrderId, payment_method, price.discounted, duration_days, max_ips, standardizedPaymentData.openid || '').run();
+
+    console.log('[XunhuPay] Order created:', tradeOrderId, 'for user:', user.id);
+
+    // 返回虎皮椒返回的支付信息
+    return new Response(JSON.stringify({
+      success: true,
+      order_id: tradeOrderId,
+      payment_data: standardizedPaymentData,
+      payment_url: gatewayUrl
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('[XunhuPay] Create order error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Server error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * 处理虎皮椒支付回调通知
+ */
+export async function handleXunhuPayNotify(request, env, ctx) {
+  try {
+    // 获取请求体（FORM表单）
+    const formData = await request.formData();
+    const data = {};
+    for (const [key, value] of formData.entries()) {
+      data[key] = value;
+    }
+
+    console.log('[XunhuPay] Notify received:', data);
+
+    // 验证必需参数
+    if (!data.trade_order_id || !data.hash) {
+      console.error('[XunhuPay] Missing required parameters');
+      return new Response('FAIL', { status: 400 });
+    }
+
+    // 查询订单信息
+    const order = await env.DB.prepare(`
+      SELECT * FROM xunhupay_orders WHERE trade_order_id = ?
+    `).bind(data.trade_order_id).first();
+
+    if (!order) {
+      console.error('[XunhuPay] Order not found:', data.trade_order_id);
+      return new Response('FAIL', { status: 404 });
+    }
+
+    // 根据订单的支付方式获取对应的APP SECRET
+    let appSecret;
+    if (order.payment_method === 'alipay') {
+      appSecret = env.XUNHUPAY_ALIPAY_APP_SECRET;
+    } else if (order.payment_method === 'wechat') {
+      appSecret = env.XUNHUPAY_WECHAT_APP_SECRET;
+    }
+
+    if (!appSecret) {
+      console.error('[XunhuPay] XUNHUPAY_APP_SECRET not configured for payment method:', order.payment_method);
+      return new Response('FAIL', { status: 500 });
+    }
+
+    // 验证签名
+    const calculatedHash = await generateXunhuPayHash(data, appSecret);
+    if (calculatedHash.toLowerCase() !== data.hash.toLowerCase()) {
+      console.error('[XunhuPay] Invalid signature');
+      return new Response('FAIL', { status: 401 });
+    }
+
+    // 检查支付状态
+    if (data.status !== 'OD') {
+      console.warn('[XunhuPay] Payment not completed:', data.status);
+      return new Response('SUCCESS'); // 已收到通知，返回SUCCESS避免重复
+    }
+
+    // 验证金额
+    if (parseFloat(data.total_fee) !== parseFloat(order.amount)) {
+      console.error('[XunhuPay] Amount mismatch');
+      return new Response('FAIL', { status: 400 });
+    }
+
+    // 检查订单是否已处理
+    if (order.status === 'completed') {
+      console.log('[XunhuPay] Order already completed');
+      return new Response('SUCCESS');
+    }
+
+    // 更新订单状态
+    await env.DB.prepare(`
+      UPDATE xunhupay_orders
+      SET status = 'completed',
+          xunhupay_order_id = ?,
+          xunhupay_transaction_id = ?,
+          notify_received = 1,
+          updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(data.open_order_id || '', data.transaction_id || '', order.id).run();
+
+    // 生成卡密
+    const url = new URL(request.url);
+    const baseUrl = `${url.protocol}//${url.host}`;
+    const result = await generateActivationCode(
+      env,
+      order.duration_days,
+      order.max_ips,
+      order.user_id,
+      false,
+      baseUrl
+    );
+
+    if (result.success) {
+      // 更新订单，添加卡密
+      await env.DB.prepare(`
+        UPDATE xunhupay_orders SET code = ? WHERE id = ?
+      `).bind(result.code, order.id).run();
+
+      // 记录到user_orders
+      await env.DB.prepare(`
+        INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, status)
+        VALUES (?, ?, ?, ?, ?, 'completed')
+      `).bind(order.user_id, order.order_id, result.code, order.duration_days, order.amount).run();
+
+      console.log('[XunhuPay] Order completed and code generated:', result.code);
+    }
+
+    return new Response('SUCCESS');
+
+  } catch (error) {
+    console.error('[XunhuPay] Notify error:', error);
+    return new Response('FAIL', { status: 500 });
+  }
+}
+
+/**
+ * 查询虎皮椒订单状态
+ */
+export async function handleCheckXunhuPayOrder(request, env, ctx) {
+  try {
+    // 验证用户身份
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Unauthorized'
+      }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const token = authHeader.substring(7);
+
+    const user = await env.DB.prepare(`
+      SELECT u.id
+      FROM users u
+      INNER JOIN user_sessions s ON u.id = s.user_id
+      WHERE s.token = ? AND s.expires_at > datetime('now')
+    `).bind(token).first();
+
+    if (!user) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Invalid token'
+      }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const url = new URL(request.url);
+    const orderId = url.searchParams.get('order_id');
+
+    if (!orderId) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Missing order_id'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 查询订单状态
+    const order = await env.DB.prepare(`
+      SELECT * FROM xunhupay_orders 
+      WHERE order_id = ? AND user_id = ?
+    `).bind(orderId, user.id).first();
+
+    if (!order) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Order not found'
+      }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      order: {
+        id: order.order_id,
+        status: order.status,
+        amount: order.amount,
+        duration_days: order.duration_days,
+        max_ips: order.max_ips,
+        created_at: order.created_at
+      }
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('[XunhuPay] Check order error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Server error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * 根据天数获取套餐配置
+ */
+function getPlanByDays(days) {
+  const plans = {
+    30: { basePrice: 5, pricePerIP: 1.5, discount: 0 },
+    60: { basePrice: 8, pricePerIP: 2, discount: 0 },
+    90: { basePrice: 12, pricePerIP: 2.5, discount: 0 },
+    180: { basePrice: 20, pricePerIP: 4, discount: 10 },
+    365: { basePrice: 35, pricePerIP: 7, discount: 20 }
+  };
+  return plans[days] || { basePrice: 5, pricePerIP: 1.5, discount: 0 };
+}
+
+/**
+ * 计算价格
+ */
+function calculatePrice(plan, ipCount) {
+  const price = plan.basePrice + (plan.pricePerIP * ipCount);
+  const discountedPrice = price * (1 - plan.discount / 100);
+  return {
+    original: price,
+    discounted: discountedPrice,
+    discount: plan.discount
+  };
+}
+
+/**
+ * 获取支付方式配置
+ */
+async function getPaymentConfig(db, type) {
+  return await db.prepare(`
+    SELECT * FROM payment_methods WHERE type = ?
+  `).bind(type).first();
+}
+
+/**
+ * 管理员：获取所有支付方式
+ */
+export async function handleGetPaymentMethods(request, env, ctx) {
+  try {
+    const adminKey = request.headers.get('X-Admin-Key');
+    if (adminKey !== env.ADMIN_KEY) {
+      return new Response('Unauthorized', { status: 401 });
+    }
+
+    const result = await env.DB.prepare(`
+      SELECT * FROM payment_methods ORDER BY id
+    `).all();
+
+    const methods = result.results || [];
+    const formattedMethods = methods.map(m => ({
+      id: m.id,
+      type: m.type,
+      name: m.name,
+      enabled: m.enabled ? 1 : 0,
+      config: JSON.parse(m.config || '{}'),
+      created_at: m.created_at,
+      updated_at: m.updated_at
+    }));
+
+    return new Response(JSON.stringify({
+      success: true,
+      payment_methods: formattedMethods
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('[Payment] Get methods error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Server error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * 管理员：更新支付方式配置
+ */
+export async function handleUpdatePaymentMethod(request, env, ctx) {
+  try {
+    const adminKey = request.headers.get('X-Admin-Key');
+    if (adminKey !== env.ADMIN_KEY) {
+      return new Response('Unauthorized', { status: 401 });
+    }
+
+    const body = await request.json();
+    const { type, name, enabled, config } = body;
+
+    // 验证参数
+    const validTypes = ['alipay', 'wechat', 'paypal'];
+    if (!validTypes.includes(type)) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Invalid payment type'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 更新或插入支付方式
+    const existing = await env.DB.prepare(`
+      SELECT * FROM payment_methods WHERE type = ?
+    `).bind(type).first();
+
+    if (existing) {
+      await env.DB.prepare(`
+        UPDATE payment_methods
+        SET name = ?,
+            enabled = ?,
+            config = ?,
+            updated_at = datetime('now')
+        WHERE type = ?
+      `).bind(name, enabled ? 1 : 0, JSON.stringify(config), type).run();
+    } else {
+      await env.DB.prepare(`
+        INSERT INTO payment_methods (type, name, enabled, config)
+        VALUES (?, ?, ?, ?)
+      `).bind(type, name, enabled ? 1 : 0, JSON.stringify(config)).run();
+    }
+
+    console.log('[Payment] Payment method updated:', type);
+
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'Payment method updated successfully'
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('[Payment] Update method error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Server error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * 管理员：获取虎皮椒订单列表
+ */
+export async function handleGetXunhuPayOrders(request, env, ctx) {
+  try {
+    const adminKey = request.headers.get('X-Admin-Key');
+    if (adminKey !== env.ADMIN_KEY) {
+      return new Response('Unauthorized', { status: 401 });
+    }
+
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page')) || 1;
+    const pageSize = parseInt(url.searchParams.get('page_size')) || 20;
+    const status = url.searchParams.get('status') || '';
+
+    const offset = (page - 1) * pageSize;
+
+    let query = 'SELECT * FROM xunhupay_orders';
+    const params = [];
+    const conditions = [];
+
+    if (status) {
+      conditions.push('status = ?');
+      params.push(status);
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+    params.push(pageSize, offset);
+
+    const result = await env.DB.prepare(query).bind(...params).all();
+    const orders = result.results || [];
+
+    // 获取总数
+    let countQuery = 'SELECT COUNT(*) as count FROM xunhupay_orders';
+    if (conditions.length > 0) {
+      countQuery += ' WHERE ' + conditions.join(' AND ');
+    }
+    const countResult = await env.DB.prepare(countQuery).bind(...params.slice(0, -2)).first();
+
+    return new Response(JSON.stringify({
+      success: true,
+      orders,
+      total: countResult?.count || 0,
+      page,
+      page_size: pageSize
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('[Payment] Get orders error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Server error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}

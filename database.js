@@ -635,6 +635,87 @@ export async function createTables(env) {
     console.error('Database: Failed to create password_reset_tokens table:', e);
   }
 
+  // 创建支付方式表
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS payment_methods (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT NOT NULL,
+        name TEXT NOT NULL,
+        enabled BOOLEAN DEFAULT 1,
+        config TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_payment_methods_type ON payment_methods(type)').run();
+    console.log('Database: payment_methods table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create payment_methods table:', e);
+  }
+
+  // 创建虎皮椒支付订单表
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS xunhupay_orders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id TEXT UNIQUE NOT NULL,
+        user_id INTEGER NOT NULL,
+        trade_order_id TEXT NOT NULL,
+        payment_method TEXT NOT NULL,
+        amount REAL NOT NULL,
+        duration_days INTEGER NOT NULL,
+        max_ips INTEGER NOT NULL,
+        status TEXT DEFAULT 'pending',
+        code TEXT,
+        xunhupay_order_id TEXT,
+        xunhupay_transaction_id TEXT,
+        notify_received BOOLEAN DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_xunhupay_orders_order_id ON xunhupay_orders(order_id)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_xunhupay_orders_trade_order_id ON xunhupay_orders(trade_order_id)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_xunhupay_orders_user_id ON xunhupay_orders(user_id)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_xunhupay_orders_status ON xunhupay_orders(status)').run();
+    console.log('Database: xunhupay_orders table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create xunhupay_orders table:', e);
+  }
+
+  // 初始化默认支付方式
+  try {
+    const alipayCount = await db.prepare('SELECT COUNT(*) as count FROM payment_methods WHERE type = ?').bind('alipay').first();
+    if (!alipayCount || alipayCount.count === 0) {
+      await db.prepare(`
+        INSERT INTO payment_methods (type, name, enabled, config) VALUES
+        ('alipay', '支付宝', 1, '{"app_id":"","app_secret":"","notify_url":""}')
+      `).run();
+      console.log('Database: Initialized alipay payment method');
+    }
+
+    const wechatCount = await db.prepare('SELECT COUNT(*) as count FROM payment_methods WHERE type = ?').bind('wechat').first();
+    if (!wechatCount || wechatCount.count === 0) {
+      await db.prepare(`
+        INSERT INTO payment_methods (type, name, enabled, config) VALUES
+        ('wechat', '微信支付', 1, '{"app_id":"","app_secret":"","notify_url":""}')
+      `).run();
+      console.log('Database: Initialized wechat payment method');
+    }
+
+    const paypalCount = await db.prepare('SELECT COUNT(*) as count FROM payment_methods WHERE type = ?').bind('paypal').first();
+    if (!paypalCount || paypalCount.count === 0) {
+      await db.prepare(`
+        INSERT INTO payment_methods (type, name, enabled, config) VALUES
+        ('paypal', 'PayPal', 0, '{"client_id":"","client_secret":"","mode":"sandbox"}')
+      `).run();
+      console.log('Database: Initialized paypal payment method');
+    }
+  } catch (e) {
+    console.error('Database: Failed to initialize payment methods:', e);
+  }
+
   console.log('Tables created successfully');
   tablesCreated = true;  // 标记表已创建，避免重复执行
 }

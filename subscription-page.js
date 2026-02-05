@@ -229,9 +229,74 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       min-height: 200px;
     }
 
+    .payment-methods {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .payment-method-tab {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 12px 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .payment-method-tab:hover {
+      border-color: rgba(229, 9, 20, 0.5);
+      background: rgba(229, 9, 20, 0.05);
+    }
+
+    .payment-method-tab.active {
+      border-color: #e50914;
+      background: rgba(229, 9, 20, 0.15);
+    }
+
+    .payment-method-icon {
+      font-size: 20px;
+    }
+
+    .payment-method-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+
     #paypal-button-container {
       margin: 0 auto;
       max-width: 300px;
+    }
+
+    .qrcode-container {
+      display: none;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 0 auto;
+    }
+
+    .qrcode-container.show {
+      display: block;
+    }
+
+    .qrcode-image {
+      width: 200px;
+      height: 200px;
+      border: none;
+    }
+
+    .qrcode-tip {
+      color: #333;
+      font-size: 14px;
+      margin-top: 15px;
+      text-align: center;
     }
 
     .success-modal {
@@ -446,6 +511,199 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         padding-top: 50px !important;
       }
     }
+
+    /* 支付弹窗样式 */
+    .payment-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .payment-modal.show {
+      display: flex;
+    }
+
+    .payment-content {
+      background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+      border-radius: 20px;
+      padding: 0;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 2px solid rgba(229, 9, 20, 0.3);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      animation: modalFadeIn 0.3s ease;
+    }
+
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .payment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 25px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .payment-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0;
+    }
+
+    .payment-close {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 32px;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      line-height: 1;
+      transition: all 0.2s;
+    }
+
+    .payment-close:hover {
+      color: #fff;
+      transform: rotate(90deg);
+    }
+
+    .payment-body {
+      padding: 25px;
+    }
+
+    .payment-info {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+
+    .payment-info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .payment-info-item:last-child {
+      border-bottom: none;
+    }
+
+    .payment-info-label {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+    }
+
+    .payment-info-value {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .payment-amount {
+      color: #e50914;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .qrcode-display {
+      text-align: center;
+    }
+
+    .qrcode-wrapper {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+
+    .modal-qrcode-image {
+      width: 200px;
+      height: 200px;
+      border: none;
+    }
+
+    .qrcode-tip {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+      margin: 15px 0;
+    }
+
+    .payment-status {
+      color: #e50914;
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .payment-footer {
+      padding: 15px 25px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .payment-close-button {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .payment-close-button:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    @media (max-width: 600px) {
+      .payment-content {
+        max-width: 95%;
+      }
+
+      .payment-body {
+        padding: 20px;
+      }
+
+      .payment-header {
+        padding: 15px 20px;
+      }
+
+      .payment-info {
+        padding: 15px;
+      }
+
+      .modal-qrcode-image {
+        width: 180px;
+        height: 180px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -465,6 +723,27 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     </div>
 
     <div class="payment-section">
+      <div class="payment-methods">
+        <div class="payment-method-tab active" onclick="switchPaymentMethod('alipay')" data-method="alipay">
+          <span class="payment-method-icon">💰</span>
+          <span class="payment-method-name">支付宝</span>
+        </div>
+        <div class="payment-method-tab" onclick="switchPaymentMethod('wechat')" data-method="wechat">
+          <span class="payment-method-icon">💚</span>
+          <span class="payment-method-name">微信支付</span>
+        </div>
+        <div class="payment-method-tab" onclick="switchPaymentMethod('paypal')" data-method="paypal">
+          <span class="payment-method-icon">🅿️</span>
+          <span class="payment-method-name">PayPal</span>
+        </div>
+      </div>
+
+      <div id="xunhupay-button-container" style="margin: 20px 0;">
+        <button id="pay-button" onclick="handlePayClick()" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: 600; transition: all 0.3s; width: 100%; max-width: 300px;">
+          立即支付
+        </button>
+      </div>
+
       <div id="paypal-button-container"></div>
     </div>
 
@@ -487,6 +766,45 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       <br><br>
       <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin-top: 15px;">您可以直接使用此订阅地址在播放器中添加</p>
       <button class="close-button" onclick="closeModal()" data-i18n="closeButton">关闭</button>
+    </div>
+  </div>
+
+  <div id="paymentModal" class="payment-modal">
+    <div class="payment-content">
+      <div class="payment-header">
+        <h2 class="payment-title" id="paymentModalTitle">扫码支付</h2>
+        <button class="payment-close" onclick="closePaymentModal()">×</button>
+      </div>
+      <div class="payment-body">
+        <div class="payment-info">
+          <div class="payment-info-item">
+            <span class="payment-info-label">套餐</span>
+            <span class="payment-info-value" id="paymentPlanName">-</span>
+          </div>
+          <div class="payment-info-item">
+            <span class="payment-info-label">IP数量</span>
+            <span class="payment-info-value" id="paymentIPCount">-</span>
+          </div>
+          <div class="payment-info-item">
+            <span class="payment-info-label">支付方式</span>
+            <span class="payment-info-value" id="paymentMethod">-</span>
+          </div>
+          <div class="payment-info-item">
+            <span class="payment-info-label">订单金额</span>
+            <span class="payment-info-value payment-amount" id="paymentAmount">-</span>
+          </div>
+        </div>
+        <div class="qrcode-display">
+          <div class="qrcode-wrapper">
+            <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
+          </div>
+          <p class="qrcode-tip" id="modalQrcodeTip" data-i18n="scanQrcode">请使用手机扫码支付</p>
+          <p class="payment-status" id="paymentStatus">等待支付中...</p>
+        </div>
+      </div>
+      <div class="payment-footer">
+        <button class="payment-close-button" onclick="closePaymentModal()">取消支付</button>
+      </div>
     </div>
   </div>
 
@@ -902,10 +1220,223 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       });
     }
 
+    // 支付方式切换
+    let currentPaymentMethod = 'alipay';
+    let checkPaymentInterval = null;
+
+    function switchPaymentMethod(method) {
+      currentPaymentMethod = method;
+
+      // 更新UI
+      document.querySelectorAll('.payment-method-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.method === method);
+      });
+
+      // 隐藏所有支付区域
+      document.getElementById('paypal-button-container').style.display = 'none';
+      document.getElementById('xunhupay-button-container').style.display = 'none';
+
+      // 根据支付方式显示对应区域（但不立即创建订单）
+      if (method === 'alipay' || method === 'wechat') {
+        // 显示支付按钮
+        showPaymentInfo(method);
+      } else if (method === 'paypal') {
+        document.getElementById('paypal-button-container').style.display = 'block';
+      }
+    }
+
+    function showPaymentInfo(method) {
+      // 显示支付按钮
+      const payButton = document.getElementById('pay-button');
+      const xunhupayButtonContainer = document.getElementById('xunhupay-button-container');
+
+      if (method === 'alipay' || method === 'wechat') {
+        payButton.textContent = method === 'alipay' ? '使用支付宝支付' : '使用微信支付';
+        xunhupayButtonContainer.style.display = 'block';
+      }
+    }
+
+    // 处理支付按钮点击
+    async function handlePayClick() {
+      if (!selectedDuration) {
+        showError(t('error').selectPlan);
+        return;
+      }
+
+      if (!isLoggedIn()) {
+        showLoginModal();
+        return;
+      }
+
+      // 初始化虎皮椒支付并显示弹窗
+      await initXunhuPay(currentPaymentMethod);
+    }
+
+    // 关闭支付弹窗
+    function closePaymentModal() {
+      const modal = document.getElementById('paymentModal');
+      modal.classList.remove('show');
+
+      // 停止轮询订单状态
+      if (checkPaymentInterval) {
+        clearInterval(checkPaymentInterval);
+        checkPaymentInterval = null;
+      }
+
+      // 恢复支付按钮显示
+      document.getElementById('xunhupay-button-container').style.display = 'block';
+    }
+
+    // 初始化虎皮椒支付
+    async function initXunhuPay(paymentMethod) {
+      if (!selectedDuration) {
+        showError(t('error').selectPlan);
+        return;
+      }
+
+      if (!isLoggedIn()) {
+        showLoginModal();
+        return;
+      }
+
+      showLoading(true);
+      hideError();
+
+      try {
+        const response = await fetch(API_BASE + '/subscription/xunhupay/create-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getToken()
+          },
+          body: JSON.stringify({
+            duration_days: selectedDuration.days,
+            max_ips: selectedIPs,
+            payment_method: paymentMethod
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success && result.payment_data) {
+          // 计算价格
+          const price = calculatePrice(selectedDuration, selectedIPs);
+
+          // 更新弹窗信息
+          const modal = document.getElementById('paymentModal');
+          document.getElementById('paymentPlanName').textContent = selectedDuration.days + ' ' + (currentLang === 'zh-CN' ? '天' : 'days');
+          document.getElementById('paymentIPCount').textContent = selectedIPs + ' IP' + (selectedIPs > 1 ? 's' : '');
+          document.getElementById('paymentMethod').textContent = paymentMethod === 'alipay' ? '支付宝' : '微信支付';
+          document.getElementById('paymentAmount').textContent = '¥' + price.discounted.toFixed(2);
+
+          // 显示二维码
+          const qrcodeImage = document.getElementById('modalQrcodeImage');
+          const qrcodeTip = document.getElementById('modalQrcodeTip');
+
+          // 如果虎皮椒返回了二维码URL
+          if (result.payment_data.url_qrcode) {
+            qrcodeImage.src = result.payment_data.url_qrcode;
+          } else {
+            // 使用 QR Code API 生成二维码
+            qrcodeImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(result.payment_data.url);
+          }
+
+          qrcodeTip.textContent = t('scanQrcode');
+          document.getElementById('paymentStatus').textContent = t('waitingPayment');
+
+          // 显示弹窗
+          modal.classList.add('show');
+
+          // 开始轮询订单状态
+          startOrderCheck(result.order_id);
+        } else {
+          showError(result.error || t('error').paymentNotConfigured);
+        }
+      } catch (error) {
+        console.error('XunhuPay error:', error);
+        showError(t('error').networkError);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // 轮询订单状态
+    function startOrderCheck(orderId) {
+      // 清除之前的定时器
+      if (checkPaymentInterval) {
+        clearInterval(checkPaymentInterval);
+      }
+
+      let checkCount = 0;
+      const maxChecks = 60; // 最多检查60次（5分钟）
+
+      checkPaymentInterval = setInterval(async () => {
+        checkCount++;
+
+        if (checkCount > maxChecks) {
+          clearInterval(checkPaymentInterval);
+          document.getElementById('paymentStatus').textContent = '支付超时，请重新发起支付';
+          return;
+        }
+
+        try {
+          const response = await fetch(API_BASE + '/subscription/xunhupay/check-order?order_id=' + orderId, {
+            method: 'GET',
+            headers: {
+              'Authorization': 'Bearer ' + getToken()
+            }
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            if (result.order.status === 'completed') {
+              clearInterval(checkPaymentInterval);
+
+              // 更新支付状态
+              document.getElementById('paymentStatus').textContent = '支付成功！';
+              document.getElementById('paymentStatus').style.color = '#4CAF50';
+
+              // 延迟关闭支付弹窗
+              setTimeout(() => {
+                closePaymentModal();
+
+                // 查询订阅地址
+                fetch(API_BASE + '/auth/orders', {
+                  method: 'GET',
+                  headers: {
+                    'Authorization': 'Bearer ' + getToken()
+                  }
+                }).then(codeResult => {
+                  if (codeResult.ok) {
+                    return codeResult.json();
+                  }
+                }).then(codeData => {
+                  if (codeData && codeData.success && codeData.orders && codeData.orders.length > 0) {
+                    const latestOrder = codeData.orders[0];
+                    const subUrl = window.location.origin + '/sub/' + latestOrder.code + '.m3u';
+                    showSuccessModal(subUrl);
+                  }
+                }).catch(err => {
+                  console.error('Fetch orders error:', err);
+                });
+              }, 1500);
+            }
+          }
+        } catch (error) {
+          console.error('Order check error:', error);
+        }
+      }, 5000); // 每5秒检查一次
+    }
+
     // 页面加载时直接渲染套餐,不检查登录状态
     document.addEventListener('DOMContentLoaded', () => {
       renderPlans();
       initPayPal();
+      // 默认不显示任何支付方式的详细内容
+      document.getElementById('xunhupay-button-container').style.display = 'block';
+      document.getElementById('paypal-button-container').style.display = 'none';
+      switchPaymentMethod('alipay'); // 默认显示支付宝按钮
     });
   </script>
 </body>

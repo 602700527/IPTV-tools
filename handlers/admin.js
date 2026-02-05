@@ -1,5 +1,6 @@
 // 管理后台API处理器
 import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, generateEncryptionKey, getSyncFilterConfig, updateSyncFilterConfig } from '../database.js';
+import { handleGetPaymentMethods, handleUpdatePaymentMethod, handleGetXunhuPayOrders } from './xunhupay-api.js';
 import { manualSyncAll } from './scheduler.js';
 import { getBlacklistedIPs, unbanIP, getIPAccessStats, banIP } from '../security/ip-blacklist.js';
 import { getBannedCodesFromCache, removeBannedCodeFromCache, syncBannedCodesToCache } from '../security/code-ban-cache.js';
@@ -1762,8 +1763,10 @@ export async function handleAdminRequest(request, env, ctx) {
 
       case 'orders':
         // 订单管理
-        if (request.method === 'GET') {
-          // 获取订单列表
+        const ordersSubAction = pathParts[3];
+
+        if (!ordersSubAction && request.method === 'GET') {
+          // 获取 user_orders 列表
           const page = parseInt(url.searchParams.get('page') || '1');
           const pageSize = parseInt(url.searchParams.get('pageSize') || '20');
           const userId = url.searchParams.get('userId');
@@ -1802,6 +1805,18 @@ export async function handleAdminRequest(request, env, ctx) {
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
+        } else if (ordersSubAction === 'xunhupay' && request.method === 'GET') {
+          // 获取虎皮椒订单列表
+          return await handleGetXunhuPayOrders(request, env, ctx);
+        }
+        break;
+
+      case 'payment-methods':
+        // 支付方式管理
+        if (request.method === 'GET') {
+          return await handleGetPaymentMethods(request, env, ctx);
+        } else if (request.method === 'POST') {
+          return await handleUpdatePaymentMethod(request, env, ctx);
         }
         break;
 

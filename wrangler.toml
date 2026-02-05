@@ -24,6 +24,14 @@ TIMEZONE = "Asia/Shanghai"
 RESEND_API_KEY = "re_SV65wtWn_6zDFiwGvPFRRv3gbcLDACDKe"
 FROM_EMAIL = "support@iptv-search.com"
 APP_URL = "https://iptv-search.com"
+# 虎皮椒支付配置 - 支付宝
+XUNHUPAY_ALIPAY_APP_ID = "202303140161"
+XUNHUPAY_ALIPAY_APP_SECRET = "9265ede6d1d85a9ecb7cbf2b97ca0cbd"
+# 虎皮椒支付配置 - 微信（需要您提供微信的APPID和SECRET）
+XUNHUPAY_WECHAT_APP_ID = ""
+XUNHUPAY_WECHAT_APP_SECRET = ""
+# 虎皮椒支付网关
+XUNHUPAY_GATEWAY = "https://api.xunhuweb.com/payment/do.html"
 
 PAYPAL_MODE = "live"  # sandbox: 测试环境, live: 生产环境
 

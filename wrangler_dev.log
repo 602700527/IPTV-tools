@@ -1,0 +1,51 @@
+
+ ⛅️ wrangler 4.54.0 (update available 4.62.0)
+─────────────────────────────────────────────
+Your Worker has access to the following bindings:
+Binding                                                                    Resource                  Mode
+env.KV (d5e943d023d0474382b04b3c15c47ffb)                                  KV Namespace              local
+env.DB (tv-service-db)                                                     D1 Database               local
+env.ADMIN_KEY ("admin-key-please-change-in-production")                    Environment Variable      local
+env.TIMEZONE ("Asia/Shanghai")                                             Environment Variable      local
+env.RESEND_API_KEY ("re_SV65wtWn_6zDFiwGvPFRRv3gbcLDACDKe")                Environment Variable      local
+env.FROM_EMAIL ("support@iptv-search.com")                                 Environment Variable      local
+env.APP_URL ("https://iptv-search.com")                                    Environment Variable      local
+env.XUNHUPAY_APP_ID ("202303140161")                                       Environment Variable      local
+env.XUNHUPAY_APP_SECRET ("9265ede6d1d85a9ecb7cbf2b97ca0cbd")               Environment Variable      local
+env.XUNHUPAY_GATEWAY ("https://api.xunhuweb.com/payment/do.h...")          Environment Variable      local
+env.PAYPAL_MODE ("live")                                                   Environment Variable      local
+env.PAYPAL_CLIENT_ID ("AVH4ZyBQ-cFj8sufFaIJrk3zchkJJFwrJSIOy...")          Environment Variable      local
+env.PAYPAL_CLIENT_SECRET ("EGKhwilhHpUQ8wnohzLQLVnAnvfgtt622a-HO...")      Environment Variable      local
+env.PAYPAL_WEBHOOK_ID ("0HB69156TY635861A")                                Environment Variable      local
+
+⎔ Starting local server...
+[wrangler:info] Ready on http://127.0.0.1:8787
+Your Worker has access to the following bindings:
+Binding                                                                          Resource                  Mode
+env.KV (d5e943d023d0474382b04b3c15c47ffb)                                        KV Namespace              local
+env.DB (tv-service-db)                                                           D1 Database               local
+env.ADMIN_KEY ("admin-key-please-change-in-production")                          Environment Variable      local
+env.TIMEZONE ("Asia/Shanghai")                                                   Environment Variable      local
+env.RESEND_API_KEY ("re_SV65wtWn_6zDFiwGvPFRRv3gbcLDACDKe")                      Environment Variable      local
+env.FROM_EMAIL ("support@iptv-search.com")                                       Environment Variable      local
+env.APP_URL ("https://iptv-search.com")                                          Environment Variable      local
+env.XUNHUPAY_ALIPAY_APP_ID ("202303140161")                                      Environment Variable      local
+env.XUNHUPAY_ALIPAY_APP_SECRET ("9265ede6d1d85a9ecb7cbf2b97ca0cbd")              Environment Variable      local
+env.XUNHUPAY_WECHAT_APP_ID ("")                                                  Environment Variable      local
+env.XUNHUPAY_WECHAT_APP_SECRET ("")                                              Environment Variable      local
+env.XUNHUPAY_GATEWAY ("https://api.xunhuweb.com/payment/do.h...")                Environment Variable      local
+env.PAYPAL_MODE ("live")                                                         Environment Variable      local
+env.PAYPAL_CLIENT_ID ("AVH4ZyBQ-cFj8sufFaIJrk3zchkJJFwrJSIOy...")                Environment Variable      local
+env.PAYPAL_CLIENT_SECRET ("EGKhwilhHpUQ8wnohzLQLVnAnvfgtt622a-HO...")            Environment Variable      local
+env.PAYPAL_WEBHOOK_ID ("0HB69156TY635861A")                                      Environment Variable      local
+
+⎔ Reloading local server...
+⎔ Reloading local server...
+⎔ Reloading local server...
+⎔ Reloading local server...
+⎔ Reloading local server...
+⎔ Reloading local server...
+⎔ Reloading local server...
+⎔ Reloading local server...
+⎔ Reloading local server...
+⎔ Reloading local server...

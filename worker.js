@@ -19,6 +19,14 @@ import {
   handleResetPassword
 } from './handlers/auth.js';
 import { handleCreateCode, handleCreatePayPalOrder, handleCapturePayPalOrder, handlePayPalWebhook } from './handlers/subscription-api.js';
+import {
+  handleCreateXunhuPayOrder,
+  handleXunhuPayNotify,
+  handleCheckXunhuPayOrder,
+  handleGetPaymentMethods,
+  handleUpdatePaymentMethod,
+  handleGetXunhuPayOrders
+} from './handlers/xunhupay-api.js';
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { ACCOUNT_HTML } from './account-page.js';
@@ -225,6 +233,15 @@ export default {
     } else if (path === '/api/subscription/paypal-webhook') {
       // PayPal Webhook
       return await handlePayPalWebhook(request, env, ctx);
+    } else if (path === '/api/subscription/xunhupay/create-order') {
+      // 创建虎皮椒支付订单
+      return await handleCreateXunhuPayOrder(request, env, ctx);
+    } else if (path === '/api/payment/xunhupay/notify') {
+      // 虎皮椒支付回调通知
+      return await handleXunhuPayNotify(request, env, ctx);
+    } else if (path === '/api/subscription/xunhupay/check-order') {
+      // 查询虎皮椒订单状态
+      return await handleCheckXunhuPayOrder(request, env, ctx);
     } else if (path === '/plans' || path === '/plans/' || path === '/plans/index' || path === '/plans/index.html') {
       // 订阅计划页面
       return new Response(PLANS_HTML, {
