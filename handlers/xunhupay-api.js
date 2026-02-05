@@ -466,13 +466,13 @@ export async function handleCheckXunhuPayOrder(request, env, ctx) {
  */
 function getPlanByDays(days) {
   const plans = {
-    30: { basePrice: 5, pricePerIP: 1.5, discount: 0 },
-    60: { basePrice: 8, pricePerIP: 2, discount: 0 },
-    90: { basePrice: 12, pricePerIP: 2.5, discount: 0 },
-    180: { basePrice: 20, pricePerIP: 4, discount: 10 },
-    365: { basePrice: 35, pricePerIP: 7, discount: 20 }
+    30: { basePrice: 29, pricePerIP: 9, discount: 0 },
+    60: { basePrice: 58, pricePerIP: 11, discount: 0 },
+    90: { basePrice: 79, pricePerIP: 18, discount: 0 },
+    180: { basePrice: 149, pricePerIP: 28, discount: 10 },
+    365: { basePrice: 279, pricePerIP: 49, discount: 20 }
   };
-  return plans[days] || { basePrice: 5, pricePerIP: 1.5, discount: 0 };
+  return plans[days] || { basePrice: 29, pricePerIP: 9, discount: 0 };
 }
 
 /**
@@ -555,7 +555,7 @@ export async function handleUpdatePaymentMethod(request, env, ctx) {
     const { type, name, enabled, config } = body;
 
     // 验证参数
-    const validTypes = ['alipay', 'wechat', 'paypal'];
+    const validTypes = ['alipay', 'wechat'];
     if (!validTypes.includes(type)) {
       return new Response(JSON.stringify({
         success: false,

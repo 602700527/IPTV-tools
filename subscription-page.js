@@ -269,10 +269,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       color: #fff;
     }
 
-    #paypal-button-container {
-      margin: 0 auto;
-      max-width: 300px;
-    }
+
 
     .qrcode-container {
       display: none;
@@ -480,9 +477,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         font-size: 24px;
       }
 
-      .paypal-button {
-        padding: 14px 30px;
-        font-size: 15px;
+      .lang-switch {
+        top: 15px;
+        right: 15px;
+      }
+
+      .lang-btn {
+        padding: 6px 14px;
+        font-size: 12px;
       }
 
       .lang-switch {
@@ -728,13 +730,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           <span class="payment-method-icon">💰</span>
           <span class="payment-method-name">支付宝</span>
         </div>
-        <div class="payment-method-tab" onclick="switchPaymentMethod('wechat')" data-method="wechat">
+          <div class="payment-method-tab" onclick="switchPaymentMethod('wechat')" data-method="wechat">
           <span class="payment-method-icon">💚</span>
           <span class="payment-method-name">微信支付</span>
-        </div>
-        <div class="payment-method-tab" onclick="switchPaymentMethod('paypal')" data-method="paypal">
-          <span class="payment-method-icon">🅿️</span>
-          <span class="payment-method-name">PayPal</span>
         </div>
       </div>
 
@@ -744,10 +742,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         </button>
       </div>
 
-      <div id="paypal-button-container"></div>
-    </div>
-
-    <div id="loading" class="loading">
+      <div id="loading" class="loading">
       <div class="spinner"></div>
       <p data-i18n="processing">处理中...</p>
     </div>
@@ -826,10 +821,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     // 时长配置
     const durationOptions = [
-      { days: 30, basePrice: 5, pricePerIP: 1.5, discount: 0, name: 'month_1' },
-      { days: 90, basePrice: 10, pricePerIP: 2.5, discount: 0, name: 'month_3' },
-      { days: 180, basePrice: 20, pricePerIP: 4, discount: 10, name: 'month_6' },
-      { days: 365, basePrice: 40, pricePerIP: 7, discount: 20, name: 'month_12' }
+      { days: 30, basePrice: 29, pricePerIP: 9, discount: 0, name: 'month_1' },
+      { days: 90, basePrice: 79, pricePerIP: 18, discount: 0, name: 'month_3' },
+      { days: 180, basePrice: 149, pricePerIP: 28, discount: 10, name: 'month_6' },
+      { days: 365, basePrice: 279, pricePerIP: 49, discount: 20, name: 'month_12' }
     ];
 
     // IP数量配置
@@ -851,8 +846,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         title: '👑 会员订阅',
         subtitle: '选择适合您的会员套餐，享受高清直播服务',
         selectIPs: '选择IP数量',
-        payWithPayPal: '使用 PayPal 支付',
-        processing: '处理中...',
+        summary: '订单汇总',
         paymentSuccess: '支付成功！',
         subUrlGenerated: '您的订阅地址已生成',
         copyUrl: '复制订阅地址',
@@ -888,9 +882,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         pageTitle: 'Membership - TV Live Service',
         title: '👑 Membership',
         subtitle: 'Choose the plan that suits you, enjoy HD live streaming',
-        selectIPs: 'Select IP Count',
-        payWithPayPal: 'Pay with PayPal',
-        processing: 'Processing...',
+        summary: 'Order Summary',
         paymentSuccess: 'Payment Successful!',
         subUrlGenerated: 'Your subscription URL has been generated',
         copyUrl: 'Copy URL',
@@ -928,8 +920,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       return translations[currentLang][key] || translations['en'][key] || key;
     }
 
-    function formatPrice(price, currency = 'USD') {
-      return '$' + price.toFixed(2);
+    function formatPrice(price, currency = 'CNY') {
+      return '¥' + price.toFixed(2);
     }
 
     function calculatePrice(plan, ipCount) {
@@ -956,7 +948,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         html += '<div class="option-card ' + (isSelected ? 'selected' : '') + '" onclick="selectDuration(' + "'" + duration.name + "'" + ')">';
         html += '<div class="option-title">' + t('planNames')[duration.name] + '</div>';
         html += '<div class="option-subtitle">' + duration.days + ' ' + (currentLang === 'zh-CN' ? '天' : 'days') + '</div>';
-        html += '<div class="option-price">$' + price.discounted.toFixed(2) + '</div>';
+        html += '<div class="option-price">¥' + price.discounted.toFixed(2) + '</div>';
         if (duration.discount > 0) {
           html += '<div class="option-discount">-' + duration.discount + '%</div>';
         }
@@ -991,13 +983,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       // 基础价格
       html += '<div class="summary-row">';
       html += '<span class="summary-label">' + t('basePrice') + ' (' + selectedDuration.days + ' ' + (currentLang === 'zh-CN' ? '天' : 'days') + ')</span>';
-      html += '<span class="summary-value">$' + selectedDuration.basePrice.toFixed(2) + '</span>';
+      html += '<span class="summary-value">¥' + selectedDuration.basePrice.toFixed(2) + '</span>';
       html += '</div>';
 
       // IP费用
       html += '<div class="summary-row">';
       html += '<span class="summary-label">' + t('ipPrice') + ' (' + selectedIPs + ' IP)</span>';
-      html += '<span class="summary-value">$' + (selectedDuration.pricePerIP * selectedIPs).toFixed(2) + '</span>';
+      html += '<span class="summary-value">¥' + (selectedDuration.pricePerIP * selectedIPs).toFixed(2) + '</span>';
       html += '</div>';
 
       // 折扣
@@ -1005,14 +997,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const discountAmount = price.original - price.discounted;
         html += '<div class="summary-row">';
         html += '<span class="summary-label" style="color: #ffcc00;">' + t('discount') + ' (' + selectedDuration.discount + '%)</span>';
-        html += '<span class="summary-value" style="color: #ffcc00;">-$' + discountAmount.toFixed(2) + '</span>';
+        html += '<span class="summary-value" style="color: #ffcc00;">-¥' + discountAmount.toFixed(2) + '</span>';
         html += '</div>';
       }
 
       // 总计
       html += '<div class="total-row">';
       html += '<span class="total-label">' + t('total') + '</span>';
-      html += '<span class="total-price">$' + price.discounted.toFixed(2) + '</span>';
+      html += '<span class="total-price">¥' + price.discounted.toFixed(2) + '</span>';
       html += '</div>';
 
       summaryEl.innerHTML = html;
@@ -1052,116 +1044,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       hideError();
 
       try {
-        // PayPal 按钮会自动处理支付流程
-        // 这里不需要额外操作，等待用户完成 PayPal 支付
+        // 虎皮椒支付会自动处理支付流程
       } catch (error) {
         console.error('Payment error:', error);
         showError(t('error').paymentError);
         showLoading(false);
       }
-    }
-
-    async function testPayment() {
-      // 已移除模拟支付功能
-      console.warn('testPayment function is deprecated');
-    }
-
-    // 初始化 PayPal 按钮
-    function initPayPal() {
-      // 动态加载 PayPal SDK
-      // 使用后端注入的 PayPal Client ID
-      const paypalClientId = window.PAYPAL_CLIENT_ID || 'AWTHgTJIdRyIazSB9Y7IAtsodC-Kx44P6qE-PXoWXT3l279ilp4QsQI2f6-Ukyw-mg9YekVirtigpUFp';
-      const paypalMode = window.PAYPAL_MODE || 'sandbox';
-      const script = document.createElement('script');
-      script.src = 'https://www.paypal.com/sdk/js?client-id=' + paypalClientId + '&currency=USD';
-      script.addEventListener('load', () => {
-        if (window.paypal) {
-          window.paypal.Buttons({
-            style: {
-              layout: 'vertical',
-              color: 'gold',
-              shape: 'rect',
-              label: 'paypal'
-            },
-            createOrder: async function(data, actions) {
-              if (!selectedDuration) {
-                showError(t('error').selectPlan);
-                return null;
-              }
-
-              if (!isLoggedIn()) {
-                showLoginModal();
-                return null;
-              }
-
-              const price = calculatePrice(selectedDuration, selectedIPs);
-
-              // 调用后端创建 PayPal 订单
-              try {
-                const response = await fetch(API_BASE + '/subscription/paypal/create-order', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + getToken()
-                  },
-                  body: JSON.stringify({
-                    duration_days: selectedDuration.days,
-                    max_ips: selectedIPs,
-                    amount: price.discounted
-                  })
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.success && result.orderId) {
-                  return result.orderId;
-                } else {
-                  throw new Error(result.error || 'Failed to create PayPal order');
-                }
-              } catch (error) {
-                console.error('Create order error:', error);
-                showError(error.message);
-                return null;
-              }
-            },
-            onApprove: async function(data, actions) {
-              // 用户批准支付后调用
-              try {
-                const response = await fetch(API_BASE + '/subscription/paypal/capture-order', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + getToken()
-                  },
-                  body: JSON.stringify({
-                    orderID: data.orderID
-                  })
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.success) {
-                  showSuccessModal(result.subUrl);
-                } else {
-                  throw new Error(result.error || 'Payment capture failed');
-                }
-              } catch (error) {
-                console.error('Capture order error:', error);
-                showError(error.message);
-              }
-            },
-            onError: function(err) {
-              console.error('PayPal error:', err);
-              showError(t('error').paymentError);
-            }
-          }).render('#paypal-button-container');
-        }
-      });
-      script.onerror = () => {
-        console.error('Failed to load PayPal SDK');
-        showError('PayPal SDK 加载失败，请刷新页面重试');
-      };
-      document.body.appendChild(script);
     }
 
     function showLoading(show) {
@@ -1232,16 +1120,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         tab.classList.toggle('active', tab.dataset.method === method);
       });
 
-      // 隐藏所有支付区域
-      document.getElementById('paypal-button-container').style.display = 'none';
-      document.getElementById('xunhupay-button-container').style.display = 'none';
-
       // 根据支付方式显示对应区域（但不立即创建订单）
       if (method === 'alipay' || method === 'wechat') {
         // 显示支付按钮
         showPaymentInfo(method);
-      } else if (method === 'paypal') {
-        document.getElementById('paypal-button-container').style.display = 'block';
       }
     }
 
@@ -1432,10 +1314,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     // 页面加载时直接渲染套餐,不检查登录状态
     document.addEventListener('DOMContentLoaded', () => {
       renderPlans();
-      initPayPal();
-      // 默认不显示任何支付方式的详细内容
-      document.getElementById('xunhupay-button-container').style.display = 'block';
-      document.getElementById('paypal-button-container').style.display = 'none';
       switchPaymentMethod('alipay'); // 默认显示支付宝按钮
     });
   </script>

@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-eH1VxT/checked-fetch.js
+// .wrangler/tmp/bundle-KGEPjh/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-eH1VxT/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-KGEPjh/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -1854,11 +1854,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-eH1VxT/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-KGEPjh/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-eH1VxT/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-KGEPjh/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -3081,13 +3081,13 @@ async function handleCreateCode(request, env, ctx) {
 __name(handleCreateCode, "handleCreateCode");
 function getPlanByDays(days) {
   const plans = {
-    30: { basePrice: 5, pricePerIP: 1.5, discount: 0 },
-    60: { basePrice: 8, pricePerIP: 2, discount: 0 },
-    90: { basePrice: 12, pricePerIP: 2.5, discount: 0 },
-    180: { basePrice: 20, pricePerIP: 4, discount: 10 },
-    365: { basePrice: 35, pricePerIP: 7, discount: 20 }
+    30: { basePrice: 29, pricePerIP: 9, discount: 0 },
+    60: { basePrice: 58, pricePerIP: 11, discount: 0 },
+    90: { basePrice: 79, pricePerIP: 18, discount: 0 },
+    180: { basePrice: 149, pricePerIP: 28, discount: 10 },
+    365: { basePrice: 279, pricePerIP: 49, discount: 20 }
   };
-  return plans[days] || { basePrice: 5, pricePerIP: 1.5, discount: 0 };
+  return plans[days] || { basePrice: 29, pricePerIP: 9, discount: 0 };
 }
 __name(getPlanByDays, "getPlanByDays");
 function calculatePrice(plan, ipCount) {
@@ -3100,374 +3100,6 @@ function calculatePrice(plan, ipCount) {
   };
 }
 __name(calculatePrice, "calculatePrice");
-async function handleCreatePayPalOrder(request, env, ctx) {
-  try {
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Unauthorized"
-      }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const token = authHeader.substring(7);
-    const user = await env.DB.prepare(`
-      SELECT u.id, u.email
-      FROM users u
-      INNER JOIN user_sessions s ON u.id = s.user_id
-      WHERE s.token = ? AND s.expires_at > datetime('now')
-    `).bind(token).first();
-    if (!user) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Invalid token"
-      }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const body = await request.json();
-    const { duration_days, max_ips, amount } = body;
-    if (!duration_days || duration_days !== -1 && (duration_days < 1 || duration_days > 365)) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Invalid duration_days (1-365 or -1 for permanent)"
-      }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    if (![1, 2, 3, 5].includes(max_ips)) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Invalid max_ips (1, 2, 3, or 5)"
-      }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const paypalClientId = env.PAYPAL_CLIENT_ID;
-    const paypalClientSecret = env.PAYPAL_CLIENT_SECRET;
-    const paypalMode = env.PAYPAL_MODE || "sandbox";
-    if (!paypalClientId || !paypalClientSecret) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "PayPal not configured"
-      }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const paypalApiUrl = paypalMode === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
-    const authResponse = await fetch(`${paypalApiUrl}/v1/oauth2/token`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Basic ${btoa(paypalClientId + ":" + paypalClientSecret)}`,
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: "grant_type=client_credentials"
-    });
-    const authData = await authResponse.json();
-    if (!authResponse.ok || !authData.access_token) {
-      console.error("[PayPal] Failed to get access token:", authData);
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Failed to authenticate with PayPal"
-      }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const accessToken = authData.access_token;
-    const orderResponse = await fetch(`${paypalApiUrl}/v2/checkout/orders`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-        "PayPal-Request-Id": crypto.randomUUID()
-      },
-      body: JSON.stringify({
-        intent: "CAPTURE",
-        purchase_units: [{
-          reference_id: `${user.id}_${Date.now()}`,
-          description: `TV Subscription - ${duration_days} days, ${max_ips} IPs`,
-          amount: {
-            currency_code: "USD",
-            value: amount.toFixed(2)
-          },
-          custom_id: `${duration_days}:${max_ips}`
-        }]
-      })
-    });
-    const orderData = await orderResponse.json();
-    if (!orderResponse.ok || !orderData.id) {
-      console.error("[PayPal] Failed to create order:", orderData);
-      return new Response(JSON.stringify({
-        success: false,
-        error: orderData.details?.[0]?.description || "Failed to create PayPal order"
-      }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const paypalOrderId = orderData.id;
-    console.log("[PayPal] Order created:", paypalOrderId, "for user:", user.id, "duration:", duration_days, "ips:", max_ips, "amount:", amount);
-    try {
-      const orderInfo = JSON.stringify({
-        user_id: user.id,
-        duration_days,
-        max_ips,
-        amount
-      });
-      await env.KV.put(`paypal_order:${paypalOrderId}`, orderInfo, { expirationTtl: 3600 });
-    } catch (error) {
-      console.error("[PayPal] Failed to save order to KV:", error);
-    }
-    return new Response(JSON.stringify({
-      success: true,
-      orderId: paypalOrderId
-    }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
-  } catch (error) {
-    console.error("[PayPal] Create order error:", error);
-    return new Response(JSON.stringify({
-      success: false,
-      error: "Server error"
-    }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
-  }
-}
-__name(handleCreatePayPalOrder, "handleCreatePayPalOrder");
-async function handleCapturePayPalOrder(request, env, ctx) {
-  try {
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Unauthorized"
-      }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const token = authHeader.substring(7);
-    const user = await env.DB.prepare(`
-      SELECT u.id, u.email
-      FROM users u
-      INNER JOIN user_sessions s ON u.id = s.user_id
-      WHERE s.token = ? AND s.expires_at > datetime('now')
-    `).bind(token).first();
-    if (!user) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Invalid token"
-      }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const body = await request.json();
-    const { orderID } = body;
-    if (!orderID) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Missing orderID"
-      }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    let orderInfo;
-    try {
-      const orderData = await env.KV.get(`paypal_order:${orderID}`);
-      if (orderData) {
-        orderInfo = JSON.parse(orderData);
-      }
-    } catch (error) {
-      console.error("[PayPal] Failed to get order from KV:", error);
-    }
-    if (!orderInfo) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Order not found or expired"
-      }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const paypalClientId = env.PAYPAL_CLIENT_ID;
-    const paypalClientSecret = env.PAYPAL_CLIENT_SECRET;
-    const paypalMode = env.PAYPAL_MODE || "sandbox";
-    if (!paypalClientId || !paypalClientSecret) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "PayPal not configured"
-      }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const paypalApiUrl = paypalMode === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
-    const authResponse = await fetch(`${paypalApiUrl}/v1/oauth2/token`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Basic ${btoa(paypalClientId + ":" + paypalClientSecret)}`,
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: "grant_type=client_credentials"
-    });
-    const authData = await authResponse.json();
-    if (!authResponse.ok || !authData.access_token) {
-      console.error("[PayPal] Failed to get access token:", authData);
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Failed to authenticate with PayPal"
-      }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const accessToken = authData.access_token;
-    const captureResponse = await fetch(`${paypalApiUrl}/v2/checkout/orders/${orderID}/capture`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": "application/json"
-      }
-    });
-    const captureData = await captureResponse.json();
-    if (!captureResponse.ok) {
-      console.error("[PayPal] Failed to capture order:", captureData);
-      return new Response(JSON.stringify({
-        success: false,
-        error: captureData.details?.[0]?.description || "Failed to capture PayPal payment"
-      }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const captureStatus = captureData.status;
-    if (captureStatus !== "COMPLETED") {
-      console.error("[PayPal] Payment not completed:", captureStatus);
-      return new Response(JSON.stringify({
-        success: false,
-        error: `Payment status: ${captureStatus}`
-      }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    const url = new URL(request.url);
-    const baseUrl = `${url.protocol}//${url.host}`;
-    const result = await generateActivationCode(env, orderInfo.duration_days, orderInfo.max_ips, user.id, false, baseUrl);
-    if (!result.success) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Failed to generate subscription"
-      }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    try {
-      const orderId = "paypal_" + orderID;
-      await env.DB.prepare(`
-        INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, status)
-        VALUES (?, ?, ?, ?, ?, 'completed')
-      `).bind(user.id, orderId, result.code, orderInfo.duration_days, orderInfo.amount).run();
-      try {
-        await env.KV.delete(`paypal_order:${orderID}`);
-      } catch (error) {
-        console.error("[PayPal] Failed to delete order from KV:", error);
-      }
-      console.log("[PayPal] Order captured:", orderID, "for user:", user.id);
-    } catch (error) {
-      console.error("[PayPal] Failed to create order:", error);
-    }
-    return new Response(JSON.stringify({
-      success: true,
-      subUrl: result.subUrl,
-      code: result.code
-    }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
-  } catch (error) {
-    console.error("[PayPal] Capture order error:", error);
-    return new Response(JSON.stringify({
-      success: false,
-      error: "Server error"
-    }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
-  }
-}
-__name(handleCapturePayPalOrder, "handleCapturePayPalOrder");
-async function handlePayPalWebhook(request, env, ctx) {
-  try {
-    const body = await request.json();
-    console.log("[PayPal Webhook] Received:", body);
-    const { event_type, resource, payment_id } = body;
-    if (event_type === "PAYMENT.CAPTURE.COMPLETED" || event_type === "PAYMENT.SALE.COMPLETED") {
-      const { user_id, duration_days, max_ips } = resource.custom || {};
-      if (!user_id || !duration_days || !max_ips) {
-        console.error("[PayPal Webhook] Missing required fields");
-        return new Response(JSON.stringify({ success: false }), {
-          status: 400,
-          headers: { "Content-Type": "application/json" }
-        });
-      }
-      const result = await generateActivationCode(
-        env,
-        duration_days,
-        max_ips,
-        user_id,
-        false
-        // 不是测试模式
-      );
-      if (result.success) {
-        const plan = getPlanByDays(duration_days);
-        const price = calculatePrice(plan, max_ips);
-        await env.DB.prepare(`
-          INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, status)
-          VALUES (?, ?, ?, ?, ?, 'completed')
-        `).bind(user_id, payment_id, result.code, duration_days, price.discounted).run();
-        console.log("[PayPal Webhook] Code generated and order created");
-      }
-      return new Response(JSON.stringify({
-        success: result.success,
-        code: result.code
-      }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-    return new Response(JSON.stringify({
-      success: true,
-      message: "Webhook received"
-    }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
-  } catch (error) {
-    console.error("[PayPal Webhook] Error:", error);
-    return new Response(JSON.stringify({
-      success: false,
-      error: "Webhook processing failed"
-    }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
-  }
-}
-__name(handlePayPalWebhook, "handlePayPalWebhook");
 
 // handlers/xunhupay-api.js
 function generateXunhuPayHash(data, appSecret) {
@@ -3820,13 +3452,13 @@ async function handleCheckXunhuPayOrder(request, env, ctx) {
 __name(handleCheckXunhuPayOrder, "handleCheckXunhuPayOrder");
 function getPlanByDays2(days) {
   const plans = {
-    30: { basePrice: 5, pricePerIP: 1.5, discount: 0 },
-    60: { basePrice: 8, pricePerIP: 2, discount: 0 },
-    90: { basePrice: 12, pricePerIP: 2.5, discount: 0 },
-    180: { basePrice: 20, pricePerIP: 4, discount: 10 },
-    365: { basePrice: 35, pricePerIP: 7, discount: 20 }
+    30: { basePrice: 29, pricePerIP: 9, discount: 0 },
+    60: { basePrice: 58, pricePerIP: 11, discount: 0 },
+    90: { basePrice: 79, pricePerIP: 18, discount: 0 },
+    180: { basePrice: 149, pricePerIP: 28, discount: 10 },
+    365: { basePrice: 279, pricePerIP: 49, discount: 20 }
   };
-  return plans[days] || { basePrice: 5, pricePerIP: 1.5, discount: 0 };
+  return plans[days] || { basePrice: 29, pricePerIP: 9, discount: 0 };
 }
 __name(getPlanByDays2, "getPlanByDays");
 function calculatePrice2(plan, ipCount) {
@@ -3884,7 +3516,7 @@ async function handleUpdatePaymentMethod(request, env, ctx) {
     }
     const body = await request.json();
     const { type, name, enabled, config } = body;
-    const validTypes = ["alipay", "wechat", "paypal"];
+    const validTypes = ["alipay", "wechat"];
     if (!validTypes.includes(type)) {
       return new Response(JSON.stringify({
         success: false,
@@ -19080,10 +18712,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       color: #fff;
     }
 
-    #paypal-button-container {
-      margin: 0 auto;
-      max-width: 300px;
-    }
+
 
     .qrcode-container {
       display: none;
@@ -19291,9 +18920,14 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         font-size: 24px;
       }
 
-      .paypal-button {
-        padding: 14px 30px;
-        font-size: 15px;
+      .lang-switch {
+        top: 15px;
+        right: 15px;
+      }
+
+      .lang-btn {
+        padding: 6px 14px;
+        font-size: 12px;
       }
 
       .lang-switch {
@@ -19539,13 +19173,9 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
           <span class="payment-method-icon">\u{1F4B0}</span>
           <span class="payment-method-name">\u652F\u4ED8\u5B9D</span>
         </div>
-        <div class="payment-method-tab" onclick="switchPaymentMethod('wechat')" data-method="wechat">
+          <div class="payment-method-tab" onclick="switchPaymentMethod('wechat')" data-method="wechat">
           <span class="payment-method-icon">\u{1F49A}</span>
           <span class="payment-method-name">\u5FAE\u4FE1\u652F\u4ED8</span>
-        </div>
-        <div class="payment-method-tab" onclick="switchPaymentMethod('paypal')" data-method="paypal">
-          <span class="payment-method-icon">\u{1F17F}\uFE0F</span>
-          <span class="payment-method-name">PayPal</span>
         </div>
       </div>
 
@@ -19555,10 +19185,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         </button>
       </div>
 
-      <div id="paypal-button-container"></div>
-    </div>
-
-    <div id="loading" class="loading">
+      <div id="loading" class="loading">
       <div class="spinner"></div>
       <p data-i18n="processing">\u5904\u7406\u4E2D...</p>
     </div>
@@ -19637,10 +19264,10 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     // \u65F6\u957F\u914D\u7F6E
     const durationOptions = [
-      { days: 30, basePrice: 5, pricePerIP: 1.5, discount: 0, name: 'month_1' },
-      { days: 90, basePrice: 10, pricePerIP: 2.5, discount: 0, name: 'month_3' },
-      { days: 180, basePrice: 20, pricePerIP: 4, discount: 10, name: 'month_6' },
-      { days: 365, basePrice: 40, pricePerIP: 7, discount: 20, name: 'month_12' }
+      { days: 30, basePrice: 29, pricePerIP: 9, discount: 0, name: 'month_1' },
+      { days: 90, basePrice: 79, pricePerIP: 18, discount: 0, name: 'month_3' },
+      { days: 180, basePrice: 149, pricePerIP: 28, discount: 10, name: 'month_6' },
+      { days: 365, basePrice: 279, pricePerIP: 49, discount: 20, name: 'month_12' }
     ];
 
     // IP\u6570\u91CF\u914D\u7F6E
@@ -19662,8 +19289,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         title: '\u{1F451} \u4F1A\u5458\u8BA2\u9605',
         subtitle: '\u9009\u62E9\u9002\u5408\u60A8\u7684\u4F1A\u5458\u5957\u9910\uFF0C\u4EAB\u53D7\u9AD8\u6E05\u76F4\u64AD\u670D\u52A1',
         selectIPs: '\u9009\u62E9IP\u6570\u91CF',
-        payWithPayPal: '\u4F7F\u7528 PayPal \u652F\u4ED8',
-        processing: '\u5904\u7406\u4E2D...',
+        summary: '\u8BA2\u5355\u6C47\u603B',
         paymentSuccess: '\u652F\u4ED8\u6210\u529F\uFF01',
         subUrlGenerated: '\u60A8\u7684\u8BA2\u9605\u5730\u5740\u5DF2\u751F\u6210',
         copyUrl: '\u590D\u5236\u8BA2\u9605\u5730\u5740',
@@ -19699,9 +19325,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         pageTitle: 'Membership - TV Live Service',
         title: '\u{1F451} Membership',
         subtitle: 'Choose the plan that suits you, enjoy HD live streaming',
-        selectIPs: 'Select IP Count',
-        payWithPayPal: 'Pay with PayPal',
-        processing: 'Processing...',
+        summary: 'Order Summary',
         paymentSuccess: 'Payment Successful!',
         subUrlGenerated: 'Your subscription URL has been generated',
         copyUrl: 'Copy URL',
@@ -19739,8 +19363,8 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       return translations[currentLang][key] || translations['en'][key] || key;
     }
 
-    function formatPrice(price, currency = 'USD') {
-      return '$' + price.toFixed(2);
+    function formatPrice(price, currency = 'CNY') {
+      return '\xA5' + price.toFixed(2);
     }
 
     function calculatePrice(plan, ipCount) {
@@ -19767,7 +19391,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         html += '<div class="option-card ' + (isSelected ? 'selected' : '') + '" onclick="selectDuration(' + "'" + duration.name + "'" + ')">';
         html += '<div class="option-title">' + t('planNames')[duration.name] + '</div>';
         html += '<div class="option-subtitle">' + duration.days + ' ' + (currentLang === 'zh-CN' ? '\u5929' : 'days') + '</div>';
-        html += '<div class="option-price">$' + price.discounted.toFixed(2) + '</div>';
+        html += '<div class="option-price">\xA5' + price.discounted.toFixed(2) + '</div>';
         if (duration.discount > 0) {
           html += '<div class="option-discount">-' + duration.discount + '%</div>';
         }
@@ -19802,13 +19426,13 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       // \u57FA\u7840\u4EF7\u683C
       html += '<div class="summary-row">';
       html += '<span class="summary-label">' + t('basePrice') + ' (' + selectedDuration.days + ' ' + (currentLang === 'zh-CN' ? '\u5929' : 'days') + ')</span>';
-      html += '<span class="summary-value">$' + selectedDuration.basePrice.toFixed(2) + '</span>';
+      html += '<span class="summary-value">\xA5' + selectedDuration.basePrice.toFixed(2) + '</span>';
       html += '</div>';
 
       // IP\u8D39\u7528
       html += '<div class="summary-row">';
       html += '<span class="summary-label">' + t('ipPrice') + ' (' + selectedIPs + ' IP)</span>';
-      html += '<span class="summary-value">$' + (selectedDuration.pricePerIP * selectedIPs).toFixed(2) + '</span>';
+      html += '<span class="summary-value">\xA5' + (selectedDuration.pricePerIP * selectedIPs).toFixed(2) + '</span>';
       html += '</div>';
 
       // \u6298\u6263
@@ -19816,14 +19440,14 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const discountAmount = price.original - price.discounted;
         html += '<div class="summary-row">';
         html += '<span class="summary-label" style="color: #ffcc00;">' + t('discount') + ' (' + selectedDuration.discount + '%)</span>';
-        html += '<span class="summary-value" style="color: #ffcc00;">-$' + discountAmount.toFixed(2) + '</span>';
+        html += '<span class="summary-value" style="color: #ffcc00;">-\xA5' + discountAmount.toFixed(2) + '</span>';
         html += '</div>';
       }
 
       // \u603B\u8BA1
       html += '<div class="total-row">';
       html += '<span class="total-label">' + t('total') + '</span>';
-      html += '<span class="total-price">$' + price.discounted.toFixed(2) + '</span>';
+      html += '<span class="total-price">\xA5' + price.discounted.toFixed(2) + '</span>';
       html += '</div>';
 
       summaryEl.innerHTML = html;
@@ -19863,116 +19487,12 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       hideError();
 
       try {
-        // PayPal \u6309\u94AE\u4F1A\u81EA\u52A8\u5904\u7406\u652F\u4ED8\u6D41\u7A0B
-        // \u8FD9\u91CC\u4E0D\u9700\u8981\u989D\u5916\u64CD\u4F5C\uFF0C\u7B49\u5F85\u7528\u6237\u5B8C\u6210 PayPal \u652F\u4ED8
+        // \u864E\u76AE\u6912\u652F\u4ED8\u4F1A\u81EA\u52A8\u5904\u7406\u652F\u4ED8\u6D41\u7A0B
       } catch (error) {
         console.error('Payment error:', error);
         showError(t('error').paymentError);
         showLoading(false);
       }
-    }
-
-    async function testPayment() {
-      // \u5DF2\u79FB\u9664\u6A21\u62DF\u652F\u4ED8\u529F\u80FD
-      console.warn('testPayment function is deprecated');
-    }
-
-    // \u521D\u59CB\u5316 PayPal \u6309\u94AE
-    function initPayPal() {
-      // \u52A8\u6001\u52A0\u8F7D PayPal SDK
-      // \u4F7F\u7528\u540E\u7AEF\u6CE8\u5165\u7684 PayPal Client ID
-      const paypalClientId = window.PAYPAL_CLIENT_ID || 'AWTHgTJIdRyIazSB9Y7IAtsodC-Kx44P6qE-PXoWXT3l279ilp4QsQI2f6-Ukyw-mg9YekVirtigpUFp';
-      const paypalMode = window.PAYPAL_MODE || 'sandbox';
-      const script = document.createElement('script');
-      script.src = 'https://www.paypal.com/sdk/js?client-id=' + paypalClientId + '&currency=USD';
-      script.addEventListener('load', () => {
-        if (window.paypal) {
-          window.paypal.Buttons({
-            style: {
-              layout: 'vertical',
-              color: 'gold',
-              shape: 'rect',
-              label: 'paypal'
-            },
-            createOrder: async function(data, actions) {
-              if (!selectedDuration) {
-                showError(t('error').selectPlan);
-                return null;
-              }
-
-              if (!isLoggedIn()) {
-                showLoginModal();
-                return null;
-              }
-
-              const price = calculatePrice(selectedDuration, selectedIPs);
-
-              // \u8C03\u7528\u540E\u7AEF\u521B\u5EFA PayPal \u8BA2\u5355
-              try {
-                const response = await fetch(API_BASE + '/subscription/paypal/create-order', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + getToken()
-                  },
-                  body: JSON.stringify({
-                    duration_days: selectedDuration.days,
-                    max_ips: selectedIPs,
-                    amount: price.discounted
-                  })
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.success && result.orderId) {
-                  return result.orderId;
-                } else {
-                  throw new Error(result.error || 'Failed to create PayPal order');
-                }
-              } catch (error) {
-                console.error('Create order error:', error);
-                showError(error.message);
-                return null;
-              }
-            },
-            onApprove: async function(data, actions) {
-              // \u7528\u6237\u6279\u51C6\u652F\u4ED8\u540E\u8C03\u7528
-              try {
-                const response = await fetch(API_BASE + '/subscription/paypal/capture-order', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + getToken()
-                  },
-                  body: JSON.stringify({
-                    orderID: data.orderID
-                  })
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.success) {
-                  showSuccessModal(result.subUrl);
-                } else {
-                  throw new Error(result.error || 'Payment capture failed');
-                }
-              } catch (error) {
-                console.error('Capture order error:', error);
-                showError(error.message);
-              }
-            },
-            onError: function(err) {
-              console.error('PayPal error:', err);
-              showError(t('error').paymentError);
-            }
-          }).render('#paypal-button-container');
-        }
-      });
-      script.onerror = () => {
-        console.error('Failed to load PayPal SDK');
-        showError('PayPal SDK \u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u91CD\u8BD5');
-      };
-      document.body.appendChild(script);
     }
 
     function showLoading(show) {
@@ -20043,16 +19563,10 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         tab.classList.toggle('active', tab.dataset.method === method);
       });
 
-      // \u9690\u85CF\u6240\u6709\u652F\u4ED8\u533A\u57DF
-      document.getElementById('paypal-button-container').style.display = 'none';
-      document.getElementById('xunhupay-button-container').style.display = 'none';
-
       // \u6839\u636E\u652F\u4ED8\u65B9\u5F0F\u663E\u793A\u5BF9\u5E94\u533A\u57DF\uFF08\u4F46\u4E0D\u7ACB\u5373\u521B\u5EFA\u8BA2\u5355\uFF09
       if (method === 'alipay' || method === 'wechat') {
         // \u663E\u793A\u652F\u4ED8\u6309\u94AE
         showPaymentInfo(method);
-      } else if (method === 'paypal') {
-        document.getElementById('paypal-button-container').style.display = 'block';
       }
     }
 
@@ -20243,10 +19757,6 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
     // \u9875\u9762\u52A0\u8F7D\u65F6\u76F4\u63A5\u6E32\u67D3\u5957\u9910,\u4E0D\u68C0\u67E5\u767B\u5F55\u72B6\u6001
     document.addEventListener('DOMContentLoaded', () => {
       renderPlans();
-      initPayPal();
-      // \u9ED8\u8BA4\u4E0D\u663E\u793A\u4EFB\u4F55\u652F\u4ED8\u65B9\u5F0F\u7684\u8BE6\u7EC6\u5185\u5BB9
-      document.getElementById('xunhupay-button-container').style.display = 'block';
-      document.getElementById('paypal-button-container').style.display = 'none';
       switchPaymentMethod('alipay'); // \u9ED8\u8BA4\u663E\u793A\u652F\u4ED8\u5B9D\u6309\u94AE
     });
   <\/script>
@@ -22155,12 +21665,6 @@ window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
         return await handleGetOrderHistory(request, env, ctx);
       } else if (path === "/api/subscription/create-code") {
         return await handleCreateCode(request, env, ctx);
-      } else if (path === "/api/subscription/paypal/create-order") {
-        return await handleCreatePayPalOrder(request, env, ctx);
-      } else if (path === "/api/subscription/paypal/capture-order") {
-        return await handleCapturePayPalOrder(request, env, ctx);
-      } else if (path === "/api/subscription/paypal-webhook") {
-        return await handlePayPalWebhook(request, env, ctx);
       } else if (path === "/api/subscription/xunhupay/create-order") {
         return await handleCreateXunhuPayOrder(request, env, ctx);
       } else if (path === "/api/payment/xunhupay/notify") {
@@ -22176,15 +21680,7 @@ window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
           headers: { "Content-Type": "text/html; charset=utf-8" }
         });
       } else if (path === "/subscription" || path === "/subscription/" || path === "/subscription/index" || path === "/subscription/index.html") {
-        const paypalClientId = env.PAYPAL_CLIENT_ID || "";
-        const paypalMode = env.PAYPAL_MODE || "sandbox";
-        const htmlWithConfig = SUBSCRIPTION_HTML.replace(
-          "<script>",
-          `<script>window.PAYPAL_CLIENT_ID = '${paypalClientId}';
-window.PAYPAL_MODE = '${paypalMode}';
-`
-        );
-        return new Response(htmlWithConfig, {
+        return new Response(SUBSCRIPTION_HTML, {
           headers: { "Content-Type": "text/html; charset=utf-8" }
         });
       } else if (path === "/account" || path === "/account/" || path === "/account/index" || path === "/account/index.html") {
@@ -22481,7 +21977,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-eH1VxT/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-KGEPjh/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -22515,7 +22011,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-eH1VxT/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-KGEPjh/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

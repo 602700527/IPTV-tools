@@ -18,7 +18,7 @@ import {
   handleForgotPassword,
   handleResetPassword
 } from './handlers/auth.js';
-import { handleCreateCode, handleCreatePayPalOrder, handleCapturePayPalOrder, handlePayPalWebhook } from './handlers/subscription-api.js';
+import { handleCreateCode } from './handlers/subscription-api.js';
 import {
   handleCreateXunhuPayOrder,
   handleXunhuPayNotify,
@@ -224,15 +224,6 @@ export default {
     } else if (path === '/api/subscription/create-code') {
       // 创建订阅卡密
       return await handleCreateCode(request, env, ctx);
-    } else if (path === '/api/subscription/paypal/create-order') {
-      // 创建 PayPal 订单
-      return await handleCreatePayPalOrder(request, env, ctx);
-    } else if (path === '/api/subscription/paypal/capture-order') {
-      // 捕获 PayPal 订单（用户批准支付后）
-      return await handleCapturePayPalOrder(request, env, ctx);
-    } else if (path === '/api/subscription/paypal-webhook') {
-      // PayPal Webhook
-      return await handlePayPalWebhook(request, env, ctx);
     } else if (path === '/api/subscription/xunhupay/create-order') {
       // 创建虎皮椒支付订单
       return await handleCreateXunhuPayOrder(request, env, ctx);
@@ -253,14 +244,8 @@ export default {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     } else if (path === '/subscription' || path === '/subscription/' || path === '/subscription/index' || path === '/subscription/index.html') {
-      // 订阅购买页面（注入 PayPal 配置）
-      const paypalClientId = env.PAYPAL_CLIENT_ID || '';
-      const paypalMode = env.PAYPAL_MODE || 'sandbox';
-      const htmlWithConfig = SUBSCRIPTION_HTML.replace(
-        '<script>',
-        `<script>window.PAYPAL_CLIENT_ID = '${paypalClientId}';\nwindow.PAYPAL_MODE = '${paypalMode}';\n`
-      );
-      return new Response(htmlWithConfig, {
+      // 订阅购买页面
+      return new Response(SUBSCRIPTION_HTML, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     } else if (path === '/account' || path === '/account/' || path === '/account/index' || path === '/account/index.html') {
