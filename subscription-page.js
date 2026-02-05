@@ -1,6 +1,7 @@
 // 订阅支付页面HTML
 import { PAGE_HEADER } from './components/page-header.js';
 import { PAGE_FOOTER } from './components/page-footer.js';
+import { ALIPAY_SVG, WECHAT_PAY_SVG } from './assets.js';
 
 export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -246,7 +247,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       transition: all 0.3s ease;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
     .payment-method-tab:hover {
@@ -260,7 +261,16 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .payment-method-icon {
-      font-size: 20px;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .payment-method-icon svg {
+      width: 100%;
+      height: 100%;
     }
 
     .payment-method-name {
@@ -522,11 +532,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
       z-index: 2000;
       align-items: center;
       justify-content: center;
+      padding: 20px;
     }
 
     .payment-modal.show {
@@ -534,22 +545,22 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .payment-content {
-      background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
-      border-radius: 20px;
+      background: linear-gradient(135deg, #1e1e1e 0%, #0a0a0a 100%);
+      border-radius: 24px;
       padding: 0;
-      max-width: 500px;
-      width: 90%;
+      max-width: 480px;
+      width: 100%;
       max-height: 90vh;
       overflow-y: auto;
-      border: 2px solid rgba(229, 9, 20, 0.3);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-      animation: modalFadeIn 0.3s ease;
+      border: 1px solid rgba(229, 9, 20, 0.2);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    @keyframes modalFadeIn {
+    @keyframes modalSlideIn {
       from {
         opacity: 0;
-        transform: scale(0.9) translateY(-20px);
+        transform: scale(0.95) translateY(10px);
       }
       to {
         opacity: 1;
@@ -561,61 +572,89 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 20px 25px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 24px 28px;
+      background: linear-gradient(135deg, rgba(229, 9, 20, 0.1) 0%, rgba(184, 29, 36, 0.05) 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px 24px 0 0;
     }
 
     .payment-title {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
       color: #fff;
       margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .payment-title::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(180deg, #e50914 0%, #ff3b30 100%);
+      border-radius: 2px;
     }
 
     .payment-close {
-      background: none;
-      border: none;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       color: rgba(255, 255, 255, 0.6);
-      font-size: 32px;
+      font-size: 20px;
       cursor: pointer;
-      padding: 0;
-      width: 30px;
-      height: 30px;
+      padding: 8px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
       line-height: 1;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .payment-close:hover {
+      background: rgba(229, 9, 20, 0.2);
       color: #fff;
+      border-color: rgba(229, 9, 20, 0.3);
       transform: rotate(90deg);
     }
 
     .payment-body {
-      padding: 25px;
+      padding: 28px;
     }
 
     .payment-info {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 25px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
     }
 
     .payment-info-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 0;
+      padding: 12px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .payment-info-item:last-child {
       border-bottom: none;
+      padding-bottom: 8px;
+    }
+
+    .payment-info-item:first-child {
+      padding-top: 8px;
     }
 
     .payment-info-label {
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .payment-info-value {
@@ -626,84 +665,207 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     .payment-amount {
       color: #e50914;
-      font-size: 20px;
-      font-weight: 700;
+      font-size: 24px;
+      font-weight: 800;
+      text-shadow: 0 0 20px rgba(229, 9, 20, 0.3);
     }
 
-    .qrcode-display {
+    .qrcode-section {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px;
       text-align: center;
     }
 
     .qrcode-wrapper {
       background: #fff;
-      padding: 20px;
-      border-radius: 12px;
+      padding: 16px;
+      border-radius: 16px;
       display: inline-block;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     }
 
     .modal-qrcode-image {
-      width: 200px;
-      height: 200px;
+      width: 220px;
+      height: 220px;
       border: none;
+      display: block;
     }
 
     .qrcode-tip {
-      color: rgba(255, 255, 255, 0.8);
+      color: rgba(255, 255, 255, 0.7);
       font-size: 14px;
-      margin: 15px 0;
+      font-weight: 500;
+      margin: 0 0 16px 0;
     }
 
     .payment-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       color: #e50914;
       font-size: 15px;
-      font-weight: 600;
-      margin-top: 10px;
+      font-weight: 700;
+      padding: 10px 20px;
+      background: rgba(229, 9, 20, 0.1);
+      border-radius: 25px;
+      border: 1px solid rgba(229, 9, 20, 0.2);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.3);
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(229, 9, 20, 0);
+      }
+    }
+
+    .payment-status::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #e50914;
+      border-radius: 50%;
+      animation: statusBlink 1.5s ease-in-out infinite;
+    }
+
+    @keyframes statusBlink {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.3;
+      }
     }
 
     .payment-footer {
-      padding: 15px 25px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 16px 28px 28px 28px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .payment-close-button {
       width: 100%;
-      background: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 14px;
-      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+      color: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 16px;
+      border-radius: 12px;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .payment-close-button:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%);
       color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .payment-close-button:active {
+      transform: translateY(0);
     }
 
     @media (max-width: 600px) {
       .payment-content {
         max-width: 95%;
+        border-radius: 20px;
       }
 
       .payment-body {
-        padding: 20px;
+        padding: 24px 20px;
       }
 
       .payment-header {
-        padding: 15px 20px;
+        padding: 20px;
+        border-radius: 20px 20px 0 0;
+      }
+
+      .payment-title {
+        font-size: 18px;
       }
 
       .payment-info {
-        padding: 15px;
+        padding: 18px;
+        margin-bottom: 24px;
+      }
+
+      .qrcode-section {
+        padding: 24px 20px;
+      }
+
+      .modal-qrcode-image {
+        width: 200px;
+        height: 200px;
+      }
+
+      .payment-footer {
+        padding: 14px 20px 24px 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .payment-content {
+        max-width: 98%;
+        border-radius: 16px;
+      }
+
+      .payment-header {
+        padding: 16px;
+      }
+
+      .payment-title {
+        font-size: 16px;
+      }
+
+      .payment-body {
+        padding: 20px 16px;
+      }
+
+      .payment-info {
+        padding: 16px;
+      }
+
+      .payment-info-label {
+        font-size: 12px;
+      }
+
+      .payment-info-value {
+        font-size: 14px;
+      }
+
+      .payment-amount {
+        font-size: 20px;
+      }
+
+      .qrcode-section {
+        padding: 20px 16px;
       }
 
       .modal-qrcode-image {
         width: 180px;
         height: 180px;
+      }
+
+      .qrcode-wrapper {
+        padding: 12px;
+      }
+
+      .qrcode-tip {
+        font-size: 13px;
+      }
+
+      .payment-status {
+        font-size: 14px;
+        padding: 8px 16px;
       }
     }
   </style>
@@ -727,11 +889,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <div class="payment-section">
       <div class="payment-methods">
         <div class="payment-method-tab active" onclick="switchPaymentMethod('alipay')" data-method="alipay">
-          <span class="payment-method-icon">💰</span>
+          <span class="payment-method-icon">${ALIPAY_SVG}</span>
           <span class="payment-method-name">支付宝</span>
         </div>
           <div class="payment-method-tab" onclick="switchPaymentMethod('wechat')" data-method="wechat">
-          <span class="payment-method-icon">💚</span>
+          <span class="payment-method-icon">${WECHAT_PAY_SVG}</span>
           <span class="payment-method-name">微信支付</span>
         </div>
       </div>
@@ -789,7 +951,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <span class="payment-info-value payment-amount" id="paymentAmount">-</span>
           </div>
         </div>
-        <div class="qrcode-display">
+        <div class="qrcode-section">
           <div class="qrcode-wrapper">
             <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
           </div>
