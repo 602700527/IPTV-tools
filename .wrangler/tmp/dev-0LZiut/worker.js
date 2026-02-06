@@ -20488,6 +20488,13 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         <button class="payment-close" onclick="closePaymentModal()">\xD7</button>
       </div>
       <div class="payment-body">
+        <div class="qrcode-section">
+          <div class="qrcode-wrapper">
+            <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
+          </div>
+          <p class="qrcode-tip" id="modalQrcodeTip" data-i18n="scanQrcode">\u8BF7\u4F7F\u7528\u624B\u673A\u626B\u7801\u652F\u4ED8</p>
+          <p class="payment-status" id="paymentStatus">\u7B49\u5F85\u652F\u4ED8\u4E2D...</p>
+        </div>
         <div class="payment-info">
           <div class="payment-info-item">
             <span class="payment-info-label">\u5957\u9910</span>
@@ -20505,13 +20512,6 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <span class="payment-info-label">\u8BA2\u5355\u91D1\u989D</span>
             <span class="payment-info-value payment-amount" id="paymentAmount">-</span>
           </div>
-        </div>
-        <div class="qrcode-section">
-          <div class="qrcode-wrapper">
-            <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
-          </div>
-          <p class="qrcode-tip" id="modalQrcodeTip" data-i18n="scanQrcode">\u8BF7\u4F7F\u7528\u624B\u673A\u626B\u7801\u652F\u4ED8</p>
-          <p class="payment-status" id="paymentStatus">\u7B49\u5F85\u652F\u4ED8\u4E2D...</p>
         </div>
       </div>
       <div class="payment-footer">

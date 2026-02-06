@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-KeP3k5/checked-fetch.js
+// .wrangler/tmp/bundle-ayYLyg/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-KeP3k5/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-ayYLyg/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -1931,11 +1931,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-KeP3k5/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-ayYLyg/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-KeP3k5/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-ayYLyg/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -20488,6 +20488,13 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         <button class="payment-close" onclick="closePaymentModal()">\xD7</button>
       </div>
       <div class="payment-body">
+        <div class="qrcode-section">
+          <div class="qrcode-wrapper">
+            <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
+          </div>
+          <p class="qrcode-tip" id="modalQrcodeTip" data-i18n="scanQrcode">\u8BF7\u4F7F\u7528\u624B\u673A\u626B\u7801\u652F\u4ED8</p>
+          <p class="payment-status" id="paymentStatus">\u7B49\u5F85\u652F\u4ED8\u4E2D...</p>
+        </div>
         <div class="payment-info">
           <div class="payment-info-item">
             <span class="payment-info-label">\u5957\u9910</span>
@@ -20505,13 +20512,6 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <span class="payment-info-label">\u8BA2\u5355\u91D1\u989D</span>
             <span class="payment-info-value payment-amount" id="paymentAmount">-</span>
           </div>
-        </div>
-        <div class="qrcode-section">
-          <div class="qrcode-wrapper">
-            <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
-          </div>
-          <p class="qrcode-tip" id="modalQrcodeTip" data-i18n="scanQrcode">\u8BF7\u4F7F\u7528\u624B\u673A\u626B\u7801\u652F\u4ED8</p>
-          <p class="payment-status" id="paymentStatus">\u7B49\u5F85\u652F\u4ED8\u4E2D...</p>
         </div>
       </div>
       <div class="payment-footer">
@@ -21684,7 +21684,7 @@ var PLANS_HTML = `<!DOCTYPE html>
           <span class="plan-badge premium" data-i18n="premiumBadge">\u4F1A\u5458\u8BA1\u5212</span>
           <div class="plan-name" data-i18n="premiumName">VIP \u8BA2\u9605</div>
           <div class="plan-price">
-            \xA56.5<span class="period" data-i18n="premiumPeriod">/ \u6708</span>
+            \xA520<span class="period" data-i18n="premiumPeriod">/ \u6708</span>
           </div>
           <p class="plan-description" data-i18n="premiumDesc">\u89E3\u9501\u5168\u90E8\u529F\u80FD\uFF0C\u4EAB\u53D7\u6781\u81F4\u7684\u89C2\u770B\u4F53\u9A8C</p>
 
@@ -23190,7 +23190,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-KeP3k5/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-ayYLyg/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -23224,7 +23224,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-KeP3k5/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-ayYLyg/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

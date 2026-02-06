@@ -933,6 +933,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         <button class="payment-close" onclick="closePaymentModal()">×</button>
       </div>
       <div class="payment-body">
+        <div class="qrcode-section">
+          <div class="qrcode-wrapper">
+            <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
+          </div>
+          <p class="qrcode-tip" id="modalQrcodeTip" data-i18n="scanQrcode">请使用手机扫码支付</p>
+          <p class="payment-status" id="paymentStatus">等待支付中...</p>
+        </div>
         <div class="payment-info">
           <div class="payment-info-item">
             <span class="payment-info-label">套餐</span>
@@ -950,13 +957,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <span class="payment-info-label">订单金额</span>
             <span class="payment-info-value payment-amount" id="paymentAmount">-</span>
           </div>
-        </div>
-        <div class="qrcode-section">
-          <div class="qrcode-wrapper">
-            <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
-          </div>
-          <p class="qrcode-tip" id="modalQrcodeTip" data-i18n="scanQrcode">请使用手机扫码支付</p>
-          <p class="payment-status" id="paymentStatus">等待支付中...</p>
         </div>
       </div>
       <div class="payment-footer">
