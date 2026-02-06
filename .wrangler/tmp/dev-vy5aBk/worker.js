@@ -631,6 +631,28 @@ async function createTables(env) {
   }
   try {
     await db.prepare(`
+      CREATE TABLE IF NOT EXISTS subscription_plans (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        name_en TEXT,
+        days INTEGER NOT NULL,
+        base_price REAL NOT NULL,
+        price_per_ip REAL NOT NULL,
+        discount INTEGER DEFAULT 0,
+        is_enabled BOOLEAN DEFAULT 1,
+        sort_order INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_subscription_plans_enabled ON subscription_plans(is_enabled, sort_order)").run();
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_subscription_plans_days ON subscription_plans(days)").run();
+    console.log("Database: subscription_plans table created or already exists");
+  } catch (e) {
+    console.error("Database: Failed to create subscription_plans table:", e);
+  }
+  try {
+    await db.prepare(`
       CREATE TABLE IF NOT EXISTS xunhupay_orders (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         order_id TEXT UNIQUE NOT NULL,
@@ -5283,6 +5305,89 @@ async function handleAdminRequest(request, env, ctx) {
               headers: { "Content-Type": "application/json" }
             });
           }
+        } else if (mallSubAction === "plans") {
+          const db2 = getDB();
+          const planId = pathParts[4];
+          const isToggleAction = pathParts[5] === "toggle";
+          if (request.method === "GET") {
+            const plans = await db2.prepare("SELECT * FROM subscription_plans ORDER BY sort_order, id").all();
+            return new Response(JSON.stringify({
+              success: true,
+              plans: plans.results || []
+            }), {
+              headers: { "Content-Type": "application/json" }
+            });
+          } else if (request.method === "POST") {
+            const data = await request.json();
+            const now2 = (/* @__PURE__ */ new Date()).toISOString();
+            await db2.prepare(`
+              INSERT INTO subscription_plans (name, name_en, days, base_price, price_per_ip, discount, is_enabled, sort_order, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).bind(
+              data.name,
+              data.name_en || null,
+              data.days,
+              data.base_price,
+              data.price_per_ip,
+              data.discount || 0,
+              data.is_enabled !== void 0 ? data.is_enabled : 1,
+              data.sort_order || 0,
+              now2,
+              now2
+            ).run();
+            return new Response(JSON.stringify({
+              success: true,
+              message: "\u5957\u9910\u5DF2\u6DFB\u52A0"
+            }), {
+              headers: { "Content-Type": "application/json" }
+            });
+          } else if (request.method === "PUT") {
+            if (isToggleAction) {
+              const data = await request.json();
+              const now2 = (/* @__PURE__ */ new Date()).toISOString();
+              await db2.prepare(`
+                UPDATE subscription_plans SET is_enabled = ?, updated_at = ? WHERE id = ?
+              `).bind(data.is_enabled, now2, planId).run();
+              return new Response(JSON.stringify({
+                success: true,
+                message: "\u5957\u9910\u72B6\u6001\u5DF2\u66F4\u65B0"
+              }), {
+                headers: { "Content-Type": "application/json" }
+              });
+            } else {
+              const data = await request.json();
+              const now2 = (/* @__PURE__ */ new Date()).toISOString();
+              await db2.prepare(`
+                UPDATE subscription_plans SET name = ?, name_en = ?, days = ?, base_price = ?, price_per_ip = ?, discount = ?, is_enabled = ?, sort_order = ?, updated_at = ?
+                WHERE id = ?
+              `).bind(
+                data.name,
+                data.name_en || null,
+                data.days,
+                data.base_price,
+                data.price_per_ip,
+                data.discount || 0,
+                data.is_enabled !== void 0 ? data.is_enabled : 1,
+                data.sort_order || 0,
+                now2,
+                data.id
+              ).run();
+              return new Response(JSON.stringify({
+                success: true,
+                message: "\u5957\u9910\u5DF2\u66F4\u65B0"
+              }), {
+                headers: { "Content-Type": "application/json" }
+              });
+            }
+          } else if (request.method === "DELETE" && planId) {
+            await db2.prepare("DELETE FROM subscription_plans WHERE id = ?").bind(planId).run();
+            return new Response(JSON.stringify({
+              success: true,
+              message: "\u5957\u9910\u5DF2\u5220\u9664"
+            }), {
+              headers: { "Content-Type": "application/json" }
+            });
+          }
         } else if (mallSubAction === "payment-methods") {
           if (request.method === "GET") {
             return await handleGetPaymentMethods(request, env);
@@ -7348,6 +7453,46 @@ function jsonResponse(data, status = 200) {
 }
 __name(jsonResponse, "jsonResponse");
 
+// handlers/plans-api.js
+init_checked_fetch();
+init_modules_watch_stub();
+async function handleGetPlans(request, env, ctx) {
+  try {
+    const db = env.DB;
+    const result = await db.prepare(`
+      SELECT * FROM subscription_plans
+      WHERE is_enabled = 1
+      ORDER BY sort_order, id
+    `).all();
+    const plans = result.results || [];
+    const formattedPlans = plans.map((p) => ({
+      id: p.id,
+      name: p.name,
+      name_en: p.name_en,
+      days: p.days,
+      base_price: parseFloat(p.base_price),
+      price_per_ip: parseFloat(p.price_per_ip),
+      discount: p.discount
+    }));
+    return new Response(JSON.stringify({
+      success: true,
+      plans: formattedPlans
+    }), {
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error) {
+    console.error("[Plans API] Get plans error:", error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Server error"
+    }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(handleGetPlans, "handleGetPlans");
+
 // handlers/auth.js
 init_checked_fetch();
 init_modules_watch_stub();
@@ -8792,6 +8937,38 @@ var ADMIN_HTML = `<!DOCTYPE html>
 
       <div class="card">
         <div class="toolbar">
+          <h3>\u8BA2\u9605\u5957\u9910\u7BA1\u7406</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="showPlanModal()">\u6DFB\u52A0\u5957\u9910</button>
+            <button class="btn" onclick="loadPlans()">\u5237\u65B0</button>
+          </div>
+        </div>
+        <div style="padding:16px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            \u7BA1\u7406\u8BA2\u9605\u5957\u9910\u7684\u4EF7\u683C\u548C\u914D\u7F6E\u3002\u4FEE\u6539\u540E\u5373\u65F6\u751F\u6548\uFF0C\u8BA2\u9605\u9875\u9762\u4F1A\u81EA\u52A8\u66F4\u65B0\u663E\u793A\u3002
+          </p>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>\u540D\u79F0</th>
+              <th>\u65F6\u957F</th>
+              <th>\u57FA\u7840\u4EF7\u683C</th>
+              <th>IP\u5355\u4EF7</th>
+              <th>\u6298\u6263</th>
+              <th>\u6392\u5E8F</th>
+              <th>\u72B6\u6001</th>
+              <th>\u64CD\u4F5C</th>
+            </tr>
+          </thead>
+          <tbody id="plansTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
           <h3>\u652F\u4ED8\u63A5\u53E3\u7BA1\u7406</h3>
           <div style="display:flex;gap:8px;">
             <button class="btn btn-primary" onclick="showPaymentMethodModal()">\u6DFB\u52A0\u652F\u4ED8\u65B9\u5F0F</button>
@@ -9105,6 +9282,59 @@ var ADMIN_HTML = `<!DOCTYPE html>
         </label>
       </div>
       <div class="modal-footer"><button class="btn" onclick="closeImportCodeModal()">\u53D6\u6D88</button><button class="btn btn-primary" onclick="importCodesFromCSV()">\u5F00\u59CB\u5BFC\u5165</button></div>
+    </div>
+  </div>
+  <div id="planModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3 id="planModalTitle">\u6DFB\u52A0\u8BA2\u9605\u5957\u9910</h3><button class="close-btn" onclick="closePlanModal()">&times;</button></div>
+      <input type="hidden" id="planId" value="">
+      <div class="form-row">
+        <div class="form-group">
+          <label>\u5957\u9910\u540D\u79F0\uFF08\u4E2D\u6587\uFF09</label>
+          <input type="text" id="planName" placeholder="\u4F8B\u5982\uFF1A1\u4E2A\u6708" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+        <div class="form-group">
+          <label>\u5957\u9910\u540D\u79F0\uFF08\u82F1\u6587\uFF09</label>
+          <input type="text" id="planNameEn" placeholder="\u4F8B\u5982\uFF1A1 Month" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>\u65F6\u957F\uFF08\u5929\uFF09</label>
+          <input type="number" id="planDays" min="1" placeholder="30" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+        <div class="form-group">
+          <label>\u57FA\u7840\u4EF7\u683C\uFF08\u5143\uFF09</label>
+          <input type="number" id="planBasePrice" min="0" step="0.01" placeholder="29" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>IP\u5355\u4EF7\uFF08\u5143/\u4E2A\uFF09</label>
+          <input type="number" id="planPricePerIP" min="0" step="0.01" placeholder="9" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+        <div class="form-group">
+          <label>\u6298\u6263\uFF08%\uFF09</label>
+          <input type="number" id="planDiscount" min="0" max="100" placeholder="0" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>\u6392\u5E8F\uFF08\u6570\u5B57\u8D8A\u5C0F\u8D8A\u9760\u524D\uFF09</label>
+          <input type="number" id="planSortOrder" min="0" placeholder="1" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+        <div class="form-group">
+          <label>\u72B6\u6001</label>
+          <label style="display:flex;align-items:center;gap:8px;padding:12px;background:white;border:1px solid #d2d2d7;border-radius:6px;cursor:pointer;">
+            <input type="checkbox" id="planEnabled" checked style="width:auto;">
+            <span>\u542F\u7528</span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closePlanModal()">\u53D6\u6D88</button>
+        <button class="btn btn-primary" onclick="savePlan()">\u4FDD\u5B58</button>
+      </div>
     </div>
   </div>
   <div id="paymentMethodModal" class="modal">
@@ -9427,6 +9657,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
       else if (tabName === 'orders') loadOrders();
       else if (tabName === 'mall') {
         loadMallSettings();
+        loadPlans();
         loadPaymentMethods();
       }
       else if (tabName === 'security') {
@@ -12350,6 +12581,192 @@ var ADMIN_HTML = `<!DOCTYPE html>
     }
 
     // ========== \u5546\u57CE\u7BA1\u7406\u76F8\u5173\u51FD\u6570 ==========
+
+    // \u8BA2\u9605\u5957\u9910\u7BA1\u7406
+    async function loadPlans() {
+      try {
+        const response = await fetch(API_BASE + '/mall/plans', {
+          headers: { 'X-Admin-Key': adminKey }
+        });
+        const data = await response.json();
+        if (data.success) {
+          renderPlans(data.plans || []);
+        }
+      } catch (error) {
+        console.error('Failed to load plans:', error);
+      }
+    }
+
+    function renderPlans(plans) {
+      const tbody = document.getElementById('plansTableBody');
+      if (plans.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:#86868b;">\u6682\u65E0\u5957\u9910\u6570\u636E</td></tr>';
+        return;
+      }
+      tbody.innerHTML = plans.map(plan => {
+        const statusClass = plan.is_enabled ? 'badge-success' : 'badge-danger';
+        const statusText = plan.is_enabled ? '\u5DF2\u542F\u7528' : '\u5DF2\u7981\u7528';
+        return \`
+          <tr>
+            <td>\${plan.id}</td>
+            <td>
+              <div>\${escapeHtml(plan.name)}</div>
+              <div style="font-size:12px;color:#86868b;">\${escapeHtml(plan.name_en || '')}</div>
+            </td>
+            <td>\${plan.days} \u5929</td>
+            <td>\xA5\${parseFloat(plan.base_price).toFixed(2)}</td>
+            <td>\xA5\${parseFloat(plan.price_per_ip).toFixed(2)}</td>
+            <td>\${plan.discount}%</td>
+            <td>\${plan.sort_order}</td>
+            <td><span class="badge \${statusClass}">\${statusText}</span></td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-sm btn-primary" onclick="editPlan(\${plan.id})">\u7F16\u8F91</button>
+                <button class="btn btn-sm \${plan.is_enabled ? 'btn-danger' : 'btn-success'}" onclick="togglePlan(\${plan.id}, \${!plan.is_enabled})">
+                  \${plan.is_enabled ? '\u7981\u7528' : '\u542F\u7528'}
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deletePlan(\${plan.id})">\u5220\u9664</button>
+              </div>
+            </td>
+          </tr>
+        \`;
+      }).join('');
+    }
+
+    function showPlanModal() {
+      document.getElementById('planModalTitle').textContent = '\u6DFB\u52A0\u8BA2\u9605\u5957\u9910';
+      document.getElementById('planId').value = '';
+      document.getElementById('planName').value = '';
+      document.getElementById('planNameEn').value = '';
+      document.getElementById('planDays').value = '30';
+      document.getElementById('planBasePrice').value = '29';
+      document.getElementById('planPricePerIP').value = '9';
+      document.getElementById('planDiscount').value = '0';
+      document.getElementById('planSortOrder').value = '1';
+      document.getElementById('planEnabled').checked = true;
+      document.getElementById('planModal').classList.add('active');
+    }
+
+    function closePlanModal() {
+      document.getElementById('planModal').classList.remove('active');
+    }
+
+    function editPlan(id) {
+      fetch(API_BASE + '/mall/plans', {
+        headers: { 'X-Admin-Key': adminKey }
+      }).then(res => res.json()).then(data => {
+        if (data.success) {
+          const plan = data.plans.find(p => p.id === id);
+          if (plan) {
+            document.getElementById('planModalTitle').textContent = '\u7F16\u8F91\u8BA2\u9605\u5957\u9910';
+            document.getElementById('planId').value = plan.id;
+            document.getElementById('planName').value = plan.name;
+            document.getElementById('planNameEn').value = plan.name_en || '';
+            document.getElementById('planDays').value = plan.days;
+            document.getElementById('planBasePrice').value = plan.base_price;
+            document.getElementById('planPricePerIP').value = plan.price_per_ip;
+            document.getElementById('planDiscount').value = plan.discount;
+            document.getElementById('planSortOrder').value = plan.sort_order;
+            document.getElementById('planEnabled').checked = plan.is_enabled ? true : false;
+            document.getElementById('planModal').classList.add('active');
+          }
+        }
+      });
+    }
+
+    async function savePlan() {
+      const id = document.getElementById('planId').value;
+      const name = document.getElementById('planName').value.trim();
+      const nameEn = document.getElementById('planNameEn').value.trim();
+      const days = parseInt(document.getElementById('planDays').value);
+      const basePrice = parseFloat(document.getElementById('planBasePrice').value);
+      const pricePerIP = parseFloat(document.getElementById('planPricePerIP').value);
+      const discount = parseInt(document.getElementById('planDiscount').value);
+      const sortOrder = parseInt(document.getElementById('planSortOrder').value);
+      const isEnabled = document.getElementById('planEnabled').checked ? 1 : 0;
+
+      if (!name || !days || isNaN(basePrice) || isNaN(pricePerIP)) {
+        showToast('\u8BF7\u586B\u5199\u5B8C\u6574\u4FE1\u606F', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(API_BASE + '/mall/plans', {
+          method: id ? 'PUT' : 'POST',
+          headers: {
+            'X-Admin-Key': adminKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id: id || null,
+            name,
+            name_en: nameEn || null,
+            days,
+            base_price: basePrice,
+            price_per_ip: pricePerIP,
+            discount: discount || 0,
+            sort_order: sortOrder || 0,
+            is_enabled: isEnabled
+          })
+        });
+        const data = await response.json();
+        if (data.success) {
+          showToast(id ? '\u5957\u9910\u5DF2\u66F4\u65B0' : '\u5957\u9910\u5DF2\u6DFB\u52A0', 'success');
+          closePlanModal();
+          loadPlans();
+        } else {
+          showToast('\u4FDD\u5B58\u5931\u8D25: ' + (data.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+        }
+      } catch (error) {
+        console.error('Failed to save plan:', error);
+        showToast('\u4FDD\u5B58\u5931\u8D25', 'error');
+      }
+    }
+
+    async function togglePlan(id, isEnabled) {
+      try {
+        const response = await fetch(API_BASE + '/mall/plans/' + id + '/toggle', {
+          method: 'PUT',
+          headers: {
+            'X-Admin-Key': adminKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ is_enabled: isEnabled ? 1 : 0 })
+        });
+        const data = await response.json();
+        if (data.success) {
+          showToast('\u5957\u9910\u72B6\u6001\u5DF2\u66F4\u65B0', 'success');
+          loadPlans();
+        } else {
+          showToast('\u64CD\u4F5C\u5931\u8D25: ' + (data.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+        }
+      } catch (error) {
+        console.error('Failed to toggle plan:', error);
+        showToast('\u64CD\u4F5C\u5931\u8D25', 'error');
+      }
+    }
+
+    async function deletePlan(id) {
+      if (!confirm('\u786E\u5B9A\u8981\u5220\u9664\u8FD9\u4E2A\u5957\u9910\u5417\uFF1F')) {
+        return;
+      }
+      try {
+        const response = await fetch(API_BASE + '/mall/plans/' + id, {
+          method: 'DELETE',
+          headers: { 'X-Admin-Key': adminKey }
+        });
+        const data = await response.json();
+        if (data.success) {
+          showToast('\u5957\u9910\u5DF2\u5220\u9664', 'success');
+          loadPlans();
+        } else {
+          showToast('\u5220\u9664\u5931\u8D25: ' + (data.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+        }
+      } catch (error) {
+        console.error('Failed to delete plan:', error);
+        showToast('\u5220\u9664\u5931\u8D25', 'error');
+      }
+    }
 
     async function loadMallSettings() {
       try {
@@ -20118,17 +20535,60 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
     let currentLang = detectBrowserLanguage();
     let selectedDuration = null;
     let selectedIPs = 3;
-
-    // \u65F6\u957F\u914D\u7F6E
-    const durationOptions = [
-      { days: 30, basePrice: 29, pricePerIP: 9, discount: 0, name: 'month_1' },
-      { days: 90, basePrice: 79, pricePerIP: 18, discount: 0, name: 'month_3' },
-      { days: 180, basePrice: 149, pricePerIP: 28, discount: 10, name: 'month_6' },
-      { days: 365, basePrice: 279, pricePerIP: 49, discount: 20, name: 'month_12' }
-    ];
+    let durationOptions = [];
+    let planNames = {};
 
     // IP\u6570\u91CF\u914D\u7F6E
     const ipOptions = [1, 2, 3, 5];
+
+    // \u4ECE\u6570\u636E\u5E93\u52A0\u8F7D\u5957\u9910\u914D\u7F6E
+    async function loadPlans() {
+      try {
+        const response = await fetch('/api/mall/plans');
+        const data = await response.json();
+        if (data.success && data.plans) {
+          durationOptions = data.plans.map(plan => ({
+            days: plan.days,
+            basePrice: plan.base_price,
+            pricePerIP: plan.price_per_ip,
+            discount: plan.discount,
+            name: 'plan_' + plan.id
+          }));
+
+          // \u66F4\u65B0\u7FFB\u8BD1\u4E2D\u7684\u5957\u9910\u540D\u79F0
+          if (translations['zh-CN']) {
+            translations['zh-CN'].planNames = data.plans.reduce((acc, plan) => {
+              acc['plan_' + plan.id] = plan.name;
+              return acc;
+            }, {});
+          }
+          if (translations['en']) {
+            translations['en'].planNames = data.plans.reduce((acc, plan) => {
+              acc['plan_' + plan.id] = plan.name_en || plan.name;
+              return acc;
+            }, {});
+          }
+
+          // \u5982\u679C\u6CA1\u6709\u9009\u4E2D\u7684\u5957\u9910\uFF0C\u9ED8\u8BA4\u9009\u4E2D\u7B2C\u4E00\u4E2A
+          if (durationOptions.length > 0 && !selectedDuration) {
+            selectedDuration = durationOptions[0];
+          }
+
+          renderPlans();
+        }
+      } catch (error) {
+        console.error('Failed to load plans:', error);
+        // \u5982\u679C\u52A0\u8F7D\u5931\u8D25\uFF0C\u4F7F\u7528\u9ED8\u8BA4\u914D\u7F6E
+        durationOptions = [
+          { days: 30, basePrice: 29, pricePerIP: 9, discount: 0, name: 'plan_default_1' },
+          { days: 90, basePrice: 79, pricePerIP: 18, discount: 0, name: 'plan_default_2' },
+          { days: 180, basePrice: 149, pricePerIP: 28, discount: 10, name: 'plan_default_3' },
+          { days: 365, basePrice: 279, pricePerIP: 49, discount: 20, name: 'plan_default_4' }
+        ];
+        selectedDuration = durationOptions[0];
+        renderPlans();
+      }
+    }
 
     // \u521D\u59CB\u5316\u9ED8\u8BA4\u9009\u62E9
     selectedDuration = durationOptions[2];
@@ -20662,7 +21122,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     // \u9875\u9762\u52A0\u8F7D\u65F6\u76F4\u63A5\u6E32\u67D3\u5957\u9910,\u4E0D\u68C0\u67E5\u767B\u5F55\u72B6\u6001
     document.addEventListener('DOMContentLoaded', () => {
-      renderPlans();
+      loadPlans(); // \u4ECE\u6570\u636E\u5E93\u52A0\u8F7D\u5957\u9910\u914D\u7F6E
       loadPaymentMethods(); // \u52A0\u8F7D\u652F\u4ED8\u65B9\u5F0F\u5217\u8868
     });
   <\/script>
@@ -22362,6 +22822,8 @@ window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
         return await handlePublicAnnouncement(request, env, ctx);
       } else if (path === "/api/mall/settings") {
         return await handlePublicMallSettings(request, env, ctx);
+      } else if (path === "/api/mall/plans") {
+        return await handleGetPlans(request, env, ctx);
       } else if (path === "/api/mall/payment-methods") {
         return await handleGetPaymentMethods(request, env, ctx);
       } else if (path === "/api/channels") {

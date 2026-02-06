@@ -7,6 +7,7 @@ import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } fro
 import { handleUserActivate } from './handlers/user.js';
 import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings } from './handlers/public.js';
 import { handleFreeSubAPI } from './handlers/freesub-api.js';
+import { handleGetPlans } from './handlers/plans-api.js';
 import {
   handleRegister,
   handleSendVerificationCode,
@@ -167,6 +168,9 @@ export default {
     } else if (path === '/api/mall/settings') {
       // 公开商城设置API
       return await handlePublicMallSettings(request, env, ctx);
+    } else if (path === '/api/mall/plans') {
+      // 公开订阅套餐列表API
+      return await handleGetPlans(request, env, ctx);
     } else if (path === '/api/mall/payment-methods') {
       // 公开支付方式列表API
       return await handleGetPaymentMethods(request, env, ctx);

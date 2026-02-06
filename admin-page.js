@@ -691,6 +691,38 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
       <div class="card">
         <div class="toolbar">
+          <h3>订阅套餐管理</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="showPlanModal()">添加套餐</button>
+            <button class="btn" onclick="loadPlans()">刷新</button>
+          </div>
+        </div>
+        <div style="padding:16px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            管理订阅套餐的价格和配置。修改后即时生效，订阅页面会自动更新显示。
+          </p>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>名称</th>
+              <th>时长</th>
+              <th>基础价格</th>
+              <th>IP单价</th>
+              <th>折扣</th>
+              <th>排序</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="plansTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
           <h3>支付接口管理</h3>
           <div style="display:flex;gap:8px;">
             <button class="btn btn-primary" onclick="showPaymentMethodModal()">添加支付方式</button>
@@ -1004,6 +1036,59 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </label>
       </div>
       <div class="modal-footer"><button class="btn" onclick="closeImportCodeModal()">取消</button><button class="btn btn-primary" onclick="importCodesFromCSV()">开始导入</button></div>
+    </div>
+  </div>
+  <div id="planModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3 id="planModalTitle">添加订阅套餐</h3><button class="close-btn" onclick="closePlanModal()">&times;</button></div>
+      <input type="hidden" id="planId" value="">
+      <div class="form-row">
+        <div class="form-group">
+          <label>套餐名称（中文）</label>
+          <input type="text" id="planName" placeholder="例如：1个月" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+        <div class="form-group">
+          <label>套餐名称（英文）</label>
+          <input type="text" id="planNameEn" placeholder="例如：1 Month" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>时长（天）</label>
+          <input type="number" id="planDays" min="1" placeholder="30" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+        <div class="form-group">
+          <label>基础价格（元）</label>
+          <input type="number" id="planBasePrice" min="0" step="0.01" placeholder="29" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>IP单价（元/个）</label>
+          <input type="number" id="planPricePerIP" min="0" step="0.01" placeholder="9" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+        <div class="form-group">
+          <label>折扣（%）</label>
+          <input type="number" id="planDiscount" min="0" max="100" placeholder="0" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>排序（数字越小越靠前）</label>
+          <input type="number" id="planSortOrder" min="0" placeholder="1" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+        <div class="form-group">
+          <label>状态</label>
+          <label style="display:flex;align-items:center;gap:8px;padding:12px;background:white;border:1px solid #d2d2d7;border-radius:6px;cursor:pointer;">
+            <input type="checkbox" id="planEnabled" checked style="width:auto;">
+            <span>启用</span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closePlanModal()">取消</button>
+        <button class="btn btn-primary" onclick="savePlan()">保存</button>
+      </div>
     </div>
   </div>
   <div id="paymentMethodModal" class="modal">
@@ -1326,6 +1411,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       else if (tabName === 'orders') loadOrders();
       else if (tabName === 'mall') {
         loadMallSettings();
+        loadPlans();
         loadPaymentMethods();
       }
       else if (tabName === 'security') {
@@ -4249,6 +4335,192 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     }
 
     // ========== 商城管理相关函数 ==========
+
+    // 订阅套餐管理
+    async function loadPlans() {
+      try {
+        const response = await fetch(API_BASE + '/mall/plans', {
+          headers: { 'X-Admin-Key': adminKey }
+        });
+        const data = await response.json();
+        if (data.success) {
+          renderPlans(data.plans || []);
+        }
+      } catch (error) {
+        console.error('Failed to load plans:', error);
+      }
+    }
+
+    function renderPlans(plans) {
+      const tbody = document.getElementById('plansTableBody');
+      if (plans.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:#86868b;">暂无套餐数据</td></tr>';
+        return;
+      }
+      tbody.innerHTML = plans.map(plan => {
+        const statusClass = plan.is_enabled ? 'badge-success' : 'badge-danger';
+        const statusText = plan.is_enabled ? '已启用' : '已禁用';
+        return \`
+          <tr>
+            <td>\${plan.id}</td>
+            <td>
+              <div>\${escapeHtml(plan.name)}</div>
+              <div style="font-size:12px;color:#86868b;">\${escapeHtml(plan.name_en || '')}</div>
+            </td>
+            <td>\${plan.days} 天</td>
+            <td>¥\${parseFloat(plan.base_price).toFixed(2)}</td>
+            <td>¥\${parseFloat(plan.price_per_ip).toFixed(2)}</td>
+            <td>\${plan.discount}%</td>
+            <td>\${plan.sort_order}</td>
+            <td><span class="badge \${statusClass}">\${statusText}</span></td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-sm btn-primary" onclick="editPlan(\${plan.id})">编辑</button>
+                <button class="btn btn-sm \${plan.is_enabled ? 'btn-danger' : 'btn-success'}" onclick="togglePlan(\${plan.id}, \${!plan.is_enabled})">
+                  \${plan.is_enabled ? '禁用' : '启用'}
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deletePlan(\${plan.id})">删除</button>
+              </div>
+            </td>
+          </tr>
+        \`;
+      }).join('');
+    }
+
+    function showPlanModal() {
+      document.getElementById('planModalTitle').textContent = '添加订阅套餐';
+      document.getElementById('planId').value = '';
+      document.getElementById('planName').value = '';
+      document.getElementById('planNameEn').value = '';
+      document.getElementById('planDays').value = '30';
+      document.getElementById('planBasePrice').value = '29';
+      document.getElementById('planPricePerIP').value = '9';
+      document.getElementById('planDiscount').value = '0';
+      document.getElementById('planSortOrder').value = '1';
+      document.getElementById('planEnabled').checked = true;
+      document.getElementById('planModal').classList.add('active');
+    }
+
+    function closePlanModal() {
+      document.getElementById('planModal').classList.remove('active');
+    }
+
+    function editPlan(id) {
+      fetch(API_BASE + '/mall/plans', {
+        headers: { 'X-Admin-Key': adminKey }
+      }).then(res => res.json()).then(data => {
+        if (data.success) {
+          const plan = data.plans.find(p => p.id === id);
+          if (plan) {
+            document.getElementById('planModalTitle').textContent = '编辑订阅套餐';
+            document.getElementById('planId').value = plan.id;
+            document.getElementById('planName').value = plan.name;
+            document.getElementById('planNameEn').value = plan.name_en || '';
+            document.getElementById('planDays').value = plan.days;
+            document.getElementById('planBasePrice').value = plan.base_price;
+            document.getElementById('planPricePerIP').value = plan.price_per_ip;
+            document.getElementById('planDiscount').value = plan.discount;
+            document.getElementById('planSortOrder').value = plan.sort_order;
+            document.getElementById('planEnabled').checked = plan.is_enabled ? true : false;
+            document.getElementById('planModal').classList.add('active');
+          }
+        }
+      });
+    }
+
+    async function savePlan() {
+      const id = document.getElementById('planId').value;
+      const name = document.getElementById('planName').value.trim();
+      const nameEn = document.getElementById('planNameEn').value.trim();
+      const days = parseInt(document.getElementById('planDays').value);
+      const basePrice = parseFloat(document.getElementById('planBasePrice').value);
+      const pricePerIP = parseFloat(document.getElementById('planPricePerIP').value);
+      const discount = parseInt(document.getElementById('planDiscount').value);
+      const sortOrder = parseInt(document.getElementById('planSortOrder').value);
+      const isEnabled = document.getElementById('planEnabled').checked ? 1 : 0;
+
+      if (!name || !days || isNaN(basePrice) || isNaN(pricePerIP)) {
+        showToast('请填写完整信息', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(API_BASE + '/mall/plans', {
+          method: id ? 'PUT' : 'POST',
+          headers: {
+            'X-Admin-Key': adminKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id: id || null,
+            name,
+            name_en: nameEn || null,
+            days,
+            base_price: basePrice,
+            price_per_ip: pricePerIP,
+            discount: discount || 0,
+            sort_order: sortOrder || 0,
+            is_enabled: isEnabled
+          })
+        });
+        const data = await response.json();
+        if (data.success) {
+          showToast(id ? '套餐已更新' : '套餐已添加', 'success');
+          closePlanModal();
+          loadPlans();
+        } else {
+          showToast('保存失败: ' + (data.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        console.error('Failed to save plan:', error);
+        showToast('保存失败', 'error');
+      }
+    }
+
+    async function togglePlan(id, isEnabled) {
+      try {
+        const response = await fetch(API_BASE + '/mall/plans/' + id + '/toggle', {
+          method: 'PUT',
+          headers: {
+            'X-Admin-Key': adminKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ is_enabled: isEnabled ? 1 : 0 })
+        });
+        const data = await response.json();
+        if (data.success) {
+          showToast('套餐状态已更新', 'success');
+          loadPlans();
+        } else {
+          showToast('操作失败: ' + (data.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        console.error('Failed to toggle plan:', error);
+        showToast('操作失败', 'error');
+      }
+    }
+
+    async function deletePlan(id) {
+      if (!confirm('确定要删除这个套餐吗？')) {
+        return;
+      }
+      try {
+        const response = await fetch(API_BASE + '/mall/plans/' + id, {
+          method: 'DELETE',
+          headers: { 'X-Admin-Key': adminKey }
+        });
+        const data = await response.json();
+        if (data.success) {
+          showToast('套餐已删除', 'success');
+          loadPlans();
+        } else {
+          showToast('删除失败: ' + (data.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        console.error('Failed to delete plan:', error);
+        showToast('删除失败', 'error');
+      }
+    }
 
     async function loadMallSettings() {
       try {

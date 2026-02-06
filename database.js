@@ -670,6 +670,30 @@ export async function createTables(env) {
     console.error('Database: Failed to create mall_settings table:', e);
   }
 
+  // 创建订阅套餐表
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS subscription_plans (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        name_en TEXT,
+        days INTEGER NOT NULL,
+        base_price REAL NOT NULL,
+        price_per_ip REAL NOT NULL,
+        discount INTEGER DEFAULT 0,
+        is_enabled BOOLEAN DEFAULT 1,
+        sort_order INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_subscription_plans_enabled ON subscription_plans(is_enabled, sort_order)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_subscription_plans_days ON subscription_plans(days)').run();
+    console.log('Database: subscription_plans table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create subscription_plans table:', e);
+  }
+
   // 创建虎皮椒支付订单表
   try {
     await db.prepare(`

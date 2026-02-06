@@ -980,17 +980,60 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     let currentLang = detectBrowserLanguage();
     let selectedDuration = null;
     let selectedIPs = 3;
-
-    // 时长配置
-    const durationOptions = [
-      { days: 30, basePrice: 29, pricePerIP: 9, discount: 0, name: 'month_1' },
-      { days: 90, basePrice: 79, pricePerIP: 18, discount: 0, name: 'month_3' },
-      { days: 180, basePrice: 149, pricePerIP: 28, discount: 10, name: 'month_6' },
-      { days: 365, basePrice: 279, pricePerIP: 49, discount: 20, name: 'month_12' }
-    ];
+    let durationOptions = [];
+    let planNames = {};
 
     // IP数量配置
     const ipOptions = [1, 2, 3, 5];
+
+    // 从数据库加载套餐配置
+    async function loadPlans() {
+      try {
+        const response = await fetch('/api/mall/plans');
+        const data = await response.json();
+        if (data.success && data.plans) {
+          durationOptions = data.plans.map(plan => ({
+            days: plan.days,
+            basePrice: plan.base_price,
+            pricePerIP: plan.price_per_ip,
+            discount: plan.discount,
+            name: 'plan_' + plan.id
+          }));
+
+          // 更新翻译中的套餐名称
+          if (translations['zh-CN']) {
+            translations['zh-CN'].planNames = data.plans.reduce((acc, plan) => {
+              acc['plan_' + plan.id] = plan.name;
+              return acc;
+            }, {});
+          }
+          if (translations['en']) {
+            translations['en'].planNames = data.plans.reduce((acc, plan) => {
+              acc['plan_' + plan.id] = plan.name_en || plan.name;
+              return acc;
+            }, {});
+          }
+
+          // 如果没有选中的套餐，默认选中第一个
+          if (durationOptions.length > 0 && !selectedDuration) {
+            selectedDuration = durationOptions[0];
+          }
+
+          renderPlans();
+        }
+      } catch (error) {
+        console.error('Failed to load plans:', error);
+        // 如果加载失败，使用默认配置
+        durationOptions = [
+          { days: 30, basePrice: 29, pricePerIP: 9, discount: 0, name: 'plan_default_1' },
+          { days: 90, basePrice: 79, pricePerIP: 18, discount: 0, name: 'plan_default_2' },
+          { days: 180, basePrice: 149, pricePerIP: 28, discount: 10, name: 'plan_default_3' },
+          { days: 365, basePrice: 279, pricePerIP: 49, discount: 20, name: 'plan_default_4' }
+        ];
+        selectedDuration = durationOptions[0];
+        renderPlans();
+      }
+    }
 
     // 初始化默认选择
     selectedDuration = durationOptions[2];
@@ -1524,9 +1567,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     // 页面加载时直接渲染套餐,不检查登录状态
     document.addEventListener('DOMContentLoaded', () => {
-      renderPlans();
+      loadPlans(); // 从数据库加载套餐配置
       loadPaymentMethods(); // 加载支付方式列表
     });
   </script>
 </body>
 </html>`;
+

@@ -1486,6 +1486,103 @@ export async function handleAdminRequest(request, env, ctx) {
               headers: { 'Content-Type': 'application/json' }
             });
           }
+        } else if (mallSubAction === 'plans') {
+          // 订阅套餐管理
+          const db = getDB();
+          const planId = pathParts[4];
+          const isToggleAction = pathParts[5] === 'toggle';
+
+          if (request.method === 'GET') {
+            // 获取所有套餐
+            const plans = await db.prepare('SELECT * FROM subscription_plans ORDER BY sort_order, id').all();
+            return new Response(JSON.stringify({
+              success: true,
+              plans: plans.results || []
+            }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } else if (request.method === 'POST') {
+            // 添加套餐
+            const data = await request.json();
+            const now = new Date().toISOString();
+
+            await db.prepare(`
+              INSERT INTO subscription_plans (name, name_en, days, base_price, price_per_ip, discount, is_enabled, sort_order, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).bind(
+              data.name,
+              data.name_en || null,
+              data.days,
+              data.base_price,
+              data.price_per_ip,
+              data.discount || 0,
+              data.is_enabled !== undefined ? data.is_enabled : 1,
+              data.sort_order || 0,
+              now,
+              now
+            ).run();
+
+            return new Response(JSON.stringify({
+              success: true,
+              message: '套餐已添加'
+            }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } else if (request.method === 'PUT') {
+            if (isToggleAction) {
+              // 切换套餐状态
+              const data = await request.json();
+              const now = new Date().toISOString();
+
+              await db.prepare(`
+                UPDATE subscription_plans SET is_enabled = ?, updated_at = ? WHERE id = ?
+              `).bind(data.is_enabled, now, planId).run();
+
+              return new Response(JSON.stringify({
+                success: true,
+                message: '套餐状态已更新'
+              }), {
+                headers: { 'Content-Type': 'application/json' }
+              });
+            } else {
+              // 更新套餐
+              const data = await request.json();
+              const now = new Date().toISOString();
+
+              await db.prepare(`
+                UPDATE subscription_plans SET name = ?, name_en = ?, days = ?, base_price = ?, price_per_ip = ?, discount = ?, is_enabled = ?, sort_order = ?, updated_at = ?
+                WHERE id = ?
+              `).bind(
+                data.name,
+                data.name_en || null,
+                data.days,
+                data.base_price,
+                data.price_per_ip,
+                data.discount || 0,
+                data.is_enabled !== undefined ? data.is_enabled : 1,
+                data.sort_order || 0,
+                now,
+                data.id
+              ).run();
+
+              return new Response(JSON.stringify({
+                success: true,
+                message: '套餐已更新'
+              }), {
+                headers: { 'Content-Type': 'application/json' }
+              });
+            }
+          } else if (request.method === 'DELETE' && planId) {
+            // 删除套餐
+            await db.prepare('DELETE FROM subscription_plans WHERE id = ?').bind(planId).run();
+
+            return new Response(JSON.stringify({
+              success: true,
+              message: '套餐已删除'
+            }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
         } else if (mallSubAction === 'payment-methods') {
           // 支付方式管理
           if (request.method === 'GET') {
