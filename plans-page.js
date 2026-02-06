@@ -554,7 +554,7 @@ export const PLANS_HTML = `<!DOCTYPE html>
           <span class="plan-badge premium" data-i18n="premiumBadge">会员计划</span>
           <div class="plan-name" data-i18n="premiumName">VIP 订阅</div>
           <div class="plan-price">
-            $6.5<span class="period" data-i18n="premiumPeriod">/ 月</span>
+            ¥6.5<span class="period" data-i18n="premiumPeriod">/ 月</span>
           </div>
           <p class="plan-description" data-i18n="premiumDesc">解锁全部功能，享受极致的观看体验</p>
 

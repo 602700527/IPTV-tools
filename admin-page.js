@@ -129,6 +129,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab" onclick="showTab('codes')">卡密管理</button>
       <button class="nav-tab" onclick="showTab('users')">账户管理</button>
       <button class="nav-tab" onclick="showTab('orders')">订单管理</button>
+      <button class="nav-tab" onclick="showTab('mall')">商城管理</button>
       <button class="nav-tab" onclick="showTab('security')">安全监控</button>
       <button class="nav-tab" onclick="showTab('ip-blacklist')">IP黑名单</button>
       <button class="nav-tab" onclick="showTab('homepage-display')">首页展示</button>
@@ -650,6 +651,74 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
       </div>
     </div>
+    <div id="mall" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>商城设置</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="saveMallSettings()">保存设置</button>
+            <button class="btn" onclick="loadMallSettings()">刷新设置</button>
+          </div>
+        </div>
+        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            配置商城功能开关。关闭商城后，订阅页面的会员订阅模块将不会显示。关闭订阅功能后，用户无法进行付费订阅。
+          </p>
+
+          <div class="form-group" style="margin-bottom:20px;">
+            <label>商城开关</label>
+            <div style="display:flex;align-items:center;gap:12px;padding:16px;background:white;border:1px solid #e5e5ea;border-radius:8px;">
+              <input type="checkbox" id="mallEnabled" checked style="width:20px;height:20px;cursor:pointer;">
+              <div>
+                <div style="font-weight:600;font-size:15px;color:#1d1d1f;">启用商城</div>
+                <div style="color:#86868b;font-size:13px;margin-top:2px;">关闭后，订阅页面的会员订阅模块将隐藏</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:20px;">
+            <label>订阅功能开关</label>
+            <div style="display:flex;align-items:center;gap:12px;padding:16px;background:white;border:1px solid #e5e5ea;border-radius:8px;">
+              <input type="checkbox" id="subscriptionEnabled" checked style="width:20px;height:20px;cursor:pointer;">
+              <div>
+                <div style="font-weight:600;font-size:15px;color:#1d1d1f;">启用订阅功能</div>
+                <div style="color:#86868b;font-size:13px;margin-top:2px;">关闭后，用户无法进行付费订阅</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <h3>支付接口管理</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="showPaymentMethodModal()">添加支付方式</button>
+          </div>
+        </div>
+        <div style="padding:16px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            管理支付接口。关闭某个支付方式后，订阅页面对应的支付选项将隐藏。
+          </p>
+
+          <div id="paymentMethodsList"></div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>名称</th>
+              <th>类型</th>
+              <th>状态</th>
+              <th>配置</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="paymentMethodsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
     <div id="system-settings" class="tab-content">
       <div class="card">
         <div class="toolbar">
@@ -937,6 +1006,51 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <div class="modal-footer"><button class="btn" onclick="closeImportCodeModal()">取消</button><button class="btn btn-primary" onclick="importCodesFromCSV()">开始导入</button></div>
     </div>
   </div>
+  <div id="paymentMethodModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3 id="paymentMethodModalTitle">添加支付方式</h3><button class="close-btn" onclick="closePaymentMethodModal()">&times;</button></div>
+      <input type="hidden" id="paymentMethodId" value="">
+      <div class="form-group">
+        <label>支付类型</label>
+        <select id="paymentType" class="form-control" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <option value="alipay">支付宝</option>
+          <option value="wechat">微信支付</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>名称</label>
+        <input type="text" id="paymentName" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+      </div>
+      <div class="form-group">
+        <label>状态</label>
+        <label style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="paymentEnabled" checked style="width:auto;">
+          <span>启用</span>
+        </label>
+      </div>
+      <div id="configFields">
+        <div class="form-group">
+          <label>商户ID (App ID)</label>
+          <input type="text" id="appId" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <small style="color:#86868b;font-size:12px;">虎皮椒商户ID</small>
+        </div>
+        <div class="form-group">
+          <label>商户密钥 (App Secret)</label>
+          <input type="password" id="appSecret" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <small style="color:#86868b;font-size:12px;">虎皮椒商户密钥</small>
+        </div>
+        <div class="form-group">
+          <label>支付网关地址</label>
+          <input type="text" id="gatewayUrl" value="" placeholder="https://api.xunhuweb.com/payment/do.html" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <small style="color:#86868b;font-size:12px;">留空则使用虎皮椒官方网关</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closePaymentMethodModal()">取消</button>
+        <button class="btn btn-primary" onclick="savePaymentMethod()">保存</button>
+      </div>
+    </div>
+  </div>
   <script>
     const API_BASE='/admin';
     const STORAGE_KEY = 'admin_auth_key';
@@ -1210,6 +1324,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       else if (tabName === 'codes') loadCodes();
       else if (tabName === 'users') loadUsers();
       else if (tabName === 'orders') loadOrders();
+      else if (tabName === 'mall') {
+        loadMallSettings();
+        loadPaymentMethods();
+      }
       else if (tabName === 'security') {
         loadSecurityConfig();
         document.getElementById('quotaInfo').style.display = 'none';
@@ -4128,6 +4246,196 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         orderPage = 1;
         loadOrders();
       }, 300);
+    }
+
+    // ========== 商城管理相关函数 ==========
+
+    async function loadMallSettings() {
+      try {
+        const response = await fetch(API_BASE + '/mall/settings', {
+          headers: { 'X-Admin-Key': adminKey }
+        });
+        const data = await response.json();
+        if (data.success) {
+          document.getElementById('mallEnabled').checked = data.settings.mall_enabled === '1';
+          document.getElementById('subscriptionEnabled').checked = data.settings.subscription_enabled === '1';
+        }
+      } catch (error) {
+        console.error('Failed to load mall settings:', error);
+      }
+    }
+
+    async function saveMallSettings() {
+      try {
+        const response = await fetch(API_BASE + '/mall/settings', {
+          method: 'PUT',
+          headers: {
+            'X-Admin-Key': adminKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            mall_enabled: document.getElementById('mallEnabled').checked ? '1' : '0',
+            subscription_enabled: document.getElementById('subscriptionEnabled').checked ? '1' : '0'
+          })
+        });
+        const data = await response.json();
+        if (data.success) {
+          showToast('商城设置已保存', 'success');
+        } else {
+          showToast('保存失败: ' + (data.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        console.error('Failed to save mall settings:', error);
+        showToast('保存失败', 'error');
+      }
+    }
+
+    async function loadPaymentMethods() {
+      try {
+        const response = await fetch(API_BASE + '/mall/payment-methods', {
+          headers: { 'X-Admin-Key': adminKey }
+        });
+        const data = await response.json();
+        if (data.success) {
+          renderPaymentMethods(data.payment_methods || []);
+        }
+      } catch (error) {
+        console.error('Failed to load payment methods:', error);
+      }
+    }
+
+    function renderPaymentMethods(methods) {
+      const tbody = document.getElementById('paymentMethodsTableBody');
+      if (methods.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#86868b;">暂无支付方式</td></tr>';
+        return;
+      }
+      tbody.innerHTML = methods.map(method => {
+        const statusClass = method.enabled ? 'badge-success' : 'badge-danger';
+        const statusText = method.enabled ? '已启用' : '已禁用';
+        let configText = '未配置';
+        try {
+          const config = typeof method.config === 'string' ? JSON.parse(method.config) : method.config;
+          configText = config && Object.keys(config).length > 0 ? '已配置' : '未配置';
+        } catch (e) {
+          console.error('Failed to parse config:', e);
+        }
+        return \`
+          <tr>
+            <td>\${method.id}</td>
+            <td>\${method.name}</td>
+            <td>\${method.type}</td>
+            <td><span class="badge \${statusClass}">\${statusText}</span></td>
+            <td>\${configText}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-sm \${method.enabled ? 'btn-danger' : 'btn-success'}" onclick="togglePaymentMethod(\${method.id}, \${!method.enabled})">
+                  \${method.enabled ? '禁用' : '启用'}
+                </button>
+                <button class="btn btn-sm btn-primary" onclick="editPaymentMethod(\${method.id})">配置</button>
+              </div>
+            </td>
+          </tr>
+        \`;
+      }).join('');
+    }
+
+    function showPaymentMethodModal() {
+      document.getElementById('paymentMethodModalTitle').textContent = '添加支付方式';
+      document.getElementById('paymentMethodId').value = '';
+      document.getElementById('paymentType').value = 'alipay';
+      document.getElementById('paymentName').value = '';
+      document.getElementById('paymentEnabled').checked = true;
+      document.getElementById('appId').value = '';
+      document.getElementById('appSecret').value = '';
+      document.getElementById('gatewayUrl').value = '';
+      document.getElementById('paymentMethodModal').classList.add('active');
+    }
+
+    function closePaymentMethodModal() {
+      document.getElementById('paymentMethodModal').classList.remove('active');
+    }
+
+    function editPaymentMethod(id) {
+      const response = fetch(API_BASE + '/mall/payment-methods', {
+        headers: { 'X-Admin-Key': adminKey }
+      }).then(res => res.json()).then(data => {
+        if (data.success) {
+          const method = data.payment_methods.find(m => m.id === id);
+          if (method) {
+            const config = JSON.parse(method.config || '{}');
+            document.getElementById('paymentMethodModalTitle').textContent = '配置支付方式 - ' + method.name;
+            document.getElementById('paymentMethodId').value = method.id;
+            document.getElementById('paymentType').value = method.type;
+            document.getElementById('paymentName').value = method.name;
+            document.getElementById('paymentEnabled').checked = method.enabled ? true : false;
+            document.getElementById('appId').value = config.app_id || '';
+            document.getElementById('appSecret').value = config.app_secret || '';
+            document.getElementById('gatewayUrl').value = config.gateway_url || '';
+            document.getElementById('paymentMethodModal').classList.add('active');
+          }
+        }
+      });
+    }
+
+    function savePaymentMethod() {
+      const id = document.getElementById('paymentMethodId')?.value;
+      const type = document.getElementById('paymentType').value;
+      const name = document.getElementById('paymentName').value;
+      const enabled = document.getElementById('paymentEnabled').checked;
+      const appId = document.getElementById('appId')?.value || '';
+      const appSecret = document.getElementById('appSecret')?.value || '';
+      const gatewayUrl = document.getElementById('gatewayUrl')?.value || '';
+
+      const config = { app_id: appId, app_secret: appSecret, gateway_url: gatewayUrl };
+
+      fetch(API_BASE + '/mall/payment-methods' + (id ? '/' + id : ''), {
+        method: id ? 'PUT' : 'POST',
+        headers: {
+          'X-Admin-Key': adminKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: type,
+          name: name,
+          enabled: enabled,
+          config: config
+        })
+      }).then(res => res.json()).then(data => {
+        if (data.success) {
+          closePaymentMethodModal();
+          loadPaymentMethods();
+          showToast('保存成功', 'success');
+        } else {
+          showToast('保存失败: ' + (data.error || '未知错误'), 'error');
+        }
+      }).catch(error => {
+        console.error('Failed to save payment method:', error);
+        showToast('保存失败', 'error');
+      });
+    }
+
+    function togglePaymentMethod(id, enabled) {
+      fetch(API_BASE + '/mall/payment-methods/' + id, {
+        method: 'PUT',
+        headers: {
+          'X-Admin-Key': adminKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          enabled: enabled
+        })
+      }).then(res => res.json()).then(data => {
+        if (data.success) {
+          loadPaymentMethods();
+          showToast(enabled ? '已启用' : '已禁用', 'success');
+        } else {
+          showToast('操作失败: ' + (data.error || '未知错误'), 'error');
+        }
+      }).catch(error => {
+        console.error('Failed to toggle payment method:', error);
+        showToast('操作失败', 'error');
+      });
     }
   </script>
 </body>

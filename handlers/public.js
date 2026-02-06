@@ -86,6 +86,48 @@ export async function handlePublicAnnouncement(request, env, ctx) {
   }
 }
 
+/**
+ * 公开商城设置API - 获取商城和订阅功能开关状态
+ */
+export async function handlePublicMallSettings(request, env, ctx) {
+  try {
+    const db = getDB();
+
+    // 获取商城设置
+    const settings = await db.prepare('SELECT * FROM mall_settings').all();
+    const settingsMap = {};
+    (settings.results || []).forEach(s => {
+      settingsMap[s.key] = s.value;
+    });
+
+    // 构建响应体
+    const responseBody = JSON.stringify({
+      success: true,
+      settings: settingsMap
+    });
+
+    // 生成ETag
+    const etag = await generateETag(responseBody);
+
+    return new Response(responseBody, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=300', // 5分钟缓存
+        'ETag': etag
+      }
+    });
+  } catch (error) {
+    console.error('[Mall Settings] 获取商城设置失败:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Internal server error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
 // 随机推荐频道 - 从 KV 缓存的所有频道中随机获取
 async function handleRandomChannels(env, count = 30) {
   console.log('[RandomChannels] 获取随机推荐，数量:', count);

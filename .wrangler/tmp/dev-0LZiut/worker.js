@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-KGEPjh/checked-fetch.js
+// .wrangler/tmp/bundle-cmHowh/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-KGEPjh/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-cmHowh/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -78,10 +78,13 @@ __export(database_exports, {
   getDB: () => getDB,
   getHomepageDisplayConfig: () => getHomepageDisplayConfig,
   getIPBlacklistConfig: () => getIPBlacklistConfig,
+  getMallSettings: () => getMallSettings,
   getSecurityConfig: () => getSecurityConfig,
   getSyncFilterConfig: () => getSyncFilterConfig,
   getSystemConfig: () => getSystemConfig,
   initDB: () => initDB,
+  isMallEnabled: () => isMallEnabled,
+  isSubscriptionEnabled: () => isSubscriptionEnabled,
   parseM3UContent: () => parseM3UContent,
   parseM3UContentOnly: () => parseM3UContentOnly,
   updateAdBinding: () => updateAdBinding,
@@ -614,6 +617,20 @@ async function createTables(env) {
   }
   try {
     await db.prepare(`
+      CREATE TABLE IF NOT EXISTS mall_settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT UNIQUE NOT NULL,
+        value TEXT NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_mall_settings_key ON mall_settings(key)").run();
+    console.log("Database: mall_settings table created or already exists");
+  } catch (e) {
+    console.error("Database: Failed to create mall_settings table:", e);
+  }
+  try {
+    await db.prepare(`
       CREATE TABLE IF NOT EXISTS xunhupay_orders (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         order_id TEXT UNIQUE NOT NULL,
@@ -667,6 +684,24 @@ async function createTables(env) {
     }
   } catch (e) {
     console.error("Database: Failed to initialize payment methods:", e);
+  }
+  try {
+    const mallEnabledCount = await db.prepare("SELECT COUNT(*) as count FROM mall_settings WHERE key = ?").bind("mall_enabled").first();
+    if (!mallEnabledCount || mallEnabledCount.count === 0) {
+      await db.prepare(`
+        INSERT INTO mall_settings (key, value) VALUES ('mall_enabled', '1')
+      `).run();
+      console.log("Database: Initialized mall_enabled setting");
+    }
+    const subscriptionEnabledCount = await db.prepare("SELECT COUNT(*) as count FROM mall_settings WHERE key = ?").bind("subscription_enabled").first();
+    if (!subscriptionEnabledCount || subscriptionEnabledCount.count === 0) {
+      await db.prepare(`
+        INSERT INTO mall_settings (key, value) VALUES ('subscription_enabled', '1')
+      `).run();
+      console.log("Database: Initialized subscription_enabled setting");
+    }
+  } catch (e) {
+    console.error("Database: Failed to initialize mall settings:", e);
   }
   console.log("Tables created successfully");
   tablesCreated = true;
@@ -1807,6 +1842,23 @@ function generateM3UContent(channels, subId, isFreeSub = false, baseUrl = "") {
   }
   return m3u;
 }
+async function getMallSettings() {
+  const db = getDB();
+  const settings = await db.prepare("SELECT * FROM mall_settings").all();
+  const settingsMap = {};
+  (settings.results || []).forEach((s) => {
+    settingsMap[s.key] = s.value;
+  });
+  return settingsMap;
+}
+async function isMallEnabled() {
+  const settings = await getMallSettings();
+  return settings.mall_enabled === "1";
+}
+async function isSubscriptionEnabled() {
+  const settings = await getMallSettings();
+  return settings.subscription_enabled === "1";
+}
 var DB, tablesCreated;
 var init_database = __esm({
   "database.js"() {
@@ -1851,14 +1903,17 @@ var init_database = __esm({
     __name(generateAdM3U8, "generateAdM3U8");
     __name(getActiveChannels, "getActiveChannels");
     __name(generateM3UContent, "generateM3UContent");
+    __name(getMallSettings, "getMallSettings");
+    __name(isMallEnabled, "isMallEnabled");
+    __name(isSubscriptionEnabled, "isSubscriptionEnabled");
   }
 });
 
-// .wrangler/tmp/bundle-KGEPjh/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-cmHowh/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-KGEPjh/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-cmHowh/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -3176,20 +3231,28 @@ async function handleCreateXunhuPayOrder(request, env, ctx) {
     }
     const plan = getPlanByDays2(duration_days);
     const price = calculatePrice2(plan, max_ips);
-    let appId, appSecret;
-    if (payment_method === "alipay") {
-      appId = env.XUNHUPAY_ALIPAY_APP_ID;
-      appSecret = env.XUNHUPAY_ALIPAY_APP_SECRET;
-    } else if (payment_method === "wechat") {
-      appId = env.XUNHUPAY_WECHAT_APP_ID;
-      appSecret = env.XUNHUPAY_WECHAT_APP_SECRET;
+    const paymentMethodConfig = await env.DB.prepare(`
+      SELECT * FROM payment_methods WHERE type = ? AND enabled = 1
+    `).bind(payment_method).first();
+    if (!paymentMethodConfig) {
+      console.error("[XunhuPay] Payment method not found or disabled:", payment_method);
+      return new Response(JSON.stringify({
+        success: false,
+        error: `\u652F\u4ED8\u65B9\u5F0F ${payment_method} \u672A\u542F\u7528\u6216\u672A\u914D\u7F6E`
+      }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
     }
-    const gatewayUrl = env.XUNHUPAY_GATEWAY || "https://api.xunhuweb.com/payment/do.html";
+    const config = JSON.parse(paymentMethodConfig.config || "{}");
+    const appId = config.app_id;
+    const appSecret = config.app_secret;
+    const gatewayUrl = config.gateway_url || env.XUNHUPAY_GATEWAY || "https://api.xunhuweb.com/payment/do.html";
     if (!appId || !appSecret) {
       console.error("[XunhuPay] Configuration missing for payment method:", payment_method);
       return new Response(JSON.stringify({
         success: false,
-        error: `XunhuPay ${payment_method} not configured`
+        error: `${paymentMethodConfig.name} \u914D\u7F6E\u4E0D\u5B8C\u6574\uFF0C\u8BF7\u586B\u5199\u5546\u6237ID\u548C\u5BC6\u94A5`
       }), {
         status: 500,
         headers: { "Content-Type": "application/json" }
@@ -3309,14 +3372,17 @@ async function handleXunhuPayNotify(request, env, ctx) {
       console.error("[XunhuPay] Order not found:", data.trade_order_id);
       return new Response("FAIL", { status: 404 });
     }
-    let appSecret;
-    if (order.payment_method === "alipay") {
-      appSecret = env.XUNHUPAY_ALIPAY_APP_SECRET;
-    } else if (order.payment_method === "wechat") {
-      appSecret = env.XUNHUPAY_WECHAT_APP_SECRET;
+    const paymentMethodConfig = await env.DB.prepare(`
+      SELECT * FROM payment_methods WHERE type = ?
+    `).bind(order.payment_method).first();
+    if (!paymentMethodConfig) {
+      console.error("[XunhuPay] Payment method not found:", order.payment_method);
+      return new Response("FAIL", { status: 404 });
     }
+    const config = JSON.parse(paymentMethodConfig.config || "{}");
+    const appSecret = config.app_secret;
     if (!appSecret) {
-      console.error("[XunhuPay] XUNHUPAY_APP_SECRET not configured for payment method:", order.payment_method);
+      console.error("[XunhuPay] App Secret not configured for payment method:", order.payment_method);
       return new Response("FAIL", { status: 500 });
     }
     const calculatedHash = await generateXunhuPayHash(data, appSecret);
@@ -3474,19 +3540,21 @@ __name(calculatePrice2, "calculatePrice");
 async function handleGetPaymentMethods(request, env, ctx) {
   try {
     const adminKey = request.headers.get("X-Admin-Key");
-    if (adminKey !== env.ADMIN_KEY) {
-      return new Response("Unauthorized", { status: 401 });
+    const isAdmin = adminKey === env.ADMIN_KEY;
+    let query = "SELECT * FROM payment_methods";
+    if (!isAdmin) {
+      query += " WHERE enabled = 1";
     }
-    const result = await env.DB.prepare(`
-      SELECT * FROM payment_methods ORDER BY id
-    `).all();
+    query += " ORDER BY id";
+    const result = await env.DB.prepare(query).all();
     const methods = result.results || [];
     const formattedMethods = methods.map((m) => ({
       id: m.id,
       type: m.type,
       name: m.name,
       enabled: m.enabled ? 1 : 0,
-      config: JSON.parse(m.config || "{}"),
+      config: isAdmin ? m.config || "{}" : void 0,
+      // 管理员才返回 config
       created_at: m.created_at,
       updated_at: m.updated_at
     }));
@@ -3564,6 +3632,40 @@ async function handleUpdatePaymentMethod(request, env, ctx) {
   }
 }
 __name(handleUpdatePaymentMethod, "handleUpdatePaymentMethod");
+async function handleTogglePaymentMethod(request, env, ctx, id) {
+  try {
+    const adminKey = request.headers.get("X-Admin-Key");
+    if (adminKey !== env.ADMIN_KEY) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+    const body = await request.json();
+    const { enabled } = body;
+    await env.DB.prepare(`
+      UPDATE payment_methods
+      SET enabled = ?,
+          updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(enabled ? 1 : 0, id).run();
+    console.log("[Payment] Payment method toggled:", id, "enabled:", enabled);
+    return new Response(JSON.stringify({
+      success: true,
+      message: enabled ? "\u5DF2\u542F\u7528" : "\u5DF2\u7981\u7528"
+    }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error) {
+    console.error("[Payment] Toggle method error:", error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Server error"
+    }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(handleTogglePaymentMethod, "handleTogglePaymentMethod");
 async function handleGetXunhuPayOrders(request, env, ctx) {
   try {
     const adminKey = request.headers.get("X-Admin-Key");
@@ -5140,6 +5242,58 @@ async function handleAdminRequest(request, env, ctx) {
           }
         }
         break;
+      case "mall":
+        const mallSubAction = pathParts[3];
+        if (!mallSubAction) {
+          return new Response("Invalid mall action", { status: 400 });
+        }
+        if (mallSubAction === "settings") {
+          const db2 = getDB();
+          if (request.method === "GET") {
+            const settings = await db2.prepare("SELECT * FROM mall_settings").all();
+            const settingsMap = {};
+            (settings.results || []).forEach((s) => {
+              settingsMap[s.key] = s.value;
+            });
+            return new Response(JSON.stringify({
+              success: true,
+              settings: settingsMap
+            }), {
+              headers: { "Content-Type": "application/json" }
+            });
+          } else if (request.method === "PUT") {
+            const data = await request.json();
+            const now2 = (/* @__PURE__ */ new Date()).toISOString();
+            if (data.mall_enabled !== void 0) {
+              await db2.prepare(`
+                INSERT OR REPLACE INTO mall_settings (key, value, updated_at)
+                VALUES ('mall_enabled', ?, ?)
+              `).bind(data.mall_enabled, now2).run();
+            }
+            if (data.subscription_enabled !== void 0) {
+              await db2.prepare(`
+                INSERT OR REPLACE INTO mall_settings (key, value, updated_at)
+                VALUES ('subscription_enabled', ?, ?)
+              `).bind(data.subscription_enabled, now2).run();
+            }
+            return new Response(JSON.stringify({
+              success: true,
+              message: "\u5546\u57CE\u8BBE\u7F6E\u5DF2\u66F4\u65B0"
+            }), {
+              headers: { "Content-Type": "application/json" }
+            });
+          }
+        } else if (mallSubAction === "payment-methods") {
+          if (request.method === "GET") {
+            return await handleGetPaymentMethods(request, env);
+          } else if (request.method === "POST") {
+            return await handleUpdatePaymentMethod(request, env);
+          } else if (request.method === "PUT" && pathParts[4]) {
+            const id = parseInt(pathParts[4]);
+            return await handleTogglePaymentMethod(request, env, ctx, id);
+          }
+        }
+        break;
       case "ad-ts":
         const adTsSubAction = pathParts[3];
         if (request.method === "GET" && !adTsSubAction) {
@@ -5787,6 +5941,39 @@ async function handlePublicAnnouncement(request, env, ctx) {
   }
 }
 __name(handlePublicAnnouncement, "handlePublicAnnouncement");
+async function handlePublicMallSettings(request, env, ctx) {
+  try {
+    const db = getDB();
+    const settings = await db.prepare("SELECT * FROM mall_settings").all();
+    const settingsMap = {};
+    (settings.results || []).forEach((s) => {
+      settingsMap[s.key] = s.value;
+    });
+    const responseBody = JSON.stringify({
+      success: true,
+      settings: settingsMap
+    });
+    const etag = await generateETag(responseBody);
+    return new Response(responseBody, {
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "public, max-age=300",
+        // 5分钟缓存
+        "ETag": etag
+      }
+    });
+  } catch (error) {
+    console.error("[Mall Settings] \u83B7\u53D6\u5546\u57CE\u8BBE\u7F6E\u5931\u8D25:", error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Internal server error"
+    }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(handlePublicMallSettings, "handlePublicMallSettings");
 async function handleRandomChannels(env, count = 30) {
   console.log("[RandomChannels] \u83B7\u53D6\u968F\u673A\u63A8\u8350\uFF0C\u6570\u91CF:", count);
   try {
@@ -8043,6 +8230,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab" onclick="showTab('codes')">\u5361\u5BC6\u7BA1\u7406</button>
       <button class="nav-tab" onclick="showTab('users')">\u8D26\u6237\u7BA1\u7406</button>
       <button class="nav-tab" onclick="showTab('orders')">\u8BA2\u5355\u7BA1\u7406</button>
+      <button class="nav-tab" onclick="showTab('mall')">\u5546\u57CE\u7BA1\u7406</button>
       <button class="nav-tab" onclick="showTab('security')">\u5B89\u5168\u76D1\u63A7</button>
       <button class="nav-tab" onclick="showTab('ip-blacklist')">IP\u9ED1\u540D\u5355</button>
       <button class="nav-tab" onclick="showTab('homepage-display')">\u9996\u9875\u5C55\u793A</button>
@@ -8564,6 +8752,74 @@ var ADMIN_HTML = `<!DOCTYPE html>
         </div>
       </div>
     </div>
+    <div id="mall" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>\u5546\u57CE\u8BBE\u7F6E</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="saveMallSettings()">\u4FDD\u5B58\u8BBE\u7F6E</button>
+            <button class="btn" onclick="loadMallSettings()">\u5237\u65B0\u8BBE\u7F6E</button>
+          </div>
+        </div>
+        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            \u914D\u7F6E\u5546\u57CE\u529F\u80FD\u5F00\u5173\u3002\u5173\u95ED\u5546\u57CE\u540E\uFF0C\u8BA2\u9605\u9875\u9762\u7684\u4F1A\u5458\u8BA2\u9605\u6A21\u5757\u5C06\u4E0D\u4F1A\u663E\u793A\u3002\u5173\u95ED\u8BA2\u9605\u529F\u80FD\u540E\uFF0C\u7528\u6237\u65E0\u6CD5\u8FDB\u884C\u4ED8\u8D39\u8BA2\u9605\u3002
+          </p>
+
+          <div class="form-group" style="margin-bottom:20px;">
+            <label>\u5546\u57CE\u5F00\u5173</label>
+            <div style="display:flex;align-items:center;gap:12px;padding:16px;background:white;border:1px solid #e5e5ea;border-radius:8px;">
+              <input type="checkbox" id="mallEnabled" checked style="width:20px;height:20px;cursor:pointer;">
+              <div>
+                <div style="font-weight:600;font-size:15px;color:#1d1d1f;">\u542F\u7528\u5546\u57CE</div>
+                <div style="color:#86868b;font-size:13px;margin-top:2px;">\u5173\u95ED\u540E\uFF0C\u8BA2\u9605\u9875\u9762\u7684\u4F1A\u5458\u8BA2\u9605\u6A21\u5757\u5C06\u9690\u85CF</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:20px;">
+            <label>\u8BA2\u9605\u529F\u80FD\u5F00\u5173</label>
+            <div style="display:flex;align-items:center;gap:12px;padding:16px;background:white;border:1px solid #e5e5ea;border-radius:8px;">
+              <input type="checkbox" id="subscriptionEnabled" checked style="width:20px;height:20px;cursor:pointer;">
+              <div>
+                <div style="font-weight:600;font-size:15px;color:#1d1d1f;">\u542F\u7528\u8BA2\u9605\u529F\u80FD</div>
+                <div style="color:#86868b;font-size:13px;margin-top:2px;">\u5173\u95ED\u540E\uFF0C\u7528\u6237\u65E0\u6CD5\u8FDB\u884C\u4ED8\u8D39\u8BA2\u9605</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <h3>\u652F\u4ED8\u63A5\u53E3\u7BA1\u7406</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="showPaymentMethodModal()">\u6DFB\u52A0\u652F\u4ED8\u65B9\u5F0F</button>
+          </div>
+        </div>
+        <div style="padding:16px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            \u7BA1\u7406\u652F\u4ED8\u63A5\u53E3\u3002\u5173\u95ED\u67D0\u4E2A\u652F\u4ED8\u65B9\u5F0F\u540E\uFF0C\u8BA2\u9605\u9875\u9762\u5BF9\u5E94\u7684\u652F\u4ED8\u9009\u9879\u5C06\u9690\u85CF\u3002
+          </p>
+
+          <div id="paymentMethodsList"></div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>\u540D\u79F0</th>
+              <th>\u7C7B\u578B</th>
+              <th>\u72B6\u6001</th>
+              <th>\u914D\u7F6E</th>
+              <th>\u64CD\u4F5C</th>
+            </tr>
+          </thead>
+          <tbody id="paymentMethodsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
     <div id="system-settings" class="tab-content">
       <div class="card">
         <div class="toolbar">
@@ -8851,6 +9107,51 @@ var ADMIN_HTML = `<!DOCTYPE html>
       <div class="modal-footer"><button class="btn" onclick="closeImportCodeModal()">\u53D6\u6D88</button><button class="btn btn-primary" onclick="importCodesFromCSV()">\u5F00\u59CB\u5BFC\u5165</button></div>
     </div>
   </div>
+  <div id="paymentMethodModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3 id="paymentMethodModalTitle">\u6DFB\u52A0\u652F\u4ED8\u65B9\u5F0F</h3><button class="close-btn" onclick="closePaymentMethodModal()">&times;</button></div>
+      <input type="hidden" id="paymentMethodId" value="">
+      <div class="form-group">
+        <label>\u652F\u4ED8\u7C7B\u578B</label>
+        <select id="paymentType" class="form-control" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <option value="alipay">\u652F\u4ED8\u5B9D</option>
+          <option value="wechat">\u5FAE\u4FE1\u652F\u4ED8</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>\u540D\u79F0</label>
+        <input type="text" id="paymentName" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+      </div>
+      <div class="form-group">
+        <label>\u72B6\u6001</label>
+        <label style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="paymentEnabled" checked style="width:auto;">
+          <span>\u542F\u7528</span>
+        </label>
+      </div>
+      <div id="configFields">
+        <div class="form-group">
+          <label>\u5546\u6237ID (App ID)</label>
+          <input type="text" id="appId" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <small style="color:#86868b;font-size:12px;">\u864E\u76AE\u6912\u5546\u6237ID</small>
+        </div>
+        <div class="form-group">
+          <label>\u5546\u6237\u5BC6\u94A5 (App Secret)</label>
+          <input type="password" id="appSecret" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <small style="color:#86868b;font-size:12px;">\u864E\u76AE\u6912\u5546\u6237\u5BC6\u94A5</small>
+        </div>
+        <div class="form-group">
+          <label>\u652F\u4ED8\u7F51\u5173\u5730\u5740</label>
+          <input type="text" id="gatewayUrl" value="" placeholder="https://api.xunhuweb.com/payment/do.html" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <small style="color:#86868b;font-size:12px;">\u7559\u7A7A\u5219\u4F7F\u7528\u864E\u76AE\u6912\u5B98\u65B9\u7F51\u5173</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closePaymentMethodModal()">\u53D6\u6D88</button>
+        <button class="btn btn-primary" onclick="savePaymentMethod()">\u4FDD\u5B58</button>
+      </div>
+    </div>
+  </div>
   <script>
     const API_BASE='/admin';
     const STORAGE_KEY = 'admin_auth_key';
@@ -9124,6 +9425,10 @@ var ADMIN_HTML = `<!DOCTYPE html>
       else if (tabName === 'codes') loadCodes();
       else if (tabName === 'users') loadUsers();
       else if (tabName === 'orders') loadOrders();
+      else if (tabName === 'mall') {
+        loadMallSettings();
+        loadPaymentMethods();
+      }
       else if (tabName === 'security') {
         loadSecurityConfig();
         document.getElementById('quotaInfo').style.display = 'none';
@@ -12043,6 +12348,196 @@ var ADMIN_HTML = `<!DOCTYPE html>
         loadOrders();
       }, 300);
     }
+
+    // ========== \u5546\u57CE\u7BA1\u7406\u76F8\u5173\u51FD\u6570 ==========
+
+    async function loadMallSettings() {
+      try {
+        const response = await fetch(API_BASE + '/mall/settings', {
+          headers: { 'X-Admin-Key': adminKey }
+        });
+        const data = await response.json();
+        if (data.success) {
+          document.getElementById('mallEnabled').checked = data.settings.mall_enabled === '1';
+          document.getElementById('subscriptionEnabled').checked = data.settings.subscription_enabled === '1';
+        }
+      } catch (error) {
+        console.error('Failed to load mall settings:', error);
+      }
+    }
+
+    async function saveMallSettings() {
+      try {
+        const response = await fetch(API_BASE + '/mall/settings', {
+          method: 'PUT',
+          headers: {
+            'X-Admin-Key': adminKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            mall_enabled: document.getElementById('mallEnabled').checked ? '1' : '0',
+            subscription_enabled: document.getElementById('subscriptionEnabled').checked ? '1' : '0'
+          })
+        });
+        const data = await response.json();
+        if (data.success) {
+          showToast('\u5546\u57CE\u8BBE\u7F6E\u5DF2\u4FDD\u5B58', 'success');
+        } else {
+          showToast('\u4FDD\u5B58\u5931\u8D25: ' + (data.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+        }
+      } catch (error) {
+        console.error('Failed to save mall settings:', error);
+        showToast('\u4FDD\u5B58\u5931\u8D25', 'error');
+      }
+    }
+
+    async function loadPaymentMethods() {
+      try {
+        const response = await fetch(API_BASE + '/mall/payment-methods', {
+          headers: { 'X-Admin-Key': adminKey }
+        });
+        const data = await response.json();
+        if (data.success) {
+          renderPaymentMethods(data.payment_methods || []);
+        }
+      } catch (error) {
+        console.error('Failed to load payment methods:', error);
+      }
+    }
+
+    function renderPaymentMethods(methods) {
+      const tbody = document.getElementById('paymentMethodsTableBody');
+      if (methods.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#86868b;">\u6682\u65E0\u652F\u4ED8\u65B9\u5F0F</td></tr>';
+        return;
+      }
+      tbody.innerHTML = methods.map(method => {
+        const statusClass = method.enabled ? 'badge-success' : 'badge-danger';
+        const statusText = method.enabled ? '\u5DF2\u542F\u7528' : '\u5DF2\u7981\u7528';
+        let configText = '\u672A\u914D\u7F6E';
+        try {
+          const config = typeof method.config === 'string' ? JSON.parse(method.config) : method.config;
+          configText = config && Object.keys(config).length > 0 ? '\u5DF2\u914D\u7F6E' : '\u672A\u914D\u7F6E';
+        } catch (e) {
+          console.error('Failed to parse config:', e);
+        }
+        return \`
+          <tr>
+            <td>\${method.id}</td>
+            <td>\${method.name}</td>
+            <td>\${method.type}</td>
+            <td><span class="badge \${statusClass}">\${statusText}</span></td>
+            <td>\${configText}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-sm \${method.enabled ? 'btn-danger' : 'btn-success'}" onclick="togglePaymentMethod(\${method.id}, \${!method.enabled})">
+                  \${method.enabled ? '\u7981\u7528' : '\u542F\u7528'}
+                </button>
+                <button class="btn btn-sm btn-primary" onclick="editPaymentMethod(\${method.id})">\u914D\u7F6E</button>
+              </div>
+            </td>
+          </tr>
+        \`;
+      }).join('');
+    }
+
+    function showPaymentMethodModal() {
+      document.getElementById('paymentMethodModalTitle').textContent = '\u6DFB\u52A0\u652F\u4ED8\u65B9\u5F0F';
+      document.getElementById('paymentMethodId').value = '';
+      document.getElementById('paymentType').value = 'alipay';
+      document.getElementById('paymentName').value = '';
+      document.getElementById('paymentEnabled').checked = true;
+      document.getElementById('appId').value = '';
+      document.getElementById('appSecret').value = '';
+      document.getElementById('gatewayUrl').value = '';
+      document.getElementById('paymentMethodModal').classList.add('active');
+    }
+
+    function closePaymentMethodModal() {
+      document.getElementById('paymentMethodModal').classList.remove('active');
+    }
+
+    function editPaymentMethod(id) {
+      const response = fetch(API_BASE + '/mall/payment-methods', {
+        headers: { 'X-Admin-Key': adminKey }
+      }).then(res => res.json()).then(data => {
+        if (data.success) {
+          const method = data.payment_methods.find(m => m.id === id);
+          if (method) {
+            const config = JSON.parse(method.config || '{}');
+            document.getElementById('paymentMethodModalTitle').textContent = '\u914D\u7F6E\u652F\u4ED8\u65B9\u5F0F - ' + method.name;
+            document.getElementById('paymentMethodId').value = method.id;
+            document.getElementById('paymentType').value = method.type;
+            document.getElementById('paymentName').value = method.name;
+            document.getElementById('paymentEnabled').checked = method.enabled ? true : false;
+            document.getElementById('appId').value = config.app_id || '';
+            document.getElementById('appSecret').value = config.app_secret || '';
+            document.getElementById('gatewayUrl').value = config.gateway_url || '';
+            document.getElementById('paymentMethodModal').classList.add('active');
+          }
+        }
+      });
+    }
+
+    function savePaymentMethod() {
+      const id = document.getElementById('paymentMethodId')?.value;
+      const type = document.getElementById('paymentType').value;
+      const name = document.getElementById('paymentName').value;
+      const enabled = document.getElementById('paymentEnabled').checked;
+      const appId = document.getElementById('appId')?.value || '';
+      const appSecret = document.getElementById('appSecret')?.value || '';
+      const gatewayUrl = document.getElementById('gatewayUrl')?.value || '';
+
+      const config = { app_id: appId, app_secret: appSecret, gateway_url: gatewayUrl };
+
+      fetch(API_BASE + '/mall/payment-methods' + (id ? '/' + id : ''), {
+        method: id ? 'PUT' : 'POST',
+        headers: {
+          'X-Admin-Key': adminKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: type,
+          name: name,
+          enabled: enabled,
+          config: config
+        })
+      }).then(res => res.json()).then(data => {
+        if (data.success) {
+          closePaymentMethodModal();
+          loadPaymentMethods();
+          showToast('\u4FDD\u5B58\u6210\u529F', 'success');
+        } else {
+          showToast('\u4FDD\u5B58\u5931\u8D25: ' + (data.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+        }
+      }).catch(error => {
+        console.error('Failed to save payment method:', error);
+        showToast('\u4FDD\u5B58\u5931\u8D25', 'error');
+      });
+    }
+
+    function togglePaymentMethod(id, enabled) {
+      fetch(API_BASE + '/mall/payment-methods/' + id, {
+        method: 'PUT',
+        headers: {
+          'X-Admin-Key': adminKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          enabled: enabled
+        })
+      }).then(res => res.json()).then(data => {
+        if (data.success) {
+          loadPaymentMethods();
+          showToast(enabled ? '\u5DF2\u542F\u7528' : '\u5DF2\u7981\u7528', 'success');
+        } else {
+          showToast('\u64CD\u4F5C\u5931\u8D25: ' + (data.error || '\u672A\u77E5\u9519\u8BEF'), 'error');
+        }
+      }).catch(error => {
+        console.error('Failed to toggle payment method:', error);
+        showToast('\u64CD\u4F5C\u5931\u8D25', 'error');
+      });
+    }
   <\/script>
 </body>
 </html>`;
@@ -13554,7 +14049,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line><circle cx="16" cy="8" r="2" fill="currentColor"></circle><circle cx="8" cy="16" r="2" fill="currentColor"></circle></svg>
           <span class="quick-entry-tip">\u968F\u673A\u63A8\u8350</span>
         </button>
-        <button class="quick-entry ripple" onclick="window.location.href='/plans'" data-tip-key="plans">
+        <button class="quick-entry ripple" onclick="handlePlansClick()" data-tip-key="plans">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
           <span class="quick-entry-tip">\u8BA2\u9605\u8BA1\u5212</span>
         </button>
@@ -15151,6 +15646,25 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
       // \u64AD\u653E\u9891\u9053
       playChannel(hash, name, group);
+    }
+
+    // \u5904\u7406\u8BA2\u9605\u8BA1\u5212\u6309\u94AE\u70B9\u51FB
+    async function handlePlansClick() {
+      try {
+        const response = await fetch('/api/mall/settings');
+        const data = await response.json();
+        if (data.success && data.settings.mall_enabled === '1') {
+          // \u5546\u57CE\u5F00\u542F\uFF0C\u8DF3\u8F6C\u5230\u4F1A\u5458\u8BA2\u9605\u9875\u9762
+          window.location.href = '/plans';
+        } else {
+          // \u5546\u57CE\u5173\u95ED\uFF0C\u8DF3\u8F6C\u5230\u514D\u8D39\u8BA2\u9605\u9875\u9762
+          window.location.href = '/freesub';
+        }
+      } catch (error) {
+        console.error('Failed to check mall settings:', error);
+        // \u5982\u679C\u8BF7\u6C42\u5931\u8D25\uFF0C\u9ED8\u8BA4\u8DF3\u8F6C\u5230\u514D\u8D39\u8BA2\u9605\u9875\u9762
+        window.location.href = '/freesub';
+      }
     }
 
     // \u5904\u7406\u5FEB\u6377\u6309\u94AE\u70B9\u51FB
@@ -19510,7 +20024,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       <!-- \u4EF7\u683C\u6C47\u603B\u5C06\u901A\u8FC7JS\u52A8\u6001\u751F\u6210 -->
     </div>
 
-    <div class="payment-section">
+    <div class="payment-section" id="paymentSection">
       <div class="payment-methods">
         <div class="payment-method-tab active" onclick="switchPaymentMethod('alipay')" data-method="alipay">
           <span class="payment-method-icon">${ALIPAY_SVG}</span>
@@ -20097,10 +20611,59 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }, 5000); // \u6BCF5\u79D2\u68C0\u67E5\u4E00\u6B21
     }
 
+
+
+
+    // \u52A0\u8F7D\u652F\u4ED8\u65B9\u5F0F\u5217\u8868
+    async function loadPaymentMethods() {
+      try {
+        const response = await fetch('/api/mall/payment-methods');
+        const data = await response.json();
+
+        if (data.success && data.payment_methods) {
+          const enabledMethods = data.payment_methods.filter(m => m.enabled);
+          renderPaymentMethods(enabledMethods);
+        }
+      } catch (error) {
+        console.error('Failed to load payment methods:', error);
+        // \u52A0\u8F7D\u5931\u8D25\u65F6\u663E\u793A\u9ED8\u8BA4\u7684\u652F\u4ED8\u65B9\u5F0F
+      }
+    }
+
+    // \u6E32\u67D3\u652F\u4ED8\u65B9\u5F0F\u9009\u9879\u5361
+    function renderPaymentMethods(methods) {
+      const paymentMethodsContainer = document.querySelector('.payment-methods');
+      if (!paymentMethodsContainer) return;
+
+      if (methods.length === 0) {
+        paymentMethodsContainer.innerHTML = '<p style="color:rgba(255,255,255,0.6);text-align:center;padding:20px;">\u6682\u65E0\u53EF\u7528\u652F\u4ED8\u65B9\u5F0F</p>';
+        return;
+      }
+
+      let html = '';
+      methods.forEach((method, index) => {
+        const icon = method.type === 'alipay' ? ALIPAY_SVG : (method.type === 'wechat' ? WECHAT_PAY_SVG : '');
+        const activeClass = index === 0 ? 'active' : '';
+        html += \`
+          <div class="payment-method-tab \${activeClass}" onclick="switchPaymentMethod('\${method.type}')" data-method="\${method.type}">
+            <span class="payment-method-icon">\${icon}</span>
+            <span class="payment-method-name">\${method.name}</span>
+          </div>
+        \`;
+      });
+
+      paymentMethodsContainer.innerHTML = html;
+
+      // \u9ED8\u8BA4\u9009\u4E2D\u7B2C\u4E00\u4E2A\u652F\u4ED8\u65B9\u5F0F
+      if (methods.length > 0) {
+        currentPaymentMethod = methods[0].type;
+      }
+    }
+
     // \u9875\u9762\u52A0\u8F7D\u65F6\u76F4\u63A5\u6E32\u67D3\u5957\u9910,\u4E0D\u68C0\u67E5\u767B\u5F55\u72B6\u6001
     document.addEventListener('DOMContentLoaded', () => {
       renderPlans();
-      switchPaymentMethod('alipay'); // \u9ED8\u8BA4\u663E\u793A\u652F\u4ED8\u5B9D\u6309\u94AE
+      loadPaymentMethods(); // \u52A0\u8F7D\u652F\u4ED8\u65B9\u5F0F\u5217\u8868
     });
   <\/script>
 </body>
@@ -20661,7 +21224,7 @@ var PLANS_HTML = `<!DOCTYPE html>
           <span class="plan-badge premium" data-i18n="premiumBadge">\u4F1A\u5458\u8BA1\u5212</span>
           <div class="plan-name" data-i18n="premiumName">VIP \u8BA2\u9605</div>
           <div class="plan-price">
-            $6.5<span class="period" data-i18n="premiumPeriod">/ \u6708</span>
+            \xA56.5<span class="period" data-i18n="premiumPeriod">/ \u6708</span>
           </div>
           <p class="plan-description" data-i18n="premiumDesc">\u89E3\u9501\u5168\u90E8\u529F\u80FD\uFF0C\u4EAB\u53D7\u6781\u81F4\u7684\u89C2\u770B\u4F53\u9A8C</p>
 
@@ -21797,6 +22360,10 @@ window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
         return await handlePublicConfig(request, env, ctx);
       } else if (path === "/api/announcement") {
         return await handlePublicAnnouncement(request, env, ctx);
+      } else if (path === "/api/mall/settings") {
+        return await handlePublicMallSettings(request, env, ctx);
+      } else if (path === "/api/mall/payment-methods") {
+        return await handleGetPaymentMethods(request, env, ctx);
       } else if (path === "/api/channels") {
         return await handlePublicChannels(request, env, ctx);
       } else if (path === "/api/debug") {
@@ -21848,17 +22415,25 @@ window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
       } else if (path === "/api/subscription/xunhupay/check-order") {
         return await handleCheckXunhuPayOrder(request, env, ctx);
       } else if (path === "/plans" || path === "/plans/" || path === "/plans/index" || path === "/plans/index.html") {
-        return new Response(PLANS_HTML, {
-          headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
+        if (await isMallEnabled()) {
+          return new Response(PLANS_HTML, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+          });
+        } else {
+          return Response.redirect(url.origin + "/freesub", 302);
+        }
       } else if (path === "/reset-password" || path === "/reset-password/" || path === "/reset-password/index" || path === "/reset-password/index.html") {
         return new Response(RESET_PASSWORD_HTML, {
           headers: { "Content-Type": "text/html; charset=utf-8" }
         });
       } else if (path === "/subscription" || path === "/subscription/" || path === "/subscription/index" || path === "/subscription/index.html") {
-        return new Response(SUBSCRIPTION_HTML, {
-          headers: { "Content-Type": "text/html; charset=utf-8" }
-        });
+        if (await isMallEnabled()) {
+          return new Response(SUBSCRIPTION_HTML, {
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+          });
+        } else {
+          return Response.redirect(url.origin + "/freesub", 302);
+        }
       } else if (path === "/account" || path === "/account/" || path === "/account/index" || path === "/account/index.html") {
         const timezone = env.TIMEZONE || "Asia/Shanghai";
         const htmlWithConfig = ACCOUNT_HTML.replace(
@@ -22153,7 +22728,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-KGEPjh/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-cmHowh/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -22187,7 +22762,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-KGEPjh/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-cmHowh/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

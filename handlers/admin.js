@@ -1,6 +1,6 @@
 // 管理后台API处理器
 import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, generateEncryptionKey, getSyncFilterConfig, updateSyncFilterConfig } from '../database.js';
-import { handleGetPaymentMethods, handleUpdatePaymentMethod, handleGetXunhuPayOrders } from './xunhupay-api.js';
+import { handleGetPaymentMethods, handleUpdatePaymentMethod, handleTogglePaymentMethod, handleGetXunhuPayOrders } from './xunhupay-api.js';
 import { manualSyncAll } from './scheduler.js';
 import { getBlacklistedIPs, unbanIP, getIPAccessStats, banIP } from '../security/ip-blacklist.js';
 import { getBannedCodesFromCache, removeBannedCodeFromCache, syncBannedCodesToCache } from '../security/code-ban-cache.js';
@@ -1432,6 +1432,70 @@ export async function handleAdminRequest(request, env, ctx) {
             }), {
               headers: { 'Content-Type': 'application/json' }
             });
+          }
+        }
+        break;
+
+      case 'mall':
+        // 商城管理
+        const mallSubAction = pathParts[3];
+
+        if (!mallSubAction) {
+          return new Response('Invalid mall action', { status: 400 });
+        }
+
+        if (mallSubAction === 'settings') {
+          const db = getDB();
+          if (request.method === 'GET') {
+            // 获取商城设置
+            const settings = await db.prepare('SELECT * FROM mall_settings').all();
+            const settingsMap = {};
+            (settings.results || []).forEach(s => {
+              settingsMap[s.key] = s.value;
+            });
+
+            return new Response(JSON.stringify({
+              success: true,
+              settings: settingsMap
+            }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } else if (request.method === 'PUT') {
+            // 更新商城设置
+            const data = await request.json();
+            const now = new Date().toISOString();
+
+            if (data.mall_enabled !== undefined) {
+              await db.prepare(`
+                INSERT OR REPLACE INTO mall_settings (key, value, updated_at)
+                VALUES ('mall_enabled', ?, ?)
+              `).bind(data.mall_enabled, now).run();
+            }
+
+            if (data.subscription_enabled !== undefined) {
+              await db.prepare(`
+                INSERT OR REPLACE INTO mall_settings (key, value, updated_at)
+                VALUES ('subscription_enabled', ?, ?)
+              `).bind(data.subscription_enabled, now).run();
+            }
+
+            return new Response(JSON.stringify({
+              success: true,
+              message: '商城设置已更新'
+            }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+        } else if (mallSubAction === 'payment-methods') {
+          // 支付方式管理
+          if (request.method === 'GET') {
+            return await handleGetPaymentMethods(request, env);
+          } else if (request.method === 'POST') {
+            return await handleUpdatePaymentMethod(request, env);
+          } else if (request.method === 'PUT' && pathParts[4]) {
+            // 更新支付方式
+            const id = parseInt(pathParts[4]);
+            return await handleTogglePaymentMethod(request, env, ctx, id);
           }
         }
         break;

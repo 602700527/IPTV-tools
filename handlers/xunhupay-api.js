@@ -113,22 +113,31 @@ export async function handleCreateXunhuPayOrder(request, env, ctx) {
     const price = calculatePrice(plan, max_ips);
 
     // 根据支付方式获取对应的配置
-    let appId, appSecret;
-    if (payment_method === 'alipay') {
-      appId = env.XUNHUPAY_ALIPAY_APP_ID;
-      appSecret = env.XUNHUPAY_ALIPAY_APP_SECRET;
-    } else if (payment_method === 'wechat') {
-      appId = env.XUNHUPAY_WECHAT_APP_ID;
-      appSecret = env.XUNHUPAY_WECHAT_APP_SECRET;
+    const paymentMethodConfig = await env.DB.prepare(`
+      SELECT * FROM payment_methods WHERE type = ? AND enabled = 1
+    `).bind(payment_method).first();
+
+    if (!paymentMethodConfig) {
+      console.error('[XunhuPay] Payment method not found or disabled:', payment_method);
+      return new Response(JSON.stringify({
+        success: false,
+        error: `支付方式 ${payment_method} 未启用或未配置`
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
-    const gatewayUrl = env.XUNHUPAY_GATEWAY || 'https://api.xunhuweb.com/payment/do.html';
+    const config = JSON.parse(paymentMethodConfig.config || '{}');
+    const appId = config.app_id;
+    const appSecret = config.app_secret;
+    const gatewayUrl = config.gateway_url || env.XUNHUPAY_GATEWAY || 'https://api.xunhuweb.com/payment/do.html';
 
     if (!appId || !appSecret) {
       console.error('[XunhuPay] Configuration missing for payment method:', payment_method);
       return new Response(JSON.stringify({
         success: false,
-        error: `XunhuPay ${payment_method} not configured`
+        error: `${paymentMethodConfig.name} 配置不完整，请填写商户ID和密钥`
       }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
@@ -285,16 +294,21 @@ export async function handleXunhuPayNotify(request, env, ctx) {
       return new Response('FAIL', { status: 404 });
     }
 
-    // 根据订单的支付方式获取对应的APP SECRET
-    let appSecret;
-    if (order.payment_method === 'alipay') {
-      appSecret = env.XUNHUPAY_ALIPAY_APP_SECRET;
-    } else if (order.payment_method === 'wechat') {
-      appSecret = env.XUNHUPAY_WECHAT_APP_SECRET;
+    // 根据订单的支付方式获取对应的配置
+    const paymentMethodConfig = await env.DB.prepare(`
+      SELECT * FROM payment_methods WHERE type = ?
+    `).bind(order.payment_method).first();
+
+    if (!paymentMethodConfig) {
+      console.error('[XunhuPay] Payment method not found:', order.payment_method);
+      return new Response('FAIL', { status: 404 });
     }
 
+    const config = JSON.parse(paymentMethodConfig.config || '{}');
+    const appSecret = config.app_secret;
+
     if (!appSecret) {
-      console.error('[XunhuPay] XUNHUPAY_APP_SECRET not configured for payment method:', order.payment_method);
+      console.error('[XunhuPay] App Secret not configured for payment method:', order.payment_method);
       return new Response('FAIL', { status: 500 });
     }
 
@@ -498,18 +512,23 @@ async function getPaymentConfig(db, type) {
 }
 
 /**
- * 管理员：获取所有支付方式
+ * 获取支付方式列表（支持管理员和公开访问）
+ * - 管理员访问（需要 X-Admin-Key）：返回所有支付方式，包括 config
+ * - 公开访问：只返回已启用的支付方式，不包含 config
  */
 export async function handleGetPaymentMethods(request, env, ctx) {
   try {
     const adminKey = request.headers.get('X-Admin-Key');
-    if (adminKey !== env.ADMIN_KEY) {
-      return new Response('Unauthorized', { status: 401 });
-    }
+    const isAdmin = adminKey === env.ADMIN_KEY;
 
-    const result = await env.DB.prepare(`
-      SELECT * FROM payment_methods ORDER BY id
-    `).all();
+    // 构建查询
+    let query = 'SELECT * FROM payment_methods';
+    if (!isAdmin) {
+      query += ' WHERE enabled = 1';
+    }
+    query += ' ORDER BY id';
+
+    const result = await env.DB.prepare(query).all();
 
     const methods = result.results || [];
     const formattedMethods = methods.map(m => ({
@@ -517,7 +536,7 @@ export async function handleGetPaymentMethods(request, env, ctx) {
       type: m.type,
       name: m.name,
       enabled: m.enabled ? 1 : 0,
-      config: JSON.parse(m.config || '{}'),
+      config: isAdmin ? (m.config || '{}') : undefined, // 管理员才返回 config
       created_at: m.created_at,
       updated_at: m.updated_at
     }));
@@ -599,6 +618,49 @@ export async function handleUpdatePaymentMethod(request, env, ctx) {
 
   } catch (error) {
     console.error('[Payment] Update method error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Server error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * 管理员：切换支付方式启用状态
+ */
+export async function handleTogglePaymentMethod(request, env, ctx, id) {
+  try {
+    const adminKey = request.headers.get('X-Admin-Key');
+    if (adminKey !== env.ADMIN_KEY) {
+      return new Response('Unauthorized', { status: 401 });
+    }
+
+    const body = await request.json();
+    const { enabled } = body;
+
+    // 更新支付方式状态
+    await env.DB.prepare(`
+      UPDATE payment_methods
+      SET enabled = ?,
+          updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(enabled ? 1 : 0, id).run();
+
+    console.log('[Payment] Payment method toggled:', id, 'enabled:', enabled);
+
+    return new Response(JSON.stringify({
+      success: true,
+      message: enabled ? '已启用' : '已禁用'
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('[Payment] Toggle method error:', error);
     return new Response(JSON.stringify({
       success: false,
       error: 'Server error'

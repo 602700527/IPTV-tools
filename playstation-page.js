@@ -481,7 +481,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line><circle cx="16" cy="8" r="2" fill="currentColor"></circle><circle cx="8" cy="16" r="2" fill="currentColor"></circle></svg>
           <span class="quick-entry-tip">随机推荐</span>
         </button>
-        <button class="quick-entry ripple" onclick="window.location.href='/plans'" data-tip-key="plans">
+        <button class="quick-entry ripple" onclick="handlePlansClick()" data-tip-key="plans">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
           <span class="quick-entry-tip">订阅计划</span>
         </button>
@@ -2078,6 +2078,25 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
       // 播放频道
       playChannel(hash, name, group);
+    }
+
+    // 处理订阅计划按钮点击
+    async function handlePlansClick() {
+      try {
+        const response = await fetch('/api/mall/settings');
+        const data = await response.json();
+        if (data.success && data.settings.mall_enabled === '1') {
+          // 商城开启，跳转到会员订阅页面
+          window.location.href = '/plans';
+        } else {
+          // 商城关闭，跳转到免费订阅页面
+          window.location.href = '/freesub';
+        }
+      } catch (error) {
+        console.error('Failed to check mall settings:', error);
+        // 如果请求失败，默认跳转到免费订阅页面
+        window.location.href = '/freesub';
+      }
     }
 
     // 处理快捷按钮点击

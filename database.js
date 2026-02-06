@@ -654,6 +654,22 @@ export async function createTables(env) {
     console.error('Database: Failed to create payment_methods table:', e);
   }
 
+  // 创建商城设置表
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS mall_settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT UNIQUE NOT NULL,
+        value TEXT NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_mall_settings_key ON mall_settings(key)').run();
+    console.log('Database: mall_settings table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create mall_settings table:', e);
+  }
+
   // 创建虎皮椒支付订单表
   try {
     await db.prepare(`
@@ -714,6 +730,27 @@ export async function createTables(env) {
     }
   } catch (e) {
     console.error('Database: Failed to initialize payment methods:', e);
+  }
+
+  // 初始化商城设置
+  try {
+    const mallEnabledCount = await db.prepare('SELECT COUNT(*) as count FROM mall_settings WHERE key = ?').bind('mall_enabled').first();
+    if (!mallEnabledCount || mallEnabledCount.count === 0) {
+      await db.prepare(`
+        INSERT INTO mall_settings (key, value) VALUES ('mall_enabled', '1')
+      `).run();
+      console.log('Database: Initialized mall_enabled setting');
+    }
+
+    const subscriptionEnabledCount = await db.prepare('SELECT COUNT(*) as count FROM mall_settings WHERE key = ?').bind('subscription_enabled').first();
+    if (!subscriptionEnabledCount || subscriptionEnabledCount.count === 0) {
+      await db.prepare(`
+        INSERT INTO mall_settings (key, value) VALUES ('subscription_enabled', '1')
+      `).run();
+      console.log('Database: Initialized subscription_enabled setting');
+    }
+  } catch (e) {
+    console.error('Database: Failed to initialize mall settings:', e);
   }
 
   console.log('Tables created successfully');
@@ -2314,5 +2351,26 @@ export function generateM3UContent(channels, subId, isFreeSub = false, baseUrl =
   }
 
   return m3u;
+}
+
+// 商城设置相关函数
+export async function getMallSettings() {
+  const db = getDB();
+  const settings = await db.prepare('SELECT * FROM mall_settings').all();
+  const settingsMap = {};
+  (settings.results || []).forEach(s => {
+    settingsMap[s.key] = s.value;
+  });
+  return settingsMap;
+}
+
+export async function isMallEnabled() {
+  const settings = await getMallSettings();
+  return settings.mall_enabled === '1';
+}
+
+export async function isSubscriptionEnabled() {
+  const settings = await getMallSettings();
+  return settings.subscription_enabled === '1';
 }
 

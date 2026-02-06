@@ -886,7 +886,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       <!-- 价格汇总将通过JS动态生成 -->
     </div>
 
-    <div class="payment-section">
+    <div class="payment-section" id="paymentSection">
       <div class="payment-methods">
         <div class="payment-method-tab active" onclick="switchPaymentMethod('alipay')" data-method="alipay">
           <span class="payment-method-icon">${ALIPAY_SVG}</span>
@@ -1473,10 +1473,59 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }, 5000); // 每5秒检查一次
     }
 
+
+
+
+    // 加载支付方式列表
+    async function loadPaymentMethods() {
+      try {
+        const response = await fetch('/api/mall/payment-methods');
+        const data = await response.json();
+
+        if (data.success && data.payment_methods) {
+          const enabledMethods = data.payment_methods.filter(m => m.enabled);
+          renderPaymentMethods(enabledMethods);
+        }
+      } catch (error) {
+        console.error('Failed to load payment methods:', error);
+        // 加载失败时显示默认的支付方式
+      }
+    }
+
+    // 渲染支付方式选项卡
+    function renderPaymentMethods(methods) {
+      const paymentMethodsContainer = document.querySelector('.payment-methods');
+      if (!paymentMethodsContainer) return;
+
+      if (methods.length === 0) {
+        paymentMethodsContainer.innerHTML = '<p style="color:rgba(255,255,255,0.6);text-align:center;padding:20px;">暂无可用支付方式</p>';
+        return;
+      }
+
+      let html = '';
+      methods.forEach((method, index) => {
+        const icon = method.type === 'alipay' ? ALIPAY_SVG : (method.type === 'wechat' ? WECHAT_PAY_SVG : '');
+        const activeClass = index === 0 ? 'active' : '';
+        html += \`
+          <div class="payment-method-tab \${activeClass}" onclick="switchPaymentMethod('\${method.type}')" data-method="\${method.type}">
+            <span class="payment-method-icon">\${icon}</span>
+            <span class="payment-method-name">\${method.name}</span>
+          </div>
+        \`;
+      });
+
+      paymentMethodsContainer.innerHTML = html;
+
+      // 默认选中第一个支付方式
+      if (methods.length > 0) {
+        currentPaymentMethod = methods[0].type;
+      }
+    }
+
     // 页面加载时直接渲染套餐,不检查登录状态
     document.addEventListener('DOMContentLoaded', () => {
       renderPlans();
-      switchPaymentMethod('alipay'); // 默认显示支付宝按钮
+      loadPaymentMethods(); // 加载支付方式列表
     });
   </script>
 </body>

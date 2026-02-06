@@ -1,11 +1,11 @@
 // Cloudflare Worker 主入口文件
-import { initDB, createTables } from './database.js';
+import { initDB, createTables, isMallEnabled } from './database.js';
 import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest } from './handlers/sub.js';
 import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
 import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } from './handlers/scheduler.js';
 import { handleUserActivate } from './handlers/user.js';
-import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement } from './handlers/public.js';
+import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings } from './handlers/public.js';
 import { handleFreeSubAPI } from './handlers/freesub-api.js';
 import {
   handleRegister,
@@ -164,6 +164,12 @@ export default {
     } else if (path === '/api/announcement') {
       // 公开公告API
       return await handlePublicAnnouncement(request, env, ctx);
+    } else if (path === '/api/mall/settings') {
+      // 公开商城设置API
+      return await handlePublicMallSettings(request, env, ctx);
+    } else if (path === '/api/mall/payment-methods') {
+      // 公开支付方式列表API
+      return await handleGetPaymentMethods(request, env, ctx);
     } else if (path === '/api/channels') {
       // 公开频道列表API（无需卡密）
       return await handlePublicChannels(request, env, ctx);
@@ -234,20 +240,30 @@ export default {
       // 查询虎皮椒订单状态
       return await handleCheckXunhuPayOrder(request, env, ctx);
     } else if (path === '/plans' || path === '/plans/' || path === '/plans/index' || path === '/plans/index.html') {
-      // 订阅计划页面
-      return new Response(PLANS_HTML, {
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
-      });
+      // 订阅计划页面 - 检查商城设置
+      if (await isMallEnabled()) {
+        return new Response(PLANS_HTML, {
+          headers: { 'Content-Type': 'text/html; charset=utf-8' }
+        });
+      } else {
+        // 商城关闭，重定向到免费订阅页面
+        return Response.redirect(url.origin + '/freesub', 302);
+      }
     } else if (path === '/reset-password' || path === '/reset-password/' || path === '/reset-password/index' || path === '/reset-password/index.html') {
       // 重置密码页面
       return new Response(RESET_PASSWORD_HTML, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     } else if (path === '/subscription' || path === '/subscription/' || path === '/subscription/index' || path === '/subscription/index.html') {
-      // 订阅购买页面
-      return new Response(SUBSCRIPTION_HTML, {
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
-      });
+      // 订阅购买页面 - 检查商城设置
+      if (await isMallEnabled()) {
+        return new Response(SUBSCRIPTION_HTML, {
+          headers: { 'Content-Type': 'text/html; charset=utf-8' }
+        });
+      } else {
+        // 商城关闭，重定向到免费订阅页面
+        return Response.redirect(url.origin + '/freesub', 302);
+      }
     } else if (path === '/account' || path === '/account/' || path === '/account/index' || path === '/account/index.html') {
       // 用户账户页面
       const timezone = env.TIMEZONE || 'Asia/Shanghai';
