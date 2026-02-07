@@ -22119,7 +22119,7 @@ var PLANS_HTML = `<!DOCTYPE html>
           <span class="plan-badge premium" data-i18n="premiumBadge">\u4F1A\u5458\u8BA1\u5212</span>
           <div class="plan-name" data-i18n="premiumName">VIP \u8BA2\u9605</div>
           <div class="plan-price">
-            \xA520<span class="period" data-i18n="premiumPeriod">/ \u6708</span>
+            \xA520<span class="period" data-i18n="premiumPeriod">/ \u6708 \u8D77</span>
           </div>
           <p class="plan-description" data-i18n="premiumDesc">\u89E3\u9501\u5168\u90E8\u529F\u80FD\uFF0C\u4EAB\u53D7\u6781\u81F4\u7684\u89C2\u770B\u4F53\u9A8C</p>
 
@@ -22235,7 +22235,7 @@ var PLANS_HTML = `<!DOCTYPE html>
         'freeDesc': '\u9002\u5408\u8F7B\u5EA6\u4F7F\u7528\u7684\u7528\u6237\uFF0C\u63D0\u4F9B\u57FA\u7840\u7684\u76F4\u64AD\u9891\u9053\u8BBF\u95EE\u6743\u9650',
         'premiumBadge': '\u4F1A\u5458\u8BA1\u5212',
         'premiumName': 'VIP \u8BA2\u9605',
-        'premiumPeriod': '/ \u6708',
+        'premiumPeriod': '/ \u6708 \u8D77',
         'premiumDesc': '\u89E3\u9501\u5168\u90E8\u529F\u80FD\uFF0C\u4EAB\u53D7\u6781\u81F4\u7684\u89C2\u770B\u4F53\u9A8C',
         'freeButton': '\u5F00\u59CB\u514D\u8D39\u8BA2\u9605',
         'premiumButton': '\u7ACB\u5373\u8BA2\u9605',

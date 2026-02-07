@@ -554,7 +554,7 @@ export const PLANS_HTML = `<!DOCTYPE html>
           <span class="plan-badge premium" data-i18n="premiumBadge">会员计划</span>
           <div class="plan-name" data-i18n="premiumName">VIP 订阅</div>
           <div class="plan-price">
-            ¥20<span class="period" data-i18n="premiumPeriod">/ 月</span>
+            ¥20<span class="period" data-i18n="premiumPeriod">/ 月 起</span>
           </div>
           <p class="plan-description" data-i18n="premiumDesc">解锁全部功能，享受极致的观看体验</p>
 
@@ -670,7 +670,7 @@ export const PLANS_HTML = `<!DOCTYPE html>
         'freeDesc': '适合轻度使用的用户，提供基础的直播频道访问权限',
         'premiumBadge': '会员计划',
         'premiumName': 'VIP 订阅',
-        'premiumPeriod': '/ 月',
+        'premiumPeriod': '/ 月 起',
         'premiumDesc': '解锁全部功能，享受极致的观看体验',
         'freeButton': '开始免费订阅',
         'premiumButton': '立即订阅',
