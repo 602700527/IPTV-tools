@@ -48,23 +48,16 @@ export const FAVICON_SVG = `<svg width="32" height="32" viewBox="0 0 32 32" fill
   </g>
 </svg>`;
 
-// Alipay Logo SVG (32x32)
+// Alipay Logo SVG (32x32) - 简化版
 export const ALIPAY_SVG = `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect width="32" height="32" rx="6" fill="#1677FF"/>
-  <path d="M6 16C6 10.4772 10.4772 6 16 6C21.5228 6 26 10.4772 26 16C26 21.5228 21.5228 26 16 26C10.4772 26 6 21.5228 6 16Z" fill="white"/>
-  <path d="M12.5 12H19.5V14H12.5V12ZM10 15H22V17H10V15ZM10 18H22V20H10V18Z" fill="#1677FF"/>
-  <path d="M16 8L18 10H14L16 8ZM13 22L16 25L19 22H13Z" fill="#1677FF"/>
+  <text x="16" y="22" font-size="16" font-weight="bold" fill="white" text-anchor="middle">支</text>
 </svg>`;
 
-// WeChat Pay Logo SVG (32x32)
+// WeChat Pay Logo SVG (32x32) - 简化版
 export const WECHAT_PAY_SVG = `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect width="32" height="32" rx="6" fill="#07C160"/>
-  <path d="M10 10C10 8.34315 11.3431 7 13 7H19C20.6569 7 22 8.34315 22 10V15C22 16.6569 20.6569 18 19 18H13C11.3431 18 10 16.6569 10 15V10Z" fill="white"/>
-  <circle cx="14" cy="13" r="1.5" fill="#07C160"/>
-  <circle cx="18" cy="13" r="1.5" fill="#07C160"/>
-  <path d="M10 16C10 14.8954 10.8954 14 12 14H20C21.1046 14 22 14.8954 22 16V19C22 20.1046 21.1046 21 20 21H12C10.8954 21 10 20.1046 10 19V16Z" fill="white"/>
-  <circle cx="14" cy="17.5" r="1" fill="#07C160"/>
-  <circle cx="18" cy="17.5" r="1" fill="#07C160"/>
+  <text x="16" y="22" font-size="16" font-weight="bold" fill="white" text-anchor="middle">微</text>
 </svg>`;
 
 // Apple Touch Icon (180x180) - iOS设备
