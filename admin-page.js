@@ -132,6 +132,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab" onclick="showTab('mall')">商城管理</button>
       <button class="nav-tab" onclick="showTab('security')">安全监控</button>
       <button class="nav-tab" onclick="showTab('ip-blacklist')">IP黑名单</button>
+      <button class="nav-tab" onclick="showTab('domain-blacklist')">域名黑名单</button>
       <button class="nav-tab" onclick="showTab('homepage-display')">首页展示</button>
       <button class="nav-tab" onclick="showTab('ad-management')">广告管理</button>
       <button class="nav-tab" onclick="showTab('system-settings')">系统设置</button>
@@ -445,6 +446,61 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <p style="margin-bottom:16px;">超出访问频率会自动封禁IP，保护系统安全</p>
           <p><strong>✅ 管理员操作：</strong></p>
           <p>可以在上方配置调整限制阈值，手动封禁可疑IP或解封误封的IP</p>
+        </div>
+      </div>
+    </div>
+    <div id="domain-blacklist" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>域名黑名单</h3>
+          <button class="btn btn-primary" onclick="loadDomainBlacklist()">刷新列表</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>域名</th>
+              <th>添加时间</th>
+              <th>备注</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="domainBlacklistTable"></tbody>
+        </table>
+        <div id="noDomainBlacklist" class="empty-state">暂无黑名单域名</div>
+      </div>
+      <div class="card">
+        <h3>添加域名到黑名单</h3>
+        <div class="form-group">
+          <label>域名（支持单个或批量）</label>
+          <textarea id="domainBlacklistInput" rows="5" placeholder="输入域名，每行一个&#10;例如：&#10;example.com&#10;*.example.com"></textarea>
+        </div>
+        <div class="form-group">
+          <label>备注（可选）</label>
+          <input type="text" id="domainBlacklistReason" placeholder="输入备注原因">
+        </div>
+        <button class="btn btn-danger" onclick="addDomainToBlacklist()">添加到黑名单</button>
+      </div>
+      <div class="card">
+        <h3>黑名单说明</h3>
+        <div style="line-height:1.8;color:#86868b;font-size:14px;">
+          <p><strong>🚫 域名黑名单功能说明：</strong></p>
+          <ul style="margin-left:20px;margin-bottom:16px;">
+            <li>黑名单中的域名将不会被代理，直接透传原始播放地址给用户</li>
+            <li>适用于禁止Cloudflare访问的直播源</li>
+            <li>支持完全匹配域名（如：example.com）和子域名匹配（如：*.example.com）</li>
+          </ul>
+          <p><strong>📝 域名格式：</strong></p>
+          <ul style="margin-left:20px;margin-bottom:16px;">
+            <li>完全匹配：example.com（只匹配example.com）</li>
+            <li>子域名匹配：*.example.com（匹配所有example.com的子域名）</li>
+            <li>支持批量添加，每行一个域名</li>
+          </ul>
+          <p><strong>💡 使用场景：</strong></p>
+          <ul style="margin-left:20px;">
+            <li>直播源域名拒绝Cloudflare IP访问</li>
+            <li>直播源需要直接从客户端播放</li>
+            <li>避免因代理导致的播放失败</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -1423,6 +1479,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       else if (tabName === 'ip-blacklist') {
         loadIPBlacklistConfig();
         loadIPBlacklist();
+      }
+      else if (tabName === 'domain-blacklist') {
+        loadDomainBlacklist();
       }
       else if (tabName === 'homepage-display') loadHomepageDisplayConfig();
       else if (tabName === 'ad-management') {
@@ -3078,6 +3137,136 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       document.getElementById('adminRateHour').value = 10;
 
       await saveIPBlacklistConfig();
+    }
+
+    // 域名黑名单管理
+    async function loadDomainBlacklist() {
+      try {
+        showLoading();
+        const data = await apiRequest('/domain-blacklist', { showLoading: false });
+        const tbody = document.getElementById('domainBlacklistTable');
+        const noDataDiv = document.getElementById('noDomainBlacklist');
+
+        if (!data.domains || data.domains.length === 0) {
+          tbody.innerHTML = '';
+          noDataDiv.style.display = 'block';
+          return;
+        }
+
+        noDataDiv.style.display = 'none';
+        const timezone = window.TIMEZONE || 'Asia/Shanghai';
+
+        tbody.innerHTML = data.domains.map(item => \`
+          <tr>
+            <td><span class="code-display">\${escapeHtml(item.domain)}</span></td>
+            <td>\${item.createdAt ? new Date(item.createdAt).toLocaleString('zh-CN', { timeZone: timezone }) : '-'}</td>
+            <td>\${escapeHtml(item.reason || '-')}</td>
+            <td>
+              <button class="btn btn-sm btn-danger" onclick="removeDomainFromBlacklist('\${item.id}')">删除</button>
+            </td>
+          </tr>
+        \`).join('');
+      } catch (error) {
+        showToast('加载域名黑名单失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function addDomainToBlacklist() {
+      const input = document.getElementById('domainBlacklistInput');
+      const reasonInput = document.getElementById('domainBlacklistReason');
+      const reason = reasonInput.value.trim();
+
+      if (!input.value.trim()) {
+        showToast('请输入域名', 'error');
+        return;
+      }
+
+      // 分行处理，支持批量添加
+      const lines = input.value.split('\\n').filter(line => line.trim());
+      const domains = lines.map(line => ({
+        domain: line.trim(),
+        reason: reason
+      }));
+
+      try {
+        showLoading();
+
+        if (domains.length === 1) {
+          // 单个添加
+          const data = await apiRequest('/domain-blacklist', {
+            method: 'POST',
+            body: JSON.stringify({
+              domain: domains[0].domain,
+              reason: reason
+            })
+          });
+
+          if (data.success) {
+            showToast('域名已添加到黑名单', 'success');
+            input.value = '';
+            reasonInput.value = '';
+            await loadDomainBlacklist();
+          } else {
+            showToast('添加失败: ' + data.error, 'error');
+          }
+        } else {
+          // 批量添加
+          const data = await apiRequest('/domain-blacklist', {
+            method: 'POST',
+            body: JSON.stringify({
+              domains: domains
+            })
+          });
+
+          if (data.success) {
+            const successCount = data.results.filter(r => r.success).length;
+            const failCount = data.results.filter(r => !r.success).length;
+
+            if (failCount > 0) {
+              const failedDomains = data.results.filter(r => !r.success).map(r => r.domain).join(', ');
+              showToast(\`成功添加 \${successCount} 个域名，失败 \${failCount} 个\n\${failedDomains}\`, 'warning');
+            } else {
+              showToast(\`成功添加 \${successCount} 个域名到黑名单\`, 'success');
+            }
+
+            input.value = '';
+            reasonInput.value = '';
+            await loadDomainBlacklist();
+          } else {
+            showToast('批量添加失败', 'error');
+          }
+        }
+      } catch (error) {
+        showToast('添加失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function removeDomainFromBlacklist(id) {
+      if (!confirm('确定要从黑名单中删除该域名吗？')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const data = await apiRequest(\`/domain-blacklist/\${id}\`, {
+          method: 'DELETE'
+        });
+
+        if (data.success) {
+          showToast('域名已从黑名单中删除', 'success');
+          await loadDomainBlacklist();
+        } else {
+          showToast('删除失败: ' + data.error, 'error');
+        }
+      } catch (error) {
+        showToast('删除失败: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
     }
 
     // 首页展示配置管理

@@ -1,7 +1,7 @@
 // 免费订阅API处理器
 import { createFreeSubscription, getClientIP, validateFreeSubscriptionWithFingerprint } from './freesub.js';
 import { performCheckIn, getCheckInHistory, getCheckInStats } from './checkin.js';
-import { getDB, getActiveChannels, generateM3UContent, verifyFreeSubPlayToken } from '../database.js';
+import { getDB, getActiveChannels, generateM3UContent, verifyFreeSubPlayToken, getDomainBlacklist } from '../database.js';
 import { getAllChannels } from '../utils/channel-cache.js';
 
 /**
@@ -188,9 +188,21 @@ async function handleFreeSubM3U(subId, request, env) {
     });
   }
 
-  // 生成M3U内容（移除令牌，直接使用subId和IP验证）
+  // 加载域名黑名单（缓存到内存中）
+  let domainBlacklist = [];
+  try {
+    const blacklistResult = await getDomainBlacklist();
+    if (blacklistResult && blacklistResult.length > 0) {
+      domainBlacklist = blacklistResult.map(item => item.domain);
+      console.log(`[FreeSub M3U] Loaded ${domainBlacklist.length} domains to blacklist`);
+    }
+  } catch (e) {
+    console.error('[FreeSub M3U] Failed to load domain blacklist:', e);
+  }
+
+  // 生成M3U内容（移除令牌，直接使用subId和IP验证，支持域名黑名单透传）
   const baseUrl = `${url.protocol}//${url.host}/api`;
-  const m3uContent = generateM3UContent(channels, subId, true, baseUrl);
+  const m3uContent = generateM3UContent(channels, subId, true, baseUrl, domainBlacklist);
 
   return new Response(m3uContent, {
     headers: {

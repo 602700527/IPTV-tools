@@ -1,5 +1,5 @@
 // 订阅请求处理器: /sub/{code}.m3u（简化版）
-import { getDB } from '../database.js';
+import { getDB, isDomainBlacklisted, getDomainBlacklist } from '../database.js';
 import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
 import { getIPAccessCount, checkAndAddSubscriptionIP, getSubscriptionIPCacheStatus } from '../utils/cache.js';
 import { getAllChannels } from '../utils/channel-cache.js';
@@ -99,6 +99,19 @@ export async function handleSubRequest(request, env, ctx) {
 
   // 3.4 生成M3U内容（性能优化版）
   const host = url.origin;
+
+  // 加载域名黑名单（缓存到内存中）
+  let domainBlacklist = [];
+  try {
+    const blacklistResult = await getDomainBlacklist();
+    if (blacklistResult && blacklistResult.length > 0) {
+      domainBlacklist = blacklistResult.map(item => item.domain);
+      console.log(`[Sub] Loaded ${domainBlacklist.length} domains to blacklist`);
+    }
+  } catch (e) {
+    console.error('[Sub] Failed to load domain blacklist:', e);
+  }
+
   const m3uLines = ['#EXTM3U'];
 
   for (const channel of sortedChannels) {
@@ -128,8 +141,42 @@ export async function handleSubRequest(request, env, ctx) {
 
     infoParts.push(',' + channel.channel_name);
     m3uLines.push(infoParts.join(' '));
-    // 播放地址格式：/live/{code}/{hash}
-    m3uLines.push(`${host}/live/${code}/${channel.channel_hash}`);
+
+    // 检查频道URL是否在域名黑名单中
+    let playUrl;
+    let isBlacklisted = false;
+
+    if (channel.play_url) {
+      try {
+        const urlObj = new URL(channel.play_url);
+        const hostname = urlObj.hostname;
+
+        // 检查完全匹配
+        isBlacklisted = domainBlacklist.includes(hostname);
+
+        // 检查子域名匹配（例如：*.example.com 匹配 sub.example.com）
+        if (!isBlacklisted) {
+          for (const blacklistDomain of domainBlacklist) {
+            if (blacklistDomain.startsWith('*.') && hostname.endsWith(blacklistDomain.substring(2))) {
+              isBlacklisted = true;
+              break;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('[Sub] Error parsing channel URL:', e);
+      }
+    }
+
+    if (isBlacklisted) {
+      // 如果域名在黑名单中，直接使用原始播放地址（透传）
+      playUrl = channel.play_url;
+    } else {
+      // 否则使用代理播放地址
+      playUrl = `${host}/live/${code}/${channel.channel_hash}`;
+    }
+
+    m3uLines.push(playUrl);
   }
 
   const m3uContent = m3uLines.join('\n');

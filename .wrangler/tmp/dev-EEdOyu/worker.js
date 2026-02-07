@@ -58,11 +58,14 @@ var init_modules_watch_stub = __esm({
 // database.js
 var database_exports = {};
 __export(database_exports, {
+  addDomainToBlacklist: () => addDomainToBlacklist,
+  addMultipleDomainsToBlacklist: () => addMultipleDomainsToBlacklist,
   createAdBinding: () => createAdBinding,
   createTables: () => createTables,
   decryptWithAES: () => decryptWithAES,
   deleteAdBinding: () => deleteAdBinding,
   encryptWithAES: () => encryptWithAES,
+  extractDomainFromUrl: () => extractDomainFromUrl,
   fetchAndParseM3U: () => fetchAndParseM3U,
   fetchAndParseM3UOnly: () => fetchAndParseM3UOnly,
   generateAdM3U8: () => generateAdM3U8,
@@ -76,6 +79,7 @@ __export(database_exports, {
   getAllAdBindings: () => getAllAdBindings,
   getBoundAdByAction: () => getBoundAdByAction,
   getDB: () => getDB,
+  getDomainBlacklist: () => getDomainBlacklist,
   getHomepageDisplayConfig: () => getHomepageDisplayConfig,
   getIPBlacklistConfig: () => getIPBlacklistConfig,
   getMallSettings: () => getMallSettings,
@@ -83,10 +87,12 @@ __export(database_exports, {
   getSyncFilterConfig: () => getSyncFilterConfig,
   getSystemConfig: () => getSystemConfig,
   initDB: () => initDB,
+  isDomainBlacklisted: () => isDomainBlacklisted,
   isMallEnabled: () => isMallEnabled,
   isSubscriptionEnabled: () => isSubscriptionEnabled,
   parseM3UContent: () => parseM3UContent,
   parseM3UContentOnly: () => parseM3UContentOnly,
+  removeDomainFromBlacklist: () => removeDomainFromBlacklist,
   updateAdBinding: () => updateAdBinding,
   updateHomepageDisplayConfig: () => updateHomepageDisplayConfig,
   updateIPBlacklistConfig: () => updateIPBlacklistConfig,
@@ -724,6 +730,20 @@ async function createTables(env) {
     }
   } catch (e) {
     console.error("Database: Failed to initialize mall settings:", e);
+  }
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS domain_blacklist (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        domain TEXT NOT NULL UNIQUE,
+        reason TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_domain_blacklist_domain ON domain_blacklist(domain)").run();
+    console.log("Database: domain_blacklist table created or already exists");
+  } catch (e) {
+    console.error("Database: Failed to create domain_blacklist table:", e);
   }
   console.log("Tables created successfully");
   tablesCreated = true;
@@ -1827,7 +1847,7 @@ async function getActiveChannels() {
   `).all();
   return result.results || [];
 }
-function generateM3UContent(channels, subId, isFreeSub = false, baseUrl = "") {
+function generateM3UContent(channels, subId, isFreeSub = false, baseUrl = "", domainBlacklist = []) {
   let m3u = "#EXTM3U\n";
   if (isFreeSub) {
     m3u += "# Free Subscription\n";
@@ -1853,14 +1873,37 @@ function generateM3UContent(channels, subId, isFreeSub = false, baseUrl = "") {
     extinf += `,${channel.channel_name}
 `;
     m3u += extinf;
-    if (isFreeSub) {
-      const playUrl = baseUrl || "/api";
-      m3u += `${playUrl}/play/${channel.channel_hash}?freesub=${subId}
-`;
-    } else {
-      m3u += `${channel.play_url}
-`;
+    let playUrl;
+    let isBlacklisted = false;
+    if (channel.play_url) {
+      try {
+        const urlObj = new URL(channel.play_url);
+        const hostname = urlObj.hostname;
+        isBlacklisted = domainBlacklist.includes(hostname);
+        if (!isBlacklisted) {
+          for (const blacklistDomain of domainBlacklist) {
+            if (blacklistDomain.startsWith("*.") && hostname.endsWith(blacklistDomain.substring(2))) {
+              isBlacklisted = true;
+              break;
+            }
+          }
+        }
+      } catch (e) {
+        console.error("[generateM3UContent] Error parsing channel URL:", e);
+      }
     }
+    if (isFreeSub) {
+      if (isBlacklisted) {
+        playUrl = channel.play_url;
+      } else {
+        const apiUrl = baseUrl || "/api";
+        playUrl = `${apiUrl}/play/${channel.channel_hash}?freesub=${subId}`;
+      }
+    } else {
+      playUrl = channel.play_url;
+    }
+    m3u += `${playUrl}
+`;
   }
   return m3u;
 }
@@ -1880,6 +1923,78 @@ async function isMallEnabled() {
 async function isSubscriptionEnabled() {
   const settings = await getMallSettings();
   return settings.subscription_enabled === "1";
+}
+async function getDomainBlacklist() {
+  const db = getDB();
+  const result = await db.prepare("SELECT * FROM domain_blacklist ORDER BY created_at DESC").all();
+  return result.results || [];
+}
+async function addDomainToBlacklist(domain, reason) {
+  const db = getDB();
+  const result = await db.prepare(`
+    INSERT INTO domain_blacklist (domain, reason)
+    VALUES (?, ?)
+  `).bind(domain, reason).run();
+  return {
+    success: true,
+    id: result.meta.last_row_id
+  };
+}
+async function removeDomainFromBlacklist(id) {
+  const db = getDB();
+  const result = await db.prepare("DELETE FROM domain_blacklist WHERE id = ?").bind(id).run();
+  return result.meta.changes > 0;
+}
+async function addMultipleDomainsToBlacklist(domains) {
+  const db = getDB();
+  const results = [];
+  for (const domain of domains) {
+    try {
+      const result = await db.prepare(`
+        INSERT INTO domain_blacklist (domain, reason)
+        VALUES (?, ?)
+      `).bind(domain.domain, domain.reason || "").run();
+      results.push({
+        domain: domain.domain,
+        success: true,
+        id: result.meta.last_row_id
+      });
+    } catch (e) {
+      results.push({
+        domain: domain.domain,
+        success: false,
+        error: e.message
+      });
+    }
+  }
+  return results;
+}
+async function isDomainBlacklisted(playUrl) {
+  const db = getDB();
+  try {
+    const url = new URL(playUrl);
+    const hostname = url.hostname;
+    const exactMatch = await db.prepare("SELECT id FROM domain_blacklist WHERE domain = ?").bind(hostname).first();
+    if (exactMatch) {
+      return true;
+    }
+    const subdomainMatches = await db.prepare("SELECT domain FROM domain_blacklist WHERE domain LIKE ?").bind("%." + hostname).all();
+    if (subdomainMatches.results && subdomainMatches.results.length > 0) {
+      return true;
+    }
+    return false;
+  } catch (e) {
+    console.error("[DomainBlacklist] Error checking domain:", e);
+    return false;
+  }
+}
+function extractDomainFromUrl(url) {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.hostname;
+  } catch (e) {
+    return null;
+  }
 }
 var DB, tablesCreated;
 var init_database = __esm({
@@ -1928,6 +2043,12 @@ var init_database = __esm({
     __name(getMallSettings, "getMallSettings");
     __name(isMallEnabled, "isMallEnabled");
     __name(isSubscriptionEnabled, "isSubscriptionEnabled");
+    __name(getDomainBlacklist, "getDomainBlacklist");
+    __name(addDomainToBlacklist, "addDomainToBlacklist");
+    __name(removeDomainFromBlacklist, "removeDomainFromBlacklist");
+    __name(addMultipleDomainsToBlacklist, "addMultipleDomainsToBlacklist");
+    __name(isDomainBlacklisted, "isDomainBlacklisted");
+    __name(extractDomainFromUrl, "extractDomainFromUrl");
   }
 });
 
@@ -2931,6 +3052,16 @@ async function handleSubRequest(request, env, ctx) {
   }
   const sortedChannels = sortChannels(allChannels);
   const host = url.origin;
+  let domainBlacklist = [];
+  try {
+    const blacklistResult = await getDomainBlacklist();
+    if (blacklistResult && blacklistResult.length > 0) {
+      domainBlacklist = blacklistResult.map((item) => item.domain);
+      console.log(`[Sub] Loaded ${domainBlacklist.length} domains to blacklist`);
+    }
+  } catch (e) {
+    console.error("[Sub] Failed to load domain blacklist:", e);
+  }
   const m3uLines = ["#EXTM3U"];
   for (const channel of sortedChannels) {
     const infoParts = ["#EXTINF:-1"];
@@ -2953,7 +3084,31 @@ async function handleSubRequest(request, env, ctx) {
     }
     infoParts.push("," + channel.channel_name);
     m3uLines.push(infoParts.join(" "));
-    m3uLines.push(`${host}/live/${code}/${channel.channel_hash}`);
+    let playUrl;
+    let isBlacklisted = false;
+    if (channel.play_url) {
+      try {
+        const urlObj = new URL(channel.play_url);
+        const hostname = urlObj.hostname;
+        isBlacklisted = domainBlacklist.includes(hostname);
+        if (!isBlacklisted) {
+          for (const blacklistDomain of domainBlacklist) {
+            if (blacklistDomain.startsWith("*.") && hostname.endsWith(blacklistDomain.substring(2))) {
+              isBlacklisted = true;
+              break;
+            }
+          }
+        }
+      } catch (e) {
+        console.error("[Sub] Error parsing channel URL:", e);
+      }
+    }
+    if (isBlacklisted) {
+      playUrl = channel.play_url;
+    } else {
+      playUrl = `${host}/live/${code}/${channel.channel_hash}`;
+    }
+    m3uLines.push(playUrl);
   }
   const m3uContent = m3uLines.join("\n");
   const response = new Response(m3uContent, {
@@ -5713,6 +5868,86 @@ async function handleAdminRequest(request, env, ctx) {
           return await handleUpdatePaymentMethod(request, env, ctx);
         }
         break;
+      case "domain-blacklist":
+        if (request.method === "GET") {
+          const domains = await getDomainBlacklist();
+          return new Response(JSON.stringify({
+            success: true,
+            domains
+          }), {
+            headers: { "Content-Type": "application/json" }
+          });
+        } else if (request.method === "POST") {
+          const data = await request.json();
+          if (data.domains && Array.isArray(data.domains)) {
+            const results = await addMultipleDomainsToBlacklist(data.domains);
+            return new Response(JSON.stringify({
+              success: true,
+              results
+            }), {
+              headers: { "Content-Type": "application/json" }
+            });
+          } else if (data.domain) {
+            try {
+              const result2 = await addDomainToBlacklist(data.domain, data.reason || "");
+              return new Response(JSON.stringify({
+                success: true,
+                ...result2
+              }), {
+                headers: { "Content-Type": "application/json" }
+              });
+            } catch (e) {
+              return new Response(JSON.stringify({
+                success: false,
+                error: e.message.includes("UNIQUE constraint") ? "\u57DF\u540D\u5DF2\u5B58\u5728" : e.message
+              }), {
+                status: 400,
+                headers: { "Content-Type": "application/json" }
+              });
+            }
+          } else {
+            return new Response(JSON.stringify({
+              success: false,
+              error: "\u8BF7\u63D0\u4F9B\u57DF\u540D"
+            }), {
+              status: 400,
+              headers: { "Content-Type": "application/json" }
+            });
+          }
+        } else if (request.method === "DELETE") {
+          const domainId = pathParts[3];
+          if (!domainId) {
+            return new Response("Missing domain ID", { status: 400 });
+          }
+          try {
+            const success = await removeDomainFromBlacklist(parseInt(domainId));
+            if (success) {
+              return new Response(JSON.stringify({
+                success: true,
+                message: "\u57DF\u540D\u5DF2\u4ECE\u9ED1\u540D\u5355\u4E2D\u5220\u9664"
+              }), {
+                headers: { "Content-Type": "application/json" }
+              });
+            } else {
+              return new Response(JSON.stringify({
+                success: false,
+                error: "\u57DF\u540D\u4E0D\u5B58\u5728"
+              }), {
+                status: 404,
+                headers: { "Content-Type": "application/json" }
+              });
+            }
+          } catch (e) {
+            return new Response(JSON.stringify({
+              success: false,
+              error: e.message
+            }), {
+              status: 500,
+              headers: { "Content-Type": "application/json" }
+            });
+          }
+        }
+        break;
       default:
         return new Response("Invalid admin action", { status: 400 });
     }
@@ -7395,8 +7630,18 @@ async function handleFreeSubM3U(subId, request, env) {
       headers: { "Content-Type": "application/vnd.apple.mpegurl" }
     });
   }
+  let domainBlacklist = [];
+  try {
+    const blacklistResult = await getDomainBlacklist();
+    if (blacklistResult && blacklistResult.length > 0) {
+      domainBlacklist = blacklistResult.map((item) => item.domain);
+      console.log(`[FreeSub M3U] Loaded ${domainBlacklist.length} domains to blacklist`);
+    }
+  } catch (e) {
+    console.error("[FreeSub M3U] Failed to load domain blacklist:", e);
+  }
   const baseUrl = `${url.protocol}//${url.host}/api`;
-  const m3uContent = generateM3UContent(channels, subId, true, baseUrl);
+  const m3uContent = generateM3UContent(channels, subId, true, baseUrl, domainBlacklist);
   return new Response(m3uContent, {
     headers: {
       "Content-Type": "application/vnd.apple.mpegurl",
@@ -8378,6 +8623,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab" onclick="showTab('mall')">\u5546\u57CE\u7BA1\u7406</button>
       <button class="nav-tab" onclick="showTab('security')">\u5B89\u5168\u76D1\u63A7</button>
       <button class="nav-tab" onclick="showTab('ip-blacklist')">IP\u9ED1\u540D\u5355</button>
+      <button class="nav-tab" onclick="showTab('domain-blacklist')">\u57DF\u540D\u9ED1\u540D\u5355</button>
       <button class="nav-tab" onclick="showTab('homepage-display')">\u9996\u9875\u5C55\u793A</button>
       <button class="nav-tab" onclick="showTab('ad-management')">\u5E7F\u544A\u7BA1\u7406</button>
       <button class="nav-tab" onclick="showTab('system-settings')">\u7CFB\u7EDF\u8BBE\u7F6E</button>
@@ -8691,6 +8937,61 @@ var ADMIN_HTML = `<!DOCTYPE html>
           <p style="margin-bottom:16px;">\u8D85\u51FA\u8BBF\u95EE\u9891\u7387\u4F1A\u81EA\u52A8\u5C01\u7981IP\uFF0C\u4FDD\u62A4\u7CFB\u7EDF\u5B89\u5168</p>
           <p><strong>\u2705 \u7BA1\u7406\u5458\u64CD\u4F5C\uFF1A</strong></p>
           <p>\u53EF\u4EE5\u5728\u4E0A\u65B9\u914D\u7F6E\u8C03\u6574\u9650\u5236\u9608\u503C\uFF0C\u624B\u52A8\u5C01\u7981\u53EF\u7591IP\u6216\u89E3\u5C01\u8BEF\u5C01\u7684IP</p>
+        </div>
+      </div>
+    </div>
+    <div id="domain-blacklist" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>\u57DF\u540D\u9ED1\u540D\u5355</h3>
+          <button class="btn btn-primary" onclick="loadDomainBlacklist()">\u5237\u65B0\u5217\u8868</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>\u57DF\u540D</th>
+              <th>\u6DFB\u52A0\u65F6\u95F4</th>
+              <th>\u5907\u6CE8</th>
+              <th>\u64CD\u4F5C</th>
+            </tr>
+          </thead>
+          <tbody id="domainBlacklistTable"></tbody>
+        </table>
+        <div id="noDomainBlacklist" class="empty-state">\u6682\u65E0\u9ED1\u540D\u5355\u57DF\u540D</div>
+      </div>
+      <div class="card">
+        <h3>\u6DFB\u52A0\u57DF\u540D\u5230\u9ED1\u540D\u5355</h3>
+        <div class="form-group">
+          <label>\u57DF\u540D\uFF08\u652F\u6301\u5355\u4E2A\u6216\u6279\u91CF\uFF09</label>
+          <textarea id="domainBlacklistInput" rows="5" placeholder="\u8F93\u5165\u57DF\u540D\uFF0C\u6BCF\u884C\u4E00\u4E2A&#10;\u4F8B\u5982\uFF1A&#10;example.com&#10;*.example.com"></textarea>
+        </div>
+        <div class="form-group">
+          <label>\u5907\u6CE8\uFF08\u53EF\u9009\uFF09</label>
+          <input type="text" id="domainBlacklistReason" placeholder="\u8F93\u5165\u5907\u6CE8\u539F\u56E0">
+        </div>
+        <button class="btn btn-danger" onclick="addDomainToBlacklist()">\u6DFB\u52A0\u5230\u9ED1\u540D\u5355</button>
+      </div>
+      <div class="card">
+        <h3>\u9ED1\u540D\u5355\u8BF4\u660E</h3>
+        <div style="line-height:1.8;color:#86868b;font-size:14px;">
+          <p><strong>\u{1F6AB} \u57DF\u540D\u9ED1\u540D\u5355\u529F\u80FD\u8BF4\u660E\uFF1A</strong></p>
+          <ul style="margin-left:20px;margin-bottom:16px;">
+            <li>\u9ED1\u540D\u5355\u4E2D\u7684\u57DF\u540D\u5C06\u4E0D\u4F1A\u88AB\u4EE3\u7406\uFF0C\u76F4\u63A5\u900F\u4F20\u539F\u59CB\u64AD\u653E\u5730\u5740\u7ED9\u7528\u6237</li>
+            <li>\u9002\u7528\u4E8E\u7981\u6B62Cloudflare\u8BBF\u95EE\u7684\u76F4\u64AD\u6E90</li>
+            <li>\u652F\u6301\u5B8C\u5168\u5339\u914D\u57DF\u540D\uFF08\u5982\uFF1Aexample.com\uFF09\u548C\u5B50\u57DF\u540D\u5339\u914D\uFF08\u5982\uFF1A*.example.com\uFF09</li>
+          </ul>
+          <p><strong>\u{1F4DD} \u57DF\u540D\u683C\u5F0F\uFF1A</strong></p>
+          <ul style="margin-left:20px;margin-bottom:16px;">
+            <li>\u5B8C\u5168\u5339\u914D\uFF1Aexample.com\uFF08\u53EA\u5339\u914Dexample.com\uFF09</li>
+            <li>\u5B50\u57DF\u540D\u5339\u914D\uFF1A*.example.com\uFF08\u5339\u914D\u6240\u6709example.com\u7684\u5B50\u57DF\u540D\uFF09</li>
+            <li>\u652F\u6301\u6279\u91CF\u6DFB\u52A0\uFF0C\u6BCF\u884C\u4E00\u4E2A\u57DF\u540D</li>
+          </ul>
+          <p><strong>\u{1F4A1} \u4F7F\u7528\u573A\u666F\uFF1A</strong></p>
+          <ul style="margin-left:20px;">
+            <li>\u76F4\u64AD\u6E90\u57DF\u540D\u62D2\u7EDDCloudflare IP\u8BBF\u95EE</li>
+            <li>\u76F4\u64AD\u6E90\u9700\u8981\u76F4\u63A5\u4ECE\u5BA2\u6237\u7AEF\u64AD\u653E</li>
+            <li>\u907F\u514D\u56E0\u4EE3\u7406\u5BFC\u81F4\u7684\u64AD\u653E\u5931\u8D25</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -9669,6 +9970,9 @@ var ADMIN_HTML = `<!DOCTYPE html>
       else if (tabName === 'ip-blacklist') {
         loadIPBlacklistConfig();
         loadIPBlacklist();
+      }
+      else if (tabName === 'domain-blacklist') {
+        loadDomainBlacklist();
       }
       else if (tabName === 'homepage-display') loadHomepageDisplayConfig();
       else if (tabName === 'ad-management') {
@@ -11324,6 +11628,137 @@ var ADMIN_HTML = `<!DOCTYPE html>
       document.getElementById('adminRateHour').value = 10;
 
       await saveIPBlacklistConfig();
+    }
+
+    // \u57DF\u540D\u9ED1\u540D\u5355\u7BA1\u7406
+    async function loadDomainBlacklist() {
+      try {
+        showLoading();
+        const data = await apiRequest('/domain-blacklist', { showLoading: false });
+        const tbody = document.getElementById('domainBlacklistTable');
+        const noDataDiv = document.getElementById('noDomainBlacklist');
+
+        if (!data.domains || data.domains.length === 0) {
+          tbody.innerHTML = '';
+          noDataDiv.style.display = 'block';
+          return;
+        }
+
+        noDataDiv.style.display = 'none';
+        const timezone = window.TIMEZONE || 'Asia/Shanghai';
+
+        tbody.innerHTML = data.domains.map(item => \`
+          <tr>
+            <td><span class="code-display">\${escapeHtml(item.domain)}</span></td>
+            <td>\${item.createdAt ? new Date(item.createdAt).toLocaleString('zh-CN', { timeZone: timezone }) : '-'}</td>
+            <td>\${escapeHtml(item.reason || '-')}</td>
+            <td>
+              <button class="btn btn-sm btn-danger" onclick="removeDomainFromBlacklist('\${item.id}')">\u5220\u9664</button>
+            </td>
+          </tr>
+        \`).join('');
+      } catch (error) {
+        showToast('\u52A0\u8F7D\u57DF\u540D\u9ED1\u540D\u5355\u5931\u8D25: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function addDomainToBlacklist() {
+      const input = document.getElementById('domainBlacklistInput');
+      const reasonInput = document.getElementById('domainBlacklistReason');
+      const reason = reasonInput.value.trim();
+
+      if (!input.value.trim()) {
+        showToast('\u8BF7\u8F93\u5165\u57DF\u540D', 'error');
+        return;
+      }
+
+      // \u5206\u884C\u5904\u7406\uFF0C\u652F\u6301\u6279\u91CF\u6DFB\u52A0
+      const lines = input.value.split('\\n').filter(line => line.trim());
+      const domains = lines.map(line => ({
+        domain: line.trim(),
+        reason: reason
+      }));
+
+      try {
+        showLoading();
+
+        if (domains.length === 1) {
+          // \u5355\u4E2A\u6DFB\u52A0
+          const data = await apiRequest('/domain-blacklist', {
+            method: 'POST',
+            body: JSON.stringify({
+              domain: domains[0].domain,
+              reason: reason
+            })
+          });
+
+          if (data.success) {
+            showToast('\u57DF\u540D\u5DF2\u6DFB\u52A0\u5230\u9ED1\u540D\u5355', 'success');
+            input.value = '';
+            reasonInput.value = '';
+            await loadDomainBlacklist();
+          } else {
+            showToast('\u6DFB\u52A0\u5931\u8D25: ' + data.error, 'error');
+          }
+        } else {
+          // \u6279\u91CF\u6DFB\u52A0
+          const data = await apiRequest('/domain-blacklist', {
+            method: 'POST',
+            body: JSON.stringify({
+              domains: domains
+            })
+          });
+
+          if (data.success) {
+            const successCount = data.results.filter(r => r.success).length;
+            const failCount = data.results.filter(r => !r.success).length;
+
+            if (failCount > 0) {
+              const failedDomains = data.results.filter(r => !r.success).map(r => r.domain).join(', ');
+              showToast(\`\u6210\u529F\u6DFB\u52A0 \${successCount} \u4E2A\u57DF\u540D\uFF0C\u5931\u8D25 \${failCount} \u4E2A
+\${failedDomains}\`, 'warning');
+            } else {
+              showToast(\`\u6210\u529F\u6DFB\u52A0 \${successCount} \u4E2A\u57DF\u540D\u5230\u9ED1\u540D\u5355\`, 'success');
+            }
+
+            input.value = '';
+            reasonInput.value = '';
+            await loadDomainBlacklist();
+          } else {
+            showToast('\u6279\u91CF\u6DFB\u52A0\u5931\u8D25', 'error');
+          }
+        }
+      } catch (error) {
+        showToast('\u6DFB\u52A0\u5931\u8D25: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function removeDomainFromBlacklist(id) {
+      if (!confirm('\u786E\u5B9A\u8981\u4ECE\u9ED1\u540D\u5355\u4E2D\u5220\u9664\u8BE5\u57DF\u540D\u5417\uFF1F')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const data = await apiRequest(\`/domain-blacklist/\${id}\`, {
+          method: 'DELETE'
+        });
+
+        if (data.success) {
+          showToast('\u57DF\u540D\u5DF2\u4ECE\u9ED1\u540D\u5355\u4E2D\u5220\u9664', 'success');
+          await loadDomainBlacklist();
+        } else {
+          showToast('\u5220\u9664\u5931\u8D25: ' + data.error, 'error');
+        }
+      } catch (error) {
+        showToast('\u5220\u9664\u5931\u8D25: ' + error.error, 'error');
+      } finally {
+        hideLoading();
+      }
     }
 
     // \u9996\u9875\u5C55\u793A\u914D\u7F6E\u7BA1\u7406

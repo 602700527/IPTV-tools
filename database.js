@@ -777,6 +777,22 @@ export async function createTables(env) {
     console.error('Database: Failed to initialize mall settings:', e);
   }
 
+  // 创建域名黑名单表
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS domain_blacklist (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        domain TEXT NOT NULL UNIQUE,
+        reason TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_domain_blacklist_domain ON domain_blacklist(domain)').run();
+    console.log('Database: domain_blacklist table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create domain_blacklist table:', e);
+  }
+
   console.log('Tables created successfully');
   tablesCreated = true;  // 标记表已创建，避免重复执行
 }
@@ -2337,7 +2353,7 @@ export async function getActiveChannels() {
 /**
  * 生成M3U内容
  */
-export function generateM3UContent(channels, subId, isFreeSub = false, baseUrl = '') {
+export function generateM3UContent(channels, subId, isFreeSub = false, baseUrl = '', domainBlacklist = []) {
   let m3u = '#EXTM3U\n';
 
   // 添加订阅信息注释
@@ -2365,13 +2381,49 @@ export function generateM3UContent(channels, subId, isFreeSub = false, baseUrl =
 
     m3u += extinf;
 
-    // 免费订阅直接使用freesub参数，不使用令牌
-    if (isFreeSub) {
-      const playUrl = baseUrl || '/api';
-      m3u += `${playUrl}/play/${channel.channel_hash}?freesub=${subId}\n`;
-    } else {
-      m3u += `${channel.play_url}\n`;
+    // 检查频道URL是否在域名黑名单中
+    let playUrl;
+    let isBlacklisted = false;
+
+    if (channel.play_url) {
+      try {
+        const urlObj = new URL(channel.play_url);
+        const hostname = urlObj.hostname;
+
+        // 检查完全匹配
+        isBlacklisted = domainBlacklist.includes(hostname);
+
+        // 检查子域名匹配（例如：*.example.com 匹配 sub.example.com）
+        if (!isBlacklisted) {
+          for (const blacklistDomain of domainBlacklist) {
+            if (blacklistDomain.startsWith('*.') && hostname.endsWith(blacklistDomain.substring(2))) {
+              isBlacklisted = true;
+              break;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('[generateM3UContent] Error parsing channel URL:', e);
+      }
     }
+
+    // 免费订阅
+    if (isFreeSub) {
+      if (isBlacklisted) {
+        // 如果域名在黑名单中，直接使用原始播放地址（透传）
+        playUrl = channel.play_url;
+      } else {
+        // 否则使用代理播放地址
+        const apiUrl = baseUrl || '/api';
+        playUrl = `${apiUrl}/play/${channel.channel_hash}?freesub=${subId}`;
+      }
+    } else {
+      // 普通订阅（如果不是免费订阅，目前逻辑是直接使用原始URL）
+      // 如果需要支持普通订阅的透传，可以在这里添加逻辑
+      playUrl = channel.play_url;
+    }
+
+    m3u += `${playUrl}\n`;
   }
 
   return m3u;
@@ -2396,5 +2448,108 @@ export async function isMallEnabled() {
 export async function isSubscriptionEnabled() {
   const settings = await getMallSettings();
   return settings.subscription_enabled === '1';
+}
+
+// ========== 域名黑名单相关函数 ==========
+
+/**
+ * 获取所有域名黑名单
+ */
+export async function getDomainBlacklist() {
+  const db = getDB();
+  const result = await db.prepare('SELECT * FROM domain_blacklist ORDER BY created_at DESC').all();
+  return result.results || [];
+}
+
+/**
+ * 添加域名到黑名单
+ */
+export async function addDomainToBlacklist(domain, reason) {
+  const db = getDB();
+  const result = await db.prepare(`
+    INSERT INTO domain_blacklist (domain, reason)
+    VALUES (?, ?)
+  `).bind(domain, reason).run();
+  return {
+    success: true,
+    id: result.meta.last_row_id
+  };
+}
+
+/**
+ * 从黑名单删除域名
+ */
+export async function removeDomainFromBlacklist(id) {
+  const db = getDB();
+  const result = await db.prepare('DELETE FROM domain_blacklist WHERE id = ?').bind(id).run();
+  return result.meta.changes > 0;
+}
+
+/**
+ * 批量添加域名到黑名单
+ */
+export async function addMultipleDomainsToBlacklist(domains) {
+  const db = getDB();
+  const results = [];
+  for (const domain of domains) {
+    try {
+      const result = await db.prepare(`
+        INSERT INTO domain_blacklist (domain, reason)
+        VALUES (?, ?)
+      `).bind(domain.domain, domain.reason || '').run();
+      results.push({
+        domain: domain.domain,
+        success: true,
+        id: result.meta.last_row_id
+      });
+    } catch (e) {
+      results.push({
+        domain: domain.domain,
+        success: false,
+        error: e.message
+      });
+    }
+  }
+  return results;
+}
+
+/**
+ * 检查域名是否在黑名单中
+ */
+export async function isDomainBlacklisted(playUrl) {
+  const db = getDB();
+  try {
+    const url = new URL(playUrl);
+    const hostname = url.hostname;
+
+    // 检查完全匹配
+    const exactMatch = await db.prepare('SELECT id FROM domain_blacklist WHERE domain = ?').bind(hostname).first();
+    if (exactMatch) {
+      return true;
+    }
+
+    // 检查子域名匹配（例如：*.example.com 匹配 sub.example.com）
+    const subdomainMatches = await db.prepare('SELECT domain FROM domain_blacklist WHERE domain LIKE ?').bind('%.' + hostname).all();
+    if (subdomainMatches.results && subdomainMatches.results.length > 0) {
+      return true;
+    }
+
+    return false;
+  } catch (e) {
+    console.error('[DomainBlacklist] Error checking domain:', e);
+    return false;
+  }
+}
+
+/**
+ * 从URL提取域名
+ */
+export function extractDomainFromUrl(url) {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.hostname;
+  } catch (e) {
+    return null;
+  }
 }
 

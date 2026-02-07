@@ -1,5 +1,5 @@
 // 管理后台API处理器
-import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, generateEncryptionKey, getSyncFilterConfig, updateSyncFilterConfig } from '../database.js';
+import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, generateEncryptionKey, getSyncFilterConfig, updateSyncFilterConfig, getDomainBlacklist, addDomainToBlacklist, removeDomainFromBlacklist, addMultipleDomainsToBlacklist } from '../database.js';
 import { handleGetPaymentMethods, handleUpdatePaymentMethod, handleTogglePaymentMethod, handleGetXunhuPayOrders } from './xunhupay-api.js';
 import { manualSyncAll } from './scheduler.js';
 import { getBlacklistedIPs, unbanIP, getIPAccessStats, banIP } from '../security/ip-blacklist.js';
@@ -1978,6 +1978,95 @@ export async function handleAdminRequest(request, env, ctx) {
           return await handleGetPaymentMethods(request, env, ctx);
         } else if (request.method === 'POST') {
           return await handleUpdatePaymentMethod(request, env, ctx);
+        }
+        break;
+
+      case 'domain-blacklist':
+        // 域名黑名单管理
+        if (request.method === 'GET') {
+          // 获取所有黑名单域名
+          const domains = await getDomainBlacklist();
+          return new Response(JSON.stringify({
+            success: true,
+            domains
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'POST') {
+          // 添加域名到黑名单
+          const data = await request.json();
+
+          if (data.domains && Array.isArray(data.domains)) {
+            // 批量添加
+            const results = await addMultipleDomainsToBlacklist(data.domains);
+            return new Response(JSON.stringify({
+              success: true,
+              results
+            }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } else if (data.domain) {
+            // 单个添加
+            try {
+              const result = await addDomainToBlacklist(data.domain, data.reason || '');
+              return new Response(JSON.stringify({
+                success: true,
+                ...result
+              }), {
+                headers: { 'Content-Type': 'application/json' }
+              });
+            } catch (e) {
+              return new Response(JSON.stringify({
+                success: false,
+                error: e.message.includes('UNIQUE constraint') ? '域名已存在' : e.message
+              }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+              });
+            }
+          } else {
+            return new Response(JSON.stringify({
+              success: false,
+              error: '请提供域名'
+            }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+        } else if (request.method === 'DELETE') {
+          // 从黑名单删除域名
+          const domainId = pathParts[3];
+          if (!domainId) {
+            return new Response('Missing domain ID', { status: 400 });
+          }
+
+          try {
+            const success = await removeDomainFromBlacklist(parseInt(domainId));
+            if (success) {
+              return new Response(JSON.stringify({
+                success: true,
+                message: '域名已从黑名单中删除'
+              }), {
+                headers: { 'Content-Type': 'application/json' }
+              });
+            } else {
+              return new Response(JSON.stringify({
+                success: false,
+                error: '域名不存在'
+              }), {
+                status: 404,
+                headers: { 'Content-Type': 'application/json' }
+              });
+            }
+          } catch (e) {
+            return new Response(JSON.stringify({
+              success: false,
+              error: e.message
+            }), {
+              status: 500,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
         }
         break;
 
