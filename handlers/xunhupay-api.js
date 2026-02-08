@@ -329,9 +329,17 @@ export async function handleXunhuPayNotify(request, env, ctx) {
     }
 
     // 检查支付状态
-    if (data.status !== 'OD') {
-      console.warn('[XunhuPay] Payment not completed:', data.status);
-      return new Response('SUCCESS'); // 已收到通知，返回SUCCESS避免重复
+    // OD: 订单支付完成, WD: 订单退款, 其他状态需要确认
+    if (data.status !== 'OD' && data.status !== 'WD') {
+      console.warn('[XunhuPay] Payment not completed yet, status:', data.status);
+      // 返回 FAIL 让虎皮椒稍后重试
+      return new Response('FAIL', { status: 200 });
+    }
+
+    // 如果是退款状态，标记为已退款但不需要生成卡密
+    if (data.status === 'WD') {
+      console.log('[XunhuPay] Order refunded:', data.trade_order_id);
+      return new Response('SUCCESS');
     }
 
     // 验证金额
@@ -465,6 +473,7 @@ export async function handleCheckXunhuPayOrder(request, env, ctx) {
         amount: order.amount,
         duration_days: order.duration_days,
         max_ips: order.max_ips,
+        code: order.code || null, // 返回卡密信息
         created_at: order.created_at
       }
     }), {
@@ -748,6 +757,139 @@ export async function handleGetXunhuPayOrders(request, env, ctx) {
     return new Response(JSON.stringify({
       success: false,
       error: 'Server error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * 调试：模拟支付成功（仅本地开发环境使用）
+ * 注意：此接口仅用于测试，不应在生产环境暴露
+ */
+export async function handleSimulatePaymentSuccess(request, env, ctx) {
+  try {
+    // 验证用户身份
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Unauthorized'
+      }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const token = authHeader.substring(7);
+
+    const user = await env.DB.prepare(`
+      SELECT u.id, u.email
+      FROM users u
+      INNER JOIN user_sessions s ON u.id = s.user_id
+      WHERE s.token = ? AND s.expires_at > datetime('now')
+    `).bind(token).first();
+
+    if (!user) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Invalid token'
+      }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const url = new URL(request.url);
+    const orderId = url.searchParams.get('order_id');
+
+    if (!orderId) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Missing order_id'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 查询订单信息
+    const order = await env.DB.prepare(`
+      SELECT * FROM xunhupay_orders WHERE order_id = ? AND user_id = ?
+    `).bind(orderId, user.id).first();
+
+    if (!order) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Order not found'
+      }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 检查订单是否已处理
+    if (order.status === 'completed') {
+      return new Response(JSON.stringify({
+        success: true,
+        message: 'Order already completed',
+        code: order.code
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 模拟支付成功，更新订单状态
+    await env.DB.prepare(`
+      UPDATE xunhupay_orders
+      SET status = 'completed',
+          notify_received = 1,
+          updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(order.id).run();
+
+    // 生成卡密
+    const baseUrl = `${url.protocol}//${url.host}`;
+    const result = await generateActivationCode(
+      env,
+      order.duration_days,
+      order.max_ips,
+      order.user_id,
+      false,
+      baseUrl
+    );
+
+    if (result.success) {
+      // 更新订单，添加卡密
+      await env.DB.prepare(`
+        UPDATE xunhupay_orders SET code = ? WHERE id = ?
+      `).bind(result.code, order.id).run();
+
+      // 记录到 user_orders
+      await env.DB.prepare(`
+        INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, status)
+        VALUES (?, ?, ?, ?, ?, 'completed')
+      `).bind(order.user_id, order.order_id, result.code, order.duration_days, order.amount).run();
+
+      console.log('[SimulatePayment] Order completed and code generated:', result.code);
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'Payment simulated successfully',
+      code: result.success ? result.code : null
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('[SimulatePayment] Error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: error.message
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }

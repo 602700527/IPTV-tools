@@ -76,6 +76,20 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
     .toast-icon{font-size:18px}
     .toast-message{color:#fff;font-size:14px;font-weight:500}
     
+    /* 支付成功模态框样式 */
+    .success-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);z-index:3000;align-items:center;justify-content:center;padding:20px}
+    .success-modal.show{display:flex}
+    .success-content{background:linear-gradient(135deg,#1e1e1e 0%,#0a0a0a 100%);border-radius:24px;padding:40px;max-width:480px;width:100%;text-align:center;border:1px solid rgba(229,9,20,0.2);box-shadow:0 25px 80px rgba(0,0,0,0.6);animation:modalSlideIn 0.3s cubic-bezier(0.4,0,0.2,1)}
+    @keyframes modalSlideIn{from{opacity:0;transform:scale(0.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .success-icon{font-size:64px;margin-bottom:20px}
+    .success-title{font-size:24px;font-weight:700;color:#fff;margin:0 0 10px 0}
+    .success-message{color:rgba(255,255,255,0.8);font-size:14px;margin-bottom:25px}
+    .code-display{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px;margin-bottom:20px;color:#fff;font-size:13px;word-break:break-all;font-family:monospace}
+    .copy-button{background:linear-gradient(135deg,#e50914 0%,#ff3b30 100%);color:#fff;border:none;padding:14px 28px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s;width:100%;margin-bottom:15px}
+    .copy-button:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(229,9,20,0.4)}
+    .close-button{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);padding:14px 28px;border-radius:12px;font-size:14px;cursor:pointer;transition:all 0.3s}
+    .close-button:hover{background:rgba(255,255,255,0.15)}
+    
     @media (max-width:768px){
       body{padding:10px}
       .container{padding:20px;border-radius:12px}
@@ -127,9 +141,23 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
     </div>
   </div>
   
-  <div class="toast-container" id="toastContainer"></div>
-  
-  <script>
+   <div class="toast-container" id="toastContainer"></div>
+   
+   <!-- 支付成功模态框 -->
+   <div id="successModal" class="success-modal">
+     <div class="success-content">
+       <div class="success-icon">🎉</div>
+       <h2 class="success-title" data-i18n="paymentSuccess">支付成功！</h2>
+       <p class="success-message" data-i18n="subUrlGenerated">您的订阅地址已生成</p>
+       <div class="code-display" id="generatedCode" style="font-size: 14px; word-break: break-all;">-</div>
+       <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">复制订阅地址</button>
+       <br><br>
+       <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin-top: 15px;">您可以直接使用此订阅地址在播放器中添加</p>
+       <button class="close-button" onclick="closeSuccessModal()" data-i18n="closeButton">关闭</button>
+     </div>
+   </div>
+   
+   <script>
     const API_BASE = '/api/auth';
 
     // 智能判断浏览器语言
@@ -452,10 +480,10 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
       }
     }
     
-    function showToast(message, type = 'info') {
+     function showToast(message, type = 'info') {
       const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = \`toast \${type}\`;
+      const toastEl = document.createElement('div');
+      toastEl.className = 'toast ' + type;
       
       const icons = {
         success: '✓',
@@ -464,25 +492,89 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
         info: 'ℹ'
       };
       
-      toast.innerHTML = \`
-        <div class="toast-content">
-          <span class="toast-icon">\${icons[type]}</span>
-          <span class="toast-message">\${message}</span>
-        </div>
-      \`;
+      toastEl.innerHTML = '<div class="toast-content"><span class="toast-icon">' + icons[type] + '</span><span class="toast-message">' + message + '</span></div>';
       
-      container.appendChild(toast);
+      container.appendChild(toastEl);
       
       setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateY(-10px)';
-        setTimeout(() => toast.remove(), 300);
+        toastEl.style.opacity = '0';
+        toastEl.style.transform = 'translateY(-10px)';
+        setTimeout(() => toastEl.remove(), 300);
       }, 3000);
+    }
+    
+    // 支付成功模态框相关函数
+    function showSuccessModal(subUrl) {
+      document.getElementById('generatedCode').textContent = subUrl;
+      document.getElementById('successModal').classList.add('show');
+    }
+    
+    function closeSuccessModal() {
+      document.getElementById('successModal').classList.remove('show');
+      // 清除 URL 参数
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
+    function copyCode() {
+      const subUrl = document.getElementById('generatedCode').textContent;
+      navigator.clipboard.writeText(subUrl).then(() => {
+        showToast(currentLang === 'zh-CN' ? '订阅地址已复制到剪贴板！' : 'Subscription URL copied to clipboard!', 'success');
+      }).catch(err => {
+        console.error('Copy failed:', err);
+      });
+    }
+    
+    // 检查 URL 参数中的支付状态
+    function checkPaymentStatus() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentStatus = urlParams.get('payment');
+      
+      if (paymentStatus === 'success') {
+        // 支付成功，获取最新的订单信息
+        loadLatestOrder();
+      } else if (paymentStatus === 'cancelled') {
+        showToast(currentLang === 'zh-CN' ? '支付已取消' : 'Payment cancelled', 'warning');
+        // 清除 URL 参数
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+    
+    // 加载最新的订单并显示订阅地址
+    async function loadLatestOrder() {
+      try {
+        const response = await fetch(API_BASE + '/orders', {
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success && data.orders && data.orders.length > 0) {
+          // 找到最新的已完成的订单
+          const completedOrder = data.orders.find(order => order.status === 'completed');
+          if (completedOrder && completedOrder.code) {
+            const subUrl = window.location.origin + '/sub/' + completedOrder.code + '.m3u';
+            showSuccessModal(subUrl);
+          } else {
+            showToast(currentLang === 'zh-CN' ? '暂无订阅信息' : 'No subscription info', 'info');
+          }
+        } else {
+          showToast(data.error || (currentLang === 'zh-CN' ? '获取订单失败' : 'Failed to get orders'), 'error');
+        }
+      } catch (error) {
+        console.error('Load latest order error:', error);
+        showToast(currentLang === 'zh-CN' ? '网络错误' : 'Network error', 'error');
+      }
+      
+      // 清除 URL 参数
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
     
     // 初始化
     document.addEventListener('DOMContentLoaded', () => {
       loadUserInfo();
+      checkPaymentStatus(); // 检查支付状态 URL 参数
     });
   </script>
 </body>

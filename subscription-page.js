@@ -859,10 +859,21 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         padding: 12px;
       }
 
-      .qrcode-tip {
+       .qrcode-tip {
         font-size: 13px;
       }
-
+      
+      .payment-hint {
+        background: rgba(255, 204, 0, 0.1);
+        border: 1px solid rgba(255, 204, 0, 0.3);
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-top: 12px;
+        font-size: 13px;
+        color: #ffcc00;
+        line-height: 1.5;
+      }
+      
       .payment-status {
         font-size: 14px;
         padding: 8px 16px;
@@ -938,6 +949,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
           </div>
           <p class="qrcode-tip" id="modalQrcodeTip" data-i18n="scanQrcode">请使用手机扫码支付</p>
+          <!-- 支付提示 -->
+          <p class="payment-hint" id="paymentHint"></p>
           <p class="payment-status" id="paymentStatus">等待支付中...</p>
         </div>
         <div class="payment-info">
@@ -961,6 +974,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
       <div class="payment-footer">
         <button class="payment-close-button" onclick="closePaymentModal()">取消支付</button>
+        <!-- 调试：模拟支付成功按钮（仅开发环境显示） -->
+        <button id="simulatePaymentBtn" class="payment-close-button" style="margin-left: 10px; background: rgba(76, 175, 80, 0.2); border-color: #4CAF50; color: #4CAF50; display: none;" onclick="simulatePaymentSuccess()">[调试] 模拟支付成功</button>
       </div>
     </div>
   </div>
@@ -1094,6 +1109,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         closeButton: 'Close',
         loginNow: 'Login Now',
         loginHint: 'Please login to complete payment',
+        paymentHint: '⚠️ Please do not close this window after payment. Your subscription URL will be displayed automatically.',
         feature_hd_quality: 'HD Quality',
         feature_multi_device: 'Multi-device Support',
         feature_cloud_recording: 'Cloud Recording',
@@ -1316,6 +1332,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     // 支付方式切换
     let currentPaymentMethod = 'alipay';
     let checkPaymentInterval = null;
+    let currentOrderId = null;
 
     function switchPaymentMethod(method) {
       currentPaymentMethod = method;
@@ -1431,8 +1448,16 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           qrcodeTip.textContent = t('scanQrcode');
           document.getElementById('paymentStatus').textContent = t('waitingPayment');
 
-          // 显示弹窗
+           // 显示弹窗
           modal.classList.add('show');
+
+          // 保存当前订单ID
+          currentOrderId = result.order_id;
+
+          // 在开发环境下显示调试按钮
+          if (isLocalhost()) {
+            document.getElementById('simulatePaymentBtn').style.display = 'inline-block';
+          }
 
           // 开始轮询订单状态
           startOrderCheck(result.order_id);
@@ -1516,6 +1541,68 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }, 5000); // 每5秒检查一次
     }
 
+    // 调试：模拟支付成功
+    async function simulatePaymentSuccess() {
+      if (!currentOrderId) {
+        showError('没有正在进行的订单');
+        return;
+      }
+
+      const btn = document.getElementById('simulatePaymentBtn');
+      btn.disabled = true;
+      btn.textContent = '模拟中...';
+
+      try {
+        const response = await fetch(API_BASE + '/subscription/xunhupay/simulate-success?order_id=' + currentOrderId, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + getToken()
+          }
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          // 停止轮询
+          if (checkPaymentInterval) {
+            clearInterval(checkPaymentInterval);
+            checkPaymentInterval = null;
+          }
+
+          // 更新支付状态
+          document.getElementById('paymentStatus').textContent = '支付成功！';
+          document.getElementById('paymentStatus').style.color = '#4CAF50';
+
+          // 延迟关闭支付弹窗
+          setTimeout(() => {
+            closePaymentModal();
+            
+            // 显示成功模态框
+            if (result.code) {
+              const subUrl = window.location.origin + '/sub/' + result.code + '.m3u';
+              showSuccessModal(subUrl);
+            }
+          }, 1500);
+        } else {
+          showError(result.error || '模拟失败');
+        }
+      } catch (error) {
+        console.error('Simulate payment error:', error);
+        showError('模拟失败: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '[调试] 模拟支付成功';
+      }
+    }
+
+    // 检测是否为本地开发环境
+    function isLocalhost() {
+      return window.location.hostname === 'localhost' || 
+             window.location.hostname === '127.0.0.1' ||
+             window.location.hostname.startsWith('192.168.') ||
+             window.location.hostname.startsWith('10.');
+    }
+
 
 
 
@@ -1569,6 +1656,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     document.addEventListener('DOMContentLoaded', () => {
       loadPlans(); // 从数据库加载套餐配置
       loadPaymentMethods(); // 加载支付方式列表
+      // 设置支付提示翻译
+      const paymentHintEl = document.getElementById('paymentHint');
+      if (paymentHintEl && typeof t === 'function') {
+        paymentHintEl.textContent = t('paymentHint');
+      }
     });
   </script>
 </body>

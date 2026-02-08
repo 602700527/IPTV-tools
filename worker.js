@@ -26,7 +26,8 @@ import {
   handleCheckXunhuPayOrder,
   handleGetPaymentMethods,
   handleUpdatePaymentMethod,
-  handleGetXunhuPayOrders
+  handleGetXunhuPayOrders,
+  handleSimulatePaymentSuccess
 } from './handlers/xunhupay-api.js';
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
@@ -243,6 +244,17 @@ export default {
     } else if (path === '/api/subscription/xunhupay/check-order') {
       // 查询虎皮椒订单状态
       return await handleCheckXunhuPayOrder(request, env, ctx);
+    } else if (path === '/api/subscription/xunhupay/simulate-success') {
+      // 调试：模拟支付成功（仅本地开发环境）
+      const clientIP = request.headers.get('cf-connecting-ip') || url.hostname;
+      const isLocalhost = clientIP === '127.0.0.1' || clientIP === '::1' || url.hostname === 'localhost';
+      if (!isLocalhost) {
+        return new Response(JSON.stringify({ success: false, error: 'Only available in local development' }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+      return await handleSimulatePaymentSuccess(request, env, ctx);
     } else if (path === '/plans' || path === '/plans/' || path === '/plans/index' || path === '/plans/index.html') {
       // 订阅计划页面 - 检查商城设置
       if (await isMallEnabled()) {

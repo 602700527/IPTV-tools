@@ -3590,8 +3590,12 @@ async function handleXunhuPayNotify(request, env, ctx) {
       console.error("[XunhuPay] Invalid signature");
       return new Response("FAIL", { status: 401 });
     }
-    if (data.status !== "OD") {
-      console.warn("[XunhuPay] Payment not completed:", data.status);
+    if (data.status !== "OD" && data.status !== "WD") {
+      console.warn("[XunhuPay] Payment not completed yet, status:", data.status);
+      return new Response("FAIL", { status: 200 });
+    }
+    if (data.status === "WD") {
+      console.log("[XunhuPay] Order refunded:", data.trade_order_id);
       return new Response("SUCCESS");
     }
     if (parseFloat(data.total_fee) !== parseFloat(order.amount)) {
@@ -3698,6 +3702,8 @@ async function handleCheckXunhuPayOrder(request, env, ctx) {
         amount: order.amount,
         duration_days: order.duration_days,
         max_ips: order.max_ips,
+        code: order.code || null,
+        // 返回卡密信息
         created_at: order.created_at
       }
     }), {
@@ -3922,6 +3928,113 @@ async function handleGetXunhuPayOrders(request, env, ctx) {
   }
 }
 __name(handleGetXunhuPayOrders, "handleGetXunhuPayOrders");
+async function handleSimulatePaymentSuccess(request, env, ctx) {
+  try {
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Unauthorized"
+      }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const token = authHeader.substring(7);
+    const user = await env.DB.prepare(`
+      SELECT u.id, u.email
+      FROM users u
+      INNER JOIN user_sessions s ON u.id = s.user_id
+      WHERE s.token = ? AND s.expires_at > datetime('now')
+    `).bind(token).first();
+    if (!user) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Invalid token"
+      }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const url = new URL(request.url);
+    const orderId = url.searchParams.get("order_id");
+    if (!orderId) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Missing order_id"
+      }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const order = await env.DB.prepare(`
+      SELECT * FROM xunhupay_orders WHERE order_id = ? AND user_id = ?
+    `).bind(orderId, user.id).first();
+    if (!order) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Order not found"
+      }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    if (order.status === "completed") {
+      return new Response(JSON.stringify({
+        success: true,
+        message: "Order already completed",
+        code: order.code
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    await env.DB.prepare(`
+      UPDATE xunhupay_orders
+      SET status = 'completed',
+          notify_received = 1,
+          updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(order.id).run();
+    const baseUrl = `${url.protocol}//${url.host}`;
+    const result = await generateActivationCode(
+      env,
+      order.duration_days,
+      order.max_ips,
+      order.user_id,
+      false,
+      baseUrl
+    );
+    if (result.success) {
+      await env.DB.prepare(`
+        UPDATE xunhupay_orders SET code = ? WHERE id = ?
+      `).bind(result.code, order.id).run();
+      await env.DB.prepare(`
+        INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, status)
+        VALUES (?, ?, ?, ?, ?, 'completed')
+      `).bind(order.user_id, order.order_id, result.code, order.duration_days, order.amount).run();
+      console.log("[SimulatePayment] Order completed and code generated:", result.code);
+    }
+    return new Response(JSON.stringify({
+      success: true,
+      message: "Payment simulated successfully",
+      code: result.success ? result.code : null
+    }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error) {
+    console.error("[SimulatePayment] Error:", error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: error.message
+    }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+__name(handleSimulatePaymentSuccess, "handleSimulatePaymentSuccess");
 
 // handlers/scheduler.js
 init_checked_fetch();
@@ -14032,6 +14145,20 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
     .toast-icon{font-size:18px}
     .toast-message{color:#fff;font-size:14px;font-weight:500}
     
+    /* \u652F\u4ED8\u6210\u529F\u6A21\u6001\u6846\u6837\u5F0F */
+    .success-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);z-index:3000;align-items:center;justify-content:center;padding:20px}
+    .success-modal.show{display:flex}
+    .success-content{background:linear-gradient(135deg,#1e1e1e 0%,#0a0a0a 100%);border-radius:24px;padding:40px;max-width:480px;width:100%;text-align:center;border:1px solid rgba(229,9,20,0.2);box-shadow:0 25px 80px rgba(0,0,0,0.6);animation:modalSlideIn 0.3s cubic-bezier(0.4,0,0.2,1)}
+    @keyframes modalSlideIn{from{opacity:0;transform:scale(0.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .success-icon{font-size:64px;margin-bottom:20px}
+    .success-title{font-size:24px;font-weight:700;color:#fff;margin:0 0 10px 0}
+    .success-message{color:rgba(255,255,255,0.8);font-size:14px;margin-bottom:25px}
+    .code-display{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px;margin-bottom:20px;color:#fff;font-size:13px;word-break:break-all;font-family:monospace}
+    .copy-button{background:linear-gradient(135deg,#e50914 0%,#ff3b30 100%);color:#fff;border:none;padding:14px 28px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s;width:100%;margin-bottom:15px}
+    .copy-button:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(229,9,20,0.4)}
+    .close-button{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);padding:14px 28px;border-radius:12px;font-size:14px;cursor:pointer;transition:all 0.3s}
+    .close-button:hover{background:rgba(255,255,255,0.15)}
+    
     @media (max-width:768px){
       body{padding:10px}
       .container{padding:20px;border-radius:12px}
@@ -14083,9 +14210,23 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
     </div>
   </div>
   
-  <div class="toast-container" id="toastContainer"></div>
-  
-  <script>
+   <div class="toast-container" id="toastContainer"></div>
+   
+   <!-- \u652F\u4ED8\u6210\u529F\u6A21\u6001\u6846 -->
+   <div id="successModal" class="success-modal">
+     <div class="success-content">
+       <div class="success-icon">\u{1F389}</div>
+       <h2 class="success-title" data-i18n="paymentSuccess">\u652F\u4ED8\u6210\u529F\uFF01</h2>
+       <p class="success-message" data-i18n="subUrlGenerated">\u60A8\u7684\u8BA2\u9605\u5730\u5740\u5DF2\u751F\u6210</p>
+       <div class="code-display" id="generatedCode" style="font-size: 14px; word-break: break-all;">-</div>
+       <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">\u590D\u5236\u8BA2\u9605\u5730\u5740</button>
+       <br><br>
+       <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin-top: 15px;">\u60A8\u53EF\u4EE5\u76F4\u63A5\u4F7F\u7528\u6B64\u8BA2\u9605\u5730\u5740\u5728\u64AD\u653E\u5668\u4E2D\u6DFB\u52A0</p>
+       <button class="close-button" onclick="closeSuccessModal()" data-i18n="closeButton">\u5173\u95ED</button>
+     </div>
+   </div>
+   
+   <script>
     const API_BASE = '/api/auth';
 
     // \u667A\u80FD\u5224\u65AD\u6D4F\u89C8\u5668\u8BED\u8A00
@@ -14408,10 +14549,10 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
       }
     }
     
-    function showToast(message, type = 'info') {
+     function showToast(message, type = 'info') {
       const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = \`toast \${type}\`;
+      const toastEl = document.createElement('div');
+      toastEl.className = 'toast ' + type;
       
       const icons = {
         success: '\u2713',
@@ -14420,25 +14561,89 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
         info: '\u2139'
       };
       
-      toast.innerHTML = \`
-        <div class="toast-content">
-          <span class="toast-icon">\${icons[type]}</span>
-          <span class="toast-message">\${message}</span>
-        </div>
-      \`;
+      toastEl.innerHTML = '<div class="toast-content"><span class="toast-icon">' + icons[type] + '</span><span class="toast-message">' + message + '</span></div>';
       
-      container.appendChild(toast);
+      container.appendChild(toastEl);
       
       setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateY(-10px)';
-        setTimeout(() => toast.remove(), 300);
+        toastEl.style.opacity = '0';
+        toastEl.style.transform = 'translateY(-10px)';
+        setTimeout(() => toastEl.remove(), 300);
       }, 3000);
+    }
+    
+    // \u652F\u4ED8\u6210\u529F\u6A21\u6001\u6846\u76F8\u5173\u51FD\u6570
+    function showSuccessModal(subUrl) {
+      document.getElementById('generatedCode').textContent = subUrl;
+      document.getElementById('successModal').classList.add('show');
+    }
+    
+    function closeSuccessModal() {
+      document.getElementById('successModal').classList.remove('show');
+      // \u6E05\u9664 URL \u53C2\u6570
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
+    function copyCode() {
+      const subUrl = document.getElementById('generatedCode').textContent;
+      navigator.clipboard.writeText(subUrl).then(() => {
+        showToast(currentLang === 'zh-CN' ? '\u8BA2\u9605\u5730\u5740\u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F\uFF01' : 'Subscription URL copied to clipboard!', 'success');
+      }).catch(err => {
+        console.error('Copy failed:', err);
+      });
+    }
+    
+    // \u68C0\u67E5 URL \u53C2\u6570\u4E2D\u7684\u652F\u4ED8\u72B6\u6001
+    function checkPaymentStatus() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentStatus = urlParams.get('payment');
+      
+      if (paymentStatus === 'success') {
+        // \u652F\u4ED8\u6210\u529F\uFF0C\u83B7\u53D6\u6700\u65B0\u7684\u8BA2\u5355\u4FE1\u606F
+        loadLatestOrder();
+      } else if (paymentStatus === 'cancelled') {
+        showToast(currentLang === 'zh-CN' ? '\u652F\u4ED8\u5DF2\u53D6\u6D88' : 'Payment cancelled', 'warning');
+        // \u6E05\u9664 URL \u53C2\u6570
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+    
+    // \u52A0\u8F7D\u6700\u65B0\u7684\u8BA2\u5355\u5E76\u663E\u793A\u8BA2\u9605\u5730\u5740
+    async function loadLatestOrder() {
+      try {
+        const response = await fetch(API_BASE + '/orders', {
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('auth_token')
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success && data.orders && data.orders.length > 0) {
+          // \u627E\u5230\u6700\u65B0\u7684\u5DF2\u5B8C\u6210\u7684\u8BA2\u5355
+          const completedOrder = data.orders.find(order => order.status === 'completed');
+          if (completedOrder && completedOrder.code) {
+            const subUrl = window.location.origin + '/sub/' + completedOrder.code + '.m3u';
+            showSuccessModal(subUrl);
+          } else {
+            showToast(currentLang === 'zh-CN' ? '\u6682\u65E0\u8BA2\u9605\u4FE1\u606F' : 'No subscription info', 'info');
+          }
+        } else {
+          showToast(data.error || (currentLang === 'zh-CN' ? '\u83B7\u53D6\u8BA2\u5355\u5931\u8D25' : 'Failed to get orders'), 'error');
+        }
+      } catch (error) {
+        console.error('Load latest order error:', error);
+        showToast(currentLang === 'zh-CN' ? '\u7F51\u7EDC\u9519\u8BEF' : 'Network error', 'error');
+      }
+      
+      // \u6E05\u9664 URL \u53C2\u6570
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
     
     // \u521D\u59CB\u5316
     document.addEventListener('DOMContentLoaded', () => {
       loadUserInfo();
+      checkPaymentStatus(); // \u68C0\u67E5\u652F\u4ED8\u72B6\u6001 URL \u53C2\u6570
     });
   <\/script>
 </body>
@@ -20870,10 +21075,21 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         padding: 12px;
       }
 
-      .qrcode-tip {
+       .qrcode-tip {
         font-size: 13px;
       }
-
+      
+      .payment-hint {
+        background: rgba(255, 204, 0, 0.1);
+        border: 1px solid rgba(255, 204, 0, 0.3);
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-top: 12px;
+        font-size: 13px;
+        color: #ffcc00;
+        line-height: 1.5;
+      }
+      
       .payment-status {
         font-size: 14px;
         padding: 8px 16px;
@@ -20949,6 +21165,8 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
           </div>
           <p class="qrcode-tip" id="modalQrcodeTip" data-i18n="scanQrcode">\u8BF7\u4F7F\u7528\u624B\u673A\u626B\u7801\u652F\u4ED8</p>
+          <!-- \u652F\u4ED8\u63D0\u793A -->
+          <p class="payment-hint" id="paymentHint"></p>
           <p class="payment-status" id="paymentStatus">\u7B49\u5F85\u652F\u4ED8\u4E2D...</p>
         </div>
         <div class="payment-info">
@@ -20972,6 +21190,8 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
       <div class="payment-footer">
         <button class="payment-close-button" onclick="closePaymentModal()">\u53D6\u6D88\u652F\u4ED8</button>
+        <!-- \u8C03\u8BD5\uFF1A\u6A21\u62DF\u652F\u4ED8\u6210\u529F\u6309\u94AE\uFF08\u4EC5\u5F00\u53D1\u73AF\u5883\u663E\u793A\uFF09 -->
+        <button id="simulatePaymentBtn" class="payment-close-button" style="margin-left: 10px; background: rgba(76, 175, 80, 0.2); border-color: #4CAF50; color: #4CAF50; display: none;" onclick="simulatePaymentSuccess()">[\u8C03\u8BD5] \u6A21\u62DF\u652F\u4ED8\u6210\u529F</button>
       </div>
     </div>
   </div>
@@ -21105,6 +21325,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         closeButton: 'Close',
         loginNow: 'Login Now',
         loginHint: 'Please login to complete payment',
+        paymentHint: '\u26A0\uFE0F Please do not close this window after payment. Your subscription URL will be displayed automatically.',
         feature_hd_quality: 'HD Quality',
         feature_multi_device: 'Multi-device Support',
         feature_cloud_recording: 'Cloud Recording',
@@ -21327,6 +21548,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
     // \u652F\u4ED8\u65B9\u5F0F\u5207\u6362
     let currentPaymentMethod = 'alipay';
     let checkPaymentInterval = null;
+    let currentOrderId = null;
 
     function switchPaymentMethod(method) {
       currentPaymentMethod = method;
@@ -21442,8 +21664,16 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
           qrcodeTip.textContent = t('scanQrcode');
           document.getElementById('paymentStatus').textContent = t('waitingPayment');
 
-          // \u663E\u793A\u5F39\u7A97
+           // \u663E\u793A\u5F39\u7A97
           modal.classList.add('show');
+
+          // \u4FDD\u5B58\u5F53\u524D\u8BA2\u5355ID
+          currentOrderId = result.order_id;
+
+          // \u5728\u5F00\u53D1\u73AF\u5883\u4E0B\u663E\u793A\u8C03\u8BD5\u6309\u94AE
+          if (isLocalhost()) {
+            document.getElementById('simulatePaymentBtn').style.display = 'inline-block';
+          }
 
           // \u5F00\u59CB\u8F6E\u8BE2\u8BA2\u5355\u72B6\u6001
           startOrderCheck(result.order_id);
@@ -21527,6 +21757,68 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }, 5000); // \u6BCF5\u79D2\u68C0\u67E5\u4E00\u6B21
     }
 
+    // \u8C03\u8BD5\uFF1A\u6A21\u62DF\u652F\u4ED8\u6210\u529F
+    async function simulatePaymentSuccess() {
+      if (!currentOrderId) {
+        showError('\u6CA1\u6709\u6B63\u5728\u8FDB\u884C\u7684\u8BA2\u5355');
+        return;
+      }
+
+      const btn = document.getElementById('simulatePaymentBtn');
+      btn.disabled = true;
+      btn.textContent = '\u6A21\u62DF\u4E2D...';
+
+      try {
+        const response = await fetch(API_BASE + '/subscription/xunhupay/simulate-success?order_id=' + currentOrderId, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + getToken()
+          }
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          // \u505C\u6B62\u8F6E\u8BE2
+          if (checkPaymentInterval) {
+            clearInterval(checkPaymentInterval);
+            checkPaymentInterval = null;
+          }
+
+          // \u66F4\u65B0\u652F\u4ED8\u72B6\u6001
+          document.getElementById('paymentStatus').textContent = '\u652F\u4ED8\u6210\u529F\uFF01';
+          document.getElementById('paymentStatus').style.color = '#4CAF50';
+
+          // \u5EF6\u8FDF\u5173\u95ED\u652F\u4ED8\u5F39\u7A97
+          setTimeout(() => {
+            closePaymentModal();
+            
+            // \u663E\u793A\u6210\u529F\u6A21\u6001\u6846
+            if (result.code) {
+              const subUrl = window.location.origin + '/sub/' + result.code + '.m3u';
+              showSuccessModal(subUrl);
+            }
+          }, 1500);
+        } else {
+          showError(result.error || '\u6A21\u62DF\u5931\u8D25');
+        }
+      } catch (error) {
+        console.error('Simulate payment error:', error);
+        showError('\u6A21\u62DF\u5931\u8D25: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '[\u8C03\u8BD5] \u6A21\u62DF\u652F\u4ED8\u6210\u529F';
+      }
+    }
+
+    // \u68C0\u6D4B\u662F\u5426\u4E3A\u672C\u5730\u5F00\u53D1\u73AF\u5883
+    function isLocalhost() {
+      return window.location.hostname === 'localhost' || 
+             window.location.hostname === '127.0.0.1' ||
+             window.location.hostname.startsWith('192.168.') ||
+             window.location.hostname.startsWith('10.');
+    }
+
 
 
 
@@ -21580,6 +21872,11 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
     document.addEventListener('DOMContentLoaded', () => {
       loadPlans(); // \u4ECE\u6570\u636E\u5E93\u52A0\u8F7D\u5957\u9910\u914D\u7F6E
       loadPaymentMethods(); // \u52A0\u8F7D\u652F\u4ED8\u65B9\u5F0F\u5217\u8868
+      // \u8BBE\u7F6E\u652F\u4ED8\u63D0\u793A\u7FFB\u8BD1
+      const paymentHintEl = document.getElementById('paymentHint');
+      if (paymentHintEl && typeof t === 'function') {
+        paymentHintEl.textContent = t('paymentHint');
+      }
     });
   <\/script>
 </body>
@@ -23332,6 +23629,16 @@ window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
         return await handleXunhuPayNotify(request, env, ctx);
       } else if (path === "/api/subscription/xunhupay/check-order") {
         return await handleCheckXunhuPayOrder(request, env, ctx);
+      } else if (path === "/api/subscription/xunhupay/simulate-success") {
+        const clientIP = request.headers.get("cf-connecting-ip") || url.hostname;
+        const isLocalhost = clientIP === "127.0.0.1" || clientIP === "::1" || url.hostname === "localhost";
+        if (!isLocalhost) {
+          return new Response(JSON.stringify({ success: false, error: "Only available in local development" }), {
+            status: 403,
+            headers: { "Content-Type": "application/json" }
+          });
+        }
+        return await handleSimulatePaymentSuccess(request, env, ctx);
       } else if (path === "/plans" || path === "/plans/" || path === "/plans/index" || path === "/plans/index.html") {
         if (await isMallEnabled()) {
           return new Response(PLANS_HTML, {
