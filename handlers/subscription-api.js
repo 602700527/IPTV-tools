@@ -128,10 +128,19 @@ export async function handleCreateCode(request, env, ctx) {
       });
     }
 
-    // 记录订单（无论是测试模式还是真实支付）
+      // 记录订单（无论是测试模式还是真实支付）
     try {
-      // 计算价格（这里应该与前端价格计算一致）
-      const plan = getPlanByDays(duration_days);
+      // 从数据库获取套餐配置
+      const plan = await getPlanFromDB(duration_days, env);
+      if (!plan) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: '套餐不存在或已禁用'
+        }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
       const price = calculatePrice(plan, max_ips);
 
       // 如果没有 payment_id，生成一个（用于测试模式）
@@ -166,16 +175,22 @@ export async function handleCreateCode(request, env, ctx) {
 }
 
 // 根据天数获取套餐配置
-function getPlanByDays(days) {
-  const plans = {
-    30: { basePrice: 29, pricePerIP: 9, discount: 0 },
-    60: { basePrice: 58, pricePerIP: 11, discount: 0 },
-    90: { basePrice: 79, pricePerIP: 18, discount: 0 },
-    180: { basePrice: 149, pricePerIP: 28, discount: 10 },
-    365: { basePrice: 279, pricePerIP: 49, discount: 20 }
-  };
+async function getPlanFromDB(days, env) {
+  const plan = await env.DB.prepare(`
+    SELECT days, base_price, price_per_ip, discount
+    FROM subscription_plans
+    WHERE days = ? AND is_enabled = 1
+  `).bind(days).first();
 
-  return plans[days] || { basePrice: 29, pricePerIP: 9, discount: 0 };
+  if (!plan) {
+    return null;
+  }
+
+  return {
+    basePrice: plan.base_price,
+    pricePerIP: plan.price_per_ip,
+    discount: plan.discount
+  };
 }
 
 // 计算价格

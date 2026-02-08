@@ -19,7 +19,7 @@ CREATE INDEX IF NOT EXISTS idx_subscription_plans_days ON subscription_plans(day
 
 -- 插入默认套餐数据
 INSERT OR IGNORE INTO subscription_plans (name, name_en, days, base_price, price_per_ip, discount, is_enabled, sort_order) VALUES
-('1个月', '1 Month', 30, 29, 9, 0, 1, 1),
+('1个月', '1 Month', 30, 20, 9, 0, 1, 1),
 ('3个月', '3 Months', 90, 79, 18, 0, 1, 2),
 ('半年', '6 Months', 180, 149, 28, 10, 1, 3),
 ('1年', '1 Year', 365, 279, 49, 20, 1, 4);

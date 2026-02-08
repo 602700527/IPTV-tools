@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-AwQyce/checked-fetch.js
+// .wrangler/tmp/bundle-xMv6B6/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-AwQyce/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-xMv6B6/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -2052,11 +2052,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-AwQyce/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-xMv6B6/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-AwQyce/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-xMv6B6/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -3284,7 +3284,16 @@ async function handleCreateCode(request, env, ctx) {
       });
     }
     try {
-      const plan = getPlanByDays(duration_days);
+      const plan = await getPlanFromDB(duration_days, env);
+      if (!plan) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: "\u5957\u9910\u4E0D\u5B58\u5728\u6216\u5DF2\u7981\u7528"
+        }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
       const price = calculatePrice(plan, max_ips);
       const orderId = payment_id || (test_mode ? "test_" + Date.now() : "manual_" + Date.now());
       await env.DB.prepare(`
@@ -3311,17 +3320,22 @@ async function handleCreateCode(request, env, ctx) {
   }
 }
 __name(handleCreateCode, "handleCreateCode");
-function getPlanByDays(days) {
-  const plans = {
-    30: { basePrice: 29, pricePerIP: 9, discount: 0 },
-    60: { basePrice: 58, pricePerIP: 11, discount: 0 },
-    90: { basePrice: 79, pricePerIP: 18, discount: 0 },
-    180: { basePrice: 149, pricePerIP: 28, discount: 10 },
-    365: { basePrice: 279, pricePerIP: 49, discount: 20 }
+async function getPlanFromDB(days, env) {
+  const plan = await env.DB.prepare(`
+    SELECT days, base_price, price_per_ip, discount
+    FROM subscription_plans
+    WHERE days = ? AND is_enabled = 1
+  `).bind(days).first();
+  if (!plan) {
+    return null;
+  }
+  return {
+    basePrice: plan.base_price,
+    pricePerIP: plan.price_per_ip,
+    discount: plan.discount
   };
-  return plans[days] || { basePrice: 29, pricePerIP: 9, discount: 0 };
 }
-__name(getPlanByDays, "getPlanByDays");
+__name(getPlanFromDB, "getPlanFromDB");
 function calculatePrice(plan, ipCount) {
   const price = plan.basePrice + plan.pricePerIP * ipCount;
   const discountedPrice = price * (1 - plan.discount / 100);
@@ -3406,7 +3420,16 @@ async function handleCreateXunhuPayOrder(request, env, ctx) {
         headers: { "Content-Type": "application/json" }
       });
     }
-    const plan = getPlanByDays2(duration_days);
+    const plan = await getPlanFromDB2(duration_days, env);
+    if (!plan) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "\u5957\u9910\u4E0D\u5B58\u5728\u6216\u5DF2\u7981\u7528"
+      }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
     const price = calculatePrice2(plan, max_ips);
     const paymentMethodConfig = await env.DB.prepare(`
       SELECT * FROM payment_methods WHERE type = ? AND enabled = 1
@@ -3693,17 +3716,22 @@ async function handleCheckXunhuPayOrder(request, env, ctx) {
   }
 }
 __name(handleCheckXunhuPayOrder, "handleCheckXunhuPayOrder");
-function getPlanByDays2(days) {
-  const plans = {
-    30: { basePrice: 29, pricePerIP: 9, discount: 0 },
-    60: { basePrice: 58, pricePerIP: 11, discount: 0 },
-    90: { basePrice: 79, pricePerIP: 18, discount: 0 },
-    180: { basePrice: 149, pricePerIP: 28, discount: 10 },
-    365: { basePrice: 279, pricePerIP: 49, discount: 20 }
+async function getPlanFromDB2(days, env) {
+  const plan = await env.DB.prepare(`
+    SELECT days, base_price, price_per_ip, discount
+    FROM subscription_plans
+    WHERE days = ? AND is_enabled = 1
+  `).bind(days).first();
+  if (!plan) {
+    return null;
+  }
+  return {
+    basePrice: plan.base_price,
+    pricePerIP: plan.price_per_ip,
+    discount: plan.discount
   };
-  return plans[days] || { basePrice: 29, pricePerIP: 9, discount: 0 };
 }
-__name(getPlanByDays2, "getPlanByDays");
+__name(getPlanFromDB2, "getPlanFromDB");
 function calculatePrice2(plan, ipCount) {
   const price = plan.basePrice + plan.pricePerIP * ipCount;
   const discountedPrice = price * (1 - plan.discount / 100);
@@ -13074,7 +13102,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
       document.getElementById('planName').value = '';
       document.getElementById('planNameEn').value = '';
       document.getElementById('planDays').value = '30';
-      document.getElementById('planBasePrice').value = '29';
+      document.getElementById('planBasePrice').value = '20';
       document.getElementById('planPricePerIP').value = '9';
       document.getElementById('planDiscount').value = '0';
       document.getElementById('planSortOrder').value = '1';
@@ -21008,7 +21036,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         console.error('Failed to load plans:', error);
         // \u5982\u679C\u52A0\u8F7D\u5931\u8D25\uFF0C\u4F7F\u7528\u9ED8\u8BA4\u914D\u7F6E
         durationOptions = [
-          { days: 30, basePrice: 29, pricePerIP: 9, discount: 0, name: 'plan_default_1' },
+          { days: 30, basePrice: 20, pricePerIP: 9, discount: 0, name: 'plan_default_1' },
           { days: 90, basePrice: 79, pricePerIP: 18, discount: 0, name: 'plan_default_2' },
           { days: 180, basePrice: 149, pricePerIP: 28, discount: 10, name: 'plan_default_3' },
           { days: 365, basePrice: 279, pricePerIP: 49, discount: 20, name: 'plan_default_4' }
@@ -23618,7 +23646,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-AwQyce/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-xMv6B6/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -23652,7 +23680,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-AwQyce/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-xMv6B6/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

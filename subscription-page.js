@@ -1025,7 +1025,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         console.error('Failed to load plans:', error);
         // 如果加载失败，使用默认配置
         durationOptions = [
-          { days: 30, basePrice: 29, pricePerIP: 9, discount: 0, name: 'plan_default_1' },
+          { days: 30, basePrice: 20, pricePerIP: 9, discount: 0, name: 'plan_default_1' },
           { days: 90, basePrice: 79, pricePerIP: 18, discount: 0, name: 'plan_default_2' },
           { days: 180, basePrice: 149, pricePerIP: 28, discount: 10, name: 'plan_default_3' },
           { days: 365, basePrice: 279, pricePerIP: 49, discount: 20, name: 'plan_default_4' }
