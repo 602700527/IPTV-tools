@@ -973,9 +973,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         </div>
       </div>
       <div class="payment-footer">
-        <button class="payment-close-button" onclick="closePaymentModal()">取消支付</button>
         <!-- 调试：模拟支付成功按钮（仅开发环境显示） -->
-        <button id="simulatePaymentBtn" class="payment-close-button" style="margin-left: 10px; background: rgba(76, 175, 80, 0.2); border-color: #4CAF50; color: #4CAF50; display: none;" onclick="simulatePaymentSuccess()">[调试] 模拟支付成功</button>
+        <button id="simulatePaymentBtn" class="payment-close-button" style="background: rgba(76, 175, 80, 0.2); border-color: #4CAF50; color: #4CAF50; display: none;" onclick="simulatePaymentSuccess()">[调试] 模拟支付成功</button>
       </div>
     </div>
   </div>
@@ -1073,6 +1072,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         closeButton: '关闭',
         loginNow: '立即登录',
         loginHint: '请先登录以完成支付',
+        paymentHint: '⚠️ 支付后请勿关闭此窗口。您的订阅地址将自动显示。',
+        scanQrcode: '请使用手机扫码支付',
+        waitingPayment: '等待支付中...',
         feature_hd_quality: 'HD 高清画质',
         feature_multi_device: '多设备同时观看',
         feature_cloud_recording: '云录制功能',
@@ -1110,6 +1112,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         loginNow: 'Login Now',
         loginHint: 'Please login to complete payment',
         paymentHint: '⚠️ Please do not close this window after payment. Your subscription URL will be displayed automatically.',
+        scanQrcode: 'Please scan the QR code to pay',
+        waitingPayment: 'Waiting for payment...',
         feature_hd_quality: 'HD Quality',
         feature_multi_device: 'Multi-device Support',
         feature_cloud_recording: 'Cloud Recording',
