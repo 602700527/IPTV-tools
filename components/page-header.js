@@ -7,8 +7,6 @@ export const PAGE_HEADER = `
       </a>
       <nav class="header-nav">
         <a href="/" class="nav-item">首页</a>
-        <a href="/freesub" class="nav-item">免费订阅</a>
-        <a href="/subscription" class="nav-item">会员订阅</a>
       </nav>
     </div>
   </header>

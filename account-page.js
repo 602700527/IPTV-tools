@@ -1,4 +1,7 @@
 // 用户账户页面内容
+import { PAGE_HEADER } from './components/page-header.js';
+import { PAGE_FOOTER } from './components/page-footer.js';
+
 export const ACCOUNT_HTML = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -7,27 +10,18 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
   <title data-i18n-title="pageTitle">用户中心 - TV Live Service</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;min-height:100vh;padding:15px}
-    .container{background:#141414;backdrop-filter:blur(20px);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:30px;max-width:600px;width:100%;margin:0 auto;position:relative}
-    .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;gap:10px}
-    .header h1{font-size:24px;font-weight:700;color:#fff;flex:1}
+    html{scroll-padding-top:70px}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;min-height:100vh;display:flex;flex-direction:column;color:#fff}
+    .main-content{flex:1;width:100%;margin-top:90px;padding:20px 15px 0}
+    .container{background:#141414;backdrop-filter:blur(20px);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);padding:40px 30px 30px;max-width:600px;width:100%;margin:0 auto;position:relative}
+    .account-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;gap:10px}
+    .account-header h1{font-size:24px;font-weight:700;color:#fff;flex:1}
     .header-actions{display:flex;align-items:center;gap:10px}
     .logout-btn{background:rgba(229,9,20,.2);color:#e50914;border:1px solid #e50914;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;-webkit-tap-highlight-color:transparent;white-space:nowrap}
     .logout-btn:hover{background:#e50914;color:#fff}
 
     .nav-tabs{display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:15px}
 
-    .lang-switch{position:relative;display:inline-block}
-    .lang-dropdown{position:relative;display:inline-block}
-    .lang-btn{background:#e50914;color:#fff;border:none;padding:8px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:background .2s;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent}
-    .lang-btn:hover{background:#f7262c}
-    .lang-btn:after{content:"▼";font-size:9px}
-    .lang-menu{display:none;position:absolute;top:calc(100% + 8px);right:0;background:#1a1a1a;backdrop-filter:blur(10px);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.3);min-width:120px;overflow:hidden;animation:fadeIn .2s ease;border:1px solid rgba(255,255,255,.15)}
-    .lang-menu.show{display:block}
-    .lang-menu button{display:block;width:100%;padding:10px 16px;background:none;border:none;text-align:left;font-size:13px;color:rgba(255,255,255,.8);cursor:pointer;transition:background .2s}
-    .lang-menu button:hover{background:rgba(229,9,20,.15)}
-    .lang-menu button.active{background:#e50914;color:#fff}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
     .nav-tab{background:transparent;color:rgba(255,255,255,.6);border:none;padding:12px 20px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;transition:all .2s;-webkit-tap-highlight-color:transparent}
     .nav-tab:hover{color:#fff;background:rgba(255,255,255,.05)}
     .nav-tab.active{color:#fff;background:#e50914}
@@ -63,7 +57,7 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
     .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#e50914;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
     @keyframes spin{to{transform:rotate(360deg)}}
     
-    .toast-container{position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;flex-direction:column;gap:10px;padding:0 20px;max-width:600px;width:100%;pointer-events:none}
+    .toast-container{position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:3001;display:flex;flex-direction:column;gap:10px;padding:0 20px;max-width:600px;width:100%;pointer-events:none}
     .toast{background:rgba(20,20,20,.95);backdrop-filter:blur(20px);border-radius:10px;padding:14px 18px;border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 24px rgba(0,0,0,.4);pointer-events:auto;animation:slideIn .3s ease}
     @keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
     .toast.success{border-color:#34c759}
@@ -91,31 +85,32 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
     .close-button:hover{background:rgba(255,255,255,0.15)}
     
     @media (max-width:768px){
-      body{padding:10px}
-      .container{padding:20px;border-radius:12px}
-      .header h1{font-size:20px}
+      html{scroll-padding-top:60px}
+      .main-content{margin-top:80px;padding:15px 10px 0}
+      .container{padding:30px 20px;border-radius:12px}
+      .account-header h1{font-size:20px}
       .nav-tabs{flex-wrap:wrap;gap:8px;padding-bottom:10px}
       .nav-tab{padding:10px 16px;font-size:13px}
       .info-card,.order-card{padding:16px}
       .order-details{grid-template-columns:1fr}
     }
+
+    @media (max-width:480px){
+      html{scroll-padding-top:50px}
+      .main-content{margin-top:70px;padding:10px 10px 0}
+      .container{padding:25px 15px}
+      .account-header{margin-bottom:20px}
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
+  ${PAGE_HEADER}
+  <div class="main-content">
+    <div class="container">
+    <div class="account-header">
       <h1 data-i18n="userCenter">👤 用户中心</h1>
       <div class="header-actions">
         <button class="logout-btn" onclick="logout()" data-i18n="logout">退出登录</button>
-        <div class="lang-switch">
-          <div class="lang-dropdown">
-            <button class="lang-btn" onclick="toggleLangMenu()" id="currentLangBtn">简体</button>
-            <div class="lang-menu" id="langMenu">
-              <button onclick="setLanguage('en')" id="langEn">English</button>
-              <button onclick="setLanguage('zh-CN')" id="langZh">简体中文</button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
     
@@ -140,9 +135,12 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
       </div>
     </div>
   </div>
-  
+    </div>
+
    <div class="toast-container" id="toastContainer"></div>
-   
+
+  ${PAGE_FOOTER}
+
    <!-- 支付成功模态框 -->
    <div id="successModal" class="success-modal">
      <div class="success-content">
@@ -197,7 +195,13 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
         statusCancelled: 'Cancelled',
         loadUserInfoFailed: 'Failed to load user information',
         networkError: 'Network error, please try again later',
-        logoutSuccess: 'Logged out successfully'
+        logoutSuccess: 'Logged out successfully',
+        footerCopyright: 'Free HD TV Online Viewing Platform',
+        sitemap: 'Sitemap',
+        privacyPolicy: 'Privacy Policy',
+        termsOfService: 'Terms of Service',
+        cloudflareBadge: 'This site is accelerated and protected by Cloudflare',
+        disclaimerContent: 'The playback link resources on this site are from the public network. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.'
       },
       'zh-CN': {
         pageTitle: '用户中心 - TV Live Service',
@@ -224,7 +228,13 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
         statusCancelled: '已取消',
         loadUserInfoFailed: '加载用户信息失败',
         networkError: '网络错误，请稍后重试',
-        logoutSuccess: '已退出登录'
+        logoutSuccess: '已退出登录',
+        footerCopyright: '免费高清电视在线观看平台',
+        sitemap: '网站地图',
+        privacyPolicy: '隐私政策',
+        termsOfService: '服务条款',
+        cloudflareBadge: '本站由 Cloudflare 提供加速与安全保护',
+        disclaimerContent: '本站播放链接资源均来源于公开网络，本站不产出和储存任何内容。如有版权或内容问题，请联系内容实际产出者。'
       }
     };
 
@@ -232,22 +242,8 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
       return translations[currentLang][key] || translations['zh-CN'][key] || key;
     }
 
-    // 切换语言菜单
-    function toggleLangMenu() {
-      document.getElementById('langMenu').classList.toggle('show');
-    }
-
     // 设置语言
-    function setLanguage(lang) {
-      currentLang = lang;
-      localStorage.setItem('account_lang', lang);
-
-      document.getElementById('langEn').classList.toggle('active', lang === 'en');
-      document.getElementById('langZh').classList.toggle('active', lang === 'zh-CN');
-      document.getElementById('currentLangBtn').textContent = lang === 'en' ? 'EN' : '简体';
-      document.getElementById('langMenu').classList.remove('show');
-      document.documentElement.lang = lang;
-
+    function setLanguage() {
       const titleKey = document.querySelector('[data-i18n-title]');
       if (titleKey) {
         const key = titleKey.getAttribute('data-i18n-title');
