@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file contains comprehensive coding guidelines, build commands, and best practices for agentic development in this Cloudflare Workers project.
+This file contains comprehensive coding guidelines, build commands, and best practices for agentic development in this Cloudflare Workers TV streaming service project.
 
 ## Build and Development Commands
 
@@ -8,40 +8,56 @@ This file contains comprehensive coding guidelines, build commands, and best pra
 
 ```bash
 # Start development server with hot reload
-wrangler dev
+npm run dev
+# Equivalent: wrangler dev
 
 # Deploy to production
-wrangler publish
+npm run deploy
+# Equivalent: wrangler publish
 
 # View real-time logs
-wrangler tail
+npm run tail
+# Equivalent: wrangler tail
 
-# Initialize database
-wrangler d1 execute tv-service-db --file=./schema.sql
+# Initialize database (run once)
+npm run init-db
+# Equivalent: wrangler d1 execute tv-service-db --file=./schema.sql
 
-# Database console access
-wrangler d1 execute tv-service-db --command
+# Database console access for manual queries
+npm run db:console
+# Equivalent: wrangler d1 execute tv-service-db --command
+
+# Test database connectivity
+curl -H "X-Admin-Key: admin-key-please-change-in-production" \
+  http://localhost:8787/api/test/db?key=admin-key-please-change-in-production
 ```
 
 ### Testing Commands
 
 ```bash
-# Run database tests (if available)
+# Test database connection
 wrangler d1 execute tv-service-db "SELECT 1;" --command
 
-# Test individual handlers
-# Use curl or wrangler dev to test specific endpoints:
-
+# Test individual handlers (use curl with wrangler dev)
 # Test admin functionality
 curl -H "X-Admin-Key: admin-key-please-change-in-production" http://localhost:8787/admin/sources
 
-# Test API endpoints
+# Test public API endpoints
 curl http://localhost:8787/api/config
+curl http://localhost:8787/api/channels
 
-# Test payment flow
+# Test authentication flow
 curl -X POST http://localhost:8787/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"test123"}'
+
+# Test scheduled tasks (local development only)
+curl http://localhost:8787/test/force-scheduled
+curl http://localhost:8787/test/sync
+curl http://localhost:8787/test/cache
+
+# Run specific tests
+npm test  # If test suite exists
 ```
 
 ## Code Conventions and Standards
@@ -74,6 +90,11 @@ const paymentConfig = await db.prepare('SELECT * FROM payment_methods WHERE type
 const totalOrders = orderCountResult.count;
 const isActive = source.is_active ? '启用' : '禁用';
 const userSession = getUserSession(token);
+
+// Constants use SCREAMING_SNAKE_CASE
+const CACHE_TTL = 3600; // 1 hour
+const MAX_FAILED_ATTEMPTS = 5;
+const ADMIN_KEY_MIN_LENGTH = 32;
 ```
 
 ### Error Handling Patterns
@@ -238,6 +259,18 @@ curl -X POST http://localhost:8787/api/admin/mall/payment-methods \
 
 ## Code Style Guidelines
 
+### Formatting Standards
+- **2 spaces** for indentation (no tabs)
+- **No trailing semicolons** 
+- **Single quotes** for string literals, template literals for interpolation
+- **Consistent spacing** around operators and after commas
+
+### Naming Conventions
+- **camelCase** for variables and functions: `getUserInfo()`, `const userName`
+- **PascalCase** for classes/components: `UserAccount`, `AdminPanel`
+- **SCREAMING_SNAKE_CASE** for constants: `MAX_ATTEMPTS`, `CACHE_TTL`
+- **kebab-case** for URLs and headers: `/api/auth/login`, `X-Admin-Key`
+
 ### ES Modules
 - Use `export` for all functions and constants
 - Use `import` with explicit file paths
@@ -263,6 +296,9 @@ console.log('[PayPal] Order created:', paypalOrderId, 'for user:', userId);
 
 // Include timestamps and context
 console.log(`[${new Date().toISOString()}] [Payment] Processing order ${orderId} for user ${userId}`);
+
+// Error logging with context
+console.error('[HandlerName] Operation failed:', error.message, error.stack);
 ```
 
 ## API Design Patterns
@@ -309,6 +345,16 @@ const { getDB } = await import('./database.js');
 // Use wrangler bundle analysis
 wrangler dev --compatibility-date=2023-01-01
 ```
+
+### Database Operations
+- Batch inserts: Every batch of 500 records
+- Index optimization: Create indexes on key fields
+- Connection pool: Singleton pattern for connection management
+
+### Concurrency Handling
+- Async operations: ctx.waitUntil() for non-blocking responses
+- Batch operations: Reduce API call frequency
+- Connection reuse: Singleton database connection
 
 ## Security Considerations
 
