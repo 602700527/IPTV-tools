@@ -7,8 +7,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
   <!-- ========== SEO Meta Tags ========== -->
   <!-- 基础Meta标签 -->
-  <meta name="description" id="seo-description" content="IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback, multi-device sync.">
-  <meta name="keywords" id="seo-keywords" content="IPTV,free live TV,online TV,sports live streaming,news live streaming,HD streaming,free TV,online video,live streaming platform,IPTV Live">
+  <meta name="description" content="IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback, multi-device sync.">
+  <meta name="keywords" content="IPTV,free live TV,online TV,sports live streaming,news live streaming,HD streaming,free TV,online video,live streaming platform,IPTV Live">
   <meta name="author" content="IPTV Live">
   <meta name="robots" content="index, follow">
   <meta name="googlebot" content="index, follow">
@@ -18,17 +18,17 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com">
-  <meta property="og:title" id="og-title" content="IPTV Live - Free HD Live TV Streaming Platform">
-  <meta property="og:description" id="og-description" content="Access 10,000+ free HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback.">
+  <meta property="og:title" content="IPTV Live - Free HD Live TV Streaming Platform">
+  <meta property="og:description" content="Access 10,000+ free HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback.">
   <meta property="og:image" content="https://iptv-search.com/og-image.svg">
   <meta property="og:site_name" content="IPTV Live">
-  <meta property="og:locale" id="og-locale" content="en_US">
+  <meta property="og:locale" content="en_US">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://iptv-search.com">
-  <meta name="twitter:title" id="twitter-title" content="IPTV Live - Free HD Live TV Streaming Platform">
-  <meta name="twitter:description" id="twitter-description" content="Access 10,000+ free HD channels including sports, news, entertainment, movies and more.">
+  <meta name="twitter:title" content="IPTV Live - Free HD Live TV Streaming Platform">
+  <meta name="twitter:description" content="Access 10,000+ free HD channels including sports, news, entertainment, movies and more.">
 
   <!-- Canonical URL -->
   <link rel="canonical" href="https://iptv-search.com">
@@ -88,7 +88,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       {
         "@type": "ListItem",
         "position": 1,
-        "name": "首页",
+        "name": "Home",
         "item": "https://iptv-search.com"
       }
     ]
@@ -121,15 +121,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .nav-links a:hover{color:#fff}
     .nav-links a.active{color:#e50914}
 
-    /* 语言切换下拉列表 */
-    .lang-switcher{position:relative}
-    .lang-dropdown{position:relative;display:inline-block;overflow:visible}
-    .lang-dropdown-menu{position:absolute;top:100%;right:0;margin-top:8px;background:#1a1a1a;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 0;min-width:120px;opacity:0;visibility:hidden;transform:translateY(-10px);transition:all .2s;z-index:1000}
-    .lang-dropdown.open .lang-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
-    .lang-dropdown-item{padding:10px 20px;cursor:pointer;transition:background .15s;color:rgba(255,255,255,.8);font-size:14px}
-    .lang-dropdown-item:hover{background:rgba(229,9,20,.15);color:#fff}
-    .lang-dropdown-item.active{background:rgba(229,9,20,.2);color:#fff;font-weight:600}
-
+    
     /* 快捷入口按钮 */
     .quick-entries{display:flex;gap:8px;margin-left:0;overflow:visible}
     .quick-entry{position:relative;width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s}
@@ -467,38 +459,29 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         <input type="text" class="search-input" id="searchInput" placeholder="搜索频道..." oninput="handleSearch()">
       </div>
       <div class="quick-entries">
-        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'history')" data-tip-key="history">
+        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'history')" title="History">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          <span class="quick-entry-tip">播放历史</span>
+          <span class="quick-entry-tip">History</span>
           <span class="quick-entry-badge" id="historyBadge" style="display:none;">0</span>
         </button>
-        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'favorites')" data-tip-key="favorites">
+        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'favorites')" title="Favorites">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-          <span class="quick-entry-tip">我的收藏</span>
+          <span class="quick-entry-tip">My Favorites</span>
           <span class="quick-entry-badge" id="favoritesBadge" style="display:none;">0</span>
         </button>
-        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'random')" data-tip-key="random">
+        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'random')" title="Random">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line><circle cx="16" cy="8" r="2" fill="currentColor"></circle><circle cx="8" cy="16" r="2" fill="currentColor"></circle></svg>
-          <span class="quick-entry-tip">随机推荐</span>
+          <span class="quick-entry-tip">Random</span>
         </button>
-        <button class="quick-entry ripple" onclick="handlePlansClick()" data-tip-key="plans">
+        <button class="quick-entry ripple" onclick="handlePlansClick()" title="Plans">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-          <span class="quick-entry-tip">订阅计划</span>
+          <span class="quick-entry-tip">Plans</span>
         </button>
-        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" data-tip-key="clearCache">
+        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" title="Clear Cache">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-          <span class="quick-entry-tip">清除缓存</span>
+          <span class="quick-entry-tip">Clear Cache</span>
         </button>
-        <div class="lang-dropdown" id="langDropdown">
-          <button class="quick-entry ripple lang-switcher" onclick="toggleLangDropdown()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-            <span class="quick-entry-tip">切换语言</span>
-          </button>
-          <div class="lang-dropdown-menu">
-            <div class="lang-dropdown-item" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">简体中文</div>
-            <div class="lang-dropdown-item active" data-lang="en" onclick="switchLanguage('en')">English</div>
-          </div>
-        </div>
+        
         <div id="authButtons">
           <button class="auth-btn ripple" onclick="openLoginModal()">登录</button>
         </div>
@@ -516,12 +499,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="toggleMobileMenu()"></div>
   <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-header">
-      <div class="mobile-menu-title" data-i18n="menu">菜单</div>
+      <div class="mobile-menu-title">Menu</div>
       <button class="mobile-menu-close" onclick="toggleMobileMenu()">✕</button>
     </div>
 
     <div class="mobile-section">
-      <div class="mobile-section-title" data-i18n="quickActions">快捷操作</div>
+      <div class="mobile-section-title">Quick Actions</div>
       <div class="mobile-actions">
         <div class="mobile-action-btn" onclick="handleMobileAction('history')">
           <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
@@ -544,16 +527,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       </div>
     </div>
 
-    <div class="mobile-section">
-      <div class="mobile-section-title" data-i18n="language">语言</div>
-      <div class="mobile-lang-menu">
-        <div class="mobile-lang-item" data-lang="zh-CN" onclick="switchLanguage('zh-CN')">简体中文</div>
-        <div class="mobile-lang-item active" data-lang="en" onclick="switchLanguage('en')">English</div>
-      </div>
-    </div>
+    
 
     <div class="mobile-section">
-      <div class="mobile-section-title" data-i18n="groupNav">分组导航</div>
+      <div class="mobile-section-title">Group Navigation</div>
       <div id="mobileGroupList"></div>
     </div>
   </div>
@@ -647,25 +624,25 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <div class="toast-container" id="toastContainer"></div>
 
   <footer class="footer">
-    <p>&copy; 2024 IPTV Live. <span data-i18n="footerCopyright">免费高清电视在线观看平台</span></p>
+    <p>&copy; 2024 IPTV Live. Free HD Live TV Streaming Platform</p>
     <!-- SEO 友好链接 -->
     <div style="margin-top:15px;font-size:12px;color:rgba(255,255,255,.4);">
-      <a href="/sitemap.xml" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;" data-i18n="sitemap">网站地图</a>
+      <a href="/sitemap.xml" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">Sitemap</a>
       <a href="/robots.txt" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">Robots</a>
-      <a href="/privacy-policy" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;" data-i18n="privacyPolicy">隐私政策</a>
-      <a href="/terms" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;" data-i18n="termsOfService">服务条款</a>
+      <a href="/privacy-policy" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">Privacy Policy</a>
+      <a href="/terms" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">Terms of Service</a>
     </div>
     <!-- Cloudflare托管说明和徽章 -->
     <div style="margin-top:20px;display:flex;align-items:center;justify-content:center;gap:10px;">
             <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
         <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare" style="height:12px;width:auto;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">
       </a>
-      <span style="font-size:12px;color:rgba(255,255,255,.6);" data-i18n="cloudflareBadge">本站由 Cloudflare 提供加速与安全保护</span>
+      <span style="font-size:12px;color:rgba(255,255,255,.6);">This site is powered by Cloudflare for acceleration and security</span>
 
     </div>
     <!-- 免责声明 -->
     <div style="margin-top:15px;font-size:11px;color:rgba(255,255,255,.4);line-height:1.5;">
-      <span data-i18n="disclaimerContent">本站播放链接资源均来源于公开网络，本站不产出和储存任何内容。如有版权或内容问题，请联系内容实际产出者。</span>
+      <span>All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.</span>
     </div>
   </footer>
 
@@ -1085,60 +1062,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       }
     }
 
-    // SEO信息配置
-    const seoConfig = {
-      'en': {
-        title: 'IPTV Live - Free Live TV',
-        description: 'IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback, multi-device sync.',
-        keywords: 'IPTV,free live TV,online TV,sports live streaming,news live streaming,HD streaming,free TV,online video,live streaming platform,IPTV Live',
-        ogTitle: 'IPTV Live - Free HD Live TV Streaming Platform',
-        ogDescription: 'Access 10,000+ free HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback.',
-        ogLocale: 'en_US',
-        twitterTitle: 'IPTV Live - Free HD Live TV Streaming Platform',
-        twitterDescription: 'Access 10,000+ free HD channels including sports, news, entertainment, movies and more.',
-        structuredDescription: 'IPTV Live provides free online TV streaming with 10,000+ HD channels'
-      },
-      'zh-CN': {
-        title: 'IPTV Live - 免费电视直播',
-        description: 'IPTV Live提供免费的在线电视观看服务，包含10000+高清频道，支持体育、新闻、娱乐、电影等全类型频道，无需注册，一键播放，多设备同步观看。',
-        keywords: 'IPTV,免费电视直播,在线看电视,体育直播,新闻直播,高清直播,免费电视,在线视频,直播平台,IPTV Live',
-        ogTitle: 'IPTV Live - 免费高清电视观看平台',
-        ogDescription: '提供10000+免费高清频道，支持体育、新闻、娱乐、电影等全类型，无需注册，一键播放。',
-        ogLocale: 'zh_CN',
-        twitterTitle: 'IPTV Live - 免费高清电视观看平台',
-        twitterDescription: '提供10000+免费高清频道，支持体育、新闻、娱乐、电影等全类型。',
-        structuredDescription: '提供免费的在线电视观看服务，包含10000+高清频道'
-      }
-    };
-
-    // 更新SEO信息
-    function updateSEO(lang) {
-      const config = seoConfig[lang] || seoConfig['en'];
-
-      // 更新页面标题
-      document.title = config.title;
-
-      // 更新基础Meta标签
-      document.getElementById('seo-description').content = config.description;
-      document.getElementById('seo-keywords').content = config.keywords;
-
-      // 更新Open Graph标签
-      document.getElementById('og-title').content = config.ogTitle;
-      document.getElementById('og-description').content = config.ogDescription;
-      document.getElementById('og-locale').content = config.ogLocale;
-
-      // 更新Twitter Card标签
-      document.getElementById('twitter-title').content = config.twitterTitle;
-      document.getElementById('twitter-description').content = config.twitterDescription;
-
-      // 更新结构化数据
-      const structuredData = document.getElementById('structured-data');
-      if (structuredData) {
-        const data = JSON.parse(structuredData.textContent);
-        data.description = config.structuredDescription;
-        structuredData.textContent = JSON.stringify(data, null, 2);
-      }
-    }
+    // SEO moved to static English meta tags; removed dynamic SEO blocks
 
     function switchLanguage(lang) {
       currentLanguage = lang;
@@ -1167,8 +1091,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // 更新 HTML lang 属性
       document.documentElement.lang = lang;
 
-      // 更新SEO信息
-      updateSEOMeta();
+      // 更新SEO信息 - 已移除动态更新
 
       // 保存语言设置
       localStorage.setItem('iptv_language', lang);
@@ -1395,8 +1318,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // 加载公告
       loadAnnouncement();
 
-      // SEO: 动态更新页面标题和描述
-      updateSEOMeta();
+      // SEO: 静态元数据保持
 
       // 尝试从缓存加载分组数据，快速渲染分组列表
       const cachedGroups = getFromCache(getCacheKey('groups'));
@@ -1414,7 +1336,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     // ========== SEO 优化函数 ==========
 
-    // 动态更新页面SEO元信息
+    // 动态更新页面SEO元信息 已移除
     function updateSEOMeta() {
       const isZhCN = currentLanguage === 'zh-CN';
 

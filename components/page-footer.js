@@ -2,14 +2,14 @@
 export const PAGE_FOOTER = `
   <footer class="page-footer">
     <div class="footer-content">
-      <p class="footer-copyright">&copy; 2024 IPTV Live. <span data-i18n="footerCopyright">免费高清电视在线观看平台</span></p>
+  <p class="footer-copyright">&copy; 2024 IPTV Live. Free HD Live TV Streaming Platform</p>
       
       <!-- SEO 友好链接 -->
       <div class="footer-links">
-        <a href="/sitemap.xml" data-i18n="sitemap">网站地图</a>
+        <a href="/sitemap.xml">Sitemap</a>
         <a href="/robots.txt">Robots</a>
-        <a href="/privacy-policy" data-i18n="privacyPolicy">隐私政策</a>
-        <a href="/terms" data-i18n="termsOfService">服务条款</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
       </div>
       
       <!-- Cloudflare托管说明和徽章 -->
@@ -17,12 +17,12 @@ export const PAGE_FOOTER = `
         <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
           <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
         </a>
-        <span data-i18n="cloudflareBadge">本站由 Cloudflare 提供加速与安全保护</span>
+        <span>This site is powered by Cloudflare for acceleration and security</span>
       </div>
       
       <!-- 免责声明 -->
-      <div class="footer-disclaimer" data-i18n="disclaimerContent">
-        本站播放链接资源均来源于公开网络，本站不产出和储存任何内容。如有版权或内容问题，请联系内容实际产出者。
+      <div class="footer-disclaimer">
+        All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.
       </div>
     </div>
   </footer>
