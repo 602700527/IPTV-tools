@@ -809,11 +809,13 @@ export async function handleGetOrderHistory(request, env, ctx) {
       });
     }
 
-    // 查询订单历史
+    // 查询订单历史，关联codes表获取IP限制
     const ordersResult = await db.prepare(`
-      SELECT * FROM user_orders
-      WHERE user_id = ?
-      ORDER BY created_at DESC
+      SELECT o.*, c.max_ips
+      FROM user_orders o
+      LEFT JOIN codes c ON o.code = c.code
+      WHERE o.user_id = ?
+      ORDER BY o.created_at DESC
       LIMIT 50
     `).bind(session.user_id).all();
 

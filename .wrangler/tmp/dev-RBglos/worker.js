@@ -8602,9 +8602,11 @@ async function handleGetOrderHistory(request, env, ctx) {
       });
     }
     const ordersResult = await db.prepare(`
-      SELECT * FROM user_orders
-      WHERE user_id = ?
-      ORDER BY created_at DESC
+      SELECT o.*, c.max_ips
+      FROM user_orders o
+      LEFT JOIN codes c ON o.code = c.code
+      WHERE o.user_id = ?
+      ORDER BY o.created_at DESC
       LIMIT 50
     `).bind(session.user_id).all();
     const orders = ordersResult.results || [];
@@ -14555,6 +14557,7 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
         paymentMethod: 'Payment Method',
         amount: 'Amount',
         subUrl: 'Subscription URL',
+        ipCount: 'Allowed IPs',
         status: 'Status',
         statusCompleted: 'Completed',
         statusPending: 'Pending',
@@ -14588,6 +14591,7 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
         paymentMethod: '\u652F\u4ED8\u65B9\u5F0F',
         amount: '\u91D1\u989D',
         subUrl: '\u8BA2\u9605\u5730\u5740',
+        ipCount: '\u5141\u8BB8IP\u6570',
         status: '\u72B6\u6001',
         statusCompleted: '\u5DF2\u5B8C\u6210',
         statusPending: '\u5904\u7406\u4E2D',
@@ -14795,6 +14799,10 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
                     <div class="order-detail-item">
                       <div class="order-detail-label">Validity</div>
                       <div class="order-detail-value">\${order.duration_days ? order.duration_days + dayUnit : '-'}</div>
+                    </div>
+                    <div class="order-detail-item">
+                      <div class="order-detail-label">\${t('ipCount')}</div>
+                      <div class="order-detail-value">\${order.max_ips || 3}</div>
                     </div>
                     <div class="order-detail-item">
                       <div class="order-detail-label">\${t('amount')}</div>

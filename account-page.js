@@ -197,6 +197,7 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
         paymentMethod: 'Payment Method',
         amount: 'Amount',
         subUrl: 'Subscription URL',
+        ipCount: 'Allowed IPs',
         status: 'Status',
         statusCompleted: 'Completed',
         statusPending: 'Pending',
@@ -230,6 +231,7 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
         paymentMethod: '支付方式',
         amount: '金额',
         subUrl: '订阅地址',
+        ipCount: '允许IP数',
         status: '状态',
         statusCompleted: '已完成',
         statusPending: '处理中',
@@ -437,6 +439,10 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
                     <div class="order-detail-item">
                       <div class="order-detail-label">Validity</div>
                       <div class="order-detail-value">\${order.duration_days ? order.duration_days + dayUnit : '-'}</div>
+                    </div>
+                    <div class="order-detail-item">
+                      <div class="order-detail-label">\${t('ipCount')}</div>
+                      <div class="order-detail-value">\${order.max_ips || 3}</div>
                     </div>
                     <div class="order-detail-item">
                       <div class="order-detail-label">\${t('amount')}</div>
