@@ -1953,8 +1953,10 @@ export async function fetchAndParseM3UOnly(sourceUrl, sourceId, filter = null) {
 
     const content = await response.text();
     console.log(`[Sync] M3U content size: ${content.length} bytes`);
-    
-    if (!content || !content.startsWith('#EXTM3U')) {
+
+    // 去除开头的空白字符后检查
+    const trimmedContent = content.trimStart();
+    if (!trimmedContent || !trimmedContent.startsWith('#EXTM3U')) {
       console.error(`[Sync] Invalid M3U content`);
       throw new Error('Invalid M3U content');
     }
@@ -1996,10 +1998,11 @@ export async function fetchAndParseM3U(sourceUrl, sourceId, filter = null) {
 
     const content = await response.text();
     console.log(`[Sync] M3U content size: ${content.length} bytes`);
-    
-    // 检查内容是否为空或格式不正确
-    if (!content || !content.startsWith('#EXTM3U')) {
-      console.error(`[Sync] Invalid M3U content: starts with ${content ? content.substring(0, 50) : 'empty'}...`);
+
+    // 检查内容是否为空或格式不正确（去除开头空白）
+    const trimmedContent = content.trimStart();
+    if (!trimmedContent || !trimmedContent.startsWith('#EXTM3U')) {
+      console.error(`[Sync] Invalid M3U content: starts with ${trimmedContent ? trimmedContent.substring(0, 50) : 'empty'}...`);
       throw new Error('Invalid M3U content');
     }
 

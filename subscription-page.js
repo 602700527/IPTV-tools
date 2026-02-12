@@ -1,7 +1,7 @@
 // 订阅支付页面HTML
 import { PAGE_HEADER } from './components/page-header.js';
 import { PAGE_FOOTER } from './components/page-footer.js';
-import { ALIPAY_SVG, WECHAT_PAY_SVG } from './assets.js';
+
 
 export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -900,11 +900,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <div class="payment-section" id="paymentSection">
       <div class="payment-methods">
         <div class="payment-method-tab active" onclick="switchPaymentMethod('alipay')" data-method="alipay">
-          <span class="payment-method-icon">${ALIPAY_SVG}</span>
+          <span class="payment-method-icon">支付宝</span>
           <span class="payment-method-name">支付宝</span>
         </div>
           <div class="payment-method-tab" onclick="switchPaymentMethod('wechat')" data-method="wechat">
-          <span class="payment-method-icon">${WECHAT_PAY_SVG}</span>
+          <span class="payment-method-icon">微信</span>
           <span class="payment-method-name">微信支付</span>
         </div>
       </div>
@@ -1638,7 +1638,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
       let html = '';
       methods.forEach((method, index) => {
-        const icon = method.type === 'alipay' ? ALIPAY_SVG : (method.type === 'wechat' ? WECHAT_PAY_SVG : '');
+        const icon = method.type === 'alipay' ? '支付宝' : (method.type === 'wechat' ? '微信' : '');
         const activeClass = index === 0 ? 'active' : '';
         html += \`
           <div class="payment-method-tab \${activeClass}" onclick="switchPaymentMethod('\${method.type}')" data-method="\${method.type}">
