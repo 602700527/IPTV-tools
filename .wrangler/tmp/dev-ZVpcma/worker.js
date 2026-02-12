@@ -15636,6 +15636,20 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
             antiDebugEnabled = result.config.enable_anti_debug || false;
             consoleLogsDisabled = result.config.disable_console_logs || false;
 
+            // \u66F4\u65B0\u7CFB\u7EDF\u914D\u7F6E
+            systemConfig.enable_play_token = result.config.enable_play_token !== undefined ? result.config.enable_play_token : false;
+            systemConfig.enable_url_encryption = result.config.enable_url_encryption || false;
+
+            if (result.config.enable_url_encryption && result.config.url_encryption_key) {
+              DECRYPTION_KEY = result.config.url_encryption_key;
+              console.log('[Config] URL\u52A0\u5BC6\u5BC6\u94A5\u5DF2\u52A0\u8F7D');
+            }
+
+            console.log('[Config] \u7CFB\u7EDF\u914D\u7F6E\u5DF2\u52A0\u8F7D:', {
+              enable_play_token: systemConfig.enable_play_token,
+              enable_url_encryption: systemConfig.enable_url_encryption
+            });
+
             if (antiDebugEnabled) {
               enableAntiDebug();
             }

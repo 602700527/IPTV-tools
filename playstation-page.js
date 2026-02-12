@@ -698,6 +698,20 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             antiDebugEnabled = result.config.enable_anti_debug || false;
             consoleLogsDisabled = result.config.disable_console_logs || false;
 
+            // 更新系统配置
+            systemConfig.enable_play_token = result.config.enable_play_token !== undefined ? result.config.enable_play_token : false;
+            systemConfig.enable_url_encryption = result.config.enable_url_encryption || false;
+
+            if (result.config.enable_url_encryption && result.config.url_encryption_key) {
+              DECRYPTION_KEY = result.config.url_encryption_key;
+              console.log('[Config] URL加密密钥已加载');
+            }
+
+            console.log('[Config] 系统配置已加载:', {
+              enable_play_token: systemConfig.enable_play_token,
+              enable_url_encryption: systemConfig.enable_url_encryption
+            });
+
             if (antiDebugEnabled) {
               enableAntiDebug();
             }
