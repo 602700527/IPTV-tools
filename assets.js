@@ -48,16 +48,24 @@ export const FAVICON_SVG = `<svg width="32" height="32" viewBox="0 0 32 32" fill
   </g>
 </svg>`;
 
-// Alipay Logo SVG (32x32) - 简化版
-export const ALIPAY_SVG = `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="32" height="32" rx="6" fill="#1677FF"/>
-  <text x="16" y="22" font-size="16" font-weight="bold" fill="white" text-anchor="middle">支</text>
+// Alipay Logo SVG (24x24) - 官方风格
+export const ALIPAY_SVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;">
+  <rect width="24" height="24" rx="4" fill="#1677FF"/>
+  <path d="M6 7 L18 7 L18 9 L6 9 Z" fill="white"/>
+  <path d="M5 11 L19 11 L19 13 L5 13 Z" fill="white"/>
+  <path d="M7 15 L17 15 L17 17 L7 17 Z" fill="white"/>
+  <circle cx="8" cy="19" r="1.5" fill="white"/>
+  <circle cx="16" cy="19" r="1.5" fill="white"/>
 </svg>`;
 
-// WeChat Pay Logo SVG (32x32) - 简化版
-export const WECHAT_PAY_SVG = `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="32" height="32" rx="6" fill="#07C160"/>
-  <text x="16" y="22" font-size="16" font-weight="bold" fill="white" text-anchor="middle">微</text>
+// WeChat Pay Logo SVG (24x24) - 官方风格
+export const WECHAT_PAY_SVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;">
+  <rect width="24" height="24" rx="4" fill="#07C160"/>
+  <circle cx="8" cy="8" r="3" fill="white"/>
+  <circle cx="16" cy="8" r="3" fill="white"/>
+  <circle cx="9" cy="7" r="1" fill="#07C160"/>
+  <circle cx="17" cy="7" r="1" fill="#07C160"/>
+  <path d="M5 14 Q12 20 19 14 L17 12 Q12 16 7 12 Z" fill="white"/>
 </svg>`;
 
 // Apple Touch Icon (180x180) - iOS设备
@@ -184,3 +192,4 @@ export const OG_IMAGE_SVG = `<svg width="1200" height="630" viewBox="0 0 1200 63
     <text x="40" y="20" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#fff" text-anchor="middle">无需注册</text>
   </g>
 </svg>`;
+"" 

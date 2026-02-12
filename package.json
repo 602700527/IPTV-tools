@@ -5,7 +5,7 @@
   "main": "worker.js",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler publish",
+    "deploy": "wrangler deploy",
     "tail": "wrangler tail",
     "init-db": "wrangler d1 execute tv-service-db --file=./schema.sql",
     "db:console": "wrangler d1 execute tv-service-db --command"

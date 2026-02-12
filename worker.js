@@ -41,6 +41,7 @@ import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTerm
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 import { LOGO_SVG, FAVICON_SVG, OG_IMAGE_SVG, APPLE_TOUCH_ICON_SVG, ICON_192_SVG, FAVICON_ICO_SVG } from './assets.js';
+import { ALIPAY_PNG_DATA, WECHAT_PAY_PNG_DATA } from './image-data.js';
 
 // 缓存初始化标记（防止重复初始化）
 let cacheInitialized = false;
@@ -122,6 +123,24 @@ export default {
       return new Response(OG_IMAGE_SVG, {
         headers: {
           'Content-Type': 'image/svg+xml',
+          'Cache-Control': 'public, max-age=86400'
+        }
+      });
+    } else if (path === '/public/zhifubao.png') {
+      // 支付宝官方 logo (返回 base64 数据)
+      const imageBuffer = Uint8Array.from(atob(ALIPAY_PNG_DATA), c => c.charCodeAt(0));
+      return new Response(imageBuffer, {
+        headers: {
+          'Content-Type': 'image/png',
+          'Cache-Control': 'public, max-age=86400'
+        }
+      });
+    } else if (path === '/public/weixin.png') {
+      // 微信支付官方 logo (返回 base64 数据)
+      const imageBuffer = Uint8Array.from(atob(WECHAT_PAY_PNG_DATA), c => c.charCodeAt(0));
+      return new Response(imageBuffer, {
+        headers: {
+          'Content-Type': 'image/png',
           'Cache-Control': 'public, max-age=86400'
         }
       });

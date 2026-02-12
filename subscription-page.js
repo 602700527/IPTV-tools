@@ -263,14 +263,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .payment-method-icon {
       width: 24px;
       height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: inline-block;
+      flex-shrink: 0;
     }
-    
+
     .payment-method-icon svg {
       width: 100%;
       height: 100%;
+      display: block;
     }
 
     .payment-method-name {
@@ -900,11 +900,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <div class="payment-section" id="paymentSection">
       <div class="payment-methods">
         <div class="payment-method-tab active" onclick="switchPaymentMethod('alipay')" data-method="alipay">
-          <span class="payment-method-icon">支付宝</span>
+          <img src="/public/zhifubao.png" class="payment-method-icon" alt="支付宝">
           <span class="payment-method-name">支付宝</span>
         </div>
           <div class="payment-method-tab" onclick="switchPaymentMethod('wechat')" data-method="wechat">
-          <span class="payment-method-icon">微信</span>
+          <img src="/public/weixin.png" class="payment-method-icon" alt="微信支付">
           <span class="payment-method-name">微信支付</span>
         </div>
       </div>
@@ -1638,11 +1638,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
       let html = '';
       methods.forEach((method, index) => {
-        const icon = method.type === 'alipay' ? '支付宝' : (method.type === 'wechat' ? '微信' : '');
+        const iconSrc = method.type === 'alipay' ? '/public/zhifubao.png' : (method.type === 'wechat' ? '/public/weixin.png' : '');
         const activeClass = index === 0 ? 'active' : '';
         html += \`
           <div class="payment-method-tab \${activeClass}" onclick="switchPaymentMethod('\${method.type}')" data-method="\${method.type}">
-            <span class="payment-method-icon">\${icon}</span>
+            <img src="\${iconSrc}" class="payment-method-icon" alt="\${method.name}">
             <span class="payment-method-name">\${method.name}</span>
           </div>
         \`;

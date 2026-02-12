@@ -4850,8 +4850,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
       const config = { app_id: appId, app_secret: appSecret, gateway_url: gatewayUrl };
 
-      fetch(API_BASE + '/mall/payment-methods' + (id ? '/' + id : ''), {
-        method: id ? 'PUT' : 'POST',
+      fetch(API_BASE + '/mall/payment-methods', {
+        method: 'POST',
         headers: {
           'X-Admin-Key': adminKey,
           'Content-Type': 'application/json'
