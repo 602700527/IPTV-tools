@@ -7938,11 +7938,11 @@ function generateVerificationEmailHtml(email, code, verifyUrl) {
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f7; margin: 0; padding: 20px;">
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
     <div style="background: linear-gradient(135deg, #e50914 0%, #b81d24 100%); padding: 30px; text-align: center;">
-      <h1 style="color: #ffffff; margin: 0; font-size: 28px;">\u{1F4FA} TV Live Service</h1>
+      <h1 style="color: #000000; margin: 0; font-size: 28px;">\u{1F4FA} TV Live Service</h1>
     </div>
     
     <div style="padding: 40px 30px;">
-      <h2 style="color: #333333; font-size: 24px; margin: 0 0 20px;">\u90AE\u7BB1\u9A8C\u8BC1</h2>
+      <h2 style="color: #000000; font-size: 24px; margin: 0 0 20px;">Email Verification</h2>
       
       <p style="color: #666666; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
         \u611F\u8C22\u60A8\u6CE8\u518C TV Live Service\uFF01\u8BF7\u4F7F\u7528\u4EE5\u4E0B\u9A8C\u8BC1\u7801\u9A8C\u8BC1\u60A8\u7684\u90AE\u7BB1\uFF1A
@@ -14441,6 +14441,12 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
     .copy-button:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(229,9,20,0.4)}
     .close-button{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);padding:14px 28px;border-radius:12px;font-size:14px;cursor:pointer;transition:all 0.3s}
     .close-button:hover{background:rgba(255,255,255,0.15)}
+    .modal-tips{margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1)}
+    .modal-tip{color:rgba(255,255,255,0.6);font-size:13px;line-height:1.6;margin-bottom:8px}
+    .modal-tip:last-child{margin-bottom:0}
+    .modal-tip-highlight{color:rgba(255,255,255,0.5);font-size:12px;margin-top:12px}
+    .modal-close{position:absolute;top:20px;right:20px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.6);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:20px;line-height:1}
+    .modal-close:hover{background:rgba(255,255,255,0.2);color:rgba(255,255,255,0.9)}
     
     @media (max-width:768px){
       html{scroll-padding-top:60px}
@@ -14502,14 +14508,16 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
    <!-- \u652F\u4ED8\u6210\u529F\u6A21\u6001\u6846 -->
    <div id="successModal" class="success-modal">
      <div class="success-content">
+       <button class="modal-close" onclick="closeSuccessModal()">\xD7</button>
        <div class="success-icon">\u{1F389}</div>
        <h2 class="success-title" data-i18n="paymentSuccess">\u652F\u4ED8\u6210\u529F\uFF01</h2>
        <p class="success-message" data-i18n="subUrlGenerated">\u60A8\u7684\u8BA2\u9605\u5730\u5740\u5DF2\u751F\u6210</p>
        <div class="code-display" id="generatedCode" style="font-size: 14px; word-break: break-all;">-</div>
        <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">\u590D\u5236\u8BA2\u9605\u5730\u5740</button>
-       <br><br>
-       <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin-top: 15px;">\u60A8\u53EF\u4EE5\u76F4\u63A5\u4F7F\u7528\u6B64\u8BA2\u9605\u5730\u5740\u5728\u64AD\u653E\u5668\u4E2D\u6DFB\u52A0</p>
-       <button class="close-button" onclick="closeSuccessModal()" data-i18n="closeButton">\u5173\u95ED</button>
+       <div class="modal-tips">
+         <p class="modal-tip">\u60A8\u53EF\u4EE5\u76F4\u63A5\u4F7F\u7528\u6B64\u8BA2\u9605\u5730\u5740\u5728\u64AD\u653E\u5668\u4E2D\u6DFB\u52A0</p>
+         <p class="modal-tip-highlight">\u6B64\u7A97\u53E3\u5173\u95ED\u540E\u53EF\u5728\u8D26\u6237\u9875\u9762\u4E2D\u67E5\u8BE2\u8BA2\u5355\u8BE6\u60C5</p>
+       </div>
      </div>
    </div>
    
@@ -14790,7 +14798,7 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
                     </div>
                     <div class="order-detail-item">
                       <div class="order-detail-label">\${t('amount')}</div>
-                      <div class="order-detail-value">\${order.amount ? '$' + order.amount.toFixed(2) : '-'}</div>
+                      <div class="order-detail-value">\${order.amount ? '\xA5' + order.amount.toFixed(2) : '-'}</div>
                     </div>
                     <div class="order-detail-item">
                       <div class="order-detail-label">\${t('orderDate')}</div>
@@ -20375,6 +20383,53 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: rgba(255, 255, 255, 0.2);
     }
 
+    .modal-tips {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-tip {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .modal-tip:last-child {
+      margin-bottom: 0;
+    }
+
+    .modal-tip-highlight {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
     .loading {
       display: none;
       text-align: center;
@@ -20896,14 +20951,16 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
   <div id="successModal" class="success-modal">
     <div class="success-content">
+      <button class="modal-close" onclick="closeModal()">\xD7</button>
       <div class="success-icon">\u{1F389}</div>
       <h2 class="success-title" data-i18n="paymentSuccess">\u652F\u4ED8\u6210\u529F\uFF01</h2>
       <p class="success-message" data-i18n="subUrlGenerated">\u60A8\u7684\u8BA2\u9605\u5730\u5740\u5DF2\u751F\u6210</p>
       <div class="code-display" id="generatedCode" style="font-size: 14px; word-break: break-all;">-</div>
       <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">\u590D\u5236\u8BA2\u9605\u5730\u5740</button>
-      <br><br>
-      <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin-top: 15px;">\u60A8\u53EF\u4EE5\u76F4\u63A5\u4F7F\u7528\u6B64\u8BA2\u9605\u5730\u5740\u5728\u64AD\u653E\u5668\u4E2D\u6DFB\u52A0</p>
-      <button class="close-button" onclick="closeModal()" data-i18n="closeButton">\u5173\u95ED</button>
+      <div class="modal-tips">
+        <p class="modal-tip">\u60A8\u53EF\u4EE5\u76F4\u63A5\u4F7F\u7528\u6B64\u8BA2\u9605\u5730\u5740\u5728\u64AD\u653E\u5668\u4E2D\u6DFB\u52A0</p>
+        <p class="modal-tip-highlight">\u6B64\u7A97\u53E3\u5173\u95ED\u540E\u53EF\u5728\u8D26\u6237\u9875\u9762\u4E2D\u67E5\u8BE2\u8BA2\u5355\u8BE6\u60C5</p>
+      </div>
     </div>
   </div>
 
@@ -22820,18 +22877,7 @@ function generatePrivacyPolicy() {
   </style>
 </head>
 <body>
-  <header class="page-header" style="background:rgba(20,20,20,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.1);position:fixed;top:0;left:0;right:0;z-index:1000">
-    <div style="max-width:100%;margin:0;padding:0 20px;height:70px;display:flex;align-items:center;justify-content:space-between;width:100%">
-      <a href="/" style="text-decoration:none;display:flex;align-items:center;transition:opacity 0.2s">
-        <img src="/logo.svg" alt="IPTV Live" width="160" height="48" style="opacity:1;transition:opacity 0.2s" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1" />
-      </a>
-      <nav style="display:flex;gap:8px;align-items:center">
-        <a href="/" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.8)'">\u9996\u9875</a>
-        <a href="/freesub" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.8)'">\u514D\u8D39\u8BA2\u9605</a>
-        <a href="/subscription" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.8)'">\u4F1A\u5458\u8BA2\u9605</a>
-      </nav>
-    </div>
-  </header>
+${PAGE_HEADER}
   <div class="main-content">
     <div class="container">
       <h1>\u9690\u79C1\u653F\u7B56</h1>
@@ -22948,34 +22994,7 @@ function generatePrivacyPolicy() {
     </div>
   </div>
 
-  <footer class="page-footer" style="background:#0a0a0a;border-top:1px solid rgba(255,255,255,0.1);padding:40px 20px;margin-top:60px">
-    <div style="max-width:1000px;margin:0 auto;text-align:center">
-      <p style="color:rgba(255,255,255,0.8);font-size:14px;margin-bottom:20px">&copy; 2024 IPTV Live. \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0</p>
-      <div style="display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;margin-top:15px;font-size:12px">
-        <a href="/sitemap.xml" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">\u7F51\u7AD9\u5730\u56FE</a>
-        <a href="/robots.txt" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Robots</a>
-        <a href="/privacy-policy" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">\u9690\u79C1\u653F\u7B56</a>
-        <a href="/terms" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">\u670D\u52A1\u6761\u6B3E</a>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px">
-        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer" style="color:rgba(255,255,255,0.7);font-size:14px">
-          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare" style="height:12px;width:auto;opacity:0.8;transition:opacity 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8" />
-        </a>
-        <span style="font-size:12px;color:rgba(255,255,255,0.6)">\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4</span>
-      </div>
-      <div style="margin-top:15px;font-size:11px;color:rgba(255,255,255,0.4);line-height:1.5;max-width:600px;margin-left:auto;margin-right:auto">
-        \u672C\u7AD9\u64AD\u653E\u94FE\u63A5\u8D44\u6E90\u5747\u6765\u6E90\u4E8E\u516C\u5F00\u7F51\u7EDC\uFF0C\u672C\u7AD9\u4E0D\u4EA7\u51FA\u548C\u50A8\u5B58\u4EFB\u4F55\u5185\u5BB9\u3002\u5982\u6709\u7248\u6743\u6216\u5185\u5BB9\u95EE\u9898\uFF0C\u8BF7\u8054\u7CFB\u5185\u5BB9\u5B9E\u9645\u4EA7\u51FA\u8005\u3002
-      </div>
-    </div>
-    <style>
-      @media (max-width: 768px) {
-        .page-footer{padding:30px 15px;margin-top:40px}
-      }
-      @media (max-width: 480px) {
-        .page-footer{padding:25px 10px;margin-top:30px}
-      }
-    </style>
-  </footer>
+${PAGE_FOOTER}
 </body>
 </html>`;
 }
@@ -23020,18 +23039,7 @@ function generateTermsOfService() {
   </style>
 </head>
 <body>
-  <header class="page-header" style="background:rgba(20,20,20,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.1);position:fixed;top:0;left:0;right:0;z-index:1000">
-    <div style="max-width:100%;margin:0;padding:0 20px;height:70px;display:flex;align-items:center;justify-content:space-between;width:100%">
-      <a href="/" style="text-decoration:none;display:flex;align-items:center;transition:opacity 0.2s">
-        <img src="/logo.svg" alt="IPTV Live" width="160" height="48" style="opacity:1;transition:opacity 0.2s" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1" />
-      </a>
-      <nav style="display:flex;gap:8px;align-items:center">
-        <a href="/" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.8)'">\u9996\u9875</a>
-        <a href="/freesub" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.8)'">\u514D\u8D39\u8BA2\u9605</a>
-        <a href="/subscription" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.8)'">\u4F1A\u5458\u8BA2\u9605</a>
-      </nav>
-    </div>
-  </header>
+${PAGE_HEADER}
   <div class="main-content">
     <div class="container">
       <h1>\u670D\u52A1\u6761\u6B3E</h1>
@@ -23194,34 +23202,7 @@ function generateTermsOfService() {
     </div>
   </div>
 
-  <footer class="page-footer" style="background:#0a0a0a;border-top:1px solid rgba(255,255,255,0.1);padding:40px 20px;margin-top:60px">
-    <div style="max-width:1000px;margin:0 auto;text-align:center">
-      <p style="color:rgba(255,255,255,0.8);font-size:14px;margin-bottom:20px">&copy; 2024 IPTV Live. \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0</p>
-      <div style="display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;margin-top:15px;font-size:12px">
-        <a href="/sitemap.xml" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">\u7F51\u7AD9\u5730\u56FE</a>
-        <a href="/robots.txt" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Robots</a>
-        <a href="/privacy-policy" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">\u9690\u79C1\u653F\u7B56</a>
-        <a href="/terms" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">\u670D\u52A1\u6761\u6B3E</a>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px">
-        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer" style="color:rgba(255,255,255,0.7);font-size:14px">
-          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare" style="height:12px;width:auto;opacity:0.8;transition:opacity 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8" />
-        </a>
-        <span style="font-size:12px;color:rgba(255,255,255,0.6)">\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4</span>
-      </div>
-      <div style="margin-top:15px;font-size:11px;color:rgba(255,255,255,0.4);line-height:1.5;max-width:600px;margin-left:auto;margin-right:auto">
-        \u672C\u7AD9\u64AD\u653E\u94FE\u63A5\u8D44\u6E90\u5747\u6765\u6E90\u4E8E\u516C\u5F00\u7F51\u7EDC\uFF0C\u672C\u7AD9\u4E0D\u4EA7\u51FA\u548C\u50A8\u5B58\u4EFB\u4F55\u5185\u5BB9\u3002\u5982\u6709\u7248\u6743\u6216\u5185\u5BB9\u95EE\u9898\uFF0C\u8BF7\u8054\u7CFB\u5185\u5BB9\u5B9E\u9645\u4EA7\u51FA\u8005\u3002
-      </div>
-    </div>
-    <style>
-      @media (max-width: 768px) {
-        .page-footer{padding:30px 15px;margin-top:40px}
-      }
-      @media (max-width: 480px) {
-        .page-footer{padding:25px 10px;margin-top:30px}
-      }
-    </style>
-  </footer>
+${PAGE_FOOTER}
 </body>
 </html>`;
 }

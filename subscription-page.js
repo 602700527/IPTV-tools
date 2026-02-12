@@ -405,6 +405,53 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: rgba(255, 255, 255, 0.2);
     }
 
+    .modal-tips {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-tip {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .modal-tip:last-child {
+      margin-bottom: 0;
+    }
+
+    .modal-tip-highlight {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
     .loading {
       display: none;
       text-align: center;
@@ -926,14 +973,16 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
   <div id="successModal" class="success-modal">
     <div class="success-content">
+      <button class="modal-close" onclick="closeModal()">×</button>
       <div class="success-icon">🎉</div>
       <h2 class="success-title" data-i18n="paymentSuccess">支付成功！</h2>
       <p class="success-message" data-i18n="subUrlGenerated">您的订阅地址已生成</p>
       <div class="code-display" id="generatedCode" style="font-size: 14px; word-break: break-all;">-</div>
       <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">复制订阅地址</button>
-      <br><br>
-      <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin-top: 15px;">您可以直接使用此订阅地址在播放器中添加</p>
-      <button class="close-button" onclick="closeModal()" data-i18n="closeButton">关闭</button>
+      <div class="modal-tips">
+        <p class="modal-tip">您可以直接使用此订阅地址在播放器中添加</p>
+        <p class="modal-tip-highlight">此窗口关闭后可在账户页面中查询订单详情</p>
+      </div>
     </div>
   </div>
 

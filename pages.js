@@ -1,3 +1,6 @@
+import { PAGE_HEADER } from './components/page-header.js';
+import { PAGE_FOOTER } from './components/page-footer.js';
+
 // 生成网站地图 XML
 export function generateSitemap(origin) {
   const currentDate = new Date().toISOString().split('T')[0];
@@ -90,18 +93,7 @@ export function generatePrivacyPolicy() {
   </style>
 </head>
 <body>
-  <header class="page-header" style="background:rgba(20,20,20,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.1);position:fixed;top:0;left:0;right:0;z-index:1000">
-    <div style="max-width:100%;margin:0;padding:0 20px;height:70px;display:flex;align-items:center;justify-content:space-between;width:100%">
-      <a href="/" style="text-decoration:none;display:flex;align-items:center;transition:opacity 0.2s">
-        <img src="/logo.svg" alt="IPTV Live" width="160" height="48" style="opacity:1;transition:opacity 0.2s" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1" />
-      </a>
-      <nav style="display:flex;gap:8px;align-items:center">
-        <a href="/" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.8)'">首页</a>
-        <a href="/freesub" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.8)'">免费订阅</a>
-        <a href="/subscription" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.8)'">会员订阅</a>
-      </nav>
-    </div>
-  </header>
+${PAGE_HEADER}
   <div class="main-content">
     <div class="container">
       <h1>隐私政策</h1>
@@ -218,34 +210,7 @@ export function generatePrivacyPolicy() {
     </div>
   </div>
 
-  <footer class="page-footer" style="background:#0a0a0a;border-top:1px solid rgba(255,255,255,0.1);padding:40px 20px;margin-top:60px">
-    <div style="max-width:1000px;margin:0 auto;text-align:center">
-      <p style="color:rgba(255,255,255,0.8);font-size:14px;margin-bottom:20px">&copy; 2024 IPTV Live. 免费高清电视在线观看平台</p>
-      <div style="display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;margin-top:15px;font-size:12px">
-        <a href="/sitemap.xml" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">网站地图</a>
-        <a href="/robots.txt" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Robots</a>
-        <a href="/privacy-policy" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">隐私政策</a>
-        <a href="/terms" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">服务条款</a>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px">
-        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer" style="color:rgba(255,255,255,0.7);font-size:14px">
-          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare" style="height:12px;width:auto;opacity:0.8;transition:opacity 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8" />
-        </a>
-        <span style="font-size:12px;color:rgba(255,255,255,0.6)">本站由 Cloudflare 提供加速与安全保护</span>
-      </div>
-      <div style="margin-top:15px;font-size:11px;color:rgba(255,255,255,0.4);line-height:1.5;max-width:600px;margin-left:auto;margin-right:auto">
-        本站播放链接资源均来源于公开网络，本站不产出和储存任何内容。如有版权或内容问题，请联系内容实际产出者。
-      </div>
-    </div>
-    <style>
-      @media (max-width: 768px) {
-        .page-footer{padding:30px 15px;margin-top:40px}
-      }
-      @media (max-width: 480px) {
-        .page-footer{padding:25px 10px;margin-top:30px}
-      }
-    </style>
-  </footer>
+${PAGE_FOOTER}
 </body>
 </html>`;
 }
@@ -291,18 +256,7 @@ export function generateTermsOfService() {
   </style>
 </head>
 <body>
-  <header class="page-header" style="background:rgba(20,20,20,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.1);position:fixed;top:0;left:0;right:0;z-index:1000">
-    <div style="max-width:100%;margin:0;padding:0 20px;height:70px;display:flex;align-items:center;justify-content:space-between;width:100%">
-      <a href="/" style="text-decoration:none;display:flex;align-items:center;transition:opacity 0.2s">
-        <img src="/logo.svg" alt="IPTV Live" width="160" height="48" style="opacity:1;transition:opacity 0.2s" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1" />
-      </a>
-      <nav style="display:flex;gap:8px;align-items:center">
-        <a href="/" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.8)'">首页</a>
-        <a href="/freesub" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.8)'">免费订阅</a>
-        <a href="/subscription" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.8)'">会员订阅</a>
-      </nav>
-    </div>
-  </header>
+${PAGE_HEADER}
   <div class="main-content">
     <div class="container">
       <h1>服务条款</h1>
@@ -465,34 +419,7 @@ export function generateTermsOfService() {
     </div>
   </div>
 
-  <footer class="page-footer" style="background:#0a0a0a;border-top:1px solid rgba(255,255,255,0.1);padding:40px 20px;margin-top:60px">
-    <div style="max-width:1000px;margin:0 auto;text-align:center">
-      <p style="color:rgba(255,255,255,0.8);font-size:14px;margin-bottom:20px">&copy; 2024 IPTV Live. 免费高清电视在线观看平台</p>
-      <div style="display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;margin-top:15px;font-size:12px">
-        <a href="/sitemap.xml" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">网站地图</a>
-        <a href="/robots.txt" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Robots</a>
-        <a href="/privacy-policy" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">隐私政策</a>
-        <a href="/terms" style="color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.9)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">服务条款</a>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px">
-        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer" style="color:rgba(255,255,255,0.7);font-size:14px">
-          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare" style="height:12px;width:auto;opacity:0.8;transition:opacity 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8" />
-        </a>
-        <span style="font-size:12px;color:rgba(255,255,255,0.6)">本站由 Cloudflare 提供加速与安全保护</span>
-      </div>
-      <div style="margin-top:15px;font-size:11px;color:rgba(255,255,255,0.4);line-height:1.5;max-width:600px;margin-left:auto;margin-right:auto">
-        本站播放链接资源均来源于公开网络，本站不产出和储存任何内容。如有版权或内容问题，请联系内容实际产出者。
-      </div>
-    </div>
-    <style>
-      @media (max-width: 768px) {
-        .page-footer{padding:30px 15px;margin-top:40px}
-      }
-      @media (max-width: 480px) {
-        .page-footer{padding:25px 10px;margin-top:30px}
-      }
-    </style>
-  </footer>
+${PAGE_FOOTER}
 </body>
 </html>`;
 }

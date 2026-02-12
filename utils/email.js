@@ -64,11 +64,11 @@ export function generateVerificationEmailHtml(email, code, verifyUrl) {
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f7; margin: 0; padding: 20px;">
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
     <div style="background: linear-gradient(135deg, #e50914 0%, #b81d24 100%); padding: 30px; text-align: center;">
-      <h1 style="color: #ffffff; margin: 0; font-size: 28px;">📺 TV Live Service</h1>
+      <h1 style="color: #000000; margin: 0; font-size: 28px;">📺 TV Live Service</h1>
     </div>
     
     <div style="padding: 40px 30px;">
-      <h2 style="color: #333333; font-size: 24px; margin: 0 0 20px;">邮箱验证</h2>
+      <h2 style="color: #000000; font-size: 24px; margin: 0 0 20px;">Email Verification</h2>
       
       <p style="color: #666666; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
         感谢您注册 TV Live Service！请使用以下验证码验证您的邮箱：
