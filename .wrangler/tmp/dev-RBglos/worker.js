@@ -492,6 +492,20 @@ async function createTables(env) {
     console.error("Database: Failed to create free_subscriptions indexes:", e);
   }
   try {
+    await db.prepare("ALTER TABLE free_subscriptions ADD COLUMN fp_token TEXT").run();
+    console.log("Database: Migrated free_subscriptions table - added fp_token column");
+  } catch (e) {
+    if (!e.message.includes("duplicate column name")) {
+      console.log("Database: fp_token column already exists");
+    }
+  }
+  try {
+    await db.prepare("CREATE INDEX IF NOT EXISTS idx_free_subscriptions_fp_token ON free_subscriptions(fp_token)").run();
+    console.log("Database: fp_token index created or already exists");
+  } catch (e) {
+    console.error("Database: Failed to create fp_token index:", e);
+  }
+  try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS checkin_records (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -7300,18 +7314,21 @@ async function createFreeSubscription(ip, fingerprint, fingerprintComponents, en
         if (expiredDate <= now) {
           const newExpiredAt = /* @__PURE__ */ new Date();
           newExpiredAt.setDate(newExpiredAt.getDate() + 3);
+          const newFpToken = existing.fp_token || generateFpToken();
           await db.prepare(`
             UPDATE free_subscriptions
             SET expired_at = ?,
                 updated_at = datetime('now'),
                 ip_change_count = 0,
                 fingerprint = ?,
-                fingerprint_components = ?
+                fingerprint_components = ?,
+                fp_token = ?
             WHERE id = ?
           `).bind(
             newExpiredAt.toISOString(),
             fingerprint,
             JSON.stringify(fingerprintComponents),
+            newFpToken,
             existing.id
           ).run();
           console.log("[FreeSub] Existing expired subscription renewed", {
@@ -7362,16 +7379,18 @@ async function createFreeSubscription(ip, fingerprint, fingerprintComponents, en
       }
       return await getFreeSubscription(fingerprintMatch.id, db);
     }
+    const fpToken = generateFpToken();
     await db.prepare(`
     INSERT INTO free_subscriptions (
-      sub_id, ip, fingerprint, fingerprint_components,
+      sub_id, ip, fingerprint, fingerprint_components, fp_token,
       expired_at, total_days, consecutive_days
-    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
       subId,
       ip,
       fingerprint,
       JSON.stringify(fingerprintComponents),
+      fpToken,
       expiredAt.toISOString(),
       3,
       // 初始3天
@@ -7409,6 +7428,15 @@ function generateSubscriptionId() {
   return `${prefix}_${random}`;
 }
 __name(generateSubscriptionId, "generateSubscriptionId");
+function generateFpToken() {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let token = "";
+  for (let i = 0; i < 6; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
+}
+__name(generateFpToken, "generateFpToken");
 async function getFreeSubscription(id, db) {
   const sub = await db.prepare(`
     SELECT * FROM free_subscriptions WHERE id = ?
@@ -7430,6 +7458,8 @@ function formatSubscription(sub) {
     subId: sub.sub_id,
     ip: sub.ip,
     fingerprint: sub.fingerprint,
+    fpToken: sub.fp_token,
+    // 短Token（6位）
     expiredAt: sub.expired_at,
     totalDays: sub.total_days,
     consecutiveDays: sub.consecutive_days,
@@ -7440,7 +7470,7 @@ function formatSubscription(sub) {
   };
 }
 __name(formatSubscription, "formatSubscription");
-async function validateFreeSubscriptionWithFingerprint(subId, request, fingerprint, db) {
+async function validateFreeSubscriptionWithFingerprint(subId, request, fingerprintOrToken, db) {
   const ip = getClientIP2(request);
   const sub = await db.prepare(`
     SELECT * FROM free_subscriptions
@@ -7450,11 +7480,18 @@ async function validateFreeSubscriptionWithFingerprint(subId, request, fingerpri
     return { valid: false, reason: "subscription_not_found_or_expired" };
   }
   const ipMatch = sub.ip === ip;
-  const fingerprintMatch = sub.fingerprint === fingerprint;
-  if (!ipMatch && !fingerprintMatch) {
+  let tokenMatch = false;
+  if (sub.fp_token) {
+    tokenMatch = sub.fp_token === fingerprintOrToken;
+  }
+  let fingerprintMatch = false;
+  if (!tokenMatch) {
+    fingerprintMatch = sub.fingerprint === fingerprintOrToken;
+  }
+  if (!ipMatch && !tokenMatch && !fingerprintMatch) {
     return { valid: false, reason: "ip_and_fingerprint_mismatch" };
   }
-  if (!ipMatch) {
+  if (!ipMatch && (tokenMatch || fingerprintMatch)) {
     const newIpChangeCount = (sub.ip_change_count || 0) + 1;
     if (newIpChangeCount <= 3) {
       await db.prepare(`
@@ -7462,14 +7499,17 @@ async function validateFreeSubscriptionWithFingerprint(subId, request, fingerpri
         SET ip = ?, ip_change_count = ?, ip_updated_at = datetime('now')
         WHERE id = ?
       `).bind(ip, newIpChangeCount, sub.id).run();
-      console.log("[FreeSub] IP updated via fingerprint verification", {
-        subId,
+      console.log("[FreeSub] IP updated via token/fingerprint verification", {
+        subId: sub.sub_id,
         oldIp: sub.ip,
         newIp: ip,
-        changes: newIpChangeCount
+        changeCount: newIpChangeCount
       });
     } else {
-      return { valid: false, reason: "ip_change_limit_exceeded" };
+      console.log("[FreeSub] IP change limit exceeded", {
+        subId: sub.sub_id,
+        changeCount: newIpChangeCount
+      });
     }
   }
   return { valid: true, subscription: formatSubscription(sub) };
@@ -19657,6 +19697,7 @@ var FREE_SUB_HTML = `
     let subId = null;
     let fingerprint = null;
     let fingerprintComponents = null;
+    let fpToken = null;  // 6\u4F4D\u77EDToken
     let captchaCode = '';
     
     // \u667A\u80FD\u5224\u65AD\u6D4F\u89C8\u5668\u8BED\u8A00
@@ -19839,6 +19880,7 @@ var FREE_SUB_HTML = `
 
         if (data.success) {
           subId = data.subscription.subId;
+          fpToken = data.subscription.fpToken;  // \u4FDD\u5B58\u77EDToken
           displaySubscription(data.subscription);
           await loadSubscriptionInfo();
         } else {
@@ -19856,8 +19898,9 @@ var FREE_SUB_HTML = `
 
       document.getElementById('subId').textContent = sub.subId;
 
-      // \u4F7F\u7528\u5B8C\u6574\u8BA2\u9605\u5730\u5740
-      const fullUrl = \`\${window.location.origin}/api/freesub/\${sub.subId}.m3u?fp=\${fingerprint}\`;
+      // \u4F18\u5148\u4F7F\u7528 fpToken\uFF086\u4F4D\u77ED\u7801\uFF09\uFF0C\u517C\u5BB9\u65E7\u7248 fingerprint
+      var fpValue = sub.fpToken || fingerprint;
+      var fullUrl = window.location.origin + '/api/freesub/' + sub.subId + '.m3u?fp=' + fpValue;
       document.getElementById('subUrl').textContent = fullUrl;
 
       // \u786E\u4FDDconsecutiveDays\u6709\u503C
@@ -19906,6 +19949,7 @@ var FREE_SUB_HTML = `
         console.log('[loadSubscriptionInfo] API response:', data);
 
         if (data.success) {
+          fpToken = data.subscription.fpToken;  // \u4FDD\u5B58\u77EDToken
           displaySubscription(data.subscription);
         }
       } catch (error) {

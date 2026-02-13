@@ -511,6 +511,25 @@ export async function createTables(env) {
     console.error('Database: Failed to create free_subscriptions indexes:', e);
   }
 
+  // 迁移：添加 fp_token 字段（如果不存在）
+  try {
+    await db.prepare('ALTER TABLE free_subscriptions ADD COLUMN fp_token TEXT').run();
+    console.log('Database: Migrated free_subscriptions table - added fp_token column');
+  } catch (e) {
+    if (!e.message.includes('duplicate column name')) {
+      // 字段已存在，忽略错误
+      console.log('Database: fp_token column already exists');
+    }
+  }
+
+  // 创建 fp_token 索引
+  try {
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_fp_token ON free_subscriptions(fp_token)').run();
+    console.log('Database: fp_token index created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create fp_token index:', e);
+  }
+
   // 创建签到记录表（注意：D1 不支持 FOREIGN KEY，所以移除外键约束）
   try {
     await db.prepare(`

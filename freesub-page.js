@@ -554,6 +554,7 @@ export const FREE_SUB_HTML = `
     let subId = null;
     let fingerprint = null;
     let fingerprintComponents = null;
+    let fpToken = null;  // 6位短Token
     let captchaCode = '';
     
     // 智能判断浏览器语言
@@ -736,6 +737,7 @@ export const FREE_SUB_HTML = `
 
         if (data.success) {
           subId = data.subscription.subId;
+          fpToken = data.subscription.fpToken;  // 保存短Token
           displaySubscription(data.subscription);
           await loadSubscriptionInfo();
         } else {
@@ -753,8 +755,9 @@ export const FREE_SUB_HTML = `
 
       document.getElementById('subId').textContent = sub.subId;
 
-      // 使用完整订阅地址
-      const fullUrl = \`\${window.location.origin}/api/freesub/\${sub.subId}.m3u?fp=\${fingerprint}\`;
+      // 优先使用 fpToken（6位短码），兼容旧版 fingerprint
+      var fpValue = sub.fpToken || fingerprint;
+      var fullUrl = window.location.origin + '/api/freesub/' + sub.subId + '.m3u?fp=' + fpValue;
       document.getElementById('subUrl').textContent = fullUrl;
 
       // 确保consecutiveDays有值
@@ -803,6 +806,7 @@ export const FREE_SUB_HTML = `
         console.log('[loadSubscriptionInfo] API response:', data);
 
         if (data.success) {
+          fpToken = data.subscription.fpToken;  // 保存短Token
           displaySubscription(data.subscription);
         }
       } catch (error) {

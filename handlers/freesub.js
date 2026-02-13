@@ -66,18 +66,23 @@ export async function createFreeSubscription(ip, fingerprint, fingerprintCompone
           const newExpiredAt = new Date();
           newExpiredAt.setDate(newExpiredAt.getDate() + 3);
 
+          // 如果没有 fp_token，生成一个新的
+          const newFpToken = existing.fp_token || generateFpToken();
+
           await db.prepare(`
             UPDATE free_subscriptions
             SET expired_at = ?,
                 updated_at = datetime('now'),
                 ip_change_count = 0,
                 fingerprint = ?,
-                fingerprint_components = ?
+                fingerprint_components = ?,
+                fp_token = ?
             WHERE id = ?
           `).bind(
             newExpiredAt.toISOString(),
             fingerprint,
             JSON.stringify(fingerprintComponents),
+            newFpToken,
             existing.id
           ).run();
 
@@ -143,17 +148,19 @@ export async function createFreeSubscription(ip, fingerprint, fingerprintCompone
     return await getFreeSubscription(fingerprintMatch.id, db);
   }
   
-  // 创建新订阅
+  // 创建新订阅（包含 fp_token）
+  const fpToken = generateFpToken();
   await db.prepare(`
     INSERT INTO free_subscriptions (
-      sub_id, ip, fingerprint, fingerprint_components,
+      sub_id, ip, fingerprint, fingerprint_components, fp_token,
       expired_at, total_days, consecutive_days
-    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `  ).bind(
     subId,
     ip,
     fingerprint,
     JSON.stringify(fingerprintComponents),
+    fpToken,
     expiredAt.toISOString(),
     3,    // 初始3天
     0     // 初始连续签到0天
@@ -197,6 +204,18 @@ function generateSubscriptionId() {
 }
 
 /**
+ * 生成短 Token（6位，用于URL参数）
+ */
+function generateFpToken() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < 6; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
+}
+
+/**
  * 根据ID获取订阅
  */
 async function getFreeSubscription(id, db) {
@@ -229,6 +248,7 @@ function formatSubscription(sub) {
     subId: sub.sub_id,
     ip: sub.ip,
     fingerprint: sub.fingerprint,
+    fpToken: sub.fp_token,  // 短Token（6位）
     expiredAt: sub.expired_at,
     totalDays: sub.total_days,
     consecutiveDays: sub.consecutive_days,
@@ -270,8 +290,11 @@ export async function validateFreeSubscription(subId, request, db) {
 
 /**
  * 验证带指纹的订阅
+ * 支持两种验证方式：
+ * 1. fp_token（6位短Token）- 优先
+ * 2. fingerprint（64位完整指纹）- 兼容旧版
  */
-export async function validateFreeSubscriptionWithFingerprint(subId, request, fingerprint, db) {
+export async function validateFreeSubscriptionWithFingerprint(subId, request, fingerprintOrToken, db) {
   const ip = getClientIP(request);
 
   // 修复Bug 1: 允许过期当天和过期后7天内仍然可以访问（允许签到续期）
@@ -287,15 +310,25 @@ export async function validateFreeSubscriptionWithFingerprint(subId, request, fi
   // 检查IP是否匹配
   const ipMatch = sub.ip === ip;
 
-  // 检查指纹是否匹配
-  const fingerprintMatch = sub.fingerprint === fingerprint;
+  // 优先检查 fp_token（6位短Token）
+  let tokenMatch = false;
+  if (sub.fp_token) {
+    tokenMatch = sub.fp_token === fingerprintOrToken;
+  }
 
-  if (!ipMatch && !fingerprintMatch) {
+  // 如果Token不匹配，检查旧版指纹（兼容）
+  let fingerprintMatch = false;
+  if (!tokenMatch) {
+    fingerprintMatch = sub.fingerprint === fingerprintOrToken;
+  }
+
+  // 验证：IP匹配 或 Token匹配 或 指纹匹配
+  if (!ipMatch && !tokenMatch && !fingerprintMatch) {
     return { valid: false, reason: 'ip_and_fingerprint_mismatch' };
   }
 
-  if (!ipMatch) {
-    // IP不匹配但指纹匹配，更新IP
+  // 如果IP不匹配但Token/指纹匹配，更新IP
+  if (!ipMatch && (tokenMatch || fingerprintMatch)) {
     const newIpChangeCount = (sub.ip_change_count || 0) + 1;
 
     if (newIpChangeCount <= 3) {
@@ -305,15 +338,17 @@ export async function validateFreeSubscriptionWithFingerprint(subId, request, fi
         WHERE id = ?
       `).bind(ip, newIpChangeCount, sub.id).run();
 
-      console.log('[FreeSub] IP updated via fingerprint verification', {
-        subId,
+      console.log('[FreeSub] IP updated via token/fingerprint verification', {
+        subId: sub.sub_id,
         oldIp: sub.ip,
         newIp: ip,
-        changes: newIpChangeCount
+        changeCount: newIpChangeCount
       });
     } else {
-      // IP变化超过限制
-      return { valid: false, reason: 'ip_change_limit_exceeded' };
+      console.log('[FreeSub] IP change limit exceeded', {
+        subId: sub.sub_id,
+        changeCount: newIpChangeCount
+      });
     }
   }
 
