@@ -4065,6 +4065,7 @@ async function handleScheduledEvent(event, env, ctx) {
       console.log("[Scheduler] Starting data source sync");
       try {
         await syncAllSources(db, env);
+        await cleanupExpiredFreeSubscriptions(db);
       } finally {
         syncInProgress = false;
       }
@@ -4435,6 +4436,32 @@ async function manualSyncAll(env, filter = null) {
   }
 }
 __name(manualSyncAll, "manualSyncAll");
+async function cleanupExpiredFreeSubscriptions(db) {
+  try {
+    console.log("[Cleanup] Starting cleanup of expired free subscriptions");
+    const expiredSubs = await db.prepare(`
+      SELECT id, sub_id, expired_at, last_checkin
+      FROM free_subscriptions
+      WHERE expired_at < datetime('now', '-90 days')
+        AND (last_checkin IS NULL OR last_checkin < datetime('now', '-90 days'))
+    `).all();
+    if (!expiredSubs.results || expiredSubs.results.length === 0) {
+      console.log("[Cleanup] No expired subscriptions to clean up");
+      return;
+    }
+    console.log(`[Cleanup] Found ${expiredSubs.results.length} expired subscriptions to clean up`);
+    for (const sub of expiredSubs.results) {
+      await db.prepare(`
+        DELETE FROM free_subscriptions WHERE id = ?
+      `).bind(sub.id).run();
+      console.log(`[Cleanup] Deleted expired subscription: ${sub.sub_id}`);
+    }
+    console.log(`[Cleanup] Cleanup completed: deleted ${expiredSubs.results.length} expired subscriptions`);
+  } catch (error) {
+    console.error("[Cleanup] Error cleaning up expired subscriptions:", error);
+  }
+}
+__name(cleanupExpiredFreeSubscriptions, "cleanupExpiredFreeSubscriptions");
 
 // handlers/admin.js
 async function handleAdminRequest(request, env, ctx) {

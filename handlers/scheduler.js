@@ -39,6 +39,8 @@ export async function handleScheduledEvent(event, env, ctx) {
 
       try {
         await syncAllSources(db, env);
+        // 数据源同步完成后，清理过期90天的免费订阅
+        await cleanupExpiredFreeSubscriptions(db);
       } finally {
         syncInProgress = false;
       }
@@ -512,5 +514,43 @@ export async function manualSyncAll(env, filter = null) {
   } catch (error) {
     console.error('[Scheduler] Error in manualSyncAll:', error);
     return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 清理过期90天的免费订阅
+ * 删除过期超过90天且超过90天未签到的订阅及其相关数据
+ */
+async function cleanupExpiredFreeSubscriptions(db) {
+  try {
+    console.log('[Cleanup] Starting cleanup of expired free subscriptions');
+
+    // 查找过期超过90天且超过90天未签到的订阅
+    const expiredSubs = await db.prepare(`
+      SELECT id, sub_id, expired_at, last_checkin
+      FROM free_subscriptions
+      WHERE expired_at < datetime('now', '-90 days')
+        AND (last_checkin IS NULL OR last_checkin < datetime('now', '-90 days'))
+    `).all();
+
+    if (!expiredSubs.results || expiredSubs.results.length === 0) {
+      console.log('[Cleanup] No expired subscriptions to clean up');
+      return;
+    }
+
+    console.log(`[Cleanup] Found ${expiredSubs.results.length} expired subscriptions to clean up`);
+
+    // 删除这些订阅及其相关数据（签到记录会通过外键级联删除）
+    for (const sub of expiredSubs.results) {
+      await db.prepare(`
+        DELETE FROM free_subscriptions WHERE id = ?
+      `).bind(sub.id).run();
+
+      console.log(`[Cleanup] Deleted expired subscription: ${sub.sub_id}`);
+    }
+
+    console.log(`[Cleanup] Cleanup completed: deleted ${expiredSubs.results.length} expired subscriptions`);
+  } catch (error) {
+    console.error('[Cleanup] Error cleaning up expired subscriptions:', error);
   }
 }
