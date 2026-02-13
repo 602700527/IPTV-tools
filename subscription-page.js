@@ -1063,19 +1063,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             name: 'plan_' + plan.id
           }));
 
-          // 更新翻译中的套餐名称
-          if (translations['zh-CN']) {
-            translations['zh-CN'].planNames = data.plans.reduce((acc, plan) => {
-              acc['plan_' + plan.id] = plan.name;
-              return acc;
-            }, {});
-          }
-          if (translations['en']) {
-            translations['en'].planNames = data.plans.reduce((acc, plan) => {
-              acc['plan_' + plan.id] = plan.name_en || plan.name;
-              return acc;
-            }, {});
-          }
+          // 更新套餐名称
+          translations.planNames = data.plans.reduce((acc, plan) => {
+            acc['plan_' + plan.id] = plan.name;
+            return acc;
+          }, {});
 
           // 如果没有选中的套餐，默认选中第一个
           if (durationOptions.length > 0 && !selectedDuration) {
@@ -1098,10 +1090,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
 
-    // 初始化默认选择
-    selectedDuration = durationOptions[2];
 
-    // 通用功能特性
     const commonFeatures = [
       { icon: '✓', name: 'feature', label: 'feature_hd_quality' },
       { icon: '✓', name: 'feature', label: 'feature_multi_device' }

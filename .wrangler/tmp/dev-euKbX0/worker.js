@@ -20996,19 +20996,11 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
             name: 'plan_' + plan.id
           }));
 
-          // \u66F4\u65B0\u7FFB\u8BD1\u4E2D\u7684\u5957\u9910\u540D\u79F0
-          if (translations['zh-CN']) {
-            translations['zh-CN'].planNames = data.plans.reduce((acc, plan) => {
-              acc['plan_' + plan.id] = plan.name;
-              return acc;
-            }, {});
-          }
-          if (translations['en']) {
-            translations['en'].planNames = data.plans.reduce((acc, plan) => {
-              acc['plan_' + plan.id] = plan.name_en || plan.name;
-              return acc;
-            }, {});
-          }
+          // \u66F4\u65B0\u5957\u9910\u540D\u79F0
+          translations.planNames = data.plans.reduce((acc, plan) => {
+            acc['plan_' + plan.id] = plan.name;
+            return acc;
+          }, {});
 
           // \u5982\u679C\u6CA1\u6709\u9009\u4E2D\u7684\u5957\u9910\uFF0C\u9ED8\u8BA4\u9009\u4E2D\u7B2C\u4E00\u4E2A
           if (durationOptions.length > 0 && !selectedDuration) {
@@ -21031,10 +21023,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
 
-    // \u521D\u59CB\u5316\u9ED8\u8BA4\u9009\u62E9
-    selectedDuration = durationOptions[2];
 
-    // \u901A\u7528\u529F\u80FD\u7279\u6027
     const commonFeatures = [
       { icon: '\u2713', name: 'feature', label: 'feature_hd_quality' },
       { icon: '\u2713', name: 'feature', label: 'feature_multi_device' }
