@@ -19615,6 +19615,23 @@ var FREE_SUB_HTML = `
   </style>
 </head>
 <body>
+  <!-- \u8BED\u8A00\u5207\u6362\u5668 -->
+  <div style="position: fixed; top: 80px; right: 20px; z-index: 9999;">
+    <select id="langSelect" onchange="changeLanguage(this.value)" style="padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.8); color: #fff; cursor: pointer; font-size: 14px;">
+      <option value="chinese_simplified">\u4E2D\u6587</option>
+      <option value="english">English</option>
+      <option value="japanese">\u65E5\u672C\u8A9E</option>
+      <option value="korean">\uD55C\uAD6D\uC5B4</option>
+    </select>
+  </div>
+  
+  <script>
+    // \u8BED\u8A00\u5207\u6362\u51FD\u6570
+    function changeLanguage(lang) {
+      translate.language.translate(lang);
+    }
+  <\/script>
+  
   ${PAGE_HEADER}
   <div class="main-content">
     <div class="container">
@@ -20108,6 +20125,25 @@ var FREE_SUB_HTML = `
       // \u6E05\u7A7A\u8F93\u5165\u6846
       document.getElementById('captchaInput').value = '';
     }
+  <\/script>
+  
+  <!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
+  <script src="https://cdn.staticfile.net/translate.js/3.18.66/translate.js"><\/script>
+  <script>
+    // \u8BBE\u7F6E\u672C\u5730\u8BED\u79CD\u4E3A\u7B80\u4F53\u4E2D\u6587
+    translate.language.setLocal('chinese_simplified');
+    
+    // \u4F7F\u7528\u514D\u8D39\u7FFB\u8BD1\u670D\u52A1
+    translate.service.use('client.edge');
+    
+    // \u5F00\u542F\u52A8\u6001\u76D1\u63A7\uFF08\u7FFB\u8BD1JS\u52A8\u6001\u6539\u53D8\u7684\u5185\u5BB9\uFF09
+    translate.listener.start();
+    
+    // \u81EA\u52A8\u68C0\u6D4B\u7528\u6237\u8BED\u8A00\u5E76\u5207\u6362
+    translate.setAutoDiscriminateLocalLanguage();
+    
+    // \u6267\u884C\u7FFB\u8BD1
+    translate.execute();
   <\/script>
 </body>
 </html>

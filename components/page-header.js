@@ -6,7 +6,19 @@ export const PAGE_HEADER = `
         <img src="/logo.svg" alt="IPTV Live" width="160" height="48" />
       </a>
       <nav class="header-nav">
-        <a href="/" class="nav-item">首页</a>
+        <a href="/" class="nav-item" title="首页">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </a>
+        <!-- 语言切换器 -->
+        <select id="headerLangSelect" onchange="if(typeof changeLanguage==='function'){changeLanguage(this.value)}" style="margin-left: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.6); color: #fff; cursor: pointer; font-size: 13px;">
+          <option value="chinese_simplified">中文</option>
+          <option value="english">English</option>
+          <option value="japanese">日本語</option>
+          <option value="korean">한국어</option>
+        </select>
       </nav>
     </div>
   </header>

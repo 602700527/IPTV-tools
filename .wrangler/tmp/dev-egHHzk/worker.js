@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-2UsFOi/checked-fetch.js
+// .wrangler/tmp/bundle-5jdmmq/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-2UsFOi/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-5jdmmq/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -2068,11 +2068,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-2UsFOi/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-5jdmmq/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-2UsFOi/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-5jdmmq/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -14188,7 +14188,19 @@ var PAGE_HEADER = `
         <img src="/logo.svg" alt="IPTV Live" width="160" height="48" />
       </a>
       <nav class="header-nav">
-        <a href="/" class="nav-item">\u9996\u9875</a>
+        <a href="/" class="nav-item" title="\u9996\u9875">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </a>
+        <!-- \u8BED\u8A00\u5207\u6362\u5668 -->
+        <select id="headerLangSelect" onchange="if(typeof changeLanguage==='function'){changeLanguage(this.value)}" style="margin-left: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.6); color: #fff; cursor: pointer; font-size: 13px;">
+          <option value="chinese_simplified">\u4E2D\u6587</option>
+          <option value="english">English</option>
+          <option value="japanese">\u65E5\u672C\u8A9E</option>
+          <option value="korean">\uD55C\uAD6D\uC5B4</option>
+        </select>
       </nav>
     </div>
   </header>
@@ -19613,25 +19625,48 @@ var FREE_SUB_HTML = `
       }
     }
   </style>
-</head>
-<body>
-  <!-- \u8BED\u8A00\u5207\u6362\u5668 -->
-  <div style="position: fixed; top: 80px; right: 20px; z-index: 9999;">
-    <select id="langSelect" onchange="changeLanguage(this.value)" style="padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.8); color: #fff; cursor: pointer; font-size: 14px;">
-      <option value="chinese_simplified">\u4E2D\u6587</option>
-      <option value="english">English</option>
-      <option value="japanese">\u65E5\u672C\u8A9E</option>
-      <option value="korean">\uD55C\uAD6D\uC5B4</option>
-    </select>
-  </div>
   
+  <!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
   <script>
+    // \u7B49\u5F85 translate.js \u52A0\u8F7D\u5B8C\u6210\u540E\u521D\u59CB\u5316
+    function initTranslate() {
+      console.log('translate:', typeof translate);
+      console.log('window.translate:', typeof window.translate);
+      
+      // \u624B\u52A8\u5C06 translate \u66B4\u9732\u5230 window\uFF08\u517C\u5BB9\u67D0\u4E9B\u73AF\u5883\uFF09
+      if (typeof translate !== 'undefined' && !window.translate) {
+        window.translate = translate;
+      }
+      
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.language.setLocal('chinese_simplified');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+        console.log('Translate.js initialized successfully');
+      } else {
+        console.log('Waiting for translate.js to load...');
+        setTimeout(initTranslate, 100);
+      }
+    }
+    
+    // \u9875\u9762\u52A0\u8F7D\u5B8C\u6210\u540E\u4E5F\u5C1D\u8BD5\u521D\u59CB\u5316
+    window.addEventListener('load', initTranslate);
+    initTranslate();
+    
     // \u8BED\u8A00\u5207\u6362\u51FD\u6570
     function changeLanguage(lang) {
-      translate.language.translate(lang);
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        console.log('Changing language to:', lang);
+        t.changeLanguage(lang);
+      } else {
+        console.error('Translate.js not loaded yet', {translate: typeof translate, windowTranslate: typeof window.translate});
+      }
     }
   <\/script>
-  
   ${PAGE_HEADER}
   <div class="main-content">
     <div class="container">
@@ -20125,25 +20160,6 @@ var FREE_SUB_HTML = `
       // \u6E05\u7A7A\u8F93\u5165\u6846
       document.getElementById('captchaInput').value = '';
     }
-  <\/script>
-  
-  <!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
-  <script src="https://cdn.staticfile.net/translate.js/3.18.66/translate.js"><\/script>
-  <script>
-    // \u8BBE\u7F6E\u672C\u5730\u8BED\u79CD\u4E3A\u7B80\u4F53\u4E2D\u6587
-    translate.language.setLocal('chinese_simplified');
-    
-    // \u4F7F\u7528\u514D\u8D39\u7FFB\u8BD1\u670D\u52A1
-    translate.service.use('client.edge');
-    
-    // \u5F00\u542F\u52A8\u6001\u76D1\u63A7\uFF08\u7FFB\u8BD1JS\u52A8\u6001\u6539\u53D8\u7684\u5185\u5BB9\uFF09
-    translate.listener.start();
-    
-    // \u81EA\u52A8\u68C0\u6D4B\u7528\u6237\u8BED\u8A00\u5E76\u5207\u6362
-    translate.setAutoDiscriminateLocalLanguage();
-    
-    // \u6267\u884C\u7FFB\u8BD1
-    translate.execute();
   <\/script>
 </body>
 </html>
@@ -24052,7 +24068,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-2UsFOi/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-5jdmmq/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -24086,7 +24102,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-2UsFOi/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-5jdmmq/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

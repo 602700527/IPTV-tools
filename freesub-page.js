@@ -470,8 +470,48 @@ export const FREE_SUB_HTML = `
       }
     }
   </style>
-</head>
-<body>
+  
+  <!-- Translate.js 自动翻译 -->
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <script>
+    // 等待 translate.js 加载完成后初始化
+    function initTranslate() {
+      console.log('translate:', typeof translate);
+      console.log('window.translate:', typeof window.translate);
+      
+      // 手动将 translate 暴露到 window（兼容某些环境）
+      if (typeof translate !== 'undefined' && !window.translate) {
+        window.translate = translate;
+      }
+      
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.language.setLocal('chinese_simplified');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+        console.log('Translate.js initialized successfully');
+      } else {
+        console.log('Waiting for translate.js to load...');
+        setTimeout(initTranslate, 100);
+      }
+    }
+    
+    // 页面加载完成后也尝试初始化
+    window.addEventListener('load', initTranslate);
+    initTranslate();
+    
+    // 语言切换函数
+    function changeLanguage(lang) {
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        console.log('Changing language to:', lang);
+        t.changeLanguage(lang);
+      } else {
+        console.error('Translate.js not loaded yet', {translate: typeof translate, windowTranslate: typeof window.translate});
+      }
+    }
+  </script>
   ${PAGE_HEADER}
   <div class="main-content">
     <div class="container">
