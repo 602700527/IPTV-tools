@@ -1360,7 +1360,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         alignItems: 'center',
         justifyContent: 'center'
       });
-      modal.innerHTML = '<div style="background: #141414; border-radius: 20px; padding: 40px; max-width: 400px; text-align: center; border: 2px solid #e50914; box-shadow: 0 20px 60px rgba(229, 9, 20, 0.3);"><div style="font-size: 48px; margin-bottom: 20px;">🔐</div><h2 style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px;">' + t('error').notLoggedIn + '</h2><p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 30px; line-height: 1.6;">' + t('loginHint') + '</p><button onclick="window.location.href=' + "'/'" + '" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s;">' + t('loginNow') + '</button><button onclick="document.getElementById(' + "'loginModal'" + ').remove()" style="background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); padding: 16px 30px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; margin-top: 15px; transition: all 0.2s;">' + (currentLang === 'zh-CN' ? '稍后登录' : 'Login Later') + '</button></div>';
+      modal.innerHTML = '<div style="background: #141414; border-radius: 20px; padding: 40px; max-width: 400px; text-align: center; border: 2px solid #e50914; box-shadow: 0 20px 60px rgba(229, 9, 20, 0.3);"><div style="font-size: 48px; margin-bottom: 20px;">🔐</div><h2 style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px;">请先登录</h2><p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 30px; line-height: 1.6;">请登录后继续购买订阅</p><button onclick="window.location.href=' + "'/'" + '" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s;">立即登录</button><button onclick="document.getElementById(' + "'loginModal'" + ').remove()" style="background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); padding: 16px 30px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; margin-top: 15px; transition: all 0.2s;">稍后登录</button></div>';
       document.body.appendChild(modal);
     }
 
@@ -1709,12 +1709,35 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     document.addEventListener('DOMContentLoaded', () => {
       loadPlans(); // 从数据库加载套餐配置
       loadPaymentMethods(); // 加载支付方式列表
-      // 设置支付提示翻译
-      const paymentHintEl = document.getElementById('paymentHint');
-      if (paymentHintEl && typeof t === 'function') {
-        paymentHintEl.textContent = t('paymentHint');
-      }
+      // translate.js 会自动翻译页面，无需手动设置
     });
+  </script>
+  
+  <!-- Translate.js 自动翻译 -->
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && !window.translate) {
+        window.translate = translate;
+      }
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.language.setLocal('chinese_simplified');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+    initTranslate();
+    
+    function changeLanguage(lang) {
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        t.changeLanguage(lang);
+      }
+    }
   </script>
 </body>
 </html>`;

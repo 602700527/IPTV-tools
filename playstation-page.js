@@ -485,6 +485,26 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         <div id="authButtons">
           <button class="auth-btn ripple" onclick="openLoginModal()">登录</button>
         </div>
+        <!-- 语言切换器 -->
+        <select id="headerLangSelect" onchange="if(typeof changeLanguage==='function'){changeLanguage(this.value)}" style="margin-left: 12px; height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.6); color: #fff; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center;">
+          <option value="chinese_simplified">中文</option>
+          <option value="english">English</option>
+          <option value="japanese">日本語</option>
+          <option value="korean">한국어</option>
+          <option value="spanish">Español</option>
+          <option value="french">Français</option>
+          <option value="german">Deutsch</option>
+          <option value="portuguese">Português</option>
+          <option value="russian">Русский</option>
+          <option value="arabic">العربية</option>
+          <option value="hindi">हिन्दी</option>
+          <option value="thai">ไทย</option>
+          <option value="vietnamese">Tiếng Việt</option>
+          <option value="italian">Italiano</option>
+          <option value="dutch">Nederlands</option>
+          <option value="polish">Polski</option>
+          <option value="turkish">Türkçe</option>
+        </select>
       </div>
     </div>
     <div class="mobile-search-header">
@@ -4080,5 +4100,32 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       </div>
     </div>
   </div>
+
+<!-- Translate.js 自动翻译 -->
+<script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+<script>
+  function initTranslate() {
+    if (typeof translate !== 'undefined' && !window.translate) {
+      window.translate = translate;
+    }
+    if (typeof translate !== 'undefined' && translate.language) {
+      translate.language.setLocal('chinese_simplified');
+      translate.service.use('client.edge');
+      translate.listener.start();
+      translate.setAutoDiscriminateLocalLanguage();
+      translate.execute();
+    } else {
+      setTimeout(initTranslate, 100);
+    }
+  }
+  initTranslate();
+  
+  function changeLanguage(lang) {
+    var t = window.translate || translate;
+    if (t && t.changeLanguage) {
+      t.changeLanguage(lang);
+    }
+  }
+</script>
 </body>
 </html>`;

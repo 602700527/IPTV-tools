@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-5jdmmq/checked-fetch.js
+// .wrangler/tmp/bundle-yxmLRk/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-5jdmmq/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-yxmLRk/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -2068,11 +2068,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-5jdmmq/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-yxmLRk/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-5jdmmq/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-yxmLRk/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -14171,6 +14171,33 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
       });
     });
   <\/script>
+  
+<!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
+<script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
+<script>
+  function initTranslate() {
+    if (typeof translate !== 'undefined' && !window.translate) {
+      window.translate = translate;
+    }
+    if (typeof translate !== 'undefined' && translate.language) {
+      translate.language.setLocal('chinese_simplified');
+      translate.service.use('client.edge');
+      translate.listener.start();
+      translate.setAutoDiscriminateLocalLanguage();
+      translate.execute();
+    } else {
+      setTimeout(initTranslate, 100);
+    }
+  }
+  initTranslate();
+  
+  function changeLanguage(lang) {
+    var t = window.translate || translate;
+    if (t && t.changeLanguage) {
+      t.changeLanguage(lang);
+    }
+  }
+<\/script>
 </body>
 </html>`;
 
@@ -14188,18 +14215,31 @@ var PAGE_HEADER = `
         <img src="/logo.svg" alt="IPTV Live" width="160" height="48" />
       </a>
       <nav class="header-nav">
-        <a href="/" class="nav-item" title="\u9996\u9875">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <a href="/" class="nav-item home-icon" title="\u9996\u9875">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
             <polyline points="9 22 9 12 15 12 15 22"></polyline>
           </svg>
         </a>
         <!-- \u8BED\u8A00\u5207\u6362\u5668 -->
-        <select id="headerLangSelect" onchange="if(typeof changeLanguage==='function'){changeLanguage(this.value)}" style="margin-left: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.6); color: #fff; cursor: pointer; font-size: 13px;">
+        <select id="headerLangSelect" onchange="if(typeof changeLanguage==='function'){changeLanguage(this.value)}" style="margin-left: 12px; height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.6); color: #fff; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center;">
           <option value="chinese_simplified">\u4E2D\u6587</option>
           <option value="english">English</option>
           <option value="japanese">\u65E5\u672C\u8A9E</option>
           <option value="korean">\uD55C\uAD6D\uC5B4</option>
+          <option value="spanish">Espa\xF1ol</option>
+          <option value="french">Fran\xE7ais</option>
+          <option value="german">Deutsch</option>
+          <option value="portuguese">Portugu\xEAs</option>
+          <option value="russian">\u0420\u0443\u0441\u0441\u043A\u0438\u0439</option>
+          <option value="arabic">\u0627\u0644\u0639\u0631\u0628\u064A\u0629</option>
+          <option value="hindi">\u0939\u093F\u0928\u094D\u0926\u0940</option>
+          <option value="thai">\u0E44\u0E17\u0E22</option>
+          <option value="vietnamese">Ti\u1EBFng Vi\u1EC7t</option>
+          <option value="italian">Italiano</option>
+          <option value="dutch">Nederlands</option>
+          <option value="polish">Polski</option>
+          <option value="turkish">T\xFCrk\xE7e</option>
         </select>
       </nav>
     </div>
@@ -14277,6 +14317,23 @@ var PAGE_HEADER = `
 
     .nav-item:hover {
       background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .nav-item.home-icon {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .nav-item.home-icon:hover {
+      background: rgba(255, 255, 255, 0.2);
       color: #fff;
     }
 
@@ -15064,6 +15121,33 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
       checkPaymentStatus(); // \u68C0\u67E5\u652F\u4ED8\u72B6\u6001 URL \u53C2\u6570
     });
   <\/script>
+  
+  <!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && !window.translate) {
+        window.translate = translate;
+      }
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.language.setLocal('chinese_simplified');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+    initTranslate();
+    
+    function changeLanguage(lang) {
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        t.changeLanguage(lang);
+      }
+    }
+  <\/script>
 </body>
 </html>`;
 
@@ -15556,6 +15640,26 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         <div id="authButtons">
           <button class="auth-btn ripple" onclick="openLoginModal()">\u767B\u5F55</button>
         </div>
+        <!-- \u8BED\u8A00\u5207\u6362\u5668 -->
+        <select id="headerLangSelect" onchange="if(typeof changeLanguage==='function'){changeLanguage(this.value)}" style="margin-left: 12px; height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.6); color: #fff; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center;">
+          <option value="chinese_simplified">\u4E2D\u6587</option>
+          <option value="english">English</option>
+          <option value="japanese">\u65E5\u672C\u8A9E</option>
+          <option value="korean">\uD55C\uAD6D\uC5B4</option>
+          <option value="spanish">Espa\xF1ol</option>
+          <option value="french">Fran\xE7ais</option>
+          <option value="german">Deutsch</option>
+          <option value="portuguese">Portugu\xEAs</option>
+          <option value="russian">\u0420\u0443\u0441\u0441\u043A\u0438\u0439</option>
+          <option value="arabic">\u0627\u0644\u0639\u0631\u0628\u064A\u0629</option>
+          <option value="hindi">\u0939\u093F\u0928\u094D\u0926\u0940</option>
+          <option value="thai">\u0E44\u0E17\u0E22</option>
+          <option value="vietnamese">Ti\u1EBFng Vi\u1EC7t</option>
+          <option value="italian">Italiano</option>
+          <option value="dutch">Nederlands</option>
+          <option value="polish">Polski</option>
+          <option value="turkish">T\xFCrk\xE7e</option>
+        </select>
       </div>
     </div>
     <div class="mobile-search-header">
@@ -19151,6 +19255,33 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       </div>
     </div>
   </div>
+
+<!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
+<script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
+<script>
+  function initTranslate() {
+    if (typeof translate !== 'undefined' && !window.translate) {
+      window.translate = translate;
+    }
+    if (typeof translate !== 'undefined' && translate.language) {
+      translate.language.setLocal('chinese_simplified');
+      translate.service.use('client.edge');
+      translate.listener.start();
+      translate.setAutoDiscriminateLocalLanguage();
+      translate.execute();
+    } else {
+      setTimeout(initTranslate, 100);
+    }
+  }
+  initTranslate();
+  
+  function changeLanguage(lang) {
+    var t = window.translate || translate;
+    if (t && t.changeLanguage) {
+      t.changeLanguage(lang);
+    }
+  }
+<\/script>
 </body>
 </html>`;
 
@@ -21525,7 +21656,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         alignItems: 'center',
         justifyContent: 'center'
       });
-      modal.innerHTML = '<div style="background: #141414; border-radius: 20px; padding: 40px; max-width: 400px; text-align: center; border: 2px solid #e50914; box-shadow: 0 20px 60px rgba(229, 9, 20, 0.3);"><div style="font-size: 48px; margin-bottom: 20px;">\u{1F510}</div><h2 style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px;">' + t('error').notLoggedIn + '</h2><p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 30px; line-height: 1.6;">' + t('loginHint') + '</p><button onclick="window.location.href=' + "'/'" + '" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s;">' + t('loginNow') + '</button><button onclick="document.getElementById(' + "'loginModal'" + ').remove()" style="background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); padding: 16px 30px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; margin-top: 15px; transition: all 0.2s;">' + (currentLang === 'zh-CN' ? '\u7A0D\u540E\u767B\u5F55' : 'Login Later') + '</button></div>';
+      modal.innerHTML = '<div style="background: #141414; border-radius: 20px; padding: 40px; max-width: 400px; text-align: center; border: 2px solid #e50914; box-shadow: 0 20px 60px rgba(229, 9, 20, 0.3);"><div style="font-size: 48px; margin-bottom: 20px;">\u{1F510}</div><h2 style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px;">\u8BF7\u5148\u767B\u5F55</h2><p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 30px; line-height: 1.6;">\u8BF7\u767B\u5F55\u540E\u7EE7\u7EED\u8D2D\u4E70\u8BA2\u9605</p><button onclick="window.location.href=' + "'/'" + '" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s;">\u7ACB\u5373\u767B\u5F55</button><button onclick="document.getElementById(' + "'loginModal'" + ').remove()" style="background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); padding: 16px 30px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; margin-top: 15px; transition: all 0.2s;">\u7A0D\u540E\u767B\u5F55</button></div>';
       document.body.appendChild(modal);
     }
 
@@ -21874,12 +22005,35 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
     document.addEventListener('DOMContentLoaded', () => {
       loadPlans(); // \u4ECE\u6570\u636E\u5E93\u52A0\u8F7D\u5957\u9910\u914D\u7F6E
       loadPaymentMethods(); // \u52A0\u8F7D\u652F\u4ED8\u65B9\u5F0F\u5217\u8868
-      // \u8BBE\u7F6E\u652F\u4ED8\u63D0\u793A\u7FFB\u8BD1
-      const paymentHintEl = document.getElementById('paymentHint');
-      if (paymentHintEl && typeof t === 'function') {
-        paymentHintEl.textContent = t('paymentHint');
-      }
+      // translate.js \u4F1A\u81EA\u52A8\u7FFB\u8BD1\u9875\u9762\uFF0C\u65E0\u9700\u624B\u52A8\u8BBE\u7F6E
     });
+  <\/script>
+  
+  <!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && !window.translate) {
+        window.translate = translate;
+      }
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.language.setLocal('chinese_simplified');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+    initTranslate();
+    
+    function changeLanguage(lang) {
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        t.changeLanguage(lang);
+      }
+    }
   <\/script>
 </body>
 </html>`;
@@ -22534,108 +22688,32 @@ var PLANS_HTML = `<!DOCTYPE html>
       });
     });
 
-    // \u667A\u80FD\u8BED\u8A00\u68C0\u6D4B - \u9ED8\u8BA4\u82F1\u6587\uFF0C\u7B80\u4E2D\u624D\u663E\u793A\u7B80\u4E2D
-    function detectBrowserLanguage() {
-      const savedLang = localStorage.getItem('plans_lang');
-      if (savedLang) return savedLang;
-
-      const browserLang = navigator.language || navigator.userLanguage || 'en';
-      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
-    }
-
-    // \u7FFB\u8BD1\u914D\u7F6E
-    const translations = {
-      'zh-CN': {
-        'pageTitle': '\u8BA2\u9605\u8BA1\u5212 - TV Live Service',
-        'headerTitle': '\u9009\u62E9\u6700\u9002\u5408\u60A8\u7684\u8BA2\u9605\u8BA1\u5212',
-        'headerDesc': '\u514D\u8D39\u8BD5\u7528\u6216\u5347\u7EA7\u5230\u4F1A\u5458\uFF0C\u4EAB\u53D7\u66F4\u4F18\u8D28\u7684\u670D\u52A1\u4F53\u9A8C',
-        'freeBadge': '\u514D\u8D39\u8BA1\u5212',
-        'freeName': '\u57FA\u7840\u8BA2\u9605',
-        'freePeriod': '/ \u6C38\u4E45',
-        'freeDesc': '\u9002\u5408\u8F7B\u5EA6\u4F7F\u7528\u7684\u7528\u6237\uFF0C\u63D0\u4F9B\u57FA\u7840\u7684\u76F4\u64AD\u9891\u9053\u8BBF\u95EE\u6743\u9650',
-        'premiumBadge': '\u4F1A\u5458\u8BA1\u5212',
-        'premiumName': 'VIP \u8BA2\u9605',
-        'premiumPeriod': '/ \u6708 \u8D77',
-        'premiumDesc': '\u89E3\u9501\u5168\u90E8\u529F\u80FD\uFF0C\u4EAB\u53D7\u6781\u81F4\u7684\u89C2\u770B\u4F53\u9A8C',
-        'freeButton': '\u5F00\u59CB\u514D\u8D39\u8BA2\u9605',
-        'premiumButton': '\u7ACB\u5373\u8BA2\u9605',
-        'recommended': '\u63A8\u8350',
-        'faqTitle': '\u5E38\u89C1\u95EE\u9898',
-        'faq1': '\u514D\u8D39\u8BA1\u5212\u9700\u8981\u4ED8\u8D39\u5417\uFF1F',
-        'faq1Answer': '\u514D\u8D39\u8BA1\u5212\u5B8C\u5168\u514D\u8D39\uFF0C\u60A8\u53EA\u9700\u8981\u6BCF\u5929\u7B7E\u5230\u5373\u53EF\u4FDD\u6301\u8BA2\u9605\u6709\u6548\u3002\u7B7E\u5230\u7B80\u5355\u5FEB\u901F\uFF0C\u53EA\u9700\u51E0\u79D2\u949F\u5373\u53EF\u5B8C\u6210\u3002',
-        'faq2': 'VIP \u8BA2\u9605\u53EF\u4EE5\u968F\u65F6\u53D6\u6D88\u5417\uFF1F',
-        'faq2Answer': '\u662F\u7684\uFF0C\u60A8\u53EF\u4EE5\u968F\u65F6\u53D6\u6D88\u8BA2\u9605\u3002\u53D6\u6D88\u540E\u670D\u52A1\u5C06\u5728\u5F53\u524D\u8BA2\u9605\u671F\u7ED3\u675F\u540E\u505C\u6B62\uFF0C\u4E0D\u4F1A\u4EA7\u751F\u989D\u5916\u8D39\u7528\u3002',
-        'faq3': '\u5982\u4F55\u5347\u7EA7\u5230 VIP \u8BA2\u9605\uFF1F',
-        'faq3Answer': '\u70B9\u51FB\u4E0A\u65B9"\u7ACB\u5373\u8BA2\u9605"\u6309\u94AE\uFF0C\u9009\u62E9\u5408\u9002\u7684\u5957\u9910\u5373\u53EF\u5347\u7EA7\u3002\u652F\u6301\u591A\u79CD\u652F\u4ED8\u65B9\u5F0F\uFF0C\u5B89\u5168\u5FEB\u6377\u3002',
-        'faq4': 'VIP \u8BA2\u9605\u652F\u6301\u54EA\u4E9B\u64AD\u653E\u5668\uFF1F',
-        'faq4Answer': 'VIP \u8BA2\u9605\u652F\u6301\u4E3B\u6D41 IPTV \u64AD\u653E\u5668\uFF08\u5982 APTV\u3001Televizo\u3001IPTV Smarters\u3001TiviMate\u3001KODI\uFF09\u3001Web \u64AD\u653E\u5668\u548C\u4E13\u7528 App\uFF0C\u8986\u76D6\u5404\u79CD\u8BBE\u5907\u5E73\u53F0\u3002',
-        // Features
-        'freeFeature1': '\u968F\u673A\u7CBE\u9009\u90E8\u5206\u9891\u9053',
-        'freeFeature2': '\u6BCF\u65E5\u66F4\u65B0',
-        'freeFeature3': '\u652F\u6301\u624B\u673A/\u5E73\u677F/\u667A\u80FD\u7535\u89C6/\u7535\u89C6\u76D2\u5B50/\u6295\u5F71\u4EEA/\u7535\u8111\u64AD\u653E',
-        'vipFeature1': '\u5B8C\u6574\u9891\u9053\u5E93',
-        'vipFeature2': '\u6BCF\u65E5\u66F4\u65B0',
-        'vipFeature3': '\u652F\u6301\u624B\u673A/\u5E73\u677F/\u667A\u80FD\u7535\u89C6/\u7535\u89C6\u76D2\u5B50/\u6295\u5F71\u4EEA/\u7535\u8111\u64AD\u653E',
-        'vipFeature4': '1080P/4K \u753B\u8D28',
-        'vipFeature5': '\u65E0\u5E7F\u544A',
-        'vipFeature6': '\u65E0\u9700\u7B7E\u5230',
-        'vipFeature7': '\u652F\u6301\u591AIP\u3001\u591A\u8BBE\u5907\u540C\u65F6\u89C2\u770B'
-      },
-      'en': {
-        'pageTitle': 'Subscription Plans - TV Live Service',
-        'headerTitle': 'Choose the plan that fits you',
-        'headerDesc': 'Try for free or upgrade to premium for better experience',
-        'freeBadge': 'Free Plan',
-        'freeName': 'Basic',
-        'freePeriod': '/ Forever',
-        'freeDesc': 'Perfect for light users with basic channel access',
-        'premiumBadge': 'Premium Plan',
-        'premiumName': 'VIP Subscription',
-        'premiumPeriod': '/ Month',
-        'premiumDesc': 'Unlock all features and enjoy premium experience',
-        'freeButton': 'Start Free',
-        'premiumButton': 'Subscribe Now',
-        'recommended': 'Recommended',
-        'faqTitle': 'FAQ',
-        'faq1': 'Is the free plan really free?',
-        'faq1Answer': 'Yes, the free plan is completely free. You just need to sign in daily to keep your subscription active.',
-        'faq2': 'Can I cancel VIP anytime?',
-        'faq2Answer': 'Yes, you can cancel anytime. The service will continue until the end of your current billing period.',
-        'faq3': 'How to upgrade to VIP?',
-        'faq3Answer': 'Click "Subscribe Now" button and choose your plan. We support multiple secure payment methods.',
-        'faq4': 'What players are supported?',
-        'faq4Answer': 'VIP subscription supports major IPTV players (APTV, Televizo, IPTV Smarters, TiviMate, Kodi), web player and dedicated apps, covering various device platforms.',
-        // Features
-        'freeFeature1': 'Random selected channels',
-        'freeFeature2': 'Daily updates',
-        'freeFeature3': 'Supports mobile/tablet/smart TV/TV box/projector/computer',
-        'vipFeature1': 'Full channel library',
-        'vipFeature2': 'Daily updates',
-        'vipFeature3': 'Supports mobile/tablet/smart TV/TV box/projector/computer',
-        'vipFeature4': '1080P/4K quality',
-        'vipFeature5': 'Ad-free',
-        'vipFeature6': 'No check-in required',
-        'vipFeature7': 'Supports multi-IP and multi-device viewing'
+  <\/script>
+  
+  <!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && !window.translate) {
+        window.translate = translate;
       }
-    };
-
-    // \u521D\u59CB\u5316\u8BED\u8A00
-    let currentLang = detectBrowserLanguage();
-    updateLanguage(currentLang);
-
-    function updateLanguage(lang) {
-      currentLang = lang;
-      localStorage.setItem('plans_lang', lang);
-      document.documentElement.lang = lang;
-      document.title = translations[lang]['pageTitle'];
-
-      // \u66F4\u65B0\u6240\u6709\u5E26 data-i18n \u5C5E\u6027\u7684\u5143\u7D20
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (translations[lang][key]) {
-          el.textContent = translations[lang][key];
-        }
-      });
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.language.setLocal('chinese_simplified');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+    initTranslate();
+    
+    function changeLanguage(lang) {
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        t.changeLanguage(lang);
+      }
     }
   <\/script>
 </body>
@@ -22969,6 +23047,33 @@ var RESET_PASSWORD_HTML = `
       }, 3000);
     }
   <\/script>
+  
+<!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
+<script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
+<script>
+  function initTranslate() {
+    if (typeof translate !== 'undefined' && !window.translate) {
+      window.translate = translate;
+    }
+    if (typeof translate !== 'undefined' && translate.language) {
+      translate.language.setLocal('chinese_simplified');
+      translate.service.use('client.edge');
+      translate.listener.start();
+      translate.setAutoDiscriminateLocalLanguage();
+      translate.execute();
+    } else {
+      setTimeout(initTranslate, 100);
+    }
+  }
+  initTranslate();
+  
+  function changeLanguage(lang) {
+    var t = window.translate || translate;
+    if (t && t.changeLanguage) {
+      t.changeLanguage(lang);
+    }
+  }
+<\/script>
 </body>
 </html>
 `;
@@ -23390,6 +23495,33 @@ ${PAGE_HEADER}
   </div>
 
 ${PAGE_FOOTER}
+
+<!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
+<script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
+<script>
+  function initTranslate() {
+    if (typeof translate !== 'undefined' && !window.translate) {
+      window.translate = translate;
+    }
+    if (typeof translate !== 'undefined' && translate.language) {
+      translate.language.setLocal('chinese_simplified');
+      translate.service.use('client.edge');
+      translate.listener.start();
+      translate.setAutoDiscriminateLocalLanguage();
+      translate.execute();
+    } else {
+      setTimeout(initTranslate, 100);
+    }
+  }
+  initTranslate();
+  
+  function changeLanguage(lang) {
+    var t = window.translate || translate;
+    if (t && t.changeLanguage) {
+      t.changeLanguage(lang);
+    }
+  }
+<\/script>
 </body>
 </html>`;
 }
@@ -24068,7 +24200,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-5jdmmq/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-yxmLRk/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -24102,7 +24234,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-5jdmmq/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-yxmLRk/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

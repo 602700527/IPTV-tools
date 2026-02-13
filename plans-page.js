@@ -649,108 +649,32 @@ export const PLANS_HTML = `<!DOCTYPE html>
       });
     });
 
-    // 智能语言检测 - 默认英文，简中才显示简中
-    function detectBrowserLanguage() {
-      const savedLang = localStorage.getItem('plans_lang');
-      if (savedLang) return savedLang;
-
-      const browserLang = navigator.language || navigator.userLanguage || 'en';
-      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
-    }
-
-    // 翻译配置
-    const translations = {
-      'zh-CN': {
-        'pageTitle': '订阅计划 - TV Live Service',
-        'headerTitle': '选择最适合您的订阅计划',
-        'headerDesc': '免费试用或升级到会员，享受更优质的服务体验',
-        'freeBadge': '免费计划',
-        'freeName': '基础订阅',
-        'freePeriod': '/ 永久',
-        'freeDesc': '适合轻度使用的用户，提供基础的直播频道访问权限',
-        'premiumBadge': '会员计划',
-        'premiumName': 'VIP 订阅',
-        'premiumPeriod': '/ 月 起',
-        'premiumDesc': '解锁全部功能，享受极致的观看体验',
-        'freeButton': '开始免费订阅',
-        'premiumButton': '立即订阅',
-        'recommended': '推荐',
-        'faqTitle': '常见问题',
-        'faq1': '免费计划需要付费吗？',
-        'faq1Answer': '免费计划完全免费，您只需要每天签到即可保持订阅有效。签到简单快速，只需几秒钟即可完成。',
-        'faq2': 'VIP 订阅可以随时取消吗？',
-        'faq2Answer': '是的，您可以随时取消订阅。取消后服务将在当前订阅期结束后停止，不会产生额外费用。',
-        'faq3': '如何升级到 VIP 订阅？',
-        'faq3Answer': '点击上方"立即订阅"按钮，选择合适的套餐即可升级。支持多种支付方式，安全快捷。',
-        'faq4': 'VIP 订阅支持哪些播放器？',
-        'faq4Answer': 'VIP 订阅支持主流 IPTV 播放器（如 APTV、Televizo、IPTV Smarters、TiviMate、KODI）、Web 播放器和专用 App，覆盖各种设备平台。',
-        // Features
-        'freeFeature1': '随机精选部分频道',
-        'freeFeature2': '每日更新',
-        'freeFeature3': '支持手机/平板/智能电视/电视盒子/投影仪/电脑播放',
-        'vipFeature1': '完整频道库',
-        'vipFeature2': '每日更新',
-        'vipFeature3': '支持手机/平板/智能电视/电视盒子/投影仪/电脑播放',
-        'vipFeature4': '1080P/4K 画质',
-        'vipFeature5': '无广告',
-        'vipFeature6': '无需签到',
-        'vipFeature7': '支持多IP、多设备同时观看'
-      },
-      'en': {
-        'pageTitle': 'Subscription Plans - TV Live Service',
-        'headerTitle': 'Choose the plan that fits you',
-        'headerDesc': 'Try for free or upgrade to premium for better experience',
-        'freeBadge': 'Free Plan',
-        'freeName': 'Basic',
-        'freePeriod': '/ Forever',
-        'freeDesc': 'Perfect for light users with basic channel access',
-        'premiumBadge': 'Premium Plan',
-        'premiumName': 'VIP Subscription',
-        'premiumPeriod': '/ Month',
-        'premiumDesc': 'Unlock all features and enjoy premium experience',
-        'freeButton': 'Start Free',
-        'premiumButton': 'Subscribe Now',
-        'recommended': 'Recommended',
-        'faqTitle': 'FAQ',
-        'faq1': 'Is the free plan really free?',
-        'faq1Answer': 'Yes, the free plan is completely free. You just need to sign in daily to keep your subscription active.',
-        'faq2': 'Can I cancel VIP anytime?',
-        'faq2Answer': 'Yes, you can cancel anytime. The service will continue until the end of your current billing period.',
-        'faq3': 'How to upgrade to VIP?',
-        'faq3Answer': 'Click "Subscribe Now" button and choose your plan. We support multiple secure payment methods.',
-        'faq4': 'What players are supported?',
-        'faq4Answer': 'VIP subscription supports major IPTV players (APTV, Televizo, IPTV Smarters, TiviMate, Kodi), web player and dedicated apps, covering various device platforms.',
-        // Features
-        'freeFeature1': 'Random selected channels',
-        'freeFeature2': 'Daily updates',
-        'freeFeature3': 'Supports mobile/tablet/smart TV/TV box/projector/computer',
-        'vipFeature1': 'Full channel library',
-        'vipFeature2': 'Daily updates',
-        'vipFeature3': 'Supports mobile/tablet/smart TV/TV box/projector/computer',
-        'vipFeature4': '1080P/4K quality',
-        'vipFeature5': 'Ad-free',
-        'vipFeature6': 'No check-in required',
-        'vipFeature7': 'Supports multi-IP and multi-device viewing'
+  </script>
+  
+  <!-- Translate.js 自动翻译 -->
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && !window.translate) {
+        window.translate = translate;
       }
-    };
-
-    // 初始化语言
-    let currentLang = detectBrowserLanguage();
-    updateLanguage(currentLang);
-
-    function updateLanguage(lang) {
-      currentLang = lang;
-      localStorage.setItem('plans_lang', lang);
-      document.documentElement.lang = lang;
-      document.title = translations[lang]['pageTitle'];
-
-      // 更新所有带 data-i18n 属性的元素
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (translations[lang][key]) {
-          el.textContent = translations[lang][key];
-        }
-      });
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.language.setLocal('chinese_simplified');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+    initTranslate();
+    
+    function changeLanguage(lang) {
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        t.changeLanguage(lang);
+      }
     }
   </script>
 </body>
