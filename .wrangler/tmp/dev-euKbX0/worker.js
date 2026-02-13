@@ -15965,15 +15965,18 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         item.classList.toggle('active', item.dataset.lang === lang);
       });
 
-      // \u5173\u95ED\u4E0B\u62C9\u83DC\u5355
-      document.getElementById('langDropdown').classList.remove('open');
+      // \u5173\u95ED\u4E0B\u62C9\u83DC\u5355\uFF08\u6DFB\u52A0\u7A7A\u503C\u68C0\u67E5\uFF09
+      var langDropdown = document.getElementById('langDropdown');
+      if (langDropdown) {
+        langDropdown.classList.remove('open');
+      }
 
       // \u5173\u95ED\u79FB\u52A8\u7AEF\u83DC\u5355\uFF08\u5982\u679C\u6253\u5F00\uFF09
       const mobileMenu = document.getElementById('mobileMenu');
       const overlay = document.getElementById('mobileMenuOverlay');
       if (mobileMenu && mobileMenu.classList.contains('open')) {
         mobileMenu.classList.remove('open');
-        overlay.classList.remove('open');
+        if (overlay) overlay.classList.remove('open');
       }
 
       // \u66F4\u65B0 HTML lang \u5C5E\u6027

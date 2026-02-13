@@ -954,15 +954,18 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         item.classList.toggle('active', item.dataset.lang === lang);
       });
 
-      // 关闭下拉菜单
-      document.getElementById('langDropdown').classList.remove('open');
+      // 关闭下拉菜单（添加空值检查）
+      var langDropdown = document.getElementById('langDropdown');
+      if (langDropdown) {
+        langDropdown.classList.remove('open');
+      }
 
       // 关闭移动端菜单（如果打开）
       const mobileMenu = document.getElementById('mobileMenu');
       const overlay = document.getElementById('mobileMenuOverlay');
       if (mobileMenu && mobileMenu.classList.contains('open')) {
         mobileMenu.classList.remove('open');
-        overlay.classList.remove('open');
+        if (overlay) overlay.classList.remove('open');
       }
 
       // 更新 HTML lang 属性
