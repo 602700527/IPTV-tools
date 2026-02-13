@@ -516,60 +516,59 @@ export const FREE_SUB_HTML = `
   <div class="main-content">
     <div class="container">
       <div class="header">
-        <h1 data-i18n="title">🎁 免费订阅</h1>
-        <p data-i18n="subtitle">每天随机精选频道，每日签到续期</p>
-      </div>
+        <h1 data-i18n="title">🎁 Free Subscription</h1>
+        <p data-i18n="subtitle">Daily selected channels, check-in daily to renew</p>
 
       <div class="notice">
         <div class="notice-content">
           <span class="notice-icon">⚠️</span>
           <div class="notice-text">
-            <strong data-i18n="noticeLabel">注意：</strong>
-            <span data-i18n="noticeText">订阅地址与您的IP和浏览器绑定，请勿分享给他人使用</span>
+            <strong data-i18n="noticeLabel">Note:</strong>
+            <span data-i18n="noticeText">Subscription URL is bound to your IP and browser, please do not share with others</span>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <h2 data-i18n="subscriptionInfo">📺 订阅信息</h2>
-        <p class="subscription-id" id="subId" data-i18n="loading">加载中...</p>
+        <h2 data-i18n="subscriptionInfo">📺 Subscription Info</h2>
+        <p class="subscription-id" id="subId" data-i18n="loading">Loading...</p>
         <p class="subscription-url" id="subUrl"></p>
-        <button class="copy-btn" onclick="copySubscriptionUrl()" data-i18n="copyUrl">复制订阅地址</button>
+        <button class="copy-btn" onclick="copySubscriptionUrl()" data-i18n="copyUrl">Copy URL</button>
 
         <div class="status-grid">
           <div class="status-item">
             <div class="status-value" id="daysLeft">-</div>
-            <div class="status-label" data-i18n="daysLeftLabel">剩余天数</div>
+            <div class="status-label" data-i18n="daysLeftLabel">Days Left</div>
           </div>
           <div class="status-item">
             <div class="status-value" id="consecutiveDays">-</div>
-            <div class="status-label" data-i18n="consecutiveDaysLabel">连续签到</div>
+            <div class="status-label" data-i18n="consecutiveDaysLabel">Check-in Streak</div>
           </div>
           <div class="status-item">
-            <div class="status-value" id="channelCount" data-i18n="randomChannels">随机精选</div>
-            <div class="status-label" data-i18n="channelCountLabel">频道数量</div>
+            <div class="status-value" id="channelCount" data-i18n="randomChannels">Random</div>
+            <div class="status-label" data-i18n="channelCountLabel">Channels</div>
           </div>
         </div>
       </div>
 
       <div class="card checkin-section">
-        <h2 data-i18n="dailyCheckIn">📅 每日签到</h2>
+        <h2 data-i18n="dailyCheckIn">📅 Daily Check-in</h2>
         <p class="checkin-desc" data-i18n="checkInDesc">
-          签到可延长订阅时长，连续签到有额外奖励！
+          Check-in to extend your subscription, consecutive check-ins earn extra rewards!
         </p>
         <div class="captcha-container">
-          <input type="text" class="captcha-input" id="captchaInput" data-i18n-placeholder="captchaPlaceholder" placeholder="输入验证码" maxlength="6">
+          <input type="text" class="captcha-input" id="captchaInput" data-i18n-placeholder="captchaPlaceholder" placeholder="Enter code" maxlength="6">
           <canvas class="captcha-canvas" id="captchaCanvas" width="100" height="44" onclick="refreshCaptcha()"></canvas>
         </div>
         <button class="checkin-btn" id="checkInBtn" onclick="checkIn()" data-i18n="checkInNow">
-          立即签到
+          Check In Now
         </button>
         <div class="message" id="message"></div>
 
         <div class="features">
-          <div class="feature-item" data-i18n="feature1">首次签到有效期3天，每天签到+1天</div>
-          <div class="feature-item" data-i18n="feature2">连续7天额外+2天</div>
-          <div class="feature-item" data-i18n="feature3">连续30天额外+7天，最多累计30天</div>
+          <div class="feature-item" data-i18n="feature1">First check-in: 3 days, daily check-in +1 day</div>
+          <div class="feature-item" data-i18n="feature2">Consecutive 7 days: +2 extra days</div>
+          <div class="feature-item" data-i18n="feature3">Consecutive 30 days: +7 extra days, max 30 days</div>
         </div>
       </div>
 

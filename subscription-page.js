@@ -932,8 +932,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${PAGE_HEADER}
   <div class="container">
     <div class="header">
-      <h1 data-i18n="title">👑 会员订阅</h1>
-      <p data-i18n="subtitle">选择适合您的订阅套餐，享受高清直播服务</p>
+      <h1 data-i18n="title">👑 Premium Subscription</h1>
+      <p data-i18n="subtitle">Choose the perfect plan for your HD streaming needs</p>
     </div>
 
     <div id="plansContainer" class="plans-container">
@@ -947,24 +947,24 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <div class="payment-section" id="paymentSection">
       <div class="payment-methods">
         <div class="payment-method-tab active" onclick="switchPaymentMethod('alipay')" data-method="alipay">
-          <img src="/public/zhifubao.png" class="payment-method-icon" alt="支付宝">
-          <span class="payment-method-name">支付宝</span>
+          <img src="/public/zhifubao.png" class="payment-method-icon" alt="Alipay">
+          <span class="payment-method-name">Alipay</span>
         </div>
           <div class="payment-method-tab" onclick="switchPaymentMethod('wechat')" data-method="wechat">
-          <img src="/public/weixin.png" class="payment-method-icon" alt="微信支付">
-          <span class="payment-method-name">微信支付</span>
+          <img src="/public/weixin.png" class="payment-method-icon" alt="WeChat Pay">
+          <span class="payment-method-name">WeChat Pay</span>
         </div>
       </div>
 
       <div id="xunhupay-button-container" style="margin: 20px 0;">
         <button id="pay-button" onclick="handlePayClick()" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: 600; transition: all 0.3s; width: 100%; max-width: 300px;">
-          立即支付
+          Pay Now
         </button>
       </div>
 
       <div id="loading" class="loading">
       <div class="spinner"></div>
-      <p data-i18n="processing">处理中...</p>
+      <p data-i18n="processing">Processing...</p>
     </div>
 
     <div id="errorMessage" class="error-message" style="display: none;"></div>
@@ -975,13 +975,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <div class="success-content">
       <button class="modal-close" onclick="closeModal()">×</button>
       <div class="success-icon">🎉</div>
-      <h2 class="success-title" data-i18n="paymentSuccess">支付成功！</h2>
-      <p class="success-message" data-i18n="subUrlGenerated">您的订阅地址已生成</p>
+      <h2 class="success-title" data-i18n="paymentSuccess">Payment Successful!</h2>
+      <p class="success-message" data-i18n="subUrlGenerated">Your subscription URL has been generated</p>
       <div class="code-display" id="generatedCode" style="font-size: 14px; word-break: break-all;">-</div>
-      <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">复制订阅地址</button>
+      <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">Copy Subscription URL</button>
       <div class="modal-tips">
-        <p class="modal-tip">您可以直接使用此订阅地址在播放器中添加</p>
-        <p class="modal-tip-highlight">此窗口关闭后可在账户页面中查询订单详情</p>
+        <p class="modal-tip">You can add this subscription URL directly to your player</p>
+        <p class="modal-tip-highlight">You can view order details in your account page after closing this window</p>
       </div>
     </div>
   </div>
@@ -989,7 +989,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   <div id="paymentModal" class="payment-modal">
     <div class="payment-content">
       <div class="payment-header">
-        <h2 class="payment-title" id="paymentModalTitle">扫码支付</h2>
+        <h2 class="payment-title" id="paymentModalTitle">Scan to Pay</h2>
         <button class="payment-close" onclick="closePaymentModal()">×</button>
       </div>
       <div class="payment-body">
@@ -997,33 +997,33 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           <div class="qrcode-wrapper">
             <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
           </div>
-          <p class="qrcode-tip" id="modalQrcodeTip" data-i18n="scanQrcode">请使用手机扫码支付</p>
+          <p class="qrcode-tip" id="modalQrcodeTip" data-i18n="scanQrcode">Scan QR code to pay</p>
           <!-- 支付提示 -->
           <p class="payment-hint" id="paymentHint"></p>
-          <p class="payment-status" id="paymentStatus">等待支付中...</p>
+          <p class="payment-status" id="paymentStatus">Waiting for payment...</p>
         </div>
         <div class="payment-info">
           <div class="payment-info-item">
-            <span class="payment-info-label">套餐</span>
+            <span class="payment-info-label">Plan</span>
             <span class="payment-info-value" id="paymentPlanName">-</span>
           </div>
           <div class="payment-info-item">
-            <span class="payment-info-label">IP数量</span>
+            <span class="payment-info-label">IPs</span>
             <span class="payment-info-value" id="paymentIPCount">-</span>
           </div>
           <div class="payment-info-item">
-            <span class="payment-info-label">支付方式</span>
+            <span class="payment-info-label">Payment</span>
             <span class="payment-info-value" id="paymentMethod">-</span>
           </div>
           <div class="payment-info-item">
-            <span class="payment-info-label">订单金额</span>
+            <span class="payment-info-label">Amount</span>
             <span class="payment-info-value payment-amount" id="paymentAmount">-</span>
           </div>
         </div>
       </div>
       <div class="payment-footer">
         <!-- 调试：模拟支付成功按钮（仅开发环境显示） -->
-        <button id="simulatePaymentBtn" class="payment-close-button" style="background: rgba(76, 175, 80, 0.2); border-color: #4CAF50; color: #4CAF50; display: none;" onclick="simulatePaymentSuccess()">[调试] 模拟支付成功</button>
+        <button id="simulatePaymentBtn" class="payment-close-button" style="background: rgba(76, 175, 80, 0.2); border-color: #4CAF50; color: #4CAF50; display: none;" onclick="simulatePaymentSuccess()">[Debug] Simulate Payment Success</button>
       </div>
     </div>
   </div>
@@ -1097,33 +1097,33 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     ];
 
     // 翻译函数 - 使用 translate.js 处理页面翻译
-    // 动态内容使用中文，translate.js 会自动翻译
+    // Dynamic content uses English, translate.js will auto-translate
     const translations = {
       'planNames': {
-        'month_1': '1个月',
-        'month_3': '3个月',
-        'month_6': '半年',
-        'month_12': '1年'
+        'month_1': '1 Month',
+        'month_3': '3 Months',
+        'month_6': '6 Months',
+        'month_12': '1 Year'
       },
       'error': {
-        'selectPlan': '请选择一个套餐',
-        'paymentError': '支付失败，请重试',
-        'paymentNotConfigured': '支付方式未配置',
-        'networkError': '网络错误，请稍后重试',
-        'notLoggedIn': '请先登录账户'
+        'selectPlan': 'Please select a plan',
+        'paymentError': 'Payment failed, please try again',
+        'paymentNotConfigured': 'Payment method not configured',
+        'networkError': 'Network error, please try again later',
+        'notLoggedIn': 'Please login first'
       }
     };
 
     function t(key) {
-      if (key === 'selectDuration') return '选择订阅时长';
-      if (key === 'selectIPs') return '选择IP数量';
-      if (key === 'summary') return '订单汇总';
-      if (key === 'basePrice') return '基础价格';
-      if (key === 'ipPrice') return 'IP费用';
-      if (key === 'discount') return '折扣';
-      if (key === 'total') return '总计';
-      if (key === 'scanQrcode') return '请使用手机扫码支付';
-      if (key === 'waitingPayment') return '等待支付中...';
+      if (key === 'selectDuration') return 'Select Duration';
+      if (key === 'selectIPs') return 'Select IP Count';
+      if (key === 'summary') return 'Order Summary';
+      if (key === 'basePrice') return 'Base Price';
+      if (key === 'ipPrice') return 'IP Price';
+      if (key === 'discount') return 'Discount';
+      if (key === 'total') return 'Total';
+      if (key === 'scanQrcode') return 'Scan QR code to pay';
+      if (key === 'waitingPayment') return 'Waiting for payment...';
       if (key === 'planNames') return translations.planNames;
       if (key === 'error') return translations.error;
       return key;
@@ -1147,16 +1147,16 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       const container = document.getElementById('plansContainer');
       let html = '';
 
-      // 时长选择器
+      // Duration selector
       html += '<div class="selection-section">';
-      html += '<span class="selection-label">选择订阅时长</span>';
+      html += '<span class="selection-label">Select Duration</span>';
       html += '<div class="option-grid">';
       durationOptions.forEach(duration => {
         const price = calculatePrice(duration, selectedIPs);
         const isSelected = selectedDuration.name === duration.name;
         html += '<div class="option-card ' + (isSelected ? 'selected' : '') + '" onclick="selectDuration(' + "'" + duration.name + "'" + ')">';
         html += '<div class="option-title">' + t('planNames')[duration.name] + '</div>';
-        html += '<div class="option-subtitle">' + duration.days + ' ' + (currentLang === 'zh-CN' ? '天' : 'days') + '</div>';
+        html += '<div class="option-subtitle">' + duration.days + ' days</div>';
         html += '<div class="option-price">¥' + price.discounted.toFixed(2) + '</div>';
         if (duration.discount > 0) {
           html += '<div class="option-discount">-' + duration.discount + '%</div>';
@@ -1179,7 +1179,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
       container.innerHTML = html;
 
-      // 渲染价格汇总
+      // Render price summary
       renderPaymentSummary();
     }
 
@@ -1189,19 +1189,19 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
       let html = '<h3 style="color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 20px;">' + t('summary') + '</h3>';
 
-      // 基础价格
+      // Base price
       html += '<div class="summary-row">';
-      html += '<span class="summary-label">' + t('basePrice') + ' (' + selectedDuration.days + ' ' + (currentLang === 'zh-CN' ? '天' : 'days') + ')</span>';
+      html += '<span class="summary-label">' + t('basePrice') + ' (' + selectedDuration.days + ' days)</span>';
       html += '<span class="summary-value">¥' + selectedDuration.basePrice.toFixed(2) + '</span>';
       html += '</div>';
 
-      // IP费用
+      // IP price
       html += '<div class="summary-row">';
       html += '<span class="summary-label">' + t('ipPrice') + ' (' + selectedIPs + ' IP)</span>';
       html += '<span class="summary-value">¥' + (selectedDuration.pricePerIP * selectedIPs).toFixed(2) + '</span>';
       html += '</div>';
 
-      // 折扣
+      // Discount
       if (selectedDuration.discount > 0) {
         const discountAmount = price.original - price.discounted;
         html += '<div class="summary-row">';
@@ -1210,7 +1210,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         html += '</div>';
       }
 
-      // 总计
+      // Total
       html += '<div class="total-row">';
       html += '<span class="total-label">' + t('total') + '</span>';
       html += '<span class="total-price">¥' + price.discounted.toFixed(2) + '</span>';
@@ -1295,7 +1295,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         alignItems: 'center',
         justifyContent: 'center'
       });
-      modal.innerHTML = '<div style="background: #141414; border-radius: 20px; padding: 40px; max-width: 400px; text-align: center; border: 2px solid #e50914; box-shadow: 0 20px 60px rgba(229, 9, 20, 0.3);"><div style="font-size: 48px; margin-bottom: 20px;">🔐</div><h2 style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px;">请先登录</h2><p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 30px; line-height: 1.6;">请登录后继续购买订阅</p><button onclick="window.location.href=' + "'/'" + '" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s;">立即登录</button><button onclick="document.getElementById(' + "'loginModal'" + ').remove()" style="background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); padding: 16px 30px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; margin-top: 15px; transition: all 0.2s;">稍后登录</button></div>';
+      modal.innerHTML = '<div style="background: #141414; border-radius: 20px; padding: 40px; max-width: 400px; text-align: center; border: 2px solid #e50914; box-shadow: 0 20px 60px rgba(229, 9, 20, 0.3);"><div style="font-size: 48px; margin-bottom: 20px;">🔐</div><h2 style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px;">Please Login First</h2><p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 30px; line-height: 1.6;">Please login to continue your subscription purchase</p><button onclick="window.location.href=' + "'/'" + '" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s;">Login Now</button><button onclick="document.getElementById(' + "'loginModal'" + ').remove()" style="background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); padding: 16px 30px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; margin-top: 15px; transition: all 0.2s;">Later</button></div>';
       document.body.appendChild(modal);
     }
 
@@ -1311,7 +1311,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     function copyCode() {
       const subUrl = document.getElementById('generatedCode').textContent;
       navigator.clipboard.writeText(subUrl).then(() => {
-        alert(currentLang === 'zh-CN' ? '订阅地址已复制到剪贴板！' : 'Subscription URL copied to clipboard!');
+        alert('Subscription URL copied to clipboard!');
       }).catch(err => {
         console.error('Copy failed:', err);
       });
@@ -1338,12 +1338,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     function showPaymentInfo(method) {
-      // 显示支付按钮
+      // Show payment button
       const payButton = document.getElementById('pay-button');
       const xunhupayButtonContainer = document.getElementById('xunhupay-button-container');
 
       if (method === 'alipay' || method === 'wechat') {
-        payButton.textContent = method === 'alipay' ? '使用支付宝支付' : '使用微信支付';
+        payButton.textContent = method === 'alipay' ? 'Pay with Alipay' : 'Pay with WeChat';
         xunhupayButtonContainer.style.display = 'block';
       }
     }
@@ -1411,14 +1411,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const result = await response.json();
 
         if (response.ok && result.success && result.payment_data) {
-          // 计算价格
+          // Calculate price
           const price = calculatePrice(selectedDuration, selectedIPs);
 
-          // 更新弹窗信息
+          // Update modal info
           const modal = document.getElementById('paymentModal');
-          document.getElementById('paymentPlanName').textContent = selectedDuration.days + ' ' + (currentLang === 'zh-CN' ? '天' : 'days');
+          document.getElementById('paymentPlanName').textContent = selectedDuration.days + ' days';
           document.getElementById('paymentIPCount').textContent = selectedIPs + ' IP' + (selectedIPs > 1 ? 's' : '');
-          document.getElementById('paymentMethod').textContent = paymentMethod === 'alipay' ? '支付宝' : '微信支付';
+          document.getElementById('paymentMethod').textContent = paymentMethod === 'alipay' ? 'Alipay' : 'WeChat Pay';
           document.getElementById('paymentAmount').textContent = '¥' + price.discounted.toFixed(2);
 
           // 显示二维码
@@ -1462,20 +1462,20 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     // 轮询订单状态
     function startOrderCheck(orderId) {
-      // 清除之前的定时器
+      // Clear previous timer
       if (checkPaymentInterval) {
         clearInterval(checkPaymentInterval);
       }
 
       let checkCount = 0;
-      const maxChecks = 60; // 最多检查60次（5分钟）
+      const maxChecks = 60; // Max 60 checks (5 minutes)
 
       checkPaymentInterval = setInterval(async () => {
         checkCount++;
 
         if (checkCount > maxChecks) {
           clearInterval(checkPaymentInterval);
-          document.getElementById('paymentStatus').textContent = '支付超时，请重新发起支付';
+          document.getElementById('paymentStatus').textContent = 'Payment timeout, please try again';
           return;
         }
 
@@ -1493,8 +1493,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             if (result.order.status === 'completed') {
               clearInterval(checkPaymentInterval);
 
-              // 更新支付状态
-              document.getElementById('paymentStatus').textContent = '支付成功！';
+              // Update payment status
+              document.getElementById('paymentStatus').textContent = 'Payment successful!';
               document.getElementById('paymentStatus').style.color = '#4CAF50';
 
               // 延迟关闭支付弹窗
@@ -1529,16 +1529,16 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }, 5000); // 每5秒检查一次
     }
 
-    // 调试：模拟支付成功
+    // Debug: Simulate payment success
     async function simulatePaymentSuccess() {
       if (!currentOrderId) {
-        showError('没有正在进行的订单');
+        showError('No pending order');
         return;
       }
 
       const btn = document.getElementById('simulatePaymentBtn');
       btn.disabled = true;
-      btn.textContent = '模拟中...';
+      btn.textContent = 'Simulating...';
 
       try {
         const response = await fetch(API_BASE + '/subscription/xunhupay/simulate-success?order_id=' + currentOrderId, {
@@ -1551,14 +1551,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const result = await response.json();
 
         if (response.ok && result.success) {
-          // 停止轮询
+          // Stop polling
           if (checkPaymentInterval) {
             clearInterval(checkPaymentInterval);
             checkPaymentInterval = null;
           }
 
-          // 更新支付状态
-          document.getElementById('paymentStatus').textContent = '支付成功！';
+          // Update payment status
+          document.getElementById('paymentStatus').textContent = 'Payment successful!';
           document.getElementById('paymentStatus').style.color = '#4CAF50';
 
           // 延迟关闭支付弹窗
@@ -1656,7 +1656,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         window.translate = translate;
       }
       if (typeof translate !== 'undefined' && translate.language) {
-        translate.language.setLocal('chinese_simplified');
+        translate.language.setLocal('english');
         translate.service.use('client.edge');
         translate.listener.start();
         translate.setAutoDiscriminateLocalLanguage();

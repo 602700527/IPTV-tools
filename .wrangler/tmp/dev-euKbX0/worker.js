@@ -14574,15 +14574,15 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
   <div class="main-content">
     <div class="container">
     <div class="account-header">
-      <h1 data-i18n="userCenter">\u{1F464} \u7528\u6237\u4E2D\u5FC3</h1>
+      <h1 data-i18n="userCenter">\u{1F464} Account Center</h1>
       <div class="header-actions">
-        <button class="logout-btn" onclick="logout()" data-i18n="logout">\u9000\u51FA\u767B\u5F55</button>
+        <button class="logout-btn" onclick="logout()" data-i18n="logout">Logout</button>
       </div>
     </div>
     
     <div class="nav-tabs">
-      <button class="nav-tab active" onclick="switchTab('info')" data-i18n="accountInfo">\u8D26\u6237\u4FE1\u606F</button>
-      <button class="nav-tab" onclick="switchTab('orders')" data-i18n="orderHistory">\u8BA2\u5355\u5386\u53F2</button>
+      <button class="nav-tab active" onclick="switchTab('info')" data-i18n="accountInfo">Account Info</button>
+      <button class="nav-tab" onclick="switchTab('orders')" data-i18n="orderHistory">Order History</button>
     </div>
     
     <div id="infoTab" class="tab-content active">
@@ -14612,13 +14612,13 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
      <div class="success-content">
        <button class="modal-close" onclick="closeSuccessModal()">\xD7</button>
        <div class="success-icon">\u{1F389}</div>
-       <h2 class="success-title" data-i18n="paymentSuccess">\u652F\u4ED8\u6210\u529F\uFF01</h2>
-       <p class="success-message" data-i18n="subUrlGenerated">\u60A8\u7684\u8BA2\u9605\u5730\u5740\u5DF2\u751F\u6210</p>
+       <h2 class="success-title" data-i18n="paymentSuccess">Payment Successful!</h2>
+       <p class="success-message" data-i18n="subUrlGenerated">Your subscription URL has been generated</p>
        <div class="code-display" id="generatedCode" style="font-size: 14px; word-break: break-all;">-</div>
-       <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">\u590D\u5236\u8BA2\u9605\u5730\u5740</button>
+       <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">Copy URL</button>
        <div class="modal-tips">
-         <p class="modal-tip">\u60A8\u53EF\u4EE5\u76F4\u63A5\u4F7F\u7528\u6B64\u8BA2\u9605\u5730\u5740\u5728\u64AD\u653E\u5668\u4E2D\u6DFB\u52A0</p>
-         <p class="modal-tip-highlight">\u6B64\u7A97\u53E3\u5173\u95ED\u540E\u53EF\u5728\u8D26\u6237\u9875\u9762\u4E2D\u67E5\u8BE2\u8BA2\u5355\u8BE6\u60C5</p>
+         <p class="modal-tip">You can add this URL directly to your player</p>
+         <p class="modal-tip-highlight">You can view order details in your account page after closing</p>
        </div>
      </div>
    </div>
@@ -15462,12 +15462,12 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       </a>
       <div class="online-counter">
         <span class="online-dot"></span>
-        <span class="online-count" id="onlineCount">0</span> <span id="onlineCountText">\u4EBA\u5728\u89C2\u770B</span>
+        <span class="online-count" id="onlineCount">0</span> <span id="onlineCountText">viewers</span>
       </div>
     </div>
     <div class="header-right">
       <div class="search-box">
-        <input type="text" class="search-input" id="searchInput" placeholder="\u641C\u7D22\u9891\u9053..." oninput="handleSearch()">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search channels..." oninput="handleSearch()">
       </div>
       <div class="quick-entries">
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'history')" title="History">
@@ -15494,7 +15494,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         </button>
         
         <div id="authButtons">
-          <button class="auth-btn ripple" onclick="openLoginModal()">\u767B\u5F55</button>
+          <button class="auth-btn ripple" onclick="openLoginModal()">Login</button>
         </div>
         <!-- \u8BED\u8A00\u5207\u6362\u5668 -->
         <select id="headerLangSelect" onchange="if(typeof changeLanguage==='function'){changeLanguage(this.value)}" style="margin-left: 12px; height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.6); color: #fff; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center;">
@@ -15519,7 +15519,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       </div>
     </div>
     <div class="mobile-search-header">
-      <input type="text" class="search-input" id="mobileHeaderSearchInput" placeholder="\u641C\u7D22..." oninput="handleMobileHeaderSearch()">
+      <input type="text" class="search-input" id="mobileHeaderSearchInput" placeholder="Search..." oninput="handleMobileHeaderSearch()">
     </div>
     <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
       \u2630
@@ -15568,7 +15568,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
   <div class="main">
     <aside class="sidebar" id="sidebar">
-      <div class="group-item active" data-group="" onclick="filterByGroup('')">\u5168\u90E8\u9891\u9053</div>
+      <div class="group-item active" data-group="" onclick="filterByGroup('')">All Channels</div>
       <div id="groupList"></div>
 
       <!-- \u4FA7\u8FB9\u680F\u5E7F\u544A\u4F4D -->
@@ -15605,32 +15605,32 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
             <div class="announcement-modal-header">
               <div class="announcement-modal-title">
                 <span class="announcement-modal-icon">\u{1F4E2}</span>
-                <span id="announcementTitle">\u7CFB\u7EDF\u516C\u544A</span>
+                <span id="announcementTitle">Announcement</span>
               </div>
               <button class="announcement-close" onclick="closeAnnouncement()">&times;</button>
             </div>
             <div class="announcement-modal-body" id="announcementContent">
-              <p>\u52A0\u8F7D\u4E2D...</p>
+              <p>Loading...</p>
             </div>
             <div class="announcement-modal-footer">
               <div class="announcement-modal-time" id="announcementTime">
                 <span>\u{1F550}</span>
-                <span>\u53D1\u5E03\u65F6\u95F4\u52A0\u8F7D\u4E2D</span>
+                <span>Publishing time loading</span>
               </div>
-              <button class="announcement-modal-button" onclick="closeAnnouncement()">\u77E5\u9053\u4E86</button>
+              <button class="announcement-modal-button" onclick="closeAnnouncement()">Got it</button>
             </div>
           </div>
         </div>
 
-        <div class="section-title" id="sectionTitle">\u5168\u90E8\u9891\u9053</div>
+        <div class="section-title" id="sectionTitle">All Channels</div>
         <div class="channels-grid" id="channelsGrid"></div>
         <div class="pagination" id="pagination"></div>
       </div>
 
       <div id="emptyState" class="empty-state" style="display:none;">
         <div class="empty-icon">\u{1F4FA}</div>
-        <div class="empty-title">\u672A\u627E\u5230\u9891\u9053</div>
-        <div class="empty-desc">\u8BF7\u5C1D\u8BD5\u5176\u4ED6\u641C\u7D22\u8BCD\u6216\u5206\u7EC4</div>
+        <div class="empty-title">No Channels Found</div>
+        <div class="empty-desc">Try other search terms or groups</div>
       </div>
 
     </div>
@@ -15639,7 +15639,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- \u5FEB\u6377\u9762\u677F -->
   <div class="quick-panel" id="quickPanel">
     <div class="quick-panel-header">
-      <div class="quick-panel-title" id="quickPanelTitle">\u{1F4CC} \u9762\u677F</div>
+      <div class="quick-panel-title" id="quickPanelTitle">\u{1F4CC} Panel</div>
       <button class="quick-panel-close" onclick="closeQuickPanel()">&times;</button>
     </div>
     <div class="quick-panel-content" id="quickPanelContent"></div>
@@ -15680,8 +15680,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <div class="player-wrapper collapsed" id="playerWrapper">
     <div class="player-header" id="playerHeader">
       <div class="player-info">
-        <div class="player-title" id="playerTitle">\u9891\u9053\u540D\u79F0</div>
-        <div class="player-group" id="playerGroup">\u5206\u7EC4</div>
+        <div class="player-title" id="playerTitle">Channel Name</div>
+        <div class="player-group" id="playerGroup">Group</div>
       </div>
       <div class="player-controls">
         <button class="player-btn" onclick="togglePlayerSize()" title="\u5207\u6362\u5927\u5C0F">\u26F6</button>
@@ -19504,60 +19504,59 @@ var FREE_SUB_HTML = `
   <div class="main-content">
     <div class="container">
       <div class="header">
-        <h1 data-i18n="title">\u{1F381} \u514D\u8D39\u8BA2\u9605</h1>
-        <p data-i18n="subtitle">\u6BCF\u5929\u968F\u673A\u7CBE\u9009\u9891\u9053\uFF0C\u6BCF\u65E5\u7B7E\u5230\u7EED\u671F</p>
-      </div>
+        <h1 data-i18n="title">\u{1F381} Free Subscription</h1>
+        <p data-i18n="subtitle">Daily selected channels, check-in daily to renew</p>
 
       <div class="notice">
         <div class="notice-content">
           <span class="notice-icon">\u26A0\uFE0F</span>
           <div class="notice-text">
-            <strong data-i18n="noticeLabel">\u6CE8\u610F\uFF1A</strong>
-            <span data-i18n="noticeText">\u8BA2\u9605\u5730\u5740\u4E0E\u60A8\u7684IP\u548C\u6D4F\u89C8\u5668\u7ED1\u5B9A\uFF0C\u8BF7\u52FF\u5206\u4EAB\u7ED9\u4ED6\u4EBA\u4F7F\u7528</span>
+            <strong data-i18n="noticeLabel">Note:</strong>
+            <span data-i18n="noticeText">Subscription URL is bound to your IP and browser, please do not share with others</span>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <h2 data-i18n="subscriptionInfo">\u{1F4FA} \u8BA2\u9605\u4FE1\u606F</h2>
-        <p class="subscription-id" id="subId" data-i18n="loading">\u52A0\u8F7D\u4E2D...</p>
+        <h2 data-i18n="subscriptionInfo">\u{1F4FA} Subscription Info</h2>
+        <p class="subscription-id" id="subId" data-i18n="loading">Loading...</p>
         <p class="subscription-url" id="subUrl"></p>
-        <button class="copy-btn" onclick="copySubscriptionUrl()" data-i18n="copyUrl">\u590D\u5236\u8BA2\u9605\u5730\u5740</button>
+        <button class="copy-btn" onclick="copySubscriptionUrl()" data-i18n="copyUrl">Copy URL</button>
 
         <div class="status-grid">
           <div class="status-item">
             <div class="status-value" id="daysLeft">-</div>
-            <div class="status-label" data-i18n="daysLeftLabel">\u5269\u4F59\u5929\u6570</div>
+            <div class="status-label" data-i18n="daysLeftLabel">Days Left</div>
           </div>
           <div class="status-item">
             <div class="status-value" id="consecutiveDays">-</div>
-            <div class="status-label" data-i18n="consecutiveDaysLabel">\u8FDE\u7EED\u7B7E\u5230</div>
+            <div class="status-label" data-i18n="consecutiveDaysLabel">Check-in Streak</div>
           </div>
           <div class="status-item">
-            <div class="status-value" id="channelCount" data-i18n="randomChannels">\u968F\u673A\u7CBE\u9009</div>
-            <div class="status-label" data-i18n="channelCountLabel">\u9891\u9053\u6570\u91CF</div>
+            <div class="status-value" id="channelCount" data-i18n="randomChannels">Random</div>
+            <div class="status-label" data-i18n="channelCountLabel">Channels</div>
           </div>
         </div>
       </div>
 
       <div class="card checkin-section">
-        <h2 data-i18n="dailyCheckIn">\u{1F4C5} \u6BCF\u65E5\u7B7E\u5230</h2>
+        <h2 data-i18n="dailyCheckIn">\u{1F4C5} Daily Check-in</h2>
         <p class="checkin-desc" data-i18n="checkInDesc">
-          \u7B7E\u5230\u53EF\u5EF6\u957F\u8BA2\u9605\u65F6\u957F\uFF0C\u8FDE\u7EED\u7B7E\u5230\u6709\u989D\u5916\u5956\u52B1\uFF01
+          Check-in to extend your subscription, consecutive check-ins earn extra rewards!
         </p>
         <div class="captcha-container">
-          <input type="text" class="captcha-input" id="captchaInput" data-i18n-placeholder="captchaPlaceholder" placeholder="\u8F93\u5165\u9A8C\u8BC1\u7801" maxlength="6">
+          <input type="text" class="captcha-input" id="captchaInput" data-i18n-placeholder="captchaPlaceholder" placeholder="Enter code" maxlength="6">
           <canvas class="captcha-canvas" id="captchaCanvas" width="100" height="44" onclick="refreshCaptcha()"></canvas>
         </div>
         <button class="checkin-btn" id="checkInBtn" onclick="checkIn()" data-i18n="checkInNow">
-          \u7ACB\u5373\u7B7E\u5230
+          Check In Now
         </button>
         <div class="message" id="message"></div>
 
         <div class="features">
-          <div class="feature-item" data-i18n="feature1">\u9996\u6B21\u7B7E\u5230\u6709\u6548\u671F3\u5929\uFF0C\u6BCF\u5929\u7B7E\u5230+1\u5929</div>
-          <div class="feature-item" data-i18n="feature2">\u8FDE\u7EED7\u5929\u989D\u5916+2\u5929</div>
-          <div class="feature-item" data-i18n="feature3">\u8FDE\u7EED30\u5929\u989D\u5916+7\u5929\uFF0C\u6700\u591A\u7D2F\u8BA130\u5929</div>
+          <div class="feature-item" data-i18n="feature1">First check-in: 3 days, daily check-in +1 day</div>
+          <div class="feature-item" data-i18n="feature2">Consecutive 7 days: +2 extra days</div>
+          <div class="feature-item" data-i18n="feature3">Consecutive 30 days: +7 extra days, max 30 days</div>
         </div>
       </div>
 
@@ -20865,8 +20864,8 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${PAGE_HEADER}
   <div class="container">
     <div class="header">
-      <h1 data-i18n="title">\u{1F451} \u4F1A\u5458\u8BA2\u9605</h1>
-      <p data-i18n="subtitle">\u9009\u62E9\u9002\u5408\u60A8\u7684\u8BA2\u9605\u5957\u9910\uFF0C\u4EAB\u53D7\u9AD8\u6E05\u76F4\u64AD\u670D\u52A1</p>
+      <h1 data-i18n="title">\u{1F451} Premium Subscription</h1>
+      <p data-i18n="subtitle">Choose the perfect plan for your HD streaming needs</p>
     </div>
 
     <div id="plansContainer" class="plans-container">
@@ -20880,24 +20879,24 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <div class="payment-section" id="paymentSection">
       <div class="payment-methods">
         <div class="payment-method-tab active" onclick="switchPaymentMethod('alipay')" data-method="alipay">
-          <img src="/public/zhifubao.png" class="payment-method-icon" alt="\u652F\u4ED8\u5B9D">
-          <span class="payment-method-name">\u652F\u4ED8\u5B9D</span>
+          <img src="/public/zhifubao.png" class="payment-method-icon" alt="Alipay">
+          <span class="payment-method-name">Alipay</span>
         </div>
           <div class="payment-method-tab" onclick="switchPaymentMethod('wechat')" data-method="wechat">
-          <img src="/public/weixin.png" class="payment-method-icon" alt="\u5FAE\u4FE1\u652F\u4ED8">
-          <span class="payment-method-name">\u5FAE\u4FE1\u652F\u4ED8</span>
+          <img src="/public/weixin.png" class="payment-method-icon" alt="WeChat Pay">
+          <span class="payment-method-name">WeChat Pay</span>
         </div>
       </div>
 
       <div id="xunhupay-button-container" style="margin: 20px 0;">
         <button id="pay-button" onclick="handlePayClick()" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: 600; transition: all 0.3s; width: 100%; max-width: 300px;">
-          \u7ACB\u5373\u652F\u4ED8
+          Pay Now
         </button>
       </div>
 
       <div id="loading" class="loading">
       <div class="spinner"></div>
-      <p data-i18n="processing">\u5904\u7406\u4E2D...</p>
+      <p data-i18n="processing">Processing...</p>
     </div>
 
     <div id="errorMessage" class="error-message" style="display: none;"></div>
@@ -20908,13 +20907,13 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <div class="success-content">
       <button class="modal-close" onclick="closeModal()">\xD7</button>
       <div class="success-icon">\u{1F389}</div>
-      <h2 class="success-title" data-i18n="paymentSuccess">\u652F\u4ED8\u6210\u529F\uFF01</h2>
-      <p class="success-message" data-i18n="subUrlGenerated">\u60A8\u7684\u8BA2\u9605\u5730\u5740\u5DF2\u751F\u6210</p>
+      <h2 class="success-title" data-i18n="paymentSuccess">Payment Successful!</h2>
+      <p class="success-message" data-i18n="subUrlGenerated">Your subscription URL has been generated</p>
       <div class="code-display" id="generatedCode" style="font-size: 14px; word-break: break-all;">-</div>
-      <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">\u590D\u5236\u8BA2\u9605\u5730\u5740</button>
+      <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">Copy Subscription URL</button>
       <div class="modal-tips">
-        <p class="modal-tip">\u60A8\u53EF\u4EE5\u76F4\u63A5\u4F7F\u7528\u6B64\u8BA2\u9605\u5730\u5740\u5728\u64AD\u653E\u5668\u4E2D\u6DFB\u52A0</p>
-        <p class="modal-tip-highlight">\u6B64\u7A97\u53E3\u5173\u95ED\u540E\u53EF\u5728\u8D26\u6237\u9875\u9762\u4E2D\u67E5\u8BE2\u8BA2\u5355\u8BE6\u60C5</p>
+        <p class="modal-tip">You can add this subscription URL directly to your player</p>
+        <p class="modal-tip-highlight">You can view order details in your account page after closing this window</p>
       </div>
     </div>
   </div>
@@ -20922,7 +20921,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
   <div id="paymentModal" class="payment-modal">
     <div class="payment-content">
       <div class="payment-header">
-        <h2 class="payment-title" id="paymentModalTitle">\u626B\u7801\u652F\u4ED8</h2>
+        <h2 class="payment-title" id="paymentModalTitle">Scan to Pay</h2>
         <button class="payment-close" onclick="closePaymentModal()">\xD7</button>
       </div>
       <div class="payment-body">
@@ -20930,33 +20929,33 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
           <div class="qrcode-wrapper">
             <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
           </div>
-          <p class="qrcode-tip" id="modalQrcodeTip" data-i18n="scanQrcode">\u8BF7\u4F7F\u7528\u624B\u673A\u626B\u7801\u652F\u4ED8</p>
+          <p class="qrcode-tip" id="modalQrcodeTip" data-i18n="scanQrcode">Scan QR code to pay</p>
           <!-- \u652F\u4ED8\u63D0\u793A -->
           <p class="payment-hint" id="paymentHint"></p>
-          <p class="payment-status" id="paymentStatus">\u7B49\u5F85\u652F\u4ED8\u4E2D...</p>
+          <p class="payment-status" id="paymentStatus">Waiting for payment...</p>
         </div>
         <div class="payment-info">
           <div class="payment-info-item">
-            <span class="payment-info-label">\u5957\u9910</span>
+            <span class="payment-info-label">Plan</span>
             <span class="payment-info-value" id="paymentPlanName">-</span>
           </div>
           <div class="payment-info-item">
-            <span class="payment-info-label">IP\u6570\u91CF</span>
+            <span class="payment-info-label">IPs</span>
             <span class="payment-info-value" id="paymentIPCount">-</span>
           </div>
           <div class="payment-info-item">
-            <span class="payment-info-label">\u652F\u4ED8\u65B9\u5F0F</span>
+            <span class="payment-info-label">Payment</span>
             <span class="payment-info-value" id="paymentMethod">-</span>
           </div>
           <div class="payment-info-item">
-            <span class="payment-info-label">\u8BA2\u5355\u91D1\u989D</span>
+            <span class="payment-info-label">Amount</span>
             <span class="payment-info-value payment-amount" id="paymentAmount">-</span>
           </div>
         </div>
       </div>
       <div class="payment-footer">
         <!-- \u8C03\u8BD5\uFF1A\u6A21\u62DF\u652F\u4ED8\u6210\u529F\u6309\u94AE\uFF08\u4EC5\u5F00\u53D1\u73AF\u5883\u663E\u793A\uFF09 -->
-        <button id="simulatePaymentBtn" class="payment-close-button" style="background: rgba(76, 175, 80, 0.2); border-color: #4CAF50; color: #4CAF50; display: none;" onclick="simulatePaymentSuccess()">[\u8C03\u8BD5] \u6A21\u62DF\u652F\u4ED8\u6210\u529F</button>
+        <button id="simulatePaymentBtn" class="payment-close-button" style="background: rgba(76, 175, 80, 0.2); border-color: #4CAF50; color: #4CAF50; display: none;" onclick="simulatePaymentSuccess()">[Debug] Simulate Payment Success</button>
       </div>
     </div>
   </div>
@@ -21030,33 +21029,33 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
     ];
 
     // \u7FFB\u8BD1\u51FD\u6570 - \u4F7F\u7528 translate.js \u5904\u7406\u9875\u9762\u7FFB\u8BD1
-    // \u52A8\u6001\u5185\u5BB9\u4F7F\u7528\u4E2D\u6587\uFF0Ctranslate.js \u4F1A\u81EA\u52A8\u7FFB\u8BD1
+    // Dynamic content uses English, translate.js will auto-translate
     const translations = {
       'planNames': {
-        'month_1': '1\u4E2A\u6708',
-        'month_3': '3\u4E2A\u6708',
-        'month_6': '\u534A\u5E74',
-        'month_12': '1\u5E74'
+        'month_1': '1 Month',
+        'month_3': '3 Months',
+        'month_6': '6 Months',
+        'month_12': '1 Year'
       },
       'error': {
-        'selectPlan': '\u8BF7\u9009\u62E9\u4E00\u4E2A\u5957\u9910',
-        'paymentError': '\u652F\u4ED8\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5',
-        'paymentNotConfigured': '\u652F\u4ED8\u65B9\u5F0F\u672A\u914D\u7F6E',
-        'networkError': '\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5',
-        'notLoggedIn': '\u8BF7\u5148\u767B\u5F55\u8D26\u6237'
+        'selectPlan': 'Please select a plan',
+        'paymentError': 'Payment failed, please try again',
+        'paymentNotConfigured': 'Payment method not configured',
+        'networkError': 'Network error, please try again later',
+        'notLoggedIn': 'Please login first'
       }
     };
 
     function t(key) {
-      if (key === 'selectDuration') return '\u9009\u62E9\u8BA2\u9605\u65F6\u957F';
-      if (key === 'selectIPs') return '\u9009\u62E9IP\u6570\u91CF';
-      if (key === 'summary') return '\u8BA2\u5355\u6C47\u603B';
-      if (key === 'basePrice') return '\u57FA\u7840\u4EF7\u683C';
-      if (key === 'ipPrice') return 'IP\u8D39\u7528';
-      if (key === 'discount') return '\u6298\u6263';
-      if (key === 'total') return '\u603B\u8BA1';
-      if (key === 'scanQrcode') return '\u8BF7\u4F7F\u7528\u624B\u673A\u626B\u7801\u652F\u4ED8';
-      if (key === 'waitingPayment') return '\u7B49\u5F85\u652F\u4ED8\u4E2D...';
+      if (key === 'selectDuration') return 'Select Duration';
+      if (key === 'selectIPs') return 'Select IP Count';
+      if (key === 'summary') return 'Order Summary';
+      if (key === 'basePrice') return 'Base Price';
+      if (key === 'ipPrice') return 'IP Price';
+      if (key === 'discount') return 'Discount';
+      if (key === 'total') return 'Total';
+      if (key === 'scanQrcode') return 'Scan QR code to pay';
+      if (key === 'waitingPayment') return 'Waiting for payment...';
       if (key === 'planNames') return translations.planNames;
       if (key === 'error') return translations.error;
       return key;
@@ -21080,16 +21079,16 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       const container = document.getElementById('plansContainer');
       let html = '';
 
-      // \u65F6\u957F\u9009\u62E9\u5668
+      // Duration selector
       html += '<div class="selection-section">';
-      html += '<span class="selection-label">\u9009\u62E9\u8BA2\u9605\u65F6\u957F</span>';
+      html += '<span class="selection-label">Select Duration</span>';
       html += '<div class="option-grid">';
       durationOptions.forEach(duration => {
         const price = calculatePrice(duration, selectedIPs);
         const isSelected = selectedDuration.name === duration.name;
         html += '<div class="option-card ' + (isSelected ? 'selected' : '') + '" onclick="selectDuration(' + "'" + duration.name + "'" + ')">';
         html += '<div class="option-title">' + t('planNames')[duration.name] + '</div>';
-        html += '<div class="option-subtitle">' + duration.days + ' ' + (currentLang === 'zh-CN' ? '\u5929' : 'days') + '</div>';
+        html += '<div class="option-subtitle">' + duration.days + ' days</div>';
         html += '<div class="option-price">\xA5' + price.discounted.toFixed(2) + '</div>';
         if (duration.discount > 0) {
           html += '<div class="option-discount">-' + duration.discount + '%</div>';
@@ -21112,7 +21111,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
       container.innerHTML = html;
 
-      // \u6E32\u67D3\u4EF7\u683C\u6C47\u603B
+      // Render price summary
       renderPaymentSummary();
     }
 
@@ -21122,19 +21121,19 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
       let html = '<h3 style="color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 20px;">' + t('summary') + '</h3>';
 
-      // \u57FA\u7840\u4EF7\u683C
+      // Base price
       html += '<div class="summary-row">';
-      html += '<span class="summary-label">' + t('basePrice') + ' (' + selectedDuration.days + ' ' + (currentLang === 'zh-CN' ? '\u5929' : 'days') + ')</span>';
+      html += '<span class="summary-label">' + t('basePrice') + ' (' + selectedDuration.days + ' days)</span>';
       html += '<span class="summary-value">\xA5' + selectedDuration.basePrice.toFixed(2) + '</span>';
       html += '</div>';
 
-      // IP\u8D39\u7528
+      // IP price
       html += '<div class="summary-row">';
       html += '<span class="summary-label">' + t('ipPrice') + ' (' + selectedIPs + ' IP)</span>';
       html += '<span class="summary-value">\xA5' + (selectedDuration.pricePerIP * selectedIPs).toFixed(2) + '</span>';
       html += '</div>';
 
-      // \u6298\u6263
+      // Discount
       if (selectedDuration.discount > 0) {
         const discountAmount = price.original - price.discounted;
         html += '<div class="summary-row">';
@@ -21143,7 +21142,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         html += '</div>';
       }
 
-      // \u603B\u8BA1
+      // Total
       html += '<div class="total-row">';
       html += '<span class="total-label">' + t('total') + '</span>';
       html += '<span class="total-price">\xA5' + price.discounted.toFixed(2) + '</span>';
@@ -21228,7 +21227,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         alignItems: 'center',
         justifyContent: 'center'
       });
-      modal.innerHTML = '<div style="background: #141414; border-radius: 20px; padding: 40px; max-width: 400px; text-align: center; border: 2px solid #e50914; box-shadow: 0 20px 60px rgba(229, 9, 20, 0.3);"><div style="font-size: 48px; margin-bottom: 20px;">\u{1F510}</div><h2 style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px;">\u8BF7\u5148\u767B\u5F55</h2><p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 30px; line-height: 1.6;">\u8BF7\u767B\u5F55\u540E\u7EE7\u7EED\u8D2D\u4E70\u8BA2\u9605</p><button onclick="window.location.href=' + "'/'" + '" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s;">\u7ACB\u5373\u767B\u5F55</button><button onclick="document.getElementById(' + "'loginModal'" + ').remove()" style="background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); padding: 16px 30px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; margin-top: 15px; transition: all 0.2s;">\u7A0D\u540E\u767B\u5F55</button></div>';
+      modal.innerHTML = '<div style="background: #141414; border-radius: 20px; padding: 40px; max-width: 400px; text-align: center; border: 2px solid #e50914; box-shadow: 0 20px 60px rgba(229, 9, 20, 0.3);"><div style="font-size: 48px; margin-bottom: 20px;">\u{1F510}</div><h2 style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px;">Please Login First</h2><p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 30px; line-height: 1.6;">Please login to continue your subscription purchase</p><button onclick="window.location.href=' + "'/'" + '" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s;">Login Now</button><button onclick="document.getElementById(' + "'loginModal'" + ').remove()" style="background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); padding: 16px 30px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; margin-top: 15px; transition: all 0.2s;">Later</button></div>';
       document.body.appendChild(modal);
     }
 
@@ -21244,7 +21243,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
     function copyCode() {
       const subUrl = document.getElementById('generatedCode').textContent;
       navigator.clipboard.writeText(subUrl).then(() => {
-        alert(currentLang === 'zh-CN' ? '\u8BA2\u9605\u5730\u5740\u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F\uFF01' : 'Subscription URL copied to clipboard!');
+        alert('Subscription URL copied to clipboard!');
       }).catch(err => {
         console.error('Copy failed:', err);
       });
@@ -21271,12 +21270,12 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     function showPaymentInfo(method) {
-      // \u663E\u793A\u652F\u4ED8\u6309\u94AE
+      // Show payment button
       const payButton = document.getElementById('pay-button');
       const xunhupayButtonContainer = document.getElementById('xunhupay-button-container');
 
       if (method === 'alipay' || method === 'wechat') {
-        payButton.textContent = method === 'alipay' ? '\u4F7F\u7528\u652F\u4ED8\u5B9D\u652F\u4ED8' : '\u4F7F\u7528\u5FAE\u4FE1\u652F\u4ED8';
+        payButton.textContent = method === 'alipay' ? 'Pay with Alipay' : 'Pay with WeChat';
         xunhupayButtonContainer.style.display = 'block';
       }
     }
@@ -21344,14 +21343,14 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const result = await response.json();
 
         if (response.ok && result.success && result.payment_data) {
-          // \u8BA1\u7B97\u4EF7\u683C
+          // Calculate price
           const price = calculatePrice(selectedDuration, selectedIPs);
 
-          // \u66F4\u65B0\u5F39\u7A97\u4FE1\u606F
+          // Update modal info
           const modal = document.getElementById('paymentModal');
-          document.getElementById('paymentPlanName').textContent = selectedDuration.days + ' ' + (currentLang === 'zh-CN' ? '\u5929' : 'days');
+          document.getElementById('paymentPlanName').textContent = selectedDuration.days + ' days';
           document.getElementById('paymentIPCount').textContent = selectedIPs + ' IP' + (selectedIPs > 1 ? 's' : '');
-          document.getElementById('paymentMethod').textContent = paymentMethod === 'alipay' ? '\u652F\u4ED8\u5B9D' : '\u5FAE\u4FE1\u652F\u4ED8';
+          document.getElementById('paymentMethod').textContent = paymentMethod === 'alipay' ? 'Alipay' : 'WeChat Pay';
           document.getElementById('paymentAmount').textContent = '\xA5' + price.discounted.toFixed(2);
 
           // \u663E\u793A\u4E8C\u7EF4\u7801
@@ -21395,20 +21394,20 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     // \u8F6E\u8BE2\u8BA2\u5355\u72B6\u6001
     function startOrderCheck(orderId) {
-      // \u6E05\u9664\u4E4B\u524D\u7684\u5B9A\u65F6\u5668
+      // Clear previous timer
       if (checkPaymentInterval) {
         clearInterval(checkPaymentInterval);
       }
 
       let checkCount = 0;
-      const maxChecks = 60; // \u6700\u591A\u68C0\u67E560\u6B21\uFF085\u5206\u949F\uFF09
+      const maxChecks = 60; // Max 60 checks (5 minutes)
 
       checkPaymentInterval = setInterval(async () => {
         checkCount++;
 
         if (checkCount > maxChecks) {
           clearInterval(checkPaymentInterval);
-          document.getElementById('paymentStatus').textContent = '\u652F\u4ED8\u8D85\u65F6\uFF0C\u8BF7\u91CD\u65B0\u53D1\u8D77\u652F\u4ED8';
+          document.getElementById('paymentStatus').textContent = 'Payment timeout, please try again';
           return;
         }
 
@@ -21426,8 +21425,8 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
             if (result.order.status === 'completed') {
               clearInterval(checkPaymentInterval);
 
-              // \u66F4\u65B0\u652F\u4ED8\u72B6\u6001
-              document.getElementById('paymentStatus').textContent = '\u652F\u4ED8\u6210\u529F\uFF01';
+              // Update payment status
+              document.getElementById('paymentStatus').textContent = 'Payment successful!';
               document.getElementById('paymentStatus').style.color = '#4CAF50';
 
               // \u5EF6\u8FDF\u5173\u95ED\u652F\u4ED8\u5F39\u7A97
@@ -21462,16 +21461,16 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }, 5000); // \u6BCF5\u79D2\u68C0\u67E5\u4E00\u6B21
     }
 
-    // \u8C03\u8BD5\uFF1A\u6A21\u62DF\u652F\u4ED8\u6210\u529F
+    // Debug: Simulate payment success
     async function simulatePaymentSuccess() {
       if (!currentOrderId) {
-        showError('\u6CA1\u6709\u6B63\u5728\u8FDB\u884C\u7684\u8BA2\u5355');
+        showError('No pending order');
         return;
       }
 
       const btn = document.getElementById('simulatePaymentBtn');
       btn.disabled = true;
-      btn.textContent = '\u6A21\u62DF\u4E2D...';
+      btn.textContent = 'Simulating...';
 
       try {
         const response = await fetch(API_BASE + '/subscription/xunhupay/simulate-success?order_id=' + currentOrderId, {
@@ -21484,14 +21483,14 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const result = await response.json();
 
         if (response.ok && result.success) {
-          // \u505C\u6B62\u8F6E\u8BE2
+          // Stop polling
           if (checkPaymentInterval) {
             clearInterval(checkPaymentInterval);
             checkPaymentInterval = null;
           }
 
-          // \u66F4\u65B0\u652F\u4ED8\u72B6\u6001
-          document.getElementById('paymentStatus').textContent = '\u652F\u4ED8\u6210\u529F\uFF01';
+          // Update payment status
+          document.getElementById('paymentStatus').textContent = 'Payment successful!';
           document.getElementById('paymentStatus').style.color = '#4CAF50';
 
           // \u5EF6\u8FDF\u5173\u95ED\u652F\u4ED8\u5F39\u7A97
@@ -21589,7 +21588,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         window.translate = translate;
       }
       if (typeof translate !== 'undefined' && translate.language) {
-        translate.language.setLocal('chinese_simplified');
+        translate.language.setLocal('english');
         translate.service.use('client.edge');
         translate.listener.start();
         translate.setAutoDiscriminateLocalLanguage();
@@ -22300,7 +22299,7 @@ var RESET_PASSWORD_HTML = `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>\u91CD\u7F6E\u5BC6\u7801 - IPTV Live</title>
+  <title>Reset Password - IPTV Live</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -22451,25 +22450,25 @@ var RESET_PASSWORD_HTML = `
     </div>
 
     <div id="resetForm">
-      <h2 style="color: #fff; text-align: center; margin-bottom: 20px;">\u91CD\u7F6E\u5BC6\u7801</h2>
-      
+      <h2 style="color: #fff; text-align: center; margin-bottom: 20px;">Reset Password</h2>
+       
       <div class="form-group">
-        <label class="form-label">\u65B0\u5BC6\u7801</label>
-        <input type="password" class="form-input" id="newPassword" placeholder="\u8BF7\u8F93\u5165\u65B0\u5BC6\u7801\uFF08\u81F3\u5C118\u4F4D\uFF09">
-        <div class="form-help">\u5BC6\u7801\u81F3\u5C118\u4F4D\uFF0C\u5EFA\u8BAE\u5305\u542B\u5927\u5C0F\u5199\u5B57\u6BCD\u548C\u6570\u5B57</div>
+        <label class="form-label">New Password</label>
+        <input type="password" class="form-input" id="newPassword" placeholder="Enter new password (at least 8 characters)">
+        <div class="form-help">Password must be at least 8 characters, recommend including uppercase and lowercase letters and numbers</div>
         <div class="form-error" id="newPasswordError"></div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">\u786E\u8BA4\u5BC6\u7801</label>
-        <input type="password" class="form-input" id="confirmPassword" placeholder="\u8BF7\u518D\u6B21\u8F93\u5165\u65B0\u5BC6\u7801">
+        <label class="form-label">Confirm Password</label>
+        <input type="password" class="form-input" id="confirmPassword" placeholder="Enter password again">
         <div class="form-error" id="confirmPasswordError"></div>
       </div>
 
-      <button class="btn-primary" id="submitBtn" disabled>\u91CD\u7F6E\u5BC6\u7801</button>
+      <button class="btn-primary" id="submitBtn" disabled>Reset Password</button>
       
       <div class="footer">
-        <a href="/">\u8FD4\u56DE\u9996\u9875</a>
+        <a href="/">Back to Home</a>
       </div>
     </div>
 
@@ -22479,8 +22478,8 @@ var RESET_PASSWORD_HTML = `
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
           <polyline points="22 4 12 14.01 9 11.01"></polyline>
         </svg>
-        <p>\u5BC6\u7801\u91CD\u7F6E\u6210\u529F\uFF01</p>
-        <p style="font-size: 14px; color: rgba(52, 199, 89, 0.8); margin-top: 5px;">\u6B63\u5728\u8DF3\u8F6C\u5230\u767B\u5F55\u9875\u9762...</p>
+        <p>Password reset successfully!</p>
+        <p style="font-size: 14px; color: rgba(52, 199, 89, 0.8); margin-top: 5px;">Redirecting to login page...</p>
       </div>
     </div>
 
@@ -22488,7 +22487,7 @@ var RESET_PASSWORD_HTML = `
       <div class="error-message">
         <p id="errorText"></p>
       </div>
-      <button class="btn-primary" id="retryBtn">\u8FD4\u56DE\u91CD\u8BD5</button>
+      <button class="btn-primary" id="retryBtn">Go Back and Try Again</button>
     </div>
   </div>
 
@@ -22500,10 +22499,10 @@ var RESET_PASSWORD_HTML = `
     if (!token) {
       document.getElementById('resetForm').style.display = 'none';
       document.getElementById('errorMessage').style.display = 'block';
-      document.getElementById('errorText').textContent = '\u65E0\u6548\u7684\u91CD\u7F6E\u94FE\u63A5\uFF0C\u8BF7\u91CD\u65B0\u7533\u8BF7\u5BC6\u7801\u91CD\u7F6E\u3002';
+      document.getElementById('errorText').textContent = 'Invalid reset link, please request a new password reset.';
     }
 
-    // \u6DFB\u52A0\u4E8B\u4EF6\u76D1\u542C\u5668
+    // Add event listeners
     document.getElementById('newPassword').addEventListener('input', validatePassword);
     document.getElementById('confirmPassword').addEventListener('input', validatePassword);
     document.getElementById('submitBtn').addEventListener('click', handleSubmit);
@@ -22520,9 +22519,9 @@ var RESET_PASSWORD_HTML = `
 
       let isValid = true;
 
-      // \u9A8C\u8BC1\u65B0\u5BC6\u7801
+      // Validate new password
       if (newPassword.length < 8) {
-        newPasswordError.textContent = '\u5BC6\u7801\u81F3\u5C11\u9700\u89818\u4E2A\u5B57\u7B26';
+        newPasswordError.textContent = 'Password must be at least 8 characters';
         newPasswordError.classList.add('show');
         document.getElementById('newPassword').classList.add('error');
         isValid = false;
@@ -22532,9 +22531,9 @@ var RESET_PASSWORD_HTML = `
         document.getElementById('newPassword').classList.remove('error');
       }
 
-      // \u9A8C\u8BC1\u786E\u8BA4\u5BC6\u7801
+      // Validate confirm password
       if (confirmPassword && confirmPassword !== newPassword) {
-        confirmPasswordError.textContent = '\u4E24\u6B21\u8F93\u5165\u7684\u5BC6\u7801\u4E0D\u4E00\u81F4';
+        confirmPasswordError.textContent = 'Passwords do not match';
         confirmPasswordError.classList.add('show');
         document.getElementById('confirmPassword').classList.add('error');
         isValid = false;
@@ -22704,11 +22703,11 @@ Sitemap: https://iptv-search.com/sitemap.xml`;
 __name(generateRobotsTxt, "generateRobotsTxt");
 function generatePrivacyPolicy() {
   return `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>\u9690\u79C1\u653F\u7B56 - IPTV Live</title>
+  <title>Privacy Policy - IPTV Live</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff;line-height:1.6;padding:0;display:flex;flex-direction:column;min-height:100vh}
@@ -22744,132 +22743,159 @@ function generatePrivacyPolicy() {
 ${PAGE_HEADER}
   <div class="main-content">
     <div class="container">
-      <h1>\u9690\u79C1\u653F\u7B56</h1>
-      <p class="last-updated">\u6700\u540E\u66F4\u65B0\u65E5\u671F\uFF1A2024\u5E741\u67081\u65E5</p>
+      <h1>Privacy Policy</h1>
+      <p class="last-updated">Last updated: January 1, 2024</p>
 
       <div class="section">
-        <h2>\u5F15\u8A00</h2>
-        <p>IPTV Live\uFF08\u4EE5\u4E0B\u7B80\u79F0"\u6211\u4EEC"\uFF09\u5C0A\u91CD\u5E76\u4FDD\u62A4\u60A8\u7684\u9690\u79C1\u6743\u3002\u672C\u9690\u79C1\u653F\u7B56\u65E8\u5728\u8BF4\u660E\u6211\u4EEC\u5982\u4F55\u6536\u96C6\u3001\u4F7F\u7528\u3001\u5B58\u50A8\u548C\u4FDD\u62A4\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u3002\u4F7F\u7528\u6211\u4EEC\u7684\u670D\u52A1\u5373\u8868\u793A\u60A8\u540C\u610F\u672C\u653F\u7B56\u7684\u6761\u6B3E\u3002</p>
+        <h2>Introduction</h2>
+        <p>IPTV Live ("we" or "us") respects and protects your privacy. This Privacy Policy explains how we collect, use, store, and protect your personal information. By using our service, you agree to the terms of this policy.</p>
       </div>
 
       <div class="section">
-        <h2>1. \u4FE1\u606F\u6536\u96C6</h2>
-        <h3>1.1 \u6211\u4EEC\u6536\u96C6\u7684\u4FE1\u606F\u7C7B\u578B\uFF1A</h3>
+        <h2>1. Information Collection</h2>
+        <h3>1.1 Types of information we collect:</h3>
         <ul>
-          <li><strong>\u6D4F\u89C8\u4FE1\u606F\uFF1A</strong>\u60A8\u7684IP\u5730\u5740\u3001\u6D4F\u89C8\u5668\u7C7B\u578B\u3001\u8BBE\u5907\u4FE1\u606F\u3001\u8BBF\u95EE\u65F6\u95F4\u548C\u9875\u9762\u6D4F\u89C8\u8BB0\u5F55</li>
-          <li><strong>\u4F7F\u7528\u4FE1\u606F\uFF1A</strong>\u60A8\u89C2\u770B\u7684\u9891\u9053\u3001\u641C\u7D22\u8BB0\u5F55\u3001\u6536\u85CF\u548C\u64AD\u653E\u5386\u53F2\uFF08\u5B58\u50A8\u5728\u672C\u5730\uFF09</li>
-          <li><strong>\u6280\u672F\u4FE1\u606F\uFF1A</strong>Cookies\u3001Web\u4FE1\u6807\u548C\u5176\u4ED6\u8DDF\u8E2A\u6280\u672F</li>
+          <li><strong>Browsing information:</strong> Your IP address, browser type, device information, access time, and page view records</li>
+          <li><strong>Usage information:</strong> Channels you watch, search history, favorites, and playback history (stored locally)</li>
+          <li><strong>Technical information:</strong> Cookies, web beacons, and other tracking technologies</li>
         </ul>
 
-        <h3>1.2 \u4FE1\u606F\u6536\u96C6\u65B9\u5F0F\uFF1A</h3>
+        <h3>1.2 How we collect information:</h3>
         <ul>
-          <li>\u81EA\u52A8\u6536\u96C6\uFF1A\u901A\u8FC7\u6D4F\u89C8\u5668\u548C\u670D\u52A1\u5668\u65E5\u5FD7</li>
-          <li>\u672C\u5730\u5B58\u50A8\uFF1A\u901A\u8FC7\u6D4F\u89C8\u5668 localStorage \u5B58\u50A8\u7528\u6237\u504F\u597D\u548C\u5386\u53F2\u8BB0\u5F55</li>
-        </ul>
-      </div>
-
-      <div class="section">
-        <h2>2. \u4FE1\u606F\u4F7F\u7528</h2>
-        <p>\u6211\u4EEC\u4F7F\u7528\u6536\u96C6\u7684\u4FE1\u606F\u7528\u4E8E\uFF1A</p>
-        <ul>
-          <li>\u63D0\u4F9B\u3001\u7EF4\u62A4\u548C\u6539\u8FDB\u6211\u4EEC\u7684\u670D\u52A1</li>
-          <li>\u5206\u6790\u7528\u6237\u4F7F\u7528\u60C5\u51B5\uFF0C\u4F18\u5316\u7528\u6237\u4F53\u9A8C</li>
-          <li>\u9632\u6B62\u6B3A\u8BC8\u3001\u6EE5\u7528\u548C\u5B89\u5168\u5A01\u80C1</li>
-          <li>\u7B26\u5408\u6CD5\u5F8B\u8981\u6C42\u548C\u76D1\u7BA1\u4E49\u52A1</li>
+          <li>Automatic collection: Through browser and server logs</li>
+          <li>Local storage: Browser localStorage for user preferences and history</li>
         </ul>
       </div>
 
       <div class="section">
-        <h2>3. \u4FE1\u606F\u5B58\u50A8</h2>
+        <h2>2. Information Use</h2>
+        <p>We use the collected information for:</p>
         <ul>
-          <li>\u60A8\u7684\u89C2\u770B\u5386\u53F2\u548C\u6536\u85CF\u5B58\u50A8\u5728\u672C\u5730\u6D4F\u89C8\u5668\u7684 localStorage \u4E2D\uFF0C\u4E0D\u4F1A\u4E0A\u4F20\u5230\u6211\u4EEC\u7684\u670D\u52A1\u5668</li>
-          <li>\u670D\u52A1\u5668\u65E5\u5FD7\u53EF\u80FD\u5305\u542BIP\u5730\u5740\u7B49\u4FE1\u606F\uFF0C\u4F46\u4E0D\u4F1A\u4E0E\u4E2A\u4EBA\u8EAB\u4EFD\u5173\u8054</li>
-          <li>\u6570\u636E\u91C7\u7528\u884C\u4E1A\u6807\u51C6\u7684\u5B89\u5168\u63AA\u65BD\u8FDB\u884C\u4FDD\u62A4</li>
+          <li>Providing, maintaining, and improving our services</li>
+          <li>Analyzing user usage to optimize experience</li>
+          <li>Preventing fraud, abuse, and security threats</li>
+          <li>Complying with legal requirements and regulatory obligations</li>
         </ul>
       </div>
 
       <div class="section">
-        <h2>4. \u4FE1\u606F\u5171\u4EAB</h2>
-        <p>\u6211\u4EEC\u4E0D\u4F1A\u51FA\u552E\u3001\u51FA\u79DF\u6216\u4EA4\u6613\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u3002\u4F46\u5728\u4EE5\u4E0B\u60C5\u51B5\u4E0B\uFF0C\u6211\u4EEC\u53EF\u80FD\u4F1A\u5171\u4EAB\u4FE1\u606F\uFF1A</p>
+        <h2>3. Information Storage</h2>
         <ul>
-          <li><strong>\u670D\u52A1\u63D0\u4F9B\u5546\uFF1A</strong>\u4E0E\u5E2E\u52A9\u6211\u4EEC\u63D0\u4F9B\u670D\u52A1\u7684\u7B2C\u4E09\u65B9\u5171\u4EAB\u5FC5\u8981\u4FE1\u606F\uFF08\u5982Cloudflare\u7B49\uFF09</li>
-          <li><strong>\u6CD5\u5F8B\u8981\u6C42\uFF1A</strong>\u54CD\u5E94\u6CD5\u5F8B\u8981\u6C42\u3001\u6CD5\u9662\u547D\u4EE4\u6216\u653F\u5E9C\u8C03\u67E5</li>
-          <li><strong>\u4E1A\u52A1\u8F6C\u8BA9\uFF1A</strong>\u5728\u5408\u5E76\u3001\u6536\u8D2D\u6216\u8D44\u4EA7\u8F6C\u8BA9\u7684\u60C5\u51B5\u4E0B</li>
-          <li><strong>\u7B2C\u4E09\u65B9\u5E7F\u544A\uFF1A</strong>\u6211\u4EEC\u53EF\u80FD\u4F7F\u7528\u7B2C\u4E09\u65B9\u5E7F\u544A\u670D\u52A1\uFF08\u5982Google AdSense\uFF09\uFF0C\u8FD9\u4E9B\u670D\u52A1\u53EF\u80FD\u4F1A\u6536\u96C6\u60A8\u7684\u6D4F\u89C8\u4FE1\u606F</li>
+          <li>Your viewing history and favorites are stored in your browser's localStorage and are not uploaded to our servers</li>
+          <li>Server logs may contain IP addresses but are not linked to personal identity</li>
+          <li>Data is protected with industry-standard security measures</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>4. Information Sharing</h2>
+        <p>We do not sell, rent, or trade your personal information. However, we may share information in the following circumstances:</p>
+        <ul>
+          <li><strong>Service providers:</strong> Sharing necessary information with third parties who help us provide services (such as Cloudflare)</li>
+          <li><strong>Legal requirements:</strong> Responding to legal requests, court orders, or government investigations</li>
+          <li><strong>Business transfers:</strong> In case of merger, acquisition, or asset transfer</li>
+          <li><strong>Third-party advertising:</strong> We may use third-party advertising services (such as Google AdSense) that may collect your browsing information</li>
         </ul>
       </div>
 
       <div class="section">
         <h2>5. Cookies</h2>
-        <p>\u6211\u4EEC\u4F7F\u7528 Cookies \u548C\u7C7B\u4F3C\u6280\u672F\u6765\uFF1A</p>
+        <p>We use cookies and similar technologies to:</p>
         <ul>
-          <li>\u8BB0\u4F4F\u60A8\u7684\u8BED\u8A00\u504F\u597D\u548C\u8BBE\u7F6E</li>
-          <li>\u5206\u6790\u7F51\u7AD9\u6D41\u91CF\u548C\u4F7F\u7528\u6A21\u5F0F</li>
-          <li>\u63D0\u4F9B\u4E2A\u6027\u5316\u5185\u5BB9</li>
+          <li>Remember your language preferences and settings</li>
+          <li>Analyze website traffic and usage patterns</li>
+          <li>Provide personalized content</li>
         </ul>
-        <p>\u60A8\u53EF\u4EE5\u901A\u8FC7\u6D4F\u89C8\u5668\u8BBE\u7F6E\u7981\u7528 Cookies\uFF0C\u4F46\u8FD9\u53EF\u80FD\u4F1A\u5F71\u54CD\u7F51\u7AD9\u7684\u67D0\u4E9B\u529F\u80FD\u3002</p>
+        <p>You can disable cookies through your browser settings, but this may affect some features of the website.</p>
       </div>
 
       <div class="section">
-        <h2>6. \u7B2C\u4E09\u65B9\u94FE\u63A5</h2>
-        <p>\u6211\u4EEC\u7684\u7F51\u7AD9\u53EF\u80FD\u5305\u542B\u6307\u5411\u7B2C\u4E09\u65B9\u7F51\u7AD9\u7684\u94FE\u63A5\u3002\u6211\u4EEC\u5BF9\u8FD9\u4E9B\u7B2C\u4E09\u65B9\u7F51\u7AD9\u7684\u9690\u79C1\u653F\u7B56\u548C\u505A\u6CD5\u4E0D\u627F\u62C5\u4EFB\u4F55\u8D23\u4EFB\u3002\u6211\u4EEC\u5EFA\u8BAE\u60A8\u67E5\u770B\u8FD9\u4E9B\u7F51\u7AD9\u7684\u9690\u79C1\u653F\u7B56\u3002</p>
+        <h2>6. Third-Party Links</h2>
+        <p>Our website may contain links to third-party websites. We are not responsible for the privacy policies or practices of these third-party websites. We recommend that you review the privacy policies of these websites.</p>
       </div>
 
       <div class="section">
-        <h2>7. \u6570\u636E\u5B89\u5168</h2>
-        <p>\u6211\u4EEC\u91C7\u53D6\u9002\u5F53\u7684\u6280\u672F\u548C\u7EC4\u7EC7\u63AA\u65BD\u6765\u4FDD\u62A4\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u514D\u53D7\u672A\u7ECF\u6388\u6743\u7684\u8BBF\u95EE\u3001\u4F7F\u7528\u6216\u62AB\u9732\u3002\u7136\u800C\uFF0C\u6CA1\u6709\u4EFB\u4F55\u4E92\u8054\u7F51\u4F20\u8F93\u6216\u5B58\u50A8\u65B9\u6CD5\u662F100%\u5B89\u5168\u7684\u3002</p>
+        <h2>7. Data Security</h2>
+        <p>We take appropriate technical and organizational measures to protect your personal information from unauthorized access, use, or disclosure. However, no internet transmission or storage method is 100% secure.</p>
       </div>
 
       <div class="section">
-        <h2>8. \u60A8\u7684\u6743\u5229</h2>
-        <p>\u6839\u636E\u9002\u7528\u7684\u6570\u636E\u4FDD\u62A4\u6CD5\u5F8B\uFF0C\u60A8\u53EF\u80FD\u62E5\u6709\u4EE5\u4E0B\u6743\u5229\uFF1A</p>
+        <h2>8. Your Rights</h2>
+        <p>Under applicable data protection laws, you may have the following rights:</p>
         <ul>
-          <li>\u8BBF\u95EE\u548C\u83B7\u53D6\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u526F\u672C</li>
-          <li>\u66F4\u6B63\u4E0D\u51C6\u786E\u7684\u4FE1\u606F</li>
-          <li>\u5220\u9664\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F</li>
-          <li>\u53CD\u5BF9\u6216\u9650\u5236\u67D0\u4E9B\u5904\u7406\u6D3B\u52A8</li>
-          <li>\u6570\u636E\u53EF\u643A\u5E26\u6027</li>
+          <li>Access and obtain a copy of your personal information</li>
+          <li>Correct inaccurate information</li>
+          <li>Delete your personal information</li>
+          <li>Object to or restrict certain processing activities</li>
+          <li>Data portability</li>
         </ul>
       </div>
 
       <div class="section">
-        <h2>9. \u513F\u7AE5\u9690\u79C1</h2>
-        <p>\u6211\u4EEC\u7684\u670D\u52A1\u4E0D\u9488\u5BF913\u5C81\u4EE5\u4E0B\u7684\u513F\u7AE5\u3002\u6211\u4EEC\u4E0D\u4F1A\u6545\u610F\u6536\u96C613\u5C81\u4EE5\u4E0B\u513F\u7AE5\u7684\u4E2A\u4EBA\u4FE1\u606F\u3002\u5982\u679C\u6211\u4EEC\u53D1\u73B0\u6536\u96C6\u4E86\u6B64\u7C7B\u4FE1\u606F\uFF0C\u5C06\u7ACB\u5373\u5220\u9664\u3002</p>
+        <h2>9. Children's Privacy</h2>
+        <p>Our service is not intended for children under 13. We do not knowingly collect personal information from children under 13. If we discover that such information has been collected, we will delete it immediately.</p>
       </div>
 
       <div class="section">
-        <h2>10. \u56FD\u9645\u6570\u636E\u4F20\u8F93</h2>
-        <p>\u60A8\u7684\u4FE1\u606F\u53EF\u80FD\u4F1A\u4F20\u8F93\u5230\u60A8\u6240\u5728\u56FD\u5BB6\u6216\u5730\u533A\u4EE5\u5916\u7684\u56FD\u5BB6\u6216\u5730\u533A\uFF0C\u5E76\u5728\u90A3\u91CC\u8FDB\u884C\u5904\u7406\u3002\u8FD9\u4E9B\u56FD\u5BB6/\u5730\u533A\u7684\u6570\u636E\u4FDD\u62A4\u6CD5\u5F8B\u53EF\u80FD\u4E0E\u60A8\u6240\u5728\u53F8\u6CD5\u7BA1\u8F96\u533A\u4E0D\u540C\u3002</p>
+        <h2>10. International Data Transfer</h2>
+        <p>Your information may be transferred to and processed in countries or regions outside your country or region. The data protection laws in those countries/regions may differ from those in your jurisdiction.</p>
       </div>
 
       <div class="section">
-        <h2>11. \u653F\u7B56\u53D8\u66F4</h2>
-        <p>\u6211\u4EEC\u53EF\u80FD\u4F1A\u4E0D\u65F6\u66F4\u65B0\u672C\u9690\u79C1\u653F\u7B56\u3002\u66F4\u65B0\u540E\u7684\u653F\u7B56\u5C06\u5728\u672C\u9875\u9762\u4E0A\u53D1\u5E03\uFF0C\u5E76\u66F4\u65B0"\u6700\u540E\u66F4\u65B0\u65E5\u671F"\u3002\u91CD\u5927\u53D8\u66F4\u65F6\uFF0C\u6211\u4EEC\u5C06\u901A\u8FC7\u7F51\u7AD9\u901A\u77E5\u60A8\u3002</p>
+        <h2>11. Policy Changes</h2>
+        <p>We may update this Privacy Policy from time to time. The updated policy will be posted on this page, and the "Last Updated" date will be changed. For significant changes, we will notify you through the website.</p>
       </div>
 
       <div class="section">
-        <h2>12. \u8054\u7CFB\u6211\u4EEC</h2>
-        <p>\u5982\u679C\u60A8\u5BF9\u672C\u9690\u79C1\u653F\u7B56\u6709\u4EFB\u4F55\u95EE\u9898\u6216\u7591\u8651\uFF0C\u8BF7\u901A\u8FC7\u4EE5\u4E0B\u65B9\u5F0F\u8054\u7CFB\u6211\u4EEC\uFF1A</p>
+        <h2>12. Contact Us</h2>
+        <p>If you have any questions or concerns about this Privacy Policy, please contact us at:</p>
         <ul>
-          <li>\u7535\u5B50\u90AE\u4EF6\uFF1Asupport@iptv-search.com</li>
-          <li>\u7F51\u7AD9\uFF1A<a href="https://iptv-search.com">https://iptv-search.com</a></li>
+          <li>Email: support@iptv-search.com</li>
+          <li>Website: <a href="https://iptv-search.com">https://iptv-search.com</a></li>
         </ul>
       </div>
     </div>
   </div>
 
 ${PAGE_FOOTER}
+
+<!-- Translate.js -->
+<script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
+<script>
+  function initTranslate() {
+    if (typeof translate !== 'undefined' && !window.translate) {
+      window.translate = translate;
+    }
+    if (typeof translate !== 'undefined' && translate.language) {
+      translate.language.setLocal('english');
+      translate.service.use('client.edge');
+      translate.listener.start();
+      translate.setAutoDiscriminateLocalLanguage();
+      translate.execute();
+    } else {
+      setTimeout(initTranslate, 100);
+    }
+  }
+  initTranslate();
+  
+  function changeLanguage(lang) {
+    var t = window.translate || translate;
+    if (t && t.changeLanguage) {
+      t.changeLanguage(lang);
+    }
+  }
+<\/script>
 </body>
 </html>`;
 }
 __name(generatePrivacyPolicy, "generatePrivacyPolicy");
 function generateTermsOfService() {
   return `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>\u670D\u52A1\u6761\u6B3E - IPTV Live</title>
+  <title>Terms of Service - IPTV Live</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff;line-height:1.6;padding:0;display:flex;flex-direction:column;min-height:100vh}
@@ -22906,161 +22932,161 @@ function generateTermsOfService() {
 ${PAGE_HEADER}
   <div class="main-content">
     <div class="container">
-      <h1>\u670D\u52A1\u6761\u6B3E</h1>
-      <p class="last-updated">\u6700\u540E\u66F4\u65B0\u65E5\u671F\uFF1A2024\u5E741\u67081\u65E5</p>
+      <h1>Terms of Service</h1>
+      <p class="last-updated">Last updated: January 1, 2024</p>
 
       <div class="section">
-        <h2>\u6B22\u8FCE\u4F7F\u7528 IPTV Live</h2>
-        <p>\u611F\u8C22\u60A8\u4F7F\u7528 IPTV Live \u670D\u52A1\uFF08\u4EE5\u4E0B\u7B80\u79F0"\u672C\u670D\u52A1"\uFF09\u3002\u901A\u8FC7\u4F7F\u7528\u672C\u670D\u52A1\uFF0C\u60A8\u540C\u610F\u9075\u5B88\u4EE5\u4E0B\u670D\u52A1\u6761\u6B3E\u3002\u5982\u679C\u60A8\u4E0D\u540C\u610F\u8FD9\u4E9B\u6761\u6B3E\uFF0C\u8BF7\u4E0D\u8981\u4F7F\u7528\u672C\u670D\u52A1\u3002</p>
+        <h2>Welcome to IPTV Live</h2>
+        <p>Thank you for using IPTV Live service (the "Service"). By using this Service, you agree to comply with the following Terms of Service. If you do not agree to these terms, please do not use this Service.</p>
       </div>
 
       <div class="section">
-        <h2>1. \u670D\u52A1\u8BF4\u660E</h2>
-        <h3>1.1 \u670D\u52A1\u5185\u5BB9\uFF1A</h3>
+        <h2>1. Service Description</h2>
+        <h3>1.1 Service content:</h3>
         <ul>
-          <li>IPTV Live \u63D0\u4F9B\u514D\u8D39\u7684\u5728\u7EBF\u7535\u89C6\u89C2\u770B\u670D\u52A1</li>
-          <li>\u670D\u52A1\u5305\u62EC\u9891\u9053\u5217\u8868\u3001\u641C\u7D22\u3001\u6536\u85CF\u3001\u64AD\u653E\u5386\u53F2\u7B49\u529F\u80FD</li>
-          <li>\u7528\u6237\u53EF\u4EE5\u901A\u8FC7\u7F51\u9875\u6D4F\u89C8\u5668\u8BBF\u95EE\u672C\u670D\u52A1</li>
+          <li>IPTV Live provides free online TV viewing services</li>
+          <li>Services include channel list, search, favorites, playback history, and other features</li>
+          <li>Users can access the Service through a web browser</li>
         </ul>
 
-        <h3>1.2 \u670D\u52A1\u6027\u8D28\uFF1A</h3>
+        <h3>1.2 Nature of Service:</h3>
         <ul>
-          <li>\u672C\u670D\u52A1\u4E3A\u514D\u8D39\u670D\u52A1\uFF0C\u4E0D\u6536\u53D6\u4EFB\u4F55\u8D39\u7528</li>
-          <li>\u6211\u4EEC\u4FDD\u7559\u968F\u65F6\u4FEE\u6539\u3001\u6682\u505C\u6216\u7EC8\u6B62\u670D\u52A1\u7684\u6743\u5229</li>
-          <li>\u670D\u52A1\u7684\u53EF\u7528\u6027\u53EF\u80FD\u53D7\u5230\u7F51\u7EDC\u72B6\u51B5\u548C\u6280\u672F\u9650\u5236\u7684\u5F71\u54CD</li>
-        </ul>
-      </div>
-
-      <div class="section">
-        <h2>2. \u7528\u6237\u8D23\u4EFB</h2>
-        <h3>2.1 \u4F7F\u7528\u8981\u6C42\uFF1A</h3>
-        <ul>
-          <li>\u60A8\u5FC5\u987B\u5E74\u6EE113\u5C81\u624D\u80FD\u4F7F\u7528\u672C\u670D\u52A1</li>
-          <li>\u60A8\u6709\u8D23\u4EFB\u786E\u4FDD\u60A8\u7684\u8D26\u6237\u5B89\u5168</li>
-          <li>\u60A8\u4E0D\u5F97\u5171\u4EAB\u60A8\u7684\u8D26\u6237\u4FE1\u606F\u6216\u51ED\u636E</li>
-        </ul>
-
-        <h3>2.2 \u7981\u6B62\u884C\u4E3A\uFF1A</h3>
-        <ul>
-          <li>\u4E0D\u5F97\u5C06\u672C\u670D\u52A1\u7528\u4E8E\u4EFB\u4F55\u975E\u6CD5\u76EE\u7684</li>
-          <li>\u4E0D\u5F97\u5E72\u6270\u6216\u7834\u574F\u672C\u670D\u52A1\u7684\u6B63\u5E38\u8FD0\u884C</li>
-          <li>\u4E0D\u5F97\u4E0A\u4F20\u75C5\u6BD2\u3001\u6076\u610F\u4EE3\u7801\u6216\u5176\u4ED6\u6709\u5BB3\u8F6F\u4EF6</li>
-          <li>\u4E0D\u5F97\u5C1D\u8BD5\u672A\u7ECF\u6388\u6743\u8BBF\u95EE\u6211\u4EEC\u7684\u7CFB\u7EDF\u6216\u6570\u636E</li>
-          <li>\u4E0D\u5F97\u4FB5\u72AF\u4ED6\u4EBA\u7684\u77E5\u8BC6\u4EA7\u6743\u6216\u9690\u79C1\u6743</li>
-          <li>\u4E0D\u5F97\u4F7F\u7528\u81EA\u52A8\u5316\u5DE5\u5177\uFF08\u5982\u673A\u5668\u4EBA\u3001\u722C\u866B\uFF09\u8BBF\u95EE\u672C\u670D\u52A1</li>
+          <li>This Service is provided free of charge</li>
+          <li>We reserve the right to modify, suspend, or terminate the Service at any time</li>
+          <li>Service availability may be affected by network conditions and technical limitations</li>
         </ul>
       </div>
 
       <div class="section">
-        <h2>3. \u5185\u5BB9\u7248\u6743</h2>
+        <h2>2. User Responsibilities</h2>
+        <h3>2.1 Usage requirements:</h3>
+        <ul>
+          <li>You must be at least 13 years old to use this Service</li>
+          <li>You are responsible for maintaining the security of your account</li>
+          <li>You must not share your account information or credentials</li>
+        </ul>
+
+        <h3>2.2 Prohibited activities:</h3>
+        <ul>
+          <li>Do not use this Service for any illegal purposes</li>
+          <li>Do not interfere with or disrupt the operation of this Service</li>
+          <li>Do not upload viruses, malicious code, or other harmful software</li>
+          <li>Do not attempt to unauthorized access to our systems or data</li>
+          <li>Do not infringe on the intellectual property or privacy rights of others</li>
+          <li>Do not use automated tools (such as robots or crawlers) to access this Service</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>3. Content Copyright</h2>
         <div class="warning">
-          <strong>\u91CD\u8981\u58F0\u660E\uFF1A</strong>
-          <p>IPTV Live \u4EC5\u4F5C\u4E3A\u5185\u5BB9\u805A\u5408\u5E73\u53F0\uFF0C\u63D0\u4F9B\u9891\u9053\u94FE\u63A5\u670D\u52A1\u3002\u672C\u5E73\u53F0\u4E0D\u62E5\u6709\u3001\u4E0D\u5236\u4F5C\u3001\u4E0D\u5B58\u50A8\u4EFB\u4F55\u89C6\u9891\u5185\u5BB9\u3002\u6240\u6709\u9891\u9053\u7684\u7248\u6743\u5C5E\u4E8E\u5176\u5404\u81EA\u7684\u6240\u6709\u8005\u3002</p>
+          <strong>Important Notice:</strong>
+          <p>IPTV Live is only a content aggregation platform providing channel link services. This platform does not own, produce, or store any video content. All channel content copyright belongs to their respective owners.</p>
         </div>
 
-        <h3>3.1 \u77E5\u8BC6\u4EA7\u6743\uFF1A</h3>
+        <h3>3.1 Intellectual property:</h3>
         <ul>
-          <li>\u672C\u7F51\u7AD9\u7684\u754C\u9762\u3001\u8BBE\u8BA1\u3001\u6587\u672C\u3001\u56FE\u5F62\u7B49\u53D7\u7248\u6743\u4FDD\u62A4</li>
-          <li>\u672A\u7ECF\u8BB8\u53EF\uFF0C\u4E0D\u5F97\u590D\u5236\u3001\u4FEE\u6539\u3001\u5206\u53D1\u672C\u7F51\u7AD9\u7684\u5185\u5BB9</li>
-          <li>\u9891\u9053\u5185\u5BB9\u7684\u77E5\u8BC6\u4EA7\u6743\u5C5E\u4E8E\u5176\u539F\u59CB\u6240\u6709\u8005</li>
+          <li>The website's interface, design, text, graphics, etc. are protected by copyright</li>
+          <li>Without permission, do not copy, modify, or distribute the content of this website</li>
+          <li>Intellectual property of channel content belongs to its original owners</li>
         </ul>
 
-        <h3>3.2 \u7528\u6237\u5185\u5BB9\uFF1A</h3>
+        <h3>3.2 User content:</h3>
         <ul>
-          <li>\u60A8\u5BF9\u63D0\u4EA4\u7684\u5185\u5BB9\u4FDD\u7559\u6240\u6709\u6743</li>
-          <li>\u901A\u8FC7\u4F7F\u7528\u672C\u670D\u52A1\uFF0C\u60A8\u6388\u4E88\u6211\u4EEC\u5C55\u793A\u548C\u4F7F\u7528\u76F8\u5173\u5185\u5BB9\u7684\u6743\u5229</li>
-          <li>\u60A8\u4FDD\u8BC1\u62E5\u6709\u6240\u6709\u5FC5\u8981\u6743\u5229\u6765\u63D0\u4EA4\u8FD9\u4E9B\u5185\u5BB9</li>
-        </ul>
-      </div>
-
-      <div class="section">
-        <h2>4. \u514D\u8D23\u58F0\u660E</h2>
-        <h3>4.1 \u670D\u52A1\u6309"\u73B0\u72B6"\u63D0\u4F9B\uFF1A</h3>
-        <ul>
-          <li>\u672C\u670D\u52A1\u6309"\u73B0\u72B6"\u548C"\u53EF\u7528"\u57FA\u7840\u63D0\u4F9B</li>
-          <li>\u6211\u4EEC\u4E0D\u5BF9\u670D\u52A1\u7684\u51C6\u786E\u6027\u3001\u53EF\u9760\u6027\u6216\u5B8C\u6574\u6027\u505A\u51FA\u4EFB\u4F55\u4FDD\u8BC1</li>
-          <li>\u6211\u4EEC\u4E0D\u4FDD\u8BC1\u670D\u52A1\u4E0D\u4F1A\u4E2D\u65AD\u6216\u65E0\u9519\u8BEF</li>
-        </ul>
-
-        <h3>4.2 \u95F4\u63A5\u635F\u5931\uFF1A</h3>
-        <p>\u5728\u4EFB\u4F55\u60C5\u51B5\u4E0B\uFF0C\u6211\u4EEC\u90FD\u4E0D\u5BF9\u4EFB\u4F55\u95F4\u63A5\u3001\u5076\u7136\u3001\u7279\u6B8A\u6216\u540E\u679C\u6027\u635F\u5BB3\u627F\u62C5\u8D23\u4EFB\uFF0C\u5305\u62EC\u4F46\u4E0D\u9650\u4E8E\u5229\u6DA6\u635F\u5931\u3001\u6570\u636E\u4E22\u5931\u6216\u4E1A\u52A1\u4E2D\u65AD\u3002</p>
-
-        <h3>4.3 \u7B2C\u4E09\u65B9\u5185\u5BB9\uFF1A</h3>
-        <ul>
-          <li>\u6211\u4EEC\u4E0D\u5BF9\u7B2C\u4E09\u65B9\u63D0\u4F9B\u7684\u5185\u5BB9\u6216\u670D\u52A1\u627F\u62C5\u8D23\u4EFB</li>
-          <li>\u9891\u9053\u5185\u5BB9\u7684\u8D28\u91CF\u3001\u53EF\u7528\u6027\u548C\u51C6\u786E\u6027\u7531\u5185\u5BB9\u63D0\u4F9B\u8005\u8D1F\u8D23</li>
-          <li>\u6211\u4EEC\u4E0D\u5BF9\u9891\u9053\u7684\u7248\u6743\u95EE\u9898\u8D1F\u8D23</li>
+          <li>You retain ownership of content you submit</li>
+          <li>By using this Service, you grant us the right to display and use related content</li>
+          <li>You warrant that you have all necessary rights to submit such content</li>
         </ul>
       </div>
 
       <div class="section">
-        <h2>5. \u670D\u52A1\u4E2D\u65AD</h2>
+        <h2>4. Disclaimer</h2>
+        <h3>4.1 Service provided "as is":</h3>
         <ul>
-          <li>\u6211\u4EEC\u4FDD\u7559\u968F\u65F6\u4FEE\u6539\u3001\u6682\u505C\u6216\u7EC8\u6B62\u5168\u90E8\u6216\u90E8\u5206\u670D\u52A1\u7684\u6743\u5229</li>
-          <li>\u670D\u52A1\u4E2D\u65AD\u53EF\u80FD\u53D1\u751F\u5728\u7CFB\u7EDF\u7EF4\u62A4\u3001\u5347\u7EA7\u6216\u4E0D\u53EF\u6297\u529B\u60C5\u51B5\u4E0B</li>
-          <li>\u6211\u4EEC\u4E0D\u5BF9\u670D\u52A1\u4E2D\u65AD\u9020\u6210\u7684\u635F\u5931\u627F\u62C5\u8D23\u4EFB</li>
+          <li>This Service is provided on an "as is" and "as available" basis</li>
+          <li>We make no warranties regarding the accuracy, reliability, or completeness of the Service</li>
+          <li>We do not guarantee that the Service will be uninterrupted or error-free</li>
+        </ul>
+
+        <h3>4.2 Indirect damages:</h3>
+        <p>In no event shall we be liable for any indirect, incidental, special, or consequential damages, including but not limited to loss of profits, data loss, or business interruption.</p>
+
+        <h3>4.3 Third-party content:</h3>
+        <ul>
+          <li>We are not responsible for content or services provided by third parties</li>
+          <li>The quality, availability, and accuracy of channel content are the responsibility of content providers</li>
+          <li>We are not responsible for channel copyright issues</li>
         </ul>
       </div>
 
       <div class="section">
-        <h2>6. \u8D26\u6237\u4E0E\u5B89\u5168</h2>
+        <h2>5. Service Interruption</h2>
         <ul>
-          <li>\u60A8\u5BF9\u4F7F\u7528\u60A8\u8D26\u6237\u7684\u6240\u6709\u6D3B\u52A8\u8D1F\u8D23</li>
-          <li>\u5982\u53D1\u73B0\u4EFB\u4F55\u672A\u7ECF\u6388\u6743\u4F7F\u7528\u60A8\u8D26\u6237\u7684\u60C5\u51B5\uFF0C\u8BF7\u7ACB\u5373\u901A\u77E5\u6211\u4EEC</li>
-          <li>\u6211\u4EEC\u4E0D\u5BF9\u56E0\u7528\u6237\u672A\u80FD\u4FDD\u62A4\u5176\u8D26\u6237\u800C\u9020\u6210\u7684\u635F\u5931\u8D1F\u8D23</li>
+          <li>We reserve the right to modify, suspend, or terminate all or part of the Service at any time</li>
+          <li>Service interruption may occur during system maintenance, upgrades, or force majeure</li>
+          <li>We are not responsible for losses caused by service interruption</li>
         </ul>
       </div>
 
       <div class="section">
-        <h2>7. \u9690\u79C1\u4FDD\u62A4</h2>
-        <p>\u60A8\u7684\u9690\u79C1\u5BF9\u6211\u4EEC\u5F88\u91CD\u8981\u3002\u8BF7\u67E5\u770B\u6211\u4EEC\u7684<a href="/privacy-policy">\u9690\u79C1\u653F\u7B56</a>\uFF0C\u4E86\u89E3\u6211\u4EEC\u5982\u4F55\u6536\u96C6\u3001\u4F7F\u7528\u548C\u4FDD\u62A4\u60A8\u7684\u4E2A\u4EBA\u4FE1\u606F\u3002</p>
-      </div>
-
-      <div class="section">
-        <h2>8. \u9002\u7528\u6CD5\u5F8B</h2>
-        <p>\u672C\u6761\u6B3E\u53D7\u60A8\u6240\u5728\u56FD\u5BB6/\u5730\u533A\u7684\u6CD5\u5F8B\u7BA1\u8F96\u3002\u5982\u679C\u56E0\u4F7F\u7528\u672C\u670D\u52A1\u4EA7\u751F\u4EFB\u4F55\u4E89\u8BAE\uFF0C\u5E94\u901A\u8FC7\u534F\u5546\u89E3\u51B3\u3002</p>
-      </div>
-
-      <div class="section">
-        <h2>9. \u6761\u6B3E\u4FEE\u6539</h2>
+        <h2>6. Account and Security</h2>
         <ul>
-          <li>\u6211\u4EEC\u4FDD\u7559\u968F\u65F6\u4FEE\u6539\u8FD9\u4E9B\u6761\u6B3E\u7684\u6743\u5229</li>
-          <li>\u4FEE\u6539\u540E\u7684\u6761\u6B3E\u5C06\u5728\u672C\u9875\u9762\u53D1\u5E03</li>
-          <li>\u7EE7\u7EED\u4F7F\u7528\u672C\u670D\u52A1\u5373\u8868\u793A\u60A8\u63A5\u53D7\u4FEE\u6539\u540E\u7684\u6761\u6B3E</li>
-          <li>\u91CD\u5927\u53D8\u66F4\u5C06\u901A\u8FC7\u7F51\u7AD9\u901A\u77E5\u60A8</li>
+          <li>You are responsible for all activities using your account</li>
+          <li>If you discover any unauthorized use of your account, please notify us immediately</li>
+          <li>We are not responsible for losses caused by your failure to protect your account</li>
         </ul>
       </div>
 
       <div class="section">
-        <h2>10. \u7EC8\u6B62\u670D\u52A1</h2>
+        <h2>7. Privacy Protection</h2>
+        <p>Your privacy is important to us. Please view our <a href="/privacy-policy">Privacy Policy</a> to learn how we collect, use, and protect your personal information.</p>
+      </div>
+
+      <div class="section">
+        <h2>8. Applicable Law</h2>
+        <p>These terms shall be governed by the laws of your country/region. Any disputes arising from the use of this Service shall be resolved through negotiation.</p>
+      </div>
+
+      <div class="section">
+        <h2>9. Terms Modification</h2>
         <ul>
-          <li>\u5982\u679C\u60A8\u8FDD\u53CD\u8FD9\u4E9B\u6761\u6B3E\uFF0C\u6211\u4EEC\u6709\u6743\u6682\u505C\u6216\u7EC8\u6B62\u60A8\u4F7F\u7528\u672C\u670D\u52A1\u7684\u6743\u5229</li>
-          <li>\u60A8\u53EF\u4EE5\u968F\u65F6\u505C\u6B62\u4F7F\u7528\u672C\u670D\u52A1</li>
-          <li>\u670D\u52A1\u7EC8\u6B62\u540E\uFF0C\u67D0\u4E9B\u6761\u6B3E\u4ECD\u5C06\u7EE7\u7EED\u6709\u6548</li>
+          <li>We reserve the right to modify these terms at any time</li>
+          <li>Modified terms will be posted on this page</li>
+          <li>Continued use of this Service constitutes acceptance of the modified terms</li>
+          <li>Significant changes will be notified through the website</li>
         </ul>
       </div>
 
       <div class="section">
-        <h2>11. \u4E0D\u53EF\u6297\u529B</h2>
-        <p>\u6211\u4EEC\u4E0D\u5BF9\u56E0\u4E0D\u53EF\u6297\u529B\u4E8B\u4EF6\u5BFC\u81F4\u7684\u670D\u52A1\u4E2D\u65AD\u6216\u5EF6\u8FDF\u627F\u62C5\u8D23\u4EFB\uFF0C\u5305\u62EC\u4F46\u4E0D\u9650\u4E8E\u81EA\u7136\u707E\u5BB3\u3001\u6218\u4E89\u3001\u653F\u5E9C\u884C\u4E3A\u3001\u7F51\u7EDC\u653B\u51FB\u7B49\u3002</p>
-      </div>
-
-      <div class="section">
-        <h2>12. \u5B8C\u6574\u534F\u8BAE</h2>
-        <p>\u8FD9\u4E9B\u6761\u6B3E\u6784\u6210\u60A8\u4E0E\u6211\u4EEC\u4E4B\u95F4\u5173\u4E8E\u4F7F\u7528\u672C\u670D\u52A1\u7684\u5B8C\u6574\u534F\u8BAE\u3002\u8FD9\u4E9B\u6761\u6B3E\u53D6\u4EE3\u6240\u6709\u5148\u524D\u7684\u534F\u8BAE\u6216\u8C05\u89E3\u3002</p>
-      </div>
-
-      <div class="section">
-        <h2>13. \u53EF\u5206\u5272\u6027</h2>
-        <p>\u5982\u679C\u8FD9\u4E9B\u6761\u6B3E\u7684\u4EFB\u4F55\u6761\u6B3E\u88AB\u8BA4\u5B9A\u4E3A\u4E0D\u53EF\u6267\u884C\u6216\u65E0\u6548\uFF0C\u5176\u4F59\u6761\u6B3E\u4ECD\u5C06\u4FDD\u6301\u5B8C\u5168\u6709\u6548\u548C\u53EF\u6267\u884C\u3002</p>
-      </div>
-
-      <div class="section">
-        <h2>14. \u8054\u7CFB\u6211\u4EEC</h2>
-        <p>\u5982\u679C\u60A8\u5BF9\u672C\u670D\u52A1\u6761\u6B3E\u6709\u4EFB\u4F55\u95EE\u9898\u6216\u7591\u8651\uFF0C\u8BF7\u901A\u8FC7\u4EE5\u4E0B\u65B9\u5F0F\u8054\u7CFB\u6211\u4EEC\uFF1A</p>
+        <h2>10. Service Termination</h2>
         <ul>
-          <li>\u7535\u5B50\u90AE\u4EF6\uFF1Asupport@iptv-search.com</li>
-          <li>\u7F51\u7AD9\uFF1A<a href="https://iptv-search.com">https://iptv-search.com</a></li>
+          <li>If you violate these terms, we have the right to suspend or terminate your right to use this Service</li>
+          <li>You may stop using this Service at any time</li>
+          <li>Some terms will remain valid after Service termination</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>11. Force Majeure</h2>
+        <p>We are not responsible for Service interruption or delays caused by force majeure events, including but not limited to natural disasters, war, government actions, cyber attacks, etc.</p>
+      </div>
+
+      <div class="section">
+        <h2>12. Entire Agreement</h2>
+        <p>These terms constitute the entire agreement between you and us regarding the use of this Service. These terms supersede all prior agreements or understandings.</p>
+      </div>
+
+      <div class="section">
+        <h2>13. Severability</h2>
+        <p>If any provision of these terms is found to be unenforceable or invalid, the remaining provisions will remain fully valid and enforceable.</p>
+      </div>
+
+      <div class="section">
+        <h2>14. Contact Us</h2>
+        <p>If you have any questions or concerns about these Terms of Service, please contact us at:</p>
+        <ul>
+          <li>Email: support@iptv-search.com</li>
+          <li>Website: <a href="https://iptv-search.com">https://iptv-search.com</a></li>
         </ul>
       </div>
     </div>
@@ -23068,7 +23094,7 @@ ${PAGE_HEADER}
 
 ${PAGE_FOOTER}
 
-<!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
+<!-- Translate.js -->
 <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
 <script>
   function initTranslate() {
@@ -23076,7 +23102,7 @@ ${PAGE_FOOTER}
       window.translate = translate;
     }
     if (typeof translate !== 'undefined' && translate.language) {
-      translate.language.setLocal('chinese_simplified');
+      translate.language.setLocal('english');
       translate.service.use('client.edge');
       translate.listener.start();
       translate.setAutoDiscriminateLocalLanguage();

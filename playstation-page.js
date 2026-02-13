@@ -451,12 +451,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       </a>
       <div class="online-counter">
         <span class="online-dot"></span>
-        <span class="online-count" id="onlineCount">0</span> <span id="onlineCountText">人在观看</span>
+        <span class="online-count" id="onlineCount">0</span> <span id="onlineCountText">viewers</span>
       </div>
     </div>
     <div class="header-right">
       <div class="search-box">
-        <input type="text" class="search-input" id="searchInput" placeholder="搜索频道..." oninput="handleSearch()">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search channels..." oninput="handleSearch()">
       </div>
       <div class="quick-entries">
         <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'history')" title="History">
@@ -483,7 +483,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         </button>
         
         <div id="authButtons">
-          <button class="auth-btn ripple" onclick="openLoginModal()">登录</button>
+          <button class="auth-btn ripple" onclick="openLoginModal()">Login</button>
         </div>
         <!-- 语言切换器 -->
         <select id="headerLangSelect" onchange="if(typeof changeLanguage==='function'){changeLanguage(this.value)}" style="margin-left: 12px; height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.6); color: #fff; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center;">
@@ -508,7 +508,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       </div>
     </div>
     <div class="mobile-search-header">
-      <input type="text" class="search-input" id="mobileHeaderSearchInput" placeholder="搜索..." oninput="handleMobileHeaderSearch()">
+      <input type="text" class="search-input" id="mobileHeaderSearchInput" placeholder="Search..." oninput="handleMobileHeaderSearch()">
     </div>
     <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
       ☰
@@ -557,7 +557,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
   <div class="main">
     <aside class="sidebar" id="sidebar">
-      <div class="group-item active" data-group="" onclick="filterByGroup('')">全部频道</div>
+      <div class="group-item active" data-group="" onclick="filterByGroup('')">All Channels</div>
       <div id="groupList"></div>
 
       <!-- 侧边栏广告位 -->
@@ -594,32 +594,32 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             <div class="announcement-modal-header">
               <div class="announcement-modal-title">
                 <span class="announcement-modal-icon">📢</span>
-                <span id="announcementTitle">系统公告</span>
+                <span id="announcementTitle">Announcement</span>
               </div>
               <button class="announcement-close" onclick="closeAnnouncement()">&times;</button>
             </div>
             <div class="announcement-modal-body" id="announcementContent">
-              <p>加载中...</p>
+              <p>Loading...</p>
             </div>
             <div class="announcement-modal-footer">
               <div class="announcement-modal-time" id="announcementTime">
                 <span>🕐</span>
-                <span>发布时间加载中</span>
+                <span>Publishing time loading</span>
               </div>
-              <button class="announcement-modal-button" onclick="closeAnnouncement()">知道了</button>
+              <button class="announcement-modal-button" onclick="closeAnnouncement()">Got it</button>
             </div>
           </div>
         </div>
 
-        <div class="section-title" id="sectionTitle">全部频道</div>
+        <div class="section-title" id="sectionTitle">All Channels</div>
         <div class="channels-grid" id="channelsGrid"></div>
         <div class="pagination" id="pagination"></div>
       </div>
 
       <div id="emptyState" class="empty-state" style="display:none;">
         <div class="empty-icon">📺</div>
-        <div class="empty-title">未找到频道</div>
-        <div class="empty-desc">请尝试其他搜索词或分组</div>
+        <div class="empty-title">No Channels Found</div>
+        <div class="empty-desc">Try other search terms or groups</div>
       </div>
 
     </div>
@@ -628,7 +628,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- 快捷面板 -->
   <div class="quick-panel" id="quickPanel">
     <div class="quick-panel-header">
-      <div class="quick-panel-title" id="quickPanelTitle">📌 面板</div>
+      <div class="quick-panel-title" id="quickPanelTitle">📌 Panel</div>
       <button class="quick-panel-close" onclick="closeQuickPanel()">&times;</button>
     </div>
     <div class="quick-panel-content" id="quickPanelContent"></div>
@@ -669,8 +669,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <div class="player-wrapper collapsed" id="playerWrapper">
     <div class="player-header" id="playerHeader">
       <div class="player-info">
-        <div class="player-title" id="playerTitle">频道名称</div>
-        <div class="player-group" id="playerGroup">分组</div>
+        <div class="player-title" id="playerTitle">Channel Name</div>
+        <div class="player-group" id="playerGroup">Group</div>
       </div>
       <div class="player-controls">
         <button class="player-btn" onclick="togglePlayerSize()" title="切换大小">⛶</button>

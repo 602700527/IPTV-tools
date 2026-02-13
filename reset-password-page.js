@@ -4,7 +4,7 @@ export const RESET_PASSWORD_HTML = `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>重置密码 - IPTV Live</title>
+  <title>Reset Password - IPTV Live</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -155,25 +155,25 @@ export const RESET_PASSWORD_HTML = `
     </div>
 
     <div id="resetForm">
-      <h2 style="color: #fff; text-align: center; margin-bottom: 20px;">重置密码</h2>
-      
+      <h2 style="color: #fff; text-align: center; margin-bottom: 20px;">Reset Password</h2>
+       
       <div class="form-group">
-        <label class="form-label">新密码</label>
-        <input type="password" class="form-input" id="newPassword" placeholder="请输入新密码（至少8位）">
-        <div class="form-help">密码至少8位，建议包含大小写字母和数字</div>
+        <label class="form-label">New Password</label>
+        <input type="password" class="form-input" id="newPassword" placeholder="Enter new password (at least 8 characters)">
+        <div class="form-help">Password must be at least 8 characters, recommend including uppercase and lowercase letters and numbers</div>
         <div class="form-error" id="newPasswordError"></div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">确认密码</label>
-        <input type="password" class="form-input" id="confirmPassword" placeholder="请再次输入新密码">
+        <label class="form-label">Confirm Password</label>
+        <input type="password" class="form-input" id="confirmPassword" placeholder="Enter password again">
         <div class="form-error" id="confirmPasswordError"></div>
       </div>
 
-      <button class="btn-primary" id="submitBtn" disabled>重置密码</button>
+      <button class="btn-primary" id="submitBtn" disabled>Reset Password</button>
       
       <div class="footer">
-        <a href="/">返回首页</a>
+        <a href="/">Back to Home</a>
       </div>
     </div>
 
@@ -183,8 +183,8 @@ export const RESET_PASSWORD_HTML = `
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
           <polyline points="22 4 12 14.01 9 11.01"></polyline>
         </svg>
-        <p>密码重置成功！</p>
-        <p style="font-size: 14px; color: rgba(52, 199, 89, 0.8); margin-top: 5px;">正在跳转到登录页面...</p>
+        <p>Password reset successfully!</p>
+        <p style="font-size: 14px; color: rgba(52, 199, 89, 0.8); margin-top: 5px;">Redirecting to login page...</p>
       </div>
     </div>
 
@@ -192,7 +192,7 @@ export const RESET_PASSWORD_HTML = `
       <div class="error-message">
         <p id="errorText"></p>
       </div>
-      <button class="btn-primary" id="retryBtn">返回重试</button>
+      <button class="btn-primary" id="retryBtn">Go Back and Try Again</button>
     </div>
   </div>
 
@@ -204,10 +204,10 @@ export const RESET_PASSWORD_HTML = `
     if (!token) {
       document.getElementById('resetForm').style.display = 'none';
       document.getElementById('errorMessage').style.display = 'block';
-      document.getElementById('errorText').textContent = '无效的重置链接，请重新申请密码重置。';
+      document.getElementById('errorText').textContent = 'Invalid reset link, please request a new password reset.';
     }
 
-    // 添加事件监听器
+    // Add event listeners
     document.getElementById('newPassword').addEventListener('input', validatePassword);
     document.getElementById('confirmPassword').addEventListener('input', validatePassword);
     document.getElementById('submitBtn').addEventListener('click', handleSubmit);
@@ -224,9 +224,9 @@ export const RESET_PASSWORD_HTML = `
 
       let isValid = true;
 
-      // 验证新密码
+      // Validate new password
       if (newPassword.length < 8) {
-        newPasswordError.textContent = '密码至少需要8个字符';
+        newPasswordError.textContent = 'Password must be at least 8 characters';
         newPasswordError.classList.add('show');
         document.getElementById('newPassword').classList.add('error');
         isValid = false;
@@ -236,9 +236,9 @@ export const RESET_PASSWORD_HTML = `
         document.getElementById('newPassword').classList.remove('error');
       }
 
-      // 验证确认密码
+      // Validate confirm password
       if (confirmPassword && confirmPassword !== newPassword) {
-        confirmPasswordError.textContent = '两次输入的密码不一致';
+        confirmPasswordError.textContent = 'Passwords do not match';
         confirmPasswordError.classList.add('show');
         document.getElementById('confirmPassword').classList.add('error');
         isValid = false;

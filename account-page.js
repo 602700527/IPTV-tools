@@ -114,15 +114,15 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
   <div class="main-content">
     <div class="container">
     <div class="account-header">
-      <h1 data-i18n="userCenter">👤 用户中心</h1>
+      <h1 data-i18n="userCenter">👤 Account Center</h1>
       <div class="header-actions">
-        <button class="logout-btn" onclick="logout()" data-i18n="logout">退出登录</button>
+        <button class="logout-btn" onclick="logout()" data-i18n="logout">Logout</button>
       </div>
     </div>
     
     <div class="nav-tabs">
-      <button class="nav-tab active" onclick="switchTab('info')" data-i18n="accountInfo">账户信息</button>
-      <button class="nav-tab" onclick="switchTab('orders')" data-i18n="orderHistory">订单历史</button>
+      <button class="nav-tab active" onclick="switchTab('info')" data-i18n="accountInfo">Account Info</button>
+      <button class="nav-tab" onclick="switchTab('orders')" data-i18n="orderHistory">Order History</button>
     </div>
     
     <div id="infoTab" class="tab-content active">
@@ -152,13 +152,13 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
      <div class="success-content">
        <button class="modal-close" onclick="closeSuccessModal()">×</button>
        <div class="success-icon">🎉</div>
-       <h2 class="success-title" data-i18n="paymentSuccess">支付成功！</h2>
-       <p class="success-message" data-i18n="subUrlGenerated">您的订阅地址已生成</p>
+       <h2 class="success-title" data-i18n="paymentSuccess">Payment Successful!</h2>
+       <p class="success-message" data-i18n="subUrlGenerated">Your subscription URL has been generated</p>
        <div class="code-display" id="generatedCode" style="font-size: 14px; word-break: break-all;">-</div>
-       <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">复制订阅地址</button>
+       <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">Copy URL</button>
        <div class="modal-tips">
-         <p class="modal-tip">您可以直接使用此订阅地址在播放器中添加</p>
-         <p class="modal-tip-highlight">此窗口关闭后可在账户页面中查询订单详情</p>
+         <p class="modal-tip">You can add this URL directly to your player</p>
+         <p class="modal-tip-highlight">You can view order details in your account page after closing</p>
        </div>
      </div>
    </div>
