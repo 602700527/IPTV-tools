@@ -28,35 +28,84 @@ export async function createFreeSubscription(ip, fingerprint, fingerprintCompone
     const expiredAt = new Date();
     expiredAt.setDate(expiredAt.getDate() + 3);
 
-    // 检查该IP是否已有活跃的免费订阅
+    // 检查该IP是否已有免费订阅（智能管理：查询所有历史记录）
     const existing = await db.prepare(`
-      SELECT id, fingerprint, expired_at
+      SELECT id, fingerprint, expired_at, consecutive_days, last_checkin
       FROM free_subscriptions
-      WHERE ip = ? AND expired_at > datetime('now')
+      WHERE ip = ?
       ORDER BY expired_at DESC
       LIMIT 1
     `).bind(ip).first();
-  
-  if (existing) {
-    // 检查指纹是否匹配
-    if (existing.fingerprint !== fingerprint) {
-      console.log('[FreeSub] IP mismatch with existing subscription fingerprint', {
-        ip,
-        subId: existing.id,
-        storedFp: existing.fingerprint.substring(0, 8),
-        newFp: fingerprint.substring(0, 8)
-      });
+
+    if (existing) {
+      const now = new Date();
+      const expiredDate = new Date(existing.expired_at);
+      const lastCheckin = existing.last_checkin ? new Date(existing.last_checkin) : expiredDate;
+
+      // 计算距离上次签到的时间
+      const daysSinceLastCheckin = Math.floor((now - lastCheckin) / (1000 * 60 * 60 * 24));
+
+      // 智能判断：
+      // 1. 如果从未签到过（刚创建的订阅），允许无限期续期
+      // 2. 如果90天内签过到，保持订阅
+      // 3. 超过90天未签到，创建新订阅（清理长期不活跃用户）
+      if (!existing.last_checkin || daysSinceLastCheckin <= 90) {
+        // 检查指纹是否匹配
+        if (existing.fingerprint !== fingerprint) {
+          console.log('[FreeSub] IP mismatch with existing subscription fingerprint', {
+            ip,
+            subId: existing.id,
+            storedFp: existing.fingerprint.substring(0, 8),
+            newFp: fingerprint.substring(0, 8)
+          });
+        }
+
+        // 修复Bug 2：即使订阅已过期，只要在90天内有过签到记录，就续期而不是创建新订阅
+        // 修复Bug 1：确保过期后7天内仍然可以签到续期
+        if (expiredDate <= now) {
+          const newExpiredAt = new Date();
+          newExpiredAt.setDate(newExpiredAt.getDate() + 3);
+
+          await db.prepare(`
+            UPDATE free_subscriptions
+            SET expired_at = ?,
+                updated_at = datetime('now'),
+                ip_change_count = 0,
+                fingerprint = ?,
+                fingerprint_components = ?
+            WHERE id = ?
+          `).bind(
+            newExpiredAt.toISOString(),
+            fingerprint,
+            JSON.stringify(fingerprintComponents),
+            existing.id
+          ).run();
+
+          console.log('[FreeSub] Existing expired subscription renewed', {
+            subId: existing.id,
+            ip,
+            oldExpired: existing.expired_at,
+            newExpiredAt: newExpiredAt.toISOString()
+          });
+        }
+
+        // 返回现有订阅（保留连续签到记录）
+        return await getFreeSubscription(existing.id, db);
+      } else {
+        // 超过90天未活跃，创建新订阅（清理僵尸用户）
+        console.log('[FreeSub] User inactive for 90+ days, creating new subscription', {
+          ip,
+          oldSubId: existing.id,
+          daysSinceLastCheckin
+        });
+      }
     }
-    
-    // 返回现有订阅
-    return await getFreeSubscription(existing.id, db);
-  }
   
-  // 查找相同指纹的订阅（检测IP变化）
+  // 查找相同指纹的订阅（检测IP变化，包含过期记录）
   const fingerprintMatch = await db.prepare(`
-    SELECT id, ip, ip_change_count
+    SELECT id, ip, ip_change_count, expired_at
     FROM free_subscriptions
-    WHERE fingerprint = ? AND expired_at > datetime('now')
+    WHERE fingerprint = ?
     ORDER BY expired_at DESC
     LIMIT 1
   `).bind(fingerprint).first();
@@ -224,37 +273,38 @@ export async function validateFreeSubscription(subId, request, db) {
  */
 export async function validateFreeSubscriptionWithFingerprint(subId, request, fingerprint, db) {
   const ip = getClientIP(request);
-  
+
+  // 修复Bug 1: 允许过期当天和过期后7天内仍然可以访问（允许签到续期）
   const sub = await db.prepare(`
-    SELECT * FROM free_subscriptions 
-    WHERE sub_id = ? AND expired_at > datetime('now')
+    SELECT * FROM free_subscriptions
+    WHERE sub_id = ? AND expired_at >= datetime('now', '-7 days')
   `).bind(subId).first();
-  
+
   if (!sub) {
     return { valid: false, reason: 'subscription_not_found_or_expired' };
   }
-  
+
   // 检查IP是否匹配
   const ipMatch = sub.ip === ip;
-  
+
   // 检查指纹是否匹配
   const fingerprintMatch = sub.fingerprint === fingerprint;
-  
+
   if (!ipMatch && !fingerprintMatch) {
     return { valid: false, reason: 'ip_and_fingerprint_mismatch' };
   }
-  
+
   if (!ipMatch) {
     // IP不匹配但指纹匹配，更新IP
     const newIpChangeCount = (sub.ip_change_count || 0) + 1;
-    
+
     if (newIpChangeCount <= 3) {
       await db.prepare(`
         UPDATE free_subscriptions
         SET ip = ?, ip_change_count = ?, ip_updated_at = datetime('now')
         WHERE id = ?
       `).bind(ip, newIpChangeCount, sub.id).run();
-      
+
       console.log('[FreeSub] IP updated via fingerprint verification', {
         subId,
         oldIp: sub.ip,
@@ -266,6 +316,6 @@ export async function validateFreeSubscriptionWithFingerprint(subId, request, fi
       return { valid: false, reason: 'ip_change_limit_exceeded' };
     }
   }
-  
+
   return { valid: true, subscription: formatSubscription(sub) };
 }

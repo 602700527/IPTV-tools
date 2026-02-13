@@ -7250,27 +7250,63 @@ async function createFreeSubscription(ip, fingerprint, fingerprintComponents, en
     const expiredAt = /* @__PURE__ */ new Date();
     expiredAt.setDate(expiredAt.getDate() + 3);
     const existing = await db.prepare(`
-      SELECT id, fingerprint, expired_at
+      SELECT id, fingerprint, expired_at, consecutive_days, last_checkin
       FROM free_subscriptions
-      WHERE ip = ? AND expired_at > datetime('now')
+      WHERE ip = ?
       ORDER BY expired_at DESC
       LIMIT 1
     `).bind(ip).first();
     if (existing) {
-      if (existing.fingerprint !== fingerprint) {
-        console.log("[FreeSub] IP mismatch with existing subscription fingerprint", {
+      const now = /* @__PURE__ */ new Date();
+      const expiredDate = new Date(existing.expired_at);
+      const lastCheckin = existing.last_checkin ? new Date(existing.last_checkin) : expiredDate;
+      const daysSinceLastCheckin = Math.floor((now - lastCheckin) / (1e3 * 60 * 60 * 24));
+      if (!existing.last_checkin || daysSinceLastCheckin <= 90) {
+        if (existing.fingerprint !== fingerprint) {
+          console.log("[FreeSub] IP mismatch with existing subscription fingerprint", {
+            ip,
+            subId: existing.id,
+            storedFp: existing.fingerprint.substring(0, 8),
+            newFp: fingerprint.substring(0, 8)
+          });
+        }
+        if (expiredDate <= now) {
+          const newExpiredAt = /* @__PURE__ */ new Date();
+          newExpiredAt.setDate(newExpiredAt.getDate() + 3);
+          await db.prepare(`
+            UPDATE free_subscriptions
+            SET expired_at = ?,
+                updated_at = datetime('now'),
+                ip_change_count = 0,
+                fingerprint = ?,
+                fingerprint_components = ?
+            WHERE id = ?
+          `).bind(
+            newExpiredAt.toISOString(),
+            fingerprint,
+            JSON.stringify(fingerprintComponents),
+            existing.id
+          ).run();
+          console.log("[FreeSub] Existing expired subscription renewed", {
+            subId: existing.id,
+            ip,
+            oldExpired: existing.expired_at,
+            newExpiredAt: newExpiredAt.toISOString()
+          });
+        }
+        return await getFreeSubscription(existing.id, db);
+      } else {
+        console.log("[FreeSub] User inactive for 90+ days, creating new subscription", {
           ip,
-          subId: existing.id,
-          storedFp: existing.fingerprint.substring(0, 8),
-          newFp: fingerprint.substring(0, 8)
+          oldSubId: existing.id,
+          daysSinceLastCheckin
         });
       }
-      return await getFreeSubscription(existing.id, db);
     }
     const fingerprintMatch = await db.prepare(`
-    SELECT id, ip, ip_change_count
+    SELECT id, ip, ip_change_count, expired_at
     FROM free_subscriptions
-    WHERE fingerprint = ? AND expired_at > datetime('now')
+    WHERE fingerprint = ?
     ORDER BY expired_at DESC
     LIMIT 1
   `).bind(fingerprint).first();
@@ -7380,8 +7416,8 @@ __name(formatSubscription, "formatSubscription");
 async function validateFreeSubscriptionWithFingerprint(subId, request, fingerprint, db) {
   const ip = getClientIP2(request);
   const sub = await db.prepare(`
-    SELECT * FROM free_subscriptions 
-    WHERE sub_id = ? AND expired_at > datetime('now')
+    SELECT * FROM free_subscriptions
+    WHERE sub_id = ? AND expired_at >= datetime('now', '-7 days')
   `).bind(subId).first();
   if (!sub) {
     return { valid: false, reason: "subscription_not_found_or_expired" };
@@ -7434,8 +7470,11 @@ async function performCheckIn(subscriptionId, ip) {
   if (sub.ip !== ip) {
     return { success: false, reason: "ip_mismatch" };
   }
-  if (new Date(sub.expired_at) <= /* @__PURE__ */ new Date()) {
-    return { success: false, reason: "subscription_expired" };
+  const now = /* @__PURE__ */ new Date();
+  const expiredDate = new Date(sub.expired_at);
+  const daysSinceExpired = Math.floor((now - expiredDate) / (1e3 * 60 * 60 * 24));
+  if (daysSinceExpired > 7) {
+    return { success: false, reason: "subscription_expired_too_long" };
   }
   const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
   const existingCheckIn = await db.prepare(`
@@ -7494,7 +7533,6 @@ async function performCheckIn(subscriptionId, ip) {
     rewardDays = 2;
   }
   const currentExpiredAt = new Date(sub.expired_at);
-  const now = /* @__PURE__ */ new Date();
   const startDate = currentExpiredAt <= now ? now : currentExpiredAt;
   const newExpiredAt = new Date(startDate);
   newExpiredAt.setDate(newExpiredAt.getDate() + rewardDays);
@@ -19790,8 +19828,10 @@ var FREE_SUB_HTML = `
       console.log('[displaySubscription] Received subscription data:', sub);
 
       document.getElementById('subId').textContent = sub.subId;
-      const subUrl = \`\${window.location.origin}/api/freesub/\${sub.subId}.m3u?fp=\${fingerprint}\`;
-      document.getElementById('subUrl').textContent = subUrl;
+
+      // \u4F7F\u7528\u5B8C\u6574\u8BA2\u9605\u5730\u5740
+      const fullUrl = \`\${window.location.origin}/api/freesub/\${sub.subId}.m3u?fp=\${fingerprint}\`;
+      document.getElementById('subUrl').textContent = fullUrl;
 
       // \u786E\u4FDDconsecutiveDays\u6709\u503C
       const consecutiveDays = sub.consecutiveDays !== undefined ? sub.consecutiveDays : (sub.consecutive_days !== undefined ? sub.consecutive_days : 0);
@@ -19799,11 +19839,25 @@ var FREE_SUB_HTML = `
 
       document.getElementById('consecutiveDays').textContent = consecutiveDays;
 
-      // \u8BA1\u7B97\u5269\u4F59\u5929\u6570
+      // \u8BA1\u7B97\u5269\u4F59\u5929\u6570\uFF08\u4FEE\u590DBug 1\uFF1A\u663E\u793A\u8D1F\u5929\u6570\u8868\u793A\u5DF2\u8FC7\u671F\uFF09
       const expiredAt = new Date(sub.expiredAt);
       const now = new Date();
-      const daysLeft = Math.max(0, Math.ceil((expiredAt - now) / (1000 * 60 * 60 * 24)));
+      const daysLeft = Math.ceil((expiredAt - now) / (1000 * 60 * 60 * 24));
       document.getElementById('daysLeft').textContent = daysLeft;
+
+      // \u4FEE\u590DBug 1\uFF1A\u5982\u679C\u8BA2\u9605\u5DF2\u8FC7\u671F\uFF0C\u663E\u793A\u63D0\u793A\u4FE1\u606F
+      const daysLeftEl = document.getElementById('daysLeft');
+      if (daysLeft < 0) {
+        daysLeftEl.style.color = '#ff3b30'; // \u7EA2\u8272\u8868\u793A\u5DF2\u8FC7\u671F
+        // \u68C0\u67E5\u662F\u5426\u5728\u8FC7\u671F\u540E7\u5929\u5185\uFF0C\u5982\u679C\u662F\uFF0C\u63D0\u793A\u7528\u6237\u53EF\u4EE5\u7B7E\u5230\u7EED\u671F
+        if (Math.abs(daysLeft) <= 7) {
+          showMessage('\u8BA2\u9605\u5DF2\u8FC7\u671F\uFF0C\u8BF7\u7B7E\u5230\u7EED\u671F\uFF08\u8FC7\u671F\u540E7\u5929\u5185\u4ECD\u53EF\u7B7E\u5230\uFF09', 'error');
+        } else {
+          showMessage('\u8BA2\u9605\u5DF2\u8FC7\u671F\u8D85\u8FC77\u5929\uFF0C\u8BF7\u91CD\u65B0\u83B7\u53D6\u8BA2\u9605', 'error');
+        }
+      } else {
+        daysLeftEl.style.color = '#e50914'; // \u6B63\u5E38\u989C\u8272
+      }
     }
 
     // \u52A0\u8F7D\u8BA2\u9605\u8BE6\u7EC6\u4FE1\u606F
@@ -19890,8 +19944,10 @@ var FREE_SUB_HTML = `
     // \u590D\u5236\u8BA2\u9605\u5730\u5740
     function copySubscriptionUrl() {
       const url = document.getElementById('subUrl').textContent;
+
       navigator.clipboard.writeText(url).then(() => {
         showMessage(t('copiedSuccess'), 'success');
+        console.log('[copySubscriptionUrl] Copied URL:', url);
       }).catch(() => {
         showMessage(t('copyFailed'), 'error');
       });

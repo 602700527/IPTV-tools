@@ -752,8 +752,10 @@ export const FREE_SUB_HTML = `
       console.log('[displaySubscription] Received subscription data:', sub);
 
       document.getElementById('subId').textContent = sub.subId;
-      const subUrl = \`\${window.location.origin}/api/freesub/\${sub.subId}.m3u?fp=\${fingerprint}\`;
-      document.getElementById('subUrl').textContent = subUrl;
+
+      // 使用完整订阅地址
+      const fullUrl = \`\${window.location.origin}/api/freesub/\${sub.subId}.m3u?fp=\${fingerprint}\`;
+      document.getElementById('subUrl').textContent = fullUrl;
 
       // 确保consecutiveDays有值
       const consecutiveDays = sub.consecutiveDays !== undefined ? sub.consecutiveDays : (sub.consecutive_days !== undefined ? sub.consecutive_days : 0);
@@ -761,11 +763,25 @@ export const FREE_SUB_HTML = `
 
       document.getElementById('consecutiveDays').textContent = consecutiveDays;
 
-      // 计算剩余天数
+      // 计算剩余天数（修复Bug 1：显示负天数表示已过期）
       const expiredAt = new Date(sub.expiredAt);
       const now = new Date();
-      const daysLeft = Math.max(0, Math.ceil((expiredAt - now) / (1000 * 60 * 60 * 24)));
+      const daysLeft = Math.ceil((expiredAt - now) / (1000 * 60 * 60 * 24));
       document.getElementById('daysLeft').textContent = daysLeft;
+
+      // 修复Bug 1：如果订阅已过期，显示提示信息
+      const daysLeftEl = document.getElementById('daysLeft');
+      if (daysLeft < 0) {
+        daysLeftEl.style.color = '#ff3b30'; // 红色表示已过期
+        // 检查是否在过期后7天内，如果是，提示用户可以签到续期
+        if (Math.abs(daysLeft) <= 7) {
+          showMessage('订阅已过期，请签到续期（过期后7天内仍可签到）', 'error');
+        } else {
+          showMessage('订阅已过期超过7天，请重新获取订阅', 'error');
+        }
+      } else {
+        daysLeftEl.style.color = '#e50914'; // 正常颜色
+      }
     }
 
     // 加载订阅详细信息
@@ -852,8 +868,10 @@ export const FREE_SUB_HTML = `
     // 复制订阅地址
     function copySubscriptionUrl() {
       const url = document.getElementById('subUrl').textContent;
+
       navigator.clipboard.writeText(url).then(() => {
         showMessage(t('copiedSuccess'), 'success');
+        console.log('[copySubscriptionUrl] Copied URL:', url);
       }).catch(() => {
         showMessage(t('copyFailed'), 'error');
       });

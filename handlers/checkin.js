@@ -31,10 +31,14 @@ export async function performCheckIn(subscriptionId, ip) {
   if (sub.ip !== ip) {
     return { success: false, reason: 'ip_mismatch' };
   }
-  
-  // 检查是否已过期
-  if (new Date(sub.expired_at) <= new Date()) {
-    return { success: false, reason: 'subscription_expired' };
+
+  // 修复Bug 1: 检查是否已过期（允许过期后7天内仍然可以签到续期）
+  const now = new Date();
+  const expiredDate = new Date(sub.expired_at);
+  const daysSinceExpired = Math.floor((now - expiredDate) / (1000 * 60 * 60 * 24));
+
+  if (daysSinceExpired > 7) {
+    return { success: false, reason: 'subscription_expired_too_long' };
   }
   
   // 检查今天是否已签到
@@ -116,7 +120,6 @@ export async function performCheckIn(subscriptionId, ip) {
   
   // 计算新的过期时间
   const currentExpiredAt = new Date(sub.expired_at);
-  const now = new Date();
 
   // 如果已过期，从今天开始计算；否则从过期时间开始计算
   const startDate = currentExpiredAt <= now ? now : currentExpiredAt;
