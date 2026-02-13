@@ -174,80 +174,10 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
 
     let captchaCode = '';
 
-    const translations = {
-      'en': {
-        title: '📺 TV Live Service',
-        subtitle: 'Activate your code to get subscription URL',
-        enterCode: 'Enter activation code',
-        codePlaceholder: 'Enter your activation code',
-        activate: 'Activate Now',
-        activating: 'Activating...',
-        success: '✅ Activation Successful',
-        codeLabel: 'Code',
-        durationLabel: 'Validity',
-        expiresLabel: 'Expires',
-        subUrlLabel: 'Subscription URL (click to copy)',
-        copyUrl: 'Copy Subscription URL',
-        instructions: '📱 Usage Instructions',
-        instr1: 'Add subscription URL to your player',
-        instr2: 'Supports IPTV, PotPlayer and other players',
-        instr3: 'Supports various TV boxes',
-        instr4: 'Regularly update subscription list recommended',
-        instr5: 'Do not use software to test playlist, may trigger system defense',
-        ipRestrictions: '⚠️ Important Notice',
-        instr6: 'Sharing subscription or playback URLs will trigger IP limit detection',
-        instr7: 'Abuse or sharing may result in code being banned or disabled',
-        instr8: 'NEVER share your subscription URL or playback URL with others',
-        instr9: 'Your IP address is logged for security and anti-abuse',
-        enterCodeError: 'Please enter activation code',
-        successMsg: 'Code activated successfully!',
-        failMsg: 'Activation failed, please check if code is correct',
-        networkError: 'Network error, please try again later',
-        copiedMsg: 'Subscription URL copied to clipboard',
-        days: ' days',
-        maxIPs: '3',
-        captchaLabel: 'Verification Code',
-        refreshCaptcha: 'Refresh',
-        captchaError: 'Please enter verification code',
-        invalidCaptcha: 'Invalid verification code'
-      },
-      'zh-CN': {
-        title: '📺 电视直播服务',
-        subtitle: '卡密激活获取订阅地址',
-        enterCode: '请输入卡密',
-        codePlaceholder: '输入您的卡密',
-        activate: '立即激活',
-        activating: '正在激活...',
-        success: '✅ 激活成功',
-        codeLabel: '卡密',
-        durationLabel: '有效期',
-        expiresLabel: '过期时间',
-        subUrlLabel: '订阅地址（点击复制）',
-        copyUrl: '复制订阅地址',
-        instructions: '📱 使用说明',
-        instr1: '将订阅地址添加到播放器',
-        instr2: '支持IPTV、PotPlayer等播放器',
-        instr3: '支持各类电视盒子',
-        instr4: '建议定期更新订阅列表',
-        instr5: '请勿使用软件对播放列表测试，否则可能触发系统防御',
-        ipRestrictions: '⚠️ 重要提示',
-        instr6: '分享订阅地址或播放地址会触发IP限制检测',
-        instr7: '滥用或分享会导致卡密被禁用或封禁',
-        instr8: '切勿将您的订阅地址或播放地址分享给他人',
-        instr9: '您的IP地址会被记录用于安全验证和防止滥用',
-        enterCodeError: '请输入卡密',
-        successMsg: '卡密激活成功！',
-        failMsg: '激活失败，请检查卡密是否正确',
-        networkError: '网络错误，请稍后重试',
-        copiedMsg: '订阅地址已复制到剪贴板',
-        days: ' 天',
-        maxIPs: '3',
-        captchaLabel: '验证码',
-        refreshCaptcha: '刷新',
-        captchaError: '请输入验证码',
-        invalidCaptcha: '验证码错误'
-      }
-    };
+    // 翻译函数 - 使用 translate.js 处理页面翻译
+    function t(key) {
+      return key;
+    }
 
     // 智能判断浏览器语言 - 默认英文，简中才显示简中
     function detectBrowserLanguage() {
@@ -260,10 +190,6 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     }
 
     let currentLang = detectBrowserLanguage();
-
-    function t(key) {
-      return translations[currentLang][key] || translations['en'][key] || key;
-    }
 
     function toggleLangMenu() {
       const menu = document.getElementById('langMenu');

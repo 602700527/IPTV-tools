@@ -611,78 +611,13 @@ export const FREE_SUB_HTML = `
 
     let currentLang = detectBrowserLanguage();
 
-    // 多语言翻译
-    const translations = {
-      'en': {
-        pageTitle: 'Free Subscription - IPTV Live',
-        title: '🎁 Free Subscription',
-        subtitle: 'Daily selected channels, check in to extend',
-        noticeLabel: 'Notice:',
-        noticeText: 'Subscription URL is bound to your IP and browser, do not share with others',
-        subscriptionInfo: '📺 Subscription Info',
-        loading: 'Loading...',
-        copyUrl: 'Copy Subscription URL',
-        daysLeftLabel: 'Days Left',
-        consecutiveDaysLabel: 'Check-in Streak',
-        channelCountLabel: 'Channel Count',
-        randomChannels: 'Random Selection',
-        dailyCheckIn: '📅 Daily Check-in',
-        checkInDesc: 'Check in to extend subscription, bonus rewards for consecutive days!',
-        checkInNow: 'Check In Now',
-        feature1: 'First check-in: 3 days, +1 day per check-in',
-        feature2: '7-day streak: +2 bonus days',
-        feature3: '30-day streak: +7 bonus days, max 30 days total',
-        captchaPlaceholder: 'Enter code',
-        checkInProgress: 'Checking in...',
-        successCheckIn: 'Check-in successful! Got {days} day(s), streak: {streak}',
-        alreadyCheckedIn: 'Already checked in today',
-        enterCaptcha: 'Please enter verification code',
-        captchaError: 'Invalid verification code',
-        networkError: 'Network error, please try again later',
-        fingerprintError: 'Fingerprint generation failed, please refresh page',
-        copiedSuccess: 'Subscription URL copied to clipboard',
-        copyFailed: 'Copy failed, please copy manually',
-        days: ' days'
-      },
-      'zh-CN': {
-        pageTitle: '免费订阅 - IPTV Live',
-        title: '🎁 免费订阅',
-        subtitle: '每天随机精选频道，每日签到续期',
-        noticeLabel: '注意：',
-        noticeText: '订阅地址与您的IP和浏览器绑定，请勿分享给他人使用',
-        subscriptionInfo: '📺 订阅信息',
-        loading: '加载中...',
-        copyUrl: '复制订阅地址',
-        daysLeftLabel: '剩余天数',
-        consecutiveDaysLabel: '连续签到',
-        channelCountLabel: '频道数量',
-        randomChannels: '随机精选',
-        dailyCheckIn: '📅 每日签到',
-        checkInDesc: '签到可延长订阅时长，连续签到有额外奖励！',
-        checkInNow: '立即签到',
-        feature1: '首次签到有效期3天，每天签到+1天',
-        feature2: '连续7天额外+2天',
-        feature3: '连续30天额外+7天，最多累计30天',
-        captchaPlaceholder: '输入验证码',
-        checkInProgress: '签到中...',
-        successCheckIn: '签到成功！获得{days}天，连续签到{streak}天',
-        alreadyCheckedIn: '今日已签到',
-        enterCaptcha: '请输入验证码',
-        captchaError: '验证码错误',
-        networkError: '网络错误，请稍后重试',
-        fingerprintError: '指纹生成失败，请刷新页面重试',
-        copiedSuccess: '订阅地址已复制到剪贴板',
-        copyFailed: '复制失败，请手动复制',
-        days: '天'
-      }
-    };
-
+    // 翻译函数 - 使用 translate.js 处理页面翻译
     function t(key) {
-      return translations[currentLang][key] || translations['zh-CN'][key] || key;
+      return key;
     }
 
     // 设置页面标题
-    document.title = translations[currentLang].title + ' - IPTV Live';
+    document.title = '免费订阅 - IPTV Live';
 
     // 页面加载时执行
     window.addEventListener('DOMContentLoaded', async () => {

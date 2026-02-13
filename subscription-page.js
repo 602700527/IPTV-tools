@@ -1107,91 +1107,37 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       { icon: '✓', name: 'feature', label: 'feature_multi_device' }
     ];
 
-    // 多语言翻译
+    // 翻译函数 - 使用 translate.js 处理页面翻译
+    // 动态内容使用中文，translate.js 会自动翻译
     const translations = {
-      'zh-CN': {
-        pageTitle: '会员订阅 - 电视直播服务',
-        title: '👑 会员订阅',
-        subtitle: '选择适合您的会员套餐，享受高清直播服务',
-        selectIPs: '选择IP数量',
-        summary: '订单汇总',
-        paymentSuccess: '支付成功！',
-        subUrlGenerated: '您的订阅地址已生成',
-        copyUrl: '复制订阅地址',
-        closeButton: '关闭',
-        loginNow: '立即登录',
-        loginHint: '请先登录以完成支付',
-        paymentHint: '⚠️ 支付后请勿关闭此窗口。您的订阅地址将自动显示。',
-        scanQrcode: '请使用手机扫码支付',
-        waitingPayment: '等待支付中...',
-        feature_hd_quality: 'HD 高清画质',
-        feature_multi_device: '多设备同时观看',
-        feature_cloud_recording: '云录制功能',
-        feature_24_7_support: '24/7 技术支持',
-        selectDuration: '选择订阅时长',
-        selectIPs: '选择IP数量',
-        summary: '订单汇总',
-        basePrice: '基础价格',
-        ipPrice: 'IP费用',
-        discount: '折扣',
-        total: '总计',
-        ipCount: 'IP数量',
-        planNames: {
-          'month_1': '1个月',
-          'month_3': '3个月',
-          'month_6': '半年',
-          'month_12': '1年'
-        },
-        error: {
-          notLoggedIn: '请先登录账户',
-          paymentError: '支付失败，请重试',
-          networkError: '网络错误，请稍后重试',
-          selectPlan: '请选择一个套餐'
-        }
+      'planNames': {
+        'month_1': '1个月',
+        'month_3': '3个月',
+        'month_6': '半年',
+        'month_12': '1年'
       },
-      'en': {
-        pageTitle: 'Membership - TV Live Service',
-        title: '👑 Membership',
-        subtitle: 'Choose the plan that suits you, enjoy HD live streaming',
-        summary: 'Order Summary',
-        paymentSuccess: 'Payment Successful!',
-        subUrlGenerated: 'Your subscription URL has been generated',
-        copyUrl: 'Copy URL',
-        closeButton: 'Close',
-        loginNow: 'Login Now',
-        loginHint: 'Please login to complete payment',
-        paymentHint: '⚠️ Please do not close this window after payment. Your subscription URL will be displayed automatically.',
-        scanQrcode: 'Please scan the QR code to pay',
-        waitingPayment: 'Waiting for payment...',
-        feature_hd_quality: 'HD Quality',
-        feature_multi_device: 'Multi-device Support',
-        feature_cloud_recording: 'Cloud Recording',
-        feature_24_7_support: '24/7 Support',
-        selectDuration: 'Select Subscription Duration',
-        selectIPs: 'Select IP Count',
-        summary: 'Order Summary',
-        basePrice: 'Base Price',
-        ipPrice: 'IP Price',
-        discount: 'Discount',
-        total: 'Total',
-        ipCount: 'IP Count',
-        planNames: {
-          'month_1': '1 Month',
-          'month_3': '3 Months',
-          'month_6': '6 Months',
-          'month_12': '1 Year'
-        },
-        error: {
-          notLoggedIn: 'Please login first',
-          paymentError: 'Payment failed, please try again',
-          networkError: 'Network error, please try again later',
-          selectPlan: 'Please select a plan'
-        }
+      'error': {
+        'selectPlan': '请选择一个套餐',
+        'paymentError': '支付失败，请重试',
+        'paymentNotConfigured': '支付方式未配置',
+        'networkError': '网络错误，请稍后重试',
+        'notLoggedIn': '请先登录账户'
       }
     };
 
     function t(key) {
-      return translations[currentLang][key] || translations['en'][key] || key;
+      if (key === 'selectDuration') return '选择订阅时长';
+      if (key === 'selectIPs') return '选择IP数量';
+      if (key === 'summary') return '订单汇总';
+      if (key === 'basePrice') return '基础价格';
+      if (key === 'ipPrice') return 'IP费用';
+      if (key === 'discount') return '折扣';
+      if (key === 'total') return '总计';
+      if (key === 'scanQrcode') return '请使用手机扫码支付';
+      if (key === 'waitingPayment') return '等待支付中...';
+      if (key === 'planNames') return translations.planNames;
+      if (key === 'error') return translations.error;
+      return key;
     }
 
     function formatPrice(price, currency = 'CNY') {
@@ -1214,7 +1160,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
       // 时长选择器
       html += '<div class="selection-section">';
-      html += '<span class="selection-label">' + t('selectDuration') + '</span>';
+      html += '<span class="selection-label">选择订阅时长</span>';
       html += '<div class="option-grid">';
       durationOptions.forEach(duration => {
         const price = calculatePrice(duration, selectedIPs);

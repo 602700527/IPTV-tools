@@ -177,79 +177,9 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
 
     let currentLang = detectBrowserLanguage();
 
-    const translations = {
-      'en': {
-        pageTitle: 'User Center - TV Live Service',
-        userCenter: '👤 User Center',
-        logout: 'Logout',
-        accountInfo: 'Account Info',
-        orderHistory: 'Order History',
-        email: 'Email',
-        emailStatus: 'Email Status',
-        registeredAt: 'Registered At',
-        updatedAt: 'Updated At',
-        verified: 'Verified',
-        unverified: 'Unverified',
-        noOrders: 'No orders yet',
-        orderId: 'Order ID',
-        orderDate: 'Order Date',
-        orderType: 'Order Type',
-        paymentMethod: 'Payment Method',
-        amount: 'Amount',
-        subUrl: 'Subscription URL',
-        ipCount: 'Allowed IPs',
-        status: 'Status',
-        statusCompleted: 'Completed',
-        statusPending: 'Pending',
-        statusCancelled: 'Cancelled',
-        loadUserInfoFailed: 'Failed to load user information',
-        networkError: 'Network error, please try again later',
-        logoutSuccess: 'Logged out successfully',
-        footerCopyright: 'Free HD TV Online Viewing Platform',
-        sitemap: 'Sitemap',
-        privacyPolicy: 'Privacy Policy',
-        termsOfService: 'Terms of Service',
-        cloudflareBadge: 'This site is accelerated and protected by Cloudflare',
-        disclaimerContent: 'The playback link resources on this site are from the public network. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.'
-      },
-      'zh-CN': {
-        pageTitle: '用户中心 - TV Live Service',
-        userCenter: '👤 用户中心',
-        logout: '退出登录',
-        accountInfo: '账户信息',
-        orderHistory: '订单历史',
-        email: '邮箱',
-        emailStatus: '邮箱状态',
-        registeredAt: '注册时间',
-        updatedAt: '更新时间',
-        verified: '已验证',
-        unverified: '未验证',
-        noOrders: '暂无订单记录',
-        orderId: '订单号',
-        orderDate: '下单时间',
-        orderType: '订单类型',
-        paymentMethod: '支付方式',
-        amount: '金额',
-        subUrl: '订阅地址',
-        ipCount: '允许IP数',
-        status: '状态',
-        statusCompleted: '已完成',
-        statusPending: '处理中',
-        statusCancelled: '已取消',
-        loadUserInfoFailed: '加载用户信息失败',
-        networkError: '网络错误，请稍后重试',
-        logoutSuccess: '已退出登录',
-        footerCopyright: '免费高清电视在线观看平台',
-        sitemap: '网站地图',
-        privacyPolicy: '隐私政策',
-        termsOfService: '服务条款',
-        cloudflareBadge: '本站由 Cloudflare 提供加速与安全保护',
-        disclaimerContent: '本站播放链接资源均来源于公开网络，本站不产出和储存任何内容。如有版权或内容问题，请联系内容实际产出者。'
-      }
-    };
-
+    // 翻译函数 - 使用 translate.js 处理页面翻译
     function t(key) {
-      return translations[currentLang][key] || translations['zh-CN'][key] || key;
+      return key;
     }
 
     // 设置语言

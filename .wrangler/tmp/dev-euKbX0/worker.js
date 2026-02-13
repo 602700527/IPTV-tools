@@ -13822,80 +13822,10 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
 
     let captchaCode = '';
 
-    const translations = {
-      'en': {
-        title: '\u{1F4FA} TV Live Service',
-        subtitle: 'Activate your code to get subscription URL',
-        enterCode: 'Enter activation code',
-        codePlaceholder: 'Enter your activation code',
-        activate: 'Activate Now',
-        activating: 'Activating...',
-        success: '\u2705 Activation Successful',
-        codeLabel: 'Code',
-        durationLabel: 'Validity',
-        expiresLabel: 'Expires',
-        subUrlLabel: 'Subscription URL (click to copy)',
-        copyUrl: 'Copy Subscription URL',
-        instructions: '\u{1F4F1} Usage Instructions',
-        instr1: 'Add subscription URL to your player',
-        instr2: 'Supports IPTV, PotPlayer and other players',
-        instr3: 'Supports various TV boxes',
-        instr4: 'Regularly update subscription list recommended',
-        instr5: 'Do not use software to test playlist, may trigger system defense',
-        ipRestrictions: '\u26A0\uFE0F Important Notice',
-        instr6: 'Sharing subscription or playback URLs will trigger IP limit detection',
-        instr7: 'Abuse or sharing may result in code being banned or disabled',
-        instr8: 'NEVER share your subscription URL or playback URL with others',
-        instr9: 'Your IP address is logged for security and anti-abuse',
-        enterCodeError: 'Please enter activation code',
-        successMsg: 'Code activated successfully!',
-        failMsg: 'Activation failed, please check if code is correct',
-        networkError: 'Network error, please try again later',
-        copiedMsg: 'Subscription URL copied to clipboard',
-        days: ' days',
-        maxIPs: '3',
-        captchaLabel: 'Verification Code',
-        refreshCaptcha: 'Refresh',
-        captchaError: 'Please enter verification code',
-        invalidCaptcha: 'Invalid verification code'
-      },
-      'zh-CN': {
-        title: '\u{1F4FA} \u7535\u89C6\u76F4\u64AD\u670D\u52A1',
-        subtitle: '\u5361\u5BC6\u6FC0\u6D3B\u83B7\u53D6\u8BA2\u9605\u5730\u5740',
-        enterCode: '\u8BF7\u8F93\u5165\u5361\u5BC6',
-        codePlaceholder: '\u8F93\u5165\u60A8\u7684\u5361\u5BC6',
-        activate: '\u7ACB\u5373\u6FC0\u6D3B',
-        activating: '\u6B63\u5728\u6FC0\u6D3B...',
-        success: '\u2705 \u6FC0\u6D3B\u6210\u529F',
-        codeLabel: '\u5361\u5BC6',
-        durationLabel: '\u6709\u6548\u671F',
-        expiresLabel: '\u8FC7\u671F\u65F6\u95F4',
-        subUrlLabel: '\u8BA2\u9605\u5730\u5740\uFF08\u70B9\u51FB\u590D\u5236\uFF09',
-        copyUrl: '\u590D\u5236\u8BA2\u9605\u5730\u5740',
-        instructions: '\u{1F4F1} \u4F7F\u7528\u8BF4\u660E',
-        instr1: '\u5C06\u8BA2\u9605\u5730\u5740\u6DFB\u52A0\u5230\u64AD\u653E\u5668',
-        instr2: '\u652F\u6301IPTV\u3001PotPlayer\u7B49\u64AD\u653E\u5668',
-        instr3: '\u652F\u6301\u5404\u7C7B\u7535\u89C6\u76D2\u5B50',
-        instr4: '\u5EFA\u8BAE\u5B9A\u671F\u66F4\u65B0\u8BA2\u9605\u5217\u8868',
-        instr5: '\u8BF7\u52FF\u4F7F\u7528\u8F6F\u4EF6\u5BF9\u64AD\u653E\u5217\u8868\u6D4B\u8BD5\uFF0C\u5426\u5219\u53EF\u80FD\u89E6\u53D1\u7CFB\u7EDF\u9632\u5FA1',
-        ipRestrictions: '\u26A0\uFE0F \u91CD\u8981\u63D0\u793A',
-        instr6: '\u5206\u4EAB\u8BA2\u9605\u5730\u5740\u6216\u64AD\u653E\u5730\u5740\u4F1A\u89E6\u53D1IP\u9650\u5236\u68C0\u6D4B',
-        instr7: '\u6EE5\u7528\u6216\u5206\u4EAB\u4F1A\u5BFC\u81F4\u5361\u5BC6\u88AB\u7981\u7528\u6216\u5C01\u7981',
-        instr8: '\u5207\u52FF\u5C06\u60A8\u7684\u8BA2\u9605\u5730\u5740\u6216\u64AD\u653E\u5730\u5740\u5206\u4EAB\u7ED9\u4ED6\u4EBA',
-        instr9: '\u60A8\u7684IP\u5730\u5740\u4F1A\u88AB\u8BB0\u5F55\u7528\u4E8E\u5B89\u5168\u9A8C\u8BC1\u548C\u9632\u6B62\u6EE5\u7528',
-        enterCodeError: '\u8BF7\u8F93\u5165\u5361\u5BC6',
-        successMsg: '\u5361\u5BC6\u6FC0\u6D3B\u6210\u529F\uFF01',
-        failMsg: '\u6FC0\u6D3B\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u5361\u5BC6\u662F\u5426\u6B63\u786E',
-        networkError: '\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5',
-        copiedMsg: '\u8BA2\u9605\u5730\u5740\u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F',
-        days: ' \u5929',
-        maxIPs: '3',
-        captchaLabel: '\u9A8C\u8BC1\u7801',
-        refreshCaptcha: '\u5237\u65B0',
-        captchaError: '\u8BF7\u8F93\u5165\u9A8C\u8BC1\u7801',
-        invalidCaptcha: '\u9A8C\u8BC1\u7801\u9519\u8BEF'
-      }
-    };
+    // \u7FFB\u8BD1\u51FD\u6570 - \u4F7F\u7528 translate.js \u5904\u7406\u9875\u9762\u7FFB\u8BD1
+    function t(key) {
+      return key;
+    }
 
     // \u667A\u80FD\u5224\u65AD\u6D4F\u89C8\u5668\u8BED\u8A00 - \u9ED8\u8BA4\u82F1\u6587\uFF0C\u7B80\u4E2D\u624D\u663E\u793A\u7B80\u4E2D
     function detectBrowserLanguage() {
@@ -13908,10 +13838,6 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
     }
 
     let currentLang = detectBrowserLanguage();
-
-    function t(key) {
-      return translations[currentLang][key] || translations['en'][key] || key;
-    }
 
     function toggleLangMenu() {
       const menu = document.getElementById('langMenu');
@@ -14711,79 +14637,9 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
 
     let currentLang = detectBrowserLanguage();
 
-    const translations = {
-      'en': {
-        pageTitle: 'User Center - TV Live Service',
-        userCenter: '\u{1F464} User Center',
-        logout: 'Logout',
-        accountInfo: 'Account Info',
-        orderHistory: 'Order History',
-        email: 'Email',
-        emailStatus: 'Email Status',
-        registeredAt: 'Registered At',
-        updatedAt: 'Updated At',
-        verified: 'Verified',
-        unverified: 'Unverified',
-        noOrders: 'No orders yet',
-        orderId: 'Order ID',
-        orderDate: 'Order Date',
-        orderType: 'Order Type',
-        paymentMethod: 'Payment Method',
-        amount: 'Amount',
-        subUrl: 'Subscription URL',
-        ipCount: 'Allowed IPs',
-        status: 'Status',
-        statusCompleted: 'Completed',
-        statusPending: 'Pending',
-        statusCancelled: 'Cancelled',
-        loadUserInfoFailed: 'Failed to load user information',
-        networkError: 'Network error, please try again later',
-        logoutSuccess: 'Logged out successfully',
-        footerCopyright: 'Free HD TV Online Viewing Platform',
-        sitemap: 'Sitemap',
-        privacyPolicy: 'Privacy Policy',
-        termsOfService: 'Terms of Service',
-        cloudflareBadge: 'This site is accelerated and protected by Cloudflare',
-        disclaimerContent: 'The playback link resources on this site are from the public network. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.'
-      },
-      'zh-CN': {
-        pageTitle: '\u7528\u6237\u4E2D\u5FC3 - TV Live Service',
-        userCenter: '\u{1F464} \u7528\u6237\u4E2D\u5FC3',
-        logout: '\u9000\u51FA\u767B\u5F55',
-        accountInfo: '\u8D26\u6237\u4FE1\u606F',
-        orderHistory: '\u8BA2\u5355\u5386\u53F2',
-        email: '\u90AE\u7BB1',
-        emailStatus: '\u90AE\u7BB1\u72B6\u6001',
-        registeredAt: '\u6CE8\u518C\u65F6\u95F4',
-        updatedAt: '\u66F4\u65B0\u65F6\u95F4',
-        verified: '\u5DF2\u9A8C\u8BC1',
-        unverified: '\u672A\u9A8C\u8BC1',
-        noOrders: '\u6682\u65E0\u8BA2\u5355\u8BB0\u5F55',
-        orderId: '\u8BA2\u5355\u53F7',
-        orderDate: '\u4E0B\u5355\u65F6\u95F4',
-        orderType: '\u8BA2\u5355\u7C7B\u578B',
-        paymentMethod: '\u652F\u4ED8\u65B9\u5F0F',
-        amount: '\u91D1\u989D',
-        subUrl: '\u8BA2\u9605\u5730\u5740',
-        ipCount: '\u5141\u8BB8IP\u6570',
-        status: '\u72B6\u6001',
-        statusCompleted: '\u5DF2\u5B8C\u6210',
-        statusPending: '\u5904\u7406\u4E2D',
-        statusCancelled: '\u5DF2\u53D6\u6D88',
-        loadUserInfoFailed: '\u52A0\u8F7D\u7528\u6237\u4FE1\u606F\u5931\u8D25',
-        networkError: '\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5',
-        logoutSuccess: '\u5DF2\u9000\u51FA\u767B\u5F55',
-        footerCopyright: '\u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0',
-        sitemap: '\u7F51\u7AD9\u5730\u56FE',
-        privacyPolicy: '\u9690\u79C1\u653F\u7B56',
-        termsOfService: '\u670D\u52A1\u6761\u6B3E',
-        cloudflareBadge: '\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4',
-        disclaimerContent: '\u672C\u7AD9\u64AD\u653E\u94FE\u63A5\u8D44\u6E90\u5747\u6765\u6E90\u4E8E\u516C\u5F00\u7F51\u7EDC\uFF0C\u672C\u7AD9\u4E0D\u4EA7\u51FA\u548C\u50A8\u5B58\u4EFB\u4F55\u5185\u5BB9\u3002\u5982\u6709\u7248\u6743\u6216\u5185\u5BB9\u95EE\u9898\uFF0C\u8BF7\u8054\u7CFB\u5185\u5BB9\u5B9E\u9645\u4EA7\u51FA\u8005\u3002'
-      }
-    };
-
+    // \u7FFB\u8BD1\u51FD\u6570 - \u4F7F\u7528 translate.js \u5904\u7406\u9875\u9762\u7FFB\u8BD1
     function t(key) {
-      return translations[currentLang][key] || translations['zh-CN'][key] || key;
+      return key;
     }
 
     // \u8BBE\u7F6E\u8BED\u8A00
@@ -15976,220 +15832,63 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       }
     })();
 
-    // ========== \u8BED\u8A00\u914D\u7F6E\u548C\u7FFB\u8BD1 ==========
-    const translations = {
-      'zh-CN': {
-        title: 'IPTV Live - \u514D\u8D39\u7535\u89C6\u76F4\u64AD',
-        searchPlaceholder: '\u641C\u7D22\u9891\u9053...',
-        allChannels: '\u5168\u90E8\u9891\u9053',
-        search: '\u641C\u7D22',
-        history: '\u64AD\u653E\u5386\u53F2',
-        favorites: '\u6211\u7684\u6536\u85CF',
-        random: '\u968F\u673A\u63A8\u8350',
-        plans: '\u8BA2\u9605\u8BA1\u5212',
-        clearCache: '\u6E05\u9664\u7F13\u5B58',
-        onlineCount: '\u4EBA\u5728\u89C2\u770B',
-        hot: '\u70ED\u95E8',
-        recommend: '\u63A8\u8350',
-        quickActions: '\u5FEB\u6377\u64CD\u4F5C',
-        language: '\u8BED\u8A00',
-        menu: '\u83DC\u5355',
-        groupNav: '\u5206\u7EC4\u5BFC\u822A',
-        noHistory: '\u6682\u65E0\u64AD\u653E\u5386\u53F2',
-        noHistoryDesc: '\u89C2\u770B\u7684\u9891\u9053\u4F1A\u81EA\u52A8\u663E\u793A\u5728\u8FD9\u91CC',
-        noFavorites: '\u8FD8\u6CA1\u6709\u6536\u85CF',
-        noFavoritesDesc: '\u70B9\u51FB\u9891\u9053\u5361\u7247\u4E0A\u7684\u661F\u661F\u6309\u94AE\u6DFB\u52A0\u6536\u85CF',
-        noRecommendations: '\u6682\u65E0\u63A8\u8350\u9891\u9053',
-        noRecommendationsDesc: '\u8BF7\u7A0D\u540E\u518D\u8BD5',
-        noChannels: '\u672A\u627E\u5230\u9891\u9053',
-        noChannelsDesc: '\u8BF7\u5C1D\u8BD5\u5176\u4ED6\u641C\u7D22\u8BCD\u6216\u5206\u7EC4',
-        loading: '\u52A0\u8F7D\u9891\u9053\u5217\u8868...',
-        loadingRecommendations: '\u6B63\u5728\u52A0\u8F7D\u63A8\u8350...',
-        searching: '\u641C\u7D22\u4E2D...',
-        page: '\u9875',
-        totalPages: '\u5171',
-        firstPage: '\u9996\u9875',
-        prevPage: '\u4E0A\u4E00\u9875',
-        nextPage: '\u4E0B\u4E00\u9875',
-        lastPage: '\u672B\u9875',
-        loadingCache: '\u6B63\u5728\u52A0\u8F7D\u9891\u9053...',
-        cacheCleared: '\u7F13\u5B58\u5DF2\u6E05\u9664',
-        playing: '\u6B63\u5728\u64AD\u653E',
-        footerCopyright: '\u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0',
-        sitemap: '\u7F51\u7AD9\u5730\u56FE',
-        privacyPolicy: '\u9690\u79C1\u653F\u7B56',
-        termsOfService: '\u670D\u52A1\u6761\u6B3E',
-        cloudflareBadge: '\u672C\u7AD9\u7531 Cloudflare \u63D0\u4F9B\u52A0\u901F\u4E0E\u5B89\u5168\u4FDD\u62A4',
-        toastRefresh: '\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u540E\u518D\u8BD5\u3002',
-        toastBrowserLimit: '\u53D7\u6D4F\u89C8\u5668\u9650\u5236\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BF7<a href="/plans" style="color:#ffcc00;text-decoration:underline;">\u83B7\u53D6\u8BA2\u9605</a>\u5E76\u6DFB\u52A0\u5230\u5BA2\u6237\u7AEF\u4E2D\u4F7F\u7528\u3002',
-        toastChannelLost: '\u8BE5\u9891\u9053\u6570\u636E\u5DF2\u4E22\u5931\uFF0C\u8BF7\u6E05\u9664\u7F13\u5B58\u540E\u518D\u8BD5\u3002',
-        toastSuccess: '\u6210\u529F',
-        toastError: '\u64AD\u653E\u5931\u8D25',
-        toastWarning: '\u63D0\u793A',
-        toastInfo: '\u63D0\u793A',
-        disclaimerTitle: '\u514D\u8D23\u58F0\u660E',
-        disclaimerContent: '\u672C\u7AD9\u64AD\u653E\u94FE\u63A5\u8D44\u6E90\u5747\u6765\u6E90\u4E8E\u516C\u5F00\u7F51\u7EDC\uFF0C\u672C\u7AD9\u4E0D\u4EA7\u51FA\u548C\u50A8\u5B58\u4EFB\u4F55\u5185\u5BB9\u3002\u5982\u6709\u7248\u6743\u6216\u5185\u5BB9\u95EE\u9898\uFF0C\u8BF7\u8054\u7CFB\u5185\u5BB9\u5B9E\u9645\u4EA7\u51FA\u8005\u3002',
-        // \u767B\u5F55\u6CE8\u518C\u76F8\u5173
-        loginTitle: '\u767B\u5F55',
-        registerTitle: '\u6CE8\u518C',
-        email: '\u90AE\u7BB1',
-        password: '\u5BC6\u7801',
-        emailCode: '\u90AE\u7BB1\u9A8C\u8BC1\u7801',
-        emailPlaceholder: '\u8BF7\u8F93\u5165\u90AE\u7BB1',
-        passwordPlaceholder: '\u8BF7\u8F93\u5165\u5BC6\u7801\uFF08\u81F3\u5C118\u4F4D\uFF09',
-        codePlaceholder: '\u8BF7\u8F93\u51656\u4F4D\u9A8C\u8BC1\u7801',
-        loginBtn: '\u767B\u5F55',
-        registerBtn: '\u6CE8\u518C',
-        getCode: '\u83B7\u53D6\u9A8C\u8BC1\u7801',
-        forgotPassword: '\u5FD8\u8BB0\u5BC6\u7801\uFF1F',
-        forgotPasswordTitle: '\u91CD\u7F6E\u5BC6\u7801',
-        forgotPasswordDesc: '\u8BF7\u8F93\u5165\u60A8\u7684\u6CE8\u518C\u90AE\u7BB1\uFF0C\u6211\u4EEC\u5C06\u53D1\u9001\u91CD\u7F6E\u94FE\u63A5\u5230\u60A8\u7684\u90AE\u7BB1',
-        sendResetLink: '\u53D1\u9001\u91CD\u7F6E\u94FE\u63A5',
-        backToLogin: '\u8FD4\u56DE\u767B\u5F55',
-        sending: '\u53D1\u9001\u4E2D...',
-        resetLinkSent: '\u91CD\u7F6E\u94FE\u63A5\u5DF2\u53D1\u9001\uFF0C\u8BF7\u67E5\u6536\u90AE\u4EF6',
-        emailFormatError: '\u90AE\u7BB1\u683C\u5F0F\u4E0D\u6B63\u786E',
-        noAccount: '\u8FD8\u6CA1\u6709\u8D26\u53F7\uFF1F',
-        registerNow: '\u7ACB\u5373\u6CE8\u518C',
-        hasAccount: '\u5DF2\u6709\u8D26\u53F7\uFF1F',
-        loginNow: '\u7ACB\u5373\u767B\u5F55',
-        verifyEmailTitle: '\u90AE\u7BB1\u9A8C\u8BC1',
-        verifyEmailDesc: '\u8BF7\u70B9\u51FB\u4E0B\u65B9\u6309\u94AE\u83B7\u53D6\u9A8C\u8BC1\u7801',
-        enter6DigitCode: '\u8BF7\u8F93\u51656\u4F4D\u9A8C\u8BC1\u7801',
-        verifyEmailBtn: '\u9A8C\u8BC1\u90AE\u7BB1',
-        resendCode: '\u91CD\u65B0\u53D1\u9001\u9A8C\u8BC1\u7801',
-        resendCountdown: '\u91CD\u65B0\u53D1\u9001\u9A8C\u8BC1\u7801 ({count}\u79D2)',
-        getCodeCountdown: '\u91CD\u65B0\u53D1\u9001 ({count}\u79D2)',
-        // \u6CE8\u518C\u76F8\u5173\u63D0\u793A
-        emailEmpty: '\u90AE\u7BB1\u4E0D\u80FD\u4E3A\u7A7A',
-        emailInvalid: '\u90AE\u7BB1\u683C\u5F0F\u4E0D\u6B63\u786E',
-        passwordEmpty: '\u5BC6\u7801\u4E0D\u80FD\u4E3A\u7A7A',
-        passwordTooShort: '\u5BC6\u7801\u81F3\u5C11\u9700\u89818\u4E2A\u5B57\u7B26',
-        enterCodeFirst: '\u8BF7\u5148\u8F93\u5165\u90AE\u7BB1',
-        enterCode: '\u8BF7\u8F93\u5165\u9A8C\u8BC1\u7801',
-        enter6DigitCode2: '\u8BF7\u8F93\u51656\u4F4D\u9A8C\u8BC1\u7801',
-        codeSent: '\u9A8C\u8BC1\u7801\u5DF2\u53D1\u9001\u5230\u60A8\u7684\u90AE\u7BB1',
-        sendCodeFailed: '\u53D1\u9001\u9A8C\u8BC1\u7801\u5931\u8D25',
-        networkError: '\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5',
-        registerSuccess: '\u6CE8\u518C\u6210\u529F',
-        registerFailed: '\u6CE8\u518C\u5931\u8D25',
-        // \u767B\u5F55\u76F8\u5173\u63D0\u793A
-        loginSuccess: '\u767B\u5F55\u6210\u529F',
-        loginFailed: '\u767B\u5F55\u5931\u8D25',
-        needVerifyEmail: '\u8BF7\u5148\u9A8C\u8BC1\u90AE\u7BB1'
-      },
-      'en': {
-        title: 'IPTV Live - Free Live TV',
-        searchPlaceholder: 'Search channels...',
-        allChannels: 'All Channels',
-        search: 'Search',
-        history: 'Watch History',
-        favorites: 'My Favorites',
-        random: 'Random Picks',
-        plans: 'Subscription Plans',
-        clearCache: 'Clear Cache',
-        onlineCount: 'viewers online',
-        hot: 'HOT',
-        recommend: 'RECOMMENDED',
-        quickActions: 'Quick Actions',
-        language: 'Language',
-        menu: 'Menu',
-        groupNav: 'Group Navigation',
-        noHistory: 'No watch history',
-        noHistoryDesc: 'Channels you watch will appear here',
-        noFavorites: 'No favorites yet',
-        noFavoritesDesc: 'Click the star button on channel cards to add favorites',
-        noRecommendations: 'No recommendations',
-        noRecommendationsDesc: 'Please try again later',
-        noChannels: 'No channels found',
-        noChannelsDesc: 'Try different search terms or groups',
-        loading: 'Loading channels...',
-        loadingRecommendations: 'Loading recommendations...',
-        searching: 'Searching...',
-        page: 'Page',
-        totalPages: 'Total',
-        firstPage: 'First',
-        prevPage: 'Prev',
-        nextPage: 'Next',
-        lastPage: 'Last',
-        loadingCache: 'Loading channels...',
-        cacheCleared: 'Cache cleared',
-        playing: 'Now Playing',
-        footerCopyright: 'Free HD Live TV Streaming Platform',
-        sitemap: 'Sitemap',
-        privacyPolicy: 'Privacy Policy',
-        termsOfService: 'Terms of Service',
-        cloudflareBadge: 'This site is powered by Cloudflare for acceleration and security',
-        toastRefresh: 'Cannot play, please refresh the page and try again.',
-        toastBrowserLimit: 'Cannot play due to browser limitations. Please <a href="/plans" style="color:#ffcc00;text-decoration:underline;">get subscription URL</a> and use a player client.',
-        toastChannelLost: 'Channel data has been lost, please clear cache and try again.',
-        toastSuccess: 'Success',
-        toastError: 'Playback Failed',
-        toastWarning: 'Notice',
-        toastInfo: 'Info',
-        disclaimerTitle: 'Disclaimer',
-        disclaimerContent: 'All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.',
-        // \u767B\u5F55\u6CE8\u518C\u76F8\u5173
-        loginTitle: 'Login',
-        registerTitle: 'Register',
-        email: 'Email',
-        password: 'Password',
-        emailCode: 'Email Verification Code',
-        emailPlaceholder: 'Enter your email',
-        passwordPlaceholder: 'Enter password (at least 8 characters)',
-        codePlaceholder: 'Enter 6-digit code',
-        loginBtn: 'Login',
-        registerBtn: 'Register',
-        getCode: 'Get Code',
-        forgotPassword: 'Forgot Password?',
-        forgotPasswordTitle: 'Reset Password',
-        forgotPasswordDesc: 'Enter your registered email and we will send a reset link to your email',
-        sendResetLink: 'Send Reset Link',
-        backToLogin: 'Back to Login',
-        sending: 'Sending...',
-        resetLinkSent: 'Reset link has been sent to your email',
-        emailFormatError: 'Invalid email format',
-        emailCode: 'Email Verification Code',
-        emailPlaceholder: 'Enter email',
-        passwordPlaceholder: 'Enter password (min 8 characters)',
-        codePlaceholder: 'Enter 6-digit code',
-        loginBtn: 'Login',
-        registerBtn: 'Register',
-        getCode: 'Get Code',
-        noAccount: "Don't have an account?",
-        registerNow: 'Register Now',
-        hasAccount: 'Already have an account?',
-        loginNow: 'Login Now',
-        verifyEmailTitle: 'Email Verification',
-        verifyEmailDesc: 'Click the button below to get verification code',
-        enter6DigitCode: 'Enter 6-digit verification code',
-        verifyEmailBtn: 'Verify Email',
-        resendCode: 'Resend Code',
-        resendCountdown: 'Resend ({count}s)',
-        getCodeCountdown: 'Resend ({count}s)',
-        // \u6CE8\u518C\u76F8\u5173\u63D0\u793A
-        emailEmpty: 'Email cannot be empty',
-        emailInvalid: 'Invalid email format',
-        passwordEmpty: 'Password cannot be empty',
-        passwordTooShort: 'Password must be at least 8 characters',
-        enterCodeFirst: 'Please enter email first',
-        enterCode: 'Please enter verification code',
-        enter6DigitCode2: 'Please enter 6-digit verification code',
-        codeSent: 'Verification code has been sent to your email',
-        sendCodeFailed: 'Failed to send verification code',
-        networkError: 'Network error, please try again later',
-        registerSuccess: 'Registration successful',
-        registerFailed: 'Registration failed',
-        // \u767B\u5F55\u76F8\u5173\u63D0\u793A
-        loginSuccess: 'Login successful',
-        loginFailed: 'Login failed',
-        needVerifyEmail: 'Please verify your email first'
-      }
-    };
-
-    // \u83B7\u53D6\u5F53\u524D\u8BED\u8A00\u7684\u7FFB\u8BD1\u6587\u672C
+    // ========== \u7FFB\u8BD1\u51FD\u6570 ==========
+    // \u52A8\u6001\u5185\u5BB9\u4F7F\u7528\u4E2D\u6587\uFF0Ctranslate.js \u4F1A\u81EA\u52A8\u7FFB\u8BD1\u6574\u4E2A\u9875\u9762
     function t(key) {
-      return translations[currentLanguage][key] || translations['en'][key] || key;
+      // \u4E2D\u6587\u6587\u672C\u4F5C\u4E3A\u9ED8\u8BA4\u503C\uFF0Ctranslate.js \u4F1A\u81EA\u52A8\u7FFB\u8BD1
+      const translations = {
+        'title': 'IPTV Live - \u514D\u8D39\u7535\u89C6\u76F4\u64AD',
+        'searchPlaceholder': '\u641C\u7D22\u9891\u9053...',
+        'allChannels': '\u5168\u90E8\u9891\u9053',
+        'search': '\u641C\u7D22',
+        'history': '\u64AD\u653E\u5386\u53F2',
+        'favorites': '\u6211\u7684\u6536\u85CF',
+        'random': '\u968F\u673A\u63A8\u8350',
+        'plans': '\u8BA2\u9605\u8BA1\u5212',
+        'clearCache': '\u6E05\u9664\u7F13\u5B58',
+        'onlineCount': '\u4EBA\u5728\u89C2\u770B',
+        'hot': '\u70ED\u95E8',
+        'noHistory': '\u6682\u65E0\u64AD\u653E\u5386\u53F2',
+        'noHistoryDesc': '\u89C2\u770B\u7684\u9891\u9053\u4F1A\u81EA\u52A8\u663E\u793A\u5728\u8FD9\u91CC',
+        'noFavorites': '\u8FD8\u6CA1\u6709\u6536\u85CF',
+        'noFavoritesDesc': '\u70B9\u51FB\u9891\u9053\u5361\u7247\u4E0A\u7684\u661F\u661F\u6309\u94AE\u6DFB\u52A0\u6536\u85CF',
+        'noChannels': '\u672A\u627E\u5230\u9891\u9053',
+        'noChannelsDesc': '\u8BF7\u5C1D\u8BD5\u5176\u4ED6\u641C\u7D22\u8BCD\u6216\u5206\u7EC4',
+        'loading': '\u52A0\u8F7D\u9891\u9053\u5217\u8868...',
+        'cacheCleared': '\u7F13\u5B58\u5DF2\u6E05\u9664',
+        'playing': '\u6B63\u5728\u64AD\u653E',
+        'toastRefresh': '\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u540E\u518D\u8BD5\u3002',
+        'toastBrowserLimit': '\u53D7\u6D4F\u89C8\u5668\u9650\u5236\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BF7\u83B7\u53D6\u8BA2\u9605\u5E76\u6DFB\u52A0\u5230\u5BA2\u6237\u7AEF\u4E2D\u4F7F\u7528\u3002',
+        'toastChannelLost': '\u8BE5\u9891\u9053\u6570\u636E\u5DF2\u4E22\u5931\uFF0C\u8BF7\u6E05\u9664\u7F13\u5B58\u540E\u518D\u8BD5\u3002',
+        'toastSuccess': '\u6210\u529F',
+        'toastError': '\u64AD\u653E\u5931\u8D25',
+        'toastWarning': '\u63D0\u793A',
+        'toastInfo': '\u63D0\u793A',
+        'loginTitle': '\u767B\u5F55',
+        'registerTitle': '\u6CE8\u518C',
+        'email': '\u90AE\u7BB1',
+        'password': '\u5BC6\u7801',
+        'emailCode': '\u90AE\u7BB1\u9A8C\u8BC1\u7801',
+        'emailPlaceholder': '\u8BF7\u8F93\u5165\u90AE\u7BB1',
+        'passwordPlaceholder': '\u8BF7\u8F93\u5165\u5BC6\u7801\uFF08\u81F3\u5C118\u4F4D\uFF09',
+        'codePlaceholder': '\u8BF7\u8F93\u51656\u4F4D\u9A8C\u8BC1\u7801',
+        'loginBtn': '\u767B\u5F55',
+        'registerBtn': '\u6CE8\u518C',
+        'getCode': '\u83B7\u53D6\u9A8C\u8BC1\u7801',
+        'forgotPassword': '\u5FD8\u8BB0\u5BC6\u7801\uFF1F',
+        'noAccount': '\u8FD8\u6CA1\u6709\u8D26\u53F7\uFF1F',
+        'registerNow': '\u7ACB\u5373\u6CE8\u518C',
+        'hasAccount': '\u5DF2\u6709\u8D26\u53F7\uFF1F',
+        'loginNow': '\u7ACB\u5373\u767B\u5F55',
+        'emailEmpty': '\u90AE\u7BB1\u4E0D\u80FD\u4E3A\u7A7A',
+        'emailInvalid': '\u90AE\u7BB1\u683C\u5F0F\u4E0D\u6B63\u786E',
+        'passwordEmpty': '\u5BC6\u7801\u4E0D\u80FD\u4E3A\u7A7A',
+        'passwordTooShort': '\u5BC6\u7801\u81F3\u5C118\u4F4D',
+        'networkError': '\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5',
+        'loginSuccess': '\u767B\u5F55\u6210\u529F',
+        'loginFailed': '\u767B\u5F55\u5931\u8D25'
+      };
+      return translations[key] || key;
     }
 
     // \u5207\u6362\u8BED\u8A00
@@ -19897,78 +19596,13 @@ var FREE_SUB_HTML = `
 
     let currentLang = detectBrowserLanguage();
 
-    // \u591A\u8BED\u8A00\u7FFB\u8BD1
-    const translations = {
-      'en': {
-        pageTitle: 'Free Subscription - IPTV Live',
-        title: '\u{1F381} Free Subscription',
-        subtitle: 'Daily selected channels, check in to extend',
-        noticeLabel: 'Notice:',
-        noticeText: 'Subscription URL is bound to your IP and browser, do not share with others',
-        subscriptionInfo: '\u{1F4FA} Subscription Info',
-        loading: 'Loading...',
-        copyUrl: 'Copy Subscription URL',
-        daysLeftLabel: 'Days Left',
-        consecutiveDaysLabel: 'Check-in Streak',
-        channelCountLabel: 'Channel Count',
-        randomChannels: 'Random Selection',
-        dailyCheckIn: '\u{1F4C5} Daily Check-in',
-        checkInDesc: 'Check in to extend subscription, bonus rewards for consecutive days!',
-        checkInNow: 'Check In Now',
-        feature1: 'First check-in: 3 days, +1 day per check-in',
-        feature2: '7-day streak: +2 bonus days',
-        feature3: '30-day streak: +7 bonus days, max 30 days total',
-        captchaPlaceholder: 'Enter code',
-        checkInProgress: 'Checking in...',
-        successCheckIn: 'Check-in successful! Got {days} day(s), streak: {streak}',
-        alreadyCheckedIn: 'Already checked in today',
-        enterCaptcha: 'Please enter verification code',
-        captchaError: 'Invalid verification code',
-        networkError: 'Network error, please try again later',
-        fingerprintError: 'Fingerprint generation failed, please refresh page',
-        copiedSuccess: 'Subscription URL copied to clipboard',
-        copyFailed: 'Copy failed, please copy manually',
-        days: ' days'
-      },
-      'zh-CN': {
-        pageTitle: '\u514D\u8D39\u8BA2\u9605 - IPTV Live',
-        title: '\u{1F381} \u514D\u8D39\u8BA2\u9605',
-        subtitle: '\u6BCF\u5929\u968F\u673A\u7CBE\u9009\u9891\u9053\uFF0C\u6BCF\u65E5\u7B7E\u5230\u7EED\u671F',
-        noticeLabel: '\u6CE8\u610F\uFF1A',
-        noticeText: '\u8BA2\u9605\u5730\u5740\u4E0E\u60A8\u7684IP\u548C\u6D4F\u89C8\u5668\u7ED1\u5B9A\uFF0C\u8BF7\u52FF\u5206\u4EAB\u7ED9\u4ED6\u4EBA\u4F7F\u7528',
-        subscriptionInfo: '\u{1F4FA} \u8BA2\u9605\u4FE1\u606F',
-        loading: '\u52A0\u8F7D\u4E2D...',
-        copyUrl: '\u590D\u5236\u8BA2\u9605\u5730\u5740',
-        daysLeftLabel: '\u5269\u4F59\u5929\u6570',
-        consecutiveDaysLabel: '\u8FDE\u7EED\u7B7E\u5230',
-        channelCountLabel: '\u9891\u9053\u6570\u91CF',
-        randomChannels: '\u968F\u673A\u7CBE\u9009',
-        dailyCheckIn: '\u{1F4C5} \u6BCF\u65E5\u7B7E\u5230',
-        checkInDesc: '\u7B7E\u5230\u53EF\u5EF6\u957F\u8BA2\u9605\u65F6\u957F\uFF0C\u8FDE\u7EED\u7B7E\u5230\u6709\u989D\u5916\u5956\u52B1\uFF01',
-        checkInNow: '\u7ACB\u5373\u7B7E\u5230',
-        feature1: '\u9996\u6B21\u7B7E\u5230\u6709\u6548\u671F3\u5929\uFF0C\u6BCF\u5929\u7B7E\u5230+1\u5929',
-        feature2: '\u8FDE\u7EED7\u5929\u989D\u5916+2\u5929',
-        feature3: '\u8FDE\u7EED30\u5929\u989D\u5916+7\u5929\uFF0C\u6700\u591A\u7D2F\u8BA130\u5929',
-        captchaPlaceholder: '\u8F93\u5165\u9A8C\u8BC1\u7801',
-        checkInProgress: '\u7B7E\u5230\u4E2D...',
-        successCheckIn: '\u7B7E\u5230\u6210\u529F\uFF01\u83B7\u5F97{days}\u5929\uFF0C\u8FDE\u7EED\u7B7E\u5230{streak}\u5929',
-        alreadyCheckedIn: '\u4ECA\u65E5\u5DF2\u7B7E\u5230',
-        enterCaptcha: '\u8BF7\u8F93\u5165\u9A8C\u8BC1\u7801',
-        captchaError: '\u9A8C\u8BC1\u7801\u9519\u8BEF',
-        networkError: '\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5',
-        fingerprintError: '\u6307\u7EB9\u751F\u6210\u5931\u8D25\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u91CD\u8BD5',
-        copiedSuccess: '\u8BA2\u9605\u5730\u5740\u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F',
-        copyFailed: '\u590D\u5236\u5931\u8D25\uFF0C\u8BF7\u624B\u52A8\u590D\u5236',
-        days: '\u5929'
-      }
-    };
-
+    // \u7FFB\u8BD1\u51FD\u6570 - \u4F7F\u7528 translate.js \u5904\u7406\u9875\u9762\u7FFB\u8BD1
     function t(key) {
-      return translations[currentLang][key] || translations['zh-CN'][key] || key;
+      return key;
     }
 
     // \u8BBE\u7F6E\u9875\u9762\u6807\u9898
-    document.title = translations[currentLang].title + ' - IPTV Live';
+    document.title = '\u514D\u8D39\u8BA2\u9605 - IPTV Live';
 
     // \u9875\u9762\u52A0\u8F7D\u65F6\u6267\u884C
     window.addEventListener('DOMContentLoaded', async () => {
@@ -21403,91 +21037,37 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       { icon: '\u2713', name: 'feature', label: 'feature_multi_device' }
     ];
 
-    // \u591A\u8BED\u8A00\u7FFB\u8BD1
+    // \u7FFB\u8BD1\u51FD\u6570 - \u4F7F\u7528 translate.js \u5904\u7406\u9875\u9762\u7FFB\u8BD1
+    // \u52A8\u6001\u5185\u5BB9\u4F7F\u7528\u4E2D\u6587\uFF0Ctranslate.js \u4F1A\u81EA\u52A8\u7FFB\u8BD1
     const translations = {
-      'zh-CN': {
-        pageTitle: '\u4F1A\u5458\u8BA2\u9605 - \u7535\u89C6\u76F4\u64AD\u670D\u52A1',
-        title: '\u{1F451} \u4F1A\u5458\u8BA2\u9605',
-        subtitle: '\u9009\u62E9\u9002\u5408\u60A8\u7684\u4F1A\u5458\u5957\u9910\uFF0C\u4EAB\u53D7\u9AD8\u6E05\u76F4\u64AD\u670D\u52A1',
-        selectIPs: '\u9009\u62E9IP\u6570\u91CF',
-        summary: '\u8BA2\u5355\u6C47\u603B',
-        paymentSuccess: '\u652F\u4ED8\u6210\u529F\uFF01',
-        subUrlGenerated: '\u60A8\u7684\u8BA2\u9605\u5730\u5740\u5DF2\u751F\u6210',
-        copyUrl: '\u590D\u5236\u8BA2\u9605\u5730\u5740',
-        closeButton: '\u5173\u95ED',
-        loginNow: '\u7ACB\u5373\u767B\u5F55',
-        loginHint: '\u8BF7\u5148\u767B\u5F55\u4EE5\u5B8C\u6210\u652F\u4ED8',
-        paymentHint: '\u26A0\uFE0F \u652F\u4ED8\u540E\u8BF7\u52FF\u5173\u95ED\u6B64\u7A97\u53E3\u3002\u60A8\u7684\u8BA2\u9605\u5730\u5740\u5C06\u81EA\u52A8\u663E\u793A\u3002',
-        scanQrcode: '\u8BF7\u4F7F\u7528\u624B\u673A\u626B\u7801\u652F\u4ED8',
-        waitingPayment: '\u7B49\u5F85\u652F\u4ED8\u4E2D...',
-        feature_hd_quality: 'HD \u9AD8\u6E05\u753B\u8D28',
-        feature_multi_device: '\u591A\u8BBE\u5907\u540C\u65F6\u89C2\u770B',
-        feature_cloud_recording: '\u4E91\u5F55\u5236\u529F\u80FD',
-        feature_24_7_support: '24/7 \u6280\u672F\u652F\u6301',
-        selectDuration: '\u9009\u62E9\u8BA2\u9605\u65F6\u957F',
-        selectIPs: '\u9009\u62E9IP\u6570\u91CF',
-        summary: '\u8BA2\u5355\u6C47\u603B',
-        basePrice: '\u57FA\u7840\u4EF7\u683C',
-        ipPrice: 'IP\u8D39\u7528',
-        discount: '\u6298\u6263',
-        total: '\u603B\u8BA1',
-        ipCount: 'IP\u6570\u91CF',
-        planNames: {
-          'month_1': '1\u4E2A\u6708',
-          'month_3': '3\u4E2A\u6708',
-          'month_6': '\u534A\u5E74',
-          'month_12': '1\u5E74'
-        },
-        error: {
-          notLoggedIn: '\u8BF7\u5148\u767B\u5F55\u8D26\u6237',
-          paymentError: '\u652F\u4ED8\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5',
-          networkError: '\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5',
-          selectPlan: '\u8BF7\u9009\u62E9\u4E00\u4E2A\u5957\u9910'
-        }
+      'planNames': {
+        'month_1': '1\u4E2A\u6708',
+        'month_3': '3\u4E2A\u6708',
+        'month_6': '\u534A\u5E74',
+        'month_12': '1\u5E74'
       },
-      'en': {
-        pageTitle: 'Membership - TV Live Service',
-        title: '\u{1F451} Membership',
-        subtitle: 'Choose the plan that suits you, enjoy HD live streaming',
-        summary: 'Order Summary',
-        paymentSuccess: 'Payment Successful!',
-        subUrlGenerated: 'Your subscription URL has been generated',
-        copyUrl: 'Copy URL',
-        closeButton: 'Close',
-        loginNow: 'Login Now',
-        loginHint: 'Please login to complete payment',
-        paymentHint: '\u26A0\uFE0F Please do not close this window after payment. Your subscription URL will be displayed automatically.',
-        scanQrcode: 'Please scan the QR code to pay',
-        waitingPayment: 'Waiting for payment...',
-        feature_hd_quality: 'HD Quality',
-        feature_multi_device: 'Multi-device Support',
-        feature_cloud_recording: 'Cloud Recording',
-        feature_24_7_support: '24/7 Support',
-        selectDuration: 'Select Subscription Duration',
-        selectIPs: 'Select IP Count',
-        summary: 'Order Summary',
-        basePrice: 'Base Price',
-        ipPrice: 'IP Price',
-        discount: 'Discount',
-        total: 'Total',
-        ipCount: 'IP Count',
-        planNames: {
-          'month_1': '1 Month',
-          'month_3': '3 Months',
-          'month_6': '6 Months',
-          'month_12': '1 Year'
-        },
-        error: {
-          notLoggedIn: 'Please login first',
-          paymentError: 'Payment failed, please try again',
-          networkError: 'Network error, please try again later',
-          selectPlan: 'Please select a plan'
-        }
+      'error': {
+        'selectPlan': '\u8BF7\u9009\u62E9\u4E00\u4E2A\u5957\u9910',
+        'paymentError': '\u652F\u4ED8\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5',
+        'paymentNotConfigured': '\u652F\u4ED8\u65B9\u5F0F\u672A\u914D\u7F6E',
+        'networkError': '\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5',
+        'notLoggedIn': '\u8BF7\u5148\u767B\u5F55\u8D26\u6237'
       }
     };
 
     function t(key) {
-      return translations[currentLang][key] || translations['en'][key] || key;
+      if (key === 'selectDuration') return '\u9009\u62E9\u8BA2\u9605\u65F6\u957F';
+      if (key === 'selectIPs') return '\u9009\u62E9IP\u6570\u91CF';
+      if (key === 'summary') return '\u8BA2\u5355\u6C47\u603B';
+      if (key === 'basePrice') return '\u57FA\u7840\u4EF7\u683C';
+      if (key === 'ipPrice') return 'IP\u8D39\u7528';
+      if (key === 'discount') return '\u6298\u6263';
+      if (key === 'total') return '\u603B\u8BA1';
+      if (key === 'scanQrcode') return '\u8BF7\u4F7F\u7528\u624B\u673A\u626B\u7801\u652F\u4ED8';
+      if (key === 'waitingPayment') return '\u7B49\u5F85\u652F\u4ED8\u4E2D...';
+      if (key === 'planNames') return translations.planNames;
+      if (key === 'error') return translations.error;
+      return key;
     }
 
     function formatPrice(price, currency = 'CNY') {
@@ -21510,7 +21090,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
       // \u65F6\u957F\u9009\u62E9\u5668
       html += '<div class="selection-section">';
-      html += '<span class="selection-label">' + t('selectDuration') + '</span>';
+      html += '<span class="selection-label">\u9009\u62E9\u8BA2\u9605\u65F6\u957F</span>';
       html += '<div class="option-grid">';
       durationOptions.forEach(duration => {
         const price = calculatePrice(duration, selectedIPs);
