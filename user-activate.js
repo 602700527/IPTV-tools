@@ -12,17 +12,12 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     .logo{text-align:center;margin-bottom:25px}
     .logo h1{font-size:24px;font-weight:700;color:#fff;margin-bottom:8px}
     .logo p{color:rgba(255,255,255,.6);font-size:14px}
-    .lang-switch{position:absolute;top:20px;right:20px;z-index:10}
-    .lang-dropdown{position:relative;display:inline-block}
-    .lang-btn{background:#e50914;color:white;border:none;padding:8px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:background .2s;display:flex;align-items:center;gap:6px;-webkit-tap-highlight-color:transparent}
-    .lang-btn:hover{background:#f7262c}
-    .lang-btn:after{content:"▼";font-size:9px}
-    .lang-menu{display:none;position:absolute;top:calc(100%+8px);right:0;background:#1a1a1a;backdrop-filter:blur(10px);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.3);min-width:120px;overflow:hidden;animation:fadeIn .2s ease;border:1px solid rgba(255,255,255,.15)}
-    .lang-menu.show{display:block}
-    .lang-menu button{display:block;width:100%;padding:10px 16px;background:none;border:none;text-align:left;font-size:13px;color:rgba(255,255,255,.8);cursor:pointer;transition:background .2s}
-    .lang-menu button:hover{background:rgba(229,9,20,.15)}
-    .lang-menu button.active{background:#e50914;color:white}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+    /* Translate.js 语言切换器样式 */
+    #translate{position:absolute;top:20px;right:20px;z-index:10}
+    #translate select{height:36px;padding:0 28px 0 10px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.6);color:#fff;cursor:pointer;font-size:13px;font-weight:500;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+    #translate select:hover{border-color:rgba(255,255,255,.5);background-color:rgba(0,0,0,.8)}
+    #translate select:focus{outline:none;border-color:#e50914}
+    #translate select option{background:#1a1a1a;color:#fff}
     .form-group{margin-bottom:18px}
     .form-group label{display:block;margin-bottom:6px;font-weight:500;color:rgba(255,255,255,.8);font-size:14px}
     .form-group input{width:100%;padding:12px 14px;border:2px solid rgba(255,255,255,.2);border-radius:10px;font-size:16px;transition:border-color .2s;letter-spacing:1px;-webkit-appearance:none;height:44px;background:rgba(255,255,255,.05);color:#fff}
@@ -67,12 +62,11 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     .captcha-refresh:hover{background:rgba(255,255,255,.15)}
     @media (max-width:480px){
       body{padding:10px}
-      .container{padding:20px;border-radius:12px;padding-top:50px}
+      .container{padding:20px;border-radius:12px}
       .logo h1{font-size:20px}
       .logo p{font-size:12px}
-    .lang-switch{top:15px;right:15px}
-    .lang-btn{padding:6px 14px;font-size:12px}
-    .lang-menu button{padding:8px 12px;font-size:12px}
+      #translate{top:12px;right:12px}
+      #translate select{height:32px;font-size:12px;padding:0 24px 0 8px}
       .form-group input{font-size:16px;padding:11px 13px}
       .btn{padding:13px;font-size:15px}
       .result{padding:16px}
@@ -88,15 +82,8 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
 </head>
 <body>
   <div class="container">
-    <div class="lang-switch">
-      <div class="lang-dropdown">
-        <button class="lang-btn" onclick="toggleLangMenu()" id="currentLangBtn">EN</button>
-        <div class="lang-menu" id="langMenu">
-          <button onclick="setLanguage('en')" id="langEn">English</button>
-          <button onclick="setLanguage('zh-CN')" id="langZh">简体中文</button>
-        </div>
-      </div>
-    </div>
+    <!-- Translate.js 语言切换器 -->
+    <div id="translate"></div>
     <div class="logo">
       <h1 data-i18n="title">📺 TV Live Service</h1>
       <p data-i18n="subtitle">Activate your code to get subscription URL</p>
@@ -188,56 +175,10 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
 
     let currentLang = detectBrowserLanguage();
 
-    function toggleLangMenu() {
-      const menu = document.getElementById('langMenu');
-      menu.classList.toggle('show');
-    }
-
-    // 立即执行语言设置，避免闪烁
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => setLanguage(currentLang));
-    } else {
-      setLanguage(currentLang);
-    }
-
-
-    function setLanguage(lang) {
-      currentLang = lang;
-      localStorage.setItem('activate_lang', lang);
-
-      // Update button states
-      document.getElementById('langEn').classList.toggle('active', lang === 'en');
-      document.getElementById('langZh').classList.toggle('active', lang === 'zh-CN');
-
-      // Update current language button
-      const langNames = { 'en': 'EN', 'zh-CN': '简体' };
-      document.getElementById('currentLangBtn').textContent = langNames[lang] || 'EN';
-
-      // Close menu
-      document.getElementById('langMenu').classList.remove('show');
-
-      // Update HTML lang attribute
-      document.documentElement.lang = lang;
-
-      // Update document title
-      document.title = lang === 'en' ? 'Activation - TV Live Service' : '卡密激活 - 电视直播服务';
-
-      // Update all elements with data-i18n
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        let text = t(key);
-        // Replace {maxIPs} placeholder with actual value
-        if (text && text.includes('{maxIPs}')) {
-          text = text.replace('{maxIPs}', t('maxIPs'));
-        }
-        el.textContent = text;
-      });
-
-      // Update placeholders
-      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-        const key = el.getAttribute('data-i18n-placeholder');
-        el.placeholder = t(key);
-      });
+    // 页面加载后初始化翻译
+    function initPageTranslate() {
+      // 设置 HTML lang 属性
+      document.documentElement.lang = currentLang;
     }
 
     function showError(message) {
@@ -305,11 +246,11 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         const data = await response.json();
 
         if (response.ok && data.success) {
-          showSuccess(t('successMsg'));
+          showSuccess(t('success'));
           showResult(code, data);
           refreshCaptcha();
         } else {
-          showError(data.error || t('failMsg'));
+          showError(data.error || t('fail'));
           refreshCaptcha();
         }
       } catch (error) {
@@ -342,7 +283,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       const subUrl = document.getElementById('subUrl').textContent;
       if (subUrl && subUrl !== '-') {
         navigator.clipboard.writeText(subUrl).then(() => {
-          showSuccess(t('copiedMsg'));
+          showSuccess(t('copied Success'));
         }).catch(err => {
           const textarea = document.createElement('textarea');
           textarea.value = subUrl;
@@ -350,7 +291,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
           textarea.select();
           document.execCommand('copy');
           document.body.removeChild(textarea);
-          showSuccess(t('copiedMsg'));
+          showSuccess(t('copied Success'));
         });
       }
     }
@@ -455,23 +396,25 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       window.translate = translate;
     }
     if (typeof translate !== 'undefined' && translate.language) {
-      translate.language.setLocal('chinese_simplified');
+      // 设置默认语言为英文
+      translate.language.setLocal('english');
+      // 使用边缘翻译服务
       translate.service.use('client.edge');
+      // 开启页面元素动态监控
       translate.listener.start();
-      translate.setAutoDiscriminateLocalLanguage();
+      
+      // 显式显示语言选择器
+      if (translate.selectLanguageTag) {
+        translate.selectLanguageTag.show = true;
+      }
+      
+      // 执行翻译，语言选择器会自动生成到 id="translate" 的元素中
       translate.execute();
     } else {
       setTimeout(initTranslate, 100);
     }
   }
   initTranslate();
-  
-  function changeLanguage(lang) {
-    var t = window.translate || translate;
-    if (t && t.changeLanguage) {
-      t.changeLanguage(lang);
-    }
-  }
 </script>
 </body>
 </html>`;

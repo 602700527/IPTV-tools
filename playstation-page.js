@@ -691,8 +691,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         translate.service.use('client.edge');
         // 开启页面元素动态监控
         translate.listener.start();
-        // 自动识别用户语言
-        translate.setAutoDiscriminateLocalLanguage();
+        
+        // 显式显示语言选择器
+        if (translate.selectLanguageTag) {
+          translate.selectLanguageTag.show = true;
+        }
         
         // 执行翻译（语言选择器会自动从翻译服务获取支持的语言）
         translate.execute();
