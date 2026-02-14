@@ -1806,7 +1806,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       emptyState.style.display = 'none';
       container.innerHTML = channels.map(channel => {
         const logo = channel.logo
-          ? \`<img src="\${escapeHtml(channel.logo)}" alt="\${escapeHtml(channel.channel_name)}">\`
+          ? \`<img src="\${escapeHtml(channel.logo)}" alt="\${escapeHtml(channel.channel_name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">📺</div>\`
           : '<div class="channel-icon">📺</div>';
 
         const isFavorited = favorites.some(f => f.hash === channel.channel_hash);
@@ -2950,7 +2950,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
         container.innerHTML = randomChannels.map((channel, index) => {
           const logo = channel.logo
-            ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`
+            ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">📺</div>\`
             : '<div class="channel-icon">📺</div>';
           const isPlaying = currentPlayingChannel === channel.channel_hash;
           const showRecommendTag = index < 5 && !isPlaying; // 正在播放时隐藏推荐标签
@@ -3073,7 +3073,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       }
 
       if (channel && channel.logo) {
-        return \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`;
+        return \`<img src="\${escapeHtml(channel.logo)}" alt="logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">📺</div>\`;
       }
       return '<div class="channel-icon">📺</div>';
     }
@@ -3149,9 +3149,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       emptyState.style.display = 'none';
 
       container.innerHTML = historyItems.map(h => {
-        const logo = getLogoByHash(h.hash);
+        const logoHtml = getLogoByHash(h.hash);
         const timeAgo = getTimeAgo(h.watchedAt);
-        const logoHtml = logo ? \`<img src="\${escapeHtml(logo)}" alt="\${escapeHtml(h.name)}">\` : '<div class="channel-icon">📺</div>';
         const isPlaying = currentPlayingChannel === h.hash;
 
         return \`

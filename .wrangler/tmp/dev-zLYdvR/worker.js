@@ -16838,7 +16838,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       emptyState.style.display = 'none';
       container.innerHTML = channels.map(channel => {
         const logo = channel.logo
-          ? \`<img src="\${escapeHtml(channel.logo)}" alt="\${escapeHtml(channel.channel_name)}">\`
+          ? \`<img src="\${escapeHtml(channel.logo)}" alt="\${escapeHtml(channel.channel_name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">\u{1F4FA}</div>\`
           : '<div class="channel-icon">\u{1F4FA}</div>';
 
         const isFavorited = favorites.some(f => f.hash === channel.channel_hash);
@@ -17982,7 +17982,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
         container.innerHTML = randomChannels.map((channel, index) => {
           const logo = channel.logo
-            ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`
+            ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">\u{1F4FA}</div>\`
             : '<div class="channel-icon">\u{1F4FA}</div>';
           const isPlaying = currentPlayingChannel === channel.channel_hash;
           const showRecommendTag = index < 5 && !isPlaying; // \u6B63\u5728\u64AD\u653E\u65F6\u9690\u85CF\u63A8\u8350\u6807\u7B7E
@@ -18105,7 +18105,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       }
 
       if (channel && channel.logo) {
-        return \`<img src="\${escapeHtml(channel.logo)}" alt="logo">\`;
+        return \`<img src="\${escapeHtml(channel.logo)}" alt="logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">\u{1F4FA}</div>\`;
       }
       return '<div class="channel-icon">\u{1F4FA}</div>';
     }
@@ -18181,9 +18181,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       emptyState.style.display = 'none';
 
       container.innerHTML = historyItems.map(h => {
-        const logo = getLogoByHash(h.hash);
+        const logoHtml = getLogoByHash(h.hash);
         const timeAgo = getTimeAgo(h.watchedAt);
-        const logoHtml = logo ? \`<img src="\${escapeHtml(logo)}" alt="\${escapeHtml(h.name)}">\` : '<div class="channel-icon">\u{1F4FA}</div>';
         const isPlaying = currentPlayingChannel === h.hash;
 
         return \`
