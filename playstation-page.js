@@ -634,29 +634,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       <!-- Toast 提示容器 -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <footer class="footer">
-    <p>&copy; 2024 IPTV Live. Free HD Live TV Streaming Platform</p>
-    <!-- SEO 友好链接 -->
-    <div style="margin-top:15px;font-size:12px;color:rgba(255,255,255,.4);">
-      <a href="/sitemap.xml" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">Sitemap</a>
-      <a href="/robots.txt" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">Robots</a>
-      <a href="/privacy-policy" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">Privacy Policy</a>
-      <a href="/terms" style="color:rgba(255,255,255,.6);text-decoration:none;margin:0 10px;">Terms of Service</a>
-    </div>
-    <!-- Cloudflare托管说明和徽章 -->
-    <div style="margin-top:20px;display:flex;align-items:center;justify-content:center;gap:10px;">
-            <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
-        <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare" style="height:12px;width:auto;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">
-      </a>
-      <span style="font-size:12px;color:rgba(255,255,255,.6);">This site is powered by Cloudflare for acceleration and security</span>
-
-    </div>
-    <!-- 免责声明 -->
-    <div style="margin-top:15px;font-size:11px;color:rgba(255,255,255,.4);line-height:1.5;">
-      <span>All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.</span>
-    </div>
-  </footer>
-
   <div class="player-wrapper collapsed" id="playerWrapper">
     <div class="player-header" id="playerHeader">
       <div class="player-info">
