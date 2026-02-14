@@ -4,11 +4,11 @@ import { PAGE_FOOTER } from './components/page-footer.js';
 
 
 export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title data-i18n-title="pageTitle">订阅购买 - TV Live Service</title>
+  <title data-i18n-title="pageTitle">Subscription - TV Live Service</title>
   <style>
     * {
       margin: 0;
@@ -1572,14 +1572,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             }
           }, 1500);
         } else {
-          showError(result.error || '模拟失败');
+          showError(result.error || 'Simulation failed');
         }
       } catch (error) {
         console.error('Simulate payment error:', error);
-        showError('模拟失败: ' + error.message);
+        showError('Simulation failed: ' + error.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = '[调试] 模拟支付成功';
+        btn.textContent = '[Debug] Simulate Payment Success';
       }
     }
 
@@ -1616,7 +1616,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       if (!paymentMethodsContainer) return;
 
       if (methods.length === 0) {
-        paymentMethodsContainer.innerHTML = '<p style="color:rgba(255,255,255,0.6);text-align:center;padding:20px;">暂无可用支付方式</p>';
+        paymentMethodsContainer.innerHTML = '<p style="color:rgba(255,255,255,0.6);text-align:center;padding:20px;">No payment methods available</p>';
         return;
       }
 

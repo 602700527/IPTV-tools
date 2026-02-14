@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-yxmLRk/checked-fetch.js
+// .wrangler/tmp/bundle-Z8dIyS/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-yxmLRk/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-Z8dIyS/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -2068,11 +2068,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-yxmLRk/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-Z8dIyS/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-yxmLRk/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-Z8dIyS/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -15011,7 +15011,7 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
 init_checked_fetch();
 init_modules_watch_stub();
 var PLAYSTATION_HTML = `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15833,60 +15833,79 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     })();
 
     // ========== \u7FFB\u8BD1\u51FD\u6570 ==========
-    // \u52A8\u6001\u5185\u5BB9\u4F7F\u7528\u4E2D\u6587\uFF0Ctranslate.js \u4F1A\u81EA\u52A8\u7FFB\u8BD1\u6574\u4E2A\u9875\u9762
+    // \u9ED8\u8BA4\u82F1\u6587\u7FFB\u8BD1
     function t(key) {
-      // \u4E2D\u6587\u6587\u672C\u4F5C\u4E3A\u9ED8\u8BA4\u503C\uFF0Ctranslate.js \u4F1A\u81EA\u52A8\u7FFB\u8BD1
+      // \u82F1\u6587\u6587\u672C\u4F5C\u4E3A\u9ED8\u8BA4\u503C
       const translations = {
-        'title': 'IPTV Live - \u514D\u8D39\u7535\u89C6\u76F4\u64AD',
-        'searchPlaceholder': '\u641C\u7D22\u9891\u9053...',
-        'allChannels': '\u5168\u90E8\u9891\u9053',
-        'search': '\u641C\u7D22',
-        'history': '\u64AD\u653E\u5386\u53F2',
-        'favorites': '\u6211\u7684\u6536\u85CF',
-        'random': '\u968F\u673A\u63A8\u8350',
-        'plans': '\u8BA2\u9605\u8BA1\u5212',
-        'clearCache': '\u6E05\u9664\u7F13\u5B58',
-        'onlineCount': '\u4EBA\u5728\u89C2\u770B',
-        'hot': '\u70ED\u95E8',
-        'noHistory': '\u6682\u65E0\u64AD\u653E\u5386\u53F2',
-        'noHistoryDesc': '\u89C2\u770B\u7684\u9891\u9053\u4F1A\u81EA\u52A8\u663E\u793A\u5728\u8FD9\u91CC',
-        'noFavorites': '\u8FD8\u6CA1\u6709\u6536\u85CF',
-        'noFavoritesDesc': '\u70B9\u51FB\u9891\u9053\u5361\u7247\u4E0A\u7684\u661F\u661F\u6309\u94AE\u6DFB\u52A0\u6536\u85CF',
-        'noChannels': '\u672A\u627E\u5230\u9891\u9053',
-        'noChannelsDesc': '\u8BF7\u5C1D\u8BD5\u5176\u4ED6\u641C\u7D22\u8BCD\u6216\u5206\u7EC4',
-        'loading': '\u52A0\u8F7D\u9891\u9053\u5217\u8868...',
-        'cacheCleared': '\u7F13\u5B58\u5DF2\u6E05\u9664',
-        'playing': '\u6B63\u5728\u64AD\u653E',
-        'toastRefresh': '\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BF7\u5237\u65B0\u9875\u9762\u540E\u518D\u8BD5\u3002',
-        'toastBrowserLimit': '\u53D7\u6D4F\u89C8\u5668\u9650\u5236\u65E0\u6CD5\u64AD\u653E\uFF0C\u8BF7\u83B7\u53D6\u8BA2\u9605\u5E76\u6DFB\u52A0\u5230\u5BA2\u6237\u7AEF\u4E2D\u4F7F\u7528\u3002',
-        'toastChannelLost': '\u8BE5\u9891\u9053\u6570\u636E\u5DF2\u4E22\u5931\uFF0C\u8BF7\u6E05\u9664\u7F13\u5B58\u540E\u518D\u8BD5\u3002',
-        'toastSuccess': '\u6210\u529F',
-        'toastError': '\u64AD\u653E\u5931\u8D25',
-        'toastWarning': '\u63D0\u793A',
-        'toastInfo': '\u63D0\u793A',
-        'loginTitle': '\u767B\u5F55',
-        'registerTitle': '\u6CE8\u518C',
-        'email': '\u90AE\u7BB1',
-        'password': '\u5BC6\u7801',
-        'emailCode': '\u90AE\u7BB1\u9A8C\u8BC1\u7801',
-        'emailPlaceholder': '\u8BF7\u8F93\u5165\u90AE\u7BB1',
-        'passwordPlaceholder': '\u8BF7\u8F93\u5165\u5BC6\u7801\uFF08\u81F3\u5C118\u4F4D\uFF09',
-        'codePlaceholder': '\u8BF7\u8F93\u51656\u4F4D\u9A8C\u8BC1\u7801',
-        'loginBtn': '\u767B\u5F55',
-        'registerBtn': '\u6CE8\u518C',
-        'getCode': '\u83B7\u53D6\u9A8C\u8BC1\u7801',
-        'forgotPassword': '\u5FD8\u8BB0\u5BC6\u7801\uFF1F',
-        'noAccount': '\u8FD8\u6CA1\u6709\u8D26\u53F7\uFF1F',
-        'registerNow': '\u7ACB\u5373\u6CE8\u518C',
-        'hasAccount': '\u5DF2\u6709\u8D26\u53F7\uFF1F',
-        'loginNow': '\u7ACB\u5373\u767B\u5F55',
-        'emailEmpty': '\u90AE\u7BB1\u4E0D\u80FD\u4E3A\u7A7A',
-        'emailInvalid': '\u90AE\u7BB1\u683C\u5F0F\u4E0D\u6B63\u786E',
-        'passwordEmpty': '\u5BC6\u7801\u4E0D\u80FD\u4E3A\u7A7A',
-        'passwordTooShort': '\u5BC6\u7801\u81F3\u5C118\u4F4D',
-        'networkError': '\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5',
-        'loginSuccess': '\u767B\u5F55\u6210\u529F',
-        'loginFailed': '\u767B\u5F55\u5931\u8D25'
+        'title': 'IPTV Live - Free TV Streaming',
+        'searchPlaceholder': 'Search channels...',
+        'allChannels': 'All Channels',
+        'search': 'Search',
+        'history': 'History',
+        'favorites': 'Favorites',
+        'random': 'Random',
+        'plans': 'Plans',
+        'clearCache': 'Clear Cache',
+        'onlineCount': 'watching',
+        'hot': 'Hot',
+        'noHistory': 'No watch history',
+        'noHistoryDesc': 'Watched channels will appear here',
+        'noFavorites': 'No favorites yet',
+        'noFavoritesDesc': 'Click the star button on a channel to add to favorites',
+        'noChannels': 'No channels found',
+        'noChannelsDesc': 'Try a different search term or category',
+        'loading': 'Loading channels...',
+        'cacheCleared': 'Cache cleared',
+        'playing': 'Playing',
+        'toastRefresh': 'Unable to play, please refresh and try again.',
+        'toastBrowserLimit': 'Playback limited by browser. Please get a subscription and use in your player.',
+        'toastChannelLost': 'Channel data lost, please clear cache and try again.',
+        'toastSuccess': 'Success',
+        'toastError': 'Playback Failed',
+        'toastWarning': 'Warning',
+        'toastInfo': 'Info',
+        'loginTitle': 'Login',
+        'registerTitle': 'Register',
+        'email': 'Email',
+        'password': 'Password',
+        'emailCode': 'Email Code',
+        'emailPlaceholder': 'Enter email',
+        'passwordPlaceholder': 'Enter password (min 8 characters)',
+        'codePlaceholder': 'Enter 6-digit code',
+        'loginBtn': 'Login',
+        'registerBtn': 'Register',
+        'getCode': 'Get Code',
+        'forgotPassword': 'Forgot password?',
+        'noAccount': 'No account?',
+        'registerNow': 'Register now',
+        'hasAccount': 'Already have an account?',
+        'loginNow': 'Login now',
+        'emailEmpty': 'Email is required',
+        'emailInvalid': 'Invalid email format',
+        'passwordEmpty': 'Password is required',
+        'passwordTooShort': 'Password must be at least 8 characters',
+        'networkError': 'Network error, please try again later',
+        'loginSuccess': 'Login successful',
+        'loginFailed': 'Login failed',
+        'codeSent': 'Verification code sent',
+        'sendCodeFailed': 'Failed to send code',
+        'registerSuccess': 'Registration successful',
+        'registerFailed': 'Registration failed',
+        'enterCode': 'Please enter the verification code',
+        'enter6DigitCode2': 'Please enter a valid 6-digit code',
+        'enterCodeFirst': 'Please enter your email first',
+        'needVerifyEmail': 'Please verify your email first',
+        'forgotPasswordTitle': 'Reset Password',
+        'forgotPasswordDesc': 'Enter your registered email and we will send a reset link',
+        'sendResetLink': 'Send Reset Link',
+        'backToLogin': 'Back to Login',
+        'resetSuccess': 'Reset link sent, please check your email',
+        'resetFailed': 'Failed to send reset link',
+        'resendCountdown': 'Resend in {count}s',
+        'verifyEmailTitle': 'Email Verification',
+        'verifyEmailDesc': 'Click the button below to get verification code',
+        'verifyEmailBtn': 'Verify Email',
+        'enter6DigitCode': 'Enter 6-digit code'
       };
       return translations[key] || key;
     }
@@ -18643,7 +18662,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       });
 
       if (code.length !== 6) {
-        document.getElementById('verifyError').textContent = '\u8BF7\u8F93\u5165\u5B8C\u6574\u76846\u4F4D\u9A8C\u8BC1\u7801';
+        document.getElementById('verifyError').textContent = 'Please enter the complete 6-digit code';
         return;
       }
 
@@ -18652,7 +18671,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         const data = await response.json();
 
         if (response.ok && data.success) {
-          showToast('\u90AE\u7BB1\u9A8C\u8BC1\u6210\u529F', 'success');
+          showToast('Email verified successfully', 'success');
           // \u4F7F\u7528\u8FD4\u56DE\u7684 token \u81EA\u52A8\u767B\u5F55
           authToken = data.token;
           currentUser = data.user;
@@ -18662,14 +18681,14 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           closeAuthModal();
           updateAuthUI();
         } else {
-          showToast(data.error || '\u9A8C\u8BC1\u5931\u8D25', 'error');
+          showToast(data.error || 'Verification failed', 'error');
           inputs.forEach(input => {
             input.classList.add('error');
           });
         }
       } catch (error) {
-        console.error('\u9A8C\u8BC1\u5931\u8D25:', error);
-        showToast('\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5', 'error');
+        console.error('Verification failed:', error);
+        showToast('Network error, please try again later', 'error');
       }
     }
 
@@ -18794,13 +18813,13 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           });
         }
       } catch (error) {
-        console.error('\u767B\u51FA\u5931\u8D25:', error);
+        console.error('Logout failed:', error);
       } finally {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('current_user');
         authToken = null;
         currentUser = null;
-        showToast('\u5DF2\u9000\u51FA\u767B\u5F55', 'success');
+        showToast('Logged out successfully', 'success');
         updateAuthUI();
       }
     }
@@ -18818,7 +18837,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         authButtonsDiv.innerHTML = \`
           <a href="/account" class="quick-entry ripple" style="text-decoration:none;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span class="quick-entry-tip">\u8D26\u6237</span>
+            <span class="quick-entry-tip">Account</span>
           </a>
         \`;
       } else {
@@ -18826,7 +18845,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         authButtonsDiv.innerHTML = \`
           <button class="quick-entry ripple" onclick="openLoginModal()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span class="quick-entry-tip">\u767B\u5F55</span>
+            <span class="quick-entry-tip">Login</span>
           </button>
         \`;
       }
@@ -18860,66 +18879,66 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       
       <!-- \u767B\u5F55\u8868\u5355 -->
       <div id="loginForm">
-        <h2 class="modal-title" data-i18n="loginTitle">\u767B\u5F55</h2>
+        <h2 class="modal-title" data-i18n="loginTitle">Login</h2>
         <div class="modal-form">
           <div class="form-group">
-            <label class="form-label" data-i18n="email">\u90AE\u7BB1</label>
-            <input type="email" class="form-input" id="loginEmail" data-i18n-placeholder="emailPlaceholder" placeholder="\u8BF7\u8F93\u5165\u90AE\u7BB1">
+            <label class="form-label" data-i18n="email">Email</label>
+            <input type="email" class="form-input" id="loginEmail" data-i18n-placeholder="emailPlaceholder" placeholder="Enter email">
             <div class="form-error" id="loginEmailError"></div>
           </div>
           <div class="form-group">
-            <label class="form-label" data-i18n="password">\u5BC6\u7801</label>
-            <input type="password" class="form-input" id="loginPassword" data-i18n-placeholder="passwordPlaceholder" placeholder="\u8BF7\u8F93\u5165\u5BC6\u7801\uFF08\u81F3\u5C118\u4F4D\uFF09">
+            <label class="form-label" data-i18n="password">Password</label>
+            <input type="password" class="form-input" id="loginPassword" data-i18n-placeholder="passwordPlaceholder" placeholder="Enter password (min 8 characters)">
             <div class="form-error" id="loginPasswordError"></div>
           </div>
-          <button class="btn-primary" onclick="handleLogin()" data-i18n="loginBtn">\u767B\u5F55</button>
+          <button class="btn-primary" onclick="handleLogin()" data-i18n="loginBtn">Login</button>
           <div style="text-align:center;margin-top:12px;">
-            <a href="#" onclick="showForgotPasswordForm()" style="color:rgba(255,255,255,.6);font-size:14px;text-decoration:none;" data-i18n="forgotPassword">\u5FD8\u8BB0\u5BC6\u7801\uFF1F</a>
+            <a href="#" onclick="showForgotPasswordForm()" style="color:rgba(255,255,255,.6);font-size:14px;text-decoration:none;" data-i18n="forgotPassword">Forgot password?</a>
           </div>
         </div>
         <div class="modal-footer">
-          <span data-i18n="noAccount">\u8FD8\u6CA1\u6709\u8D26\u53F7\uFF1F</span><a href="#" onclick="showRegisterForm()" data-i18n="registerNow">\u7ACB\u5373\u6CE8\u518C</a>
+          <span data-i18n="noAccount">No account?</span><a href="#" onclick="showRegisterForm()" data-i18n="registerNow">Register now</a>
         </div>
       </div>
 
       <!-- \u6CE8\u518C\u8868\u5355 -->
       <div id="registerForm" style="display:none;">
-        <h2 class="modal-title" data-i18n="registerTitle">\u6CE8\u518C</h2>
+        <h2 class="modal-title" data-i18n="registerTitle">Register</h2>
         <div class="modal-form">
           <div class="form-group">
-            <label class="form-label" data-i18n="email">\u90AE\u7BB1</label>
-            <input type="email" class="form-input" id="registerEmail" data-i18n-placeholder="emailPlaceholder" placeholder="\u8BF7\u8F93\u5165\u90AE\u7BB1">
+            <label class="form-label" data-i18n="email">Email</label>
+            <input type="email" class="form-input" id="registerEmail" data-i18n-placeholder="emailPlaceholder" placeholder="Enter email">
             <div class="form-error" id="registerEmailError"></div>
           </div>
           <div class="form-group">
-            <label class="form-label" data-i18n="password">\u5BC6\u7801</label>
-            <input type="password" class="form-input" id="registerPassword" data-i18n-placeholder="passwordPlaceholder" placeholder="\u8BF7\u8F93\u5165\u5BC6\u7801\uFF08\u81F3\u5C118\u4F4D\uFF09">
+            <label class="form-label" data-i18n="password">Password</label>
+            <input type="password" class="form-input" id="registerPassword" data-i18n-placeholder="passwordPlaceholder" placeholder="Enter password (min 8 characters)">
             <div class="form-error" id="registerPasswordError"></div>
           </div>
           <div class="form-group">
-            <label class="form-label" data-i18n="emailCode">\u90AE\u7BB1\u9A8C\u8BC1\u7801</label>
+            <label class="form-label" data-i18n="emailCode">Email Code</label>
             <div style="display:flex;gap:10px;">
-              <input type="text" class="form-input" id="registerCode" data-i18n-placeholder="codePlaceholder" placeholder="\u8BF7\u8F93\u51656\u4F4D\u9A8C\u8BC1\u7801" maxlength="6" oninput="this.value=this.value.replace(/\\D/g,'')" style="flex:1;">
-              <button type="button" class="btn-secondary" id="sendCodeBtn" onclick="handleSendRegisterCode()" data-i18n="getCode">\u83B7\u53D6\u9A8C\u8BC1\u7801</button>
+              <input type="text" class="form-input" id="registerCode" data-i18n-placeholder="codePlaceholder" placeholder="Enter 6-digit code" maxlength="6" oninput="this.value=this.value.replace(/\\D/g,'')" style="flex:1;">
+              <button type="button" class="btn-secondary" id="sendCodeBtn" onclick="handleSendRegisterCode()" data-i18n="getCode">Get Code</button>
             </div>
             <div class="form-error" id="registerCodeError"></div>
           </div>
-          <button class="btn-primary" onclick="handleRegister()" data-i18n="registerBtn">\u6CE8\u518C</button>
+          <button class="btn-primary" onclick="handleRegister()" data-i18n="registerBtn">Register</button>
         </div>
         <div class="modal-footer">
-          <span data-i18n="hasAccount">\u5DF2\u6709\u8D26\u53F7\uFF1F</span><a href="#" onclick="showLoginForm()" data-i18n="loginNow">\u7ACB\u5373\u767B\u5F55</a>
+          <span data-i18n="hasAccount">Already have an account?</span><a href="#" onclick="showLoginForm()" data-i18n="loginNow">Login now</a>
         </div>
       </div>
 
       <!-- \u90AE\u7BB1\u9A8C\u8BC1\u8868\u5355 -->
       <div id="verifyForm" style="display:none;">
-        <h2 class="modal-title" data-i18n="verifyEmailTitle">\u90AE\u7BB1\u9A8C\u8BC1</h2>
+        <h2 class="modal-title" data-i18n="verifyEmailTitle">Email Verification</h2>
         <p style="text-align:center;color:rgba(255,255,255,.6);font-size:14px;margin-bottom:20px;" data-i18n="verifyEmailDesc">
-          \u8BF7\u70B9\u51FB\u4E0B\u65B9\u6309\u94AE\u83B7\u53D6\u9A8C\u8BC1\u7801
+          Click the button below to get verification code
         </p>
         <div class="modal-form">
           <div class="form-group">
-            <label class="form-label" data-i18n="enter6DigitCode">\u8BF7\u8F93\u51656\u4F4D\u9A8C\u8BC1\u7801</label>
+            <label class="form-label" data-i18n="enter6DigitCode">Enter 6-digit code</label>
             <div class="verification-inputs">
               <input type="text" class="verification-input" maxlength="1" data-index="0" oninput="handleVerificationInput(this)" onkeydown="handleVerificationKeydown(event,this)">
               <input type="text" class="verification-input" maxlength="1" data-index="1" oninput="handleVerificationInput(this)" onkeydown="handleVerificationKeydown(event,this)">
@@ -18930,29 +18949,29 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
             </div>
             <div class="form-error" id="verifyError"></div>
           </div>
-          <button class="btn-primary" id="verifyBtn" onclick="handleVerifyEmail()" data-i18n="verifyEmailBtn">\u9A8C\u8BC1\u90AE\u7BB1</button>
+          <button class="btn-primary" id="verifyBtn" onclick="handleVerifyEmail()" data-i18n="verifyEmailBtn">Verify Email</button>
           <div style="text-align:center;margin-top:15px;">
-            <a class="resend-link" id="resendLink" onclick="handleResendCode()" data-i18n="getCode">\u83B7\u53D6\u9A8C\u8BC1\u7801</a>
+            <a class="resend-link" id="resendLink" onclick="handleResendCode()" data-i18n="getCode">Get Code</a>
           </div>
         </div>
       </div>
 
       <!-- \u5FD8\u8BB0\u5BC6\u7801\u8868\u5355 -->
       <div id="forgotPasswordForm" style="display:none;">
-        <h2 class="modal-title" data-i18n="forgotPasswordTitle">\u91CD\u7F6E\u5BC6\u7801</h2>
+        <h2 class="modal-title" data-i18n="forgotPasswordTitle">Reset Password</h2>
         <p style="text-align:center;color:rgba(255,255,255,.6);font-size:14px;margin-bottom:20px;" data-i18n="forgotPasswordDesc">
-          \u8BF7\u8F93\u5165\u60A8\u7684\u6CE8\u518C\u90AE\u7BB1\uFF0C\u6211\u4EEC\u5C06\u53D1\u9001\u91CD\u7F6E\u94FE\u63A5\u5230\u60A8\u7684\u90AE\u7BB1
+          Enter your registered email and we will send a reset link
         </p>
         <div class="modal-form">
           <div class="form-group">
-            <label class="form-label" data-i18n="email">\u90AE\u7BB1</label>
-            <input type="email" class="form-input" id="forgotEmail" data-i18n-placeholder="emailPlaceholder" placeholder="\u8BF7\u8F93\u5165\u90AE\u7BB1">
+            <label class="form-label" data-i18n="email">Email</label>
+            <input type="email" class="form-input" id="forgotEmail" data-i18n-placeholder="emailPlaceholder" placeholder="Enter email">
             <div class="form-error" id="forgotEmailError"></div>
           </div>
-          <button class="btn-primary" id="sendResetBtn" onclick="handleSendResetLink()" data-i18n="sendResetLink">\u53D1\u9001\u91CD\u7F6E\u94FE\u63A5</button>
+          <button class="btn-primary" id="sendResetBtn" onclick="handleSendResetLink()" data-i18n="sendResetLink">Send Reset Link</button>
         </div>
         <div class="modal-footer">
-          <a href="#" onclick="showLoginForm()" data-i18n="backToLogin">\u8FD4\u56DE\u767B\u5F55</a>
+          <a href="#" onclick="showLoginForm()" data-i18n="backToLogin">Back to Login</a>
         </div>
       </div>
     </div>
@@ -18966,7 +18985,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       window.translate = translate;
     }
     if (typeof translate !== 'undefined' && translate.language) {
-      translate.language.setLocal('chinese_simplified');
+      translate.language.setLocal('english');
       translate.service.use('client.edge');
       translate.listener.start();
       translate.setAutoDiscriminateLocalLanguage();
@@ -19936,11 +19955,11 @@ var FREE_SUB_HTML = `
 init_checked_fetch();
 init_modules_watch_stub();
 var SUBSCRIPTION_HTML = `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title data-i18n-title="pageTitle">\u8BA2\u9605\u8D2D\u4E70 - TV Live Service</title>
+  <title data-i18n-title="pageTitle">Subscription - TV Live Service</title>
   <style>
     * {
       margin: 0;
@@ -21504,14 +21523,14 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
             }
           }, 1500);
         } else {
-          showError(result.error || '\u6A21\u62DF\u5931\u8D25');
+          showError(result.error || 'Simulation failed');
         }
       } catch (error) {
         console.error('Simulate payment error:', error);
-        showError('\u6A21\u62DF\u5931\u8D25: ' + error.message);
+        showError('Simulation failed: ' + error.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = '[\u8C03\u8BD5] \u6A21\u62DF\u652F\u4ED8\u6210\u529F';
+        btn.textContent = '[Debug] Simulate Payment Success';
       }
     }
 
@@ -21548,7 +21567,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       if (!paymentMethodsContainer) return;
 
       if (methods.length === 0) {
-        paymentMethodsContainer.innerHTML = '<p style="color:rgba(255,255,255,0.6);text-align:center;padding:20px;">\u6682\u65E0\u53EF\u7528\u652F\u4ED8\u65B9\u5F0F</p>';
+        paymentMethodsContainer.innerHTML = '<p style="color:rgba(255,255,255,0.6);text-align:center;padding:20px;">No payment methods available</p>';
         return;
       }
 
@@ -23798,7 +23817,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-yxmLRk/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-Z8dIyS/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -23832,7 +23851,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-yxmLRk/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-Z8dIyS/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

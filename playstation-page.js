@@ -1,6 +1,6 @@
 // 交互式播放站首页
 export const PLAYSTATION_HTML = `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -822,60 +822,79 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     })();
 
     // ========== 翻译函数 ==========
-    // 动态内容使用中文，translate.js 会自动翻译整个页面
+    // 默认英文翻译
     function t(key) {
-      // 中文文本作为默认值，translate.js 会自动翻译
+      // 英文文本作为默认值
       const translations = {
-        'title': 'IPTV Live - 免费电视直播',
-        'searchPlaceholder': '搜索频道...',
-        'allChannels': '全部频道',
-        'search': '搜索',
-        'history': '播放历史',
-        'favorites': '我的收藏',
-        'random': '随机推荐',
-        'plans': '订阅计划',
-        'clearCache': '清除缓存',
-        'onlineCount': '人在观看',
-        'hot': '热门',
-        'noHistory': '暂无播放历史',
-        'noHistoryDesc': '观看的频道会自动显示在这里',
-        'noFavorites': '还没有收藏',
-        'noFavoritesDesc': '点击频道卡片上的星星按钮添加收藏',
-        'noChannels': '未找到频道',
-        'noChannelsDesc': '请尝试其他搜索词或分组',
-        'loading': '加载频道列表...',
-        'cacheCleared': '缓存已清除',
-        'playing': '正在播放',
-        'toastRefresh': '无法播放，请刷新页面后再试。',
-        'toastBrowserLimit': '受浏览器限制无法播放，请获取订阅并添加到客户端中使用。',
-        'toastChannelLost': '该频道数据已丢失，请清除缓存后再试。',
-        'toastSuccess': '成功',
-        'toastError': '播放失败',
-        'toastWarning': '提示',
-        'toastInfo': '提示',
-        'loginTitle': '登录',
-        'registerTitle': '注册',
-        'email': '邮箱',
-        'password': '密码',
-        'emailCode': '邮箱验证码',
-        'emailPlaceholder': '请输入邮箱',
-        'passwordPlaceholder': '请输入密码（至少8位）',
-        'codePlaceholder': '请输入6位验证码',
-        'loginBtn': '登录',
-        'registerBtn': '注册',
-        'getCode': '获取验证码',
-        'forgotPassword': '忘记密码？',
-        'noAccount': '还没有账号？',
-        'registerNow': '立即注册',
-        'hasAccount': '已有账号？',
-        'loginNow': '立即登录',
-        'emailEmpty': '邮箱不能为空',
-        'emailInvalid': '邮箱格式不正确',
-        'passwordEmpty': '密码不能为空',
-        'passwordTooShort': '密码至少8位',
-        'networkError': '网络错误，请稍后重试',
-        'loginSuccess': '登录成功',
-        'loginFailed': '登录失败'
+        'title': 'IPTV Live - Free TV Streaming',
+        'searchPlaceholder': 'Search channels...',
+        'allChannels': 'All Channels',
+        'search': 'Search',
+        'history': 'History',
+        'favorites': 'Favorites',
+        'random': 'Random',
+        'plans': 'Plans',
+        'clearCache': 'Clear Cache',
+        'onlineCount': 'watching',
+        'hot': 'Hot',
+        'noHistory': 'No watch history',
+        'noHistoryDesc': 'Watched channels will appear here',
+        'noFavorites': 'No favorites yet',
+        'noFavoritesDesc': 'Click the star button on a channel to add to favorites',
+        'noChannels': 'No channels found',
+        'noChannelsDesc': 'Try a different search term or category',
+        'loading': 'Loading channels...',
+        'cacheCleared': 'Cache cleared',
+        'playing': 'Playing',
+        'toastRefresh': 'Unable to play, please refresh and try again.',
+        'toastBrowserLimit': 'Playback limited by browser. Please get a subscription and use in your player.',
+        'toastChannelLost': 'Channel data lost, please clear cache and try again.',
+        'toastSuccess': 'Success',
+        'toastError': 'Playback Failed',
+        'toastWarning': 'Warning',
+        'toastInfo': 'Info',
+        'loginTitle': 'Login',
+        'registerTitle': 'Register',
+        'email': 'Email',
+        'password': 'Password',
+        'emailCode': 'Email Code',
+        'emailPlaceholder': 'Enter email',
+        'passwordPlaceholder': 'Enter password (min 8 characters)',
+        'codePlaceholder': 'Enter 6-digit code',
+        'loginBtn': 'Login',
+        'registerBtn': 'Register',
+        'getCode': 'Get Code',
+        'forgotPassword': 'Forgot password?',
+        'noAccount': 'No account?',
+        'registerNow': 'Register now',
+        'hasAccount': 'Already have an account?',
+        'loginNow': 'Login now',
+        'emailEmpty': 'Email is required',
+        'emailInvalid': 'Invalid email format',
+        'passwordEmpty': 'Password is required',
+        'passwordTooShort': 'Password must be at least 8 characters',
+        'networkError': 'Network error, please try again later',
+        'loginSuccess': 'Login successful',
+        'loginFailed': 'Login failed',
+        'codeSent': 'Verification code sent',
+        'sendCodeFailed': 'Failed to send code',
+        'registerSuccess': 'Registration successful',
+        'registerFailed': 'Registration failed',
+        'enterCode': 'Please enter the verification code',
+        'enter6DigitCode2': 'Please enter a valid 6-digit code',
+        'enterCodeFirst': 'Please enter your email first',
+        'needVerifyEmail': 'Please verify your email first',
+        'forgotPasswordTitle': 'Reset Password',
+        'forgotPasswordDesc': 'Enter your registered email and we will send a reset link',
+        'sendResetLink': 'Send Reset Link',
+        'backToLogin': 'Back to Login',
+        'resetSuccess': 'Reset link sent, please check your email',
+        'resetFailed': 'Failed to send reset link',
+        'resendCountdown': 'Resend in {count}s',
+        'verifyEmailTitle': 'Email Verification',
+        'verifyEmailDesc': 'Click the button below to get verification code',
+        'verifyEmailBtn': 'Verify Email',
+        'enter6DigitCode': 'Enter 6-digit code'
       };
       return translations[key] || key;
     }
@@ -3632,7 +3651,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       });
 
       if (code.length !== 6) {
-        document.getElementById('verifyError').textContent = '请输入完整的6位验证码';
+        document.getElementById('verifyError').textContent = 'Please enter the complete 6-digit code';
         return;
       }
 
@@ -3641,7 +3660,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         const data = await response.json();
 
         if (response.ok && data.success) {
-          showToast('邮箱验证成功', 'success');
+          showToast('Email verified successfully', 'success');
           // 使用返回的 token 自动登录
           authToken = data.token;
           currentUser = data.user;
@@ -3651,14 +3670,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           closeAuthModal();
           updateAuthUI();
         } else {
-          showToast(data.error || '验证失败', 'error');
+          showToast(data.error || 'Verification failed', 'error');
           inputs.forEach(input => {
             input.classList.add('error');
           });
         }
       } catch (error) {
-        console.error('验证失败:', error);
-        showToast('网络错误，请稍后重试', 'error');
+        console.error('Verification failed:', error);
+        showToast('Network error, please try again later', 'error');
       }
     }
 
@@ -3783,13 +3802,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           });
         }
       } catch (error) {
-        console.error('登出失败:', error);
+        console.error('Logout failed:', error);
       } finally {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('current_user');
         authToken = null;
         currentUser = null;
-        showToast('已退出登录', 'success');
+        showToast('Logged out successfully', 'success');
         updateAuthUI();
       }
     }
@@ -3807,7 +3826,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         authButtonsDiv.innerHTML = \`
           <a href="/account" class="quick-entry ripple" style="text-decoration:none;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span class="quick-entry-tip">账户</span>
+            <span class="quick-entry-tip">Account</span>
           </a>
         \`;
       } else {
@@ -3815,7 +3834,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         authButtonsDiv.innerHTML = \`
           <button class="quick-entry ripple" onclick="openLoginModal()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span class="quick-entry-tip">登录</span>
+            <span class="quick-entry-tip">Login</span>
           </button>
         \`;
       }
@@ -3849,66 +3868,66 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       
       <!-- 登录表单 -->
       <div id="loginForm">
-        <h2 class="modal-title" data-i18n="loginTitle">登录</h2>
+        <h2 class="modal-title" data-i18n="loginTitle">Login</h2>
         <div class="modal-form">
           <div class="form-group">
-            <label class="form-label" data-i18n="email">邮箱</label>
-            <input type="email" class="form-input" id="loginEmail" data-i18n-placeholder="emailPlaceholder" placeholder="请输入邮箱">
+            <label class="form-label" data-i18n="email">Email</label>
+            <input type="email" class="form-input" id="loginEmail" data-i18n-placeholder="emailPlaceholder" placeholder="Enter email">
             <div class="form-error" id="loginEmailError"></div>
           </div>
           <div class="form-group">
-            <label class="form-label" data-i18n="password">密码</label>
-            <input type="password" class="form-input" id="loginPassword" data-i18n-placeholder="passwordPlaceholder" placeholder="请输入密码（至少8位）">
+            <label class="form-label" data-i18n="password">Password</label>
+            <input type="password" class="form-input" id="loginPassword" data-i18n-placeholder="passwordPlaceholder" placeholder="Enter password (min 8 characters)">
             <div class="form-error" id="loginPasswordError"></div>
           </div>
-          <button class="btn-primary" onclick="handleLogin()" data-i18n="loginBtn">登录</button>
+          <button class="btn-primary" onclick="handleLogin()" data-i18n="loginBtn">Login</button>
           <div style="text-align:center;margin-top:12px;">
-            <a href="#" onclick="showForgotPasswordForm()" style="color:rgba(255,255,255,.6);font-size:14px;text-decoration:none;" data-i18n="forgotPassword">忘记密码？</a>
+            <a href="#" onclick="showForgotPasswordForm()" style="color:rgba(255,255,255,.6);font-size:14px;text-decoration:none;" data-i18n="forgotPassword">Forgot password?</a>
           </div>
         </div>
         <div class="modal-footer">
-          <span data-i18n="noAccount">还没有账号？</span><a href="#" onclick="showRegisterForm()" data-i18n="registerNow">立即注册</a>
+          <span data-i18n="noAccount">No account?</span><a href="#" onclick="showRegisterForm()" data-i18n="registerNow">Register now</a>
         </div>
       </div>
 
       <!-- 注册表单 -->
       <div id="registerForm" style="display:none;">
-        <h2 class="modal-title" data-i18n="registerTitle">注册</h2>
+        <h2 class="modal-title" data-i18n="registerTitle">Register</h2>
         <div class="modal-form">
           <div class="form-group">
-            <label class="form-label" data-i18n="email">邮箱</label>
-            <input type="email" class="form-input" id="registerEmail" data-i18n-placeholder="emailPlaceholder" placeholder="请输入邮箱">
+            <label class="form-label" data-i18n="email">Email</label>
+            <input type="email" class="form-input" id="registerEmail" data-i18n-placeholder="emailPlaceholder" placeholder="Enter email">
             <div class="form-error" id="registerEmailError"></div>
           </div>
           <div class="form-group">
-            <label class="form-label" data-i18n="password">密码</label>
-            <input type="password" class="form-input" id="registerPassword" data-i18n-placeholder="passwordPlaceholder" placeholder="请输入密码（至少8位）">
+            <label class="form-label" data-i18n="password">Password</label>
+            <input type="password" class="form-input" id="registerPassword" data-i18n-placeholder="passwordPlaceholder" placeholder="Enter password (min 8 characters)">
             <div class="form-error" id="registerPasswordError"></div>
           </div>
           <div class="form-group">
-            <label class="form-label" data-i18n="emailCode">邮箱验证码</label>
+            <label class="form-label" data-i18n="emailCode">Email Code</label>
             <div style="display:flex;gap:10px;">
-              <input type="text" class="form-input" id="registerCode" data-i18n-placeholder="codePlaceholder" placeholder="请输入6位验证码" maxlength="6" oninput="this.value=this.value.replace(/\\D/g,'')" style="flex:1;">
-              <button type="button" class="btn-secondary" id="sendCodeBtn" onclick="handleSendRegisterCode()" data-i18n="getCode">获取验证码</button>
+              <input type="text" class="form-input" id="registerCode" data-i18n-placeholder="codePlaceholder" placeholder="Enter 6-digit code" maxlength="6" oninput="this.value=this.value.replace(/\\D/g,'')" style="flex:1;">
+              <button type="button" class="btn-secondary" id="sendCodeBtn" onclick="handleSendRegisterCode()" data-i18n="getCode">Get Code</button>
             </div>
             <div class="form-error" id="registerCodeError"></div>
           </div>
-          <button class="btn-primary" onclick="handleRegister()" data-i18n="registerBtn">注册</button>
+          <button class="btn-primary" onclick="handleRegister()" data-i18n="registerBtn">Register</button>
         </div>
         <div class="modal-footer">
-          <span data-i18n="hasAccount">已有账号？</span><a href="#" onclick="showLoginForm()" data-i18n="loginNow">立即登录</a>
+          <span data-i18n="hasAccount">Already have an account?</span><a href="#" onclick="showLoginForm()" data-i18n="loginNow">Login now</a>
         </div>
       </div>
 
       <!-- 邮箱验证表单 -->
       <div id="verifyForm" style="display:none;">
-        <h2 class="modal-title" data-i18n="verifyEmailTitle">邮箱验证</h2>
+        <h2 class="modal-title" data-i18n="verifyEmailTitle">Email Verification</h2>
         <p style="text-align:center;color:rgba(255,255,255,.6);font-size:14px;margin-bottom:20px;" data-i18n="verifyEmailDesc">
-          请点击下方按钮获取验证码
+          Click the button below to get verification code
         </p>
         <div class="modal-form">
           <div class="form-group">
-            <label class="form-label" data-i18n="enter6DigitCode">请输入6位验证码</label>
+            <label class="form-label" data-i18n="enter6DigitCode">Enter 6-digit code</label>
             <div class="verification-inputs">
               <input type="text" class="verification-input" maxlength="1" data-index="0" oninput="handleVerificationInput(this)" onkeydown="handleVerificationKeydown(event,this)">
               <input type="text" class="verification-input" maxlength="1" data-index="1" oninput="handleVerificationInput(this)" onkeydown="handleVerificationKeydown(event,this)">
@@ -3919,29 +3938,29 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             </div>
             <div class="form-error" id="verifyError"></div>
           </div>
-          <button class="btn-primary" id="verifyBtn" onclick="handleVerifyEmail()" data-i18n="verifyEmailBtn">验证邮箱</button>
+          <button class="btn-primary" id="verifyBtn" onclick="handleVerifyEmail()" data-i18n="verifyEmailBtn">Verify Email</button>
           <div style="text-align:center;margin-top:15px;">
-            <a class="resend-link" id="resendLink" onclick="handleResendCode()" data-i18n="getCode">获取验证码</a>
+            <a class="resend-link" id="resendLink" onclick="handleResendCode()" data-i18n="getCode">Get Code</a>
           </div>
         </div>
       </div>
 
       <!-- 忘记密码表单 -->
       <div id="forgotPasswordForm" style="display:none;">
-        <h2 class="modal-title" data-i18n="forgotPasswordTitle">重置密码</h2>
+        <h2 class="modal-title" data-i18n="forgotPasswordTitle">Reset Password</h2>
         <p style="text-align:center;color:rgba(255,255,255,.6);font-size:14px;margin-bottom:20px;" data-i18n="forgotPasswordDesc">
-          请输入您的注册邮箱，我们将发送重置链接到您的邮箱
+          Enter your registered email and we will send a reset link
         </p>
         <div class="modal-form">
           <div class="form-group">
-            <label class="form-label" data-i18n="email">邮箱</label>
-            <input type="email" class="form-input" id="forgotEmail" data-i18n-placeholder="emailPlaceholder" placeholder="请输入邮箱">
+            <label class="form-label" data-i18n="email">Email</label>
+            <input type="email" class="form-input" id="forgotEmail" data-i18n-placeholder="emailPlaceholder" placeholder="Enter email">
             <div class="form-error" id="forgotEmailError"></div>
           </div>
-          <button class="btn-primary" id="sendResetBtn" onclick="handleSendResetLink()" data-i18n="sendResetLink">发送重置链接</button>
+          <button class="btn-primary" id="sendResetBtn" onclick="handleSendResetLink()" data-i18n="sendResetLink">Send Reset Link</button>
         </div>
         <div class="modal-footer">
-          <a href="#" onclick="showLoginForm()" data-i18n="backToLogin">返回登录</a>
+          <a href="#" onclick="showLoginForm()" data-i18n="backToLogin">Back to Login</a>
         </div>
       </div>
     </div>
@@ -3955,7 +3974,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       window.translate = translate;
     }
     if (typeof translate !== 'undefined' && translate.language) {
-      translate.language.setLocal('chinese_simplified');
+      translate.language.setLocal('english');
       translate.service.use('client.edge');
       translate.listener.start();
       translate.setAutoDiscriminateLocalLanguage();
