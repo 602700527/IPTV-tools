@@ -179,14 +179,11 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       return key;
     }
 
-    // 智能判断浏览器语言 - 默认英文，简中才显示简中
+    // 默认英文语言
     function detectBrowserLanguage() {
       const savedLang = localStorage.getItem('activate_lang');
       if (savedLang) return savedLang;
-      
-      const browserLang = navigator.language || navigator.userLanguage || 'en';
-      // 默认英文，仅简体中文环境显示简体中文
-      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
+      return 'en';
     }
 
     let currentLang = detectBrowserLanguage();

@@ -13827,14 +13827,11 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
       return key;
     }
 
-    // \u667A\u80FD\u5224\u65AD\u6D4F\u89C8\u5668\u8BED\u8A00 - \u9ED8\u8BA4\u82F1\u6587\uFF0C\u7B80\u4E2D\u624D\u663E\u793A\u7B80\u4E2D
+    // \u9ED8\u8BA4\u82F1\u6587\u8BED\u8A00
     function detectBrowserLanguage() {
       const savedLang = localStorage.getItem('activate_lang');
       if (savedLang) return savedLang;
-      
-      const browserLang = navigator.language || navigator.userLanguage || 'en';
-      // \u9ED8\u8BA4\u82F1\u6587\uFF0C\u4EC5\u7B80\u4F53\u4E2D\u6587\u73AF\u5883\u663E\u793A\u7B80\u4F53\u4E2D\u6587
-      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
+      return 'en';
     }
 
     let currentLang = detectBrowserLanguage();
@@ -16239,16 +16236,13 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     let lastErrorTime = 0;  // \u9632\u6B62\u91CD\u590D\u663E\u793A\u76F8\u540C\u9519\u8BEF
     let lastErrorMsg = '';   // \u8BB0\u5F55\u4E0A\u4E00\u6761\u9519\u8BEF\u6D88\u606F
 
-    // \u667A\u80FD\u5224\u65AD\u6D4F\u89C8\u5668\u8BED\u8A00 - \u9ED8\u8BA4\u82F1\u6587\uFF0C\u7B80\u4E2D\u624D\u663E\u793A\u7B80\u4E2D
+    // \u9ED8\u8BA4\u82F1\u6587\u8BED\u8A00
     function detectBrowserLanguage() {
       const savedLanguage = localStorage.getItem('iptv_language');
       if (savedLanguage && ['zh-CN', 'en'].includes(savedLanguage)) {
         return savedLanguage;
       }
-      
-      const browserLang = navigator.language || navigator.userLanguage || 'en';
-      // \u9ED8\u8BA4\u82F1\u6587\uFF0C\u4EC5\u7B80\u4F53\u4E2D\u6587\u73AF\u5883\u663E\u793A\u7B80\u4F53\u4E2D\u6587
-      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
+      return 'en';
     }
 
     // \u521D\u59CB\u5316\u8BED\u8A00

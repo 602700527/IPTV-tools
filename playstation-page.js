@@ -1207,16 +1207,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let lastErrorTime = 0;  // 防止重复显示相同错误
     let lastErrorMsg = '';   // 记录上一条错误消息
 
-    // 智能判断浏览器语言 - 默认英文，简中才显示简中
+    // 默认英文语言
     function detectBrowserLanguage() {
       const savedLanguage = localStorage.getItem('iptv_language');
       if (savedLanguage && ['zh-CN', 'en'].includes(savedLanguage)) {
         return savedLanguage;
       }
-      
-      const browserLang = navigator.language || navigator.userLanguage || 'en';
-      // 默认英文，仅简体中文环境显示简体中文
-      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
+      return 'en';
     }
 
     // 初始化语言
