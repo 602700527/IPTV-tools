@@ -14147,26 +14147,8 @@ var PAGE_HEADER = `
             <polyline points="9 22 9 12 15 12 15 22"></polyline>
           </svg>
         </a>
-        <!-- \u8BED\u8A00\u5207\u6362\u5668 -->
-        <select id="headerLangSelect" onchange="if(typeof changeLanguage==='function'){changeLanguage(this.value)}" style="margin-left: 12px; height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.6); color: #fff; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center;">
-          <option value="chinese_simplified">\u4E2D\u6587</option>
-          <option value="english">English</option>
-          <option value="japanese">\u65E5\u672C\u8A9E</option>
-          <option value="korean">\uD55C\uAD6D\uC5B4</option>
-          <option value="spanish">Espa\xF1ol</option>
-          <option value="french">Fran\xE7ais</option>
-          <option value="german">Deutsch</option>
-          <option value="portuguese">Portugu\xEAs</option>
-          <option value="russian">\u0420\u0443\u0441\u0441\u043A\u0438\u0439</option>
-          <option value="arabic">\u0627\u0644\u0639\u0631\u0628\u064A\u0629</option>
-          <option value="hindi">\u0939\u093F\u0928\u094D\u0926\u0940</option>
-          <option value="thai">\u0E44\u0E17\u0E22</option>
-          <option value="vietnamese">Ti\u1EBFng Vi\u1EC7t</option>
-          <option value="italian">Italiano</option>
-          <option value="dutch">Nederlands</option>
-          <option value="polish">Polski</option>
-          <option value="turkish">T\xFCrk\xE7e</option>
-        </select>
+        <!-- Translate.js \u8BED\u8A00\u5207\u6362\u5668\u5BB9\u5668 -->
+        <div id="translate" style="margin-left: 12px;"></div>
       </nav>
     </div>
   </header>
@@ -14260,6 +14242,45 @@ var PAGE_HEADER = `
 
     .nav-item.home-icon:hover {
       background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    /* Translate.js \u8BED\u8A00\u5207\u6362\u5668\u6837\u5F0F */
+    #translate {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    #translate select {
+      height: 40px;
+      padding: 0 32px 0 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    #translate select:hover {
+      border-color: rgba(255, 255, 255, 0.5);
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    #translate select:focus {
+      outline: none;
+      border-color: #e50914;
+    }
+
+    #translate select option {
+      background: #1a1a1a;
       color: #fff;
     }
 
@@ -15146,6 +15167,13 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     .auth-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(229,9,20,.4)}
     .auth-btn:active{transform:translateY(0);scale:.98}
 
+    /* Translate.js \u8BED\u8A00\u5207\u6362\u5668\u6837\u5F0F */
+    #translate{display:inline-flex;align-items:center}
+    #translate select{height:40px;padding:0 32px 0 12px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.6);color:#fff;cursor:pointer;font-size:14px;font-weight:500;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+    #translate select:hover{border-color:rgba(255,255,255,.5);background-color:rgba(0,0,0,.8)}
+    #translate select:focus{outline:none;border-color:#e50914}
+    #translate select option{background:#1a1a1a;color:#fff}
+
     .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:2000;backdrop-filter:blur(10px);opacity:0;transition:opacity .3s}
     .modal-overlay.open{display:flex;align-items:center;justify-content:center;opacity:1}
     .modal{background:#1a1a1a;border-radius:16px;padding:30px;max-width:420px;width:90%;position:relative;transform:scale(.9);transition:transform .3s;border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -15496,26 +15524,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         <div id="authButtons">
           <button class="auth-btn ripple" onclick="openLoginModal()">Login</button>
         </div>
-        <!-- \u8BED\u8A00\u5207\u6362\u5668 -->
-        <select id="headerLangSelect" onchange="if(typeof changeLanguage==='function'){changeLanguage(this.value)}" style="margin-left: 12px; height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.6); color: #fff; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center;">
-          <option value="chinese_simplified">\u4E2D\u6587</option>
-          <option value="english">English</option>
-          <option value="japanese">\u65E5\u672C\u8A9E</option>
-          <option value="korean">\uD55C\uAD6D\uC5B4</option>
-          <option value="spanish">Espa\xF1ol</option>
-          <option value="french">Fran\xE7ais</option>
-          <option value="german">Deutsch</option>
-          <option value="portuguese">Portugu\xEAs</option>
-          <option value="russian">\u0420\u0443\u0441\u0441\u043A\u0438\u0439</option>
-          <option value="arabic">\u0627\u0644\u0639\u0631\u0628\u064A\u0629</option>
-          <option value="hindi">\u0939\u093F\u0928\u094D\u0926\u0940</option>
-          <option value="thai">\u0E44\u0E17\u0E22</option>
-          <option value="vietnamese">Ti\u1EBFng Vi\u1EC7t</option>
-          <option value="italian">Italiano</option>
-          <option value="dutch">Nederlands</option>
-          <option value="polish">Polski</option>
-          <option value="turkish">T\xFCrk\xE7e</option>
-        </select>
+        <!-- Translate.js \u8BED\u8A00\u5207\u6362\u5668\u5BB9\u5668 -->
+        <div id="translate" style="margin-left: 12px;"></div>
       </div>
     </div>
     <div class="mobile-search-header">
@@ -15696,9 +15706,40 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   </div>
   
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"><\/script>
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
   <script>
     // Google AdSense \u521D\u59CB\u5316
     (adsbygoogle = window.adsbygoogle || []).push({});
+
+    // Translate.js \u521D\u59CB\u5316
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && !window.translate) {
+        window.translate = translate;
+      }
+      if (typeof translate !== 'undefined' && translate.language) {
+        // \u8BBE\u7F6E\u672C\u5730\u8BED\u79CD
+        translate.language.setLocal('english');
+        // \u4F7F\u7528\u8FB9\u7F18\u7FFB\u8BD1\u670D\u52A1
+        translate.service.use('client.edge');
+        // \u5F00\u542F\u9875\u9762\u5143\u7D20\u52A8\u6001\u76D1\u63A7
+        translate.listener.start();
+        // \u81EA\u52A8\u8BC6\u522B\u7528\u6237\u8BED\u8A00
+        translate.setAutoDiscriminateLocalLanguage();
+        
+        // \u6267\u884C\u7FFB\u8BD1\uFF08\u8BED\u8A00\u9009\u62E9\u5668\u4F1A\u81EA\u52A8\u4ECE\u7FFB\u8BD1\u670D\u52A1\u83B7\u53D6\u652F\u6301\u7684\u8BED\u8A00\uFF09
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+    initTranslate();
+    
+    function changeLanguage(lang) {
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        t.changeLanguage(lang);
+      }
+    }
 
     // \u5B89\u5168\u68C0\u6D4B\uFF1A\u963B\u6B62\u5728\u975E\u539F\u59CB\u57DF\u540D\u4E0A\u8FD0\u884C\uFF08\u9632\u6B62\u4EE3\u7406\uFF09
     (function() {
@@ -22668,7 +22709,7 @@ var RESET_PASSWORD_HTML = `
 </html>
 `;
 
-// pages.js
+// legal-pages.js
 init_checked_fetch();
 init_modules_watch_stub();
 function generateSitemap(origin) {

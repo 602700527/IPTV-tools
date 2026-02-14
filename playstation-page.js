@@ -135,6 +135,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .auth-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(229,9,20,.4)}
     .auth-btn:active{transform:translateY(0);scale:.98}
 
+    /* Translate.js 语言切换器样式 */
+    #translate{display:inline-flex;align-items:center}
+    #translate select{height:40px;padding:0 32px 0 12px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.6);color:#fff;cursor:pointer;font-size:14px;font-weight:500;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+    #translate select:hover{border-color:rgba(255,255,255,.5);background-color:rgba(0,0,0,.8)}
+    #translate select:focus{outline:none;border-color:#e50914}
+    #translate select option{background:#1a1a1a;color:#fff}
+
     .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:2000;backdrop-filter:blur(10px);opacity:0;transition:opacity .3s}
     .modal-overlay.open{display:flex;align-items:center;justify-content:center;opacity:1}
     .modal{background:#1a1a1a;border-radius:16px;padding:30px;max-width:420px;width:90%;position:relative;transform:scale(.9);transition:transform .3s;border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -485,26 +492,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         <div id="authButtons">
           <button class="auth-btn ripple" onclick="openLoginModal()">Login</button>
         </div>
-        <!-- 语言切换器 -->
-        <select id="headerLangSelect" onchange="if(typeof changeLanguage==='function'){changeLanguage(this.value)}" style="margin-left: 12px; height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.6); color: #fff; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center;">
-          <option value="chinese_simplified">中文</option>
-          <option value="english">English</option>
-          <option value="japanese">日本語</option>
-          <option value="korean">한국어</option>
-          <option value="spanish">Español</option>
-          <option value="french">Français</option>
-          <option value="german">Deutsch</option>
-          <option value="portuguese">Português</option>
-          <option value="russian">Русский</option>
-          <option value="arabic">العربية</option>
-          <option value="hindi">हिन्दी</option>
-          <option value="thai">ไทย</option>
-          <option value="vietnamese">Tiếng Việt</option>
-          <option value="italian">Italiano</option>
-          <option value="dutch">Nederlands</option>
-          <option value="polish">Polski</option>
-          <option value="turkish">Türkçe</option>
-        </select>
+        <!-- Translate.js 语言切换器容器 -->
+        <div id="translate" style="margin-left: 12px;"></div>
       </div>
     </div>
     <div class="mobile-search-header">
@@ -685,9 +674,40 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   </div>
   
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
   <script>
     // Google AdSense 初始化
     (adsbygoogle = window.adsbygoogle || []).push({});
+
+    // Translate.js 初始化
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && !window.translate) {
+        window.translate = translate;
+      }
+      if (typeof translate !== 'undefined' && translate.language) {
+        // 设置本地语种
+        translate.language.setLocal('english');
+        // 使用边缘翻译服务
+        translate.service.use('client.edge');
+        // 开启页面元素动态监控
+        translate.listener.start();
+        // 自动识别用户语言
+        translate.setAutoDiscriminateLocalLanguage();
+        
+        // 执行翻译（语言选择器会自动从翻译服务获取支持的语言）
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+    initTranslate();
+    
+    function changeLanguage(lang) {
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        t.changeLanguage(lang);
+      }
+    }
 
     // 安全检测：阻止在非原始域名上运行（防止代理）
     (function() {

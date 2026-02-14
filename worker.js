@@ -37,7 +37,7 @@ import { FREE_SUB_HTML } from './freesub-page.js';
 import { SUBSCRIPTION_HTML } from './subscription-page.js';
 import { PLANS_HTML } from './plans-page.js';
 import { RESET_PASSWORD_HTML } from './reset-password-page.js';
-import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from './pages.js';
+import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from './legal-pages.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 import { LOGO_SVG, FAVICON_SVG, OG_IMAGE_SVG, APPLE_TOUCH_ICON_SVG, ICON_192_SVG, FAVICON_ICO_SVG } from './assets.js';
