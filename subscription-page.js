@@ -1644,36 +1644,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     document.addEventListener('DOMContentLoaded', () => {
       loadPlans(); // 从数据库加载套餐配置
       loadPaymentMethods(); // 加载支付方式列表
-      // translate.js 会自动翻译页面，无需手动设置
+      // translate.js 由 page-footer 统一加载
     });
   </script>
   
-  <!-- Translate.js 自动翻译 -->
-  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
-  <script>
-    function initTranslate() {
-      if (typeof translate !== 'undefined' && !window.translate) {
-        window.translate = translate;
-      }
-      if (typeof translate !== 'undefined' && translate.language) {
-        translate.language.setLocal('english');
-        translate.service.use('client.edge');
-        translate.listener.start();
-        translate.setAutoDiscriminateLocalLanguage();
-        translate.execute();
-      } else {
-        setTimeout(initTranslate, 100);
-      }
-    }
-    initTranslate();
-    
-    function changeLanguage(lang) {
-      var t = window.translate || translate;
-      if (t && t.changeLanguage) {
-        t.changeLanguage(lang);
-      }
-    }
-  </script>
+  ${PAGE_FOOTER}
 </body>
 </html>`;
 

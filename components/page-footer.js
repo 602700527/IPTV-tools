@@ -145,4 +145,43 @@ export const PAGE_FOOTER = `
       }
     }
   </style>
+
+  <!-- Translate.js 统一加载（动态加载避免重复） -->
+  <script>
+    (function() {
+      // 检查是否已加载 translate.js
+      if (window.translate) {
+        // 已加载，直接初始化
+        if (translate.language) {
+          translate.language.setLocal('english');
+          translate.service.use('client.edge');
+          translate.listener.start();
+          translate.setAutoDiscriminateLocalLanguage();
+          translate.execute();
+        }
+        return;
+      }
+      
+      //  translate动态加载.js
+      var script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js';
+      script.onload = function() {
+        if (translate && translate.language) {
+          translate.language.setLocal('english');
+          translate.service.use('client.edge');
+          translate.listener.start();
+          translate.setAutoDiscriminateLocalLanguage();
+          translate.execute();
+        }
+      };
+      document.head.appendChild(script);
+    })();
+    
+    function changeLanguage(lang) {
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        t.changeLanguage(lang);
+      }
+    }
+  </script>
 `;

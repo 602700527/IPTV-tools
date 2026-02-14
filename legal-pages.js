@@ -211,39 +211,13 @@ ${PAGE_HEADER}
   </div>
 
 ${PAGE_FOOTER}
-
-<!-- Translate.js -->
-<script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
-<script>
-  function initTranslate() {
-    if (typeof translate !== 'undefined' && !window.translate) {
-      window.translate = translate;
-    }
-    if (typeof translate !== 'undefined' && translate.language) {
-      translate.language.setLocal('english');
-      translate.service.use('client.edge');
-      translate.listener.start();
-      translate.setAutoDiscriminateLocalLanguage();
-      translate.execute();
-    } else {
-      setTimeout(initTranslate, 100);
-    }
-  }
-  initTranslate();
-  
-  function changeLanguage(lang) {
-    var t = window.translate || translate;
-    if (t && t.changeLanguage) {
-      t.changeLanguage(lang);
-    }
-  }
-</script>
 </body>
-</html>`;
+</html>
+`;
 }
 
-// 生成服务条款页面
-export function generateTermsOfService() {
+  // 生成服务条款页面
+  export function generateTermsOfService() {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -446,34 +420,7 @@ ${PAGE_HEADER}
     </div>
   </div>
 
-${PAGE_FOOTER}
-
-<!-- Translate.js -->
-<script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
-<script>
-  function initTranslate() {
-    if (typeof translate !== 'undefined' && !window.translate) {
-      window.translate = translate;
-    }
-    if (typeof translate !== 'undefined' && translate.language) {
-      translate.language.setLocal('english');
-      translate.service.use('client.edge');
-      translate.listener.start();
-      translate.setAutoDiscriminateLocalLanguage();
-      translate.execute();
-    } else {
-      setTimeout(initTranslate, 100);
-    }
-  }
-  initTranslate();
-  
-  function changeLanguage(lang) {
-    var t = window.translate || translate;
-    if (t && t.changeLanguage) {
-      t.changeLanguage(lang);
-    }
-  }
-</script>
+  ${PAGE_FOOTER}
 </body>
 </html>`;
 }
