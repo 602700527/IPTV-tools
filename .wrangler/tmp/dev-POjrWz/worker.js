@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-tybOOX/checked-fetch.js
+// .wrangler/tmp/bundle-2sfWN0/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-tybOOX/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-2sfWN0/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -2068,11 +2068,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-tybOOX/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-2sfWN0/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-tybOOX/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-2sfWN0/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -20438,6 +20438,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       align-items: center;
       justify-content: center;
       padding: 20px;
+      overflow-y: auto;
     }
 
     .payment-modal.show {
@@ -20450,8 +20451,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       padding: 0;
       max-width: 480px;
       width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
+      margin: auto;
       border: 1px solid rgba(229, 9, 20, 0.2);
       box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
       animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -20472,14 +20472,14 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 24px 28px;
+      padding: 20px 24px;
       background: linear-gradient(135deg, rgba(229, 9, 20, 0.1) 0%, rgba(184, 29, 36, 0.05) 100%);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 24px 24px 0 0;
     }
 
     .payment-title {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
       color: #fff;
       margin: 0;
@@ -20491,7 +20491,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .payment-title::before {
       content: '';
       width: 4px;
-      height: 20px;
+      height: 18px;
       background: linear-gradient(180deg, #e50914 0%, #ff3b30 100%);
       border-radius: 2px;
     }
@@ -20503,8 +20503,8 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-size: 20px;
       cursor: pointer;
       padding: 8px;
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border-radius: 10px;
       line-height: 1;
       transition: all 0.2s ease;
@@ -20521,37 +20521,37 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .payment-body {
-      padding: 28px;
+      padding: 24px;
     }
 
     .payment-info {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 16px;
-      padding: 20px 24px;
-      margin-bottom: 28px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
     }
 
     .payment-info-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 0;
+      padding: 10px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .payment-info-item:last-child {
       border-bottom: none;
-      padding-bottom: 8px;
+      padding-bottom: 6px;
     }
 
     .payment-info-item:first-child {
-      padding-top: 8px;
+      padding-top: 6px;
     }
 
     .payment-info-label {
       color: rgba(255, 255, 255, 0.5);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -20559,13 +20559,13 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     .payment-info-value {
       color: #fff;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
     }
 
     .payment-amount {
       color: #e50914;
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 800;
       text-shadow: 0 0 20px rgba(229, 9, 20, 0.3);
     }
@@ -20574,41 +20574,42 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 20px;
-      padding: 30px;
+      padding: 24px;
       text-align: center;
+      margin-bottom: 20px;
     }
 
     .qrcode-wrapper {
       background: #fff;
-      padding: 16px;
+      padding: 12px;
       border-radius: 16px;
       display: inline-block;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     }
 
     .modal-qrcode-image {
-      width: 220px;
-      height: 220px;
+      width: 200px;
+      height: 200px;
       border: none;
       display: block;
     }
 
     .qrcode-tip {
       color: rgba(255, 255, 255, 0.7);
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
-      margin: 0 0 16px 0;
+      margin: 0 0 12px 0;
     }
 
     .payment-status {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       color: #e50914;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 700;
-      padding: 10px 20px;
+      padding: 8px 16px;
       background: rgba(229, 9, 20, 0.1);
       border-radius: 25px;
       border: 1px solid rgba(229, 9, 20, 0.2);
@@ -20643,7 +20644,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .payment-footer {
-      padding: 16px 28px 28px 28px;
+      padding: 16px 24px 24px 24px;
       border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
 
@@ -20681,34 +20682,50 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
 
       .payment-body {
-        padding: 24px 20px;
+        padding: 20px 18px;
       }
 
       .payment-header {
-        padding: 20px;
+        padding: 18px 20px;
         border-radius: 20px 20px 0 0;
       }
 
       .payment-title {
-        font-size: 18px;
+        font-size: 16px;
       }
 
       .payment-info {
-        padding: 18px;
-        margin-bottom: 24px;
+        padding: 16px;
+        margin-bottom: 18px;
       }
 
       .qrcode-section {
-        padding: 24px 20px;
+        padding: 20px 18px;
+        margin-bottom: 18px;
       }
 
       .modal-qrcode-image {
-        width: 200px;
-        height: 200px;
+        width: 180px;
+        height: 180px;
+      }
+
+      .qrcode-wrapper {
+        padding: 10px;
+        margin-bottom: 12px;
+      }
+
+      .qrcode-tip {
+        font-size: 12px;
+        margin-bottom: 10px;
+      }
+
+      .payment-status {
+        font-size: 12px;
+        padding: 6px 14px;
       }
 
       .payment-footer {
-        padding: 14px 20px 24px 20px;
+        padding: 12px 20px 20px 20px;
       }
     }
 
@@ -20723,60 +20740,68 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
 
       .payment-title {
-        font-size: 16px;
+        font-size: 15px;
       }
 
       .payment-body {
-        padding: 20px 16px;
+        padding: 18px 16px;
       }
 
       .payment-info {
-        padding: 16px;
+        padding: 14px;
+        margin-bottom: 16px;
       }
 
       .payment-info-label {
-        font-size: 12px;
+        font-size: 11px;
       }
 
       .payment-info-value {
-        font-size: 14px;
+        font-size: 13px;
       }
 
       .payment-amount {
-        font-size: 20px;
+        font-size: 18px;
       }
 
       .qrcode-section {
-        padding: 20px 16px;
+        padding: 18px 16px;
+        margin-bottom: 16px;
       }
 
       .modal-qrcode-image {
-        width: 180px;
-        height: 180px;
+        width: 160px;
+        height: 160px;
       }
 
       .qrcode-wrapper {
-        padding: 12px;
+        padding: 8px;
+        margin-bottom: 10px;
       }
 
-       .qrcode-tip {
-        font-size: 13px;
+      .qrcode-tip {
+        font-size: 11px;
+        margin-bottom: 8px;
       }
-      
+
+      .payment-status {
+        font-size: 11px;
+        padding: 6px 12px;
+      }
+
       .payment-hint {
         background: rgba(255, 204, 0, 0.1);
         border: 1px solid rgba(255, 204, 0, 0.3);
         border-radius: 8px;
-        padding: 10px 14px;
-        margin-top: 12px;
-        font-size: 13px;
+        padding: 8px 12px;
+        margin-top: 10px;
+        font-size: 11px;
         color: #ffcc00;
-        line-height: 1.5;
+        line-height: 1.4;
       }
-      
-      .payment-status {
-        font-size: 14px;
-        padding: 8px 16px;
+
+      .payment-footer {
+        padding: 10px 16px 18px 16px;
       }
     }
   </style>
@@ -23678,7 +23703,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-tybOOX/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-2sfWN0/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -23712,7 +23737,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-tybOOX/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-2sfWN0/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
