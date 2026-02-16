@@ -226,15 +226,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .close-modal{background:rgba(231,9,20,.2)}
     .close-modal:hover{background:rgba(231,9,20,.4)}
 
-    /* AdSense 广告位样式 */
-    .ad-banner-top{display:flex;justify-content:center;align-items:center;padding:10px;background:rgba(0,0,0,.2);margin-bottom:10px;min-height:90px}
-    .ad-banner-bottom{display:flex;justify-content:center;align-items:center;padding:10px;background:rgba(0,0,0,.2);margin-top:10px;min-height:90px}
-    .ad-sidebar{display:flex;justify-content:center;align-items:center;margin-bottom:20px;min-height:250px}
-    .ad-responsive{width:100%;min-height:90px}
-    .ad-mobile-top{display:none;padding:10px;background:rgba(0,0,0,.2);margin-bottom:10px;min-height:90px}
-    .ad-mobile-bottom{display:none;padding:10px;background:rgba(0,0,0,.2);margin-top:10px;min-height:90px}
-    ins.adsbygoogle{display:block !important}
-
     .loading{display:flex;align-items:center;justify-content:center;padding:60px;color:rgba(255,255,255,.5)}
     .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#e50914;border-radius:50%;animation:spin 1s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -377,11 +368,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       .mobile-menu-overlay.open{opacity:1;visibility:visible}
       .mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid rgba(255,255,255,.1)}
       .mobile-menu-title{font-size:16px;font-weight:600;color:#fff}
-      .ad-banner-top{display:none}
-      .ad-banner-bottom{display:none}
-      .ad-sidebar{display:none}
-      .ad-mobile-top{display:flex;justify-content:center}
-      .ad-mobile-bottom{display:flex;justify-content:center}
       .mobile-menu-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:none;border-radius:6px;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px}
       .mobile-section{margin-bottom:25px}
       .mobile-section-title{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
@@ -446,9 +432,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       #sendCodeBtn{white-space:normal !important;font-size:12px !important;padding:8px 12px !important;flex-shrink:0}
     }
   </style>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137"
-     crossorigin="anonymous">
-  </script>
 </head>
 <body>
   <header class="header">
@@ -550,29 +533,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     <aside class="sidebar" id="sidebar">
       <div class="group-item active" data-group="" onclick="filterByGroup('')">All Channels</div>
       <div id="groupList"></div>
-
-      <!-- 侧边栏广告位 -->
-      <div class="ad-sidebar">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-2205598928191137"
-             data-ad-slot="9663554756"
-             data-ad-format="vertical"
-             data-full-width-responsive="true"></ins>
-      </div>
     </aside>
 
     <div class="content">
-      <!-- 顶部横幅广告位 -->
-      <div class="ad-banner-top">
-        <ins class="adsbygoogle ad-responsive"
-             style="display:block"
-             data-ad-client="ca-pub-2205598928191137"
-             data-ad-slot="4008350895"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-      </div>
-
       <div id="loading" class="loading">
         <div class="spinner"></div>
         <span class="loading-text">Loading...</span>
@@ -655,9 +618,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
   <script>
-    // Google AdSense 初始化
-    (adsbygoogle = window.adsbygoogle || []).push({});
-
     // Translate.js 初始化
     function initTranslate() {
       if (typeof translate !== 'undefined' && !window.translate) {
@@ -3238,39 +3198,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // 徽章功能已禁用，不再显示数量
       return;
     }
-
-    // ========== Google AdSense 广告控制 ==========
-
-    // 动态加载广告（可选）
-    function loadAdsenseAds() {
-      // 如果需要动态加载广告，可以在这里实现
-      console.log('AdSense ads ready to load');
-    }
-
-    // 页面加载完成后尝试加载广告
-    window.addEventListener('load', () => {
-      // 确保 adsbygoogle 数组存在并推送广告
-      (adsbygoogle = window.adsbygoogle || []).push({});
-      console.log('Page loaded, AdSense ads pushed');
-    });
-
-    // 初始化所有广告位
-    function initAdsenseAds() {
-      const adSlots = document.querySelectorAll('ins.adsbygoogle');
-      adSlots.forEach((adSlot, index) => {
-        // 延迟加载广告，避免页面阻塞
-        setTimeout(() => {
-          (adsbygoogle = window.adsbygoogle || []).push({});
-          console.log('Ad slot ' + (index + 1) + ' loaded');
-        }, index * 100);
-      });
-    }
-
-    // 在 DOMContentLoaded 后初始化广告
-    document.addEventListener('DOMContentLoaded', () => {
-      // 等待一小段时间后初始化广告
-      setTimeout(initAdsenseAds, 500);
-    });
 
     // ========== 用户认证相关函数 ==========
 

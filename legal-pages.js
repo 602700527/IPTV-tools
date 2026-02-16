@@ -147,7 +147,7 @@ ${PAGE_HEADER}
           <li><strong>Service providers:</strong> Sharing necessary information with third parties who help us provide services (such as Cloudflare)</li>
           <li><strong>Legal requirements:</strong> Responding to legal requests, court orders, or government investigations</li>
           <li><strong>Business transfers:</strong> In case of merger, acquisition, or asset transfer</li>
-          <li><strong>Third-party advertising:</strong> We may use third-party advertising services (such as Google AdSense) that may collect your browsing information</li>
+
         </ul>
       </div>
 

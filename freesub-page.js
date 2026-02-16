@@ -10,10 +10,6 @@ export const FREE_SUB_HTML = `
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title data-i18n-title="pageTitle">免费订阅 - TV Live Service</title>
 
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137"
-          crossorigin="anonymous"></script>
-
   <style>
     * {
       margin: 0;
@@ -339,28 +335,10 @@ export const FREE_SUB_HTML = `
       to { transform: rotate(360deg); }
     }
 
-    /* 广告位样式 */
-    .ad-wrapper {
-      display: flex;
-      justify-content: center;
-      padding: 20px 0;
-      min-height: 90px;
-    }
-
-    .ad-ins {
-      display: block;
-      width: 100%;
-      max-width: 300px;
-      min-height: 90px;
-    }
-
-    ins.adsbygoogle {
-      display: block !important;
-    }
-
     body {
       padding-top: 70px !important;
     }
+
 
     @media (max-width: 768px) {
       .container {
@@ -572,23 +550,11 @@ export const FREE_SUB_HTML = `
         </div>
       </div>
 
-      <!-- 广告位 -->
-      <div class="ad-wrapper">
-        <ins class="adsbygoogle ad-ins"
-             style="display:block"
-             data-ad-client="ca-pub-2205598928191137"
-             data-ad-slot="9847284765"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-      </div>
     </div>
   </div>
   ${PAGE_FOOTER}
 
   <script>
-    // Google AdSense 初始化
-    (adsbygoogle = window.adsbygoogle || []).push({});
-
     // 全局变量
     let subId = null;
     let fingerprint = null;
