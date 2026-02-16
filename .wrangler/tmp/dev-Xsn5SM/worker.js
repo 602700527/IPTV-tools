@@ -15240,6 +15240,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     @keyframes spin{to{transform:rotate(360deg)}}
     .loading-text{margin-left:16px;font-size:14px}
     
+    /* \u5E7F\u544A\u4F4D\u6837\u5F0F */
+    .ad-container{margin:15px 0;text-align:center;min-height:90px;display:flex;align-items:center;justify-content:center}
+    .ad-container ins.adsbygoogle{display:inline-block;width:728px;height:90px}
+    @media(max-width:768px){.ad-container ins.adsbygoogle{width:320px;height:100px}}
+    
     .empty-state{text-align:center;padding:80px 20px;color:rgba(255,255,255,.5)}
     .empty-icon{font-size:64px;margin-bottom:20px;opacity:.3}
     .empty-title{font-size:20px;font-weight:600;margin-bottom:10px}
@@ -15548,6 +15553,16 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       <div id="loading" class="loading">
         <div class="spinner"></div>
         <span class="loading-text">Loading...</span>
+      </div>
+
+      <!-- \u5E7F\u544A\u4F4D -->
+      <div class="ad-container">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2205598928191137"
+             data-ad-slot="4008350895"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
       </div>
 
       <div id="channelList" style="display:none;">
@@ -18901,6 +18916,22 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   </div>
 
   ${PAGE_FOOTER}
+
+  <!-- Google AdSense \u5E7F\u544A\uFF08\u5EF6\u8FDF\u52A0\u8F7D\uFF09 -->
+  <script>
+    // \u5EF6\u8FDF\u52A0\u8F7D\u5E7F\u544A\u811A\u672C\uFF0C\u6700\u4F4E\u4F18\u5148\u7EA7
+    setTimeout(function() {
+      var adsScript = document.createElement('script');
+      adsScript.async = true;
+      adsScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137';
+      adsScript.crossOrigin = 'anonymous';
+      adsScript.onload = function() {
+        // \u811A\u672C\u52A0\u8F7D\u5B8C\u6210\u540E\u521D\u59CB\u5316\u6240\u6709\u5E7F\u544A\u4F4D
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      };
+      document.head.appendChild(adsScript);
+    }, 3000); // \u9875\u9762\u52A0\u8F7D3\u79D2\u540E\u52A0\u8F7D\u5E7F\u544A
+  <\/script>
 </body>
 </html>`;
 
@@ -19244,6 +19275,27 @@ var FREE_SUB_HTML = `
       padding-top: 70px !important;
     }
 
+    /* \u5E7F\u544A\u4F4D\u6837\u5F0F */
+    .ad-container {
+      text-align: center;
+      margin: 20px 0;
+      min-height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ad-container ins.adsbygoogle {
+      display: inline-block;
+      width: 728px;
+      height: 90px;
+    }
+    @media (max-width: 768px) {
+      .ad-container ins.adsbygoogle {
+        width: 320px;
+        height: 100px;
+      }
+    }
+
 
     @media (max-width: 768px) {
       .container {
@@ -19434,6 +19486,16 @@ var FREE_SUB_HTML = `
         </div>
       </div>
 
+      <!-- \u5E7F\u544A\u4F4D -->
+      <div class="ad-container">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2205598928191137"
+             data-ad-slot="9847284765"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
+
       <div class="card checkin-section">
         <h2 data-i18n="dailyCheckIn">\u{1F4C5} Daily Check-in</h2>
         <p class="checkin-desc" data-i18n="checkInDesc">
@@ -19458,6 +19520,22 @@ var FREE_SUB_HTML = `
     </div>
   </div>
   ${PAGE_FOOTER}
+
+  <!-- Google AdSense \u5E7F\u544A\uFF08\u5EF6\u8FDF\u52A0\u8F7D\uFF09 -->
+  <script>
+    // \u5EF6\u8FDF\u52A0\u8F7D\u5E7F\u544A\u811A\u672C\uFF0C\u6700\u4F4E\u4F18\u5148\u7EA7
+    setTimeout(function() {
+      var adsScript = document.createElement('script');
+      adsScript.async = true;
+      adsScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137';
+      adsScript.crossOrigin = 'anonymous';
+      adsScript.onload = function() {
+        // \u811A\u672C\u52A0\u8F7D\u5B8C\u6210\u540E\u521D\u59CB\u5316\u6240\u6709\u5E7F\u544A\u4F4D
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      };
+      document.head.appendChild(adsScript);
+    }, 3000); // \u9875\u9762\u52A0\u8F7D3\u79D2\u540E\u52A0\u8F7D\u5E7F\u544A
+  <\/script>
 
   <script>
     // \u5168\u5C40\u53D8\u91CF

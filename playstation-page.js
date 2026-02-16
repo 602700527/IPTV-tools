@@ -231,6 +231,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     @keyframes spin{to{transform:rotate(360deg)}}
     .loading-text{margin-left:16px;font-size:14px}
     
+    /* 广告位样式 */
+    .ad-container{margin:15px 0;text-align:center;min-height:90px;display:flex;align-items:center;justify-content:center}
+    .ad-container ins.adsbygoogle{display:inline-block;width:728px;height:90px}
+    @media(max-width:768px){.ad-container ins.adsbygoogle{width:320px;height:100px}}
+    
     .empty-state{text-align:center;padding:80px 20px;color:rgba(255,255,255,.5)}
     .empty-icon{font-size:64px;margin-bottom:20px;opacity:.3}
     .empty-title{font-size:20px;font-weight:600;margin-bottom:10px}
@@ -539,6 +544,16 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       <div id="loading" class="loading">
         <div class="spinner"></div>
         <span class="loading-text">Loading...</span>
+      </div>
+
+      <!-- 广告位 -->
+      <div class="ad-container">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2205598928191137"
+             data-ad-slot="4008350895"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
       </div>
 
       <div id="channelList" style="display:none;">
@@ -3892,5 +3907,21 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   </div>
 
   ${PAGE_FOOTER}
+
+  <!-- Google AdSense 广告（延迟加载） -->
+  <script>
+    // 延迟加载广告脚本，最低优先级
+    setTimeout(function() {
+      var adsScript = document.createElement('script');
+      adsScript.async = true;
+      adsScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137';
+      adsScript.crossOrigin = 'anonymous';
+      adsScript.onload = function() {
+        // 脚本加载完成后初始化所有广告位
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      };
+      document.head.appendChild(adsScript);
+    }, 3000); // 页面加载3秒后加载广告
+  </script>
 </body>
 </html>`;

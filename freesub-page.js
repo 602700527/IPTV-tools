@@ -339,6 +339,27 @@ export const FREE_SUB_HTML = `
       padding-top: 70px !important;
     }
 
+    /* 广告位样式 */
+    .ad-container {
+      text-align: center;
+      margin: 20px 0;
+      min-height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ad-container ins.adsbygoogle {
+      display: inline-block;
+      width: 728px;
+      height: 90px;
+    }
+    @media (max-width: 768px) {
+      .ad-container ins.adsbygoogle {
+        width: 320px;
+        height: 100px;
+      }
+    }
+
 
     @media (max-width: 768px) {
       .container {
@@ -529,6 +550,16 @@ export const FREE_SUB_HTML = `
         </div>
       </div>
 
+      <!-- 广告位 -->
+      <div class="ad-container">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2205598928191137"
+             data-ad-slot="9847284765"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
+
       <div class="card checkin-section">
         <h2 data-i18n="dailyCheckIn">📅 Daily Check-in</h2>
         <p class="checkin-desc" data-i18n="checkInDesc">
@@ -553,6 +584,22 @@ export const FREE_SUB_HTML = `
     </div>
   </div>
   ${PAGE_FOOTER}
+
+  <!-- Google AdSense 广告（延迟加载） -->
+  <script>
+    // 延迟加载广告脚本，最低优先级
+    setTimeout(function() {
+      var adsScript = document.createElement('script');
+      adsScript.async = true;
+      adsScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137';
+      adsScript.crossOrigin = 'anonymous';
+      adsScript.onload = function() {
+        // 脚本加载完成后初始化所有广告位
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      };
+      document.head.appendChild(adsScript);
+    }, 3000); // 页面加载3秒后加载广告
+  </script>
 
   <script>
     // 全局变量
