@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-EoWEt4/checked-fetch.js
+// .wrangler/tmp/bundle-tybOOX/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-EoWEt4/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-tybOOX/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -2068,11 +2068,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-EoWEt4/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-tybOOX/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-EoWEt4/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-tybOOX/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -14420,45 +14420,6 @@ var PAGE_FOOTER = `
       }
     }
   </style>
-
-  <!-- Translate.js \u7EDF\u4E00\u52A0\u8F7D\uFF08\u52A8\u6001\u52A0\u8F7D\u907F\u514D\u91CD\u590D\uFF09 -->
-  <script>
-    (function() {
-      // \u68C0\u67E5\u662F\u5426\u5DF2\u52A0\u8F7D translate.js
-      if (window.translate) {
-        // \u5DF2\u52A0\u8F7D\uFF0C\u76F4\u63A5\u521D\u59CB\u5316
-        if (translate.language) {
-          translate.language.setLocal('english');
-          translate.service.use('client.edge');
-          translate.listener.start();
-          translate.setAutoDiscriminateLocalLanguage();
-          translate.execute();
-        }
-        return;
-      }
-      
-      //  translate\u52A8\u6001\u52A0\u8F7D.js
-      var script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js';
-      script.onload = function() {
-        if (translate && translate.language) {
-          translate.language.setLocal('english');
-          translate.service.use('client.edge');
-          translate.listener.start();
-          translate.setAutoDiscriminateLocalLanguage();
-          translate.execute();
-        }
-      };
-      document.head.appendChild(script);
-    })();
-    
-    function changeLanguage(lang) {
-      var t = window.translate || translate;
-      if (t && t.changeLanguage) {
-        t.changeLanguage(lang);
-      }
-    }
-  <\/script>
 `;
 
 // account-page.js
@@ -19913,7 +19874,6 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background: #0a0a0a;
       min-height: 100vh;
-      padding: 15px;
       color: #fff;
     }
 
@@ -20862,7 +20822,6 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     <div id="errorMessage" class="error-message" style="display: none;"></div>
   </div>
-  ${PAGE_FOOTER}
 
   <div id="successModal" class="success-modal">
     <div class="success-content">
@@ -21540,7 +21499,45 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       // translate.js \u7531 page-footer \u7EDF\u4E00\u52A0\u8F7D
     });
   <\/script>
-  
+
+  <!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
+  <script>
+    // \u7B49\u5F85 translate.js \u52A0\u8F7D\u5B8C\u6210\u540E\u521D\u59CB\u5316
+    function initTranslate() {
+      console.log('translate:', typeof translate);
+      console.log('window.translate:', typeof window.translate);
+      
+      // \u624B\u52A8\u5C06 translate \u66B4\u9732\u5230 window\uFF08\u517C\u5BB9\u67D0\u4E9B\u73AF\u5883\uFF09
+      if (typeof translate !== 'undefined' && !window.translate) {
+        window.translate = translate;
+      }
+      
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.language.setLocal('english');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+        console.log('Translate.js initialized successfully');
+      } else {
+        console.log('Waiting for translate.js to load...');
+        setTimeout(initTranslate, 100);
+      }
+    }
+    
+    // \u9875\u9762\u52A0\u8F7D\u5B8C\u6210\u540E\u4E5F\u5C1D\u8BD5\u521D\u59CB\u5316
+    window.addEventListener('load', initTranslate);
+    initTranslate();
+    
+    function changeLanguage(lang) {
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        t.changeLanguage(lang);
+      }
+    }
+  <\/script>
+
   ${PAGE_FOOTER}
 </body>
 </html>`;
@@ -23681,7 +23678,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-EoWEt4/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-tybOOX/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -23715,7 +23712,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-EoWEt4/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-tybOOX/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

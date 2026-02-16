@@ -20,7 +20,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background: #0a0a0a;
       min-height: 100vh;
-      padding: 15px;
       color: #fff;
     }
 
@@ -969,7 +968,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     <div id="errorMessage" class="error-message" style="display: none;"></div>
   </div>
-  ${PAGE_FOOTER}
 
   <div id="successModal" class="success-modal">
     <div class="success-content">
@@ -1647,7 +1645,45 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       // translate.js 由 page-footer 统一加载
     });
   </script>
-  
+
+  <!-- Translate.js 自动翻译 -->
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <script>
+    // 等待 translate.js 加载完成后初始化
+    function initTranslate() {
+      console.log('translate:', typeof translate);
+      console.log('window.translate:', typeof window.translate);
+      
+      // 手动将 translate 暴露到 window（兼容某些环境）
+      if (typeof translate !== 'undefined' && !window.translate) {
+        window.translate = translate;
+      }
+      
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.language.setLocal('english');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+        console.log('Translate.js initialized successfully');
+      } else {
+        console.log('Waiting for translate.js to load...');
+        setTimeout(initTranslate, 100);
+      }
+    }
+    
+    // 页面加载完成后也尝试初始化
+    window.addEventListener('load', initTranslate);
+    initTranslate();
+    
+    function changeLanguage(lang) {
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        t.changeLanguage(lang);
+      }
+    }
+  </script>
+
   ${PAGE_FOOTER}
 </body>
 </html>`;
