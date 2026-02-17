@@ -1804,13 +1804,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         \`;
       });
 
-      // 在第三个位置插入广告卡片
-      const adPosition = 2; // 第三个位置（索引从0开始）
-      if (channelCardsHtml.length >= adPosition) {
-        channelCardsHtml.splice(adPosition, 0, adCardHtml);
-      } else {
-        channelCardsHtml.push(adCardHtml);
-      }
+      // 在随机位置插入广告卡片（避免用户形成忽略习惯）
+      const minPosition = 1; // 最小位置（第2个，避免第一个位置）
+      const maxPosition = Math.min(10, channelCardsHtml.length); // 最大位置（第11个或最后一个）
+      const adPosition = channelCardsHtml.length > 0 
+        ? Math.floor(Math.random() * (maxPosition - minPosition + 1)) + minPosition 
+        : 0;
+      channelCardsHtml.splice(adPosition, 0, adCardHtml);
       
       container.innerHTML = channelCardsHtml.join('');
 

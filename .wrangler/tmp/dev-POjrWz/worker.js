@@ -16774,13 +16774,13 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         \`;
       });
 
-      // \u5728\u7B2C\u4E09\u4E2A\u4F4D\u7F6E\u63D2\u5165\u5E7F\u544A\u5361\u7247
-      const adPosition = 2; // \u7B2C\u4E09\u4E2A\u4F4D\u7F6E\uFF08\u7D22\u5F15\u4ECE0\u5F00\u59CB\uFF09
-      if (channelCardsHtml.length >= adPosition) {
-        channelCardsHtml.splice(adPosition, 0, adCardHtml);
-      } else {
-        channelCardsHtml.push(adCardHtml);
-      }
+      // \u5728\u968F\u673A\u4F4D\u7F6E\u63D2\u5165\u5E7F\u544A\u5361\u7247\uFF08\u907F\u514D\u7528\u6237\u5F62\u6210\u5FFD\u7565\u4E60\u60EF\uFF09
+      const minPosition = 1; // \u6700\u5C0F\u4F4D\u7F6E\uFF08\u7B2C2\u4E2A\uFF0C\u907F\u514D\u7B2C\u4E00\u4E2A\u4F4D\u7F6E\uFF09
+      const maxPosition = Math.min(10, channelCardsHtml.length); // \u6700\u5927\u4F4D\u7F6E\uFF08\u7B2C11\u4E2A\u6216\u6700\u540E\u4E00\u4E2A\uFF09
+      const adPosition = channelCardsHtml.length > 0 
+        ? Math.floor(Math.random() * (maxPosition - minPosition + 1)) + minPosition 
+        : 0;
+      channelCardsHtml.splice(adPosition, 0, adCardHtml);
       
       container.innerHTML = channelCardsHtml.join('');
 
