@@ -231,10 +231,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     @keyframes spin{to{transform:rotate(360deg)}}
     .loading-text{margin-left:16px;font-size:14px}
     
-    /* 广告位样式 */
-    .ad-container{margin:15px 0;text-align:center;min-height:90px;display:flex;align-items:center;justify-content:center}
-    .ad-container ins.adsbygoogle{display:inline-block;width:728px;height:90px}
-    @media(max-width:768px){.ad-container ins.adsbygoogle{width:320px;height:100px}}
+    /* 广告卡片样式 - 与频道卡片一致，广告覆盖整个卡片 */
+    .ad-card{background:#141414;border-radius:8px;overflow:hidden;border:2px solid rgba(255,215,0,.3);position:relative;cursor:pointer;transition:all .3s}
+    .ad-card:hover{transform:scale(1.05);border-color:#ffd700;z-index:10;box-shadow:0 8px 30px rgba(255,215,0,.2)}
+    .ad-card .channel-poster{aspect-ratio:16/9;visibility:hidden;pointer-events:none}
+    .ad-card .ad-label{position:absolute;top:8px;left:8px;padding:4px 10px;background:rgba(255,215,0,.9);color:#000;border-radius:4px;font-size:11px;font-weight:600;z-index:10}
+    .ad-card .ad-fullcard{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center}
+    .ad-card ins.adsbygoogle{display:block !important;width:100% !important;height:100% !important}
+    .ad-card .channel-info{position:absolute;bottom:0;left:0;right:0;padding:14px;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.7) 100%);z-index:5}
+    .ad-card .channel-name{color:#ffd700}
     
     .empty-state{text-align:center;padding:80px 20px;color:rgba(255,255,255,.5)}
     .empty-icon{font-size:64px;margin-bottom:20px;opacity:.3}
@@ -544,16 +549,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       <div id="loading" class="loading">
         <div class="spinner"></div>
         <span class="loading-text">Loading...</span>
-      </div>
-
-      <!-- 广告位 -->
-      <div class="ad-container">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-2205598928191137"
-             data-ad-slot="4008350895"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
       </div>
 
       <div id="channelList" style="display:none;">
@@ -1758,7 +1753,29 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       }
 
       emptyState.style.display = 'none';
-      container.innerHTML = channels.map(channel => {
+      
+      // 生成广告卡片HTML（每页一个，位置在第三个）
+      const adCardHtml = \`
+        <div class="ad-card" onclick="event.stopPropagation();">
+          <div class="channel-poster"></div>
+          <div class="ad-label">AD</div>
+          <div class="ad-fullcard">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-2205598928191137"
+                 data-ad-slot="4008350895"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+          </div>
+          <div class="channel-info">
+            <div class="channel-name">Sponsored</div>
+            <div class="channel-group">Advertisement</div>
+          </div>
+        </div>
+      \`;
+      
+      // 生成频道卡片HTML
+      const channelCardsHtml = channels.map(channel => {
         const logo = channel.logo
           ? \`<img src="\${escapeHtml(channel.logo)}" alt="\${escapeHtml(channel.channel_name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">📺</div>\`
           : '<div class="channel-icon">📺</div>';
@@ -1785,7 +1802,17 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             </div>
           </div>
         \`;
-      }).join('');
+      });
+
+      // 在第三个位置插入广告卡片
+      const adPosition = 2; // 第三个位置（索引从0开始）
+      if (channelCardsHtml.length >= adPosition) {
+        channelCardsHtml.splice(adPosition, 0, adCardHtml);
+      } else {
+        channelCardsHtml.push(adCardHtml);
+      }
+      
+      container.innerHTML = channelCardsHtml.join('');
 
       // 添加波纹效果
       container.querySelectorAll('.channel-card').forEach(card => {
@@ -1793,6 +1820,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           createRipple(card);
         });
       });
+      
+      // 初始化广告（如果AdSense脚本已加载）
+      if (window.adsbygoogle) {
+        try {
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+          console.log('AdSense init error:', e);
+        }
+      }
     }
     
     function filterByGroup(group) {

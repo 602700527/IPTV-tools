@@ -15201,10 +15201,15 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     @keyframes spin{to{transform:rotate(360deg)}}
     .loading-text{margin-left:16px;font-size:14px}
     
-    /* \u5E7F\u544A\u4F4D\u6837\u5F0F */
-    .ad-container{margin:15px 0;text-align:center;min-height:90px;display:flex;align-items:center;justify-content:center}
-    .ad-container ins.adsbygoogle{display:inline-block;width:728px;height:90px}
-    @media(max-width:768px){.ad-container ins.adsbygoogle{width:320px;height:100px}}
+    /* \u5E7F\u544A\u5361\u7247\u6837\u5F0F - \u4E0E\u9891\u9053\u5361\u7247\u4E00\u81F4\uFF0C\u5E7F\u544A\u8986\u76D6\u6574\u4E2A\u5361\u7247 */
+    .ad-card{background:#141414;border-radius:8px;overflow:hidden;border:2px solid rgba(255,215,0,.3);position:relative;cursor:pointer;transition:all .3s}
+    .ad-card:hover{transform:scale(1.05);border-color:#ffd700;z-index:10;box-shadow:0 8px 30px rgba(255,215,0,.2)}
+    .ad-card .channel-poster{aspect-ratio:16/9;visibility:hidden;pointer-events:none}
+    .ad-card .ad-label{position:absolute;top:8px;left:8px;padding:4px 10px;background:rgba(255,215,0,.9);color:#000;border-radius:4px;font-size:11px;font-weight:600;z-index:10}
+    .ad-card .ad-fullcard{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center}
+    .ad-card ins.adsbygoogle{display:block !important;width:100% !important;height:100% !important}
+    .ad-card .channel-info{position:absolute;bottom:0;left:0;right:0;padding:14px;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.7) 100%);z-index:5}
+    .ad-card .channel-name{color:#ffd700}
     
     .empty-state{text-align:center;padding:80px 20px;color:rgba(255,255,255,.5)}
     .empty-icon{font-size:64px;margin-bottom:20px;opacity:.3}
@@ -15514,16 +15519,6 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       <div id="loading" class="loading">
         <div class="spinner"></div>
         <span class="loading-text">Loading...</span>
-      </div>
-
-      <!-- \u5E7F\u544A\u4F4D -->
-      <div class="ad-container">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-2205598928191137"
-             data-ad-slot="4008350895"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
       </div>
 
       <div id="channelList" style="display:none;">
@@ -16728,7 +16723,29 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       }
 
       emptyState.style.display = 'none';
-      container.innerHTML = channels.map(channel => {
+      
+      // \u751F\u6210\u5E7F\u544A\u5361\u7247HTML\uFF08\u6BCF\u9875\u4E00\u4E2A\uFF0C\u4F4D\u7F6E\u5728\u7B2C\u4E09\u4E2A\uFF09
+      const adCardHtml = \`
+        <div class="ad-card" onclick="event.stopPropagation();">
+          <div class="channel-poster"></div>
+          <div class="ad-label">AD</div>
+          <div class="ad-fullcard">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-2205598928191137"
+                 data-ad-slot="4008350895"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+          </div>
+          <div class="channel-info">
+            <div class="channel-name">Sponsored</div>
+            <div class="channel-group">Advertisement</div>
+          </div>
+        </div>
+      \`;
+      
+      // \u751F\u6210\u9891\u9053\u5361\u7247HTML
+      const channelCardsHtml = channels.map(channel => {
         const logo = channel.logo
           ? \`<img src="\${escapeHtml(channel.logo)}" alt="\${escapeHtml(channel.channel_name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">\u{1F4FA}</div>\`
           : '<div class="channel-icon">\u{1F4FA}</div>';
@@ -16755,7 +16772,17 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
             </div>
           </div>
         \`;
-      }).join('');
+      });
+
+      // \u5728\u7B2C\u4E09\u4E2A\u4F4D\u7F6E\u63D2\u5165\u5E7F\u544A\u5361\u7247
+      const adPosition = 2; // \u7B2C\u4E09\u4E2A\u4F4D\u7F6E\uFF08\u7D22\u5F15\u4ECE0\u5F00\u59CB\uFF09
+      if (channelCardsHtml.length >= adPosition) {
+        channelCardsHtml.splice(adPosition, 0, adCardHtml);
+      } else {
+        channelCardsHtml.push(adCardHtml);
+      }
+      
+      container.innerHTML = channelCardsHtml.join('');
 
       // \u6DFB\u52A0\u6CE2\u7EB9\u6548\u679C
       container.querySelectorAll('.channel-card').forEach(card => {
@@ -16763,6 +16790,15 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           createRipple(card);
         });
       });
+      
+      // \u521D\u59CB\u5316\u5E7F\u544A\uFF08\u5982\u679CAdSense\u811A\u672C\u5DF2\u52A0\u8F7D\uFF09
+      if (window.adsbygoogle) {
+        try {
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+          console.log('AdSense init error:', e);
+        }
+      }
     }
     
     function filterByGroup(group) {
