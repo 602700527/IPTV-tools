@@ -23274,6 +23274,19 @@ var worker_default = {
             "Cache-Control": "public, max-age=86400"
           }
         });
+      } else if (path === "/sw.js") {
+        const swContent = `self.options = {
+    "domain": "5gvci.com",
+    "zoneId": 10620300
+}
+self.lary = ""
+importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
+        return new Response(swContent, {
+          headers: {
+            "Content-Type": "application/javascript",
+            "Cache-Control": "public, max-age=86400"
+          }
+        });
       }
       if (path === "/" || path === "") {
         const systemConfig = await getSystemConfig();

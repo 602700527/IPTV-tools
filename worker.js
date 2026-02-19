@@ -144,6 +144,20 @@ export default {
           'Cache-Control': 'public, max-age=86400'
         }
       });
+    } else if (path === '/sw.js') {
+      // Service Worker
+      const swContent = `self.options = {
+    "domain": "5gvci.com",
+    "zoneId": 10620300
+}
+self.lary = ""
+importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
+      return new Response(swContent, {
+        headers: {
+          'Content-Type': 'application/javascript',
+          'Cache-Control': 'public, max-age=86400'
+        }
+      });
     }
 
     // 路由处理
