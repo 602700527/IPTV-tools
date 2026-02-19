@@ -951,10 +951,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
   </style>
-  
+  <!-- 100%填充 -->
+  <script src="https://quge5.com/88/tag.min.js" data-zone="211982" async data-cfasync="false"></script>
 </head>
 <body>
   ${PAGE_HEADER}
+
+
   <div class="container">
     <div class="header">
       <h1 data-i18n="title">👑 Premium Subscription</h1>
@@ -1709,10 +1712,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
   </script>
-  <!-- 100%填充 -->
-  <script>(function(s){s.dataset.zone='10620252',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-  <!-- 页面中间推送 -->
-  <script>(function(s){s.dataset.zone='10621619',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+
   ${PAGE_FOOTER}
   
 </body>

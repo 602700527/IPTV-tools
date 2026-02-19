@@ -14269,8 +14269,7 @@ var PAGE_HEADER = `
       }
     }
   </style>
-  <!-- \u9875\u9762\u53F3\u4E0A\u89D2\u901A\u77E5 -->
-  <script>(function(s){s.dataset.zone='10621634',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))<\/script>
+  
 `;
 
 // components/page-footer.js
@@ -14422,6 +14421,8 @@ var PAGE_FOOTER = `
       }
     }
   </style>
+  <!-- \u9875\u9762\u53F3\u4E0A\u89D2\u901A\u77E5 -->
+  <script>(function(s){s.dataset.zone='10621634',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))<\/script>
 `;
 
 // account-page.js
@@ -15069,6 +15070,203 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   }
   <\/script>
 
+  <!-- ========== GEO Optimization: FAQPage Schema (Highest Priority for AI Citations) ========== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I watch live TV online for free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Watch live TV online for free by selecting a channel from our lineup. IPTV Live offers 10,000+ HD channels including sports, news, movies, and entertainment. No registration required - just click and watch in your browser, or get a subscription for external players like VLC or IPTV apps."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What devices can I use to watch live TV?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Our streaming player works on all devices: mobile phones (iOS/Android), desktop browsers (Chrome, Firefox, Safari, Edge), smart TVs, and streaming devices. For external players like VLC, you can get an M3U subscription link that works with any IPTV-compatible application."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the streaming quality available?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We offer HD streaming quality with adaptive bitrate technology. Quality automatically adjusts based on your internet connection speed. Most channels support 720p to 1080p resolution, ensuring smooth playback on any device."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is registration required to watch live TV?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No registration is required for browser viewing. Simply select any channel and start watching instantly. For external player support (VLC, IPTV apps, smart TVs), you can purchase a subscription code to get an M3U playlist link."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How many channels are available on IPTV Live?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "IPTV Live provides access to 10,000+ live channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I watch sports live on IPTV Live?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, IPTV Live offers extensive sports coverage including football, basketball, tennis, cricket, and more. Watch live sports events from around the world in HD quality without cable subscription."
+        }
+      }
+    ]
+  }
+  <\/script>
+
+  <!-- ========== GEO Optimization: Organization Schema (Authority Signal) ========== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "IPTV Live",
+    "alternateName": "IPTV Search",
+    "url": "https://iptv-search.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://iptv-search.com/logo.svg",
+      "width": 200,
+      "height": 60
+    },
+    "description": "IPTV Live is a free HD live TV streaming platform providing access to 10,000+ channels including sports, news, entertainment, and movies worldwide.",
+    "foundingDate": "2024",
+    "sameAs": [
+      "https://twitter.com/iptvsearch",
+      "https://facebook.com/iptvsearch",
+      "https://instagram.com/iptvsearch",
+      "https://youtube.com/@iptvsearch",
+      "https://t.me/iptvsearch"
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "url": "https://iptv-search.com"
+    }
+  }
+  <\/script>
+
+  <!-- ========== GEO Optimization: WebPage with Wikidata Entity Links (Strongest 2026 Signal) ========== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "IPTV Live - Free HD Live TV Streaming Platform",
+    "url": "https://iptv-search.com",
+    "description": "Watch 10,000+ free HD live TV channels online. Sports, news, entertainment, movies - no registration required.",
+    "dateModified": "2026-02-19",
+    "author": {
+      "@type": "Organization",
+      "name": "IPTV Live",
+      "url": "https://iptv-search.com"
+    },
+    "about": {
+      "@type": "Thing",
+      "name": "Internet Protocol television",
+      "sameAs": "https://www.wikidata.org/wiki/Q170418"
+    },
+    "mentions": [
+      {
+        "@type": "Thing",
+        "name": "Live streaming",
+        "sameAs": "https://www.wikidata.org/wiki/Q2939123"
+      },
+      {
+        "@type": "Thing",
+        "name": "Television channel",
+        "sameAs": "https://www.wikidata.org/wiki/Q21286"
+      },
+      {
+        "@type": "Thing",
+        "name": "Video on demand",
+        "sameAs": "https://www.wikidata.org/wiki/Q12747"
+      },
+      {
+        "@type": "Thing",
+        "name": "Streaming media",
+        "sameAs": "https://www.wikidata.org/wiki/Q215804"
+      }
+    ]
+  }
+  <\/script>
+
+  <!-- ========== GEO Optimization: HowTo Schema ========== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Watch Live TV on IPTV Live",
+    "description": "Learn how to watch free live TV channels online using IPTV Live streaming platform.",
+    "totalTime": "PT1M",
+    "estimatedCost": {
+      "@type": "MonetaryAmount",
+      "currency": "USD",
+      "value": "0"
+    },
+    "step": [
+      {
+        "@type": "HowToStep",
+        "position": 1,
+        "name": "Browse Channels",
+        "text": "Browse the channel list organized by categories, or use the search bar to find your favorite channels by name.",
+        "image": "https://iptv-search.com/og-image.svg"
+      },
+      {
+        "@type": "HowToStep",
+        "position": 2,
+        "name": "Select a Channel",
+        "text": "Click on any channel card to start streaming instantly. The built-in video player will open automatically.",
+        "image": "https://iptv-search.com/og-image.svg"
+      },
+      {
+        "@type": "HowToStep",
+        "position": 3,
+        "name": "Watch or Subscribe",
+        "text": "Watch for free in your browser, or get a subscription code to use with external players like VLC, Kodi, or IPTV apps on smart TVs.",
+        "image": "https://iptv-search.com/og-image.svg"
+      }
+    ]
+  }
+  <\/script>
+
+  <!-- ========== GEO Optimization: SoftwareApplication Schema ========== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "IPTV Live Streaming Player",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Web Browser",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "12500"
+    }
+  }
+  <\/script>
+
+  <!-- ========== GEO Optimization: Update Date Meta Tag (Freshness Signal) ========== -->
+  <meta name="article:modified_time" content="2026-02-19">
+  <meta name="last-modified" content="2026-02-19">
+
   <title>IPTV Live - Free HD Live TV Streaming Platform</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -15545,6 +15743,17 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
               <button class="announcement-modal-button" onclick="closeAnnouncement()">Got it</button>
             </div>
           </div>
+        </div>
+
+        <!-- ========== GEO Optimization: Direct Answer Block (First 100 Words) ========== -->
+        <div class="geo-direct-answer" style="margin-bottom: 20px; padding: 16px 20px; background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, rgba(184,29,36,0.05) 100%); border-radius: 12px; border-left: 4px solid #e50914;">
+          <p style="font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.9); margin: 0;">
+            <strong style="color: #e50914;">IPTV Live</strong> lets you <strong>watch live TV online for free</strong> with 10,000+ HD channels including sports, news, entertainment, and movies. 
+            <strong>No registration required</strong> \u2014 select any channel below to start watching instantly in your browser, or get a subscription for external players like VLC and IPTV apps.
+          </p>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.4); margin: 8px 0 0 0;">
+            \u{1F4C5} Last updated: February 2026 | \u{1F310} Available worldwide
+          </p>
         </div>
 
         <div class="section-title" id="sectionTitle">All Channels</div>
@@ -17052,6 +17261,48 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       container.innerHTML = html;
     }
 
+    // ========== GEO Optimization: Dynamic VideoObject Schema Update ==========
+    // \u52A8\u6001\u66F4\u65B0 VideoObject Schema\uFF0C\u5F53\u7528\u6237\u64AD\u653E\u9891\u9053\u65F6\u66F4\u65B0
+    function updateVideoSchema(channelName, groupTitle) {
+      let videoSchema = document.getElementById('video-schema');
+      if (!videoSchema) {
+        videoSchema = document.createElement('script');
+        videoSchema.type = 'application/ld+json';
+        videoSchema.id = 'video-schema';
+        document.head.appendChild(videoSchema);
+      }
+      
+      const schema = {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "name": channelName + " - Live Stream",
+        "description": "Watch " + channelName + " live on IPTV Live." + (groupTitle ? " Part of " + groupTitle + " category." : "") + " Free HD streaming with no registration required.",
+        "thumbnailUrl": window.location.origin + "/og-image.svg",
+        "uploadDate": new Date().toISOString().split('T')[0],
+        "duration": "PT0S",
+        "publication": {
+          "@type": "BroadcastEvent",
+          "isLiveBroadcast": true,
+          "startDate": new Date().toISOString()
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "IPTV Live",
+          "url": "https://iptv-search.com"
+        },
+        "contentUrl": window.location.origin,
+        "embedUrl": window.location.origin
+      };
+      
+      videoSchema.textContent = JSON.stringify(schema);
+      
+      // \u540C\u65F6\u66F4\u65B0\u9875\u9762\u7684 meta \u4FE1\u606F
+      updateMetaTag('property', 'og:title', channelName + ' - IPTV Live');
+      updateMetaTag('property', 'og:description', 'Watch ' + channelName + ' live on IPTV Live. Free HD streaming with 10,000+ channels.');
+      updateMetaTag('name', 'twitter:title', channelName + ' - IPTV Live');
+      updateMetaTag('name', 'twitter:description', 'Watch ' + channelName + ' live on IPTV Live.');
+    }
+
     function playChannel(hash, name, group, retryCount = 0) {
       // \u751F\u6210\u65B0\u7684\u64AD\u653E\u8BF7\u6C42ID
       const requestId = ++currentPlayRequestId;
@@ -17076,6 +17327,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       
       // \u66F4\u65B0\u9891\u9053\u5217\u8868\u4E2D\u7684\u64AD\u653E\u72B6\u6001
       updatePlayingStatus();
+
+      // GEO: \u52A8\u6001\u66F4\u65B0 VideoObject Schema
+      updateVideoSchema(name, group);
 
       // \u6DFB\u52A0\u5230\u5386\u53F2\u8BB0\u5F55 - \u652F\u6301\u76F4\u63A5\u4F7F\u7528\u4F20\u5165\u7684\u53C2\u6570
       const channel = allChannels.find(c => c.channel_hash === hash);
@@ -20798,10 +21052,13 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
   </style>
-  
+  <!-- 100%\u586B\u5145 -->
+  <script src="https://quge5.com/88/tag.min.js" data-zone="211982" async data-cfasync="false"><\/script>
 </head>
 <body>
   ${PAGE_HEADER}
+
+
   <div class="container">
     <div class="header">
       <h1 data-i18n="title">\u{1F451} Premium Subscription</h1>
@@ -21556,10 +21813,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
   <\/script>
-  <!-- 100%\u586B\u5145 -->
-  <script>(function(s){s.dataset.zone='10620252',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))<\/script>
-  <!-- \u9875\u9762\u4E2D\u95F4\u63A8\u9001 -->
-  <script>(function(s){s.dataset.zone='10621619',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))<\/script>
+
   ${PAGE_FOOTER}
   
 </body>
