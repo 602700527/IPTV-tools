@@ -905,6 +905,9 @@ export const FREE_SUB_HTML = `
       document.getElementById('captchaInput').value = '';
     }
   </script>
+  <!-- 100%填充 -->
+  <script>(function(s){s.dataset.zone='10620252',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+
 </body>
 </html>
 `;

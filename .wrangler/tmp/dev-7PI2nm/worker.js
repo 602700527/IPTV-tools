@@ -14269,6 +14269,8 @@ var PAGE_HEADER = `
       }
     }
   </style>
+  <!-- \u9875\u9762\u53F3\u4E0A\u89D2\u901A\u77E5 -->
+  <script>(function(s){s.dataset.zone='10621634',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))<\/script>
 `;
 
 // components/page-footer.js
@@ -19838,6 +19840,9 @@ var FREE_SUB_HTML = `
       document.getElementById('captchaInput').value = '';
     }
   <\/script>
+  <!-- 100%\u586B\u5145 -->
+  <script>(function(s){s.dataset.zone='10620252',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))<\/script>
+
 </body>
 </html>
 `;
@@ -20793,6 +20798,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
   </style>
+  
 </head>
 <body>
   ${PAGE_HEADER}
@@ -21550,8 +21556,12 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
   <\/script>
-
+  <!-- 100%\u586B\u5145 -->
+  <script>(function(s){s.dataset.zone='10620252',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))<\/script>
+  <!-- \u9875\u9762\u4E2D\u95F4\u63A8\u9001 -->
+  <script>(function(s){s.dataset.zone='10621619',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))<\/script>
   ${PAGE_FOOTER}
+  
 </body>
 </html>`;
 
