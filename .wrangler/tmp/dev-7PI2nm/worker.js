@@ -15008,6 +15008,13 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- Canonical URL -->
   <link rel="canonical" href="https://iptv-search.com">
 
+  <!-- ========== Multi-language SEO: Hreflang Tags ========== -->
+  <!-- \u544A\u8BC9\u641C\u7D22\u5F15\u64CE\u8FD9\u662F\u591A\u8BED\u8A00\u9875\u9762\uFF0C\u6BCF\u4E2A\u8BED\u8A00\u7248\u672C\u5728\u54EA\u91CC -->
+  <link rel="alternate" hreflang="en" href="https://iptv-search.com/" />
+  <link rel="alternate" hreflang="zh-CN" href="https://iptv-search.com/?lang=zh-CN" />
+  <link rel="alternate" hreflang="zh-TW" href="https://iptv-search.com/?lang=zh-TW" />
+  <link rel="alternate" hreflang="x-default" href="https://iptv-search.com/" />
+
   <!-- Favicon - Google\u641C\u7D22\u7ED3\u679C\u9700\u8981 -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any">
@@ -15071,7 +15078,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <\/script>
 
   <!-- ========== GEO Optimization: FAQPage Schema (Highest Priority for AI Citations) ========== -->
-  <script type="application/ld+json">
+  <script type="application/ld+json" id="faq-schema">
   {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -15160,7 +15167,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <\/script>
 
   <!-- ========== GEO Optimization: WebPage with Wikidata Entity Links (Strongest 2026 Signal) ========== -->
-  <script type="application/ld+json">
+  <script type="application/ld+json" id="webpage-schema">
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -15746,9 +15753,10 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         </div>
 
         <!-- ========== GEO Optimization: Direct Answer Block (First 100 Words) ========== -->
-        <div class="geo-direct-answer" style="margin-bottom: 20px; padding: 16px 20px; background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, rgba(184,29,36,0.05) 100%); border-radius: 12px; border-left: 4px solid #e50914;">
+        <!-- \u8FD9\u4E00\u5757\u5BF9SEO/AI\u5F88\u91CD\u8981\uFF0C\u4F46\u5F71\u54CD\u7528\u6237\u4F53\u9A8C\uFF0C\u6240\u4EE5\u7528CSS\u9690\u85CF\u4F46\u4FDD\u7559\u5728DOM\u4E2D\u4F9B\u641C\u7D22\u5F15\u64CE\u6293\u53D6 -->
+        <div class="geo-direct-answer" style="margin-bottom: 20px; padding: 16px 20px; background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, rgba(184,29,36,0.05) 100%); border-radius: 12px; border-left: 4px solid #e50914; display: none;">
           <p style="font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.9); margin: 0;">
-            <strong style="color: #e50914;">IPTV Live</strong> lets you <strong>watch live TV online for free</strong> with 10,000+ HD channels including sports, news, entertainment, and movies. 
+            <strong style="color: #e50914;">IPTV Live</strong> lets you <strong>watch live TV online for free</strong> with 10,000+ HD channels including sports, news, entertainment, and movies.
             <strong>No registration required</strong> \u2014 select any channel below to start watching instantly in your browser, or get a subscription for external players like VLC and IPTV apps.
           </p>
           <p style="font-size: 12px; color: rgba(255,255,255,0.4); margin: 8px 0 0 0;">
@@ -16143,13 +16151,233 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       // \u66F4\u65B0 HTML lang \u5C5E\u6027
       document.documentElement.lang = lang;
 
-      // \u66F4\u65B0SEO\u4FE1\u606F - \u5DF2\u79FB\u9664\u52A8\u6001\u66F4\u65B0
+      // ========== \u591A\u8BED\u8A00SEO: \u52A8\u6001\u66F4\u65B0SEO Meta\u6807\u7B7E ==========
+      updateSEOMetaForLanguage(lang);
 
       // \u4FDD\u5B58\u8BED\u8A00\u8BBE\u7F6E
       localStorage.setItem('iptv_language', lang);
 
       // \u5237\u65B0\u9875\u9762\u5185\u5BB9
       updateLanguageContent();
+    }
+
+    // ========== \u591A\u8BED\u8A00SEO: \u66F4\u65B0SEO Meta\u6807\u7B7E\u51FD\u6570 ==========
+    function updateSEOMetaForLanguage(lang) {
+      const isZhCN = lang === 'zh-CN';
+      const origin = window.location.origin;
+      const url = isZhCN ? origin + '/?lang=zh-CN' : origin + '/';
+
+      // \u4E2D\u6587\u548C\u82F1\u6587\u7684SEO\u6570\u636E
+      const seoData = {
+        'zh-CN': {
+          title: 'IPTV Live - \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0',
+          description: 'IPTV Live \u63D0\u4F9B\u514D\u8D39\u7684\u5728\u7EBF\u7535\u89C6\u76F4\u64AD\u670D\u52A1\uFF0C\u5305\u542B10000+\u9AD8\u6E05\u9891\u9053\uFF0C\u652F\u6301\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u7B49\u5168\u7C7B\u578B\u9891\u9053\uFF0C\u65E0\u9700\u6CE8\u518C\uFF0C\u4E00\u952E\u64AD\u653E\u3002',
+          keywords: 'IPTV,\u514D\u8D39\u770B\u7535\u89C6,\u7535\u89C6\u76F4\u64AD,\u7F51\u7EDC\u7535\u89C6,IPTV\u76F4\u64AD,\u5728\u7EBF\u7535\u89C6,\u4F53\u80B2\u8D5B\u4E8B\u76F4\u64AD,\u65B0\u95FB\u76F4\u64AD,\u9AD8\u6E05\u76F4\u64AD,\u514D\u8D39\u76F4\u64AD',
+          ogTitle: 'IPTV Live - \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0',
+          ogDescription: 'IPTV Live \u63D0\u4F9B\u514D\u8D39\u7684\u5728\u7EBF\u7535\u89C6\u76F4\u64AD\u670D\u52A1\uFF0C\u5305\u542B10000+\u9AD8\u6E05\u9891\u9053\uFF0C\u652F\u6301\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u7B49\u5168\u7C7B\u578B\u9891\u9053\uFF0C\u65E0\u9700\u6CE8\u518C\uFF0C\u4E00\u952E\u64AD\u653E\u3002',
+          ogLocale: 'zh_CN'
+        },
+        'en': {
+          title: 'IPTV Live - Free HD Live TV Streaming Platform',
+          description: 'IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback.',
+          keywords: 'IPTV,free live TV,online TV,sports live streaming,news live streaming,HD streaming,free TV,online video,live streaming platform,IPTV Live',
+          ogTitle: 'IPTV Live - Free HD Live TV Streaming Platform',
+          ogDescription: 'Access 10,000+ free HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback.',
+          ogLocale: 'en_US'
+        }
+      };
+
+      const data = seoData[lang] || seoData['en'];
+
+      // \u66F4\u65B0\u9875\u9762\u6807\u9898
+      document.title = data.title;
+
+      // \u66F4\u65B0Meta\u6807\u7B7E
+      updateMetaTag('name', 'description', data.description);
+      updateMetaTag('name', 'keywords', data.keywords);
+
+      // \u66F4\u65B0Open Graph\u6807\u7B7E
+      updateMetaTag('property', 'og:title', data.ogTitle);
+      updateMetaTag('property', 'og:description', data.ogDescription);
+      updateMetaTag('property', 'og:locale', data.ogLocale);
+
+      // \u66F4\u65B0Twitter Card\u6807\u7B7E
+      updateMetaTag('name', 'twitter:title', data.ogTitle);
+      updateMetaTag('name', 'twitter:description', data.ogDescription);
+
+      // \u66F4\u65B0Canonical URL\uFF08\u4E2D\u6587\u7248\u5E26lang\u53C2\u6570\uFF09
+      updateMetaTag('link', 'canonical', url, 'href');
+
+      // \u66F4\u65B0\u4E2D\u6587FAQ Schema
+      updateFAQSchemaForLanguage(lang);
+
+      // \u66F4\u65B0WebPage Schema
+      updateWebPageSchemaForLanguage(lang);
+    }
+
+    // ========== \u591A\u8BED\u8A00SEO: \u66F4\u65B0FAQ Schema ==========
+    function updateFAQSchemaForLanguage(lang) {
+      const faqScript = document.getElementById('faq-schema');
+      if (!faqScript) return;
+
+      const isZhCN = lang === 'zh-CN';
+
+      const zhFAQ = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "\u5982\u4F55\u514D\u8D39\u5728\u7EBF\u770B\u7535\u89C6\uFF1F",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "\u5728IPTV Live\u4E0A\u9009\u62E9\u4EFB\u610F\u9891\u9053\u5373\u53EF\u514D\u8D39\u89C2\u770B\u3002\u6211\u4EEC\u63D0\u4F9B10000+\u9AD8\u6E05\u9891\u9053\uFF0C\u5305\u62EC\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u7535\u5F71\u3001\u5A31\u4E50\u7B49\u5185\u5BB9\u3002\u65E0\u9700\u6CE8\u518C\uFF0C\u76F4\u63A5\u70B9\u51FB\u5373\u53EF\u89C2\u770B\u3002\u5982\u9700\u4F7F\u7528\u5916\u90E8\u64AD\u653E\u5668\uFF08VLC\u3001IPTV\u5E94\u7528\uFF09\uFF0C\u53EF\u83B7\u53D6\u8BA2\u9605\u94FE\u63A5\u3002"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "\u6211\u53EF\u4EE5\u5728\u54EA\u4E9B\u8BBE\u5907\u4E0A\u770B\u7535\u89C6\uFF1F",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "\u6211\u4EEC\u7684\u64AD\u653E\u5668\u652F\u6301\u6240\u6709\u8BBE\u5907\uFF1A\u624B\u673A\uFF08iOS/Android\uFF09\u3001\u684C\u9762\u6D4F\u89C8\u5668\u3001\u667A\u80FD\u7535\u89C6\u548C\u6D41\u5A92\u4F53\u8BBE\u5907\u3002\u5BF9\u4E8E\u5916\u90E8\u64AD\u653E\u5668\uFF08\u5982VLC\uFF09\uFF0C\u60A8\u53EF\u4EE5\u83B7\u53D6M3U\u8BA2\u9605\u94FE\u63A5\uFF0C\u5728\u4EFB\u4F55\u652F\u6301IPTV\u7684\u5E94\u7528\u4E0A\u4F7F\u7528\u3002"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "\u76F4\u64AD\u753B\u8D28\u5982\u4F55\uFF1F",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "\u6211\u4EEC\u63D0\u4F9B\u9AD8\u6E05\u753B\u8D28\uFF0C\u652F\u6301\u81EA\u9002\u5E94\u7801\u7387\u6280\u672F\u3002\u753B\u8D28\u4F1A\u6839\u636E\u60A8\u7684\u7F51\u7EDC\u8FDE\u63A5\u901F\u5EA6\u81EA\u52A8\u8C03\u6574\u3002\u5927\u591A\u6570\u9891\u9053\u652F\u6301720p\u52301080p\u5206\u8FA8\u7387\uFF0C\u786E\u4FDD\u5728\u4EFB\u4F55\u8BBE\u5907\u4E0A\u6D41\u7545\u64AD\u653E\u3002"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "\u89C2\u770B\u9700\u8981\u6CE8\u518C\u5417\uFF1F",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "\u6D4F\u89C8\u5668\u89C2\u770B\u65E0\u9700\u6CE8\u518C\u3002\u9009\u62E9\u4EFB\u610F\u9891\u9053\u7ACB\u5373\u5F00\u59CB\u89C2\u770B\u3002\u5982\u9700\u5916\u90E8\u64AD\u653E\u5668\u652F\u6301\uFF08VLC\u3001IPTV\u5E94\u7528\u3001\u667A\u80FD\u7535\u89C6\uFF09\uFF0C\u53EF\u8D2D\u4E70\u8BA2\u9605\u7801\u83B7\u53D6M3U\u64AD\u653E\u5217\u8868\u94FE\u63A5\u3002"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "\u6709\u591A\u5C11\u4E2A\u9891\u9053\uFF1F",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "IPTV Live\u63D0\u4F9B10000+\u76F4\u64AD\u9891\u9053\uFF0C\u6DB5\u76D6\u591A\u4E2A\u7C7B\u522B\uFF1A\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u3001\u7EAA\u5F55\u7247\u3001\u5C11\u513F\u8282\u76EE\u3001\u97F3\u4E50\u4EE5\u53CA\u6765\u81EA\u4E16\u754C\u5404\u5730\u7684\u56FD\u9645\u5185\u5BB9\u3002"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "\u53EF\u4EE5\u5728IPTV Live\u4E0A\u770B\u4F53\u80B2\u76F4\u64AD\u5417\uFF1F",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "\u53EF\u4EE5\u3002IPTV Live\u63D0\u4F9B\u4E30\u5BCC\u7684\u4F53\u80B2\u8D5B\u4E8B\u76F4\u64AD\uFF0C\u5305\u62EC\u8DB3\u7403\u3001\u7BEE\u7403\u3001\u7F51\u7403\u3001\u677F\u7403\u7B49\u3002\u65E0\u9700\u6709\u7EBF\u7535\u89C6\u8BA2\u9605\uFF0C\u5373\u53EF\u5728\u5168\u7403\u89C2\u770B\u9AD8\u6E05\u4F53\u80B2\u8D5B\u4E8B\u76F4\u64AD\u3002"
+            }
+          }
+        ]
+      };
+
+      const enFAQ = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I watch live TV online for free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Watch live TV online for free by selecting a channel from our lineup. IPTV Live offers 10,000+ HD channels including sports, news, movies, and entertainment. No registration required - just click and watch in your browser, or get a subscription for external players like VLC or IPTV apps."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What devices can I use to watch live TV?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Our streaming player works on all devices: mobile phones (iOS/Android), desktop browsers (Chrome, Firefox, Safari, Edge), smart TVs, and streaming devices. For external players like VLC, you can get an M3U subscription link that works with any IPTV-compatible application."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the streaming quality available?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "We offer HD streaming quality with adaptive bitrate technology. Quality automatically adjusts based on your internet connection speed. Most channels support 720p to 1080p resolution, ensuring smooth playback on any device."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is registration required to watch live TV?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No registration is required for browser viewing. Simply select any channel and start watching instantly. For external player support (VLC, IPTV apps, smart TVs), you can purchase a subscription code to get an M3U playlist link."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How many channels are available on IPTV Live?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "IPTV Live provides access to 10,000+ live channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I watch sports live on IPTV Live?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, IPTV Live offers extensive sports coverage including football, basketball, tennis, cricket, and more. Watch live sports events from around the world in HD quality without cable subscription."
+            }
+          }
+        ]
+      };
+
+      faqScript.textContent = JSON.stringify(isZhCN ? zhFAQ : enFAQ);
+    }
+
+    // ========== \u591A\u8BED\u8A00SEO: \u66F4\u65B0WebPage Schema ==========
+    function updateWebPageSchemaForLanguage(lang) {
+      const webPageSchemaScript = document.getElementById('webpage-schema');
+      if (!webPageSchemaScript) return;
+
+      const isZhCN = lang === 'zh-CN';
+      const origin = window.location.origin;
+
+      const schema = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": isZhCN ? "IPTV Live - \u514D\u8D39\u9AD8\u6E05\u7535\u89C6\u5728\u7EBF\u89C2\u770B\u5E73\u53F0" : "IPTV Live - Free HD Live TV Streaming Platform",
+        "url": isZhCN ? origin + "/?lang=zh-CN" : origin + "/",
+        "description": isZhCN ? 
+          "\u89C2\u770B10000+\u514D\u8D39\u9AD8\u6E05\u76F4\u64AD\u9891\u9053\u5728\u7EBF\u3002\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71 - \u65E0\u9700\u6CE8\u518C\u3002" :
+          "Watch 10,000+ free HD live TV channels online. Sports, news, entertainment, movies - no registration required.",
+        "dateModified": "2026-02-19",
+        "inLanguage": lang,
+        "author": {
+          "@type": "Organization",
+          "name": "IPTV Live",
+          "url": origin
+        },
+        "about": {
+          "@type": "Thing",
+          "name": "Internet Protocol television",
+          "sameAs": "https://www.wikidata.org/wiki/Q170418"
+        },
+        "mentions": [
+          {
+            "@type": "Thing",
+            "name": "Live streaming",
+            "sameAs": "https://www.wikidata.org/wiki/Q2939123"
+          },
+          {
+            "@type": "Thing",
+            "name": "Television channel",
+            "sameAs": "https://www.wikidata.org/wiki/Q21286"
+          }
+        ]
+      };
+
+      webPageSchemaScript.textContent = JSON.stringify(schema);
     }
 
     // \u66F4\u65B0\u9875\u9762\u8BED\u8A00\u5185\u5BB9
@@ -16457,15 +16685,30 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       updateMetaTag('property', 'og:locale', isZhCN ? 'zh_CN' : 'en_US');
     }
 
-    // \u66F4\u65B0\u6216\u521B\u5EFAmeta\u6807\u7B7E
-    function updateMetaTag(attribute, name, content) {
+    // \u66F4\u65B0\u6216\u521B\u5EFAmeta\u548Clink\u6807\u7B7E
+    function updateMetaTag(attribute, name, content, valueAttr = 'content') {
+      // \u7279\u6B8A\u5904\u7406 link \u6807\u7B7E\uFF08\u4F8B\u5982 canonical\uFF09
+      if (attribute === 'link') {
+        let link = document.querySelector(\`link[rel="\${name}"]\`);
+        if (!link) {
+          link = document.createElement('link');
+          link.setAttribute('rel', name);
+          document.head.appendChild(link);
+        }
+        if (valueAttr && content) {
+          link.setAttribute(valueAttr, content);
+        }
+        return;
+      }
+
+      // \u5904\u7406 meta \u6807\u7B7E
       let meta = document.querySelector(\`meta[\${attribute}="\${name}"]\`);
       if (!meta) {
         meta = document.createElement('meta');
         meta.setAttribute(attribute, name);
         document.head.appendChild(meta);
       }
-      meta.setAttribute('content', content);
+      meta.setAttribute(valueAttr, content);
     }
 
     function showToast(message, type = 'info', duration = 4000, checkModal = false) {
@@ -22865,12 +23108,17 @@ init_modules_watch_stub();
 function generateSitemap(origin) {
   const currentDate = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>${origin}/</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="${origin}/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="${origin}/?lang=zh-CN" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="${origin}/?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${origin}/" />
   </url>
   <url>
     <loc>${origin}/activate</loc>

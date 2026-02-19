@@ -35,6 +35,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- Canonical URL -->
   <link rel="canonical" href="https://iptv-search.com">
 
+  <!-- ========== Multi-language SEO: Hreflang Tags ========== -->
+  <!-- 告诉搜索引擎这是多语言页面，每个语言版本在哪里 -->
+  <link rel="alternate" hreflang="en" href="https://iptv-search.com/" />
+  <link rel="alternate" hreflang="zh-CN" href="https://iptv-search.com/?lang=zh-CN" />
+  <link rel="alternate" hreflang="zh-TW" href="https://iptv-search.com/?lang=zh-TW" />
+  <link rel="alternate" hreflang="x-default" href="https://iptv-search.com/" />
+
   <!-- Favicon - Google搜索结果需要 -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any">
@@ -98,7 +105,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   </script>
 
   <!-- ========== GEO Optimization: FAQPage Schema (Highest Priority for AI Citations) ========== -->
-  <script type="application/ld+json">
+  <script type="application/ld+json" id="faq-schema">
   {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -187,7 +194,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   </script>
 
   <!-- ========== GEO Optimization: WebPage with Wikidata Entity Links (Strongest 2026 Signal) ========== -->
-  <script type="application/ld+json">
+  <script type="application/ld+json" id="webpage-schema">
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -773,9 +780,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         </div>
 
         <!-- ========== GEO Optimization: Direct Answer Block (First 100 Words) ========== -->
-        <div class="geo-direct-answer" style="margin-bottom: 20px; padding: 16px 20px; background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, rgba(184,29,36,0.05) 100%); border-radius: 12px; border-left: 4px solid #e50914;">
+        <!-- 这一块对SEO/AI很重要，但影响用户体验，所以用CSS隐藏但保留在DOM中供搜索引擎抓取 -->
+        <div class="geo-direct-answer" style="margin-bottom: 20px; padding: 16px 20px; background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, rgba(184,29,36,0.05) 100%); border-radius: 12px; border-left: 4px solid #e50914; display: none;">
           <p style="font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.9); margin: 0;">
-            <strong style="color: #e50914;">IPTV Live</strong> lets you <strong>watch live TV online for free</strong> with 10,000+ HD channels including sports, news, entertainment, and movies. 
+            <strong style="color: #e50914;">IPTV Live</strong> lets you <strong>watch live TV online for free</strong> with 10,000+ HD channels including sports, news, entertainment, and movies.
             <strong>No registration required</strong> — select any channel below to start watching instantly in your browser, or get a subscription for external players like VLC and IPTV apps.
           </p>
           <p style="font-size: 12px; color: rgba(255,255,255,0.4); margin: 8px 0 0 0;">
@@ -1170,13 +1178,233 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // 更新 HTML lang 属性
       document.documentElement.lang = lang;
 
-      // 更新SEO信息 - 已移除动态更新
+      // ========== 多语言SEO: 动态更新SEO Meta标签 ==========
+      updateSEOMetaForLanguage(lang);
 
       // 保存语言设置
       localStorage.setItem('iptv_language', lang);
 
       // 刷新页面内容
       updateLanguageContent();
+    }
+
+    // ========== 多语言SEO: 更新SEO Meta标签函数 ==========
+    function updateSEOMetaForLanguage(lang) {
+      const isZhCN = lang === 'zh-CN';
+      const origin = window.location.origin;
+      const url = isZhCN ? origin + '/?lang=zh-CN' : origin + '/';
+
+      // 中文和英文的SEO数据
+      const seoData = {
+        'zh-CN': {
+          title: 'IPTV Live - 免费高清电视在线观看平台',
+          description: 'IPTV Live 提供免费的在线电视直播服务，包含10000+高清频道，支持体育、新闻、娱乐、电影等全类型频道，无需注册，一键播放。',
+          keywords: 'IPTV,免费看电视,电视直播,网络电视,IPTV直播,在线电视,体育赛事直播,新闻直播,高清直播,免费直播',
+          ogTitle: 'IPTV Live - 免费高清电视在线观看平台',
+          ogDescription: 'IPTV Live 提供免费的在线电视直播服务，包含10000+高清频道，支持体育、新闻、娱乐、电影等全类型频道，无需注册，一键播放。',
+          ogLocale: 'zh_CN'
+        },
+        'en': {
+          title: 'IPTV Live - Free HD Live TV Streaming Platform',
+          description: 'IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback.',
+          keywords: 'IPTV,free live TV,online TV,sports live streaming,news live streaming,HD streaming,free TV,online video,live streaming platform,IPTV Live',
+          ogTitle: 'IPTV Live - Free HD Live TV Streaming Platform',
+          ogDescription: 'Access 10,000+ free HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback.',
+          ogLocale: 'en_US'
+        }
+      };
+
+      const data = seoData[lang] || seoData['en'];
+
+      // 更新页面标题
+      document.title = data.title;
+
+      // 更新Meta标签
+      updateMetaTag('name', 'description', data.description);
+      updateMetaTag('name', 'keywords', data.keywords);
+
+      // 更新Open Graph标签
+      updateMetaTag('property', 'og:title', data.ogTitle);
+      updateMetaTag('property', 'og:description', data.ogDescription);
+      updateMetaTag('property', 'og:locale', data.ogLocale);
+
+      // 更新Twitter Card标签
+      updateMetaTag('name', 'twitter:title', data.ogTitle);
+      updateMetaTag('name', 'twitter:description', data.ogDescription);
+
+      // 更新Canonical URL（中文版带lang参数）
+      updateMetaTag('link', 'canonical', url, 'href');
+
+      // 更新中文FAQ Schema
+      updateFAQSchemaForLanguage(lang);
+
+      // 更新WebPage Schema
+      updateWebPageSchemaForLanguage(lang);
+    }
+
+    // ========== 多语言SEO: 更新FAQ Schema ==========
+    function updateFAQSchemaForLanguage(lang) {
+      const faqScript = document.getElementById('faq-schema');
+      if (!faqScript) return;
+
+      const isZhCN = lang === 'zh-CN';
+
+      const zhFAQ = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "如何免费在线看电视？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "在IPTV Live上选择任意频道即可免费观看。我们提供10000+高清频道，包括体育、新闻、电影、娱乐等内容。无需注册，直接点击即可观看。如需使用外部播放器（VLC、IPTV应用），可获取订阅链接。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "我可以在哪些设备上看电视？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "我们的播放器支持所有设备：手机（iOS/Android）、桌面浏览器、智能电视和流媒体设备。对于外部播放器（如VLC），您可以获取M3U订阅链接，在任何支持IPTV的应用上使用。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "直播画质如何？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "我们提供高清画质，支持自适应码率技术。画质会根据您的网络连接速度自动调整。大多数频道支持720p到1080p分辨率，确保在任何设备上流畅播放。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "观看需要注册吗？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "浏览器观看无需注册。选择任意频道立即开始观看。如需外部播放器支持（VLC、IPTV应用、智能电视），可购买订阅码获取M3U播放列表链接。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "有多少个频道？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "IPTV Live提供10000+直播频道，涵盖多个类别：体育、新闻、娱乐、电影、纪录片、少儿节目、音乐以及来自世界各地的国际内容。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "可以在IPTV Live上看体育直播吗？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "可以。IPTV Live提供丰富的体育赛事直播，包括足球、篮球、网球、板球等。无需有线电视订阅，即可在全球观看高清体育赛事直播。"
+            }
+          }
+        ]
+      };
+
+      const enFAQ = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I watch live TV online for free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Watch live TV online for free by selecting a channel from our lineup. IPTV Live offers 10,000+ HD channels including sports, news, movies, and entertainment. No registration required - just click and watch in your browser, or get a subscription for external players like VLC or IPTV apps."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What devices can I use to watch live TV?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Our streaming player works on all devices: mobile phones (iOS/Android), desktop browsers (Chrome, Firefox, Safari, Edge), smart TVs, and streaming devices. For external players like VLC, you can get an M3U subscription link that works with any IPTV-compatible application."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the streaming quality available?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "We offer HD streaming quality with adaptive bitrate technology. Quality automatically adjusts based on your internet connection speed. Most channels support 720p to 1080p resolution, ensuring smooth playback on any device."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is registration required to watch live TV?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No registration is required for browser viewing. Simply select any channel and start watching instantly. For external player support (VLC, IPTV apps, smart TVs), you can purchase a subscription code to get an M3U playlist link."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How many channels are available on IPTV Live?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "IPTV Live provides access to 10,000+ live channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I watch sports live on IPTV Live?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, IPTV Live offers extensive sports coverage including football, basketball, tennis, cricket, and more. Watch live sports events from around the world in HD quality without cable subscription."
+            }
+          }
+        ]
+      };
+
+      faqScript.textContent = JSON.stringify(isZhCN ? zhFAQ : enFAQ);
+    }
+
+    // ========== 多语言SEO: 更新WebPage Schema ==========
+    function updateWebPageSchemaForLanguage(lang) {
+      const webPageSchemaScript = document.getElementById('webpage-schema');
+      if (!webPageSchemaScript) return;
+
+      const isZhCN = lang === 'zh-CN';
+      const origin = window.location.origin;
+
+      const schema = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": isZhCN ? "IPTV Live - 免费高清电视在线观看平台" : "IPTV Live - Free HD Live TV Streaming Platform",
+        "url": isZhCN ? origin + "/?lang=zh-CN" : origin + "/",
+        "description": isZhCN ? 
+          "观看10000+免费高清直播频道在线。体育、新闻、娱乐、电影 - 无需注册。" :
+          "Watch 10,000+ free HD live TV channels online. Sports, news, entertainment, movies - no registration required.",
+        "dateModified": "2026-02-19",
+        "inLanguage": lang,
+        "author": {
+          "@type": "Organization",
+          "name": "IPTV Live",
+          "url": origin
+        },
+        "about": {
+          "@type": "Thing",
+          "name": "Internet Protocol television",
+          "sameAs": "https://www.wikidata.org/wiki/Q170418"
+        },
+        "mentions": [
+          {
+            "@type": "Thing",
+            "name": "Live streaming",
+            "sameAs": "https://www.wikidata.org/wiki/Q2939123"
+          },
+          {
+            "@type": "Thing",
+            "name": "Television channel",
+            "sameAs": "https://www.wikidata.org/wiki/Q21286"
+          }
+        ]
+      };
+
+      webPageSchemaScript.textContent = JSON.stringify(schema);
     }
 
     // 更新页面语言内容
@@ -1484,15 +1712,30 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       updateMetaTag('property', 'og:locale', isZhCN ? 'zh_CN' : 'en_US');
     }
 
-    // 更新或创建meta标签
-    function updateMetaTag(attribute, name, content) {
+    // 更新或创建meta和link标签
+    function updateMetaTag(attribute, name, content, valueAttr = 'content') {
+      // 特殊处理 link 标签（例如 canonical）
+      if (attribute === 'link') {
+        let link = document.querySelector(\`link[rel="\${name}"]\`);
+        if (!link) {
+          link = document.createElement('link');
+          link.setAttribute('rel', name);
+          document.head.appendChild(link);
+        }
+        if (valueAttr && content) {
+          link.setAttribute(valueAttr, content);
+        }
+        return;
+      }
+
+      // 处理 meta 标签
       let meta = document.querySelector(\`meta[\${attribute}="\${name}"]\`);
       if (!meta) {
         meta = document.createElement('meta');
         meta.setAttribute(attribute, name);
         document.head.appendChild(meta);
       }
-      meta.setAttribute('content', content);
+      meta.setAttribute(valueAttr, content);
     }
 
     function showToast(message, type = 'info', duration = 4000, checkModal = false) {

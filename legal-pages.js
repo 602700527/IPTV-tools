@@ -1,17 +1,22 @@
 import { PAGE_HEADER } from './components/page-header.js';
 import { PAGE_FOOTER } from './components/page-footer.js';
 
-// 生成网站地图 XML
+// 生成网站地图 XML（支持多语言hreflang）
 export function generateSitemap(origin) {
   const currentDate = new Date().toISOString().split('T')[0];
-  
+
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>${origin}/</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="${origin}/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="${origin}/?lang=zh-CN" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="${origin}/?lang=zh-TW" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${origin}/" />
   </url>
   <url>
     <loc>${origin}/activate</loc>
