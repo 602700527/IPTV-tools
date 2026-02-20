@@ -951,8 +951,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
   </style>
-  <!-- 100%填充 -->
-  <script src="https://quge5.com/88/tag.min.js" data-zone="211982" async data-cfasync="false"></script>
+
 </head>
 <body>
   ${PAGE_HEADER}
@@ -1181,9 +1180,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       durationOptions.forEach(duration => {
         const price = calculatePrice(duration, selectedIPs);
         const isSelected = selectedDuration.name === duration.name;
+        const daysText = duration.days === -1 ? 'Lifetime' : duration.days + ' days';
         html += '<div class="option-card ' + (isSelected ? 'selected' : '') + '" onclick="selectDuration(' + "'" + duration.name + "'" + ')">';
         html += '<div class="option-title">' + t('planNames')[duration.name] + '</div>';
-        html += '<div class="option-subtitle">' + duration.days + ' days</div>';
+        html += '<div class="option-subtitle">' + daysText + '</div>';
         html += '<div class="option-price">¥' + price.discounted.toFixed(2) + '</div>';
         if (duration.discount > 0) {
           html += '<div class="option-discount">-' + duration.discount + '%</div>';
@@ -1214,11 +1214,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       const summaryEl = document.getElementById('paymentSummary');
       const price = calculatePrice(selectedDuration, selectedIPs);
 
+      const daysText = selectedDuration.days === -1 ? 'Lifetime' : selectedDuration.days + ' days';
+
       let html = '<h3 style="color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 20px;">' + t('summary') + '</h3>';
 
       // Base price
       html += '<div class="summary-row">';
-      html += '<span class="summary-label">' + t('basePrice') + ' (' + selectedDuration.days + ' days)</span>';
+      html += '<span class="summary-label">' + t('basePrice') + ' (' + daysText + ')</span>';
       html += '<span class="summary-value">¥' + selectedDuration.basePrice.toFixed(2) + '</span>';
       html += '</div>';
 

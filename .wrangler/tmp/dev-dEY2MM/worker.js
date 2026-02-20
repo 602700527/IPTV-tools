@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-f4IX9y/checked-fetch.js
+// .wrangler/tmp/bundle-B6ZtIv/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-f4IX9y/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-B6ZtIv/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -2068,11 +2068,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-f4IX9y/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-B6ZtIv/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-f4IX9y/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-B6ZtIv/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -9852,7 +9852,8 @@ var ADMIN_HTML = `<!DOCTYPE html>
       <div class="form-row">
         <div class="form-group">
           <label>\u65F6\u957F\uFF08\u5929\uFF09</label>
-          <input type="number" id="planDays" min="1" placeholder="30" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="number" id="planDays" placeholder="30" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <small style="color:#86868b;">\u8F93\u5165 -1 \u8868\u793A\u6C38\u4E45\u5957\u9910</small>
         </div>
         <div class="form-group">
           <label>\u57FA\u7840\u4EF7\u683C\uFF08\u5143\uFF09</label>
@@ -13291,6 +13292,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
       tbody.innerHTML = plans.map(plan => {
         const statusClass = plan.is_enabled ? 'badge-success' : 'badge-danger';
         const statusText = plan.is_enabled ? '\u5DF2\u542F\u7528' : '\u5DF2\u7981\u7528';
+        const daysText = plan.days === -1 ? '\u6C38\u4E45' : plan.days + ' \u5929';
         return \`
           <tr>
             <td>\${plan.id}</td>
@@ -13298,7 +13300,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
               <div>\${escapeHtml(plan.name)}</div>
               <div style="font-size:12px;color:#86868b;">\${escapeHtml(plan.name_en || '')}</div>
             </td>
-            <td>\${plan.days} \u5929</td>
+            <td>\${daysText}</td>
             <td>\xA5\${parseFloat(plan.base_price).toFixed(2)}</td>
             <td>\xA5\${parseFloat(plan.price_per_ip).toFixed(2)}</td>
             <td>\${plan.discount}%</td>
@@ -13370,8 +13372,13 @@ var ADMIN_HTML = `<!DOCTYPE html>
       const sortOrder = parseInt(document.getElementById('planSortOrder').value);
       const isEnabled = document.getElementById('planEnabled').checked ? 1 : 0;
 
-      if (!name || !days || isNaN(basePrice) || isNaN(pricePerIP)) {
+      if (!name || days === '' || isNaN(basePrice) || isNaN(pricePerIP)) {
         showToast('\u8BF7\u586B\u5199\u5B8C\u6574\u4FE1\u606F', 'error');
+        return;
+      }
+
+      if (days !== -1 && days < 1) {
+        showToast('\u5929\u6570\u5FC5\u987B\u5927\u4E8E0\uFF0C\u6216\u8F93\u5165-1\u8868\u793A\u6C38\u4E45\u5957\u9910', 'error');
         return;
       }
 
@@ -14421,8 +14428,9 @@ var PAGE_FOOTER = `
       }
     }
   </style>
-  <!-- \u9875\u9762\u53F3\u4E0A\u89D2\u901A\u77E5 -->
-  <script>(function(s){s.dataset.zone='10621634',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))<\/script>
+  <!-- 100%\u586B\u5145 -->
+  <!--<script src="https://quge5.com/88/tag.min.js" data-zone="211982" async data-cfasync="false"><\/script>-->
+  <script>(function(s){s.dataset.zone='10621619',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))<\/script>
 `;
 
 // account-page.js
@@ -21295,8 +21303,7 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
   </style>
-  <!-- 100%\u586B\u5145 -->
-  <script src="https://quge5.com/88/tag.min.js" data-zone="211982" async data-cfasync="false"><\/script>
+
 </head>
 <body>
   ${PAGE_HEADER}
@@ -21525,9 +21532,10 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       durationOptions.forEach(duration => {
         const price = calculatePrice(duration, selectedIPs);
         const isSelected = selectedDuration.name === duration.name;
+        const daysText = duration.days === -1 ? 'Lifetime' : duration.days + ' days';
         html += '<div class="option-card ' + (isSelected ? 'selected' : '') + '" onclick="selectDuration(' + "'" + duration.name + "'" + ')">';
         html += '<div class="option-title">' + t('planNames')[duration.name] + '</div>';
-        html += '<div class="option-subtitle">' + duration.days + ' days</div>';
+        html += '<div class="option-subtitle">' + daysText + '</div>';
         html += '<div class="option-price">\xA5' + price.discounted.toFixed(2) + '</div>';
         if (duration.discount > 0) {
           html += '<div class="option-discount">-' + duration.discount + '%</div>';
@@ -21558,11 +21566,13 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       const summaryEl = document.getElementById('paymentSummary');
       const price = calculatePrice(selectedDuration, selectedIPs);
 
+      const daysText = selectedDuration.days === -1 ? 'Lifetime' : selectedDuration.days + ' days';
+
       let html = '<h3 style="color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 20px;">' + t('summary') + '</h3>';
 
       // Base price
       html += '<div class="summary-row">';
-      html += '<span class="summary-label">' + t('basePrice') + ' (' + selectedDuration.days + ' days)</span>';
+      html += '<span class="summary-label">' + t('basePrice') + ' (' + daysText + ')</span>';
       html += '<span class="summary-value">\xA5' + selectedDuration.basePrice.toFixed(2) + '</span>';
       html += '</div>';
 
@@ -24216,7 +24226,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-f4IX9y/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-B6ZtIv/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -24250,7 +24260,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-f4IX9y/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-B6ZtIv/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

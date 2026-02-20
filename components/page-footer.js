@@ -145,6 +145,7 @@ export const PAGE_FOOTER = `
       }
     }
   </style>
-  <!-- 页面右上角通知 -->
-  <script>(function(s){s.dataset.zone='10621634',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+  <!-- 100%填充 -->
+  <!--<script src="https://quge5.com/88/tag.min.js" data-zone="211982" async data-cfasync="false"></script>-->
+  <script>(function(s){s.dataset.zone='10621619',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 `;

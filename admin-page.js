@@ -1111,7 +1111,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <div class="form-row">
         <div class="form-group">
           <label>时长（天）</label>
-          <input type="number" id="planDays" min="1" placeholder="30" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="number" id="planDays" placeholder="30" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <small style="color:#86868b;">输入 -1 表示永久套餐</small>
         </div>
         <div class="form-group">
           <label>基础价格（元）</label>
@@ -4549,6 +4550,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       tbody.innerHTML = plans.map(plan => {
         const statusClass = plan.is_enabled ? 'badge-success' : 'badge-danger';
         const statusText = plan.is_enabled ? '已启用' : '已禁用';
+        const daysText = plan.days === -1 ? '永久' : plan.days + ' 天';
         return \`
           <tr>
             <td>\${plan.id}</td>
@@ -4556,7 +4558,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               <div>\${escapeHtml(plan.name)}</div>
               <div style="font-size:12px;color:#86868b;">\${escapeHtml(plan.name_en || '')}</div>
             </td>
-            <td>\${plan.days} 天</td>
+            <td>\${daysText}</td>
             <td>¥\${parseFloat(plan.base_price).toFixed(2)}</td>
             <td>¥\${parseFloat(plan.price_per_ip).toFixed(2)}</td>
             <td>\${plan.discount}%</td>
@@ -4628,8 +4630,13 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       const sortOrder = parseInt(document.getElementById('planSortOrder').value);
       const isEnabled = document.getElementById('planEnabled').checked ? 1 : 0;
 
-      if (!name || !days || isNaN(basePrice) || isNaN(pricePerIP)) {
+      if (!name || days === '' || isNaN(basePrice) || isNaN(pricePerIP)) {
         showToast('请填写完整信息', 'error');
+        return;
+      }
+
+      if (days !== -1 && days < 1) {
+        showToast('天数必须大于0，或输入-1表示永久套餐', 'error');
         return;
       }
 
