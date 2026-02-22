@@ -24,9 +24,9 @@ export async function createFreeSubscription(ip, fingerprint, fingerprintCompone
     // 生成唯一的订阅ID
     const subId = generateSubscriptionId();
 
-    // 计算过期时间（默认3天）
+    // 计算过期时间（默认30天）
     const expiredAt = new Date();
-    expiredAt.setDate(expiredAt.getDate() + 3);
+    expiredAt.setDate(expiredAt.getDate() + 30);
 
     // 检查该IP是否已有免费订阅（智能管理：查询所有历史记录）
     const existing = await db.prepare(`
@@ -64,7 +64,7 @@ export async function createFreeSubscription(ip, fingerprint, fingerprintCompone
         // 修复Bug 1：确保过期后7天内仍然可以签到续期
         if (expiredDate <= now) {
           const newExpiredAt = new Date();
-          newExpiredAt.setDate(newExpiredAt.getDate() + 3);
+          newExpiredAt.setDate(newExpiredAt.getDate() + 30);
 
           // 如果没有 fp_token，生成一个新的
           const newFpToken = existing.fp_token || generateFpToken();
@@ -162,7 +162,7 @@ export async function createFreeSubscription(ip, fingerprint, fingerprintCompone
     JSON.stringify(fingerprintComponents),
     fpToken,
     expiredAt.toISOString(),
-    3,    // 初始3天
+    30,    // 初始30天
     0     // 初始连续签到0天
   ).run();
 
@@ -264,27 +264,28 @@ function formatSubscription(sub) {
  */
 export async function validateFreeSubscription(subId, request, db) {
   const ip = getClientIP(request);
-  
+
+  // 允许过期后89天内仍然可以访问（用于签到续期）
   const sub = await db.prepare(`
-    SELECT * FROM free_subscriptions 
-    WHERE sub_id = ? AND expired_at > datetime('now')
+    SELECT * FROM free_subscriptions
+    WHERE sub_id = ? AND expired_at >= datetime('now', '-89 days')
   `).bind(subId).first();
-  
+
   if (!sub) {
     return { valid: false, reason: 'subscription_not_found_or_expired' };
   }
-  
+
   // 检查IP是否匹配
   if (sub.ip !== ip) {
     // 允许一定程度的IP变化（如家庭网络IP变动）
     // 但需要指纹验证
-    return { 
-      valid: false, 
+    return {
+      valid: false,
       reason: 'ip_mismatch',
-      requiresFingerprint: true 
+      requiresFingerprint: true
     };
   }
-  
+
   return { valid: true, subscription: formatSubscription(sub) };
 }
 
@@ -297,10 +298,10 @@ export async function validateFreeSubscription(subId, request, db) {
 export async function validateFreeSubscriptionWithFingerprint(subId, request, fingerprintOrToken, db) {
   const ip = getClientIP(request);
 
-  // 修复Bug 1: 允许过期当天和过期后7天内仍然可以访问（允许签到续期）
+  // 修复Bug 1: 允许过期当天和过期后89天内仍然可以访问（允许签到续期）
   const sub = await db.prepare(`
     SELECT * FROM free_subscriptions
-    WHERE sub_id = ? AND expired_at >= datetime('now', '-7 days')
+    WHERE sub_id = ? AND expired_at >= datetime('now', '-89 days')
   `).bind(subId).first();
 
   if (!sub) {

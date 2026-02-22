@@ -311,6 +311,29 @@ export const FREE_SUB_HTML = `
       scale: 0.98;
     }
 
+    .copy-message {
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-top: 12px;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+
+    .copy-message.success {
+      background: rgba(52, 199, 89, 0.15);
+      border: 1px solid rgba(52, 199, 89, 0.3);
+      color: #34c759;
+      display: block;
+    }
+
+    .copy-message.error {
+      background: rgba(255, 59, 48, 0.15);
+      border: 1px solid rgba(255, 59, 48, 0.3);
+      color: #ff3b30;
+      display: block;
+    }
+
     .loading {
       display: none;
       text-align: center;
@@ -511,6 +534,13 @@ export const FREE_SUB_HTML = `
         <p class="subscription-id" id="subId" data-i18n="loading">Loading...</p>
         <p class="subscription-url" id="subUrl"></p>
         <button class="copy-btn" onclick="copySubscriptionUrl()" data-i18n="copyUrl">Copy URL</button>
+        <div class="copy-message" id="copyMessage"></div>
+        <div style="text-align: center; margin-top: 15px;">
+          <a href="/tutorial" style="display: inline-flex; align-items: center; gap: 8px; color: #e50914; text-decoration: none; font-size: 14px; font-weight: 500;">
+            <span>📺</span>
+            <span style="text-decoration: underline;">How to add to player</span>
+          </a>
+        </div>
 
         <div class="status-grid">
           <div class="status-item">
@@ -529,9 +559,9 @@ export const FREE_SUB_HTML = `
       </div>
 
       <div class="card checkin-section">
-        <h2 data-i18n="dailyCheckIn">📅 Daily Check-in</h2>
+        <h2 data-i18n="dailyCheckIn">📅 Monthly Check-in</h2>
         <p class="checkin-desc" data-i18n="checkInDesc">
-          Check-in to extend your subscription, consecutive check-ins earn extra rewards!
+          Check-in available when 0-7 days remaining, extend 30 days per check-in
         </p>
         <div class="captcha-container">
           <input type="text" class="captcha-input" id="captchaInput" data-i18n-placeholder="captchaPlaceholder" placeholder="Enter code" maxlength="6">
@@ -543,9 +573,9 @@ export const FREE_SUB_HTML = `
         <div class="message" id="message"></div>
 
         <div class="features">
-          <div class="feature-item" data-i18n="feature1">First check-in: 3 days, daily check-in +1 day</div>
-          <div class="feature-item" data-i18n="feature2">Consecutive 7 days: +2 extra days</div>
-          <div class="feature-item" data-i18n="feature3">Consecutive 30 days: +7 extra days, max 30 days</div>
+          <div class="feature-item">Initial validity: 30 days</div>
+          <div class="feature-item">Check-in available: 0-7 days remaining</div>
+          <div class="feature-item">Each check-in extends 30 days, max 60 days total</div>
         </div>
       </div>
 
@@ -567,10 +597,9 @@ export const FREE_SUB_HTML = `
       if (savedLang) {
         return savedLang;
       }
-      
-      const browserLang = navigator.language || navigator.userLanguage || 'zh-CN';
-      // 简体中文使用 zh-CN，其他语言使用英文
-      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
+
+      // 默认使用英文
+      return 'en';
     }
 
     let currentLang = detectBrowserLanguage();
@@ -683,8 +712,7 @@ export const FREE_SUB_HTML = `
           showMessage(data.error || t('loading') + ' failed', 'error');
         }
       } catch (error) {
-        console.error('[loadSubscription] 加载订阅失败:', error);
-        showMessage(t('networkError'), 'error');
+        console.error('[loadSubscriptionInfo] Failed to load subscription details:', error);
       }
     }
 
@@ -715,11 +743,11 @@ export const FREE_SUB_HTML = `
       const daysLeftEl = document.getElementById('daysLeft');
       if (daysLeft < 0) {
         daysLeftEl.style.color = '#ff3b30'; // 红色表示已过期
-        // 检查是否在过期后7天内，如果是，提示用户可以签到续期
-        if (Math.abs(daysLeft) <= 7) {
-          showMessage('订阅已过期，请签到续期（过期后7天内仍可签到）', 'error');
+        // 检查是否在过期后89天内，如果是，提示用户可以签到续期
+        if (Math.abs(daysLeft) <= 89) {
+          showMessage('Subscription expired. Please check-in to renew (available within 89 days after expiration)', 'error');
         } else {
-          showMessage('订阅已过期超过7天，请重新获取订阅', 'error');
+          showMessage('Subscription expired over 89 days ago. Please subscribe again', 'error');
         }
       } else {
         daysLeftEl.style.color = '#e50914'; // 正常颜色
@@ -794,7 +822,16 @@ export const FREE_SUB_HTML = `
           await loadSubscriptionInfo();
           refreshCaptcha();
         } else {
-          showMessage(data.reason === 'already_checked_in' ? t('alreadyCheckedIn') : data.error || t('checkInProgress') + ' failed', 'error');
+          // 优先显示服务器返回的 message，否则显示 reason 对应的本地化消息
+          let errorMsg = data.message;
+          if (!errorMsg) {
+            if (data.reason === 'already_checked_in') {
+              errorMsg = t('alreadyCheckedIn');
+            } else {
+              errorMsg = data.error || t('checkInProgress') + ' failed';
+            }
+          }
+          showMessage(errorMsg, 'error');
           if (data.reason === 'invalid_captcha') {
             refreshCaptcha();
           }
@@ -813,12 +850,23 @@ export const FREE_SUB_HTML = `
       const url = document.getElementById('subUrl').textContent;
 
       navigator.clipboard.writeText(url).then(() => {
-        showMessage(t('copiedSuccess'), 'success');
+        showCopyMessage(t('copiedSuccess'), 'success');
         console.log('[copySubscriptionUrl] Copied URL:', url);
       }).catch(() => {
-        showMessage(t('copyFailed'), 'error');
+        showCopyMessage(t('copyFailed'), 'error');
       });
     }
+
+    // 显示复制消息
+    function showCopyMessage(text, type) {
+      const messageEl = document.getElementById('copyMessage');
+      messageEl.textContent = text;
+      messageEl.className = 'copy-message ' + type;
+      setTimeout(() => {
+        messageEl.className = 'copy-message';
+      }, 3000);
+    }
+
 
     // 显示消息
     function showMessage(text, type) {

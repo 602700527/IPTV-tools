@@ -32,13 +32,30 @@ export async function performCheckIn(subscriptionId, ip) {
     return { success: false, reason: 'ip_mismatch' };
   }
 
-  // 修复Bug 1: 检查是否已过期（允许过期后7天内仍然可以签到续期）
+  // 计算剩余天数
   const now = new Date();
   const expiredDate = new Date(sub.expired_at);
-  const daysSinceExpired = Math.floor((now - expiredDate) / (1000 * 60 * 60 * 24));
+  let daysRemaining = Math.ceil((expiredDate - now) / (1000 * 60 * 60 * 24));
 
-  if (daysSinceExpired > 7) {
-    return { success: false, reason: 'subscription_expired_too_long' };
+  // 修复Bug 1: 检查是否在允许签到的时间窗口内（剩余0-7天）
+  // 过期后89天内也可以签到
+  if (daysRemaining < -89) {
+    return {
+      success: false,
+      reason: 'subscription_expired_too_long',
+      message: 'Subscription expired over 89 days ago. Please subscribe again'
+    };
+  }
+
+  // 检查是否在允许签到的范围内（剩余7天或更少）
+  if (daysRemaining > 7) {
+    const roundedDays = Math.ceil(daysRemaining);
+    return {
+      success: false,
+      reason: 'checkin_not_allowed',
+      daysRemaining: roundedDays,
+      message: 'Check-in is only available when 7 days or less remaining'
+    };
   }
   
   // 检查今天是否已签到
@@ -109,14 +126,8 @@ export async function performCheckIn(subscriptionId, ip) {
     }
   }
   
-  // 计算奖励天数
-  let rewardDays = 1; // 默认1天
-  
-  if (newConsecutiveDays >= 30) {
-    rewardDays = 7; // 连续30天，奖励7天
-  } else if (newConsecutiveDays >= 7) {
-    rewardDays = 2; // 连续7天，奖励2天
-  }
+  // 计算奖励天数 - 固定每次签到奖励30天
+  const rewardDays = 30;
   
   // 计算新的过期时间
   const currentExpiredAt = new Date(sub.expired_at);
@@ -125,6 +136,22 @@ export async function performCheckIn(subscriptionId, ip) {
   const startDate = currentExpiredAt <= now ? now : currentExpiredAt;
   const newExpiredAt = new Date(startDate);
   newExpiredAt.setDate(newExpiredAt.getDate() + rewardDays);
+
+  // 检查并应用60天最大有效期限制
+  const createdAt = new Date(sub.created_at);
+  const maxExpiredAt = new Date(createdAt);
+  maxExpiredAt.setDate(maxExpiredAt.getDate() + 60); // 创建日期+60天
+  
+   if (newExpiredAt > maxExpiredAt) {
+     // 超过60天限制，设置为60天
+     newExpiredAt.setTime(maxExpiredAt.getTime());
+     return {
+       success: false,
+       reason: 'max_validity_reached',
+       maxExpiredAt: maxExpiredAt.toISOString(),
+       message: 'Maximum validity of 60 days reached, cannot check-in further'
+     };
+   }
 
   try {
     // 使用 D1 的事务 API
@@ -179,18 +206,16 @@ export async function performCheckIn(subscriptionId, ip) {
       });
     }
 
-    // 返回结果
-    return {
-      success: true,
-      rewardDays,
-      consecutiveDays: newConsecutiveDays,
-      isConsecutive,
-      expiredAt: newExpiredAt.toISOString(),
-      totalDays: (sub.total_days || 0) + rewardDays,
-      message: isConsecutive
-        ? `连续签到${newConsecutiveDays}天，获得${rewardDays}天！`
-        : `签到成功，获得${rewardDays}天！`
-    };
+     // 返回结果
+     return {
+       success: true,
+       rewardDays,
+       consecutiveDays: newConsecutiveDays,
+       isConsecutive,
+       expiredAt: newExpiredAt.toISOString(),
+       totalDays: (sub.total_days || 0) + rewardDays,
+       message: `Check-in successful! You gained ${rewardDays} days!`
+     };
 
   } catch (error) {
     console.error('[CheckIn] Transaction failed:', error);

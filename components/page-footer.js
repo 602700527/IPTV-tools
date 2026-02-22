@@ -6,6 +6,7 @@ export const PAGE_FOOTER = `
       
       <!-- SEO 友好链接 -->
       <div class="footer-links">
+        <a href="/tutorial">How to Watch on TV Devices</a>
         <a href="/sitemap.xml">Sitemap</a>
         <a href="/robots.txt">Robots</a>
         <a href="/privacy-policy">Privacy Policy</a>

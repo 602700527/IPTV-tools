@@ -404,6 +404,29 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: rgba(255, 255, 255, 0.2);
     }
 
+    .copy-message {
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-top: 12px;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+
+    .copy-message.success {
+      background: rgba(52, 199, 89, 0.15);
+      border: 1px solid rgba(52, 199, 89, 0.3);
+      color: #34c759;
+      display: block;
+    }
+
+    .copy-message.error {
+      background: rgba(255, 59, 48, 0.15);
+      border: 1px solid rgba(255, 59, 48, 0.3);
+      color: #ff3b30;
+      display: block;
+    }
+
     .modal-tips {
       margin-top: 20px;
       padding-top: 20px;
@@ -998,6 +1021,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       <p class="success-message" data-i18n="subUrlGenerated">Your subscription URL has been generated</p>
       <div class="code-display" id="generatedCode" style="font-size: 14px; word-break: break-all;">-</div>
       <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">Copy Subscription URL</button>
+      <div class="copy-message" id="copyMessage"></div>
+      <div style="text-align: center; margin-top: 15px;">
+        <a href="/tutorial" style="display: inline-flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.7); text-decoration: none; font-size: 14px; transition: all 0.2s;" onmouseover="this.style.color='#e50914'" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)'">
+          <span>📺</span>
+          <span style="text-decoration: underline;">How to add to player</span>
+        </a>
+      </div>
       <div class="modal-tips">
         <p class="modal-tip">You can add this subscription URL directly to your player</p>
         <p class="modal-tip-highlight">You can view order details in your account page after closing this window</p>
@@ -1332,12 +1362,24 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     function copyCode() {
       const subUrl = document.getElementById('generatedCode').textContent;
+      const messageEl = document.getElementById('copyMessage');
+
       navigator.clipboard.writeText(subUrl).then(() => {
-        alert('Subscription URL copied to clipboard!');
+        messageEl.textContent = '✓ Subscription URL copied!';
+        messageEl.className = 'copy-message success';
+        setTimeout(() => {
+          messageEl.className = 'copy-message';
+        }, 3000);
       }).catch(err => {
+        messageEl.textContent = '✗ Failed to copy URL';
+        messageEl.className = 'copy-message error';
+        setTimeout(() => {
+          messageEl.className = 'copy-message';
+        }, 3000);
         console.error('Copy failed:', err);
       });
     }
+
 
     // 支付方式切换
     let currentPaymentMethod = 'alipay';

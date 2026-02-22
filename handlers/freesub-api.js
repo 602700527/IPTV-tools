@@ -229,8 +229,8 @@ async function getRandomActiveChannelsFromKV(env) {
 
   console.log(`[FreeSub] Got ${activeChannels.length} active channels from KV`);
 
-  // 计算需要返回的频道数量（30%）
-  const targetCount = Math.max(1, Math.floor(activeChannels.length * 0.3));
+  // 计算需要返回的频道数量（8%）
+  const targetCount = Math.max(1, Math.floor(activeChannels.length * 0.08));
 
   // 按日期生成随机种子（同一天返回相同结果）
   const today = new Date().toISOString().split('T')[0];
@@ -242,7 +242,7 @@ async function getRandomActiveChannelsFromKV(env) {
   // 使用种子随机选择频道
   const selectedChannels = selectRandomChannels(activeChannels, targetCount, seed);
 
-  console.log(`[FreeSub] Selected ${selectedChannels.length} channels (30%)`);
+  console.log(`[FreeSub] Selected ${selectedChannels.length} channels (8%)`);
   return selectedChannels;
 }
 
