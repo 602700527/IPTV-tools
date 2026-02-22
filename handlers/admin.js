@@ -1,6 +1,13 @@
 // 管理后台API处理器
 import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, generateEncryptionKey, getSyncFilterConfig, updateSyncFilterConfig, getDomainBlacklist, addDomainToBlacklist, removeDomainFromBlacklist, addMultipleDomainsToBlacklist } from '../database.js';
-import { handleGetPaymentMethods, handleUpdatePaymentMethod, handleTogglePaymentMethod, handleGetXunhuPayOrders } from './xunhupay-api.js';
+import {
+  handleGetPaymentMethods,
+  handleUpdatePaymentMethod,
+  handleDeletePaymentMethod,
+  handleGetMallSettings,
+  handleUpdateMallSettings
+} from './mall-api.js';
+import { handleGetXunhuPayOrders } from './xunhupay-api.js';
 import { manualSyncAll } from './scheduler.js';
 import { getBlacklistedIPs, unbanIP, getIPAccessStats, banIP } from '../security/ip-blacklist.js';
 import { getBannedCodesFromCache, removeBannedCodeFromCache, syncBannedCodesToCache } from '../security/code-ban-cache.js';
@@ -1590,9 +1597,19 @@ export async function handleAdminRequest(request, env, ctx) {
           } else if (request.method === 'POST') {
             return await handleUpdatePaymentMethod(request, env);
           } else if (request.method === 'PUT' && pathParts[4]) {
-            // 更新支付方式
+            // 切换支付方式状态
             const id = parseInt(pathParts[4]);
             return await handleTogglePaymentMethod(request, env, ctx, id);
+          } else if (request.method === 'DELETE' && pathParts[4]) {
+            // 删除支付方式（从URL查询参数中获取id）
+            const id = pathParts[4];
+            const newUrl = new URL(request.url);
+            newUrl.searchParams.set('id', id);
+            const newRequest = new Request(newUrl.toString(), {
+              method: request.method,
+              headers: request.headers
+            });
+            return await handleDeletePaymentMethod(newRequest, env);
           }
         }
         break;
@@ -2275,4 +2292,51 @@ export async function handleAdTsFile(request, env, ctx) {
     return new Response('Error decoding ad content', { status: 500 });
   }
 }
+
+/**
+ * 切换支付方式的状态
+ */
+export async function handleTogglePaymentMethod(request, env, ctx, id) {
+  try {
+    const data = await request.json();
+    const enabled = data.enabled;
+
+    if (enabled === undefined) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Missing enabled field'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const db = getDB();
+
+    await db.prepare(`
+      UPDATE payment_methods
+      SET enabled = ?, updated_at = datetime("now")
+      WHERE id = ?
+    `).bind(enabled ? 1 : 0, id).run();
+
+    console.log('[Admin] Payment method toggled:', id, 'enabled:', enabled);
+
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'Payment method status updated'
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('[Admin] Toggle payment method error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Failed to toggle payment method'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
 

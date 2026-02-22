@@ -1149,28 +1149,45 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     </div>
   </div>
   <div id="paymentMethodModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header"><h3 id="paymentMethodModalTitle">添加支付方式</h3><button class="close-btn" onclick="closePaymentMethodModal()">&times;</button></div>
+    <div class="modal-content" style="max-width:600px;">
+      <div class="modal-header">
+        <h3 id="paymentMethodModalTitle">添加支付方式</h3>
+        <button class="close-btn" onclick="closePaymentMethodModal()">&times;</button>
+      </div>
       <input type="hidden" id="paymentMethodId" value="">
+      
       <div class="form-group">
         <label>支付类型</label>
-        <select id="paymentType" class="form-control" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
-          <option value="alipay">支付宝</option>
-          <option value="wechat">微信支付</option>
+        <select id="paymentType" class="form-control" onchange="updatePaymentConfigFields()" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <option value="alipay">支付宝（虎皮椒）</option>
+          <option value="wechat">微信支付（虎皮椒）</option>
+          <option value="paypal">PayPal</option>
+          <option value="coinbase">Coinbase Commerce</option>
+          <option value="usdt">USDT（Tether）</option>
+          <option value="usdc">USDC（USD Coin）</option>
         </select>
       </div>
+      
       <div class="form-group">
         <label>名称</label>
         <input type="text" id="paymentName" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        <small style="color:#86868b;font-size:12px;">显示在订阅页面的名称</small>
       </div>
+      
       <div class="form-group">
         <label>状态</label>
         <label style="display:flex;align-items:center;gap:8px;">
           <input type="checkbox" id="paymentEnabled" checked style="width:auto;">
-          <span>启用</span>
+          <span>启用此支付方式</span>
         </label>
       </div>
-      <div id="configFields">
+      
+      <!-- 虎皮椒配置 -->
+      <div id="xunhuConfigSection" class="config-section">
+        <div class="form-group">
+          <label style="color:#0071e3;font-weight:600;">虎皮椒配置</label>
+          <p style="margin:8px 0;color:#86868b;font-size:13px;">适用于支付宝和微信支付配置</p>
+        </div>
         <div class="form-group">
           <label>商户ID (App ID)</label>
           <input type="text" id="appId" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
@@ -1187,6 +1204,91 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <small style="color:#86868b;font-size:12px;">留空则使用虎皮椒官方网关</small>
         </div>
       </div>
+      
+      <!-- PayPal 配置 -->
+      <div id="paypalConfigSection" class="config-section" style="display:none;">
+        <div class="form-group">
+          <label style="color:#003087;font-weight:600;">PayPal 配置</label>
+          <p style="margin:8px 0;color:#86868b;font-size:12px;">配置 PayPal 客户端 ID 和密钥</p>
+        </div>
+        <div class="form-group">
+          <label>客户端 ID (Client ID)</label>
+          <input type="text" id="paypalClientId" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <small style="color:#86868b;font-size:12px;">PayPal 开发者账户获取的 Client ID</small>
+        </div>
+        <div class="form-group">
+          <label>客户端密钥 (Client Secret)</label>
+          <input type="password" id="paypalClientSecret" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <small style="color:#86868b;font-size:12px;">PayPal 开发者账户获取的 Client Secret</small>
+        </div>
+        <div class="form-group">
+          <label>运行模式</label>
+          <select id="paypalMode" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+            <option value="sandbox">沙盒测试</option>
+            <option value="live">生产环境</option>
+          </select>
+          <small style="color:#86868b;font-size:12px;">沙盒模式用于测试，生产模式用于实际收款</small>
+        </div>
+      </div>
+      
+      <!-- Coinbase Commerce 配置 -->
+      <div id="coinbaseConfigSection" class="config-section" style="display:none;">
+        <div class="form-group">
+          <label style="color:#0052FF;font-weight:600;">Coinbase Commerce 配置</label>
+          <p style="margin:8px 0;color:#86868b;font-size:12px;">支持 10+ 种加密货币自动转换为 USDC</p>
+        </div>
+        <div class="form-group">
+          <label>API Key</label>
+          <input type="text" id="coinbaseApiKey" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <small style="color:#86868b;font-size:12px;">从 https://commerce.coinbase.com/dashboard/settings 获取</small>
+        </div>
+        <div class="form-group">
+          <label>Webhook Secret</label>
+          <input type="password" id="coinbaseWebhookSecret" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <small style="color:#86868b;font-size:12px;">用于验证支付回调的签名密钥</small>
+        </div>
+        <div class="form-group">
+          <label>自动转换目标</label>
+          <select id="coinbaseAutoConvert" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+            <option value="usdc">USDC (稳定币)</option>
+            <option value="btc">BTC (比特币)</option>
+            <option value="eth">ETH (以太坊)</option>
+          </select>
+          <small style="color:#86868b;font-size:12px;">推荐选择 USDC，避免币价波动影响收入</small>
+        </div>
+        <div style="margin-top:12px;padding:10px;background:#e8f4fd;border-left:4px solid:#0071e3;border-radius:4px;">
+          <p style="font-size:12px;color:#1976d2;margin:0;">
+            📌 <strong>Webhook 配置：</strong>在 Coinbase 后台设置 <code>https://your-worker.workers.dev/api/subscription/crypto/webhook</code>
+          </p>
+        </div>
+      </div>
+      
+      <!-- USDT/USDC 配置 -->
+      <div id="cryptoConfigSection" class="config-section" style="display:none;">
+        <div class="form-group">
+          <label style="color:#26A17B;font-weight:600;" id="cryptoConfigLabel">USDT 配置</label>
+          <p style="margin:8px 0;color:#86868b;font-size:12px;" id="cryptoConfigDesc">配置 TRC20/ERC20 USDT 钱包地址</p>
+        </div>
+        <div class="form-group">
+          <label>网络类型</label>
+          <select id="cryptoNetwork" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+            <option value="trc20">TRC20 (波场 - 费用低 ¥1-2)</option>
+            <option value="eth">ETH (以太坊 - 费用高 ¥30-100)</option>
+          </select>
+          <small style="color:#86868b;font-size:12px;">TRC20 费用更低，推荐使用</small>
+        </div>
+        <div class="form-group">
+          <label>钱包地址</label>
+          <input type="text" id="cryptoWalletAddress" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <small style="color:#86868b;font-size:12px;">你的 USDT/USDC 钱包地址，用户支付到这个地址</small>
+        </div>
+        <div style="margin-top:12px;padding:10px;background:#fff3e0;border-left:4px solid:#ff9800;border-radius:4px;">
+          <p style="font-size:12px;color:#e65100;margin:0;">
+            ⚠️ <strong>注意：</strong>此支付方式需要管理员在后台手动确认支付，用户支付后不会自动生成卡密
+          </p>
+        </div>
+      </div>
+      
       <div class="modal-footer">
         <button class="btn" onclick="closePaymentMethodModal()">取消</button>
         <button class="btn btn-primary" onclick="savePaymentMethod()">保存</button>
@@ -4814,9 +4916,23 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       document.getElementById('paymentType').value = 'alipay';
       document.getElementById('paymentName').value = '';
       document.getElementById('paymentEnabled').checked = true;
+      
+      // 重置所有配置字段
       document.getElementById('appId').value = '';
       document.getElementById('appSecret').value = '';
       document.getElementById('gatewayUrl').value = '';
+      document.getElementById('paypalClientId').value = '';
+      document.getElementById('paypalClientSecret').value = '';
+      document.getElementById('paypalMode').value = 'sandbox';
+      document.getElementById('coinbaseApiKey').value = '';
+      document.getElementById('coinbaseWebhookSecret').value = '';
+      document.getElementById('coinbaseAutoConvert').value = 'usdc';
+      document.getElementById('cryptoNetwork').value = 'trc20';
+      document.getElementById('cryptoWalletAddress').value = '';
+      
+      // 默认显示虎皮椒配置
+      updatePaymentConfigFields();
+      
       document.getElementById('paymentMethodModal').classList.add('active');
     }
 
@@ -4824,8 +4940,48 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       document.getElementById('paymentMethodModal').classList.remove('active');
     }
 
+    // 根据支付类型动态更新配置字段显示
+    function updatePaymentConfigFields() {
+      const paymentType = document.getElementById('paymentType').value;
+      
+      // 隐藏所有配置区域
+      document.getElementById('xunhuConfigSection').style.display = 'none';
+      document.getElementById('paypalConfigSection').style.display = 'none';
+      document.getElementById('coinbaseConfigSection').style.display = 'none';
+      document.getElementById('cryptoConfigSection').style.display = 'none';
+      
+      // 根据类型显示对应配置
+      switch (paymentType) {
+        case 'alipay':
+        case 'wechat':
+          document.getElementById('xunhuConfigSection').style.display = 'block';
+          break;
+        case 'paypal':
+          document.getElementById('paypalConfigSection').style.display = 'block';
+          break;
+        case 'coinbase':
+          document.getElementById('coinbaseConfigSection').style.display = 'block';
+          break;
+        case 'usdt':
+        case 'usdc':
+          document.getElementById('cryptoConfigSection').style.display = 'block';
+          // 更新标签和说明
+          if (paymentType === 'usdt') {
+            document.getElementById('cryptoConfigLabel').textContent = 'USDT 配置';
+            document.getElementById('cryptoConfigDesc').textContent = '配置 TRC20/ERC20 USDT 钱包地址';
+          } else {
+            document.getElementById('cryptoConfigLabel').textContent = 'USDC 配置';
+            document.getElementById('cryptoConfigDesc').textContent = '配置以太坊 ERC20 USDC 钱包地址';
+            // USDC 只支持以太坊
+            document.getElementById('cryptoNetwork').value = 'eth';
+            document.getElementById('cryptoNetwork').disabled = true;
+          }
+          break;
+      }
+    }
+
     function editPaymentMethod(id) {
-      const response = fetch(API_BASE + '/mall/payment-methods', {
+      fetch(API_BASE + '/mall/payment-methods', {
         headers: { 'X-Admin-Key': adminKey }
       }).then(res => res.json()).then(data => {
         if (data.success) {
@@ -4837,27 +4993,107 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             document.getElementById('paymentType').value = method.type;
             document.getElementById('paymentName').value = method.name;
             document.getElementById('paymentEnabled').checked = method.enabled ? true : false;
-            document.getElementById('appId').value = config.app_id || '';
-            document.getElementById('appSecret').value = config.app_secret || '';
-            document.getElementById('gatewayUrl').value = config.gateway_url || '';
+            
+            // 根据类型恢复配置字段
+            switch (method.type) {
+              case 'alipay':
+              case 'wechat':
+                document.getElementById('appId').value = config.app_id || '';
+                document.getElementById('appSecret').value = config.app_secret || '';
+                document.getElementById('gatewayUrl').value = config.gateway_url || '';
+                break;
+              case 'paypal':
+                document.getElementById('paypalClientId').value = config.client_id || '';
+                document.getElementById('paypalClientSecret').value = config.client_secret || '';
+                document.getElementById('paypalMode').value = config.mode || 'sandbox';
+                break;
+              case 'coinbase':
+                document.getElementById('coinbaseApiKey').value = config.api_key || '';
+                document.getElementById('coinbaseWebhookSecret').value = config.webhook_secret || '';
+                document.getElementById('coinbaseAutoConvert').value = config.auto_convert || 'usdc';
+                break;
+              case 'usdt':
+              case 'usdc':
+                document.getElementById('cryptoNetwork').value = config.network || 'trc20';
+                document.getElementById('cryptoWalletAddress').value = config.wallet_address || '';
+                break;
+            }
+            
+            // 更新配置字段显示
+            updatePaymentConfigFields();
+            
             document.getElementById('paymentMethodModal').classList.add('active');
           }
         }
+      }).catch(error => {
+        console.error('Failed to load payment method:', error);
+        showToast('加载失败', 'error');
       });
     }
 
     function savePaymentMethod() {
       const id = document.getElementById('paymentMethodId')?.value;
       const type = document.getElementById('paymentType').value;
-      const name = document.getElementById('paymentName').value;
+      const name = document.getElementById('paymentName').value.trim();
       const enabled = document.getElementById('paymentEnabled').checked;
-      const appId = document.getElementById('appId')?.value || '';
-      const appSecret = document.getElementById('appSecret')?.value || '';
-      const gatewayUrl = document.getElementById('gatewayUrl')?.value || '';
-
-      const config = { app_id: appId, app_secret: appSecret, gateway_url: gatewayUrl };
-
-      fetch(API_BASE + '/mall/payment-methods', {
+      
+      if (!name) {
+        showToast('请输入支付方式名称', 'error');
+        return;
+      }
+      
+      // 根据类型构建配置
+      let config = {};
+      
+      switch (type) {
+        case 'alipay':
+        case 'wechat':
+          config = {
+            app_id: document.getElementById('appId').value.trim(),
+            app_secret: document.getElementById('appSecret').value.trim(),
+            gateway_url: document.getElementById('gatewayUrl').value.trim() || 'https://api.xunhuweb.com/payment/do.html'
+          };
+          if (!config.app_id || !config.app_secret) {
+            showToast('请填写完整的虎皮椒配置', 'error');
+            return;
+          }
+          break;
+        case 'paypal':
+          config = {
+            client_id: document.getElementById('paypalClientId').value.trim(),
+            client_secret: document.getElementById('paypalClientSecret').value.trim(),
+            mode: document.getElementById('paypalMode').value
+          };
+          if (!config.client_id || !config.client_secret) {
+            showToast('请填写完整的 PayPal 配置', 'error');
+            return;
+          }
+          break;
+        case 'coinbase':
+          config = {
+            api_key: document.getElementById('coinbaseApiKey').value.trim(),
+            webhook_secret: document.getElementById('coinbaseWebhookSecret').value.trim(),
+            auto_convert: document.getElementById('coinbaseAutoConvert').value
+          };
+          if (!config.api_key || !config.webhook_secret) {
+            showToast('请填写完整的 Coinbase 配置', 'error');
+            return;
+          }
+          break;
+        case 'usdt':
+        case 'usdc':
+          config = {
+            network: document.getElementById('cryptoNetwork').value,
+            wallet_address: document.getElementById('cryptoWalletAddress').value.trim()
+          };
+          if (!config.wallet_address) {
+            showToast('请填写钱包地址', 'error');
+            return;
+          }
+          break;
+      }
+      
+      const requestConfig = {
         method: 'POST',
         headers: {
           'X-Admin-Key': adminKey,
@@ -4869,7 +5105,17 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           enabled: enabled,
           config: config
         })
-      }).then(res => res.json()).then(data => {
+      };
+      
+      // 如果是编辑，则使用 PUT 方法并添加 id
+      if (id) {
+        requestConfig.method = 'PUT';
+        const configData = JSON.parse(requestConfig.body);
+        configData.id = parseInt(id);
+        requestConfig.body = JSON.stringify(configData);
+      }
+      
+      fetch(API_BASE + '/mall/payment-methods', requestConfig).then(res => res.json()).then(data => {
         if (data.success) {
           closePaymentMethodModal();
           loadPaymentMethods();
@@ -4880,6 +5126,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       }).catch(error => {
         console.error('Failed to save payment method:', error);
         showToast('保存失败', 'error');
+      }).finally(() => {
+        // 恢复 USDC 的 network select 状态
+        document.getElementById('cryptoNetwork').disabled = false;
       });
     }
 

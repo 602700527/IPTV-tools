@@ -24,11 +24,17 @@ import {
   handleCreateXunhuPayOrder,
   handleXunhuPayNotify,
   handleCheckXunhuPayOrder,
-  handleGetPaymentMethods,
-  handleUpdatePaymentMethod,
   handleGetXunhuPayOrders,
   handleSimulatePaymentSuccess
 } from './handlers/xunhupay-api.js';
+import {
+  handleGetPaymentMethods,
+  handleCreatePaymentMethod,
+  handleUpdatePaymentMethod,
+  handleDeletePaymentMethod,
+  handleGetMallSettings,
+  handleUpdateMallSettings
+} from './handlers/mall-api.js';
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { ACCOUNT_HTML } from './account-page.js';
@@ -42,6 +48,37 @@ import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 import { LOGO_SVG, FAVICON_SVG, OG_IMAGE_SVG, APPLE_TOUCH_ICON_SVG, ICON_192_SVG, FAVICON_ICO_SVG } from './assets.js';
 import { ALIPAY_PNG_DATA, WECHAT_PAY_PNG_DATA } from './image-data.js';
+import {
+  createCoinbaseOrder,
+  checkCoinbaseOrder,
+  handleCoinbaseWebhook,
+  createCryptoPaymentOrder,
+  confirmCryptoPayment
+} from './handlers/crypto-payment.js';
+
+// 计算订阅价格（从数据库获取套餐配置）
+async function calculatePriceForSubscription(durationDays, maxIPs, env) {
+  try {
+    const plan = await env.DB.prepare(`
+      SELECT days, base_price, price_per_ip, discount
+      FROM subscription_plans
+      WHERE days = ? AND is_enabled = 1
+    `).bind(durationDays).first();
+
+    if (!plan) {
+      return 0; // 默认价格
+    }
+
+    const price = plan.base_price + (plan.price_per_ip * maxIPs);
+    const discountedPrice = price * (1 - plan.discount / 100);
+
+    return discountedPrice;
+  } catch (error) {
+    console.error('Error calculating price:', error);
+    return 0;
+  }
+}
+
 
 // 缓存初始化标记（防止重复初始化）
 let cacheInitialized = false;
@@ -208,6 +245,9 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/mall/payment-methods') {
       // 公开支付方式列表API
       return await handleGetPaymentMethods(request, env, ctx);
+    } else if (path === '/api/admin/mall/payment-methods') {
+      // 管理员支付方式管理 API（在 admin.js 处理）
+      return await handleAdminRequest(request, env, ctx);
     } else if (path === '/api/channels') {
       // 公开频道列表API（无需卡密）
       return await handlePublicChannels(request, env, ctx);
@@ -288,6 +328,111 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         });
       }
       return await handleSimulatePaymentSuccess(request, env, ctx);
+    } else if (path === '/api/subscription/crypto/coinbase-create-order') {
+      // 创建 Coinbase Commerce 支付订单
+      if (request.method === 'POST') {
+        const authHeader = request.headers.get('Authorization');
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+          return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+
+        const token = authHeader.substring(7);
+        const userResult = await env.DB.prepare(`
+          SELECT u.id FROM users u
+          INNER JOIN user_sessions s ON u.id = s.user_id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+
+        if (!userResult) {
+          return new Response(JSON.stringify({ success: false, error: 'Invalid token' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+
+        const body = await request.json();
+        const price = calculatePriceForSubscription(body.duration_days, body.max_ips, env);
+        const result = await createCoinbaseOrder(env, userResult.id, body.duration_days, body.max_ips, price);
+        return new Response(JSON.stringify(result), {
+          status: result.success ? 200 : 400,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+      return new Response('Method Not Allowed', { status: 405 });
+    } else if (path === '/api/subscription/crypto/coinbase-check-order') {
+      // 查询 Coinbase 订单状态
+      const orderId = url.searchParams.get('order_id');
+      if (!orderId) {
+        return new Response(JSON.stringify({ success: false, error: 'Missing order_id' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+      const result = await checkCoinbaseOrder(env, orderId);
+      return new Response(JSON.stringify(result), {
+        status: result.success ? 200 : 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } else if (path === '/api/subscription/crypto/webhook') {
+      // Coinbase Commerce Webhook 回调
+      if (request.method === 'POST') {
+        const result = await handleCoinbaseWebhook(request, env);
+        return new Response(JSON.stringify(result), {
+          status: result.success ? 200 : 400,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+      return new Response('Method Not Allowed', { status: 405 });
+    } else if (path === '/api/subscription/crypto/direct-create-order') {
+      // 创建直接稳定币支付订单（USDT/USDC）
+      if (request.method === 'POST') {
+        const authHeader = request.headers.get('Authorization');
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+          return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+
+        const token = authHeader.substring(7);
+        const userResult = await env.DB.prepare(`
+          SELECT u.id FROM users u
+          INNER JOIN user_sessions s ON u.id = s.user_id
+          WHERE s.token = ? AND s.expires_at > datetime('now')
+        `).bind(token).first();
+
+        if (!userResult) {
+          return new Response(JSON.stringify({ success: false, error: 'Invalid token' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+
+        const body = await request.json();
+        const price = calculatePriceForSubscription(body.duration_days, body.max_ips, env);
+        const result = await createCryptoPaymentOrder(env, userResult.id, body.duration_days, body.max_ips, price, body.payment_method);
+        return new Response(JSON.stringify(result), {
+          status: result.success ? 200 : 400,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+      return new Response('Method Not Allowed', { status: 405 });
+    } else if (path === '/api/admin/crypto/confirm-payment') {
+      // 管理员手动确认加密货币支付
+      if (request.method === 'POST') {
+        const adminKey = request.headers.get('X-Admin-Key');
+        const body = await request.json();
+        const order_id = body.order_id;
+        const result = await confirmCryptoPayment(env, order_id, adminKey);
+        return new Response(JSON.stringify(result), {
+          status: result.success ? 200 : 401,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+      return new Response('Method Not Allowed', { status: 405 });
     } else if (path === '/plans' || path === '/plans/' || path === '/plans/index' || path === '/plans/index.html') {
       // 订阅计划页面 - 检查商城设置
       if (await isMallEnabled()) {

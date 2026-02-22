@@ -771,6 +771,34 @@ export async function createTables(env) {
       `).run();
       console.log('Database: Initialized paypal payment method');
     }
+
+    // 初始化加密货币支付方式
+    const coinbaseCount = await db.prepare('SELECT COUNT(*) as count FROM payment_methods WHERE type = ?').bind('coinbase').first();
+    if (!coinbaseCount || coinbaseCount.count === 0) {
+      await db.prepare(`
+        INSERT INTO payment_methods (type, name, enabled, config) VALUES
+        ('coinbase', 'Coinbase Commerce', 0, '{"api_key":"","webhook_secret":"","auto_convert":"usdc"}')
+      `).run();
+      console.log('Database: Initialized coinbase payment method');
+    }
+
+    const usdtCount = await db.prepare('SELECT COUNT(*) as count FROM payment_methods WHERE type = ?').bind('usdt').first();
+    if (!usdtCount || usdtCount.count === 0) {
+      await db.prepare(`
+        INSERT INTO payment_methods (type, name, enabled, config) VALUES
+        ('usdt', 'USDT (Tether)', 0, '{"network":"trc20","wallet_address":""}')
+      `).run();
+      console.log('Database: Initialized usdt payment method');
+    }
+
+    const usdcCount = await db.prepare('SELECT COUNT(*) as count FROM payment_methods WHERE type = ?').bind('usdc').first();
+    if (!usdcCount || usdcCount.count === 0) {
+      await db.prepare(`
+        INSERT INTO payment_methods (type, name, enabled, config) VALUES
+        ('usdc', 'USDC (USD Coin)', 0, '{"network":"ethereum","wallet_address":""}')
+      `).run();
+      console.log('Database: Initialized usdc payment method');
+    }
   } catch (e) {
     console.error('Database: Failed to initialize payment methods:', e);
   }

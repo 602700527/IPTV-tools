@@ -973,14 +973,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     <div class="payment-section" id="paymentSection">
       <div class="payment-methods">
-        <div class="payment-method-tab active" onclick="switchPaymentMethod('alipay')" data-method="alipay">
-          <img src="/public/zhifubao.png" class="payment-method-icon" alt="Alipay">
-          <span class="payment-method-name">Alipay</span>
-        </div>
-          <div class="payment-method-tab" onclick="switchPaymentMethod('wechat')" data-method="wechat">
-          <img src="/public/weixin.png" class="payment-method-icon" alt="WeChat Pay">
-          <span class="payment-method-name">WeChat Pay</span>
-        </div>
+        <!-- 支付方式将通过 JS 动态加载 -->
       </div>
 
       <div id="xunhupay-button-container" style="margin: 20px 0;">
@@ -1389,8 +1382,16 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         return;
       }
 
-      // 初始化虎皮椒支付并显示弹窗
-      await initXunhuPay(currentPaymentMethod);
+      // 根据支付方式调用相应的初始化函数
+      if (currentPaymentMethod === 'alipay' || currentPaymentMethod === 'wechat') {
+        await initXunhuPay(currentPaymentMethod);
+      } else if (currentPaymentMethod === 'coinbase') {
+        await initCoinbasePay();
+      } else if (currentPaymentMethod === 'usdt' || currentPaymentMethod === 'usdc') {
+        await initCryptoPayment(currentPaymentMethod);
+      } else {
+        showError('Payment method not supported');
+      }
     }
 
     // 关闭支付弹窗
@@ -1558,6 +1559,228 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }, 5000); // 每5秒检查一次
     }
 
+    // 初始化 Coinbase 支付
+    async function initCoinbasePay() {
+      if (!selectedDuration) {
+        showError(t('error').selectPlan);
+        return;
+      }
+
+      if (!isLoggedIn()) {
+        showLoginModal();
+        return;
+      }
+
+      showLoading(true);
+      hideError();
+
+      try {
+        const response = await fetch(API_BASE + '/subscription/crypto/coinbase-create-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getToken()
+          },
+          body: JSON.stringify({
+            duration_days: selectedDuration.days,
+            max_ips: selectedIPs
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success && result.payment_data) {
+          // Calculate price (convert CNY to USD)
+          const price = calculatePrice(selectedDuration, selectedIPs);
+          const priceUSD = (price.discounted / 7.2).toFixed(2); // 假设汇率 1 USD = 7.2 CNY
+
+          // Update modal info
+          const modal = document.getElementById('paymentModal');
+          document.getElementById('paymentPlanName').textContent = selectedDuration.days + ' days';
+          document.getElementById('paymentIPCount').textContent = selectedIPs + ' IP' + (selectedIPs > 1 ? 's' : '');
+          document.getElementById('paymentMethod').textContent = 'Coinbase Commerce';
+          document.getElementById('paymentAmount').textContent = '$' + priceUSD;
+
+          // 显示二维码
+          const qrcodeImage = document.getElementById('modalQrcodeImage');
+          const qrcodeTip = document.getElementById('modalQrcodeTip');
+
+          // 如果 Coinbase 返回了二维码URL
+          if (result.payment_data.url_qrcode) {
+            qrcodeImage.src = result.payment_data.url_qrcode;
+          } else {
+            // 使用 QR Code API 生成二维码
+            qrcodeImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(result.payment_data.url);
+          }
+
+          qrcodeTip.textContent = 'Scan QR code to pay';
+          document.getElementById('paymentStatus').textContent = 'Waiting for payment...';
+
+          // 显示支付提示
+          const paymentHint = document.getElementById('paymentHint');
+          if (paymentHint) {
+            paymentHint.textContent = 'Support: BTC, ETH, USDC, USDT, DAI, DOGE, LTC, etc.';
+          }
+
+          // 显示弹窗
+          modal.classList.add('show');
+
+          // 保存当前订单ID
+          currentOrderId = result.order_id;
+
+          // 隐藏调试按钮（Coinbase 不需要）
+          document.getElementById('simulatePaymentBtn').style.display = 'none';
+
+          // 开始轮询订单状态
+          startCoinbaseOrderCheck(result.order_id);
+        } else {
+          showError(result.error || t('error').paymentNotConfigured);
+        }
+      } catch (error) {
+        console.error('Coinbase error:', error);
+        showError(t('error').networkError);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // 轮询 Coinbase 订单状态
+    function startCoinbaseOrderCheck(orderId) {
+      // Clear previous timer
+      if (checkPaymentInterval) {
+        clearInterval(checkPaymentInterval);
+      }
+
+      let checkCount = 0;
+      const maxChecks = 120; // Max 120 checks (10 minutes, Coinbase may take longer)
+
+      checkPaymentInterval = setInterval(async () => {
+        checkCount++;
+
+        if (checkCount > maxChecks) {
+          clearInterval(checkPaymentInterval);
+          document.getElementById('paymentStatus').textContent = 'Payment timeout, please try again';
+          return;
+        }
+
+        try {
+          const response = await fetch(API_BASE + '/subscription/crypto/coinbase-check-order?order_id=' + orderId, {
+            method: 'GET',
+            headers: {
+              'Authorization': 'Bearer ' + getToken()
+            }
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            if (result.order.status === 'completed') {
+              clearInterval(checkPaymentInterval);
+
+              // Update payment status
+              document.getElementById('paymentStatus').textContent = 'Payment successful!';
+              document.getElementById('paymentStatus').style.color = '#4CAF50';
+
+              // 延迟关闭支付弹窗
+              setTimeout(() => {
+                closePaymentModal();
+
+                // 显示成功模态框
+                if (result.order.code) {
+                  const subUrl = window.location.origin + '/sub/' + result.order.code + '.m3u';
+                  showSuccessModal(subUrl);
+                }
+              }, 1500);
+            }
+          }
+        } catch (error) {
+          console.error('Coinbase order check error:', error);
+        }
+      }, 5000); // 每5秒检查一次
+    }
+
+    // 初始化直接稳定币支付（USDT/USDC）
+    async function initCryptoPayment(paymentMethod) {
+      if (!selectedDuration) {
+        showError(t('error').selectPlan);
+        return;
+      }
+
+      if (!isLoggedIn()) {
+        showLoginModal();
+        return;
+      }
+
+      showLoading(true);
+      hideError();
+
+      try {
+        const response = await fetch(API_BASE + '/subscription/crypto/direct-create-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getToken()
+          },
+          body: JSON.stringify({
+            duration_days: selectedDuration.days,
+            max_ips: selectedIPs,
+            payment_method: paymentMethod
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success && result.payment_data) {
+          // Calculate price (convert CNY to USD)
+          const price = calculatePrice(selectedDuration, selectedIPs);
+          const priceUSD = (price.discounted / 7.2).toFixed(2); // 假设汇率 1 USD = 7.2 CNY
+
+          // Update modal info
+          const modal = document.getElementById('paymentModal');
+          document.getElementById('paymentPlanName').textContent = selectedDuration.days + ' days';
+          document.getElementById('paymentIPCount').textContent = selectedIPs + ' IP' + (selectedIPs > 1 ? 's' : '');
+          document.getElementById('paymentMethod').textContent = paymentMethod.toUpperCase() + ' (' + result.payment_data.network + ')';
+          document.getElementById('paymentAmount').textContent = '$' + priceUSD;
+
+          // 显示钱包地址（而不是二维码）
+          const qrcodeImage = document.getElementById('modalQrcodeImage');
+          const qrcodeTip = document.getElementById('modalQrcodeTip');
+
+          // 隐藏二维码，显示钱包信息
+          qrcodeImage.style.display = 'none';
+          qrcodeTip.innerHTML = '<div style="font-size: 14px; font-weight: 600; color: #fff;">Wallet Address:</div><div style="font-size: 18px; font-weight: 700; color: #fff; margin: 10px 0; word-break: break-all;">' + result.payment_data.wallet_address + '</div><div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 10px;">Network: ' + result.payment_data.network + '</div><div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 5px;">Amount: ' + result.payment_data.amount + ' ' + result.payment_data.currency + '</div>';
+
+          document.getElementById('paymentStatus').textContent = 'Waiting for payment...';
+
+          // 显示支付提示
+          const paymentHint = document.getElementById('paymentHint');
+          if (paymentHint) {
+            paymentHint.textContent = 'Please send exact amount. Include Order ID in memo: ' + result.payment_data.memo;
+          }
+
+          // 显示弹窗
+          modal.classList.add('show');
+
+          // 保存当前订单ID
+          currentOrderId = result.order_id;
+
+          // 隐藏调试按钮和二维码
+          document.getElementById('simulatePaymentBtn').style.display = 'none';
+
+          // 不轮询订单状态（直接支付需要管理员手动确认）
+          // 显示手动确认提示
+          document.getElementById('paymentStatus').textContent = 'Payment will be confirmed after manual review';
+        } else {
+          showError(result.error || t('error').paymentNotConfigured);
+        }
+      } catch (error) {
+        console.error('Crypto payment error:', error);
+        showError(t('error').networkError);
+      } finally {
+        showLoading(false);
+      }
+    }
+
     // Debug: Simulate payment success
     async function simulatePaymentSuccess() {
       if (!currentOrderId) {
@@ -1651,14 +1874,37 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
       let html = '';
       methods.forEach((method, index) => {
-        const iconSrc = method.type === 'alipay' ? '/public/zhifubao.png' : (method.type === 'wechat' ? '/public/weixin.png' : '');
+        let iconHtml = '';
         const activeClass = index === 0 ? 'active' : '';
-        html += \`
-          <div class="payment-method-tab \${activeClass}" onclick="switchPaymentMethod('\${method.type}')" data-method="\${method.type}">
-            <img src="\${iconSrc}" class="payment-method-icon" alt="\${method.name}">
-            <span class="payment-method-name">\${method.name}</span>
-          </div>
-        \`;
+
+        // 根据支付类型设置对应的图标
+        switch (method.type) {
+          case 'alipay':
+            iconHtml = '<img src="/public/zhifubao.png" class="payment-method-icon" alt="Alipay">';
+            break;
+          case 'wechat':
+            iconHtml = '<img src="/public/weixin.png" class="payment-method-icon" alt="WeChat Pay">';
+            break;
+          case 'coinbase':
+            iconHtml = '<svg class="payment-method-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#0052FF"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">₿</text></svg>';
+            break;
+          case 'usdt':
+            iconHtml = '<svg class="payment-method-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#26A17B"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="9" font-weight="bold">₮</text></svg>';
+            break;
+          case 'usdc':
+            iconHtml = '<svg class="payment-method-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#2775CA"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="9" font-weight="bold">$</text></svg>';
+            break;
+          case 'paypal':
+            iconHtml = '<svg class="payment-method-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#003087"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">P</text></svg>';
+            break;
+          default:
+            iconHtml = '<svg class="payment-method-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#666"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">?</text></svg>';
+        }
+
+        html += '<div class="payment-method-tab ' + activeClass + '" onclick="switchPaymentMethod(&quot;' + method.type + '&quot;)" data-method="' + method.type + '">';
+        html += iconHtml;
+        html += '<span class="payment-method-name">' + method.name + '</span>';
+        html += '</div>';
       });
 
       paymentMethodsContainer.innerHTML = html;
