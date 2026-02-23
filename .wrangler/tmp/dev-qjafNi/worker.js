@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-Bg3SJX/checked-fetch.js
+// .wrangler/tmp/bundle-1jawwX/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-Bg3SJX/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-1jawwX/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -2092,11 +2092,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-Bg3SJX/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-1jawwX/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-Bg3SJX/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-1jawwX/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -10003,6 +10003,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
           <option value="coinbase">Coinbase Commerce</option>
           <option value="usdt">USDT\uFF08Tether\uFF09</option>
           <option value="usdc">USDC\uFF08USD Coin\uFF09</option>
+          <option value="cryptomus">Cryptomus</option>
         </select>
       </div>
       
@@ -10124,6 +10125,33 @@ var ADMIN_HTML = `<!DOCTYPE html>
           <p style="font-size:12px;color:#e65100;margin:0;">
             \u26A0\uFE0F <strong>\u6CE8\u610F\uFF1A</strong>\u6B64\u652F\u4ED8\u65B9\u5F0F\u9700\u8981\u7BA1\u7406\u5458\u5728\u540E\u53F0\u624B\u52A8\u786E\u8BA4\u652F\u4ED8\uFF0C\u7528\u6237\u652F\u4ED8\u540E\u4E0D\u4F1A\u81EA\u52A8\u751F\u6210\u5361\u5BC6
           </p>
+        </div>
+      </div>
+      
+      <!-- Cryptomus \u914D\u7F6E -->
+      <div id="cryptomusConfigSection" class="config-section" style="display:none;">
+        <div class="form-group">
+          <label style="color:#26A17B;font-weight:600;">Cryptomus \u914D\u7F6E</label>
+          <p style="margin:8px 0;color:#86868b;font-size:13px;">Cryptomus \u914D\u7F6E\u53C2\u6570</p>
+        </div>
+        <div class="form-group">
+          <label>Merchant ID</label>
+          <input type="text" id="cryptomusMerchantId" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+        <div class="form-group">
+          <label>Public Key</label>
+          <input type="text" id="cryptomusPublicKey" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        </div>
+        <div class="form-group">
+          <label>Secret Key</label>
+          <input type="password" id="cryptomusSecretKey" value="" style="width:100%;padding:10px;border:1px solid #d2d7;border-radius:6px;">
+        </div>
+        <div class="form-group">
+          <label>Environment</label>
+          <select id="cryptomusEnvironment" style="width:100%;padding:10px;border:1px solid #d2d7;border-radius:6px;">
+            <option value="sandbox">Sandbox</option>
+            <option value="live">Live</option>
+          </select>
         </div>
       </div>
       
@@ -13771,6 +13799,11 @@ var ADMIN_HTML = `<!DOCTYPE html>
       
       // \u9ED8\u8BA4\u663E\u793A\u864E\u76AE\u6912\u914D\u7F6E
       updatePaymentConfigFields();
+      // Cryptomus \u914D\u7F6E\u5B57\u6BB5\u6E05\u7A7A
+      document.getElementById('cryptomusMerchantId').value = '';
+      document.getElementById('cryptomusPublicKey').value = '';
+      document.getElementById('cryptomusSecretKey').value = '';
+      document.getElementById('cryptomusEnvironment').value = 'sandbox';
       
       document.getElementById('paymentMethodModal').classList.add('active');
     }
@@ -13801,6 +13834,9 @@ var ADMIN_HTML = `<!DOCTYPE html>
         case 'coinbase':
           document.getElementById('coinbaseConfigSection').style.display = 'block';
           break;
+        case 'cryptomus':
+          document.getElementById('cryptomusConfigSection').style.display = 'block';
+          break;
         case 'usdt':
         case 'usdc':
           document.getElementById('cryptoConfigSection').style.display = 'block';
@@ -13815,6 +13851,9 @@ var ADMIN_HTML = `<!DOCTYPE html>
             document.getElementById('cryptoNetwork').value = 'eth';
             document.getElementById('cryptoNetwork').disabled = true;
           }
+          break;
+        case 'cryptomus':
+          document.getElementById('cryptomusConfigSection').style.display = 'block';
           break;
       }
     }
@@ -13850,6 +13889,12 @@ var ADMIN_HTML = `<!DOCTYPE html>
                 document.getElementById('coinbaseApiKey').value = config.api_key || '';
                 document.getElementById('coinbaseWebhookSecret').value = config.webhook_secret || '';
                 document.getElementById('coinbaseAutoConvert').value = config.auto_convert || 'usdc';
+                break;
+              case 'cryptomus':
+                document.getElementById('cryptomusMerchantId').value = config.merchant_id || '';
+                document.getElementById('cryptomusPublicKey').value = config.public_key || '';
+                document.getElementById('cryptomusSecretKey').value = config.secret_key || '';
+                document.getElementById('cryptomusEnvironment').value = config.environment || 'sandbox';
                 break;
               case 'usdt':
               case 'usdc':
@@ -15334,7 +15379,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta name="cryptomus" content="7cf1b0a9">
   <!-- ========== SEO Meta Tags ========== -->
   <!-- \u57FA\u7840Meta\u6807\u7B7E -->
   <meta name="description" content="IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback, multi-device sync.">
@@ -20755,7 +20800,9 @@ init_modules_watch_stub();
 var SUBSCRIPTION_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
+  
   <meta charset="UTF-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title data-i18n-title="pageTitle">Subscription - TV Live Service</title>
   <style>
@@ -21818,6 +21865,10 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <span class="payment-info-value payment-amount" id="paymentAmount">-</span>
           </div>
         </div>
+        <!-- Cryptomus iframe \u5BB9\u5668 -->
+        <div id="cryptomusIframeContainer" class="cryptomus-iframe-container" style="display: none;">
+          <iframe id="cryptomusPaymentIframe" src="" scrolling="no" style="width: 100%; height: 600px; border: none; border-radius: 12px;"></iframe>
+        </div>
       </div>
       <div class="payment-footer">
         <!-- \u8C03\u8BD5\uFF1A\u6A21\u62DF\u652F\u4ED8\u6210\u529F\u6309\u94AE\uFF08\u4EC5\u5F00\u53D1\u73AF\u5883\u663E\u793A\uFF09 -->
@@ -22180,6 +22231,8 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         await initCoinbasePay();
       } else if (currentPaymentMethod === 'usdt' || currentPaymentMethod === 'usdc') {
         await initCryptoPayment(currentPaymentMethod);
+      } else if (currentPaymentMethod === 'cryptomus') {
+        await initCryptomusPay();
       } else {
         showError('Payment method not supported');
       }
@@ -22572,6 +22625,189 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
 
+    // \u521D\u59CB\u5316 Cryptomus \u652F\u4ED8
+    async function initCryptomusPay() {
+      if (!selectedDuration) {
+        showError(t('error').selectPlan);
+        return;
+      }
+
+      if (!isLoggedIn()) {
+        showLoginModal();
+        return;
+      }
+
+      showLoading(true);
+      hideError();
+
+      try {
+        const response = await fetch(API_BASE + '/subscription/cryptomus/create-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getToken()
+          },
+          body: JSON.stringify({
+            duration_days: selectedDuration.days,
+            max_ips: selectedIPs
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success && result.payment_data) {
+          // Get the payment URL from result
+          const paymentUrl = result.payment_data.url;
+          const network = result.network || 'TRON';
+          const currency = result.currency || 'USDT';
+
+          // Calculate price
+          const price = calculatePrice(selectedDuration, selectedIPs);
+
+          // Update modal info
+          const modal = document.getElementById('paymentModal');
+          document.getElementById('paymentPlanName').textContent = selectedDuration.days + ' days';
+          document.getElementById('paymentIPCount').textContent = selectedIPs + ' IP' + (selectedIPs > 1 ? 's' : '');
+          document.getElementById('paymentMethod').textContent = 'Cryptomus (' + network + ')';
+          document.getElementById('paymentAmount').textContent = result.amount + ' ' + currency;
+
+          // Hide QR code section and show iframe
+          const qrcodeSection = document.querySelector('.qrcode-section');
+          const iframeContainer = document.getElementById('cryptomusIframeContainer');
+          const iframe = document.getElementById('cryptomusPaymentIframe');
+
+          if (qrcodeSection) {
+            qrcodeSection.style.display = 'none';
+          }
+          if (iframeContainer) {
+            iframeContainer.style.display = 'block';
+          }
+          if (iframe) {
+            iframe.src = paymentUrl;
+          }
+
+          // Show payment hint
+          const paymentHint = document.getElementById('paymentHint');
+          if (paymentHint) {
+            paymentHint.textContent = 'Complete payment in the iframe above';
+          }
+
+          // Update payment status
+          document.getElementById('paymentStatus').textContent = 'Waiting for payment...';
+
+          // Show modal
+          if (modal) {
+            modal.classList.add('show');
+          }
+
+          // Save current order ID
+          currentOrderId = result.order_id;
+
+          // Hide debug button
+          document.getElementById('simulatePaymentBtn').style.display = 'none';
+
+          // Start polling order status (every 3 seconds, up to 30 minutes)
+          startCryptomusOrderCheck(result.order_id);
+        } else {
+          showError(result.error || t('error').paymentNotConfigured);
+        }
+      } catch (error) {
+        console.error('Cryptomus payment error:', error);
+        showError(t('error').networkError);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // \u8F6E\u8BE2 Cryptomus \u8BA2\u5355\u72B6\u6001
+    function startCryptomusOrderCheck(orderId) {
+      // Clear previous timer
+      if (checkPaymentInterval) {
+        clearInterval(checkPaymentInterval);
+      }
+
+      const pollingInterval = 3000; // 3 seconds
+      const orderTimeout = 1800000; // 30 minutes (1800 seconds)
+      const startTime = Date.now();
+
+      checkPaymentInterval = setInterval(async () => {
+        const elapsed = Date.now() - startTime;
+
+        if (elapsed > orderTimeout) {
+          clearInterval(checkPaymentInterval);
+          document.getElementById('paymentStatus').textContent = 'Payment timeout, please try again';
+          document.getElementById('paymentStatus').style.color = '#ff9800';
+          return;
+        }
+
+        try {
+          const response = await fetch(API_BASE + '/subscription/cryptomus/check-order?order_id=' + orderId, {
+            method: 'GET',
+            headers: {
+              'Authorization': 'Bearer ' + getToken()
+            }
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            if (result.order && result.order.status === 'completed') {
+              clearInterval(checkPaymentInterval);
+
+              // Update payment status
+              document.getElementById('paymentStatus').textContent = 'Payment successful!';
+              document.getElementById('paymentStatus').style.color = '#4CAF50';
+
+              // Hide iframe
+              const iframeContainer = document.getElementById('cryptomusIframeContainer');
+              if (iframeContainer) {
+                iframeContainer.style.display = 'none';
+              }
+
+              // Restore QR code section
+              const qrcodeSection = document.querySelector('.qrcode-section');
+              if (qrcodeSection) {
+                qrcodeSection.style.display = 'block';
+              }
+
+              // Delay before closing modal
+              setTimeout(() => {
+                closePaymentModal();
+
+                // Query subscription URL
+                fetch(API_BASE + '/auth/orders', {
+                  method: 'GET',
+                  headers: {
+                    'Authorization': 'Bearer ' + getToken()
+                  }
+                }).then(codeResult => {
+                  if (codeResult.ok) {
+                    return codeResult.json();
+                  }
+                }).then(codeData => {
+                  if (codeData && codeData.success && codeData.orders && codeData.orders.length > 0) {
+                    const latestOrder = codeData.orders[0];
+                    const subUrl = window.location.origin + '/sub/' + latestOrder.code + '.m3u';
+                    showSuccessModal(subUrl);
+                  }
+                }).catch(err => {
+                  console.error('Fetch orders error:', err);
+                });
+              }, 1500);
+            } else if (result.order && (result.order.status === 'failed' || result.order.status === 'cancelled' || result.order.status === 'expired')) {
+              clearInterval(checkPaymentInterval);
+
+              // Update payment status
+              document.getElementById('paymentStatus').textContent = 'Payment failed or expired';
+              document.getElementById('paymentStatus').style.color = '#f44336';
+            }
+          }
+        } catch (error) {
+          console.error('Cryptomus order check error:', error);
+        }
+      }, pollingInterval);
+    }
+
     // Debug: Simulate payment success
     async function simulatePaymentSuccess() {
       if (!currentOrderId) {
@@ -22687,6 +22923,9 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
             break;
           case 'paypal':
             iconHtml = '<svg class="payment-method-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#003087"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">P</text></svg>';
+            break;
+          case 'cryptomus':
+            iconHtml = '<svg class="payment-method-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#FF4E50"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">\u20BF</text></svg>';
             break;
           default:
             iconHtml = '<svg class="payment-method-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#666"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">?</text></svg>';
@@ -25465,6 +25704,10 @@ async function confirmCryptoPayment(env, orderId, adminKey) {
 }
 __name(confirmCryptoPayment, "confirmCryptoPayment");
 
+// handlers/cryptomus-api.js
+init_checked_fetch();
+init_modules_watch_stub();
+
 // worker.js
 async function calculatePriceForSubscription(durationDays, maxIPs, env) {
   try {
@@ -26096,7 +26339,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-Bg3SJX/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-1jawwX/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -26130,7 +26373,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-Bg3SJX/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-1jawwX/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

@@ -179,7 +179,7 @@ async function handleFreeSubM3U(subId, request, env) {
     oldIp: validation.subscription.ip
   });
 
-  // 获取活跃频道（从KV缓存中随机提取30%）
+  // 获取活跃频道（从KV缓存中随机提取10%）
   const channels = await getRandomActiveChannelsFromKV(env);
 
   if (!channels || channels.length === 0) {
@@ -213,7 +213,7 @@ async function handleFreeSubM3U(subId, request, env) {
 }
 
 /**
- * 获取随机30%的活跃频道（从KV缓存）
+ * 获取随机10%的活跃频道（从KV缓存）
  */
 async function getRandomActiveChannelsFromKV(env) {
   // 从KV缓存获取所有频道
@@ -229,8 +229,8 @@ async function getRandomActiveChannelsFromKV(env) {
 
   console.log(`[FreeSub] Got ${activeChannels.length} active channels from KV`);
 
-  // 计算需要返回的频道数量（8%）
-  const targetCount = Math.max(1, Math.floor(activeChannels.length * 0.08));
+  // 计算需要返回的频道数量（10%）
+  const targetCount = Math.max(1, Math.floor(activeChannels.length * 0.1));
 
   // 按日期生成随机种子（同一天返回相同结果）
   const today = new Date().toISOString().split('T')[0];
@@ -242,7 +242,7 @@ async function getRandomActiveChannelsFromKV(env) {
   // 使用种子随机选择频道
   const selectedChannels = selectRandomChannels(activeChannels, targetCount, seed);
 
-  console.log(`[FreeSub] Selected ${selectedChannels.length} channels (8%)`);
+  console.log(`[FreeSub] Selected ${selectedChannels.length} channels (10%)`);
   return selectedChannels;
 }
 
