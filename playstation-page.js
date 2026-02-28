@@ -1085,7 +1085,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         'verifyEmailTitle': 'Email Verification',
         'verifyEmailDesc': 'Click the button below to get verification code',
         'verifyEmailBtn': 'Verify Email',
-        'enter6DigitCode': 'Enter 6-digit code'
+        'enter6DigitCode': 'Enter 6-digit code',
+        // 分页相关
+        'totalItems': 'Total',
+        'page': 'Page',
+        'firstPage': 'First',
+        'prevPage': 'Prev',
+        'nextPage': 'Next',
+        'lastPage': 'Last'
       };
       return translations[key] || key;
     }
@@ -2512,7 +2519,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         return;
       }
 
-      let html = \`<span class="pagination-info">\${t('totalPages')} \${totalChannels}, \${t('page')} \${currentPage}/\${totalPages}</span>\`;
+      let html = \`<span class="pagination-info">\${t('totalItems')} \${totalChannels}, \${t('page')} \${currentPage}/\${totalPages}</span>\`;
       html += \`<button onclick="goToPage(1)" \${currentPage === 1 ? 'disabled' : ''}>\${t('firstPage')}</button>\`;
       html += \`<button onclick="goToPage(\${currentPage - 1})" \${currentPage === 1 ? 'disabled' : ''}>\${t('prevPage')}</button>\`;
 
