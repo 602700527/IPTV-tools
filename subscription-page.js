@@ -1488,7 +1488,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
           // Update modal info
           const modal = document.getElementById('paymentModal');
-          document.getElementById('paymentPlanName').textContent = selectedDuration.days + ' days';
+          const planDaysText = selectedDuration.days === -1 ? 'Lifetime' : selectedDuration.days + ' days';
+          document.getElementById('paymentPlanName').textContent = planDaysText;
           document.getElementById('paymentIPCount').textContent = selectedIPs + ' IP' + (selectedIPs > 1 ? 's' : '');
           document.getElementById('paymentMethod').textContent = paymentMethod === 'alipay' ? 'Alipay' : 'WeChat Pay';
           document.getElementById('paymentAmount').textContent = '¥' + price.discounted.toFixed(2);
@@ -1638,7 +1639,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
           // Update modal info
           const modal = document.getElementById('paymentModal');
-          document.getElementById('paymentPlanName').textContent = selectedDuration.days + ' days';
+          const planDaysText = selectedDuration.days === -1 ? 'Lifetime' : selectedDuration.days + ' days';
+          document.getElementById('paymentPlanName').textContent = planDaysText;
           document.getElementById('paymentIPCount').textContent = selectedIPs + ' IP' + (selectedIPs > 1 ? 's' : '');
           document.getElementById('paymentMethod').textContent = 'Coinbase Commerce';
           document.getElementById('paymentAmount').textContent = '$' + priceUSD;
@@ -1779,7 +1781,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
           // Update modal info
           const modal = document.getElementById('paymentModal');
-          document.getElementById('paymentPlanName').textContent = selectedDuration.days + ' days';
+          const planDaysText = selectedDuration.days === -1 ? 'Lifetime' : selectedDuration.days + ' days';
+          document.getElementById('paymentPlanName').textContent = planDaysText;
           document.getElementById('paymentIPCount').textContent = selectedIPs + ' IP' + (selectedIPs > 1 ? 's' : '');
           document.getElementById('paymentMethod').textContent = paymentMethod.toUpperCase() + ' (' + result.payment_data.network + ')';
           document.getElementById('paymentAmount').textContent = '$' + priceUSD;
