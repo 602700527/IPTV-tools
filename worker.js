@@ -17,8 +17,12 @@ import {
   handleGetUserInfo,
   handleGetOrderHistory,
   handleForgotPassword,
-  handleResetPassword
+  handleResetPassword,
+  handleGoogleOAuthInit,
+  handleGoogleOAuthCallback
 } from './handlers/auth.js';
+
+import { handleGoogleAuthDebug } from './handlers/google-auth-debug.js';
 import { handleCreateCode } from './handlers/subscription-api.js';
 import {
   handleCreateXunhuPayOrder,
@@ -311,6 +315,15 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/auth/orders') {
       // 获取订单历史
       return await handleGetOrderHistory(request, env, ctx);
+    } else if (path === '/api/auth/google/init') {
+      // Google OAuth 初始化
+      return await handleGoogleOAuthInit(request, env, ctx);
+    } else if (path === '/api/auth/google/callback') {
+      // Google OAuth 回调
+      return await handleGoogleOAuthCallback(request, env, ctx);
+    } else if (path === '/api/auth/google/debug') {
+      // Google OAuth 诊断
+      return await handleGoogleAuthDebug(request, env, ctx);
     } else if (path === '/api/subscription/create-code') {
       // 创建订阅卡密
       return await handleCreateCode(request, env, ctx);

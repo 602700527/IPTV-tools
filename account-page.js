@@ -207,6 +207,16 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
     function getToken() {
       return localStorage.getItem('auth_token');
     }
+
+    // 检查URL参数中的OAuth token（来自Google登录回调）
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlToken = urlParams.get('token');
+    if (urlToken) {
+      localStorage.setItem('auth_token', urlToken);
+      // 清除URL参数
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
     
     // 检查登录状态
     if (!getToken()) {

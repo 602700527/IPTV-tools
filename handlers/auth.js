@@ -860,3 +860,123 @@ export async function verifySession(token, db) {
 
   return session;
 }
+
+/**
+ * Google OAuth 初始化
+ */
+export async function handleGoogleOAuthInit(request, env, ctx) {
+  try {
+    const state = Array.from(crypto.getRandomValues(new Uint8Array(32)), b => b.toString(16).padStart(2,'0')).join('');
+    const nonce = Array.from(crypto.getRandomValues(new Uint8Array(32)), b => b.toString(16).padStart(2,'0')).join('');
+    
+    await env.KV.put(`oauth_state:${state}`, nonce, { expirationTtl: 600 });
+    
+    const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    authUrl.searchParams.set('client_id', env.GOOGLE_CLIENT_ID);
+    authUrl.searchParams.set('redirect_uri', `${env.APP_URL}/api/auth/google/callback`);
+    authUrl.searchParams.set('response_type', 'code');
+    authUrl.searchParams.set('scope', 'openid email profile');
+    authUrl.searchParams.set('state', state);
+    authUrl.searchParams.set('nonce', nonce);
+    authUrl.searchParams.set('access_type', 'offline');
+    
+    return new Response(JSON.stringify({ success: true, auth_url: authUrl.toString(), state }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Google OAuth Init failed:', error);
+    return new Response(JSON.stringify({ success: false, error: 'OAuth init failed' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+  }
+}
+
+export async function handleGoogleOAuthCallback(request, env, ctx) {
+  try {
+    const url = new URL(request.url);
+    const code = url.searchParams.get('code');
+    const state = url.searchParams.get('state');
+    
+    if (!code || !state) {
+      return new Response(JSON.stringify({ success: false, error: 'Missing parameters' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    }
+    
+    const storedNonce = await env.KV.get(`oauth_state:${state}`);
+    if (!storedNonce) {
+      return new Response(JSON.stringify({ success: false, error: 'State expired or invalid' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    }
+    await env.KV.delete(`oauth_state:${state}`);
+    
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: env.GOOGLE_CLIENT_ID,
+        client_secret: env.GOOGLE_CLIENT_SECRET,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: `${env.APP_URL}/api/auth/google/callback`
+      })
+    });
+    
+    const tokenData = await tokenResponse.json();
+    const payload = JSON.parse(atob(tokenData.id_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+    
+    if (payload.nonce !== storedNonce || payload.aud !== env.GOOGLE_CLIENT_ID) {
+      return new Response(JSON.stringify({ success: false, error: 'Token verification failed' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    }
+    
+    const db = getDB();
+    let user = await db.prepare('SELECT * FROM users WHERE google_id = ?').bind(payload.sub).first();
+    
+    if (!user) {
+      const existingEmailUser = await db.prepare('SELECT * FROM users WHERE email = ?').bind(payload.email).first();
+      
+      if (existingEmailUser) {
+        await db.prepare('UPDATE users SET google_id = ?, avatar_url = ? WHERE id = ?').bind(payload.sub, payload.picture, existingEmailUser.id);
+        user = await db.prepare('SELECT * FROM users WHERE id = ?').bind(existingEmailUser.id).first();
+      } else {
+        // 关键修复：创建用户时包含password_hash字段（使用空字符串）
+        const result = await db.prepare(`
+          INSERT INTO users (email, password_hash, google_id, avatar_url, is_verified, created_at, updated_at)
+          VALUES (?, '', ?, ?, 1, datetime('now'), datetime('now'))
+        `).bind(payload.email, payload.sub, payload.picture).run();
+        
+        user = await db.prepare('SELECT * FROM users WHERE id = ?').bind(result.meta.last_row_id).first();
+      }
+    }
+    
+    const token = await generateSessionToken();
+    await db.prepare('INSERT INTO user_sessions (user_id, token, expires_at, created_at) VALUES (?, ?, datetime("now", "+30 days"), datetime("now"))').bind(user.id, token).run();
+    
+    // 两种方式返回：
+    // 1. 如果是从popup调用，返回JSON（用于postMessage）
+    // 2. 如果是重定向调用，设置cookie并重定向到账户页面
+    const userAgent = request.headers.get('user-agent') || '';
+    
+    // 方法2：设置cookie并重定向（推荐）
+    const accountUrl = `${env.APP_URL}/account`;
+    // 将token作为URL参数（账户页面会保存到localStorage）
+    const redirectUrl = `${accountUrl}?token=${token}`;
+    return new Response(null, {
+      status: 302,
+      headers: {
+        'Location': redirectUrl,
+        'Set-Cookie': `auth_token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}`
+      }
+    });
+    await db.prepare('INSERT INTO user_sessions (user_id, token, expires_at, created_at) VALUES (?, ?, datetime("now", "+30 days"), datetime("now"))').bind(user.id, token).run();
+    
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'Login successful',
+      token,
+      user: { id: user.id, email: user.email, name: payload.name, avatar_url: user.avatar_url, is_verified: user.is_verified }
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+  } catch (error) {
+    console.error('Google OAuth Error:', error);
+    console.error('Error details:', error.message, error.stack);
+    return new Response(JSON.stringify({ success: false, error: error.message || 'OAuth callback processing failed' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+  }
+}

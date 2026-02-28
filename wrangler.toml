@@ -33,7 +33,9 @@ XUNHUPAY_WECHAT_APP_SECRET = ""
 # 虎皮椒支付网关
 XUNHUPAY_GATEWAY = "https://api.xunhuweb.com/payment/do.html"
 
-
+# Google OAuth configuration
+GOOGLE_CLIENT_ID = "1070165774283-e75bs3en213p81iaq3g5dmpt15e6te9l.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET = "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"
 
 # 定时触发器 (用于自动同步启用的数据源和刷新缓存)
 # Cron表达式格式: 分 时 日 月 周
