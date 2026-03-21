@@ -3390,10 +3390,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     // 在线人数显示（模拟）
     function updateOnlineCounter() {
-      const baseCount = Math.floor(Math.random() * 100) + 50;
-      const randomOffset = Math.floor(Math.random() * 20) - 10;
-      const count = baseCount + randomOffset;
+      const count = Math.floor(Math.random() * 601) + 400; // 400-1000
       document.getElementById('onlineCount').textContent = count.toLocaleString();
+      document.getElementById('onlineCountText').textContent = 'users online';
     }
 
 
