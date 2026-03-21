@@ -1008,6 +1008,16 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               <li><strong>防分享：</strong>Token无法被多次使用，有效限制地址分享行为</li>
             </ul>
           </div>
+          <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e5e5ea;">
+            <h4 style="margin-bottom:16px;color:#000;font-size:16px;">📺 直连播放设置</h4>
+            <div style="margin-bottom:16px;">
+              <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+                <input type="checkbox" id="enableIpPlay" checked style="margin-right:12px;">
+                <span style="font-size:14px;">启用IP直连播放</span>
+              </label>
+              <p style="margin-top:8px;color:#86868b;font-size:12px;">关闭后，用户将无法使用直连播放功能</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -3623,6 +3633,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           document.getElementById('urlEncryptionKey').value = data.config.url_encryption_key || '';
           document.getElementById('enableAntiDebug').checked = data.config.enable_anti_debug !== undefined ? data.config.enable_anti_debug : false;
           document.getElementById('disableConsoleLogs').checked = data.config.disable_console_logs !== undefined ? data.config.disable_console_logs : false;
+          document.getElementById('enableIpPlay').checked = data.config.enable_ip_play !== undefined ? data.config.enable_ip_play : true;
         } else {
           showToast('加载配置失败', 'error');
         }
@@ -3646,7 +3657,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           enable_url_encryption: document.getElementById('enableURLEncryption').checked,
           url_encryption_key: document.getElementById('urlEncryptionKey').value.trim(),
           enable_anti_debug: document.getElementById('enableAntiDebug').checked,
-          disable_console_logs: document.getElementById('disableConsoleLogs').checked
+          disable_console_logs: document.getElementById('disableConsoleLogs').checked,
+          enable_ip_play: document.getElementById('enableIpPlay').checked
         };
 
         // 验证配置值

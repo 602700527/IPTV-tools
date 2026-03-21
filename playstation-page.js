@@ -404,6 +404,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .channel-icon{font-size:48px;opacity:.5}
     .play-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(229,9,20,.8);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
     .channel-card:hover .play-overlay{opacity:1}
+    .play-overlay.disabled{display:none!important}
     .play-icon{width:60px;height:60px;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center}
     .play-icon::after{content:'';width:0;height:0;border-left:20px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:4px}
     .channel-info{padding:14px}
@@ -1612,6 +1613,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     let pendingChannelLoad = null;  // 待处理的频道加载请求
     let lastErrorTime = 0;  // 防止重复显示相同错误
     let lastErrorMsg = '';   // 记录上一条错误消息
+    let enableIpPlay = true;  // IP直连播放开关
 
     // 默认英文语言
     function detectBrowserLanguage() {
@@ -1635,6 +1637,22 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         await updateEncryptionKey();
       } catch (error) {
         console.error('[Init] 获取系统配置失败:', error);
+      }
+
+      // 获取管理员密钥（用于获取系统配置）
+      const adminKey = localStorage.getItem('admin_key') || '';
+
+      // 获取IP直连播放配置
+      try {
+        const configRes = await fetch('/admin/system-config', {
+          headers: { 'X-Admin-Key': adminKey }
+        });
+        const configData = await configRes.json();
+        if (configData.success && configData.config) {
+          enableIpPlay = configData.config.enable_ip_play !== false;
+        }
+      } catch (error) {
+        console.error('[Init] 获取直连播放配置失败:', error);
       }
 
       // 加载公告
@@ -2261,7 +2279,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
               \${showHotTag ? '<div class="hot-tag">' + t('hot') + '</div>' : ''}
               \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
               <button class="favorite-btn \${isFavorited ? 'favorited' : ''}" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')" data-hash="\${escapeHtml(channel.channel_hash)}">\${isFavorited ? '⭐' : '☆'}</button>
-              <div class="play-overlay">
+              <div class="play-overlay \${enableIpPlay ? '' : 'disabled'}">
                 <div class="play-icon"></div>
               </div>
             </div>
@@ -2377,6 +2395,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
     // 处理频道点击
     function handleChannelClick(event, hash, name, group) {
+      // 如果IP直连播放已禁用，忽略点击
+      if (!enableIpPlay) {
+        return;
+      }
+      
       // 添加点击高亮效果
       const card = event.currentTarget;
       card.classList.add('click-highlight');
@@ -3472,9 +3495,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
                 \${logo}
                 \${showRecommendTag ? '<div class="hot-tag">' + t('recommend') + '</div>' : ''}
                 \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
-                <div class="play-overlay">
-                  <div class="play-icon"></div>
-                </div>
+              <div class="play-overlay ${enableIpPlay ? '' : 'disabled'}">
+                <div class="play-icon"></div>
+              </div>
               </div>
               <div class="channel-info">
                 <div class="channel-name">\${escapeHtml(channel.channel_name)}</div>

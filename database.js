@@ -223,6 +223,8 @@ export async function createTables(env) {
     // 调试防护配置
     'enable_anti_debug': 'false',
     'disable_console_logs': 'false',
+    // IP直连播放配置
+    'enable_ip_play': 'true',
     // 同步过滤规则配置（JSON格式）
     'sync_filter_config': '{}'
   };
@@ -982,8 +984,8 @@ export async function updateHomepageDisplayConfig(config) {
 // 获取系统安全配置
 export async function getSystemConfig() {
   const db = getDB();
-  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-    .bind('enable_ref_check', 'ref_whitelist', 'enable_play_token', 'play_token_expire_seconds', 'homepage_display_config', 'enable_ip_bind', 'enable_burn_after_read', 'enable_url_encryption', 'url_encryption_key', 'enable_anti_debug', 'disable_console_logs')
+  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    .bind('enable_ref_check', 'ref_whitelist', 'enable_play_token', 'play_token_expire_seconds', 'homepage_display_config', 'enable_ip_bind', 'enable_burn_after_read', 'enable_url_encryption', 'url_encryption_key', 'enable_anti_debug', 'disable_console_logs', 'enable_ip_play')
     .all();
 
   const config = {
@@ -997,7 +999,8 @@ export async function getSystemConfig() {
     enable_url_encryption: false,
     url_encryption_key: '',
     enable_anti_debug: false,
-    disable_console_logs: false
+    disable_console_logs: false,
+    enable_ip_play: true
   };
 
   settings.results?.forEach(row => {
@@ -1027,6 +1030,8 @@ export async function getSystemConfig() {
       config.enable_anti_debug = row.value === 'true';
     } else if (row.key === 'disable_console_logs') {
       config.disable_console_logs = row.value === 'true';
+    } else if (row.key === 'enable_ip_play') {
+      config.enable_ip_play = row.value === 'true';
     }
   });
 
@@ -1145,6 +1150,12 @@ export async function updateSystemConfig(config) {
   if (config.disable_console_logs !== undefined) {
     await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
       .bind(config.disable_console_logs.toString(), 'disable_console_logs')
+      .run();
+  }
+
+  if (config.enable_ip_play !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.enable_ip_play.toString(), 'enable_ip_play')
       .run();
   }
 }
