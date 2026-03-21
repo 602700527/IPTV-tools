@@ -2636,6 +2636,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
 
     function playChannel(hash, name, group, retryCount = 0) {
+      // 如果IP直连播放已禁用，忽略播放请求
+      if (!enableIpPlay) {
+        return;
+      }
       // 生成新的播放请求ID
       const requestId = ++currentPlayRequestId;
       console.log('[PlayChannel] Request #' + requestId + ':', name);
