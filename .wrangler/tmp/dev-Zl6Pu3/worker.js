@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-CH0jaW/checked-fetch.js
+// .wrangler/tmp/bundle-trIk0I/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-CH0jaW/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-trIk0I/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -263,6 +263,8 @@ async function createTables(env) {
     // 调试防护配置
     "enable_anti_debug": "false",
     "disable_console_logs": "false",
+    // IP直连播放配置
+    "enable_ip_play": "true",
     // 同步过滤规则配置（JSON格式）
     "sync_filter_config": "{}"
   };
@@ -901,7 +903,7 @@ async function updateHomepageDisplayConfig(config) {
 }
 async function getSystemConfig() {
   const db = getDB();
-  const settings = await db.prepare("SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind("enable_ref_check", "ref_whitelist", "enable_play_token", "play_token_expire_seconds", "homepage_display_config", "enable_ip_bind", "enable_burn_after_read", "enable_url_encryption", "url_encryption_key", "enable_anti_debug", "disable_console_logs").all();
+  const settings = await db.prepare("SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind("enable_ref_check", "ref_whitelist", "enable_play_token", "play_token_expire_seconds", "homepage_display_config", "enable_ip_bind", "enable_burn_after_read", "enable_url_encryption", "url_encryption_key", "enable_anti_debug", "disable_console_logs", "enable_ip_play").all();
   const config = {
     enable_ref_check: false,
     ref_whitelist: "",
@@ -913,7 +915,8 @@ async function getSystemConfig() {
     enable_url_encryption: false,
     url_encryption_key: "",
     enable_anti_debug: false,
-    disable_console_logs: false
+    disable_console_logs: false,
+    enable_ip_play: true
   };
   settings.results?.forEach((row) => {
     if (row.key === "enable_ref_check") {
@@ -942,6 +945,8 @@ async function getSystemConfig() {
       config.enable_anti_debug = row.value === "true";
     } else if (row.key === "disable_console_logs") {
       config.disable_console_logs = row.value === "true";
+    } else if (row.key === "enable_ip_play") {
+      config.enable_ip_play = row.value === "true";
     }
   });
   return config;
@@ -1014,6 +1019,9 @@ async function updateSystemConfig(config) {
   }
   if (config.disable_console_logs !== void 0) {
     await db.prepare("UPDATE settings SET value = ? WHERE key = ?").bind(config.disable_console_logs.toString(), "disable_console_logs").run();
+  }
+  if (config.enable_ip_play !== void 0) {
+    await db.prepare("UPDATE settings SET value = ? WHERE key = ?").bind(config.enable_ip_play.toString(), "enable_ip_play").run();
   }
 }
 function generateEncryptionKey(length = 32) {
@@ -2231,11 +2239,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-CH0jaW/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-trIk0I/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-CH0jaW/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-trIk0I/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -5616,6 +5624,9 @@ async function handleAdminRequest(request, env, ctx) {
           if (data.disable_console_logs !== void 0) {
             config.disable_console_logs = data.disable_console_logs;
           }
+          if (data.enable_ip_play !== void 0) {
+            config.enable_ip_play = data.enable_ip_play;
+          }
           if (data.rotate_encryption_key === true) {
             const newKey = generateRandomEncryptionKey();
             config.url_encryption_key = newKey;
@@ -7648,7 +7659,8 @@ async function handlePublicConfig(request, env, ctx) {
       enable_url_encryption: systemConfig.enable_url_encryption,
       url_encryption_key: systemConfig.url_encryption_key || "",
       enable_anti_debug: systemConfig.enable_anti_debug,
-      disable_console_logs: systemConfig.disable_console_logs
+      disable_console_logs: systemConfig.disable_console_logs,
+      enable_ip_play: systemConfig.enable_ip_play
     };
     const responseBody = JSON.stringify({
       success: true,
@@ -10357,6 +10369,16 @@ var ADMIN_HTML = `<!DOCTYPE html>
               <li><strong>\u9632\u5206\u4EAB\uFF1A</strong>Token\u65E0\u6CD5\u88AB\u591A\u6B21\u4F7F\u7528\uFF0C\u6709\u6548\u9650\u5236\u5730\u5740\u5206\u4EAB\u884C\u4E3A</li>
             </ul>
           </div>
+          <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e5e5ea;">
+            <h4 style="margin-bottom:16px;color:#000;font-size:16px;">\u{1F4FA} \u76F4\u8FDE\u64AD\u653E\u8BBE\u7F6E</h4>
+            <div style="margin-bottom:16px;">
+              <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+                <input type="checkbox" id="enableIpPlay" checked style="margin-right:12px;">
+                <span style="font-size:14px;">\u542F\u7528IP\u76F4\u8FDE\u64AD\u653E</span>
+              </label>
+              <p style="margin-top:8px;color:#86868b;font-size:12px;">\u5173\u95ED\u540E\uFF0C\u7528\u6237\u5C06\u65E0\u6CD5\u4F7F\u7528\u76F4\u8FDE\u64AD\u653E\u529F\u80FD</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -12973,6 +12995,7 @@ var ADMIN_HTML = `<!DOCTYPE html>
           document.getElementById('urlEncryptionKey').value = data.config.url_encryption_key || '';
           document.getElementById('enableAntiDebug').checked = data.config.enable_anti_debug !== undefined ? data.config.enable_anti_debug : false;
           document.getElementById('disableConsoleLogs').checked = data.config.disable_console_logs !== undefined ? data.config.disable_console_logs : false;
+          document.getElementById('enableIpPlay').checked = data.config.enable_ip_play !== undefined ? data.config.enable_ip_play : true;
         } else {
           showToast('\u52A0\u8F7D\u914D\u7F6E\u5931\u8D25', 'error');
         }
@@ -12996,7 +13019,8 @@ var ADMIN_HTML = `<!DOCTYPE html>
           enable_url_encryption: document.getElementById('enableURLEncryption').checked,
           url_encryption_key: document.getElementById('urlEncryptionKey').value.trim(),
           enable_anti_debug: document.getElementById('enableAntiDebug').checked,
-          disable_console_logs: document.getElementById('disableConsoleLogs').checked
+          disable_console_logs: document.getElementById('disableConsoleLogs').checked,
+          enable_ip_play: document.getElementById('enableIpPlay').checked
         };
 
         // \u9A8C\u8BC1\u914D\u7F6E\u503C
@@ -16253,6 +16277,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     .channel-icon{font-size:48px;opacity:.5}
     .play-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(229,9,20,.8);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
     .channel-card:hover .play-overlay{opacity:1}
+    .play-overlay.disabled{display:none!important}
     .play-icon{width:60px;height:60px;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center}
     .play-icon::after{content:'';width:0;height:0;border-left:20px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:4px}
     .channel-info{padding:14px}
@@ -17461,6 +17486,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     let pendingChannelLoad = null;  // \u5F85\u5904\u7406\u7684\u9891\u9053\u52A0\u8F7D\u8BF7\u6C42
     let lastErrorTime = 0;  // \u9632\u6B62\u91CD\u590D\u663E\u793A\u76F8\u540C\u9519\u8BEF
     let lastErrorMsg = '';   // \u8BB0\u5F55\u4E0A\u4E00\u6761\u9519\u8BEF\u6D88\u606F
+    let enableIpPlay = true;  // IP\u76F4\u8FDE\u64AD\u653E\u5F00\u5173
 
     // \u9ED8\u8BA4\u82F1\u6587\u8BED\u8A00
     function detectBrowserLanguage() {
@@ -17484,6 +17510,20 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         await updateEncryptionKey();
       } catch (error) {
         console.error('[Init] \u83B7\u53D6\u7CFB\u7EDF\u914D\u7F6E\u5931\u8D25:', error);
+      }
+
+      // \u83B7\u53D6\u7BA1\u7406\u5458\u5BC6\u94A5\uFF08\u7528\u4E8E\u83B7\u53D6\u7CFB\u7EDF\u914D\u7F6E\uFF09
+      const adminKey = localStorage.getItem('admin_key') || '';
+
+      // \u83B7\u53D6IP\u76F4\u8FDE\u64AD\u653E\u914D\u7F6E
+      try {
+        const configRes = await fetch('/api/config');
+        const configData = await configRes.json();
+        if (configData.success && configData.config) {
+          enableIpPlay = configData.config.enable_ip_play !== false;
+        }
+      } catch (error) {
+        console.error('[Init] \u83B7\u53D6\u76F4\u8FDE\u64AD\u653E\u914D\u7F6E\u5931\u8D25:', error);
       }
 
       // \u52A0\u8F7D\u516C\u544A
@@ -18155,6 +18195,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           console.log('AdSense init error:', e);
         }
       }
+
+      // \u5982\u679CIP\u76F4\u8FDE\u64AD\u653E\u5DF2\u7981\u7528\uFF0C\u7981\u7528\u6240\u6709\u64AD\u653E\u6309\u94AE
+      if (!enableIpPlay) {
+        container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
+      }
     }
     
     function filterByGroup(group) {
@@ -18226,6 +18271,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
     // \u5904\u7406\u9891\u9053\u70B9\u51FB
     function handleChannelClick(event, hash, name, group) {
+      // \u5982\u679CIP\u76F4\u8FDE\u64AD\u653E\u5DF2\u7981\u7528\uFF0C\u5FFD\u7565\u70B9\u51FB
+      if (!enableIpPlay) {
+        return;
+      }
+      
       // \u6DFB\u52A0\u70B9\u51FB\u9AD8\u4EAE\u6548\u679C
       const card = event.currentTarget;
       card.classList.add('click-highlight');
@@ -19321,9 +19371,9 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
                 \${logo}
                 \${showRecommendTag ? '<div class="hot-tag">' + t('recommend') + '</div>' : ''}
                 \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
-                <div class="play-overlay">
-                  <div class="play-icon"></div>
-                </div>
+              <div class="play-overlay">
+                <div class="play-icon"></div>
+              </div>
               </div>
               <div class="channel-info">
                 <div class="channel-name">\${escapeHtml(channel.channel_name)}</div>
@@ -19339,6 +19389,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
             createRipple(card);
           });
         });
+
+        // \u5982\u679CIP\u76F4\u8FDE\u64AD\u653E\u5DF2\u7981\u7528\uFF0C\u7981\u7528\u6240\u6709\u64AD\u653E\u6309\u94AE
+        if (!enableIpPlay) {
+          container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
+        }
       });
     }
 
@@ -19441,6 +19496,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           </div>
         \`;
       }).join('');
+
+      // \u5982\u679CIP\u76F4\u8FDE\u64AD\u653E\u5DF2\u7981\u7528\uFF0C\u7981\u7528\u6240\u6709\u64AD\u653E\u6309\u94AE
+      if (!enableIpPlay) {
+        container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
+      }
     }
 
     function getLogoByHash(hash) {
@@ -19566,6 +19626,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           </div>
         \`;
       }).join('');
+
+      // \u5982\u679CIP\u76F4\u8FDE\u64AD\u653E\u5DF2\u7981\u7528\uFF0C\u7981\u7528\u6240\u6709\u64AD\u653E\u6309\u94AE
+      if (!enableIpPlay) {
+        container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
+      }
     }
 
     // \u5728\u4E3B\u6570\u636E\u533A\u57DF\u663E\u793A\u6536\u85CF
@@ -19622,6 +19687,11 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           </div>
         \`;
       }).join('');
+
+      // \u5982\u679CIP\u76F4\u8FDE\u64AD\u653E\u5DF2\u7981\u7528\uFF0C\u7981\u7528\u6240\u6709\u64AD\u653E\u6309\u94AE
+      if (!enableIpPlay) {
+        container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
+      }
     }
 
     // \u663E\u793A\u64AD\u653E\u5386\u53F2\u9762\u677F
@@ -26769,7 +26839,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-CH0jaW/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-trIk0I/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -26803,7 +26873,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-CH0jaW/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-trIk0I/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
