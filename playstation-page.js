@@ -1655,6 +1655,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         console.error('[Init] 获取直连播放配置失败:', error);
       }
 
+      // 如果IP直连播放已禁用，禁用所有播放按钮
+      if (!enableIpPlay) {
+        document.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
+      }
+
       // 加载公告
       loadAnnouncement();
 
@@ -2279,7 +2284,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
               \${showHotTag ? '<div class="hot-tag">' + t('hot') + '</div>' : ''}
               \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
               <button class="favorite-btn \${isFavorited ? 'favorited' : ''}" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')" data-hash="\${escapeHtml(channel.channel_hash)}">\${isFavorited ? '⭐' : '☆'}</button>
-              <div class="play-overlay \${enableIpPlay ? '' : 'disabled'}">
+              <div class="play-overlay">
                 <div class="play-icon"></div>
               </div>
             </div>
@@ -3495,7 +3500,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
                 \${logo}
                 \${showRecommendTag ? '<div class="hot-tag">' + t('recommend') + '</div>' : ''}
                 \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
-              <div class="play-overlay ${enableIpPlay ? '' : 'disabled'}">
+              <div class="play-overlay">
                 <div class="play-icon"></div>
               </div>
               </div>
