@@ -677,7 +677,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         <input type="text" class="search-input" id="searchInput" placeholder="Search channels..." oninput="handleSearch()">
       </div>
       <div class="quick-entries">
-        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'history')" title="History">
+        <button class="quick-entry ripple" id="historyQuickEntry" onclick="handleQuickEntryClick(event, 'history')" title="History">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           <span class="quick-entry-tip">History</span>
           <span class="quick-entry-badge" id="historyBadge" style="display:none;">0</span>
@@ -726,7 +726,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     <div class="mobile-section">
       <div class="mobile-section-title">Quick Actions</div>
       <div class="mobile-actions">
-        <div class="mobile-action-btn" onclick="handleMobileAction('history')">
+        <div class="mobile-action-btn" id="historyMobileAction" onclick="handleMobileAction('history')">
           <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
         </div>
         <div class="mobile-action-btn" onclick="handleMobileAction('favorites')">
@@ -1137,6 +1137,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // 移动端不需要波纹效果，直接调用对应的操作
       switch (action) {
         case 'history':
+          if (!enableIpPlay) return;
           showHistoryInMain();
           break;
         case 'favorites':
@@ -1651,6 +1652,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         }
       } catch (error) {
         console.error('[Init] 获取直连播放配置失败:', error);
+      }
+
+      // 如果IP直连播放已禁用，隐藏历史记录相关按钮
+      if (!enableIpPlay) {
+        const historyQuickEntry = document.getElementById('historyQuickEntry');
+        if (historyQuickEntry) historyQuickEntry.style.display = 'none';
+        const historyMobileAction = document.getElementById('historyMobileAction');
+        if (historyMobileAction) historyMobileAction.style.display = 'none';
       }
 
       // 加载公告
@@ -2440,6 +2449,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
       switch (type) {
         case 'history':
+          if (!enableIpPlay) return;
           showHistoryInMain();
           break;
         case 'favorites':
@@ -3701,6 +3711,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     // 显示播放历史面板
 
     function showHistoryInMain() {
+      // 如果IP直连播放已禁用，隐藏历史记录功能
+      if (!enableIpPlay) {
+        return;
+      }
       // 清除分组选择
       currentGroup = 'history';
       renderGroups();
