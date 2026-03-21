@@ -1653,11 +1653,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         console.error('[Init] 获取直连播放配置失败:', error);
       }
 
-      // 如果IP直连播放已禁用，禁用所有播放按钮
-      if (!enableIpPlay) {
-        document.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
-      }
-
       // 加载公告
       loadAnnouncement();
 
@@ -2326,6 +2321,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         } catch (e) {
           console.log('AdSense init error:', e);
         }
+      }
+
+      // 如果IP直连播放已禁用，禁用所有播放按钮
+      if (!enableIpPlay) {
+        container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
       }
     }
     
@@ -3516,6 +3516,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             createRipple(card);
           });
         });
+
+        // 如果IP直连播放已禁用，禁用所有播放按钮
+        if (!enableIpPlay) {
+          container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
+        }
       });
     }
 
@@ -3618,6 +3623,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           </div>
         \`;
       }).join('');
+
+      // 如果IP直连播放已禁用，禁用所有播放按钮
+      if (!enableIpPlay) {
+        container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
+      }
     }
 
     function getLogoByHash(hash) {
@@ -3743,6 +3753,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           </div>
         \`;
       }).join('');
+
+      // 如果IP直连播放已禁用，禁用所有播放按钮
+      if (!enableIpPlay) {
+        container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
+      }
     }
 
     // 在主数据区域显示收藏
@@ -3799,6 +3814,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           </div>
         \`;
       }).join('');
+
+      // 如果IP直连播放已禁用，禁用所有播放按钮
+      if (!enableIpPlay) {
+        container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
+      }
     }
 
     // 显示播放历史面板
