@@ -1012,6 +1012,9 @@ export async function handleAdminRequest(request, env, ctx) {
           if (data.disable_console_logs !== undefined) {
             config.disable_console_logs = data.disable_console_logs;
           }
+          if (data.enable_ip_play !== undefined) {
+            config.enable_ip_play = data.enable_ip_play;
+          }
           if (data.rotate_encryption_key === true) {
             // 自动轮换密钥
             const newKey = generateRandomEncryptionKey();
