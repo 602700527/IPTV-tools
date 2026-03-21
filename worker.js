@@ -2,6 +2,7 @@
 import { initDB, createTables, isMallEnabled } from './database.js';
 import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest } from './handlers/sub.js';
+import { handleGetPlayLink, handleIPPlayRequest, handleGetPlayLinkStatus } from './handlers/ip-play.js';
 import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
 import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } from './handlers/scheduler.js';
 import { handleUserActivate } from './handlers/user.js';
@@ -262,6 +263,12 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/token') {
       // 获取播放token API
       return await handleGetPlayToken(request, env, ctx);
+    } else if (path === '/api/play/link') {
+      // IP直连播放链接 - 获取链接
+      return await handleGetPlayLink(request, env, ctx);
+    } else if (path === '/api/play/link/status') {
+      // IP直连播放链接 - 获取使用状态
+      return await handleGetPlayLinkStatus(request, env, ctx);
     } else if (path.startsWith('/api/play/')) {
       // 公开播放API（无需卡密）
       return await handlePublicPlay(request, env, ctx);
@@ -497,6 +504,9 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       return new Response(htmlWithConfig, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
+    } else if (path.startsWith('/play/')) {
+      // IP直连播放请求处理: /play/{link_id}/{hash}
+      return await handleIPPlayRequest(request, env, ctx);
     } else if (path.startsWith('/live/')) {
       // 播放请求处理: /live/{code}/{hash}
       return await handleLiveRequest(request, env, ctx);

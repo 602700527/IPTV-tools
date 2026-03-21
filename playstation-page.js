@@ -407,7 +407,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .play-icon{width:60px;height:60px;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center}
     .play-icon::after{content:'';width:0;height:0;border-left:20px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:4px}
     .channel-info{padding:14px}
-    .channel-name{font-size:14px;font-weight:500;color:#fff;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .channel-name{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:#fff;margin-bottom:4px;overflow:hidden}
+    .channel-name-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
     .channel-group{font-size:12px;color:rgba(255,255,255,.5)}
     .pagination{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:30px;padding:20px 0}
     .pagination button{padding:8px 16px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:#fff;border-radius:6px;cursor:pointer;font-size:14px;transition:all .2s}
@@ -648,6 +649,13 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       #registerCode{flex:1 !important;min-width:0}
       #sendCodeBtn{white-space:normal !important;font-size:12px !important;padding:8px 12px !important;flex-shrink:0}
     }
+    /* 复制链接按钮 */
+    .copy-link-btn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:none;border-radius:4px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);cursor:pointer;transition:all 0.2s ease;flex-shrink:0}
+    .copy-link-btn svg{width:12px;height:12px}
+    .copy-link-btn:hover{background:rgba(229,9,20,0.2);color:#e50914}
+    .copy-link-btn:active{transform:scale(0.92)}
+    .copy-link-btn.copied{background:rgba(34,197,94,0.2);color:#22c55e}
+    .copy-link-btn.copied svg{stroke-width:2.5}
   </style>
 </head>
 <body>
@@ -2258,7 +2266,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="channel-info">
-              <div class="channel-name">\${escapeHtml(channel.channel_name)}</div>
+              <div class="channel-name">
+                <span class="channel-name-text">\${escapeHtml(channel.channel_name)}</span>
+                <button class="copy-link-btn" onclick="event.stopPropagation();copyPlayLink('\${escapeHtml(channel.channel_hash)}')" title="Copy play link">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                  </svg>
+                </button>
+              </div>
               <div class="channel-group">\${escapeHtml(channel.group_title || '')}</div>
             </div>
           </div>
@@ -3476,6 +3492,42 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
           });
         });
       });
+    }
+
+    // 复制IP直连播放链接
+    async function copyPlayLink(channelHash) {
+      // 找到对应的按钮
+      const btn = event.currentTarget;
+      const originalHTML = btn.innerHTML;
+      
+      try {
+        // 调用API获取播放链接
+        const response = await fetch('/api/play/link?hash=' + encodeURIComponent(channelHash));
+        const data = await response.json();
+
+        if (data.success && data.play_link) {
+          // 复制到剪贴板
+          await navigator.clipboard.writeText(data.play_link);
+          
+          // 视觉反馈：变成绿色勾
+          btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+          btn.classList.add('copied');
+          showToast('Link copied!', 'success');
+          
+          // 1.5秒后恢复
+          setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.classList.remove('copied');
+          }, 1500);
+        } else {
+          showToast(data.error || 'Failed to get play link', 'error');
+        }
+      } catch (error) {
+        console.error('Copy play link error:', error);
+        showToast('Failed to copy play link', 'error');
+        // 失败时也恢复
+        btn.innerHTML = originalHTML;
+      }
     }
 
     // 收藏功能

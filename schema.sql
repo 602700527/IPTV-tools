@@ -269,3 +269,20 @@ CREATE TABLE IF NOT EXISTS ad_bindings (
 CREATE INDEX IF NOT EXISTS idx_ad_bindings_action ON ad_bindings(action_type);
 CREATE INDEX IF NOT EXISTS idx_ad_bindings_priority ON ad_bindings(priority DESC);
 CREATE INDEX IF NOT EXISTS idx_ad_bindings_ad_id ON ad_bindings(ad_id);
+
+-- IP直连播放链接表（无需卡密，IP绑定限制最多3个IP）
+CREATE TABLE IF NOT EXISTS ip_play_links (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  link_id TEXT NOT NULL UNIQUE,
+  creator_ip TEXT NOT NULL,
+  channel_hash TEXT NOT NULL,
+  used_ips TEXT DEFAULT '[]',
+  used_count INTEGER DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_used_at DATETIME
+);
+
+-- IP直连播放链接索引
+CREATE INDEX IF NOT EXISTS idx_ip_play_links_link_id ON ip_play_links(link_id);
+CREATE INDEX IF NOT EXISTS idx_ip_play_links_creator_ip ON ip_play_links(creator_ip);
+CREATE INDEX IF NOT EXISTS idx_ip_play_links_channel_hash ON ip_play_links(channel_hash);
