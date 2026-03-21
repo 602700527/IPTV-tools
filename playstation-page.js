@@ -1644,9 +1644,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
       // 获取IP直连播放配置
       try {
-        const configRes = await fetch('/admin/system-config', {
-          headers: { 'X-Admin-Key': adminKey }
-        });
+        const configRes = await fetch('/api/config');
         const configData = await configRes.json();
         if (configData.success && configData.config) {
           enableIpPlay = configData.config.enable_ip_play !== false;

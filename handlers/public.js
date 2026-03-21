@@ -1119,7 +1119,8 @@ export async function handlePublicConfig(request, env, ctx) {
       enable_url_encryption: systemConfig.enable_url_encryption,
       url_encryption_key: systemConfig.url_encryption_key || '',
       enable_anti_debug: systemConfig.enable_anti_debug,
-      disable_console_logs: systemConfig.disable_console_logs
+      disable_console_logs: systemConfig.disable_console_logs,
+      enable_ip_play: systemConfig.enable_ip_play
     };
 
     // 构建响应体
