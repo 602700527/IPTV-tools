@@ -1,7 +1,7 @@
 // IP直连播放链接处理器
 // 无需卡密，IP绑定限制最多3个IP使用
 import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
-import { createIPPlayLink, verifyAndUseIPPlayLink, getIPPlayLink } from '../database.js';
+import { createIPPlayLink, verifyAndUseIPPlayLink, getIPPlayLink, getBoundAdByAction } from '../database.js';
 import { getChannelByHash } from '../utils/channel-cache.js';
 
 /**
@@ -115,8 +115,21 @@ export async function handleIPPlayRequest(request, env, ctx) {
   const result = await verifyAndUseIPPlayLink(linkId, channelHash, clientIP);
 
   if (!result.success) {
-    // 特殊处理：已达最大IP数
+    // 特殊处理：已达最大IP数 - 检查广告绑定 copy_link_ip_limit
     if (result.error.includes('Maximum IP limit')) {
+      const adBinding = await getBoundAdByAction('copy_link_ip_limit', clientIP);
+      if (adBinding) {
+        const adTsUrl = `${url.origin}/api/ads/${adBinding.id}.ts`;
+        console.log(`[IPPlay] IP limit reached, serving ad for copy_link_ip_limit, redirecting to: ${adTsUrl}`);
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': adTsUrl,
+            'Cache-Control': 'no-store, no-cache, must-revalidate'
+          }
+        });
+      }
+      // 如果没有配置广告，返回原来的错误响应
       return new Response(JSON.stringify({
         success: false,
         error: 'This link has reached its maximum usage limit (3 IPs).',
@@ -160,6 +173,20 @@ export async function handleIPPlayRequest(request, env, ctx) {
 
   // 获取频道信息（用于headers）
   const channel = await getChannelByHash(env, channelHash);
+
+  // 检查广告绑定 - copy_link_normal
+  const adBinding = await getBoundAdByAction('copy_link_normal', clientIP);
+  if (adBinding) {
+    const adTsUrl = `${url.origin}/api/ads/${adBinding.id}.ts`;
+    console.log(`[IPPlay] Serving ad for copy_link_normal, redirecting to: ${adTsUrl}`);
+    return new Response(null, {
+      status: 302,
+      headers: {
+        'Location': adTsUrl,
+        'Cache-Control': 'no-store, no-cache, must-revalidate'
+      }
+    });
+  }
 
   // 302重定向到真实播放地址
   const headers = new Headers({

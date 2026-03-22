@@ -3445,6 +3445,18 @@ async function handleIPPlayRequest(request, env, ctx) {
   const result = await verifyAndUseIPPlayLink(linkId, channelHash, clientIP);
   if (!result.success) {
     if (result.error.includes("Maximum IP limit")) {
+      const adBinding2 = await getBoundAdByAction("copy_link_ip_limit", clientIP);
+      if (adBinding2) {
+        const adTsUrl = `${url.origin}/api/ads/${adBinding2.id}.ts`;
+        console.log(`[IPPlay] IP limit reached, serving ad for copy_link_ip_limit, redirecting to: ${adTsUrl}`);
+        return new Response(null, {
+          status: 302,
+          headers: {
+            "Location": adTsUrl,
+            "Cache-Control": "no-store, no-cache, must-revalidate"
+          }
+        });
+      }
       return new Response(JSON.stringify({
         success: false,
         error: "This link has reached its maximum usage limit (3 IPs).",
@@ -3481,6 +3493,18 @@ async function handleIPPlayRequest(request, env, ctx) {
     });
   }
   const channel = await getChannelByHash(env, channelHash);
+  const adBinding = await getBoundAdByAction("copy_link_normal", clientIP);
+  if (adBinding) {
+    const adTsUrl = `${url.origin}/api/ads/${adBinding.id}.ts`;
+    console.log(`[IPPlay] Serving ad for copy_link_normal, redirecting to: ${adTsUrl}`);
+    return new Response(null, {
+      status: 302,
+      headers: {
+        "Location": adTsUrl,
+        "Cache-Control": "no-store, no-cache, must-revalidate"
+      }
+    });
+  }
   const headers = new Headers({
     "Location": result.play_url,
     "Cache-Control": "public, max-age=300, s-maxage=300"
@@ -9994,6 +10018,8 @@ var ADMIN_HTML = `<!DOCTYPE html>
               <li><strong>\u5361\u5BC6IP\u672A\u6388\u6743</strong>\uFF1A\u7528\u6237IP\u4E0D\u5728\u5361\u5BC6\u5141\u8BB8\u8303\u56F4\u5185\u65F6\u89E6\u53D1</li>
               <li><strong>\u514D\u8D39\u8BA2\u9605\u6B63\u5E38\u64AD\u653E</strong>\uFF1A\u514D\u8D39\u8BA2\u9605\u7528\u6237\u6B63\u5E38\u64AD\u653E\u65F6\u89E6\u53D1</li>
               <li><strong>\u514D\u8D39\u8BA2\u9605\u8FC7\u671F\u64AD\u653E</strong>\uFF1A\u514D\u8D39\u8BA2\u9605\u5DF2\u8FC7\u671F\uFF0C\u5C1D\u8BD5\u64AD\u653E\u65F6\u89E6\u53D1</li>
+              <li><strong>\u590D\u5236\u94FE\u63A5\u6B63\u5E38\u64AD\u653E</strong>\uFF1A\u7528\u6237\u590D\u5236\u76F4\u8FDE\u64AD\u653E\u94FE\u63A5\u540E\u6B63\u5E38\u64AD\u653E\u65F6\u89E6\u53D1</li>
+              <li><strong>\u590D\u5236\u94FE\u63A5\u8D85\u51FAIP\u64AD\u653E</strong>\uFF1A\u590D\u5236\u94FE\u63A5\u8FBE\u5230IP\u6570\u91CF\u4E0A\u9650\u65F6\u89E6\u53D1</li>
             </ul>
             <strong style="color:#e65100;">\u51B7\u5374\u65F6\u95F4\uFF1A</strong>
             <p style="margin:8px 0;color:#666;">\u8BBE\u7F6E\u51B7\u5374\u65F6\u95F4\u540E\uFF0C\u540C\u4E00IP\u5728\u6307\u5B9A\u65F6\u95F4\u5185\u4E0D\u4F1A\u91CD\u590D\u770B\u5230\u540C\u4E00\u7C7B\u578B\u7684\u5E7F\u544A\u3002\u8BBE\u7F6E\u4E3A0\u8868\u793A\u4E0D\u9650\u5236\u3002</p>
@@ -13589,7 +13615,9 @@ var ADMIN_HTML = `<!DOCTYPE html>
         { value: 'freesub_normal', label: '\u514D\u8D39\u8BA2\u9605\u6B63\u5E38\u64AD\u653E' },
         { value: 'freesub_expired', label: '\u514D\u8D39\u8BA2\u9605\u8FC7\u671F\u64AD\u653E' },
         { value: 'freesub_unauth', label: '\u514D\u8D39\u8BA2\u9605IP\u672A\u6388\u6743' },
-        { value: 'freesub_channel_not_found', label: '\u9891\u9053\u4E0D\u5B58\u5728\u514D\u8D39\u64AD\u653E' }
+        { value: 'freesub_channel_not_found', label: '\u9891\u9053\u4E0D\u5B58\u5728\u514D\u8D39\u64AD\u653E' },
+        { value: 'copy_link_normal', label: '\u590D\u5236\u94FE\u63A5\u6B63\u5E38\u64AD\u653E' },
+        { value: 'copy_link_ip_limit', label: '\u590D\u5236\u94FE\u63A5\u8D85\u51FAIP\u64AD\u653E' }
       ];
 
       let adOptions = '<option value="">\u4E0D\u64AD\u653E\u5E7F\u544A</option>';

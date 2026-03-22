@@ -633,6 +633,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               <li><strong>卡密IP未授权</strong>：用户IP不在卡密允许范围内时触发</li>
               <li><strong>免费订阅正常播放</strong>：免费订阅用户正常播放时触发</li>
               <li><strong>免费订阅过期播放</strong>：免费订阅已过期，尝试播放时触发</li>
+              <li><strong>复制链接正常播放</strong>：用户复制直连播放链接后正常播放时触发</li>
+              <li><strong>复制链接超出IP播放</strong>：复制链接达到IP数量上限时触发</li>
             </ul>
             <strong style="color:#e65100;">冷却时间：</strong>
             <p style="margin:8px 0;color:#666;">设置冷却时间后，同一IP在指定时间内不会重复看到同一类型的广告。设置为0表示不限制。</p>
@@ -4227,7 +4229,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         { value: 'freesub_normal', label: '免费订阅正常播放' },
         { value: 'freesub_expired', label: '免费订阅过期播放' },
         { value: 'freesub_unauth', label: '免费订阅IP未授权' },
-        { value: 'freesub_channel_not_found', label: '频道不存在免费播放' }
+        { value: 'freesub_channel_not_found', label: '频道不存在免费播放' },
+        { value: 'copy_link_normal', label: '复制链接正常播放' },
+        { value: 'copy_link_ip_limit', label: '复制链接超出IP播放' }
       ];
 
       let adOptions = '<option value="">不播放广告</option>';
