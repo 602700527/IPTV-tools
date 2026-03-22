@@ -19522,7 +19522,10 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       btn.disabled = true;
 
       try {
-        const m3uLines = ['#EXTM3U url-tvg="https://epg.112114.xyz/pp.xml"'];
+        // M3U\u6807\u51C6\u683C\u5F0F\uFF1A#EXTM3U\u5934\u90E8\u540E\u76F4\u63A5\u8DDF\u9891\u9053\u6761\u76EE
+        // \u6CE8\u610F\uFF1Aurl-tvg\u4E0D\u662F\u6807\u51C6\u5C5E\u6027\uFF0C\u6807\u51C6\u4E2D\u53EA\u6709tvg-id, tvg-logo, group-title\u7B49
+        const m3uLines = ['#EXTM3U'];
+        var channelCount = 0;
 
         // \u9010\u4E2A\u83B7\u53D6\u64AD\u653E\u94FE\u63A5
         for (const fav of favorites) {
@@ -19539,7 +19542,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
                 logo = channelInfo.logo;
               }
 
-              // \u6784\u5EFAEXTINF\u884C
+              // \u6784\u5EFAEXTINF\u884C - M3U\u6807\u51C6\u683C\u5F0F\uFF1A#EXTINF:-1 tvg-logo="..." group-title="...",\u9891\u9053\u540D
               var extInf = '#EXTINF:-1';
               if (logo) {
                 extInf += ' tvg-logo="' + escapeHtml(logo) + '" group-title="' + escapeHtml(fav.group) + '",' + escapeHtml(fav.name);
@@ -19549,6 +19552,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
               m3uLines.push(extInf);
               m3uLines.push(data.play_link);
+              channelCount++;
             }
           } catch (e) {
             console.error('Failed to get link for', fav.name, e);
@@ -19557,7 +19561,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         }
 
         // \u5982\u679C\u6CA1\u6709\u83B7\u53D6\u5230\u4EFB\u4F55\u94FE\u63A5
-        if (m3uLines.length <= 1) {
+        if (channelCount === 0) {
           showToast('Failed to get play links', 'error');
           btn.innerHTML = originalContent;
           btn.disabled = false;
@@ -19578,7 +19582,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        showToast('Downloaded ' + (m3uLines.length - 1) + ' channels', 'success');
+        showToast('Downloaded ' + channelCount + ' channels', 'success');
       } catch (error) {
         console.error('Download favorites error:', error);
         showToast('Failed to download favorites', 'error');

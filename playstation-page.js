@@ -3621,7 +3621,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       btn.disabled = true;
 
       try {
-        const m3uLines = ['#EXTM3U url-tvg="https://epg.112114.xyz/pp.xml"'];
+        // M3U标准格式：#EXTM3U头部后直接跟频道条目
+        // 注意：url-tvg不是标准属性，标准中只有tvg-id, tvg-logo, group-title等
+        const m3uLines = ['#EXTM3U'];
+        var channelCount = 0;
 
         // 逐个获取播放链接
         for (const fav of favorites) {
@@ -3638,7 +3641,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
                 logo = channelInfo.logo;
               }
 
-              // 构建EXTINF行
+              // 构建EXTINF行 - M3U标准格式：#EXTINF:-1 tvg-logo="..." group-title="...",频道名
               var extInf = '#EXTINF:-1';
               if (logo) {
                 extInf += ' tvg-logo="' + escapeHtml(logo) + '" group-title="' + escapeHtml(fav.group) + '",' + escapeHtml(fav.name);
@@ -3648,6 +3651,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
               m3uLines.push(extInf);
               m3uLines.push(data.play_link);
+              channelCount++;
             }
           } catch (e) {
             console.error('Failed to get link for', fav.name, e);
@@ -3656,7 +3660,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         }
 
         // 如果没有获取到任何链接
-        if (m3uLines.length <= 1) {
+        if (channelCount === 0) {
           showToast('Failed to get play links', 'error');
           btn.innerHTML = originalContent;
           btn.disabled = false;
@@ -3677,7 +3681,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        showToast('Downloaded ' + (m3uLines.length - 1) + ' channels', 'success');
+        showToast('Downloaded ' + channelCount + ' channels', 'success');
       } catch (error) {
         console.error('Download favorites error:', error);
         showToast('Failed to download favorites', 'error');
