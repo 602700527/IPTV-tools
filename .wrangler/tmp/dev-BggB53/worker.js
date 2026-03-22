@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-Ehbdbw/checked-fetch.js
+// .wrangler/tmp/bundle-rnDiPf/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-Ehbdbw/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-rnDiPf/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -2239,11 +2239,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-Ehbdbw/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-rnDiPf/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-Ehbdbw/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-rnDiPf/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -16308,6 +16308,14 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     .close-modal{background:rgba(231,9,20,.2)}
     .close-modal:hover{background:rgba(231,9,20,.4)}
 
+    /* \u6536\u85CF\u4E0B\u8F7D\u6309\u94AE - \u53F3\u4E0B\u89D2\u60AC\u6D6E */
+    .favorites-download-btn{display:none;position:fixed;right:20px;bottom:310px;z-index:1000;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 4px 20px rgba(229,9,20,.4)}
+    .favorites-download-btn:hover{transform:scale(1.1);box-shadow:0 6px 25px rgba(229,9,20,.5)}
+    .favorites-download-btn:active{transform:scale(0.95)}
+    .favorites-download-btn.visible{display:flex}
+    .favorites-download-btn svg{width:22px;height:22px}
+    .favorites-download-btn .download-spinner{width:22px;height:22px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+
     .loading{display:flex;align-items:center;justify-content:center;padding:60px;color:rgba(255,255,255,.5)}
     .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#e50914;border-radius:50%;animation:spin 1s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -16725,7 +16733,16 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       </video>
     </div>
   </div>
-  
+
+  <!-- \u6536\u85CF\u4E0B\u8F7D\u6309\u94AE - \u53F3\u4E0B\u89D2\u60AC\u6D6E -->
+  <button class="favorites-download-btn" id="favoritesDownloadBtn" onclick="downloadFavoritesM3U()" title="Download favorites as M3U">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+      <polyline points="7 10 12 15 17 10"></polyline>
+      <line x1="12" y1="15" x2="12" y2="3"></line>
+    </svg>
+  </button>
+   
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"><\/script>
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
   <script>
@@ -18212,6 +18229,10 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     }
     
     function filterByGroup(group) {
+      // \u9690\u85CF\u6536\u85CF\u4E0B\u8F7D\u6309\u94AE\uFF08\u53EA\u6709\u6536\u85CF\u9875\u9762\u624D\u663E\u793A\uFF09
+      const downloadBtn = document.getElementById('favoritesDownloadBtn');
+      downloadBtn.classList.remove('visible');
+
       // \u79FB\u52A8\u7AEF\uFF1A\u5173\u95ED\u83DC\u5355
       const mobileMenu = document.getElementById('mobileMenu');
       const overlay = document.getElementById('mobileMenuOverlay');
@@ -19336,6 +19357,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     function showRandomInMain() {
       // \u663E\u793A\u52A0\u8F7D\u63D0\u793A
       showLoadingIndicator(t('loadingRecommendations'));
+      // \u9690\u85CF\u6536\u85CF\u4E0B\u8F7D\u6309\u94AE
+      document.getElementById('favoritesDownloadBtn').classList.remove('visible');
 
       // \u91CD\u65B0\u751F\u6210\u968F\u673A\u63A8\u8350
       initFeaturedChannels().then(() => {
@@ -19439,12 +19462,123 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         } else {
           showToast(data.error || 'Failed to get play link', 'error');
         }
-      } catch (error) {
+        } catch (error) {
         console.error('Copy play link error:', error);
         showToast('Failed to copy play link', 'error');
         // \u5931\u8D25\u65F6\u4E5F\u6062\u590D
         btn.innerHTML = originalHTML;
       }
+    }
+
+    // \u4E0B\u8F7D\u6536\u85CF\u9891\u9053M3U
+    async function downloadFavoritesM3U() {
+      const btn = document.getElementById('favoritesDownloadBtn');
+      const originalContent = btn.innerHTML;
+
+      // \u68C0\u67E5\u662F\u5426\u6709\u6536\u85CF
+      if (!favorites || favorites.length === 0) {
+        showToast('No favorites to download', 'error');
+        return;
+      }
+
+      // \u663E\u793A\u52A0\u8F7D\u72B6\u6001
+      btn.innerHTML = '<div class="download-spinner"></div>';
+      btn.disabled = true;
+
+      try {
+        const m3uLines = ['#EXTM3U'];
+
+        // \u9010\u4E2A\u83B7\u53D6\u64AD\u653E\u94FE\u63A5
+        for (const fav of favorites) {
+          try {
+            // \u83B7\u53D6\u64AD\u653E\u94FE\u63A5
+            const response = await fetch('/api/play/link?hash=' + encodeURIComponent(fav.hash));
+            const data = await response.json();
+
+            if (data.success && data.play_link) {
+              // \u83B7\u53D6\u9891\u9053logo
+              let logo = '';
+              const channelInfo = getChannelInfoByHash(fav.hash);
+              if (channelInfo && channelInfo.logo) {
+                logo = channelInfo.logo;
+              }
+
+              // \u6784\u5EFAEXTINF\u884C
+              const extInfPrefix = '#EXTINF:-1';
+              const extInfAttrs = logo
+                ? ' tvg-logo="' + escapeHtml(logo) + '" group-title="' + escapeHtml(fav.group) + '",' + escapeHtml(fav.name)
+                : ' group-title="' + escapeHtml(fav.group) + '",' + escapeHtml(fav.name);
+              const extInf = extInfPrefix + extInfAttrs;
+
+              m3uLines.push(extInf);
+              m3uLines.push(data.play_link);
+            }
+          } catch (e) {
+            console.error('Failed to get link for', fav.name, e);
+            // \u8DF3\u8FC7\u5931\u8D25\u7684\u9891\u9053
+          }
+        }
+
+        // \u5982\u679C\u6CA1\u6709\u83B7\u53D6\u5230\u4EFB\u4F55\u94FE\u63A5
+        if (m3uLines.length <= 1) {
+          showToast('Failed to get play links', 'error');
+          btn.innerHTML = originalContent;
+          btn.disabled = false;
+          return;
+        }
+
+        // \u521B\u5EFAM3U\u5185\u5BB9
+        const m3uContent = m3uLines.join('
+');
+        const blob = new Blob([m3uContent], { type: 'audio/x-mpegurl' });
+        const url = URL.createObjectURL(blob);
+
+        // \u521B\u5EFA\u4E0B\u8F7D\u94FE\u63A5
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'favorites_' + new Date().toISOString().slice(0, 10) + '.m3u';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast('Downloaded ' + (m3uLines.length - 1) + ' channels', 'success');
+      } catch (error) {
+        console.error('Download favorites error:', error);
+        showToast('Failed to download favorites', 'error');
+      } finally {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+      }
+    }
+
+    // \u6839\u636Ehash\u83B7\u53D6\u9891\u9053\u5B8C\u6574\u4FE1\u606F\uFF08\u542Blogo\uFF09
+    function getChannelInfoByHash(hash) {
+      // \u4F18\u5148\u4ECE\u5F53\u524D\u52A0\u8F7D\u7684\u9891\u9053\u5217\u8868\u4E2D\u67E5\u627E
+      let channel = allChannels.find(c => c.channel_hash === hash);
+
+      // \u5982\u679C\u5F53\u524D\u5217\u8868\u4E2D\u6CA1\u6709\uFF0C\u5C1D\u8BD5\u4ECE\u7F13\u5B58\u6570\u636E\u4E2D\u67E5\u627E
+      if (!channel) {
+        const keys = Object.keys(localStorage);
+        for (const key of keys) {
+          if (key.startsWith(CACHE_PREFIX + 'channels_')) {
+            try {
+              const cached = JSON.parse(localStorage.getItem(key));
+              if (cached && cached.value && cached.value.channels) {
+                const found = cached.value.channels.find(c => c.channel_hash === hash);
+                if (found) {
+                  channel = found;
+                  break;
+                }
+              }
+            } catch (e) {
+              // \u5FFD\u7565\u89E3\u6790\u9519\u8BEF
+            }
+          }
+        }
+      }
+
+      return channel;
     }
 
     // \u6536\u85CF\u529F\u80FD
@@ -19476,6 +19610,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     function renderFavorites() {
       const container = document.getElementById('channelsGrid');
       const emptyState = document.getElementById('emptyState');
+      const downloadBtn = document.getElementById('favoritesDownloadBtn');
       document.getElementById('pagination').innerHTML = '';
 
       // \u83B7\u53D6\u524D30\u6761\u6536\u85CF
@@ -19484,11 +19619,14 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       if (favoritesItems.length === 0) {
         container.innerHTML = '';
         emptyState.style.display = 'block';
+        downloadBtn.classList.remove('visible');
         document.querySelector('.empty-title').textContent = t('noFavorites');
         document.querySelector('.empty-desc').textContent = t('noFavoritesDesc');
         return;
       }
 
+      // \u663E\u793A\u4E0B\u8F7D\u6309\u94AE
+      downloadBtn.classList.add('visible');
       emptyState.style.display = 'none';
       container.innerHTML = favoritesItems.map(fav => {
         const logo = getLogoByHash(fav.hash);
@@ -19592,6 +19730,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       if (!enableIpPlay) {
         return;
       }
+      // \u9690\u85CF\u6536\u85CF\u4E0B\u8F7D\u6309\u94AE
+      document.getElementById('favoritesDownloadBtn').classList.remove('visible');
       // \u6E05\u9664\u5206\u7EC4\u9009\u62E9
       currentGroup = 'history';
       renderGroups();
@@ -26857,7 +26997,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-Ehbdbw/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-rnDiPf/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -26891,7 +27031,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-Ehbdbw/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-rnDiPf/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

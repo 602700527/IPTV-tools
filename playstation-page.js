@@ -435,6 +435,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .close-modal{background:rgba(231,9,20,.2)}
     .close-modal:hover{background:rgba(231,9,20,.4)}
 
+    /* 收藏下载按钮 - 右下角悬浮 */
+    .favorites-download-btn{display:none;position:fixed;right:20px;bottom:310px;z-index:1000;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 4px 20px rgba(229,9,20,.4)}
+    .favorites-download-btn:hover{transform:scale(1.1);box-shadow:0 6px 25px rgba(229,9,20,.5)}
+    .favorites-download-btn:active{transform:scale(0.95)}
+    .favorites-download-btn.visible{display:flex}
+    .favorites-download-btn svg{width:22px;height:22px}
+    .favorites-download-btn .download-spinner{width:22px;height:22px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+
     .loading{display:flex;align-items:center;justify-content:center;padding:60px;color:rgba(255,255,255,.5)}
     .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#e50914;border-radius:50%;animation:spin 1s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -852,7 +860,16 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       </video>
     </div>
   </div>
-  
+
+  <!-- 收藏下载按钮 - 右下角悬浮 -->
+  <button class="favorites-download-btn" id="favoritesDownloadBtn" onclick="downloadFavoritesM3U()" title="Download favorites as M3U">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+      <polyline points="7 10 12 15 17 10"></polyline>
+      <line x1="12" y1="15" x2="12" y2="3"></line>
+    </svg>
+  </button>
+   
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
   <script>
@@ -2339,6 +2356,10 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     }
     
     function filterByGroup(group) {
+      // 隐藏收藏下载按钮（只有收藏页面才显示）
+      const downloadBtn = document.getElementById('favoritesDownloadBtn');
+      downloadBtn.classList.remove('visible');
+
       // 移动端：关闭菜单
       const mobileMenu = document.getElementById('mobileMenu');
       const overlay = document.getElementById('mobileMenuOverlay');
@@ -3463,6 +3484,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     function showRandomInMain() {
       // 显示加载提示
       showLoadingIndicator(t('loadingRecommendations'));
+      // 隐藏收藏下载按钮
+      document.getElementById('favoritesDownloadBtn').classList.remove('visible');
 
       // 重新生成随机推荐
       initFeaturedChannels().then(() => {
@@ -3517,7 +3540,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
               </div>
               </div>
               <div class="channel-info">
-                <div class="channel-name">\${escapeHtml(channel.channel_name)}</div>
+                <div class="channel-name">
+                  <span class="channel-name-text">\${escapeHtml(channel.channel_name)}</span>
+                  <button class="copy-link-btn" onclick="event.stopPropagation();copyPlayLink('\${escapeHtml(channel.channel_hash)}')" title="Copy play link">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                    </svg>
+                  </button>
+                </div>
                 <div class="channel-group">\${escapeHtml(channel.group_title || '')}</div>
               </div>
             </div>
@@ -3566,12 +3597,123 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         } else {
           showToast(data.error || 'Failed to get play link', 'error');
         }
-      } catch (error) {
+        } catch (error) {
         console.error('Copy play link error:', error);
         showToast('Failed to copy play link', 'error');
         // 失败时也恢复
         btn.innerHTML = originalHTML;
       }
+    }
+
+    // 下载收藏频道M3U
+    async function downloadFavoritesM3U() {
+      const btn = document.getElementById('favoritesDownloadBtn');
+      const originalContent = btn.innerHTML;
+
+      // 检查是否有收藏
+      if (!favorites || favorites.length === 0) {
+        showToast('No favorites to download', 'error');
+        return;
+      }
+
+      // 显示加载状态
+      btn.innerHTML = '<div class="download-spinner"></div>';
+      btn.disabled = true;
+
+      try {
+        const m3uLines = ['#EXTM3U url-tvg="https://epg.112114.xyz/pp.xml"'];
+
+        // 逐个获取播放链接
+        for (const fav of favorites) {
+          try {
+            // 获取播放链接
+            const response = await fetch('/api/play/link?hash=' + encodeURIComponent(fav.hash));
+            const data = await response.json();
+
+            if (data.success && data.play_link) {
+              // 获取频道logo
+              let logo = '';
+              const channelInfo = getChannelInfoByHash(fav.hash);
+              if (channelInfo && channelInfo.logo) {
+                logo = channelInfo.logo;
+              }
+
+              // 构建EXTINF行
+              var extInf = '#EXTINF:-1';
+              if (logo) {
+                extInf += ' tvg-logo="' + escapeHtml(logo) + '" group-title="' + escapeHtml(fav.group) + '",' + escapeHtml(fav.name);
+              } else {
+                extInf += ' group-title="' + escapeHtml(fav.group) + '",' + escapeHtml(fav.name);
+              }
+
+              m3uLines.push(extInf);
+              m3uLines.push(data.play_link);
+            }
+          } catch (e) {
+            console.error('Failed to get link for', fav.name, e);
+            // 跳过失败的频道
+          }
+        }
+
+        // 如果没有获取到任何链接
+        if (m3uLines.length <= 1) {
+          showToast('Failed to get play links', 'error');
+          btn.innerHTML = originalContent;
+          btn.disabled = false;
+          return;
+        }
+
+        // 创建M3U内容
+        var m3uContent = m3uLines.join(String.fromCharCode(10));
+        var blob = new Blob([m3uContent], { type: 'audio/x-mpegurl' });
+        const url = URL.createObjectURL(blob);
+
+        // 创建下载链接
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'favorites_' + new Date().toISOString().slice(0, 10) + '.m3u';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast('Downloaded ' + (m3uLines.length - 1) + ' channels', 'success');
+      } catch (error) {
+        console.error('Download favorites error:', error);
+        showToast('Failed to download favorites', 'error');
+      } finally {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+      }
+    }
+
+    // 根据hash获取频道完整信息（含logo）
+    function getChannelInfoByHash(hash) {
+      // 优先从当前加载的频道列表中查找
+      let channel = allChannels.find(c => c.channel_hash === hash);
+
+      // 如果当前列表中没有，尝试从缓存数据中查找
+      if (!channel) {
+        const keys = Object.keys(localStorage);
+        for (const key of keys) {
+          if (key.startsWith(CACHE_PREFIX + 'channels_')) {
+            try {
+              const cached = JSON.parse(localStorage.getItem(key));
+              if (cached && cached.value && cached.value.channels) {
+                const found = cached.value.channels.find(c => c.channel_hash === hash);
+                if (found) {
+                  channel = found;
+                  break;
+                }
+              }
+            } catch (e) {
+              // 忽略解析错误
+            }
+          }
+        }
+      }
+
+      return channel;
     }
 
     // 收藏功能
@@ -3603,6 +3745,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     function renderFavorites() {
       const container = document.getElementById('channelsGrid');
       const emptyState = document.getElementById('emptyState');
+      const downloadBtn = document.getElementById('favoritesDownloadBtn');
       document.getElementById('pagination').innerHTML = '';
 
       // 获取前30条收藏
@@ -3611,11 +3754,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       if (favoritesItems.length === 0) {
         container.innerHTML = '';
         emptyState.style.display = 'block';
+        downloadBtn.classList.remove('visible');
         document.querySelector('.empty-title').textContent = t('noFavorites');
         document.querySelector('.empty-desc').textContent = t('noFavoritesDesc');
         return;
       }
 
+      // 显示下载按钮
+      downloadBtn.classList.add('visible');
       emptyState.style.display = 'none';
       container.innerHTML = favoritesItems.map(fav => {
         const logo = getLogoByHash(fav.hash);
@@ -3631,7 +3777,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="channel-info">
-              <div class="channel-name">\${escapeHtml(fav.name)}</div>
+              <div class="channel-name">
+                <span class="channel-name-text">\${escapeHtml(fav.name)}</span>
+                <button class="copy-link-btn" onclick="event.stopPropagation();copyPlayLink('\${escapeHtml(fav.hash)}')" title="Copy play link">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                  </svg>
+                </button>
+              </div>
               <div class="channel-group">\${escapeHtml(fav.group)}</div>
             </div>
           </div>
@@ -3719,6 +3873,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       if (!enableIpPlay) {
         return;
       }
+      // 隐藏收藏下载按钮
+      document.getElementById('favoritesDownloadBtn').classList.remove('visible');
       // 清除分组选择
       currentGroup = 'history';
       renderGroups();
