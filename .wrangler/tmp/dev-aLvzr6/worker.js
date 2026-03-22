@@ -8045,18 +8045,6 @@ async function performCheckIn(subscriptionId, ip) {
   const startDate = currentExpiredAt <= now ? now : currentExpiredAt;
   const newExpiredAt = new Date(startDate);
   newExpiredAt.setDate(newExpiredAt.getDate() + rewardDays);
-  const createdAt = new Date(sub.created_at);
-  const maxExpiredAt = new Date(createdAt);
-  maxExpiredAt.setDate(maxExpiredAt.getDate() + 60);
-  if (newExpiredAt > maxExpiredAt) {
-    newExpiredAt.setTime(maxExpiredAt.getTime());
-    return {
-      success: false,
-      reason: "max_validity_reached",
-      maxExpiredAt: maxExpiredAt.toISOString(),
-      message: "Maximum validity of 60 days reached, cannot check-in further"
-    };
-  }
   try {
     await db.batch([
       // 记录签到

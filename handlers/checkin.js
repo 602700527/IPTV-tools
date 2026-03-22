@@ -137,22 +137,6 @@ export async function performCheckIn(subscriptionId, ip) {
   const newExpiredAt = new Date(startDate);
   newExpiredAt.setDate(newExpiredAt.getDate() + rewardDays);
 
-  // 检查并应用60天最大有效期限制
-  const createdAt = new Date(sub.created_at);
-  const maxExpiredAt = new Date(createdAt);
-  maxExpiredAt.setDate(maxExpiredAt.getDate() + 60); // 创建日期+60天
-  
-   if (newExpiredAt > maxExpiredAt) {
-     // 超过60天限制，设置为60天
-     newExpiredAt.setTime(maxExpiredAt.getTime());
-     return {
-       success: false,
-       reason: 'max_validity_reached',
-       maxExpiredAt: maxExpiredAt.toISOString(),
-       message: 'Maximum validity of 60 days reached, cannot check-in further'
-     };
-   }
-
   try {
     // 使用 D1 的事务 API
     await db.batch([
