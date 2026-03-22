@@ -19520,7 +19520,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           // \u89C6\u89C9\u53CD\u9988\uFF1A\u53D8\u6210\u7EFF\u8272\u52FE
           btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
           btn.classList.add('copied');
-          showToast('Link copied!', 'success');
+          showToast('Link copied! You can paste it into VLC or other players.', 'success');
           
           // 1.5\u79D2\u540E\u6062\u590D
           setTimeout(() => {
