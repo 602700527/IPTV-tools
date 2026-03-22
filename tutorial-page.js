@@ -233,7 +233,7 @@ export const TUTORIAL_HTML = `<!DOCTYPE html>
                 <p>填写以下信息：</p>
                 <ul>
                   <li><strong>名称：</strong>输入任意喜欢的名称（如：IPTV Live）</li>
-                  <li><strong>URL：</strong>粘贴你的订阅地址</li>
+                  <li><strong>URL：</strong><a href="/plans" target="_blank" style="color:#e50914;text-decoration:none;">点击获取订阅地址</a></li>
                 </ul>
                 <div class="ui-mockup">
                   <div class="mockup-device">

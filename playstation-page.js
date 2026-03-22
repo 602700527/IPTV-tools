@@ -435,13 +435,16 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     .close-modal{background:rgba(231,9,20,.2)}
     .close-modal:hover{background:rgba(231,9,20,.4)}
 
-    /* 收藏下载按钮 - 右下角悬浮 */
-    .favorites-download-btn{display:none;position:fixed;right:20px;bottom:310px;z-index:1000;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 4px 20px rgba(229,9,20,.4)}
-    .favorites-download-btn:hover{transform:scale(1.1);box-shadow:0 6px 25px rgba(229,9,20,.5)}
-    .favorites-download-btn:active{transform:scale(0.95)}
-    .favorites-download-btn.visible{display:flex}
-    .favorites-download-btn svg{width:22px;height:22px}
-    .favorites-download-btn .download-spinner{width:22px;height:22px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+    /* 悬浮功能栏 - 右下角 */
+    .action-bar{position:fixed;right:20px;bottom:20px;z-index:1000;display:flex;flex-direction:column;gap:8px}
+    .action-bar-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:10px;border:none;cursor:pointer;color:#fff;transition:all .2s;padding:0;background:rgba(255,255,255,.1);box-shadow:0 4px 12px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15)}
+    .action-bar-btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.15);box-shadow:0 6px 20px rgba(0,0,0,.4)}
+    .action-bar-btn:active{transform:translateY(0) scale(0.95)}
+    .action-bar-btn svg{width:20px;height:20px;flex-shrink:0}
+    .action-bar-btn .spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+    .action-bar-btn.download:hover{background:rgba(229,9,20,.2);border-color:rgba(229,9,20,.3)}
+    .action-bar-btn.telegram:hover{background:rgba(34,158,217,.2);border-color:rgba(34,158,217,.3)}
+    .action-bar-btn.top:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2)}
 
     .loading{display:flex;align-items:center;justify-content:center;padding:60px;color:rgba(255,255,255,.5)}
     .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#e50914;border-radius:50%;animation:spin 1s linear infinite}
@@ -861,14 +864,29 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     </div>
   </div>
 
-  <!-- 收藏下载按钮 - 右下角悬浮 -->
-  <button class="favorites-download-btn" id="favoritesDownloadBtn" onclick="downloadFavoritesM3U()" title="Download favorites as M3U">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-      <polyline points="7 10 12 15 17 10"></polyline>
-      <line x1="12" y1="15" x2="12" y2="3"></line>
-    </svg>
-  </button>
+  <!-- 悬浮功能栏 - 右下角 -->
+  <div class="action-bar" id="actionBar">
+    <!-- 下载收藏按钮 -->
+    <button class="action-bar-btn download" id="favoritesDownloadBtn" onclick="downloadFavoritesM3U()" title="Download favorites as M3U">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+    </button>
+    <!-- TG群链接按钮 -->
+    <a class="action-bar-btn telegram" id="telegramBtn" href="https://t.me/+-3ApDTfNb19jNWI1" target="_blank" rel="noopener noreferrer" title="Join Telegram Group">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+      </svg>
+    </a>
+    <!-- 返回顶部按钮 -->
+    <button class="action-bar-btn top" id="backToTopBtn" onclick="scrollToTop()" title="Back to top">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    </button>
+  </div>
    
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
@@ -2357,8 +2375,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     
     function filterByGroup(group) {
       // 隐藏收藏下载按钮（只有收藏页面才显示）
-      const downloadBtn = document.getElementById('favoritesDownloadBtn');
-      downloadBtn.classList.remove('visible');
+
 
       // 移动端：关闭菜单
       const mobileMenu = document.getElementById('mobileMenu');
@@ -3485,7 +3502,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // 显示加载提示
       showLoadingIndicator(t('loadingRecommendations'));
       // 隐藏收藏下载按钮
-      document.getElementById('favoritesDownloadBtn').classList.remove('visible');
 
       // 重新生成随机推荐
       initFeaturedChannels().then(() => {
@@ -3691,6 +3707,14 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       }
     }
 
+    // 返回顶部
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
     // 根据hash获取频道完整信息（含logo）
     function getChannelInfoByHash(hash) {
       // 优先从当前加载的频道列表中查找
@@ -3749,7 +3773,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     function renderFavorites() {
       const container = document.getElementById('channelsGrid');
       const emptyState = document.getElementById('emptyState');
-      const downloadBtn = document.getElementById('favoritesDownloadBtn');
       document.getElementById('pagination').innerHTML = '';
 
       // 获取前30条收藏
@@ -3758,14 +3781,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       if (favoritesItems.length === 0) {
         container.innerHTML = '';
         emptyState.style.display = 'block';
-        downloadBtn.classList.remove('visible');
-        document.querySelector('.empty-title').textContent = t('noFavorites');
+          document.querySelector('.empty-title').textContent = t('noFavorites');
         document.querySelector('.empty-desc').textContent = t('noFavoritesDesc');
         return;
       }
 
       // 显示下载按钮
-      downloadBtn.classList.add('visible');
       emptyState.style.display = 'none';
       container.innerHTML = favoritesItems.map(fav => {
         const logo = getLogoByHash(fav.hash);
@@ -3878,7 +3899,6 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         return;
       }
       // 隐藏收藏下载按钮
-      document.getElementById('favoritesDownloadBtn').classList.remove('visible');
       // 清除分组选择
       currentGroup = 'history';
       renderGroups();

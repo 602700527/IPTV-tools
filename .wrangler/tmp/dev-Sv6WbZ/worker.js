@@ -15191,6 +15191,7 @@ var PAGE_FOOTER = `
         <a href="/robots.txt">Robots</a>
         <a href="/privacy-policy">Privacy Policy</a>
         <a href="/terms">Terms of Service</a>
+        <a href="mailto:support@iptv-search.com">Contact Us</a>
       </div>
       
       <!-- Cloudflare\u6258\u7BA1\u8BF4\u660E\u548C\u5FBD\u7AE0 -->
@@ -16351,13 +16352,16 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     .close-modal{background:rgba(231,9,20,.2)}
     .close-modal:hover{background:rgba(231,9,20,.4)}
 
-    /* \u6536\u85CF\u4E0B\u8F7D\u6309\u94AE - \u53F3\u4E0B\u89D2\u60AC\u6D6E */
-    .favorites-download-btn{display:none;position:fixed;right:20px;bottom:310px;z-index:1000;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 4px 20px rgba(229,9,20,.4)}
-    .favorites-download-btn:hover{transform:scale(1.1);box-shadow:0 6px 25px rgba(229,9,20,.5)}
-    .favorites-download-btn:active{transform:scale(0.95)}
-    .favorites-download-btn.visible{display:flex}
-    .favorites-download-btn svg{width:22px;height:22px}
-    .favorites-download-btn .download-spinner{width:22px;height:22px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+    /* \u60AC\u6D6E\u529F\u80FD\u680F - \u53F3\u4E0B\u89D2 */
+    .action-bar{position:fixed;right:20px;bottom:20px;z-index:1000;display:flex;flex-direction:column;gap:8px}
+    .action-bar-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:10px;border:none;cursor:pointer;color:#fff;transition:all .2s;padding:0;background:rgba(255,255,255,.1);box-shadow:0 4px 12px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15)}
+    .action-bar-btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.15);box-shadow:0 6px 20px rgba(0,0,0,.4)}
+    .action-bar-btn:active{transform:translateY(0) scale(0.95)}
+    .action-bar-btn svg{width:20px;height:20px;flex-shrink:0}
+    .action-bar-btn .spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+    .action-bar-btn.download:hover{background:rgba(229,9,20,.2);border-color:rgba(229,9,20,.3)}
+    .action-bar-btn.telegram:hover{background:rgba(34,158,217,.2);border-color:rgba(34,158,217,.3)}
+    .action-bar-btn.top:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2)}
 
     .loading{display:flex;align-items:center;justify-content:center;padding:60px;color:rgba(255,255,255,.5)}
     .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#e50914;border-radius:50%;animation:spin 1s linear infinite}
@@ -16777,14 +16781,29 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     </div>
   </div>
 
-  <!-- \u6536\u85CF\u4E0B\u8F7D\u6309\u94AE - \u53F3\u4E0B\u89D2\u60AC\u6D6E -->
-  <button class="favorites-download-btn" id="favoritesDownloadBtn" onclick="downloadFavoritesM3U()" title="Download favorites as M3U">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-      <polyline points="7 10 12 15 17 10"></polyline>
-      <line x1="12" y1="15" x2="12" y2="3"></line>
-    </svg>
-  </button>
+  <!-- \u60AC\u6D6E\u529F\u80FD\u680F - \u53F3\u4E0B\u89D2 -->
+  <div class="action-bar" id="actionBar">
+    <!-- \u4E0B\u8F7D\u6536\u85CF\u6309\u94AE -->
+    <button class="action-bar-btn download" id="favoritesDownloadBtn" onclick="downloadFavoritesM3U()" title="Download favorites as M3U">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+    </button>
+    <!-- TG\u7FA4\u94FE\u63A5\u6309\u94AE -->
+    <a class="action-bar-btn telegram" id="telegramBtn" href="https://t.me/+-3ApDTfNb19jNWI1" target="_blank" rel="noopener noreferrer" title="Join Telegram Group">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+      </svg>
+    </a>
+    <!-- \u8FD4\u56DE\u9876\u90E8\u6309\u94AE -->
+    <button class="action-bar-btn top" id="backToTopBtn" onclick="scrollToTop()" title="Back to top">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    </button>
+  </div>
    
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"><\/script>
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
@@ -18273,8 +18292,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     
     function filterByGroup(group) {
       // \u9690\u85CF\u6536\u85CF\u4E0B\u8F7D\u6309\u94AE\uFF08\u53EA\u6709\u6536\u85CF\u9875\u9762\u624D\u663E\u793A\uFF09
-      const downloadBtn = document.getElementById('favoritesDownloadBtn');
-      downloadBtn.classList.remove('visible');
+
 
       // \u79FB\u52A8\u7AEF\uFF1A\u5173\u95ED\u83DC\u5355
       const mobileMenu = document.getElementById('mobileMenu');
@@ -19401,7 +19419,6 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       // \u663E\u793A\u52A0\u8F7D\u63D0\u793A
       showLoadingIndicator(t('loadingRecommendations'));
       // \u9690\u85CF\u6536\u85CF\u4E0B\u8F7D\u6309\u94AE
-      document.getElementById('favoritesDownloadBtn').classList.remove('visible');
 
       // \u91CD\u65B0\u751F\u6210\u968F\u673A\u63A8\u8350
       initFeaturedChannels().then(() => {
@@ -19607,6 +19624,14 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       }
     }
 
+    // \u8FD4\u56DE\u9876\u90E8
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
     // \u6839\u636Ehash\u83B7\u53D6\u9891\u9053\u5B8C\u6574\u4FE1\u606F\uFF08\u542Blogo\uFF09
     function getChannelInfoByHash(hash) {
       // \u4F18\u5148\u4ECE\u5F53\u524D\u52A0\u8F7D\u7684\u9891\u9053\u5217\u8868\u4E2D\u67E5\u627E
@@ -19665,7 +19690,6 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     function renderFavorites() {
       const container = document.getElementById('channelsGrid');
       const emptyState = document.getElementById('emptyState');
-      const downloadBtn = document.getElementById('favoritesDownloadBtn');
       document.getElementById('pagination').innerHTML = '';
 
       // \u83B7\u53D6\u524D30\u6761\u6536\u85CF
@@ -19674,14 +19698,12 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       if (favoritesItems.length === 0) {
         container.innerHTML = '';
         emptyState.style.display = 'block';
-        downloadBtn.classList.remove('visible');
-        document.querySelector('.empty-title').textContent = t('noFavorites');
+          document.querySelector('.empty-title').textContent = t('noFavorites');
         document.querySelector('.empty-desc').textContent = t('noFavoritesDesc');
         return;
       }
 
       // \u663E\u793A\u4E0B\u8F7D\u6309\u94AE
-      downloadBtn.classList.add('visible');
       emptyState.style.display = 'none';
       container.innerHTML = favoritesItems.map(fav => {
         const logo = getLogoByHash(fav.hash);
@@ -19794,7 +19816,6 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         return;
       }
       // \u9690\u85CF\u6536\u85CF\u4E0B\u8F7D\u6309\u94AE
-      document.getElementById('favoritesDownloadBtn').classList.remove('visible');
       // \u6E05\u9664\u5206\u7EC4\u9009\u62E9
       currentGroup = 'history';
       renderGroups();
@@ -24983,7 +25004,7 @@ var TUTORIAL_HTML = `<!DOCTYPE html>
                 <p>\u586B\u5199\u4EE5\u4E0B\u4FE1\u606F\uFF1A</p>
                 <ul>
                   <li><strong>\u540D\u79F0\uFF1A</strong>\u8F93\u5165\u4EFB\u610F\u559C\u6B22\u7684\u540D\u79F0\uFF08\u5982\uFF1AIPTV Live\uFF09</li>
-                  <li><strong>URL\uFF1A</strong>\u7C98\u8D34\u4F60\u7684\u8BA2\u9605\u5730\u5740</li>
+                  <li><strong>URL\uFF1A</strong><a href="/plans" target="_blank" style="color:#e50914;text-decoration:none;">\u70B9\u51FB\u83B7\u53D6\u8BA2\u9605\u5730\u5740</a></li>
                 </ul>
                 <div class="ui-mockup">
                   <div class="mockup-device">

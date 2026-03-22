@@ -11,6 +11,7 @@ export const PAGE_FOOTER = `
         <a href="/robots.txt">Robots</a>
         <a href="/privacy-policy">Privacy Policy</a>
         <a href="/terms">Terms of Service</a>
+        <a href="mailto:support@iptv-search.com">Contact Us</a>
       </div>
       
       <!-- Cloudflare托管说明和徽章 -->
