@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-kMu7CD/checked-fetch.js
+// .wrangler/tmp/bundle-8wV6dw/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-kMu7CD/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-8wV6dw/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -2239,11 +2239,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-kMu7CD/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-8wV6dw/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-kMu7CD/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-8wV6dw/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -15326,6 +15326,33 @@ var PAGE_FOOTER = `
       }
     }
   </style>
+  <!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && !window.translate) {
+        window.translate = translate;
+      }
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.language.setLocal('chinese_simplified');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+    initTranslate();
+
+    function changeLanguage(lang) {
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        t.changeLanguage(lang);
+      }
+    }
+  <\/script>
+
   <!-- 100%\u586B\u5145 -->
   <!--<script src="https://quge5.com/88/tag.min.js" data-zone="211982" async data-cfasync="false"><\/script>-->
   <script>(function(s){s.dataset.zone='10621619',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))<\/script>
@@ -25378,33 +25405,6 @@ var TUTORIAL_HTML = `<!DOCTYPE html>
       event.target.classList.add('active');
     }
   <\/script>
-
-  <!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
-  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
-  <script>
-    function initTranslate() {
-      if (typeof translate !== 'undefined' && !window.translate) {
-        window.translate = translate;
-      }
-      if (typeof translate !== 'undefined' && translate.language) {
-        translate.language.setLocal('chinese_simplified');
-        translate.service.use('client.edge');
-        translate.listener.start();
-        translate.setAutoDiscriminateLocalLanguage();
-        translate.execute();
-      } else {
-        setTimeout(initTranslate, 100);
-      }
-    }
-    initTranslate();
-
-    function changeLanguage(lang) {
-      var t = window.translate || translate;
-      if (t && t.changeLanguage) {
-        t.changeLanguage(lang);
-      }
-    }
-  <\/script>
 </body>
 </html>`;
 
@@ -27033,7 +27033,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-kMu7CD/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-8wV6dw/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -27067,7 +27067,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-kMu7CD/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-8wV6dw/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
