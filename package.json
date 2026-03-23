@@ -11,8 +11,7 @@
     "db:console": "wrangler d1 execute tv-service-db --command"
   },
   "devDependencies": {
-    "better-sqlite3": "^12.5.0",
-    "wrangler": "^4.60.0"
+    "wrangler": "^3.76.0"
   },
   "dependencies": {
     "itty-router": "^2.6.5",
