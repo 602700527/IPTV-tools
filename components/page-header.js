@@ -94,20 +94,25 @@ export const PAGE_HEADER = `
     }
 
     .nav-item.home-icon {
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       padding: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 8px;
+      border-radius: 10px;
       background: rgba(255, 255, 255, 0.1);
       color: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s;
     }
 
     .nav-item.home-icon:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.15);
       color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
     }
 
     /* Translate.js 语言切换器样式 */
@@ -172,6 +177,23 @@ export const PAGE_HEADER = `
         font-size: 13px;
         padding: 6px 10px;
       }
+
+      .nav-item.home-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .nav-item.home-icon:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+      }
+
+      .nav-item.home-icon svg {
+        width: 16px;
+        height: 16px;
+      }
     }
 
     @media (max-width: 480px) {
@@ -191,6 +213,23 @@ export const PAGE_HEADER = `
       .nav-item {
         font-size: 12px;
         padding: 5px 8px;
+      }
+
+      .nav-item.home-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      }
+
+      .nav-item.home-icon:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+      }
+
+      .nav-item.home-icon svg {
+        width: 15px;
+        height: 15px;
       }
     }
   </style>
