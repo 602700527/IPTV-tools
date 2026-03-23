@@ -6,11 +6,12 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPTV Live - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
 
   <!-- ========== SEO Meta Tags ========== -->
   <!-- 基础Meta标签 -->
-  <meta name="description" content="IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback, multi-device sync.">
-  <meta name="keywords" content="IPTV,free live TV,online TV,sports live streaming,news live streaming,HD streaming,free TV,online video,live streaming platform,IPTV Live">
+  <meta name="description" content="Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment channels. Updated daily.">
+  <meta name="keywords" content="IPTV link search,public IPTV channels,m3u,m3u8,flv,mp3,mp4,ts,udp,rtp,video,player,free IPTV,live TV streaming,TV channel search,IPTV playlist">
   <meta name="author" content="IPTV Live">
   <meta name="robots" content="index, follow">
   <meta name="googlebot" content="index, follow">
@@ -20,8 +21,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com">
-  <meta property="og:title" content="IPTV Live - Free HD Live TV Streaming Platform">
-  <meta property="og:description" content="Access 10,000+ free HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback.">
+  <meta property="og:title" content="IPTV Live - Free IPTV Link Search Engine">
+  <meta property="og:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.">
   <meta property="og:image" content="https://iptv-search.com/og-image.svg">
   <meta property="og:site_name" content="IPTV Live">
   <meta property="og:locale" content="en_US">
@@ -29,8 +30,8 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://iptv-search.com">
-  <meta name="twitter:title" content="IPTV Live - Free HD Live TV Streaming Platform">
-  <meta name="twitter:description" content="Access 10,000+ free HD channels including sports, news, entertainment, movies and more.">
+  <meta name="twitter:title" content="IPTV Live - Free IPTV Link Search Engine">
+  <meta name="twitter:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment.">
 
   <!-- Canonical URL -->
   <link rel="canonical" href="https://iptv-search.com">
@@ -74,7 +75,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     "@type": "WebSite",
     "name": "IPTV Live",
     "url": "https://iptv-search.com",
-    "description": "IPTV Live provides free online TV streaming with 10,000+ HD channels",
+    "description": "Free IPTV link search engine - discover and share public IPTV channels with m3u8 playlists.",
     "potentialAction": {
       "@type": "SearchAction",
       "target": "https://iptv-search.com/?search={search_term_string}",
@@ -112,34 +113,34 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "How do I watch live TV online for free?",
+        "name": "How do I find free IPTV channels?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Watch live TV online for free by selecting a channel from our lineup. IPTV Live offers 10,000+ HD channels including sports, news, movies, and entertainment. No registration required - just click and watch in your browser, or get a subscription for external players like VLC or IPTV apps."
+          "text": "Search for IPTV channels using our search engine. We index and share public IPTV channel links including sports, news, movies, and entertainment. Find m3u8 and m3u playlists that work with VLC, IPTV apps, and other media players."
         }
       },
       {
         "@type": "Question",
-        "name": "What devices can I use to watch live TV?",
+        "name": "What devices can I use with IPTV playlists?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Our streaming player works on all devices: mobile phones (iOS/Android), desktop browsers (Chrome, Firefox, Safari, Edge), smart TVs, and streaming devices. For external players like VLC, you can get an M3U subscription link that works with any IPTV-compatible application."
+          "text": "IPTV playlists work on all devices: mobile phones (iOS/Android), desktop computers, smart TVs, and streaming devices. Use VLC media player, IPTV apps, or any IPTV-compatible application to play the channels."
         }
       },
       {
         "@type": "Question",
-        "name": "What is the streaming quality available?",
+        "name": "What format are the IPTV links?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "We offer HD streaming quality with adaptive bitrate technology. Quality automatically adjusts based on your internet connection speed. Most channels support 720p to 1080p resolution, ensuring smooth playback on any device."
+          "text": "We provide IPTV links in standard m3u8 and m3u formats. These are compatible with all major IPTV players and applications. Links include sports, news, entertainment, movies, and international channels."
         }
       },
       {
         "@type": "Question",
-        "name": "Is registration required to watch live TV?",
+        "name": "Is registration required to use IPTV Live?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No registration is required for browser viewing. Simply select any channel and start watching instantly. For external player support (VLC, IPTV apps, smart TVs), you can purchase a subscription code to get an M3U playlist link."
+          "text": "No registration is required. Search and discover free public IPTV channels instantly. For premium features like M3U subscription links for external players, you can purchase a subscription code."
         }
       },
       {
@@ -147,15 +148,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         "name": "How many channels are available on IPTV Live?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "IPTV Live provides access to 10,000+ live channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
+          "text": "IPTV Live provides access to 10,000+ channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
         }
       },
       {
         "@type": "Question",
-        "name": "Can I watch sports live on IPTV Live?",
+        "name": "Can I find sports channels on IPTV Live?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes, IPTV Live offers extensive sports coverage including football, basketball, tennis, cricket, and more. Watch live sports events from around the world in HD quality without cable subscription."
+          "text": "Yes, IPTV Live offers extensive sports coverage including football, basketball, tennis, cricket, and more. Find live sports channels from around the world in HD quality without cable subscription."
         }
       }
     ]
@@ -176,7 +177,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       "width": 200,
       "height": 60
     },
-    "description": "IPTV Live is a free HD live TV streaming platform providing access to 10,000+ channels including sports, news, entertainment, and movies worldwide.",
+    "description": "IPTV Live is a free IPTV link search engine providing access to 10,000+ public channels including sports, news, entertainment, and movies worldwide.",
     "foundingDate": "2024",
     "sameAs": [
       "https://twitter.com/iptvsearch",
@@ -198,9 +199,9 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": "IPTV Live - Free HD Live TV Streaming Platform",
+    "name": "IPTV Live - Free IPTV Link Search Engine",
     "url": "https://iptv-search.com",
-    "description": "Watch 10,000+ free HD live TV channels online. Sports, news, entertainment, movies - no registration required.",
+    "description": "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.",
     "dateModified": "2026-02-19",
     "author": {
       "@type": "Organization",
@@ -301,7 +302,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
   <meta name="article:modified_time" content="2026-02-19">
   <meta name="last-modified" content="2026-02-19">
 
-  <title>IPTV Live - Free HD Live TV Streaming Platform</title>
+  <title>IPTV Live - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff}
@@ -1061,7 +1062,7 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
     function t(key) {
       // 英文文本作为默认值
       const translations = {
-        'title': 'IPTV Live - Free TV Streaming',
+        'title': 'IPTV Live - Free IPTV Link Search Engine | M3U8 M3U Playlist Search',
         'searchPlaceholder': 'Search channels...',
         'allChannels': 'All Channels',
         'search': 'Search',
@@ -1252,19 +1253,19 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       // 中文和英文的SEO数据
       const seoData = {
         'zh-CN': {
-          title: 'IPTV Live - 免费高清电视在线观看平台',
-          description: 'IPTV Live 提供免费的在线电视直播服务，包含10000+高清频道，支持体育、新闻、娱乐、电影等全类型频道，无需注册，一键播放。',
-          keywords: 'IPTV,免费看电视,电视直播,网络电视,IPTV直播,在线电视,体育赛事直播,新闻直播,高清直播,免费直播',
-          ogTitle: 'IPTV Live - 免费高清电视在线观看平台',
-          ogDescription: 'IPTV Live 提供免费的在线电视直播服务，包含10000+高清频道，支持体育、新闻、娱乐、电影等全类型频道，无需注册，一键播放。',
+          title: 'IPTV Live - 免费IPTV链接搜索引擎 | M3U8 M3U播放列表',
+          description: '免费IPTV链接搜索引擎 - 发现和分享公共IPTV频道。提供m3u8、m3u播放列表，包含体育、新闻、电影、娱乐等频道，每日更新。',
+          keywords: 'IPTV链接搜索,公共IPTV频道,m3u,m3u8,flv,mp3,mp4,ts,udp,rtp,video,player,免费IPTV,电视直播,电视频道搜索,IPTV播放列表',
+          ogTitle: 'IPTV Live - 免费IPTV链接搜索引擎',
+          ogDescription: '免费IPTV链接搜索引擎 - 发现和分享公共IPTV频道。提供m3u8、m3u播放列表，包含体育、新闻、电影、娱乐等频道，每日更新。',
           ogLocale: 'zh_CN'
         },
         'en': {
-          title: 'IPTV Live - Free HD Live TV Streaming Platform',
-          description: 'IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback.',
-          keywords: 'IPTV,free live TV,online TV,sports live streaming,news live streaming,HD streaming,free TV,online video,live streaming platform,IPTV Live',
-          ogTitle: 'IPTV Live - Free HD Live TV Streaming Platform',
-          ogDescription: 'Access 10,000+ free HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback.',
+          title: 'IPTV Live - Free IPTV Link Search Engine | M3U8 M3U Playlist Search',
+          description: 'Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment channels. Updated daily.',
+          keywords: 'IPTV link search,public IPTV channels,m3u,m3u8,flv,mp3,mp4,ts,udp,rtp,video,player,free IPTV,live TV streaming,TV channel search,IPTV playlist',
+          ogTitle: 'IPTV Live - Free IPTV Link Search Engine',
+          ogDescription: 'Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.',
           ogLocale: 'en_US'
         }
       };
@@ -1310,34 +1311,34 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "如何免费在线看电视？",
+            "name": "如何找到免费IPTV频道？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "在IPTV Live上选择任意频道即可免费观看。我们提供10000+高清频道，包括体育、新闻、电影、娱乐等内容。无需注册，直接点击即可观看。如需使用外部播放器（VLC、IPTV应用），可获取订阅链接。"
+              "text": "使用我们的搜索引擎搜索IPTV频道。我们收录并分享公共IPTV频道链接，包括体育、新闻、电影、娱乐等。查找可在VLC、IPTV应用和其他媒体播放器中使用的m3u8和m3u播放列表。"
             }
           },
           {
             "@type": "Question",
-            "name": "我可以在哪些设备上看电视？",
+            "name": "我可以在哪些设备上使用IPTV播放列表？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "我们的播放器支持所有设备：手机（iOS/Android）、桌面浏览器、智能电视和流媒体设备。对于外部播放器（如VLC），您可以获取M3U订阅链接，在任何支持IPTV的应用上使用。"
+              "text": "IPTV播放列表适用于所有设备：手机（iOS/Android）、桌面电脑、智能电视和流媒体设备。使用VLC媒体播放器、IPTV应用或任何支持IPTV的应用程序来播放频道。"
             }
           },
           {
             "@type": "Question",
-            "name": "直播画质如何？",
+            "name": "IPTV链接是什么格式？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "我们提供高清画质，支持自适应码率技术。画质会根据您的网络连接速度自动调整。大多数频道支持720p到1080p分辨率，确保在任何设备上流畅播放。"
+              "text": "我们提供标准m3u8和m3u格式的IPTV链接。这些链接兼容所有主流IPTV播放器和应用程序。链接包含体育、新闻、娱乐、电影和国际频道。"
             }
           },
           {
             "@type": "Question",
-            "name": "观看需要注册吗？",
+            "name": "使用IPTV Live需要注册吗？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "浏览器观看无需注册。选择任意频道立即开始观看。如需外部播放器支持（VLC、IPTV应用、智能电视），可购买订阅码获取M3U播放列表链接。"
+              "text": "无需注册。立即搜索和发现免费公共IPTV频道。对于外部播放器的高级功能（如M3U订阅链接），您可以购买订阅码。"
             }
           },
           {
@@ -1345,15 +1346,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             "name": "有多少个频道？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "IPTV Live提供10000+直播频道，涵盖多个类别：体育、新闻、娱乐、电影、纪录片、少儿节目、音乐以及来自世界各地的国际内容。"
+              "text": "IPTV Live提供10000+频道，涵盖多个类别：体育、新闻、娱乐、电影、纪录片、少儿节目、音乐以及来自世界各地的国际内容。"
             }
           },
           {
             "@type": "Question",
-            "name": "可以在IPTV Live上看体育直播吗？",
+            "name": "可以在IPTV Live上找到体育频道吗？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "可以。IPTV Live提供丰富的体育赛事直播，包括足球、篮球、网球、板球等。无需有线电视订阅，即可在全球观看高清体育赛事直播。"
+              "text": "可以。IPTV Live提供丰富的体育赛事频道，包括足球、篮球、网球、板球等。无需有线电视订阅，即可在全球观看高清体育赛事。"
             }
           }
         ]
@@ -1365,34 +1366,34 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "How do I watch live TV online for free?",
+            "name": "How do I find free IPTV channels?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Watch live TV online for free by selecting a channel from our lineup. IPTV Live offers 10,000+ HD channels including sports, news, movies, and entertainment. No registration required - just click and watch in your browser, or get a subscription for external players like VLC or IPTV apps."
+              "text": "Search for IPTV channels using our search engine. We index and share public IPTV channel links including sports, news, movies, and entertainment. Find m3u8 and m3u playlists that work with VLC, IPTV apps, and other media players."
             }
           },
           {
             "@type": "Question",
-            "name": "What devices can I use to watch live TV?",
+            "name": "What devices can I use with IPTV playlists?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Our streaming player works on all devices: mobile phones (iOS/Android), desktop browsers (Chrome, Firefox, Safari, Edge), smart TVs, and streaming devices. For external players like VLC, you can get an M3U subscription link that works with any IPTV-compatible application."
+              "text": "IPTV playlists work on all devices: mobile phones (iOS/Android), desktop computers, smart TVs, and streaming devices. Use VLC media player, IPTV apps, or any IPTV-compatible application to play the channels."
             }
           },
           {
             "@type": "Question",
-            "name": "What is the streaming quality available?",
+            "name": "What format are the IPTV links?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "We offer HD streaming quality with adaptive bitrate technology. Quality automatically adjusts based on your internet connection speed. Most channels support 720p to 1080p resolution, ensuring smooth playback on any device."
+              "text": "We provide IPTV links in standard m3u8 and m3u formats. These are compatible with all major IPTV players and applications. Links include sports, news, entertainment, movies, and international channels."
             }
           },
           {
             "@type": "Question",
-            "name": "Is registration required to watch live TV?",
+            "name": "Is registration required to use IPTV Live?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "No registration is required for browser viewing. Simply select any channel and start watching instantly. For external player support (VLC, IPTV apps, smart TVs), you can purchase a subscription code to get an M3U playlist link."
+              "text": "No registration is required. Search and discover free public IPTV channels instantly. For premium features like M3U subscription links for external players, you can purchase a subscription code."
             }
           },
           {
@@ -1400,15 +1401,15 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
             "name": "How many channels are available on IPTV Live?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "IPTV Live provides access to 10,000+ live channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
+              "text": "IPTV Live provides access to 10,000+ channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
             }
           },
           {
             "@type": "Question",
-            "name": "Can I watch sports live on IPTV Live?",
+            "name": "Can I find sports channels on IPTV Live?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes, IPTV Live offers extensive sports coverage including football, basketball, tennis, cricket, and more. Watch live sports events from around the world in HD quality without cable subscription."
+              "text": "Yes, IPTV Live offers extensive sports coverage including football, basketball, tennis, cricket, and more. Find live sports channels from around the world in HD quality without cable subscription."
             }
           }
         ]
@@ -1428,11 +1429,11 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       const schema = {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        "name": isZhCN ? "IPTV Live - 免费高清电视在线观看平台" : "IPTV Live - Free HD Live TV Streaming Platform",
+        "name": isZhCN ? "IPTV Live - 免费IPTV链接搜索引擎" : "IPTV Live - Free IPTV Link Search Engine",
         "url": isZhCN ? origin + "/?lang=zh-CN" : origin + "/",
         "description": isZhCN ? 
-          "观看10000+免费高清直播频道在线。体育、新闻、娱乐、电影 - 无需注册。" :
-          "Watch 10,000+ free HD live TV channels online. Sports, news, entertainment, movies - no registration required.",
+          "免费IPTV链接搜索引擎 - 发现和分享公共IPTV频道。提供m3u8、m3u播放列表，包含体育、新闻、电影、娱乐等频道，每日更新。" :
+          "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.",
         "dateModified": "2026-02-19",
         "inLanguage": lang,
         "author": {
@@ -1727,27 +1728,27 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
 
       if (currentGroup) {
         if (isZhCN) {
-          title = currentGroup + ' - IPTV Live 免费电视直播';
-          description = '观看' + currentGroup + '频道直播，IPTV Live提供' + currentGroup + '相关的免费高清直播内容，实时更新，画面清晰，播放流畅。';
+          title = currentGroup + ' - IPTV Live 免费IPTV频道';
+          description = '浏览' + currentGroup + '分类的IPTV频道，IPTV Live提供' + currentGroup + '相关的公共频道链接，每日更新。';
         } else {
-          title = currentGroup + ' - IPTV Live Live TV';
-          description = 'Watch ' + currentGroup + ' channels live on IPTV Live with free HD streaming, real-time updates, clear picture quality and smooth playback.';
+          title = currentGroup + ' - IPTV Live IPTV Channels';
+          description = 'Browse ' + currentGroup + ' category IPTV channels on IPTV Live. Find public channel links updated daily.';
         }
       } else if (currentSearch) {
         if (isZhCN) {
           title = currentSearch + ' - IPTV Live 搜索结果';
-          description = '搜索"' + currentSearch + '"的频道，找到' + totalChannels + '个相关频道，IPTV Live免费高清电视在线观看平台。';
+          description = '搜索"' + currentSearch + '"的频道，找到' + totalChannels + '个相关频道，免费IPTV链接搜索引擎，每日更新。';
         } else {
           title = currentSearch + ' - IPTV Live Search Results';
-          description = 'Search for "' + currentSearch + '" channels, found ' + totalChannels + ' related channels on IPTV Live free HD TV streaming platform.';
+          description = 'Search for "' + currentSearch + '" channels, found ' + totalChannels + ' related channels on IPTV Live free IPTV link search engine.';
         }
       } else if (currentGroup === 'history') {
         if (isZhCN) {
           title = '播放历史 - IPTV Live';
-          description = '查看您的观看历史记录，IPTV Live自动保存最近观看的频道，方便快速访问。';
+          description = '查看您的播放历史记录，IPTV Live自动保存最近播放的频道，方便快速访问。';
         } else {
           title = 'Watch History - IPTV Live';
-          description = 'View your watch history. IPTV Live automatically saves your recently watched channels for quick access.';
+          description = 'View your watch history. IPTV Live automatically saves your recently played channels for quick access.';
         }
       } else if (currentGroup === 'favorites') {
         if (isZhCN) {
@@ -1760,19 +1761,19 @@ export const PLAYSTATION_HTML = `<!DOCTYPE html>
       } else if (currentGroup === 'random') {
         if (isZhCN) {
           title = '随机推荐 - IPTV Live';
-          description = '随机发现精彩频道，IPTV Live智能推荐让您探索更多优质直播内容。';
+          description = '随机发现精彩频道，IPTV Live智能推荐让您探索更多优质IPTV内容。';
         } else {
           title = 'Random Picks - IPTV Live';
-          description = 'Discover amazing channels randomly. IPTV Live smart recommendations help you explore more quality live content.';
+          description = 'Discover amazing channels randomly. IPTV Live smart recommendations help you explore more quality IPTV content.';
         }
       } else {
         // 默认页面
         if (isZhCN) {
-          title = 'IPTV Live - 免费高清电视在线观看平台';
-          description = 'IPTV Live提供免费的在线直播服务，包含2000+高清频道，支持体育、新闻、娱乐、电影等全类型频道，无需注册，一键播放，多设备同步观看。';
+          title = 'IPTV Live - 免费IPTV链接搜索引擎';
+          description = '免费IPTV链接搜索引擎 - 发现和分享公共IPTV频道。提供m3u8、m3u播放列表，包含体育、新闻、电影、娱乐等频道，每日更新。';
         } else {
-          title = 'IPTV Live - Free HD Live TV Streaming Platform';
-          description = 'IPTV Live provides free online TV streaming with 10,000+ HD channels including sports, news, entertainment, movies and more. No registration required, one-click playback, multi-device sync.';
+          title = 'IPTV Live - Free IPTV Link Search Engine';
+          description = 'Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.';
         }
       }
 

@@ -575,7 +575,7 @@ export const FREE_SUB_HTML = `
         <div class="features">
           <div class="feature-item">Initial validity: 30 days</div>
           <div class="feature-item">Check-in available: 0-7 days remaining</div>
-          <div class="feature-item">Each check-in extends 30 days, max 60 days total</div>
+          <div class="feature-item">Each check-in extends 30 days of usage time, can accumulate up to 60 days total</div>
         </div>
       </div>
 

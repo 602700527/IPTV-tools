@@ -126,8 +126,22 @@ export async function performCheckIn(subscriptionId, ip) {
     }
   }
   
-  // 计算奖励天数 - 固定每次签到奖励30天
+  // 计算奖励天数 - 固定每次签到奖励30天，最多累计60天
+  const MAX_TOTAL_DAYS = 60;
   const rewardDays = 30;
+  
+  // 检查是否已达到60天上限
+  const currentTotalDays = sub.total_days || 0;
+  if (currentTotalDays >= MAX_TOTAL_DAYS) {
+    return {
+      success: false,
+      reason: 'max_days_reached',
+      message: 'You have reached the maximum of 60 days. No more check-in rewards available.'
+    };
+  }
+  
+  // 计算实际可奖励的天数（不超过剩余可用天数）
+  const actualRewardDays = Math.min(rewardDays, MAX_TOTAL_DAYS - currentTotalDays);
   
   // 计算新的过期时间
   const currentExpiredAt = new Date(sub.expired_at);
@@ -135,7 +149,7 @@ export async function performCheckIn(subscriptionId, ip) {
   // 如果已过期，从今天开始计算；否则从过期时间开始计算
   const startDate = currentExpiredAt <= now ? now : currentExpiredAt;
   const newExpiredAt = new Date(startDate);
-  newExpiredAt.setDate(newExpiredAt.getDate() + rewardDays);
+  newExpiredAt.setDate(newExpiredAt.getDate() + actualRewardDays);
 
   try {
     // 使用 D1 的事务 API
@@ -145,7 +159,7 @@ export async function performCheckIn(subscriptionId, ip) {
         INSERT INTO checkin_records (
           subscription_id, checkin_date, reward_days, consecutive_days
         ) VALUES (?, ?, ?, ?)
-      `).bind(subscriptionId, today, rewardDays, newConsecutiveDays),
+      `).bind(subscriptionId, today, actualRewardDays, newConsecutiveDays),
 
       // 更新订阅信息
       db.prepare(`
@@ -160,7 +174,7 @@ export async function performCheckIn(subscriptionId, ip) {
         newExpiredAt.toISOString(),
         now.toISOString(),
         newConsecutiveDays,
-        rewardDays,
+        actualRewardDays,
         subscriptionId
       )
     ]);
@@ -172,7 +186,7 @@ export async function performCheckIn(subscriptionId, ip) {
 
     console.log('[CheckIn] Verification after update:', {
       subId: sub.sub_id,
-      rewardDays,
+      actualRewardDays,
       consecutiveDays: newConsecutiveDays,
       isConsecutive,
       newExpiredAt: newExpiredAt.toISOString(),
@@ -193,12 +207,12 @@ export async function performCheckIn(subscriptionId, ip) {
      // 返回结果
      return {
        success: true,
-       rewardDays,
+       rewardDays: actualRewardDays,
        consecutiveDays: newConsecutiveDays,
        isConsecutive,
        expiredAt: newExpiredAt.toISOString(),
-       totalDays: (sub.total_days || 0) + rewardDays,
-       message: `Check-in successful! You gained ${rewardDays} days!`
+       totalDays: (sub.total_days || 0) + actualRewardDays,
+       message: `Check-in successful! You gained ${actualRewardDays} days!`
      };
 
   } catch (error) {
