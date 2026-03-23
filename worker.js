@@ -9,6 +9,7 @@ import { handleUserActivate } from './handlers/user.js';
 import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings } from './handlers/public.js';
 import { handleFreeSubAPI } from './handlers/freesub-api.js';
 import { handleGetPlans } from './handlers/plans-api.js';
+import { handleSEOPage, isSearchEngineBot } from './handlers/seo-handler.js';
 import {
   handleRegister,
   handleSendVerificationCode,
@@ -205,6 +206,10 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
 
     // 路由处理
     if (path === '/' || path === '') {
+      // SEO: 如果是搜索引擎爬虫，返回带数据的静态 HTML
+      if (isSearchEngineBot(request)) {
+        return await handleSEOPage(request, env);
+      }
       // 首页 - 显示交互式播放站，添加安全头防止代理
       // 注入允许的域名配置和解密密钥
       const systemConfig = await getSystemConfig();
