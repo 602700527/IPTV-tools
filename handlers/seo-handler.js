@@ -1,4 +1,4 @@
-// SEO Optimized Handler - Static HTML for Search Engine Bots
+﻿// SEO Optimized Handler - Static HTML for Search Engine Bots
 import { getAllChannels, getAllGroups, getChannelByHash } from '../utils/channel-cache.js';
 
 export function isSearchEngineBot(request) {
@@ -325,6 +325,32 @@ export async function generateChannelPage(request, env, channelHash) {
 </html>`;
 }
 
+const CATEGORY_DESCRIPTIONS = {
+  'Sports': 'Watch live sports channels from around the world. Find NHL, NBA, NFL, MLB, soccer leagues, cricket, tennis, and more. All links are M3U playlist URLs for use with IPTV player apps like VLC or IPTV Smarters.',
+  'News': 'Stay informed with free news channels from major networks worldwide. BBC, CNN, Al Jazeera, Fox News, and international news outlets. Copy the M3U URL and add it to your favorite IPTV player.',
+  'Entertainment': 'Entertainment channels covering reality shows, drama series, and popular TV programs. Browse free IPTV channel playlists and find links for your preferred entertainment content.',
+  'Movies': 'Movie channels and film networks streaming free content. Find HD movie channels, classic film networks, and genre-specific movie feeds. M3U playlist links work with any IPTV application.',
+  'Music': 'Music channels streaming live concerts, music videos, and radio stations. Find pop, rock, classical, and genre-specific music channels. Copy the M3U URL to your player to start listening.',
+  'Kids': 'Safe, family-friendly content for children. Animated shows, educational programs, and kids entertainment channels. Free IPTV playlist URLs compatible with all major IPTV player apps.',
+  'Documentary': 'Documentary and educational channels covering science, history, nature, and more. High-quality documentary content available as M3U playlist links for IPTV players.',
+  'Lifestyle': 'Lifestyle channels covering cooking, travel, home, fashion, and wellness. Browse free IPTV playlists for lifestyle content from around the world.',
+  'Religion': 'Religious and spiritual content including church services, religious teachings, and faith-based programming. Free IPTV channel directory — not a streaming service.',
+  'Regional': 'Regional and local TV channels from specific countries and languages. Find channels from your home region. M3U playlist links for use with VLC, IPTV Smarters, or any IPTV player.',
+  'Business': 'Business news channels, stock market coverage, and financial programming. Bloomberg, CNBC, and business news from major markets. Free channel directory with M3U playlist support.',
+  'Science': 'Science and technology channels featuring documentaries, tech news, and educational content. Space exploration, technology breakthroughs, and science documentaries.',
+  'Gaming': 'Gaming channels, esports coverage, and game-related streaming content. Find gaming networks and esports tournament streams as free IPTV playlist URLs.',
+  'Weather': 'Weather channels and forecast programming from meteorological services. Real-time weather updates and storm tracking. Free IPTV channel directory.',
+  'Shopping': 'Shopping channels featuring product showcases, deals, and home shopping networks. Free playlist access — not a streaming service.',
+};
+
+function getCategoryDescription(groupName) {
+  const key = Object.keys(CATEGORY_DESCRIPTIONS).find(k =>
+    groupName.toLowerCase().includes(k.toLowerCase()) ||
+    k.toLowerCase().includes(groupName.toLowerCase())
+  );
+  return key ? CATEGORY_DESCRIPTIONS[key] : null;
+}
+
 export async function generateCategoryPage(request, env, groupSlug) {
   const url = new URL(request.url);
   const origin = `${url.protocol}//${url.host}`;
@@ -338,14 +364,16 @@ export async function generateCategoryPage(request, env, groupSlug) {
   const allChannels = channelsResult.channels || [];
   const groupChannels = allChannels.filter(ch => ch.group_title === matchedGroup);
 
+  const categoryDescription = getCategoryDescription(matchedGroup) || `Browse ${groupChannels.length} free ${matchedGroup} IPTV channel playlists. This is a free channel directory and search tool. Find M3U playlist URLs and use them with IPTV player apps like VLC or IPTV Smarters.`;
   const pageTitle = `${matchedGroup} IPTV Channels — Free Channel Directory (${groupChannels.length} channels)`;
-  const metaDescription = `Browse ${groupChannels.length} free ${matchedGroup} IPTV channels. This is a free channel directory and search tool, not a streaming service. Find M3U playlist URLs here.`;
+  const metaDescription = categoryDescription;
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     'name': `${matchedGroup} IPTV Channels — Free Directory`,
-    'description': metaDescription,
-    'url': `${origin}/category/${groupSlug}`
+    'description': categoryDescription,
+    'url': `${origin}/category/${groupSlug}`,
+    'numberOfItems': groupChannels.length
   };
 
   const perPage = 100;
@@ -396,8 +424,9 @@ export async function generateCategoryPage(request, env, groupSlug) {
     <div class="notice"><strong>Free channel directory</strong> — This is a search and directory tool, not a streaming service.</div>
     <div class="breadcrumb"><a href="${origin}/">Home</a> &rsaquo; ${escapeHtml(matchedGroup)}</div>
     <div class="page-header">
-      <h1>${escapeHtml(matchedGroup)} Channels</h1>
-      <p>${groupChannels.length} free IPTV channel entries — use with IPTV player apps</p>
+      <h1>${escapeHtml(matchedGroup)} IPTV Channels</h1>
+      <p>${escapeHtml(categoryDescription)}</p>
+      <p style="margin-top:0.5rem;color:rgba(255,255,255,0.5);font-size:0.85rem">${groupChannels.length} channels available · Free M3U playlist directory</p>
     </div>
     <div class="toc-list">
       ${groups.map(g => `<a href="${origin}/category/${slugify(g)}">${escapeHtml(g)}</a>`).join('')}
@@ -467,7 +496,7 @@ export async function generateFullSitemap(request, env) {
     }
   }
 
-  const activeChannels = channels.filter(ch => ch.is_active !== 0).slice(0, 1000);
+  const activeChannels = channels.filter(ch => ch.is_active !== 0);
   for (const ch of activeChannels) {
     xml += `  <url>
     <loc>${origin}/channel/${escapeAttr(ch.channel_hash)}</loc>
