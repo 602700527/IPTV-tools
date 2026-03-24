@@ -50,7 +50,7 @@ import { SUBSCRIPTION_HTML } from './subscription-page.js';
 import { PLANS_HTML } from './plans-page.js';
 import { RESET_PASSWORD_HTML } from './reset-password-page.js';
 import { TUTORIAL_HTML } from './tutorial-page.js';
-import { generateSitemap, generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from './legal-pages.js';
+import { generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from './legal-pages.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 import { LOGO_SVG, FAVICON_SVG, OG_IMAGE_SVG, APPLE_TOUCH_ICON_SVG, ICON_192_SVG, FAVICON_ICO_SVG } from './assets.js';
@@ -241,6 +241,17 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=()' // 限制敏感权限
         }
       });
+    }
+
+    // SEO 路由：/channel/{hash} 和 /category/{slug}（给搜索引擎爬虫）
+    const channelMatch = path.match(/^\/channel\/([a-zA-Z0-9_-]+)$/);
+    const categoryMatch = path.match(/^\/category\/([a-zA-Z0-9-]+)$/);
+    if (channelMatch || categoryMatch) {
+      if (isSearchEngineBot(request)) {
+        return await handleSEOPage(request, env);
+      }
+      // 非爬虫用户访问频道/分类页：返回 404（暂未实现前端页面）
+      return new Response('Not Found', { status: 404 });
     } else if (path === '/api/config') {
       // 公开配置API - 获取前端需要的配置（如加密密钥）
       return await handlePublicConfig(request, env, ctx);
@@ -522,10 +533,8 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       // 管理后台API处理
       return await handleAdminRequest(request, env, ctx);
     } else if (path === '/sitemap.xml') {
-      // 网站地图
-      return new Response(generateSitemap(url.origin), {
-        headers: { 'Content-Type': 'application/xml; charset=utf-8' }
-      });
+      // 网站地图（动态生成，包含所有频道和分类）
+      return await handleSEOPage(request, env);
     } else if (path === '/robots.txt') {
       // Robots.txt
       return new Response(generateRobotsTxt(), {
