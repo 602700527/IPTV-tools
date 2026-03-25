@@ -8343,19 +8343,33 @@ function generateCategorySection(groups, channels, origin) {
       continue;
     const safeGroup = slugify(group);
     html2 += `
+
     <section class="category-section">
+
       <h2 id="${safeGroup}">${escapeHtml(group)} <span class="count">(${groupChannels.length} channels)</span></h2>
+
       <div class="channel-grid">
+
         ${groupChannels.map((ch) => `
+
           <div class="channel-card">
+
             <a href="${origin}/channel/${escapeAttr(ch.channel_hash)}" class="channel-link">
+
               ${ch.logo ? `<img src="${escapeAttr(ch.logo)}" alt="${escapeAttr(ch.channel_name)} logo" loading="lazy" width="48" height="48">` : '<div class="channel-logo-placeholder">\u{1F4FA}</div>'}
+
               <span class="channel-name">${escapeHtml(ch.channel_name)}</span>
+
             </a>
+
           </div>
+
         `).join("")}
+
       </div>
+
       <p><a href="${origin}/category/${safeGroup}">View all ${escapeHtml(group)} channels \u2192</a></p>
+
     </section>`;
   }
   return html2;
@@ -8375,20 +8389,35 @@ function generateHomepageJsonLd(channels, groups, origin) {
   };
 }
 var SHARED_CSS = `<style>
+
   *{margin:0;padding:0;box-sizing:border-box}
+
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0a0a0a;color:#fff;line-height:1.6}
+
   a{color:#e50914;text-decoration:none}
+
   header{background:#141414;border-bottom:1px solid rgba(255,255,255,0.1);padding:1rem 2rem;position:sticky;top:0;z-index:100}
+
   .header-content{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+
   .logo{font-size:1.5rem;font-weight:700;color:#e50914}
+
   .logo span{color:#fff}
+
   nav ul{display:flex;gap:1.5rem;list-style:none}
+
   nav a{color:rgba(255,255,255,0.8);font-size:0.95rem}
+
   nav a:hover{color:#fff}
+
   main{max-width:1200px;margin:0 auto;padding:2rem}
+
   footer{background:#0a0a0a;border-top:1px solid rgba(255,255,255,0.1);padding:2rem;margin-top:3rem;text-align:center;color:rgba(255,255,255,0.5);font-size:0.9rem}
+
   footer a{color:rgba(255,255,255,0.7)}
+
   @media(max-width:768px){header{padding:1rem}main{padding:1rem}}
+
 </style>`;
 var NAV_HTML = (origin) => `<header><div class="header-content"><a href="${origin}/" class="logo">IPTV<span>Search</span></a><nav><ul><li><a href="${origin}/">Home</a></li><li><a href="${origin}/tutorial">Tutorial</a></li><li><a href="${origin}/privacy-policy">Privacy</a></li><li><a href="${origin}/terms">Terms</a></li></ul></nav></div></header>`;
 var FOOTER_HTML = (origin) => `<footer><p>\xA9 ${(/* @__PURE__ */ new Date()).getFullYear()} IPTV Search</p><p style="margin-top:0.5rem"><a href="${origin}/tutorial">How to Watch</a> \xB7 <a href="${origin}/privacy-policy">Privacy Policy</a> \xB7 <a href="${origin}/terms">Terms</a> \xB7 <a href="${origin}/sitemap.xml">Sitemap</a></p></footer>`;
@@ -8404,154 +8433,300 @@ async function generateSEOHomepage(request, env) {
   const jsonLd = generateHomepageJsonLd(channels, groups, origin);
   const categoryHtml = generateCategorySection(groups, channels, origin);
   return `<!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>${escapeHtml(pageTitle)}</title>
+
   <meta name="description" content="${escapeAttr(metaDescription)}">
+
   <meta name="robots" content="index, follow, max-image-preview:large">
+
   <link rel="canonical" href="${origin}/">
+
   <link rel="alternate" hreflang="en" href="${origin}/">
+
   <link rel="alternate" hreflang="x-default" href="${origin}/">
+
   <meta property="og:title" content="${escapeAttr(pageTitle)}">
+
   <meta property="og:description" content="${escapeAttr(metaDescription)}">
+
   <meta property="og:type" content="website">
+  <meta property="og:description" content="Search over ${channels.length} free IPTV channels. Browse live TV by country. Updated daily.">
   <meta property="og:url" content="${origin}/">
+
   <meta property="og:image" content="${origin}/og-homepage.png">
+
   <meta property="og:image:width" content="1200">
+
   <meta property="og:image:height" content="630">
+
   <meta property="og:site_name" content="IPTV Search">
+
   <meta name="twitter:card" content="summary_large_image">
+
   <meta name="twitter:title" content="${escapeAttr(pageTitle)}">
+
   <meta name="twitter:description" content="${escapeAttr(metaDescription)}">
+
   <meta name="twitter:image" content="${origin}/og-homepage.png">
+
   <script type="application/ld+json">${JSON.stringify(jsonLd)}<\/script>
+
   <script type="application/ld+json">
+
   {
+
     "@context": "https://schema.org",
+
     "@type": "FAQPage",
+
     "mainEntity": [
+
       {
+
         "@type": "Question",
+
         "name": "What is IPTV Search?",
+
         "acceptedAnswer": {
+
           "@type": "Answer",
+
           "text": "IPTV Search is a free IPTV channel directory and search tool. We index and organize public IPTV channel playlists so you can easily find sports, news, movies, entertainment, and international TV channels. We do not stream or host any content."
+
         }
+
       },
+
       {
+
         "@type": "Question",
+
         "name": "How do I use IPTV channels?",
+
         "acceptedAnswer": {
+
           "@type": "Answer",
+
           "text": "Find the channel you want, copy its M3U playlist URL, and add it to any IPTV player app such as VLC, IPTV Smarters, or your smart TV. No subscription or registration required."
+
         }
+
       },
+
       {
+
         "@type": "Question",
+
         "name": "How many channels are available?",
+
         "acceptedAnswer": {
+
           "@type": "Answer",
+
           "text": "We index ${channels.length.toLocaleString()}+ live TV channels across ${groups.length} categories including sports, news, movies, entertainment, kids, music, and international content."
+
         }
+
       },
+
       {
+
         "@type": "Question",
+
         "name": "Do I need to register or pay?",
+
         "acceptedAnswer": {
+
           "@type": "Answer",
+
           "text": "No registration and no payment required. Browse channels, find what you want, and use the M3U URL with any compatible player \u2014 completely free."
+
         }
+
       },
+
       {
+
         "@type": "Question",
+
         "name": "What devices work with IPTV playlists?",
+
         "acceptedAnswer": {
+
           "@type": "Answer",
+
           "text": "M3U playlists work on mobile phones (iOS/Android), smart TVs, streaming devices (Fire TV, Roku), and desktop computers using VLC, IPTV apps, Kodi, or any IPTV-compatible player."
+
         }
+
       }
+
     ]
+
   }
+
   <\/script>
+
   <script type="application/ld+json">
+
   {
+
     "@context": "https://schema.org",
+
     "@type": "Organization",
+
     "name": "IPTV Search",
+
     "url": "${origin}",
+
     "description": "Free IPTV channel directory and search tool. Browse ${channels.length.toLocaleString()}+ live TV channels across ${groups.length} categories.",
+
     "logo": { "@type": "ImageObject", "url": "${origin}/logo.svg", "width": 200, "height": 60 }
+
   }
+
   <\/script>
+
   <script type="application/ld+json">
+
   {
+
     "@context": "https://schema.org",
+
     "@type": "BreadcrumbList",
+
     "itemListElement": [{ "@type": "ListItem", "position": 1, "name": "Home", "item": "${origin}/" }]
+
   }
+
   <\/script>
+
   ${SHARED_CSS}
+
   <style>
+
     .hero{background:linear-gradient(135deg,#1a1a2e,#0f0f1a);padding:3rem 2rem;text-align:center;border-bottom:1px solid rgba(255,255,255,0.05)}
+
     .hero h1{font-size:2.5rem;margin-bottom:1rem}
+
     .hero p{font-size:1.2rem;color:rgba(255,255,255,0.7);margin-bottom:2rem}
+
     .stats{display:flex;justify-content:center;gap:3rem;margin-top:2rem;flex-wrap:wrap}
+
     .stat{text-align:center}
+
     .stat-number{font-size:2rem;font-weight:700;color:#e50914}
+
     .stat-label{color:rgba(255,255,255,0.6);font-size:0.9rem}
+
     .search-box{background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:2rem;margin-bottom:3rem}
+
     .search-box h2{margin-bottom:1rem;font-size:1.3rem}
+
     .search-form{display:flex;gap:0.5rem;max-width:600px;margin:0 auto}
+
     .search-form input{flex:1;padding:0.8rem 1rem;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0a0a0a;color:#fff;font-size:1rem}
+
     .search-form button{padding:0.8rem 1.5rem;background:#e50914;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:1rem;font-weight:600}
+
     .category-section{margin-bottom:3rem;padding:1.5rem;background:#141414;border-radius:8px;border:1px solid rgba(255,255,255,0.08)}
+
     .category-section h2{font-size:1.4rem;margin-bottom:1rem;color:#fff;border-bottom:2px solid #e50914;padding-bottom:0.5rem}
+
     .category-section h2 .count{font-size:0.9rem;color:rgba(255,255,255,0.5);font-weight:normal}
+
     .category-section>p{margin-top:1rem;font-size:0.9rem}
+
     .channel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem}
+
     .channel-card{background:#1a1a1a;border-radius:6px;padding:0.75rem;border:1px solid rgba(255,255,255,0.05);transition:border-color 0.2s}
+
     .channel-card:hover{border-color:rgba(229,9,20,0.5)}
+
     .channel-link{display:flex;align-items:center;gap:0.75rem;color:#fff}
+
     .channel-link:hover{text-decoration:none}
+
     .channel-link img{width:36px;height:36px;object-fit:contain;border-radius:4px;flex-shrink:0}
+
     .channel-logo-placeholder{width:36px;height:36px;background:#2a2a2a;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+
     .channel-name{font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
     .toc{background:#1a1a1a;border-radius:8px;padding:1.5rem;margin-bottom:2rem;border:1px solid rgba(255,255,255,0.1)}
+
     .toc h2{font-size:1.2rem;margin-bottom:1rem}
+
     .toc-list{display:flex;flex-wrap:wrap;gap:0.5rem 1rem;list-style:none}
+
     .toc-list a{color:#e50914;font-size:0.9rem}
+
     @media(max-width:768px){.hero h1{font-size:1.8rem}.stats{gap:1.5rem}.channel-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
+
   </style>
+
 </head>
+
 <body>
+
   ${NAV_HTML(origin)}
+
   <div class="hero">
+
     <h1>Free IPTV Channel Search Engine</h1>
+
     <p>Search over ${channels.length.toLocaleString()} live TV channels from ${groups.length} categories worldwide</p>
+
     <div class="stats">
+
       <div class="stat"><div class="stat-number">${channels.length.toLocaleString()}+</div><div class="stat-label">Live TV Channels</div></div>
+
       <div class="stat"><div class="stat-number">${groups.length}</div><div class="stat-label">Categories</div></div>
+
       <div class="stat"><div class="stat-number">Daily</div><div class="stat-label">Updated</div></div>
+
     </div>
+
   </div>
+
   <main>
+
     <div class="search-box">
+
       <h2>Search Channels</h2>
+
       <form class="search-form" action="${origin}/" method="get">
+
         <input type="text" name="search" placeholder="Search channels (e.g. BBC, ESPN, CNN...)" aria-label="Search channels">
+
         <button type="submit">Search</button>
+
       </form>
+
     </div>
+
     ${groups.length > 0 ? `<div class="toc"><h2>Browse by Category</h2><ul class="toc-list">${groups.map((g) => `<li><a href="#${slugify(g)}">${escapeHtml(g)}</a></li>`).join("")}</ul></div>` : ""}
+
     ${categoryHtml || "<p>No channels available.</p>"}
+
   </main>
+
   ${FOOTER_HTML(origin)}
+
 </body>
+
 </html>`;
   return new Response(html, {
-    status: 404,
+    status: 200,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": "public, max-age=3600",
@@ -8588,92 +8763,176 @@ async function generateChannelPage(request, env, channelHash) {
     ]
   };
   return `<!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>${escapeHtml(pageTitle)}</title>
+
   <meta name="description" content="${escapeAttr(metaDescription)}">
+
   <meta name="robots" content="index, follow, max-image-preview:large">
+
   <link rel="canonical" href="${origin}/channel/${channelHash}">
+
   <link rel="alternate" hreflang="en" href="${origin}/channel/${channelHash}">
+
   <link rel="alternate" hreflang="x-default" href="${origin}/channel/${channelHash}">
+
   <meta property="og:title" content="${escapeAttr(pageTitle)}">
+
   <meta property="og:description" content="${escapeAttr(metaDescription)}">
+
   <meta property="og:type" content="website">
+
   <meta property="og:url" content="${origin}/channel/${channelHash}">
+
   ${channel.logo ? `<meta property="og:image" content="${escapeAttr(channel.logo)}">` : `<meta property="og:image" content="${origin}/og-homepage.png">`}
+
   <meta property="og:image:width" content="1200">
+
   <meta property="og:image:height" content="630">
+
   <meta property="og:site_name" content="IPTV Search">
+
   <meta name="twitter:card" content="summary_large_image">
+
   <meta name="twitter:title" content="${escapeAttr(pageTitle)}">
+
   <meta name="twitter:description" content="${escapeAttr(metaDescription)}">
+
   ${channel.logo ? `<meta name="twitter:image" content="${escapeAttr(channel.logo)}">` : `<meta name="twitter:image" content="${origin}/og-homepage.png">`}
+
   <script type="application/ld+json">${JSON.stringify(jsonLd)}<\/script>
+
   <script type="application/ld+json">${JSON.stringify(breadcrumbJsonLd)}<\/script>
+
   ${SHARED_CSS}
+
   <style>
+
     .breadcrumb{padding:1rem 0;font-size:0.9rem;color:rgba(255,255,255,0.5)}
+
     .breadcrumb a{color:#e50914}
+
     .channel-header{display:flex;align-items:center;gap:1.5rem;background:#141414;border-radius:12px;padding:2rem;margin-bottom:2rem;border:1px solid rgba(255,255,255,0.08)}
+
     .channel-logo{width:80px;height:80px;object-fit:contain;border-radius:8px;flex-shrink:0}
+
     .channel-logo-placeholder{width:80px;height:80px;background:#2a2a2a;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;flex-shrink:0}
+
     .channel-info h1{font-size:1.8rem;margin-bottom:0.5rem}
+
     .channel-meta{display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.5rem}
+
     .badge{background:rgba(229,9,20,0.15);color:#e50914;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.85rem}
+
     .play-btn{display:inline-block;background:#e50914;color:#fff;padding:0.75rem 2rem;border-radius:8px;font-weight:600;margin-top:1rem}
+
     .play-btn:hover{background:#f6121d;text-decoration:none}
+
     .section{background:#141414;border-radius:12px;padding:1.5rem;margin-bottom:2rem;border:1px solid rgba(255,255,255,0.08)}
+
     .section h2{font-size:1.2rem;margin-bottom:1rem;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:0.5rem}
+
     .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.75rem}
+
     .related-card{background:#1a1a1a;border-radius:6px;padding:0.75rem;border:1px solid rgba(255,255,255,0.05);transition:border-color 0.2s}
+
     .related-card:hover{border-color:rgba(229,9,20,0.5)}
+
     .related-card a{display:flex;align-items:center;gap:0.75rem;color:#fff}
+
     .related-card img{width:32px;height:32px;object-fit:contain;border-radius:4px;flex-shrink:0}
+
     .related-name{font-size:0.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
     @media(max-width:600px){.channel-header{flex-direction:column;text-align:center}.channel-meta{justify-content:center}}
+
   </style>
+
 </head>
+
 <body>
+
   ${NAV_HTML(origin)}
+
   <main>
+
     <div class="breadcrumb">
+
       <a href="${origin}/">Home</a> &rsaquo;
+
       ${channel.group_title ? `<a href="${origin}/category/${safeGroup}">${escapeHtml(channel.group_title)}</a> &rsaquo;` : ""}
+
       ${escapeHtml(channel.channel_name)}
+
     </div>
+
     <div class="channel-header">
+
       ${channel.logo ? `<img src="${escapeAttr(channel.logo)}" alt="${escapeAttr(channel.channel_name)} logo" class="channel-logo">` : '<div class="channel-logo-placeholder">\u{1F4FA}</div>'}
+
       <div class="channel-info">
+
         <h1>${escapeHtml(channel.channel_name)}</h1>
+
         <div class="channel-meta">
+
           ${channel.group_title ? `<span class="badge">${escapeHtml(channel.group_title)}</span>` : ""}
+
           <span class="badge">Free IPTV</span>
+
           <span class="badge">No Registration</span>
+
         </div>
+
         <a href="${origin}/" class="play-btn">Search More Channels \u2192</a>
+
       </div>
+
     </div>
+
     ${relatedChannels.length > 0 ? `
+
     <div class="section">
+
       <h2>More ${escapeHtml(channel.group_title || "")} Channels</h2>
+
       <div class="related-grid">
+
         ${relatedChannels.map((ch) => `
+
           <div class="related-card">
+
             <a href="${origin}/channel/${escapeAttr(ch.channel_hash)}">
+
               ${ch.logo ? `<img src="${escapeAttr(ch.logo)}" alt="${escapeAttr(ch.channel_name)}">` : "\u{1F4FA}"}
+
               <span class="related-name">${escapeHtml(ch.channel_name)}</span>
+
             </a>
+
           </div>`).join("")}
+
       </div>
+
     </div>` : ""}
+
   </main>
+
   ${FOOTER_HTML(origin)}
+
 </body>
+
 </html>`;
   return new Response(html, {
-    status: 404,
+    status: 200,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": "public, max-age=3600",
@@ -8714,81 +8973,154 @@ async function generateCategoryPage(request, env, groupSlug) {
     ]
   };
   return `<!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>${escapeHtml(pageTitle)}</title>
+
   <meta name="description" content="${escapeAttr(metaDescription)}">
+
   <meta name="robots" content="index, follow, max-image-preview:image">
+
   <link rel="canonical" href="${origin}/category/${groupSlug}${page > 1 ? `?page=${page}` : ""}">
+
   <meta property="og:title" content="${escapeAttr(pageTitle)}">
+
   <meta property="og:description" content="${escapeAttr(metaDescription)}">
+
   <meta property="og:type" content="website">
+
   <meta property="og:url" content="${origin}/category/${groupSlug}">
+
   <meta property="og:image" content="${origin}/og-homepage.png">
+
   <meta property="og:image:width" content="1200">
+
   <meta property="og:image:height" content="630">
+
   <meta property="og:image:alt" content="${escapeAttr(matchedGroup)} IPTV Channels on IPTV Search">
+
   <meta name="twitter:card" content="summary_large_image">
+
   <meta name="twitter:title" content="${escapeAttr(pageTitle)}">
+
   <meta name="twitter:description" content="${escapeAttr(metaDescription)}">
+
   <meta name="twitter:image" content="${origin}/og-homepage.png">
+
   <script type="application/ld+json">${JSON.stringify(jsonLd)}<\/script>
+
   <script type="application/ld+json">${JSON.stringify(breadcrumbJsonLd)}<\/script>
+
   ${SHARED_CSS}
+
   <style>
+
     .breadcrumb{padding:1rem 0;font-size:0.9rem;color:rgba(255,255,255,0.5)}
+
     .breadcrumb a{color:#e50914}
+
     .page-header{background:#141414;border-radius:12px;padding:2rem;margin-bottom:2rem;border:1px solid rgba(255,255,255,0.08)}
+
     .page-header h1{font-size:1.8rem;margin-bottom:0.5rem}
+
     .page-header p{color:rgba(255,255,255,0.6)}
+
     .toc-list{display:flex;flex-wrap:wrap;gap:0.5rem 1rem;list-style:none;margin-bottom:2rem;background:#141414;border-radius:8px;padding:1rem}
+
     .toc-list a{color:#e50914;font-size:0.9rem}
+
     .channel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;margin-bottom:2rem}
+
     .channel-card{background:#141414;border-radius:6px;padding:0.75rem;border:1px solid rgba(255,255,255,0.05);transition:border-color 0.2s}
+
     .channel-card:hover{border-color:rgba(229,9,20,0.5)}
+
     .channel-card a{display:flex;align-items:center;gap:0.75rem;color:#fff}
+
     .channel-card img{width:36px;height:36px;object-fit:contain;border-radius:4px;flex-shrink:0}
+
     .channel-card .name{font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
     .placeholder{width:36px;height:36px;background:#2a2a2a;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+
     .pagination{display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;margin-top:2rem}
+
     .pagination a,.pagination span{padding:0.5rem 1rem;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:0.9rem}
+
     .pagination a:hover{background:#e50914;border-color:#e50914;text-decoration:none}
+
     .pagination .current{background:#e50914;border-color:#e50914}
+
   </style>
+
 </head>
+
 <body>
+
   ${NAV_HTML(origin)}
+
   <main>
+
     <div class="breadcrumb"><a href="${origin}/">Home</a> &rsaquo; ${escapeHtml(matchedGroup)}</div>
+
     <div class="page-header">
+
       <h1>${escapeHtml(matchedGroup)} Channels</h1>
+
       <p>${groupChannels.length} free live TV streams \u2014 updated daily</p>
+
     </div>
+
     <div class="toc-list">
+
       ${groups.map((g) => `<a href="${origin}/category/${slugify(g)}">${escapeHtml(g)}</a>`).join("")}
+
     </div>
+
     <div class="channel-grid">
+
       ${pageChannels.map((ch) => `
+
         <div class="channel-card">
+
           <a href="${origin}/channel/${escapeAttr(ch.channel_hash)}">
+
             ${ch.logo ? `<img src="${escapeAttr(ch.logo)}" alt="${escapeAttr(ch.channel_name)}">` : '<div class="placeholder">\u{1F4FA}</div>'}
+
             <span class="name">${escapeHtml(ch.channel_name)}</span>
+
           </a>
+
         </div>`).join("")}
+
     </div>
+
     ${totalPages > 1 ? `<div class="pagination">
+
       ${page > 1 ? `<a href="${origin}/category/${groupSlug}?page=${page - 1}">&laquo; Previous</a>` : "<span>&laquo; Previous</span>"}
+
       ${Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
     const p = i + 1;
     return p === page ? `<span class="current">${p}</span>` : `<a href="${origin}/category/${groupSlug}?page=${p}">${p}</a>`;
   }).join("")}
+
       ${page < totalPages ? `<a href="${origin}/category/${groupSlug}?page=${page + 1}">Next &raquo;</a>` : "<span>Next &raquo;</span>"}
+
     </div>` : ""}
+
   </main>
+
   ${FOOTER_HTML(origin)}
+
 </body>
+
 </html>`;
 }
 async function generateFullSitemap(request, env) {
@@ -8890,117 +9222,229 @@ async function generate404Page(request, env, notFoundType = "page") {
   const pageTitle = `404 - ${typeLabel} Not Found | IPTV Search`;
   const metaDescription = `The ${notFoundType} you are looking for no longer exists. IPTV channels go offline frequently as source streams change. Use our search to find similar channels.`;
   const html2 = `<!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>${escapeHtml(pageTitle)}</title>
+
   <meta name="description" content="${escapeAttr(metaDescription)}">
+
   <meta name="robots" content="noindex, follow">
+
   <link rel="canonical" href="${origin}/">
+
   <meta property="og:title" content="${escapeAttr(pageTitle)}">
+
   <meta property="og:description" content="${escapeAttr(metaDescription)}">
+
   <meta property="og:type" content="website">
+
   <meta property="og:url" content="${origin}/">
+
   <meta property="og:image" content="${origin}/og-homepage.png">
+
   <meta name="twitter:card" content="summary_large_image">
+
   <meta name="twitter:title" content="${escapeAttr(pageTitle)}">
+
   <meta name="twitter:description" content="${escapeAttr(metaDescription)}">
+
   <script type="application/ld+json">
+
   {
+
     "@context": "https://schema.org",
+
     "@type": "WebPage",
+
     "name": "404 - Page Not Found",
+
     "description": "The requested page no longer exists.",
+
     "url": "${origin}/"
+
   }
+
   <\/script>
+
   ${SHARED_CSS}
+
   <style>
+
     .hero{background:linear-gradient(135deg,#1a1a2e,#0f0f1a);padding:4rem 2rem;text-align:center;border-bottom:1px solid rgba(255,255,255,0.05)}
+
     .hero-404{font-size:7rem;font-weight:900;color:rgba(229,9,20,0.15);line-height:1;margin-bottom:0.5rem}
+
     .hero h1{font-size:2rem;margin-bottom:0.75rem;color:#fff}
+
     .hero p{color:rgba(255,255,255,0.6);max-width:500px;margin:0 auto 1.5rem;font-size:1.05rem}
+
     .hero-search{background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1.5rem;max-width:600px;margin:0 auto}
+
     .hero-search h2{font-size:1rem;color:rgba(255,255,255,0.7);margin-bottom:0.75rem;font-weight:400}
+
     .search-form{display:flex;gap:0.5rem}
+
     .search-form input{flex:1;padding:0.8rem 1rem;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0a0a0a;color:#fff;font-size:1rem}
+
     .search-form input:focus{outline:none;border-color:#e50914}
+
     .search-form button{padding:0.8rem 1.5rem;background:#e50914;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:1rem;font-weight:600;white-space:nowrap}
+
     .search-form button:hover{background:#f6121d}
+
     .why-box{background:#141414;border-radius:12px;padding:1.5rem;margin-top:2rem;border:1px solid rgba(255,255,255,0.08);max-width:600px;margin-left:auto;margin-right:auto}
+
     .why-box h3{font-size:1.1rem;margin-bottom:0.75rem;color:#fff}
+
     .why-box p{font-size:0.9rem;color:rgba(255,255,255,0.6);line-height:1.7}
+
     .section{padding:2rem 0}
+
     .section-title{font-size:1.3rem;margin-bottom:1.25rem;color:#fff;border-bottom:2px solid #e50914;padding-bottom:0.5rem;display:flex;align-items:center;justify-content:space-between}
+
     .section-title a{font-size:0.85rem;color:#e50914;font-weight:400}
+
     .channel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;margin-bottom:1.5rem}
+
     .channel-card{background:#141414;border-radius:6px;padding:0.75rem;border:1px solid rgba(255,255,255,0.05);transition:border-color 0.2s}
+
     .channel-card:hover{border-color:rgba(229,9,20,0.5)}
+
     .channel-card a{display:flex;align-items:center;gap:0.75rem;color:#fff}
+
     .channel-card a:hover{text-decoration:none}
+
     .channel-card img{width:36px;height:36px;object-fit:contain;border-radius:4px;flex-shrink:0}
+
     .channel-card .name{font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
     .placeholder{width:36px;height:36px;background:#2a2a2a;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+
     .category-list{display:flex;flex-wrap:wrap;gap:0.5rem}
+
     .category-tag{background:#141414;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:0.4rem 1rem;font-size:0.85rem;color:rgba(255,255,255,0.8);transition:all 0.2s}
+
     .category-tag:hover{background:#e50914;color:#fff;border-color:#e50914;text-decoration:none}
+
     .home-actions{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-top:1.5rem}
+
     .btn-primary{display:inline-block;background:#e50914;color:#fff;padding:0.75rem 2rem;border-radius:8px;font-weight:600;text-align:center}
+
     .btn-primary:hover{background:#f6121d;text-decoration:none}
+
     .btn-secondary{display:inline-block;background:#1a1a1a;color:#fff;padding:0.75rem 2rem;border-radius:8px;border:1px solid rgba(255,255,255,0.15);text-align:center}
+
     .btn-secondary:hover{border-color:#e50914;color:#e50914;text-decoration:none}
+
     @media(max-width:600px){.hero-404{font-size:5rem}.hero h1{font-size:1.5rem}.search-form{flex-direction:column}.channel-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
+
   </style>
+
 </head>
+
 <body>
+
   ${NAV_HTML(origin)}
+
   <div class="hero">
+
     <div class="hero-404">404</div>
+
     <h1>Sorry, this ${typeLabel.toLowerCase()} is no longer available</h1>
+
     <p>IPTV channels frequently go offline as source streams change or providers update their feeds. Find something new to watch below.</p>
+
     <div class="hero-search">
+
       <h2>Search for channels</h2>
+
       <form class="search-form" action="${origin}/" method="get">
+
         <input type="text" name="search" placeholder="Search channels (e.g. BBC, ESPN, CNN...)" aria-label="Search channels">
+
         <button type="submit">Search</button>
+
       </form>
+
     </div>
+
     <div class="home-actions">
+
       <a href="${origin}/" class="btn-primary">\u2190 Back to Home</a>
+
       <a href="${origin}/tutorial" class="btn-secondary">How it works</a>
+
     </div>
+
   </div>
+
   <main>
+
     <div class="why-box">
+
       <h3>Why am I seeing this page?</h3>
+
       <p>We index thousands of public IPTV channels from various sources around the world. These channels are provided by third-party broadcasters and their streams can change or become unavailable at any time. When a channel goes offline, we automatically remove it from search results. This is normal \u2014 try searching above or browse the categories below to find what you're looking for.</p>
+
     </div>
+
+
 
     ${featuredChannels.length > 0 ? `
+
     <section class="section">
+
       <h2 class="section-title">Popular Channels <a href="${origin}/">View all \u2192</a></h2>
+
       <div class="channel-grid">
+
         ${featuredChannels.map((ch) => `
+
           <div class="channel-card">
+
             <a href="${origin}/channel/${escapeAttr(ch.channel_hash)}">
+
               ${ch.logo ? `<img src="${escapeAttr(ch.logo)}" alt="${escapeAttr(ch.channel_name)}" loading="lazy">` : '<div class="placeholder">\u{1F4FA}</div>'}
+
               <span class="name">${escapeHtml(ch.channel_name)}</span>
+
             </a>
+
           </div>`).join("")}
+
       </div>
+
     </section>` : ""}
 
+
+
     ${displayGroups.length > 0 ? `
+
     <section class="section">
+
       <h2 class="section-title">Browse by Category</h2>
+
       <div class="category-list">
+
         ${displayGroups.map((g) => `<a href="${origin}/category/${slugify(g)}" class="category-tag">${escapeHtml(g)}</a>`).join("")}
+
       </div>
+
     </section>` : ""}
+
   </main>
+
   ${FOOTER_HTML(origin)}
+
 </body>
+
 </html>`;
   return new Response(html2, {
     status: 404,
@@ -15939,7 +16383,7 @@ var PAGE_FOOTER = `
         window.translate = translate;
       }
       if (typeof translate !== 'undefined' && translate.language) {
-        translate.language.setLocal('chinese_simplified');
+        translate.language.setLocal('english');
         translate.service.use('client.edge');
         translate.listener.start();
         translate.setAutoDiscriminateLocalLanguage();
@@ -15960,7 +16404,6 @@ var PAGE_FOOTER = `
 
   <!-- 100%\u586B\u5145 -->
   <!--<script src="https://quge5.com/88/tag.min.js" data-zone="211982" async data-cfasync="false"><\/script>-->
-  <script>(function(s){s.dataset.zone='10621619',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))<\/script>
 `;
 
 // account-page.js
@@ -16527,7 +16970,7 @@ var HOME_HTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
+  <title>IPTV Search \u2014 Free IPTV Channel Directory &amp; Search Engine</title>
 
   <!-- ========== SEO Meta Tags ========== -->
   <!-- \u57FA\u7840Meta\u6807\u7B7E -->
@@ -16542,9 +16985,9 @@ var HOME_HTML = `<!DOCTYPE html>
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com">
-  <meta property="og:title" content="IPTV Search - Free IPTV Link Search Engine">
+  <meta property="og:title" content="IPTV Search \u2014 Free IPTV Channel Directory &amp; Search Engine">
   <meta property="og:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.">
-  <meta property="og:image" content="https://iptv-search.com/og-image.svg">
+  <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
   <meta property="og:site_name" content="IPTV Search">
   <meta property="og:locale" content="en_US">
 
@@ -16700,13 +17143,9 @@ var HOME_HTML = `<!DOCTYPE html>
     },
     "description": "IPTV Search is a free IPTV link search engine providing access to 10,000+ public channels including sports, news, entertainment, and movies worldwide.",
     "foundingDate": "2026",
-    "sameAs": [
-      "https://twitter.com/iptvsearch",
-      "https://facebook.com/iptvsearch",
-      "https://instagram.com/iptvsearch",
-      "https://youtube.com/@iptvsearch",
-      "https://t.me/iptvsearch"
-    ],
+  "sameAs": [
+    "https://t.me/+-3ApDTfNb19jNWI1"
+  ]
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "customer service",
@@ -16723,7 +17162,7 @@ var HOME_HTML = `<!DOCTYPE html>
     "name": "IPTV Search - Free IPTV Link Search Engine",
     "url": "https://iptv-search.com",
     "description": "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.",
-    "dateModified": "2026-02-19",
+    "dateModified": "${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}",
     "author": {
       "@type": "Organization",
       "name": "IPTV Search",
@@ -16810,20 +17249,14 @@ var HOME_HTML = `<!DOCTYPE html>
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "12500"
     }
   }
   <\/script>
 
   <!-- ========== GEO Optimization: Update Date Meta Tag (Freshness Signal) ========== -->
-  <meta name="article:modified_time" content="2026-02-19">
-  <meta name="last-modified" content="2026-02-19">
+  <meta name="article:modified_time" content="${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}">
+  <meta name="last-modified" content="${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}">
 
-  <title>IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff}
@@ -17955,7 +18388,7 @@ var HOME_HTML = `<!DOCTYPE html>
         "description": isZhCN ? 
           "\u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE - \u53D1\u73B0\u548C\u5206\u4EAB\u516C\u5171IPTV\u9891\u9053\u3002\u63D0\u4F9Bm3u8\u3001m3u\u64AD\u653E\u5217\u8868\uFF0C\u5305\u542B\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u7535\u5F71\u3001\u5A31\u4E50\u7B49\u9891\u9053\uFF0C\u6BCF\u65E5\u66F4\u65B0\u3002" :
           "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.",
-        "dateModified": "2026-02-19",
+        "dateModified": "${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}",
         "inLanguage": lang,
         "author": {
           "@type": "Organization",

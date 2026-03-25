@@ -6,7 +6,7 @@ export const HOME_HTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
+  <title>IPTV Search — Free IPTV Channel Directory &amp; Search Engine</title>
 
   <!-- ========== SEO Meta Tags ========== -->
   <!-- 基础Meta标签 -->
@@ -21,9 +21,9 @@ export const HOME_HTML = `<!DOCTYPE html>
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com">
-  <meta property="og:title" content="IPTV Search - Free IPTV Link Search Engine">
+  <meta property="og:title" content="IPTV Search — Free IPTV Channel Directory &amp; Search Engine">
   <meta property="og:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.">
-  <meta property="og:image" content="https://iptv-search.com/og-image.svg">
+  <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
   <meta property="og:site_name" content="IPTV Search">
   <meta property="og:locale" content="en_US">
 
@@ -179,13 +179,9 @@ export const HOME_HTML = `<!DOCTYPE html>
     },
     "description": "IPTV Search is a free IPTV link search engine providing access to 10,000+ public channels including sports, news, entertainment, and movies worldwide.",
     "foundingDate": "2026",
-    "sameAs": [
-      "https://twitter.com/iptvsearch",
-      "https://facebook.com/iptvsearch",
-      "https://instagram.com/iptvsearch",
-      "https://youtube.com/@iptvsearch",
-      "https://t.me/iptvsearch"
-    ],
+  "sameAs": [
+    "https://t.me/+-3ApDTfNb19jNWI1"
+  ]
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "customer service",
@@ -202,7 +198,7 @@ export const HOME_HTML = `<!DOCTYPE html>
     "name": "IPTV Search - Free IPTV Link Search Engine",
     "url": "https://iptv-search.com",
     "description": "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.",
-    "dateModified": "2026-02-19",
+    "dateModified": "${new Date().toISOString().split('T')[0]}",
     "author": {
       "@type": "Organization",
       "name": "IPTV Search",
@@ -289,20 +285,14 @@ export const HOME_HTML = `<!DOCTYPE html>
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "12500"
     }
   }
   </script>
 
   <!-- ========== GEO Optimization: Update Date Meta Tag (Freshness Signal) ========== -->
-  <meta name="article:modified_time" content="2026-02-19">
-  <meta name="last-modified" content="2026-02-19">
+  <meta name="article:modified_time" content="${new Date().toISOString().split('T')[0]}">
+  <meta name="last-modified" content="${new Date().toISOString().split('T')[0]}">
 
-  <title>IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff}
@@ -1434,7 +1424,7 @@ export const HOME_HTML = `<!DOCTYPE html>
         "description": isZhCN ? 
           "免费IPTV链接搜索引擎 - 发现和分享公共IPTV频道。提供m3u8、m3u播放列表，包含体育、新闻、电影、娱乐等频道，每日更新。" :
           "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.",
-        "dateModified": "2026-02-19",
+        "dateModified": "${new Date().toISOString().split('T')[0]}",
         "inLanguage": lang,
         "author": {
           "@type": "Organization",
