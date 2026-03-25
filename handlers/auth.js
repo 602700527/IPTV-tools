@@ -602,7 +602,7 @@ function generateResetEmailHtml(email, resetUrl) {
         </div>
         <div class="footer">
           <p>此邮件由系统自动发送，请勿回复。</p>
-          <p>&copy; ${new Date().getFullYear()} IPTV Live. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} IPTV Search. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -668,7 +668,7 @@ export async function handleForgotPassword(request, env, ctx) {
     // 发送邮件
     try {
       const html = generateResetEmailHtml(email, resetUrl);
-      await sendEmail(email, '重置密码 - IPTV Live', html, env);
+      await sendEmail(email, '重置密码 - IPTV Search', html, env);
     } catch (emailError) {
       console.error('发送邮件失败:', emailError);
       // 即使邮件发送失败，也返回成功（为了安全，不暴露用户是否存在）

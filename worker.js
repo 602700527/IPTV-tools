@@ -9,7 +9,7 @@ import { handleUserActivate } from './handlers/user.js';
 import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings } from './handlers/public.js';
 import { handleFreeSubAPI } from './handlers/freesub-api.js';
 import { handleGetPlans } from './handlers/plans-api.js';
-import { handleSEOPage, isSearchEngineBot } from './handlers/seo-handler.js';
+import { handleSEOPage, generate404Page, isSearchEngineBot } from './handlers/seo-handler.js';
 import {
   handleRegister,
   handleSendVerificationCode,
@@ -247,11 +247,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     const channelMatch = path.match(/^\/channel\/([a-zA-Z0-9_-]+)$/);
     const categoryMatch = path.match(/^\/category\/([a-zA-Z0-9-]+)$/);
     if (channelMatch || categoryMatch) {
-      if (isSearchEngineBot(request)) {
-        return await handleSEOPage(request, env);
-      }
-      // 非爬虫用户访问频道/分类页：返回 404（暂未实现前端页面）
-      return new Response('Not Found', { status: 404 });
+      return await handleSEOPage(request, env);
     } else if (path === '/api/config') {
       // 公开配置API - 获取前端需要的配置（如加密密钥）
       return await handlePublicConfig(request, env, ctx);
@@ -774,11 +770,11 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           });
         }
       } else {
-        return new Response('Not Found', { status: 404 });
+        return await generate404Page(request, env);
       }
     } else {
-      // 默认响应
-      return new Response('Not Found', { status: 404 });
+      // 默认响应 - 所有未匹配路由
+      return await generate404Page(request, env);
     }
     } catch (error) {
       console.error('Worker error:', error);

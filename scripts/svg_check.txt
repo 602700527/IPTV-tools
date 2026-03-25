@@ -1,0 +1,18 @@
+All text labels in og-image.svg:
+  [IPTV Search]
+  [免费IPTV频道目录与搜索工具]
+  [10000+频道]
+  [免费台道]
+  [每日更新]
+  [无需注册]
+
+Old strings still present?
+  免费观看: No (good)
+  高清画质: No (good)
+  免费高清电视观看平台: No (good)
+  IPTV Search: YES
+  免费IPTV频道目录与搜索工具: YES (good)
+  免费频道: NO
+  每日更新: YES (good)
+  无需注册: YES
+  10000+频道: YES
