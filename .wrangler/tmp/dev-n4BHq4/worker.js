@@ -8,7 +8,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-PLtgeQ/checked-fetch.js
+// .wrangler/tmp/bundle-xRs0rO/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -26,7 +26,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-PLtgeQ/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-xRs0rO/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     globalThis.fetch = new Proxy(globalThis.fetch, {
       apply(target, thisArg, argArray) {
@@ -2197,11 +2197,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-PLtgeQ/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-xRs0rO/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-PLtgeQ/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-xRs0rO/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -8590,7 +8590,7 @@ async function generateSEOHomepage(request, env) {
 
     "description": "Free IPTV channel directory and search tool. Browse ${channels.length.toLocaleString()}+ live TV channels across ${groups.length} categories.",
 
-    "logo": { "@type": "ImageObject", "url": "${origin}/logo.svg", "width": 200, "height": 60 }
+    "logo": { "@type": "ImageObject", "url": "${origin}/logo-new.svg", "width": 200, "height": 60 }
 
   }
 
@@ -15991,7 +15991,7 @@ var PAGE_HEADER = `
   <header class="page-header">
     <div class="header-container">
       <a href="/" class="header-logo">
-        <img src="/logo.svg" alt="IPTV Search" width="160" height="48" />
+        <img src="/logo-new.svg" alt="IPTV Search" width="160" height="48" />
       </a>
       <nav class="header-nav">
         <a href="/" class="nav-item home-icon" title="\u9996\u9875">
@@ -16230,7 +16230,7 @@ init_modules_watch_stub();
 var PAGE_FOOTER = `
   <footer class="page-footer">
     <div class="footer-content">
-  <p class="footer-copyright">&copy; ${(/* @__PURE__ */ new Date()).getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+  <p class="footer-copyright">&copy; 2026 IPTV Search. Free IPTV Channel Directory & Search Tool</p>
       
       <!-- SEO \u53CB\u597D\u94FE\u63A5 -->
       <div class="footer-links">
@@ -16970,7 +16970,7 @@ var HOME_HTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IPTV Search \u2014 Free IPTV Channel Directory &amp; Search Engine</title>
+  <title>IPTV Search \u2014 Free IPTV Channel Directory & Search Engine</title>
 
   <!-- ========== SEO Meta Tags ========== -->
   <!-- \u57FA\u7840Meta\u6807\u7B7E -->
@@ -16985,7 +16985,7 @@ var HOME_HTML = `<!DOCTYPE html>
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com">
-  <meta property="og:title" content="IPTV Search \u2014 Free IPTV Channel Directory &amp; Search Engine">
+  <meta property="og:title" content="IPTV Search \u2014 Free IPTV Channel Directory & Search Engine">
   <meta property="og:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.">
   <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
   <meta property="og:site_name" content="IPTV Search">
@@ -16994,7 +16994,7 @@ var HOME_HTML = `<!DOCTYPE html>
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://iptv-search.com">
-  <meta name="twitter:title" content="IPTV Search - Free IPTV Link Search Engine">
+  <meta name="twitter:title" content="IPTV Search \u2014 Free IPTV Channel Directory & Search Engine">
   <meta name="twitter:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment.">
 
   <!-- Canonical URL -->
@@ -17030,7 +17030,7 @@ var HOME_HTML = `<!DOCTYPE html>
   <!-- Open Graph\u56FE\u6807 -->
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:type" content="image/svg+xml">
+  <meta property="og:image:type" content="image/png">
 
   <!-- \u7ED3\u6784\u5316\u6570\u636E (JSON-LD) -->
   <script type="application/ld+json" id="structured-data">
@@ -17038,6 +17038,8 @@ var HOME_HTML = `<!DOCTYPE html>
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "IPTV Search",
+    "alternateName": "IPTV Live",
+    "foundingDate": "2024",
     "url": "https://iptv-search.com",
     "description": "Free IPTV link search engine - discover and share public IPTV channels with m3u8 playlists.",
     "potentialAction": {
@@ -17137,15 +17139,19 @@ var HOME_HTML = `<!DOCTYPE html>
     "url": "https://iptv-search.com",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://iptv-search.com/logo.svg",
+      "url": "https://iptv-search.com/logo-new.svg",
       "width": 200,
       "height": 60
     },
     "description": "IPTV Search is a free IPTV link search engine providing access to 10,000+ public channels including sports, news, entertainment, and movies worldwide.",
-    "foundingDate": "2026",
-  "sameAs": [
-    "https://t.me/+-3ApDTfNb19jNWI1"
-  ]
+    "foundingDate": "2024",
+    "sameAs": [
+      "https://twitter.com/iptvsearch",
+      "https://facebook.com/iptvsearch",
+      "https://instagram.com/iptvsearch",
+      "https://youtube.com/@iptvsearch",
+      "https://t.me/iptvsearch"
+    ],
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "customer service",
@@ -17162,7 +17168,7 @@ var HOME_HTML = `<!DOCTYPE html>
     "name": "IPTV Search - Free IPTV Link Search Engine",
     "url": "https://iptv-search.com",
     "description": "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.",
-    "dateModified": "${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}",
+    "dateModified": "2026-02-19",
     "author": {
       "@type": "Organization",
       "name": "IPTV Search",
@@ -17254,9 +17260,10 @@ var HOME_HTML = `<!DOCTYPE html>
   <\/script>
 
   <!-- ========== GEO Optimization: Update Date Meta Tag (Freshness Signal) ========== -->
-  <meta name="article:modified_time" content="${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}">
-  <meta name="last-modified" content="${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}">
+  <meta name="article:modified_time" content="2026-02-19">
+  <meta name="last-modified" content="2026-02-19">
 
+  <title>IPTV Search \u2014 Free IPTV Channel Directory & Search Engine</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff}
@@ -17630,7 +17637,7 @@ var HOME_HTML = `<!DOCTYPE html>
     <div class="header-left">
       <a href="/" class="logo-link">
         <div class="logo">
-          <img src="/logo.svg" alt="IPTV Search Logo" />
+          <img src="/logo-new.svg" alt="IPTV Search Logo" />
         </div>
       </a>
       <div class="online-counter">
@@ -18388,7 +18395,7 @@ var HOME_HTML = `<!DOCTYPE html>
         "description": isZhCN ? 
           "\u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE - \u53D1\u73B0\u548C\u5206\u4EAB\u516C\u5171IPTV\u9891\u9053\u3002\u63D0\u4F9Bm3u8\u3001m3u\u64AD\u653E\u5217\u8868\uFF0C\u5305\u542B\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u7535\u5F71\u3001\u5A31\u4E50\u7B49\u9891\u9053\uFF0C\u6BCF\u65E5\u66F4\u65B0\u3002" :
           "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.",
-        "dateModified": "${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}",
+        "dateModified": "2026-02-19",
         "inLanguage": lang,
         "author": {
           "@type": "Organization",
@@ -27477,7 +27484,7 @@ var worker_default = {
             "Cache-Control": "public, max-age=86400"
           }
         });
-      } else if (path === "/logo.svg") {
+      } else if (path === "/logo.svg" || path === "/logo-new.svg") {
         return new Response(LOGO_SVG, {
           headers: {
             "Content-Type": "image/svg+xml",
@@ -27560,7 +27567,10 @@ window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
       const channelMatch = path.match(/^\/channel\/([a-zA-Z0-9_-]+)$/);
       const categoryMatch = path.match(/^\/category\/([a-zA-Z0-9-]+)$/);
       if (channelMatch || categoryMatch) {
-        return await handleSEOPage(request, env);
+        if (isSearchEngineBot(request)) {
+          return await handleSEOPage(request, env);
+        }
+        return new Response("Not Found", { status: 404 });
       } else if (path === "/api/config") {
         return await handlePublicConfig(request, env, ctx);
       } else if (path === "/api/announcement") {
@@ -27994,10 +28004,10 @@ window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
             });
           }
         } else {
-          return await generate404Page(request, env);
+          return new Response("Not Found", { status: 404 });
         }
       } else {
-        return await generate404Page(request, env);
+        return new Response("Not Found", { status: 404 });
       }
     } catch (error) {
       console.error("Worker error:", error);
@@ -28054,7 +28064,7 @@ var jsonError = async (request, env, _ctx, middlewareCtx) => {
 };
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-PLtgeQ/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-xRs0rO/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -28085,7 +28095,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   ]);
 }
 
-// .wrangler/tmp/bundle-PLtgeQ/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-xRs0rO/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

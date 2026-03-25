@@ -15108,7 +15108,7 @@ var PAGE_HEADER = `
   <header class="page-header">
     <div class="header-container">
       <a href="/" class="header-logo">
-        <img src="/logo.svg" alt="IPTV Live" width="160" height="48" />
+        <img src="/logo-new.svg" alt="IPTV Live" width="160" height="48" />
       </a>
       <nav class="header-nav">
         <a href="/" class="nav-item home-icon" title="\u9996\u9875">
@@ -16255,7 +16255,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     "url": "https://iptv-search.com",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://iptv-search.com/logo.svg",
+      "url": "https://iptv-search.com/logo-new.svg",
       "width": 200,
       "height": 60
     },
@@ -16758,7 +16758,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     <div class="header-left">
       <a href="/" class="logo-link">
         <div class="logo">
-          <img src="/logo.svg" alt="IPTV Live Logo" />
+          <img src="/logo-new.svg" alt="IPTV Live Logo" />
         </div>
       </a>
       <div class="online-counter">
@@ -26640,7 +26640,7 @@ var worker_default = {
             "Cache-Control": "public, max-age=86400"
           }
         });
-      } else if (path === "/logo.svg") {
+      } else if (path === "/logo-new.svg") {
         return new Response(LOGO_SVG, {
           headers: {
             "Content-Type": "image/svg+xml",

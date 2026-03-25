@@ -6,7 +6,7 @@ export const HOME_HTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
+  <title>IPTV Search — Free IPTV Channel Directory & Search Engine</title>
 
   <!-- ========== SEO Meta Tags ========== -->
   <!-- 基础Meta标签 -->
@@ -21,16 +21,16 @@ export const HOME_HTML = `<!DOCTYPE html>
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com">
-  <meta property="og:title" content="IPTV Search - Free IPTV Link Search Engine">
+  <meta property="og:title" content="IPTV Search — Free IPTV Channel Directory & Search Engine">
   <meta property="og:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.">
-  <meta property="og:image" content="https://iptv-search.com/og-image.svg">
+  <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
   <meta property="og:site_name" content="IPTV Search">
   <meta property="og:locale" content="en_US">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://iptv-search.com">
-  <meta name="twitter:title" content="IPTV Search - Free IPTV Link Search Engine">
+  <meta name="twitter:title" content="IPTV Search — Free IPTV Channel Directory & Search Engine">
   <meta name="twitter:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment.">
 
   <!-- Canonical URL -->
@@ -66,7 +66,7 @@ export const HOME_HTML = `<!DOCTYPE html>
   <!-- Open Graph图标 -->
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:type" content="image/svg+xml">
+  <meta property="og:image:type" content="image/png">
 
   <!-- 结构化数据 (JSON-LD) -->
   <script type="application/ld+json" id="structured-data">
@@ -74,6 +74,8 @@ export const HOME_HTML = `<!DOCTYPE html>
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "IPTV Search",
+    "alternateName": "IPTV Live",
+    "foundingDate": "2024",
     "url": "https://iptv-search.com",
     "description": "Free IPTV link search engine - discover and share public IPTV channels with m3u8 playlists.",
     "potentialAction": {
@@ -173,12 +175,12 @@ export const HOME_HTML = `<!DOCTYPE html>
     "url": "https://iptv-search.com",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://iptv-search.com/logo.svg",
+      "url": "https://iptv-search.com/logo-new.svg",
       "width": 200,
       "height": 60
     },
     "description": "IPTV Search is a free IPTV link search engine providing access to 10,000+ public channels including sports, news, entertainment, and movies worldwide.",
-    "foundingDate": "2026",
+    "foundingDate": "2024",
     "sameAs": [
       "https://twitter.com/iptvsearch",
       "https://facebook.com/iptvsearch",
@@ -289,11 +291,6 @@ export const HOME_HTML = `<!DOCTYPE html>
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "12500"
     }
   }
   </script>
@@ -302,7 +299,7 @@ export const HOME_HTML = `<!DOCTYPE html>
   <meta name="article:modified_time" content="2026-02-19">
   <meta name="last-modified" content="2026-02-19">
 
-  <title>IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
+  <title>IPTV Search — Free IPTV Channel Directory & Search Engine</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff}
@@ -676,7 +673,7 @@ export const HOME_HTML = `<!DOCTYPE html>
     <div class="header-left">
       <a href="/" class="logo-link">
         <div class="logo">
-          <img src="/logo.svg" alt="IPTV Search Logo" />
+          <img src="/logo-new.svg" alt="IPTV Search Logo" />
         </div>
       </a>
       <div class="online-counter">

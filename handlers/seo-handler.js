@@ -348,7 +348,7 @@ export async function generateSEOHomepage(request, env) {
 
     "description": "Free IPTV channel directory and search tool. Browse ${channels.length.toLocaleString()}+ live TV channels across ${groups.length} categories.",
 
-    "logo": { "@type": "ImageObject", "url": "${origin}/logo.svg", "width": 200, "height": 60 }
+    "logo": { "@type": "ImageObject", "url": "${origin}/logo-new.svg", "width": 200, "height": 60 }
 
   }
 

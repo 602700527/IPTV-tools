@@ -1,0 +1,3 @@
+CLEAN page-footer.js: 0 backslash-dollar
+CLEAN home-page.js: 0 backslash-dollar
+CLEAN seo-handler.js: 0 backslash-dollar
