@@ -3,7 +3,7 @@ export const PAGE_HEADER = `
   <header class="page-header">
     <div class="header-container">
       <a href="/" class="header-logo">
-        <img src="/logo-new.svg" alt="IPTV Search" width="160" height="48" />
+        <img src="/logo.svg" alt="IPTV Search" width="160" height="48" />
       </a>
       <nav class="header-nav">
         <a href="/" class="nav-item home-icon" title="首页">
