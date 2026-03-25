@@ -44,7 +44,7 @@ import {
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { ACCOUNT_HTML } from './account-page.js';
-import { PLAYSTATION_HTML } from './playstation-page.js';
+import { HOME_HTML } from './home-page.js';
 import { FREE_SUB_HTML } from './freesub-page.js';
 import { SUBSCRIPTION_HTML } from './subscription-page.js';
 import { PLANS_HTML } from './plans-page.js';
@@ -218,7 +218,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         ? systemConfig.url_encryption_key
         : env.SECRET_KEY || 'default-secret-key';
 
-      const htmlWithConfig = PLAYSTATION_HTML.replace(
+      const htmlWithConfig = HOME_HTML.replace(
         '<script>',
         `<script>window.ALLOWED_DOMAINS = ${JSON.stringify(allowedDomains)};\nwindow.DECRYPTION_KEY = '${decryptionKey}';\nwindow.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};\n`
       );

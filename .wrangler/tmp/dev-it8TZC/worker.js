@@ -16519,21 +16519,21 @@ var ACCOUNT_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
-// playstation-page.js
+// home-page.js
 init_checked_fetch();
 init_modules_watch_stub();
-var PLAYSTATION_HTML = `<!DOCTYPE html>
+var HOME_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IPTV Live - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
+  <title>IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
 
   <!-- ========== SEO Meta Tags ========== -->
   <!-- \u57FA\u7840Meta\u6807\u7B7E -->
   <meta name="description" content="Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment channels. Updated daily.">
   <meta name="keywords" content="IPTV link search,public IPTV channels,m3u,m3u8,flv,mp3,mp4,ts,udp,rtp,video,player,free IPTV,live TV streaming,TV channel search,IPTV playlist">
-  <meta name="author" content="IPTV Live">
+  <meta name="author" content="IPTV Search">
   <meta name="robots" content="index, follow">
   <meta name="googlebot" content="index, follow">
   <meta name="baiduspider" content="index, follow">
@@ -16542,16 +16542,16 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com">
-  <meta property="og:title" content="IPTV Live - Free IPTV Link Search Engine">
+  <meta property="og:title" content="IPTV Search - Free IPTV Link Search Engine">
   <meta property="og:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.">
   <meta property="og:image" content="https://iptv-search.com/og-image.svg">
-  <meta property="og:site_name" content="IPTV Live">
+  <meta property="og:site_name" content="IPTV Search">
   <meta property="og:locale" content="en_US">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://iptv-search.com">
-  <meta name="twitter:title" content="IPTV Live - Free IPTV Link Search Engine">
+  <meta name="twitter:title" content="IPTV Search - Free IPTV Link Search Engine">
   <meta name="twitter:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment.">
 
   <!-- Canonical URL -->
@@ -16581,7 +16581,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="IPTV Live">
+  <meta name="apple-mobile-web-app-title" content="IPTV Search">
   <meta name="theme-color" content="#e50914">
 
   <!-- Open Graph\u56FE\u6807 -->
@@ -16594,7 +16594,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "IPTV Live",
+    "name": "IPTV Search",
     "url": "https://iptv-search.com",
     "description": "Free IPTV link search engine - discover and share public IPTV channels with m3u8 playlists.",
     "potentialAction": {
@@ -16604,7 +16604,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     },
     "publisher": {
       "@type": "Organization",
-      "name": "IPTV Live",
+      "name": "IPTV Search",
       "url": "https://iptv-search.com"
     }
   }
@@ -16658,7 +16658,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       },
       {
         "@type": "Question",
-        "name": "Is registration required to use IPTV Live?",
+        "name": "Is registration required to use IPTV Search?",
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "No registration is required. Search and discover free public IPTV channels instantly. For premium features like M3U subscription links for external players, you can purchase a subscription code."
@@ -16666,18 +16666,18 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       },
       {
         "@type": "Question",
-        "name": "How many channels are available on IPTV Live?",
+        "name": "How many channels are available on IPTV Search?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "IPTV Live provides access to 10,000+ channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
+          "text": "IPTV Search provides access to 10,000+ channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
         }
       },
       {
         "@type": "Question",
-        "name": "Can I find sports channels on IPTV Live?",
+        "name": "Can I find sports channels on IPTV Search?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes, IPTV Live offers extensive sports coverage including football, basketball, tennis, cricket, and more. Find live sports channels from around the world in HD quality without cable subscription."
+          "text": "Yes, IPTV Search offers extensive sports coverage including football, basketball, tennis, cricket, and more. Find live sports channels from around the world in HD quality without cable subscription."
         }
       }
     ]
@@ -16689,8 +16689,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "IPTV Live",
-    "alternateName": "IPTV Search",
+    "name": "IPTV Search",
+    "alternateName": "IPTV Live",
     "url": "https://iptv-search.com",
     "logo": {
       "@type": "ImageObject",
@@ -16698,8 +16698,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       "width": 200,
       "height": 60
     },
-    "description": "IPTV Live is a free IPTV link search engine providing access to 10,000+ public channels including sports, news, entertainment, and movies worldwide.",
-    "foundingDate": "2024",
+    "description": "IPTV Search is a free IPTV link search engine providing access to 10,000+ public channels including sports, news, entertainment, and movies worldwide.",
+    "foundingDate": "2026",
     "sameAs": [
       "https://twitter.com/iptvsearch",
       "https://facebook.com/iptvsearch",
@@ -16720,13 +16720,13 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": "IPTV Live - Free IPTV Link Search Engine",
+    "name": "IPTV Search - Free IPTV Link Search Engine",
     "url": "https://iptv-search.com",
     "description": "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.",
     "dateModified": "2026-02-19",
     "author": {
       "@type": "Organization",
-      "name": "IPTV Live",
+      "name": "IPTV Search",
       "url": "https://iptv-search.com"
     },
     "about": {
@@ -16764,8 +16764,8 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   {
     "@context": "https://schema.org",
     "@type": "HowTo",
-    "name": "How to Watch Live TV on IPTV Live",
-    "description": "Learn how to watch free live TV channels online using IPTV Live streaming platform.",
+    "name": "How to Watch Live TV on IPTV Search",
+    "description": "Learn how to watch free live TV channels online using IPTV Search streaming platform.",
     "totalTime": "PT1M",
     "estimatedCost": {
       "@type": "MonetaryAmount",
@@ -16803,7 +16803,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "IPTV Live Streaming Player",
+    "name": "IPTV Search Streaming Player",
     "applicationCategory": "MultimediaApplication",
     "operatingSystem": "Web Browser",
     "offers": {
@@ -16823,7 +16823,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
   <meta name="article:modified_time" content="2026-02-19">
   <meta name="last-modified" content="2026-02-19">
 
-  <title>IPTV Live - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
+  <title>IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff}
@@ -17197,7 +17197,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     <div class="header-left">
       <a href="/" class="logo-link">
         <div class="logo">
-          <img src="/logo.svg" alt="IPTV Live Logo" />
+          <img src="/logo.svg" alt="IPTV Search Logo" />
         </div>
       </a>
       <div class="online-counter">
@@ -17328,7 +17328,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         <!-- \u8FD9\u4E00\u5757\u5BF9SEO/AI\u5F88\u91CD\u8981\uFF0C\u4F46\u5F71\u54CD\u7528\u6237\u4F53\u9A8C\uFF0C\u6240\u4EE5\u7528CSS\u9690\u85CF\u4F46\u4FDD\u7559\u5728DOM\u4E2D\u4F9B\u641C\u7D22\u5F15\u64CE\u6293\u53D6 -->
         <div class="geo-direct-answer" style="margin-bottom: 20px; padding: 16px 20px; background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, rgba(184,29,36,0.05) 100%); border-radius: 12px; border-left: 4px solid #e50914; display: none;">
           <p style="font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.9); margin: 0;">
-            <strong style="color: #e50914;">IPTV Live</strong> lets you <strong>watch live TV online for free</strong> with 10,000+ HD channels including sports, news, entertainment, and movies.
+            <strong style="color: #e50914;">IPTV Search</strong> lets you <strong>watch live TV online for free</strong> with 10,000+ HD channels including sports, news, entertainment, and movies.
             <strong>No registration required</strong> \u2014 select any channel below to start watching instantly in your browser, or get a subscription for external players like VLC and IPTV apps.
           </p>
           <p style="font-size: 12px; color: rgba(255,255,255,0.4); margin: 8px 0 0 0;">
@@ -17583,7 +17583,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
     function t(key) {
       // \u82F1\u6587\u6587\u672C\u4F5C\u4E3A\u9ED8\u8BA4\u503C
       const translations = {
-        'title': 'IPTV Live - Free IPTV Link Search Engine | M3U8 M3U Playlist Search',
+        'title': 'IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search',
         'searchPlaceholder': 'Search channels...',
         'allChannels': 'All Channels',
         'search': 'Search',
@@ -17774,18 +17774,18 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       // \u4E2D\u6587\u548C\u82F1\u6587\u7684SEO\u6570\u636E
       const seoData = {
         'zh-CN': {
-          title: 'IPTV Live - \u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE | M3U8 M3U\u64AD\u653E\u5217\u8868',
+          title: 'IPTV Search - \u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE | M3U8 M3U\u64AD\u653E\u5217\u8868',
           description: '\u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE - \u53D1\u73B0\u548C\u5206\u4EAB\u516C\u5171IPTV\u9891\u9053\u3002\u63D0\u4F9Bm3u8\u3001m3u\u64AD\u653E\u5217\u8868\uFF0C\u5305\u542B\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u7535\u5F71\u3001\u5A31\u4E50\u7B49\u9891\u9053\uFF0C\u6BCF\u65E5\u66F4\u65B0\u3002',
           keywords: 'IPTV\u94FE\u63A5\u641C\u7D22,\u516C\u5171IPTV\u9891\u9053,m3u,m3u8,flv,mp3,mp4,ts,udp,rtp,video,player,\u514D\u8D39IPTV,\u7535\u89C6\u76F4\u64AD,\u7535\u89C6\u9891\u9053\u641C\u7D22,IPTV\u64AD\u653E\u5217\u8868',
-          ogTitle: 'IPTV Live - \u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE',
+          ogTitle: 'IPTV Search - \u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE',
           ogDescription: '\u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE - \u53D1\u73B0\u548C\u5206\u4EAB\u516C\u5171IPTV\u9891\u9053\u3002\u63D0\u4F9Bm3u8\u3001m3u\u64AD\u653E\u5217\u8868\uFF0C\u5305\u542B\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u7535\u5F71\u3001\u5A31\u4E50\u7B49\u9891\u9053\uFF0C\u6BCF\u65E5\u66F4\u65B0\u3002',
           ogLocale: 'zh_CN'
         },
         'en': {
-          title: 'IPTV Live - Free IPTV Link Search Engine | M3U8 M3U Playlist Search',
+          title: 'IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search',
           description: 'Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment channels. Updated daily.',
           keywords: 'IPTV link search,public IPTV channels,m3u,m3u8,flv,mp3,mp4,ts,udp,rtp,video,player,free IPTV,live TV streaming,TV channel search,IPTV playlist',
-          ogTitle: 'IPTV Live - Free IPTV Link Search Engine',
+          ogTitle: 'IPTV Search - Free IPTV Link Search Engine',
           ogDescription: 'Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.',
           ogLocale: 'en_US'
         }
@@ -17856,7 +17856,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           },
           {
             "@type": "Question",
-            "name": "\u4F7F\u7528IPTV Live\u9700\u8981\u6CE8\u518C\u5417\uFF1F",
+            "name": "\u4F7F\u7528IPTV Search\u9700\u8981\u6CE8\u518C\u5417\uFF1F",
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "\u65E0\u9700\u6CE8\u518C\u3002\u7ACB\u5373\u641C\u7D22\u548C\u53D1\u73B0\u514D\u8D39\u516C\u5171IPTV\u9891\u9053\u3002\u5BF9\u4E8E\u5916\u90E8\u64AD\u653E\u5668\u7684\u9AD8\u7EA7\u529F\u80FD\uFF08\u5982M3U\u8BA2\u9605\u94FE\u63A5\uFF09\uFF0C\u60A8\u53EF\u4EE5\u8D2D\u4E70\u8BA2\u9605\u7801\u3002"
@@ -17867,15 +17867,15 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
             "name": "\u6709\u591A\u5C11\u4E2A\u9891\u9053\uFF1F",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "IPTV Live\u63D0\u4F9B10000+\u9891\u9053\uFF0C\u6DB5\u76D6\u591A\u4E2A\u7C7B\u522B\uFF1A\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u3001\u7EAA\u5F55\u7247\u3001\u5C11\u513F\u8282\u76EE\u3001\u97F3\u4E50\u4EE5\u53CA\u6765\u81EA\u4E16\u754C\u5404\u5730\u7684\u56FD\u9645\u5185\u5BB9\u3002"
+              "text": "IPTV Search\u63D0\u4F9B10000+\u9891\u9053\uFF0C\u6DB5\u76D6\u591A\u4E2A\u7C7B\u522B\uFF1A\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u5A31\u4E50\u3001\u7535\u5F71\u3001\u7EAA\u5F55\u7247\u3001\u5C11\u513F\u8282\u76EE\u3001\u97F3\u4E50\u4EE5\u53CA\u6765\u81EA\u4E16\u754C\u5404\u5730\u7684\u56FD\u9645\u5185\u5BB9\u3002"
             }
           },
           {
             "@type": "Question",
-            "name": "\u53EF\u4EE5\u5728IPTV Live\u4E0A\u627E\u5230\u4F53\u80B2\u9891\u9053\u5417\uFF1F",
+            "name": "\u53EF\u4EE5\u5728IPTV Search\u4E0A\u627E\u5230\u4F53\u80B2\u9891\u9053\u5417\uFF1F",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "\u53EF\u4EE5\u3002IPTV Live\u63D0\u4F9B\u4E30\u5BCC\u7684\u4F53\u80B2\u8D5B\u4E8B\u9891\u9053\uFF0C\u5305\u62EC\u8DB3\u7403\u3001\u7BEE\u7403\u3001\u7F51\u7403\u3001\u677F\u7403\u7B49\u3002\u65E0\u9700\u6709\u7EBF\u7535\u89C6\u8BA2\u9605\uFF0C\u5373\u53EF\u5728\u5168\u7403\u89C2\u770B\u9AD8\u6E05\u4F53\u80B2\u8D5B\u4E8B\u3002"
+              "text": "\u53EF\u4EE5\u3002IPTV Search\u63D0\u4F9B\u4E30\u5BCC\u7684\u4F53\u80B2\u8D5B\u4E8B\u9891\u9053\uFF0C\u5305\u62EC\u8DB3\u7403\u3001\u7BEE\u7403\u3001\u7F51\u7403\u3001\u677F\u7403\u7B49\u3002\u65E0\u9700\u6709\u7EBF\u7535\u89C6\u8BA2\u9605\uFF0C\u5373\u53EF\u5728\u5168\u7403\u89C2\u770B\u9AD8\u6E05\u4F53\u80B2\u8D5B\u4E8B\u3002"
             }
           }
         ]
@@ -17911,7 +17911,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           },
           {
             "@type": "Question",
-            "name": "Is registration required to use IPTV Live?",
+            "name": "Is registration required to use IPTV Search?",
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "No registration is required. Search and discover free public IPTV channels instantly. For premium features like M3U subscription links for external players, you can purchase a subscription code."
@@ -17919,18 +17919,18 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
           },
           {
             "@type": "Question",
-            "name": "How many channels are available on IPTV Live?",
+            "name": "How many channels are available on IPTV Search?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "IPTV Live provides access to 10,000+ channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
+              "text": "IPTV Search provides access to 10,000+ channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
             }
           },
           {
             "@type": "Question",
-            "name": "Can I find sports channels on IPTV Live?",
+            "name": "Can I find sports channels on IPTV Search?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes, IPTV Live offers extensive sports coverage including football, basketball, tennis, cricket, and more. Find live sports channels from around the world in HD quality without cable subscription."
+              "text": "Yes, IPTV Search offers extensive sports coverage including football, basketball, tennis, cricket, and more. Find live sports channels from around the world in HD quality without cable subscription."
             }
           }
         ]
@@ -17950,7 +17950,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       const schema = {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        "name": isZhCN ? "IPTV Live - \u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE" : "IPTV Live - Free IPTV Link Search Engine",
+        "name": isZhCN ? "IPTV Search - \u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE" : "IPTV Search - Free IPTV Link Search Engine",
         "url": isZhCN ? origin + "/?lang=zh-CN" : origin + "/",
         "description": isZhCN ? 
           "\u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE - \u53D1\u73B0\u548C\u5206\u4EAB\u516C\u5171IPTV\u9891\u9053\u3002\u63D0\u4F9Bm3u8\u3001m3u\u64AD\u653E\u5217\u8868\uFF0C\u5305\u542B\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u7535\u5F71\u3001\u5A31\u4E50\u7B49\u9891\u9053\uFF0C\u6BCF\u65E5\u66F4\u65B0\u3002" :
@@ -17959,7 +17959,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         "inLanguage": lang,
         "author": {
           "@type": "Organization",
-          "name": "IPTV Live",
+          "name": "IPTV Search",
           "url": origin
         },
         "about": {
@@ -18249,51 +18249,51 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
 
       if (currentGroup) {
         if (isZhCN) {
-          title = currentGroup + ' - IPTV Live \u514D\u8D39IPTV\u9891\u9053';
-          description = '\u6D4F\u89C8' + currentGroup + '\u5206\u7C7B\u7684IPTV\u9891\u9053\uFF0CIPTV Live\u63D0\u4F9B' + currentGroup + '\u76F8\u5173\u7684\u516C\u5171\u9891\u9053\u94FE\u63A5\uFF0C\u6BCF\u65E5\u66F4\u65B0\u3002';
+          title = currentGroup + ' - IPTV Search \u514D\u8D39IPTV\u9891\u9053';
+          description = '\u6D4F\u89C8' + currentGroup + '\u5206\u7C7B\u7684IPTV\u9891\u9053\uFF0CIPTV Search\u63D0\u4F9B' + currentGroup + '\u76F8\u5173\u7684\u516C\u5171\u9891\u9053\u94FE\u63A5\uFF0C\u6BCF\u65E5\u66F4\u65B0\u3002';
         } else {
-          title = currentGroup + ' - IPTV Live IPTV Channels';
-          description = 'Browse ' + currentGroup + ' category IPTV channels on IPTV Live. Find public channel links updated daily.';
+          title = currentGroup + ' - IPTV Search IPTV Channels';
+          description = 'Browse ' + currentGroup + ' category IPTV channels on IPTV Search. Find public channel links updated daily.';
         }
       } else if (currentSearch) {
         if (isZhCN) {
-          title = currentSearch + ' - IPTV Live \u641C\u7D22\u7ED3\u679C';
+          title = currentSearch + ' - IPTV Search \u641C\u7D22\u7ED3\u679C';
           description = '\u641C\u7D22"' + currentSearch + '"\u7684\u9891\u9053\uFF0C\u627E\u5230' + totalChannels + '\u4E2A\u76F8\u5173\u9891\u9053\uFF0C\u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE\uFF0C\u6BCF\u65E5\u66F4\u65B0\u3002';
         } else {
-          title = currentSearch + ' - IPTV Live Search Results';
-          description = 'Search for "' + currentSearch + '" channels, found ' + totalChannels + ' related channels on IPTV Live free IPTV link search engine.';
+          title = currentSearch + ' - IPTV Search Search Results';
+          description = 'Search for "' + currentSearch + '" channels, found ' + totalChannels + ' related channels on IPTV Search free IPTV link search engine.';
         }
       } else if (currentGroup === 'history') {
         if (isZhCN) {
-          title = '\u64AD\u653E\u5386\u53F2 - IPTV Live';
-          description = '\u67E5\u770B\u60A8\u7684\u64AD\u653E\u5386\u53F2\u8BB0\u5F55\uFF0CIPTV Live\u81EA\u52A8\u4FDD\u5B58\u6700\u8FD1\u64AD\u653E\u7684\u9891\u9053\uFF0C\u65B9\u4FBF\u5FEB\u901F\u8BBF\u95EE\u3002';
+          title = '\u64AD\u653E\u5386\u53F2 - IPTV Search';
+          description = '\u67E5\u770B\u60A8\u7684\u64AD\u653E\u5386\u53F2\u8BB0\u5F55\uFF0CIPTV Search\u81EA\u52A8\u4FDD\u5B58\u6700\u8FD1\u64AD\u653E\u7684\u9891\u9053\uFF0C\u65B9\u4FBF\u5FEB\u901F\u8BBF\u95EE\u3002';
         } else {
-          title = 'Watch History - IPTV Live';
-          description = 'View your watch history. IPTV Live automatically saves your recently played channels for quick access.';
+          title = 'Watch History - IPTV Search';
+          description = 'View your watch history. IPTV Search automatically saves your recently played channels for quick access.';
         }
       } else if (currentGroup === 'favorites') {
         if (isZhCN) {
-          title = '\u6211\u7684\u6536\u85CF - IPTV Live';
-          description = '\u7BA1\u7406\u60A8\u6536\u85CF\u7684\u9891\u9053\uFF0CIPTV Live\u6536\u85CF\u529F\u80FD\u8BA9\u60A8\u5FEB\u901F\u8BBF\u95EE\u559C\u7231\u7684\u5185\u5BB9\u3002';
+          title = '\u6211\u7684\u6536\u85CF - IPTV Search';
+          description = '\u7BA1\u7406\u60A8\u6536\u85CF\u7684\u9891\u9053\uFF0CIPTV Search\u6536\u85CF\u529F\u80FD\u8BA9\u60A8\u5FEB\u901F\u8BBF\u95EE\u559C\u7231\u7684\u5185\u5BB9\u3002';
         } else {
-          title = 'My Favorites - IPTV Live';
-          description = 'Manage your favorite channels. IPTV Live favorites feature allows you to quickly access your favorite content.';
+          title = 'My Favorites - IPTV Search';
+          description = 'Manage your favorite channels. IPTV Search favorites feature allows you to quickly access your favorite content.';
         }
       } else if (currentGroup === 'random') {
         if (isZhCN) {
-          title = '\u968F\u673A\u63A8\u8350 - IPTV Live';
-          description = '\u968F\u673A\u53D1\u73B0\u7CBE\u5F69\u9891\u9053\uFF0CIPTV Live\u667A\u80FD\u63A8\u8350\u8BA9\u60A8\u63A2\u7D22\u66F4\u591A\u4F18\u8D28IPTV\u5185\u5BB9\u3002';
+          title = '\u968F\u673A\u63A8\u8350 - IPTV Search';
+          description = '\u968F\u673A\u53D1\u73B0\u7CBE\u5F69\u9891\u9053\uFF0CIPTV Search\u667A\u80FD\u63A8\u8350\u8BA9\u60A8\u63A2\u7D22\u66F4\u591A\u4F18\u8D28IPTV\u5185\u5BB9\u3002';
         } else {
-          title = 'Random Picks - IPTV Live';
-          description = 'Discover amazing channels randomly. IPTV Live smart recommendations help you explore more quality IPTV content.';
+          title = 'Random Picks - IPTV Search';
+          description = 'Discover amazing channels randomly. IPTV Search smart recommendations help you explore more quality IPTV content.';
         }
       } else {
         // \u9ED8\u8BA4\u9875\u9762
         if (isZhCN) {
-          title = 'IPTV Live - \u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE';
+          title = 'IPTV Search - \u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE';
           description = '\u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE - \u53D1\u73B0\u548C\u5206\u4EAB\u516C\u5171IPTV\u9891\u9053\u3002\u63D0\u4F9Bm3u8\u3001m3u\u64AD\u653E\u5217\u8868\uFF0C\u5305\u542B\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u7535\u5F71\u3001\u5A31\u4E50\u7B49\u9891\u9053\uFF0C\u6BCF\u65E5\u66F4\u65B0\u3002';
         } else {
-          title = 'IPTV Live - Free IPTV Link Search Engine';
+          title = 'IPTV Search - Free IPTV Link Search Engine';
           description = 'Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.';
         }
       }
@@ -19168,7 +19168,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         "@context": "https://schema.org",
         "@type": "VideoObject",
         "name": channelName + " - Live Stream",
-        "description": "Watch " + channelName + " live on IPTV Live." + (groupTitle ? " Part of " + groupTitle + " category." : "") + " Free HD streaming with no registration required.",
+        "description": "Watch " + channelName + " live on IPTV Search." + (groupTitle ? " Part of " + groupTitle + " category." : "") + " Free HD streaming with no registration required.",
         "thumbnailUrl": window.location.origin + "/og-image.svg",
         "uploadDate": new Date().toISOString().split('T')[0],
         "duration": "PT0S",
@@ -19179,7 +19179,7 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
         },
         "publisher": {
           "@type": "Organization",
-          "name": "IPTV Live",
+          "name": "IPTV Search",
           "url": "https://iptv-search.com"
         },
         "contentUrl": window.location.origin,
@@ -19189,10 +19189,10 @@ var PLAYSTATION_HTML = `<!DOCTYPE html>
       videoSchema.textContent = JSON.stringify(schema);
       
       // \u540C\u65F6\u66F4\u65B0\u9875\u9762\u7684 meta \u4FE1\u606F
-      updateMetaTag('property', 'og:title', channelName + ' - IPTV Live');
-      updateMetaTag('property', 'og:description', 'Watch ' + channelName + ' live on IPTV Live. Free HD streaming with 10,000+ channels.');
-      updateMetaTag('name', 'twitter:title', channelName + ' - IPTV Live');
-      updateMetaTag('name', 'twitter:description', 'Watch ' + channelName + ' live on IPTV Live.');
+      updateMetaTag('property', 'og:title', channelName + ' - IPTV Search');
+      updateMetaTag('property', 'og:description', 'Watch ' + channelName + ' live on IPTV Search. Free HD streaming with 10,000+ channels.');
+      updateMetaTag('name', 'twitter:title', channelName + ' - IPTV Search');
+      updateMetaTag('name', 'twitter:description', 'Watch ' + channelName + ' live on IPTV Search.');
     }
 
     function playChannel(hash, name, group, retryCount = 0) {
@@ -27095,7 +27095,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         const systemConfig = await getSystemConfig();
         const allowedDomains = [url.hostname];
         const decryptionKey = systemConfig.enable_url_encryption && systemConfig.url_encryption_key ? systemConfig.url_encryption_key : env.SECRET_KEY || "default-secret-key";
-        const htmlWithConfig = PLAYSTATION_HTML.replace(
+        const htmlWithConfig = HOME_HTML.replace(
           "<script>",
           `<script>window.ALLOWED_DOMAINS = ${JSON.stringify(allowedDomains)};
 window.DECRYPTION_KEY = '${decryptionKey}';
