@@ -1,18 +1,18 @@
 // 交互式播放站首页
 import { PAGE_FOOTER } from './components/page-footer.js';
 
-export const HOME_HTML = `<!DOCTYPE html>
+export const PLAYSTATION_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
+  <title>IPTV Live - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
 
   <!-- ========== SEO Meta Tags ========== -->
   <!-- 基础Meta标签 -->
   <meta name="description" content="Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment channels. Updated daily.">
   <meta name="keywords" content="IPTV link search,public IPTV channels,m3u,m3u8,flv,mp3,mp4,ts,udp,rtp,video,player,free IPTV,live TV streaming,TV channel search,IPTV playlist">
-  <meta name="author" content="IPTV Search">
+  <meta name="author" content="IPTV Live">
   <meta name="robots" content="index, follow">
   <meta name="googlebot" content="index, follow">
   <meta name="baiduspider" content="index, follow">
@@ -21,16 +21,16 @@ export const HOME_HTML = `<!DOCTYPE html>
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com">
-  <meta property="og:title" content="IPTV Search - Free IPTV Link Search Engine">
+  <meta property="og:title" content="IPTV Live - Free IPTV Link Search Engine">
   <meta property="og:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.">
   <meta property="og:image" content="https://iptv-search.com/og-image.svg">
-  <meta property="og:site_name" content="IPTV Search">
+  <meta property="og:site_name" content="IPTV Live">
   <meta property="og:locale" content="en_US">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://iptv-search.com">
-  <meta name="twitter:title" content="IPTV Search - Free IPTV Link Search Engine">
+  <meta name="twitter:title" content="IPTV Live - Free IPTV Link Search Engine">
   <meta name="twitter:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment.">
 
   <!-- Canonical URL -->
@@ -60,7 +60,7 @@ export const HOME_HTML = `<!DOCTYPE html>
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="IPTV Search">
+  <meta name="apple-mobile-web-app-title" content="IPTV Live">
   <meta name="theme-color" content="#e50914">
 
   <!-- Open Graph图标 -->
@@ -73,7 +73,7 @@ export const HOME_HTML = `<!DOCTYPE html>
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "IPTV Search",
+    "name": "IPTV Live",
     "url": "https://iptv-search.com",
     "description": "Free IPTV link search engine - discover and share public IPTV channels with m3u8 playlists.",
     "potentialAction": {
@@ -83,7 +83,7 @@ export const HOME_HTML = `<!DOCTYPE html>
     },
     "publisher": {
       "@type": "Organization",
-      "name": "IPTV Search",
+      "name": "IPTV Live",
       "url": "https://iptv-search.com"
     }
   }
@@ -137,7 +137,7 @@ export const HOME_HTML = `<!DOCTYPE html>
       },
       {
         "@type": "Question",
-        "name": "Is registration required to use IPTV Search?",
+        "name": "Is registration required to use IPTV Live?",
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "No registration is required. Search and discover free public IPTV channels instantly. For premium features like M3U subscription links for external players, you can purchase a subscription code."
@@ -145,18 +145,18 @@ export const HOME_HTML = `<!DOCTYPE html>
       },
       {
         "@type": "Question",
-        "name": "How many channels are available on IPTV Search?",
+        "name": "How many channels are available on IPTV Live?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "IPTV Search provides access to 10,000+ channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
+          "text": "IPTV Live provides access to 10,000+ channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
         }
       },
       {
         "@type": "Question",
-        "name": "Can I find sports channels on IPTV Search?",
+        "name": "Can I find sports channels on IPTV Live?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes, IPTV Search offers extensive sports coverage including football, basketball, tennis, cricket, and more. Find live sports channels from around the world in HD quality without cable subscription."
+          "text": "Yes, IPTV Live offers extensive sports coverage including football, basketball, tennis, cricket, and more. Find live sports channels from around the world in HD quality without cable subscription."
         }
       }
     ]
@@ -168,8 +168,8 @@ export const HOME_HTML = `<!DOCTYPE html>
   {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "IPTV Search",
-    "alternateName": "IPTV Live",
+    "name": "IPTV Live",
+    "alternateName": "IPTV Search",
     "url": "https://iptv-search.com",
     "logo": {
       "@type": "ImageObject",
@@ -177,8 +177,8 @@ export const HOME_HTML = `<!DOCTYPE html>
       "width": 200,
       "height": 60
     },
-    "description": "IPTV Search is a free IPTV link search engine providing access to 10,000+ public channels including sports, news, entertainment, and movies worldwide.",
-    "foundingDate": "2026",
+    "description": "IPTV Live is a free IPTV link search engine providing access to 10,000+ public channels including sports, news, entertainment, and movies worldwide.",
+    "foundingDate": "2024",
     "sameAs": [
       "https://twitter.com/iptvsearch",
       "https://facebook.com/iptvsearch",
@@ -199,13 +199,13 @@ export const HOME_HTML = `<!DOCTYPE html>
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": "IPTV Search - Free IPTV Link Search Engine",
+    "name": "IPTV Live - Free IPTV Link Search Engine",
     "url": "https://iptv-search.com",
     "description": "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.",
     "dateModified": "2026-02-19",
     "author": {
       "@type": "Organization",
-      "name": "IPTV Search",
+      "name": "IPTV Live",
       "url": "https://iptv-search.com"
     },
     "about": {
@@ -243,8 +243,8 @@ export const HOME_HTML = `<!DOCTYPE html>
   {
     "@context": "https://schema.org",
     "@type": "HowTo",
-    "name": "How to Watch Live TV on IPTV Search",
-    "description": "Learn how to watch free live TV channels online using IPTV Search streaming platform.",
+    "name": "How to Watch Live TV on IPTV Live",
+    "description": "Learn how to watch free live TV channels online using IPTV Live streaming platform.",
     "totalTime": "PT1M",
     "estimatedCost": {
       "@type": "MonetaryAmount",
@@ -282,7 +282,7 @@ export const HOME_HTML = `<!DOCTYPE html>
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "IPTV Search Streaming Player",
+    "name": "IPTV Live Streaming Player",
     "applicationCategory": "MultimediaApplication",
     "operatingSystem": "Web Browser",
     "offers": {
@@ -302,7 +302,7 @@ export const HOME_HTML = `<!DOCTYPE html>
   <meta name="article:modified_time" content="2026-02-19">
   <meta name="last-modified" content="2026-02-19">
 
-  <title>IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
+  <title>IPTV Live - Free IPTV Link Search Engine | M3U8 M3U Playlist Search</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff}
@@ -676,7 +676,7 @@ export const HOME_HTML = `<!DOCTYPE html>
     <div class="header-left">
       <a href="/" class="logo-link">
         <div class="logo">
-          <img src="/logo.svg" alt="IPTV Search Logo" />
+          <img src="/logo.svg" alt="IPTV Live Logo" />
         </div>
       </a>
       <div class="online-counter">
@@ -807,7 +807,7 @@ export const HOME_HTML = `<!DOCTYPE html>
         <!-- 这一块对SEO/AI很重要，但影响用户体验，所以用CSS隐藏但保留在DOM中供搜索引擎抓取 -->
         <div class="geo-direct-answer" style="margin-bottom: 20px; padding: 16px 20px; background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, rgba(184,29,36,0.05) 100%); border-radius: 12px; border-left: 4px solid #e50914; display: none;">
           <p style="font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.9); margin: 0;">
-            <strong style="color: #e50914;">IPTV Search</strong> lets you <strong>watch live TV online for free</strong> with 10,000+ HD channels including sports, news, entertainment, and movies.
+            <strong style="color: #e50914;">IPTV Live</strong> lets you <strong>watch live TV online for free</strong> with 10,000+ HD channels including sports, news, entertainment, and movies.
             <strong>No registration required</strong> — select any channel below to start watching instantly in your browser, or get a subscription for external players like VLC and IPTV apps.
           </p>
           <p style="font-size: 12px; color: rgba(255,255,255,0.4); margin: 8px 0 0 0;">
@@ -1062,7 +1062,7 @@ export const HOME_HTML = `<!DOCTYPE html>
     function t(key) {
       // 英文文本作为默认值
       const translations = {
-        'title': 'IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search',
+        'title': 'IPTV Live - Free IPTV Link Search Engine | M3U8 M3U Playlist Search',
         'searchPlaceholder': 'Search channels...',
         'allChannels': 'All Channels',
         'search': 'Search',
@@ -1253,18 +1253,18 @@ export const HOME_HTML = `<!DOCTYPE html>
       // 中文和英文的SEO数据
       const seoData = {
         'zh-CN': {
-          title: 'IPTV Search - 免费IPTV链接搜索引擎 | M3U8 M3U播放列表',
+          title: 'IPTV Live - 免费IPTV链接搜索引擎 | M3U8 M3U播放列表',
           description: '免费IPTV链接搜索引擎 - 发现和分享公共IPTV频道。提供m3u8、m3u播放列表，包含体育、新闻、电影、娱乐等频道，每日更新。',
           keywords: 'IPTV链接搜索,公共IPTV频道,m3u,m3u8,flv,mp3,mp4,ts,udp,rtp,video,player,免费IPTV,电视直播,电视频道搜索,IPTV播放列表',
-          ogTitle: 'IPTV Search - 免费IPTV链接搜索引擎',
+          ogTitle: 'IPTV Live - 免费IPTV链接搜索引擎',
           ogDescription: '免费IPTV链接搜索引擎 - 发现和分享公共IPTV频道。提供m3u8、m3u播放列表，包含体育、新闻、电影、娱乐等频道，每日更新。',
           ogLocale: 'zh_CN'
         },
         'en': {
-          title: 'IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search',
+          title: 'IPTV Live - Free IPTV Link Search Engine | M3U8 M3U Playlist Search',
           description: 'Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment channels. Updated daily.',
           keywords: 'IPTV link search,public IPTV channels,m3u,m3u8,flv,mp3,mp4,ts,udp,rtp,video,player,free IPTV,live TV streaming,TV channel search,IPTV playlist',
-          ogTitle: 'IPTV Search - Free IPTV Link Search Engine',
+          ogTitle: 'IPTV Live - Free IPTV Link Search Engine',
           ogDescription: 'Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.',
           ogLocale: 'en_US'
         }
@@ -1335,7 +1335,7 @@ export const HOME_HTML = `<!DOCTYPE html>
           },
           {
             "@type": "Question",
-            "name": "使用IPTV Search需要注册吗？",
+            "name": "使用IPTV Live需要注册吗？",
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "无需注册。立即搜索和发现免费公共IPTV频道。对于外部播放器的高级功能（如M3U订阅链接），您可以购买订阅码。"
@@ -1346,15 +1346,15 @@ export const HOME_HTML = `<!DOCTYPE html>
             "name": "有多少个频道？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "IPTV Search提供10000+频道，涵盖多个类别：体育、新闻、娱乐、电影、纪录片、少儿节目、音乐以及来自世界各地的国际内容。"
+              "text": "IPTV Live提供10000+频道，涵盖多个类别：体育、新闻、娱乐、电影、纪录片、少儿节目、音乐以及来自世界各地的国际内容。"
             }
           },
           {
             "@type": "Question",
-            "name": "可以在IPTV Search上找到体育频道吗？",
+            "name": "可以在IPTV Live上找到体育频道吗？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "可以。IPTV Search提供丰富的体育赛事频道，包括足球、篮球、网球、板球等。无需有线电视订阅，即可在全球观看高清体育赛事。"
+              "text": "可以。IPTV Live提供丰富的体育赛事频道，包括足球、篮球、网球、板球等。无需有线电视订阅，即可在全球观看高清体育赛事。"
             }
           }
         ]
@@ -1390,7 +1390,7 @@ export const HOME_HTML = `<!DOCTYPE html>
           },
           {
             "@type": "Question",
-            "name": "Is registration required to use IPTV Search?",
+            "name": "Is registration required to use IPTV Live?",
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "No registration is required. Search and discover free public IPTV channels instantly. For premium features like M3U subscription links for external players, you can purchase a subscription code."
@@ -1398,18 +1398,18 @@ export const HOME_HTML = `<!DOCTYPE html>
           },
           {
             "@type": "Question",
-            "name": "How many channels are available on IPTV Search?",
+            "name": "How many channels are available on IPTV Live?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "IPTV Search provides access to 10,000+ channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
+              "text": "IPTV Live provides access to 10,000+ channels across multiple categories: sports, news, entertainment, movies, documentaries, kids programming, music, and international content from countries worldwide."
             }
           },
           {
             "@type": "Question",
-            "name": "Can I find sports channels on IPTV Search?",
+            "name": "Can I find sports channels on IPTV Live?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes, IPTV Search offers extensive sports coverage including football, basketball, tennis, cricket, and more. Find live sports channels from around the world in HD quality without cable subscription."
+              "text": "Yes, IPTV Live offers extensive sports coverage including football, basketball, tennis, cricket, and more. Find live sports channels from around the world in HD quality without cable subscription."
             }
           }
         ]
@@ -1429,7 +1429,7 @@ export const HOME_HTML = `<!DOCTYPE html>
       const schema = {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        "name": isZhCN ? "IPTV Search - 免费IPTV链接搜索引擎" : "IPTV Search - Free IPTV Link Search Engine",
+        "name": isZhCN ? "IPTV Live - 免费IPTV链接搜索引擎" : "IPTV Live - Free IPTV Link Search Engine",
         "url": isZhCN ? origin + "/?lang=zh-CN" : origin + "/",
         "description": isZhCN ? 
           "免费IPTV链接搜索引擎 - 发现和分享公共IPTV频道。提供m3u8、m3u播放列表，包含体育、新闻、电影、娱乐等频道，每日更新。" :
@@ -1438,7 +1438,7 @@ export const HOME_HTML = `<!DOCTYPE html>
         "inLanguage": lang,
         "author": {
           "@type": "Organization",
-          "name": "IPTV Search",
+          "name": "IPTV Live",
           "url": origin
         },
         "about": {
@@ -1728,51 +1728,51 @@ export const HOME_HTML = `<!DOCTYPE html>
 
       if (currentGroup) {
         if (isZhCN) {
-          title = currentGroup + ' - IPTV Search 免费IPTV频道';
-          description = '浏览' + currentGroup + '分类的IPTV频道，IPTV Search提供' + currentGroup + '相关的公共频道链接，每日更新。';
+          title = currentGroup + ' - IPTV Live 免费IPTV频道';
+          description = '浏览' + currentGroup + '分类的IPTV频道，IPTV Live提供' + currentGroup + '相关的公共频道链接，每日更新。';
         } else {
-          title = currentGroup + ' - IPTV Search IPTV Channels';
-          description = 'Browse ' + currentGroup + ' category IPTV channels on IPTV Search. Find public channel links updated daily.';
+          title = currentGroup + ' - IPTV Live IPTV Channels';
+          description = 'Browse ' + currentGroup + ' category IPTV channels on IPTV Live. Find public channel links updated daily.';
         }
       } else if (currentSearch) {
         if (isZhCN) {
-          title = currentSearch + ' - IPTV Search 搜索结果';
+          title = currentSearch + ' - IPTV Live 搜索结果';
           description = '搜索"' + currentSearch + '"的频道，找到' + totalChannels + '个相关频道，免费IPTV链接搜索引擎，每日更新。';
         } else {
-          title = currentSearch + ' - IPTV Search Search Results';
-          description = 'Search for "' + currentSearch + '" channels, found ' + totalChannels + ' related channels on IPTV Search free IPTV link search engine.';
+          title = currentSearch + ' - IPTV Live Search Results';
+          description = 'Search for "' + currentSearch + '" channels, found ' + totalChannels + ' related channels on IPTV Live free IPTV link search engine.';
         }
       } else if (currentGroup === 'history') {
         if (isZhCN) {
-          title = '播放历史 - IPTV Search';
-          description = '查看您的播放历史记录，IPTV Search自动保存最近播放的频道，方便快速访问。';
+          title = '播放历史 - IPTV Live';
+          description = '查看您的播放历史记录，IPTV Live自动保存最近播放的频道，方便快速访问。';
         } else {
-          title = 'Watch History - IPTV Search';
-          description = 'View your watch history. IPTV Search automatically saves your recently played channels for quick access.';
+          title = 'Watch History - IPTV Live';
+          description = 'View your watch history. IPTV Live automatically saves your recently played channels for quick access.';
         }
       } else if (currentGroup === 'favorites') {
         if (isZhCN) {
-          title = '我的收藏 - IPTV Search';
-          description = '管理您收藏的频道，IPTV Search收藏功能让您快速访问喜爱的内容。';
+          title = '我的收藏 - IPTV Live';
+          description = '管理您收藏的频道，IPTV Live收藏功能让您快速访问喜爱的内容。';
         } else {
-          title = 'My Favorites - IPTV Search';
-          description = 'Manage your favorite channels. IPTV Search favorites feature allows you to quickly access your favorite content.';
+          title = 'My Favorites - IPTV Live';
+          description = 'Manage your favorite channels. IPTV Live favorites feature allows you to quickly access your favorite content.';
         }
       } else if (currentGroup === 'random') {
         if (isZhCN) {
-          title = '随机推荐 - IPTV Search';
-          description = '随机发现精彩频道，IPTV Search智能推荐让您探索更多优质IPTV内容。';
+          title = '随机推荐 - IPTV Live';
+          description = '随机发现精彩频道，IPTV Live智能推荐让您探索更多优质IPTV内容。';
         } else {
-          title = 'Random Picks - IPTV Search';
-          description = 'Discover amazing channels randomly. IPTV Search smart recommendations help you explore more quality IPTV content.';
+          title = 'Random Picks - IPTV Live';
+          description = 'Discover amazing channels randomly. IPTV Live smart recommendations help you explore more quality IPTV content.';
         }
       } else {
         // 默认页面
         if (isZhCN) {
-          title = 'IPTV Search - 免费IPTV链接搜索引擎';
+          title = 'IPTV Live - 免费IPTV链接搜索引擎';
           description = '免费IPTV链接搜索引擎 - 发现和分享公共IPTV频道。提供m3u8、m3u播放列表，包含体育、新闻、电影、娱乐等频道，每日更新。';
         } else {
-          title = 'IPTV Search - Free IPTV Link Search Engine';
+          title = 'IPTV Live - Free IPTV Link Search Engine';
           description = 'Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.';
         }
       }
@@ -2647,7 +2647,7 @@ export const HOME_HTML = `<!DOCTYPE html>
         "@context": "https://schema.org",
         "@type": "VideoObject",
         "name": channelName + " - Live Stream",
-        "description": "Watch " + channelName + " live on IPTV Search." + (groupTitle ? " Part of " + groupTitle + " category." : "") + " Free HD streaming with no registration required.",
+        "description": "Watch " + channelName + " live on IPTV Live." + (groupTitle ? " Part of " + groupTitle + " category." : "") + " Free HD streaming with no registration required.",
         "thumbnailUrl": window.location.origin + "/og-image.svg",
         "uploadDate": new Date().toISOString().split('T')[0],
         "duration": "PT0S",
@@ -2658,7 +2658,7 @@ export const HOME_HTML = `<!DOCTYPE html>
         },
         "publisher": {
           "@type": "Organization",
-          "name": "IPTV Search",
+          "name": "IPTV Live",
           "url": "https://iptv-search.com"
         },
         "contentUrl": window.location.origin,
@@ -2668,10 +2668,10 @@ export const HOME_HTML = `<!DOCTYPE html>
       videoSchema.textContent = JSON.stringify(schema);
       
       // 同时更新页面的 meta 信息
-      updateMetaTag('property', 'og:title', channelName + ' - IPTV Search');
-      updateMetaTag('property', 'og:description', 'Watch ' + channelName + ' live on IPTV Search. Free HD streaming with 10,000+ channels.');
-      updateMetaTag('name', 'twitter:title', channelName + ' - IPTV Search');
-      updateMetaTag('name', 'twitter:description', 'Watch ' + channelName + ' live on IPTV Search.');
+      updateMetaTag('property', 'og:title', channelName + ' - IPTV Live');
+      updateMetaTag('property', 'og:description', 'Watch ' + channelName + ' live on IPTV Live. Free HD streaming with 10,000+ channels.');
+      updateMetaTag('name', 'twitter:title', channelName + ' - IPTV Live');
+      updateMetaTag('name', 'twitter:description', 'Watch ' + channelName + ' live on IPTV Live.');
     }
 
     function playChannel(hash, name, group, retryCount = 0) {

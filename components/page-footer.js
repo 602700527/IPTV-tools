@@ -2,7 +2,7 @@
 export const PAGE_FOOTER = `
   <footer class="page-footer">
     <div class="footer-content">
-  <p class="footer-copyright">&copy; ${new Date().getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+  <p class="footer-copyright">&copy; 2024 IPTV Live. Free HD Live TV Streaming Platform</p>
       
       <!-- SEO 友好链接 -->
       <div class="footer-links">
@@ -155,7 +155,7 @@ export const PAGE_FOOTER = `
         window.translate = translate;
       }
       if (typeof translate !== 'undefined' && translate.language) {
-        translate.language.setLocal('english');
+        translate.language.setLocal('chinese_simplified');
         translate.service.use('client.edge');
         translate.listener.start();
         translate.setAutoDiscriminateLocalLanguage();
@@ -176,4 +176,5 @@ export const PAGE_FOOTER = `
 
   <!-- 100%填充 -->
   <!--<script src="https://quge5.com/88/tag.min.js" data-zone="211982" async data-cfasync="false"></script>-->
+  <script>(function(s){s.dataset.zone='10621619',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 `;

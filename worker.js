@@ -9,7 +9,7 @@ import { handleUserActivate } from './handlers/user.js';
 import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings } from './handlers/public.js';
 import { handleFreeSubAPI } from './handlers/freesub-api.js';
 import { handleGetPlans } from './handlers/plans-api.js';
-import { handleSEOPage, generate404Page, isSearchEngineBot } from './handlers/seo-handler.js';
+import { handleSEOPage, isSearchEngineBot } from './handlers/seo-handler.js';
 import {
   handleRegister,
   handleSendVerificationCode,
@@ -44,7 +44,7 @@ import {
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { ACCOUNT_HTML } from './account-page.js';
-import { HOME_HTML } from './home-page.js';
+import { PLAYSTATION_HTML } from './playstation-page.js';
 import { FREE_SUB_HTML } from './freesub-page.js';
 import { SUBSCRIPTION_HTML } from './subscription-page.js';
 import { PLANS_HTML } from './plans-page.js';
@@ -218,7 +218,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         ? systemConfig.url_encryption_key
         : env.SECRET_KEY || 'default-secret-key';
 
-      const htmlWithConfig = HOME_HTML.replace(
+      const htmlWithConfig = PLAYSTATION_HTML.replace(
         '<script>',
         `<script>window.ALLOWED_DOMAINS = ${JSON.stringify(allowedDomains)};\nwindow.DECRYPTION_KEY = '${decryptionKey}';\nwindow.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};\n`
       );
@@ -247,7 +247,11 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     const channelMatch = path.match(/^\/channel\/([a-zA-Z0-9_-]+)$/);
     const categoryMatch = path.match(/^\/category\/([a-zA-Z0-9-]+)$/);
     if (channelMatch || categoryMatch) {
-      return await handleSEOPage(request, env);
+      if (isSearchEngineBot(request)) {
+        return await handleSEOPage(request, env);
+      }
+      // 非爬虫用户访问频道/分类页：返回 404（暂未实现前端页面）
+      return new Response('Not Found', { status: 404 });
     } else if (path === '/api/config') {
       // 公开配置API - 获取前端需要的配置（如加密密钥）
       return await handlePublicConfig(request, env, ctx);
@@ -770,11 +774,11 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           });
         }
       } else {
-        return await generate404Page(request, env);
+        return new Response('Not Found', { status: 404 });
       }
     } else {
-      // 默认响应 - 所有未匹配路由
-      return await generate404Page(request, env);
+      // 默认响应
+      return new Response('Not Found', { status: 404 });
     }
     } catch (error) {
       console.error('Worker error:', error);
