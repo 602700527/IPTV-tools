@@ -8,7 +8,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// .wrangler/tmp/bundle-xRs0rO/checked-fetch.js
+// .wrangler/tmp/bundle-Dyhmup/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -26,7 +26,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-xRs0rO/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-Dyhmup/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     globalThis.fetch = new Proxy(globalThis.fetch, {
       apply(target, thisArg, argArray) {
@@ -2197,11 +2197,11 @@ var init_database = __esm({
   }
 });
 
-// .wrangler/tmp/bundle-xRs0rO/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-Dyhmup/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-xRs0rO/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-Dyhmup/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -8315,6 +8315,802 @@ async function handleGetPlans(request, env, ctx) {
 // handlers/seo-handler.js
 init_checked_fetch();
 init_modules_watch_stub();
+
+// components/page-header.js
+init_checked_fetch();
+init_modules_watch_stub();
+var PAGE_HEADER = `
+  <header class="page-header">
+    <div class="header-container">
+      <a href="/" class="header-logo">
+        <img src="/logo.svg" alt="IPTV Search" width="160" height="48" />
+      </a>
+      <nav class="header-nav">
+        <a href="/" class="nav-item home-icon" title="\u9996\u9875">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </a>
+        <!-- Translate.js \u8BED\u8A00\u5207\u6362\u5668\u5BB9\u5668 -->
+        <div id="translate" style="margin-left: 12px;"></div>
+      </nav>
+    </div>
+  </header>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-padding-top: 70px;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .page-header {
+      background: rgba(20, 20, 20, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+    .header-container {
+      max-width: 100%;
+      margin: 0;
+      padding: 0 20px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .header-logo {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      transition: opacity 0.2s;
+    }
+
+    .header-logo:hover {
+      opacity: 0.8;
+    }
+
+    .header-logo img {
+      width: 160px;
+      height: 48px;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .nav-item {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .nav-item.home-icon {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s;
+    }
+
+    .nav-item.home-icon:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Translate.js \u8BED\u8A00\u5207\u6362\u5668\u6837\u5F0F */
+    #translate {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    #translate select {
+      height: 40px;
+      padding: 0 32px 0 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    #translate select:hover {
+      border-color: rgba(255, 255, 255, 0.5);
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    #translate select:focus {
+      outline: none;
+      border-color: #e50914;
+    }
+
+    #translate select option {
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      html {
+        scroll-padding-top: 60px;
+      }
+
+      .header-container {
+        padding: 0 15px;
+        height: 60px;
+      }
+
+      .header-logo img {
+        width: 130px;
+        height: 39px;
+      }
+
+      .header-nav {
+        gap: 4px;
+      }
+
+      .nav-item {
+        font-size: 13px;
+        padding: 6px 10px;
+      }
+
+      .nav-item.home-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .nav-item.home-icon:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+      }
+
+      .nav-item.home-icon svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      html {
+        scroll-padding-top: 50px;
+      }
+
+      .header-container {
+        padding: 0 10px;
+      }
+
+      .header-logo img {
+        width: 110px;
+        height: 33px;
+      }
+
+      .nav-item {
+        font-size: 12px;
+        padding: 5px 8px;
+      }
+
+      .nav-item.home-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      }
+
+      .nav-item.home-icon:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+      }
+
+      .nav-item.home-icon svg {
+        width: 15px;
+        height: 15px;
+      }
+    }
+  </style>
+  
+`;
+
+// components/page-footer.js
+init_checked_fetch();
+init_modules_watch_stub();
+var PAGE_FOOTER = `
+  <footer class="page-footer">
+    <div class="footer-content">
+  <p class="footer-copyright">&copy; ${(/* @__PURE__ */ new Date()).getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+      
+      <!-- SEO \u53CB\u597D\u94FE\u63A5 -->
+      <div class="footer-links">
+        <a href="/tutorial">How to Watch on TV Devices</a>
+        <a href="/sitemap.xml">Sitemap</a>
+        <a href="/robots.txt">Robots</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="mailto:support@iptv-search.com">Contact Us</a>
+      </div>
+      
+      <!-- Cloudflare\u6258\u7BA1\u8BF4\u660E\u548C\u5FBD\u7AE0 -->
+      <div class="footer-badges">
+        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
+        </a>
+        <span>This site is powered by Cloudflare for acceleration and security</span>
+      </div>
+      
+      <!-- \u514D\u8D23\u58F0\u660E -->
+      <div class="footer-disclaimer">
+        All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.
+      </div>
+    </div>
+  </footer>
+
+  <style>
+    .page-footer {
+      background: #0a0a0a;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 40px 20px;
+      margin-top: 60px;
+    }
+
+    .footer-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .footer-copyright {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+      font-size: 12px;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .footer-badges {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .footer-badges img {
+      height: 12px;
+      width: auto;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .footer-badges img:hover {
+      opacity: 1;
+    }
+
+    .footer-badges span {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .footer-disclaimer {
+      margin-top: 15px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+      line-height: 1.5;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: 768px) {
+      .page-footer {
+        padding: 30px 15px;
+        margin-top: 40px;
+      }
+
+      .footer-copyright {
+        font-size: 13px;
+      }
+
+      .footer-links {
+        gap: 12px;
+        font-size: 11px;
+      }
+
+      .footer-badges span {
+        font-size: 11px;
+      }
+
+      .footer-disclaimer {
+        font-size: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .page-footer {
+        padding: 25px 10px;
+        margin-top: 30px;
+      }
+
+      .footer-links {
+        gap: 10px;
+        flex-direction: column;
+      }
+
+      .footer-links a {
+        margin: 3px 0;
+      }
+
+      .footer-badges {
+        flex-direction: column;
+      }
+    }
+  </style>
+  <!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && !window.translate) {
+        window.translate = translate;
+      }
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.language.setLocal('english');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+    initTranslate();
+
+    function changeLanguage(lang) {
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        t.changeLanguage(lang);
+      }
+    }
+  <\/script>
+
+  <!-- 100%\u586B\u5145 -->
+  <!--<script src="https://quge5.com/88/tag.min.js" data-zone="211982" async data-cfasync="false"><\/script>-->
+`;
+
+// static-assets.js
+init_checked_fetch();
+init_modules_watch_stub();
+var SEO_HOME_CSS = `
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff}
+    ::-webkit-scrollbar{width:8px}
+    ::-webkit-scrollbar-track{background:#1a1a1a}
+    ::-webkit-scrollbar-thumb{background:#333;border-radius:4px}
+    ::-webkit-scrollbar-thumb:hover{background:#555}
+
+    .header{position:fixed;top:0;left:0;right:0;height:70px;background:rgba(20,20,20,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.1);z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 40px}
+    .logo-link{text-decoration:none;cursor:pointer;transition:opacity .2s}
+    .logo-link:hover{opacity:0.8}
+    .logo{display:flex;align-items:center;gap:10px}
+    .logo img{height:40px;width:auto}
+    .logo-text{font-size:24px;font-weight:800;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .header-left{display:flex;align-items:center;gap:40px}
+    .header-right{display:flex;align-items:center;margin-left:auto}
+    .search-box{max-width:500px;margin-right:20px}
+    .search-input{width:100%;padding:12px 20px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.05);color:#fff;font-size:15px;transition:all .2s}
+    .search-input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
+    .search-input::placeholder{color:rgba(255,255,255,.5)}
+    .nav-links{display:flex;gap:20px;margin-left:auto}
+    .nav-links a{color:rgba(255,255,255,.8);text-decoration:none;font-size:14px;transition:color .2s}
+    .nav-links a:hover{color:#fff}
+    .nav-links a.active{color:#e50914}
+
+    
+    /* \u5FEB\u6377\u5165\u53E3\u6309\u94AE */
+    .quick-entries{display:flex;gap:8px;margin-left:0;overflow:visible}
+    .quick-entry{position:relative;width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .quick-entry svg{width:18px;height:18px}
+    .quick-entry:hover{background:rgba(255,255,255,.2);color:#fff}
+    .quick-entry-badge{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;background:#e50914;border-radius:9px;font-size:11px;font-weight:600;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 5px;display:none}
+    .quick-entry-tip{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;white-space:nowrap;font-size:12px;color:rgba(255,255,255,.6);opacity:0;transition:opacity .2s;pointer-events:none;z-index:10;background:rgba(0,0,0,.8);padding:4px 8px;border-radius:4px}
+    .quick-entry:hover .quick-entry-tip{opacity:1}
+
+    .auth-btn{padding:8px 20px;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+    .auth-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(229,9,20,.4)}
+    .auth-btn:active{transform:translateY(0);scale:.98}
+
+    /* Translate.js \u8BED\u8A00\u5207\u6362\u5668\u6837\u5F0F */
+    #translate{display:inline-flex;align-items:center}
+    #translate select{height:40px;padding:0 32px 0 12px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.6);color:#fff;cursor:pointer;font-size:14px;font-weight:500;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+    #translate select:hover{border-color:rgba(255,255,255,.5);background-color:rgba(0,0,0,.8)}
+    #translate select:focus{outline:none;border-color:#e50914}
+    #translate select option{background:#1a1a1a;color:#fff}
+
+    .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:2000;backdrop-filter:blur(10px);opacity:0;transition:opacity .3s}
+    .modal-overlay.open{display:flex;align-items:center;justify-content:center;opacity:1}
+    .modal{background:#1a1a1a;border-radius:16px;padding:30px;max-width:420px;width:90%;position:relative;transform:scale(.9);transition:transform .3s;border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+    .modal-overlay.open .modal{transform:scale(1)}
+    .modal-close{position:absolute;top:15px;right:15px;background:none;border:none;color:rgba(255,255,255,.6);font-size:24px;cursor:pointer;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .modal-close:hover{color:#fff;background:rgba(255,255,255,.1)}
+    .modal-title{font-size:24px;font-weight:700;color:#fff;margin-bottom:25px;text-align:center}
+    .modal-form{display:flex;flex-direction:column;gap:15px}
+    .form-group{display:flex;flex-direction:column;gap:6px}
+    .form-label{font-size:14px;font-weight:500;color:rgba(255,255,255,.8)}
+    .form-input{padding:12px 16px;border:2px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.05);color:#fff;font-size:15px;transition:all .2s}
+    .form-input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
+    .form-input::placeholder{color:rgba(255,255,255,.4)}
+    .form-input.error{border-color:#ff3b30}
+    .form-error{color:#ff3b30;font-size:13px;display:none}
+    .form-error.show{display:block}
+    .form-help{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px}
+    .btn-primary{padding:14px 20px;background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(229,9,20,.4)}
+    .btn-primary:active{transform:translateY(0);scale:.98}
+    .btn-primary:disabled{background:rgba(229,9,20,.3);cursor:not-allowed;transform:none;scale:1;box-shadow:none}
+    .btn-secondary{padding:12px 16px;background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+    .btn-secondary:hover{background:rgba(255,255,255,.15)}
+    .btn-secondary:active{background:rgba(255,255,255,.2);scale:.98}
+    .btn-secondary.disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
+    .google-login-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;background:#fff;color:#3c4043;border:none;border-radius:8px;font-size:16px;font-weight:500;cursor:pointer;transition:all .2s;margin-top:10px}
+    .google-login-btn:hover{background:#f8f9fa;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+    .google-login-btn img{width:20px;height:20px}
+    .modal-footer{margin-top:20px;text-align:center;font-size:14px;color:rgba(255,255,255,.6)}
+    .modal-footer a{color:#e50914;text-decoration:none;font-weight:500}
+    .modal-footer a:hover{text-decoration:underline}
+    .verification-inputs{display:flex;gap:8px;justify-content:center;margin:10px 0}
+    .verification-input{width:50px;height:50px;border:2px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.05);color:#fff;font-size:24px;font-weight:600;text-align:center;transition:all .2s}
+    .verification-input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
+    .verification-input.error{border-color:#ff3b30}
+    .resend-link{color:rgba(255,255,255,.6);font-size:13px;text-decoration:none;cursor:pointer}
+    .resend-link:hover{color:#e50914;text-decoration:underline}
+    .resend-link.disabled{color:rgba(255,255,255,.3);cursor:not-allowed;pointer-events:none}
+
+    .main{display:flex;margin-top:70px;min-height:calc(100vh - 70px)}
+    .sidebar{width:260px;background:#141414;border-right:1px solid rgba(255,255,255,.1);overflow-y:auto;padding:20px 0;position:fixed;height:calc(100vh - 70px)}
+    .group-item{padding:12px 24px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;font-size:14px;border-left:3px solid transparent}
+    .group-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+    .group-item.active{color:#fff;background:rgba(229,9,20,.1);border-left-color:#e50914}
+    .content{flex:1;margin-left:260px;padding:30px}
+
+    .section-title{font-size:18px;font-weight:600;margin-bottom:20px;color:#fff}
+    .channels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+    .channel-card{background:#141414;border-radius:8px;overflow:hidden;cursor:pointer;transition:all .3s;border:2px solid transparent;position:relative}
+    .channel-card:hover{transform:scale(1.05);border-color:#e50914;z-index:10;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+    .channel-poster{aspect-ratio:16/9;background:#1a1a1a;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+    .channel-poster img{width:100%;height:100%;object-fit:contain;transition:transform .3s}
+    .channel-card:hover .channel-poster img{transform:scale(1.1)}
+    .channel-icon{font-size:48px;opacity:.5}
+    .play-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(229,9,20,.8);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
+    .channel-card:hover .play-overlay{opacity:1}
+    .play-overlay.disabled{display:none!important}
+    .play-icon{width:60px;height:60px;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .play-icon::after{content:'';width:0;height:0;border-left:20px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:4px}
+    .channel-info{padding:14px}
+    .channel-name{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:#fff;margin-bottom:4px;overflow:hidden}
+    .channel-name-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+    .channel-group{font-size:12px;color:rgba(255,255,255,.5)}
+    .pagination{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:30px;padding:20px 0}
+    .pagination button{padding:8px 16px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:#fff;border-radius:6px;cursor:pointer;font-size:14px;transition:all .2s}
+    .pagination button:hover:not(:disabled){background:rgba(255,255,255,.1);border-color:#e50914}
+    .pagination button:disabled{color:rgba(255,255,255,.3);cursor:not-allowed;border-color:rgba(255,255,255,.1)}
+    .pagination button.active{background:#e50914;border-color:#e50914}
+    .pagination-info{color:rgba(255,255,255,.6);font-size:14px}
+    
+    /* \u64AD\u653E\u5668\u6837\u5F0F - \u53EF\u6298\u53E0\u7684\u53F3\u4E0B\u89D2\u6D6E\u7A97 */
+    .player-wrapper{display:none;position:fixed;right:20px;bottom:20px;z-index:1000;background:#0a0a0a;border-radius:12px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1);transition:all .3s ease}
+    .player-wrapper.expanded{width:calc(100vw - 40px);height:calc(100vh - 80px);right:20px;top:70px;bottom:20px}
+    .player-wrapper.collapsed{width:480px;height:270px;aspect-ratio:16/9}
+    .player-wrapper.active{display:block}
+    .player-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.1);cursor:move;user-select:none}
+    .player-info{flex:1;min-width:0}
+    .player-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .player-group{font-size:12px;color:rgba(255,255,255,.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .player-controls{display:flex;gap:8px}
+    .player-btn{width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:14px}
+    .player-btn:hover{background:rgba(255,255,255,.2)}
+    .player-container{position:relative;width:100%;height:calc(100% - 50px);background:#000;display:flex;align-items:center;justify-content:center}
+    .player-container video{width:100%;height:100%;object-fit:contain}
+    .close-modal{background:rgba(231,9,20,.2)}
+    .close-modal:hover{background:rgba(231,9,20,.4)}
+
+    /* \u60AC\u6D6E\u529F\u80FD\u680F - \u53F3\u4E0B\u89D2 */
+    .action-bar{position:fixed;right:20px;bottom:20px;z-index:1000;display:flex;flex-direction:column;gap:8px}
+    .action-bar-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:10px;border:none;cursor:pointer;color:#fff;transition:all .2s;padding:0;background:rgba(255,255,255,.1);box-shadow:0 4px 12px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15)}
+    .action-bar-btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.15);box-shadow:0 6px 20px rgba(0,0,0,.4)}
+    .action-bar-btn:active{transform:translateY(0) scale(0.95)}
+    .action-bar-btn svg{width:20px;height:20px;flex-shrink:0}
+    .action-bar-btn .spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+    .action-bar-btn.download:hover{background:rgba(229,9,20,.2);border-color:rgba(229,9,20,.3)}
+    .action-bar-btn.telegram:hover{background:rgba(34,158,217,.2);border-color:rgba(34,158,217,.3)}
+    .action-bar-btn.top:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2)}
+
+    .loading{display:flex;align-items:center;justify-content:center;padding:60px;color:rgba(255,255,255,.5)}
+    .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#e50914;border-radius:50%;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-text{margin-left:16px;font-size:14px}
+    
+    /* \u5E7F\u544A\u5361\u7247\u6837\u5F0F - \u4E0E\u9891\u9053\u5361\u7247\u4E00\u81F4\uFF0C\u5E7F\u544A\u8986\u76D6\u6574\u4E2A\u5361\u7247 */
+    .ad-card{background:#141414;border-radius:8px;overflow:hidden;border:2px solid rgba(255,215,0,.3);position:relative;cursor:pointer;transition:all .3s}
+    .ad-card:hover{transform:scale(1.05);border-color:#ffd700;z-index:10;box-shadow:0 8px 30px rgba(255,215,0,.2)}
+    .ad-card .channel-poster{aspect-ratio:16/9;visibility:hidden;pointer-events:none}
+    .ad-card .ad-label{position:absolute;top:8px;left:8px;padding:4px 10px;background:rgba(255,215,0,.9);color:#000;border-radius:4px;font-size:11px;font-weight:600;z-index:10}
+    .ad-card .ad-fullcard{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center}
+    .ad-card ins.adsbygoogle{display:block !important;width:100% !important;height:100% !important}
+    .ad-card .channel-info{position:absolute;bottom:0;left:0;right:0;padding:14px;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.7) 100%);z-index:5}
+    .ad-card .channel-name{color:#ffd700}
+    
+    .empty-state{text-align:center;padding:80px 20px;color:rgba(255,255,255,.5)}
+    .empty-icon{font-size:64px;margin-bottom:20px;opacity:.3}
+    .empty-title{font-size:20px;font-weight:600;margin-bottom:10px}
+    .empty-desc{font-size:14px}
+    
+    .footer{text-align:center;padding:30px;color:rgba(255,255,255,.4);font-size:13px;border-top:1px solid rgba(255,255,255,.1);margin-top:40px;margin-left:260px}
+
+    /* \u70ED\u95E8\u9891\u9053\u6807\u7B7E */
+    .hot-tag{position:absolute;top:8px;left:8px;padding:4px 10px;background:#ff4757;color:white;border-radius:4px;font-size:11px;font-weight:600;z-index:10}
+    .hot-tag::before{content:'\u{1F525} ';margin-right:2px}
+
+    /* \u6536\u85CF\u529F\u80FD */
+    .favorite-btn{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.6);border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:10}
+    .favorite-btn:hover{background:rgba(0,0,0,.8);color:#fff}
+    .favorite-btn.favorited{color:#ffd700}
+    .favorite-section{display:none}
+    .favorite-section.active{display:block}
+
+    /* \u5FEB\u6377\u9762\u677F */
+    .quick-panel{display:none;position:fixed;top:70px;right:20px;width:400px;max-height:calc(100vh - 100px);background:rgba(20,20,20,.98);border:1px solid rgba(255,255,255,.1);border-radius:12px;overflow:hidden;z-index:900;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+    .quick-panel.active{display:block;animation:slideIn 0.3s ease}
+    @keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    .quick-panel-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
+    .quick-panel-title{font-size:16px;font-weight:600;color:#fff;display:flex;align-items:center;gap:8px}
+    .quick-panel-close{width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:rgba(255,255,255,.6);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .quick-panel-close:hover{background:rgba(255,255,255,.2);color:#fff}
+    .quick-panel-content{padding:16px;overflow-y:auto;max-height:calc(100vh - 180px)}
+    .quick-panel-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;background:rgba(255,255,255,.03);cursor:pointer;transition:all .2s;margin-bottom:8px}
+    .quick-panel-item:hover{background:rgba(255,255,255,.08);transform:translateX(4px)}
+    .quick-panel-item-poster{width:80px;height:45px;background:#141414;border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .quick-panel-item-poster img{width:100%;height:100%;object-fit:contain}
+    .quick-panel-item-icon{font-size:24px;opacity:.5}
+    .quick-panel-item-info{flex:1;min-width:0}
+    .quick-panel-item-name{font-size:14px;font-weight:500;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .quick-panel-item-group{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px}
+    .quick-panel-item-time{font-size:11px;color:rgba(255,255,255,.4)}
+    .quick-panel-empty{text-align:center;padding:40px 20px;color:rgba(255,255,255,.5)}
+    .quick-panel-empty-icon{font-size:48px;margin-bottom:12px;opacity:.3}
+    .quick-panel-empty-text{font-size:14px}
+
+    /* \u5728\u7EBF\u4EBA\u6570\u663E\u793A */
+    .online-counter{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.6);font-size:13px;margin-left:40px}
+    .online-dot{width:8px;height:8px;border-radius:50%;background:#34c759;animation:pulse 2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+    .online-count{font-weight:600;color:#34c759}
+
+    /* \u70B9\u51FB\u6CE2\u7EB9\u6548\u679C */
+    .ripple{position:relative;overflow:hidden}
+    .ripple-effect{position:absolute;border-radius:50%;background:rgba(255,255,255,.3);transform:scale(0);animation:ripple 0.6s linear;pointer-events:none}
+    @keyframes ripple{to{transform:scale(4);opacity:0}}
+
+    /* \u52A0\u8F7D\u6307\u793A\u5668 */
+    .loading-indicator{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:1001;background:rgba(20,20,20,.95);backdrop-filter:blur(20px);padding:16px 32px;border-radius:8px;display:none;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1)}
+    .loading-indicator.active{display:flex;animation:fadeIn 0.3s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+    .loading-spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.2);border-top-color:#e50914;border-radius:50%;animation:spin 0.8s linear infinite}
+    .loading-text{font-size:14px;color:#fff}
+
+    /* \u70B9\u51FB\u9AD8\u4EAE\u52A8\u753B */
+    .click-highlight{animation:clickPulse 0.3s ease}
+    @keyframes clickPulse{0%{transform:scale(1)}50%{transform:scale(0.95)}100%{transform:scale(1)}}
+
+    /* \u64AD\u653E\u63D0\u793A\u52A8\u753B */
+    .playing-indicator{display:flex;align-items:center;gap:6px;color:#e50914;font-size:12px;font-weight:600;animation:fadeInUp 0.3s ease}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .playing-dots{display:flex;gap:3px}
+    .playing-dot{width:6px;height:6px;background:#e50914;border-radius:50%;animation:playingDot 1s ease-in-out infinite}
+    .playing-dot:nth-child(2){animation-delay:0.2s}
+    .playing-dot:nth-child(3){animation-delay:0.4s}
+    @keyframes playingDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(0.8)}}
+
+    /* \u5F53\u524D\u64AD\u653E\u9891\u9053\u7684\u6837\u5F0F */
+    .channel-card.playing{border-color:#e50914;box-shadow:0 0 20px rgba(229,9,20,0.3)}
+    .channel-card.playing .channel-poster .playing-indicator{position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.7);padding:4px 8px;border-radius:4px;color:#fff;z-index:5}
+
+    /* Toast \u63D0\u793A\u7EC4\u4EF6\uFF08\u5DF2\u9690\u85CF\uFF09 */
+    .toast-container{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none}
+    .toast{min-width:320px;max-width:500px;padding:16px 20px;border-radius:10px;color:#fff;font-size:14px;line-height:1.5;box-shadow:0 8px 30px rgba(0,0,0,.4);pointer-events:auto;backdrop-filter:blur(10px);animation:toastSlideIn 0.3s ease;transition:all 0.2s}
+    .toast.error{background:rgba(26,26,26,.5);border:1px solid rgba(255,255,255,.1)}
+    .toast.warning{background:linear-gradient(135deg,rgba(234,179,8,.5) 0%,rgba(245,158,11,.5) 100%);border:1px solid rgba(251,191,36,.3)}
+    .toast.success{background:linear-gradient(135deg,rgba(34,197,94,.5) 0%,rgba(22,163,74,.5) 100%);border:1px solid rgba(74,222,128,.3)}
+    .toast.info{background:linear-gradient(135deg,rgba(59,130,246,.5) 0%,rgba(37,99,235,.5) 100%);border:1px solid rgba(96,165,250,.3)}
+    .toast-title{font-weight:600;margin-bottom:4px;font-size:15px}
+    .toast-message{color:rgba(255,255,255,.85);white-space:pre-wrap}
+    .toast-close{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.15);border:none;cursor:pointer;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .toast-close:hover{background:rgba(255,255,255,.25);transform:scale(1.1)}
+    @keyframes toastSlideIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes toastSlideOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-20px)}}
+    .toast.hiding{animation:toastSlideOut 0.3s ease forwards}
+
+    /* \u516C\u544A\u6837\u5F0F - \u5F39\u7A97\u5F0F\u901A\u77E5 */
+    .announcement-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(4px)}
+    .announcement-modal.active{display:flex}
+    .announcement-modal-box{background:#1a1a1a;border-radius:16px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);animation:announcementSlideIn 0.3s ease}
+    @keyframes announcementSlideIn{from{opacity:0;transform:scale(0.9) translateY(-20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .announcement-modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+    .announcement-modal-title{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600;color:#fff}
+    .announcement-modal-icon{font-size:24px}
+    .announcement-close{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:none;cursor:pointer;color:rgba(255,255,255,.6);font-size:22px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .announcement-close:hover{background:rgba(255,255,255,.2);color:#fff;transform:rotate(90deg)}
+    .announcement-modal-body{padding:24px;color:rgba(255,255,255,.85);font-size:15px;line-height:1.7}
+    .announcement-modal-body p{margin-bottom:12px}
+    .announcement-modal-body p:last-child{margin-bottom:0}
+    .announcement-modal-body a{color:#60a5fa;text-decoration:underline}
+    .announcement-modal-footer{display:flex;align-items:center;justify-content:space-between;padding:16px 24px 20px;border-top:1px solid rgba(255,255,255,.1)}
+    .announcement-modal-time{display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.5)}
+    .announcement-modal-button{padding:10px 24px;background:#60a5fa;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s}
+    .announcement-modal-button:hover{background:#3b82f6}
+
+
+    @media (max-width:1024px){
+      .sidebar{display:none}
+      .content{margin-left:0}
+      .footer{margin-left:0}
+      .channels-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+      .player-wrapper.collapsed{width:360px;height:200px}
+    }
+    .mobile-menu-btn{display:none}
+    .mobile-menu{display:none}
+    .mobile-menu-overlay{display:none}
+    .mobile-search-header{display:none}
+
+    @media (max-width:768px){
+      .header{padding:0 12px;height:60px;justify-content:flex-start;gap:12px}
+      .logo{font-size:18px;flex-shrink:0}
+      .header-left{gap:10px}
+      .online-counter{font-size:11px;display:none}
+      .header-right{display:none}
+      .mobile-search-header{display:flex;flex:1;max-width:200px;margin-left:auto}
+      .mobile-search-header .search-input{width:100%;padding:8px 12px;font-size:14px}
+      .mobile-menu-btn{display:flex;width:40px;height:40px;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:none;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px;flex-shrink:0}
+      .mobile-menu{display:block;position:fixed;top:0;right:-100%;width:280px;height:100vh;background:#1a1a1a;z-index:1000;transition:right .3s ease;overflow-y:auto;padding:20px}
+      .mobile-menu.open{right:0}
+      .mobile-menu-overlay{display:block;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:999;opacity:0;visibility:hidden;transition:all .3s}
+      .mobile-menu-overlay.open{opacity:1;visibility:visible}
+      .mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid rgba(255,255,255,.1)}
+      .mobile-menu-title{font-size:16px;font-weight:600;color:#fff}
+      .mobile-menu-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:none;border-radius:6px;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px}
+      .mobile-section{margin-bottom:25px}
+      .mobile-section-title{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+      .mobile-actions{display:flex;gap:10px;margin-bottom:20px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:5px}
+      .mobile-actions::-webkit-scrollbar{display:none}
+      .mobile-actions::-webkit-scrollbar{display:none}
+      .mobile-action-btn{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:65px;padding:12px 8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);flex-shrink:0}
+      .mobile-action-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+      .mobile-action-btn .icon svg{width:24px;height:24px}
+      .mobile-action-btn .label{font-size:11px;color:rgba(255,255,255,.6);white-space:nowrap}
+      .mobile-lang-menu{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:5px}
+      .mobile-lang-menu::-webkit-scrollbar{display:none}
+      .mobile-lang-item{padding:10px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.7);font-size:14px;white-space:nowrap;flex-shrink:0}
+      .mobile-lang-item:hover{background:rgba(255,255,255,.1);color:#fff}
+      .mobile-lang-item.active{background:rgba(229,9,20,.2);border-color:#e50914;color:#fff;font-weight:600}
+      .mobile-group-item{padding:12px 16px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;font-size:14px;border-left:3px solid transparent}
+      .mobile-group-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+      .mobile-group-item.active{color:#fff;background:rgba(229,9,20,.1);border-left-color:#e50914;font-weight:600}
+      .sidebar{display:none}
+      .sidebar.mobile-open{display:block;position:static;width:100%;height:auto;border-right:none;border-bottom:1px solid rgba(255,255,255,.1);padding:0 0 20px 0}
+      .content{margin-left:0;padding:15px}
+      .channels-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+      /* \u79FB\u52A8\u7AEF\u64AD\u653E\u5668\u7279\u6B8A\u6837\u5F0F */
+      .player-wrapper{position:fixed;top:60px;left:0;right:0;width:100% !important;height:0;overflow:hidden;border-radius:0;box-shadow:0 4px 20px rgba(0,0,0,.5);transition:all .3s ease}
+      .player-wrapper.active{height:calc(100vw * 9 / 16 + 50px);min-height:270px;max-height:370px;z-index:999}
+      .player-wrapper.expanded{height:calc(100vh - 60px);width:100% !important;right:0 !important;left:0 !important;top:60px;bottom:auto}
+      .player-wrapper.collapsed{height:calc(100vw * 9 / 16 + 50px);min-height:270px;max-height:370px;width:100% !important;right:0 !important;left:0 !important;top:60px;bottom:auto}
+      .player-container{height:calc(100% - 50px)}
+      /* \u5185\u5BB9\u533A\u57DF\u6DFB\u52A0\u9876\u90E8\u95F4\u8DDD\uFF0C\u907F\u514D\u88AB\u64AD\u653E\u5668\u906E\u6321 */
+      .main{margin-top:60px;padding-top:0}
+      .main.player-active{padding-top:330px}
+      .main.player-expanded{padding-top:calc(100vh - 60px)}
+      .player-title{font-size:12px}
+      .player-group{font-size:11px}
+      .pagination{flex-wrap:wrap;gap:6px;padding:15px 0}
+      .pagination button{padding:6px 12px;font-size:12px}
+      .pagination-info{width:100%;text-align:center;margin-bottom:10px}
+      /* \u79FB\u52A8\u7AEF Toast \u901A\u77E5\u6837\u5F0F - \u4E0E PC \u7AEF\u4FDD\u6301\u4E00\u81F4 */
+      .toast-container{top:80px}
+      .toast{min-width:280px;max-width:90vw;padding:14px 16px;font-size:13px}
+      .toast-title{font-size:14px}
+      .toast-message{font-size:13px}
+      /* \u79FB\u52A8\u7AEF\u7981\u7528\u9891\u9053\u5361\u7247\u7684\u7126\u70B9\u7EA2\u8272\u5916\u6846 */
+      .channel-card:focus,.channel-card:focus-visible{outline:none;border-color:transparent;box-shadow:none}
+      /* \u79FB\u52A8\u7AEF\u7981\u7528\u6309\u94AE\u7684\u7126\u70B9\u6837\u5F0F */
+      button:focus,button:focus-visible{outline:none}
+    }
+    @media (max-width:480px){
+      .header{padding:0 10px}
+      .logo{font-size:16px}
+      .mobile-menu{width:100%}
+      .mobile-action-btn{min-width:55px;padding:10px 6px}
+      .mobile-action-btn .icon svg{width:20px;height:20px}
+      .mobile-action-btn .label{font-size:10px}
+      .main{margin-top:60px}
+      .channels-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+      .channel-card{padding:8px}
+      .channel-name{font-size:13px}
+      .channel-group{font-size:11px}
+      /* \u79FB\u52A8\u7AEF\u9A8C\u8BC1\u7801\u8F93\u5165\u6846\u9002\u914D */
+      #registerCode{flex:1 !important;min-width:0}
+      #sendCodeBtn{white-space:normal !important;font-size:12px !important;padding:8px 12px !important;flex-shrink:0}
+    }
+    /* \u590D\u5236\u94FE\u63A5\u6309\u94AE */
+    .copy-link-btn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:none;border-radius:4px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);cursor:pointer;transition:all 0.2s ease;flex-shrink:0}
+    .copy-link-btn svg{width:12px;height:12px}
+    .copy-link-btn:hover{background:rgba(229,9,20,0.2);color:#e50914}
+    .copy-link-btn:active{transform:scale(0.92)}
+    .copy-link-btn.copied{background:rgba(34,197,94,0.2);color:#22c55e}
+    .copy-link-btn.copied svg{stroke-width:2.5}
+  `;
+
+// handlers/seo-handler.js
+init_database();
 function isSearchEngineBot(request) {
   const userAgent = request.headers.get("user-agent") || "";
   const bots = ["Googlebot", "Bingbot", "bingbot", "Slurp", "DuckDuckBot", "Baiduspider", "YandexBot", "facebookexternalhit", "Twitterbot", "Applebot", "Redditbot", "Slackbot"];
@@ -8334,59 +9130,6 @@ function slugify(str) {
   if (!str)
     return "";
   return str.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, "-").toLowerCase().replace(/-+/g, "-").replace(/^-|-$/g, "");
-}
-function generateCategorySection(groups, channels, origin) {
-  let html2 = "";
-  for (const group of groups) {
-    const groupChannels = channels.filter((ch) => ch.group_title === group).slice(0, 50);
-    if (groupChannels.length === 0)
-      continue;
-    const safeGroup = slugify(group);
-    html2 += `
-
-    <section class="category-section">
-
-      <h2 id="${safeGroup}">${escapeHtml(group)} <span class="count">(${groupChannels.length} channels)</span></h2>
-
-      <div class="channel-grid">
-
-        ${groupChannels.map((ch) => `
-
-          <div class="channel-card">
-
-            <a href="${origin}/channel/${escapeAttr(ch.channel_hash)}" class="channel-link">
-
-              ${ch.logo ? `<img src="${escapeAttr(ch.logo)}" alt="${escapeAttr(ch.channel_name)} logo" loading="lazy" width="48" height="48">` : '<div class="channel-logo-placeholder">\u{1F4FA}</div>'}
-
-              <span class="channel-name">${escapeHtml(ch.channel_name)}</span>
-
-            </a>
-
-          </div>
-
-        `).join("")}
-
-      </div>
-
-      <p><a href="${origin}/category/${safeGroup}">View all ${escapeHtml(group)} channels \u2192</a></p>
-
-    </section>`;
-  }
-  return html2;
-}
-function generateHomepageJsonLd(channels, groups, origin) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "IPTV Search - Free IPTV Channel Search Engine",
-    "description": `Search over ${channels.length} free IPTV channels. Browse by category. Updated daily. No registration required.`,
-    "url": origin,
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": { "@type": "EntryPoint", "urlTemplate": `${origin}/?search={search_term_string}` },
-      "query-input": "required name=search_term_string"
-    }
-  };
 }
 var SHARED_CSS = `<style>
 
@@ -8423,316 +9166,67 @@ var NAV_HTML = (origin) => `<header><div class="header-content"><a href="${origi
 var FOOTER_HTML = (origin) => `<footer><p>\xA9 ${(/* @__PURE__ */ new Date()).getFullYear()} IPTV Search</p><p style="margin-top:0.5rem"><a href="${origin}/tutorial">How to Watch</a> \xB7 <a href="${origin}/privacy-policy">Privacy Policy</a> \xB7 <a href="${origin}/terms">Terms</a> \xB7 <a href="${origin}/sitemap.xml">Sitemap</a></p></footer>`;
 async function generateSEOHomepage(request, env) {
   const url = new URL(request.url);
-  const origin = `${url.protocol}//${url.host}`;
+  const origin = url.protocol + "//" + url.host;
   const channelsResult = await getAllChannels(env);
   const groupsResult = await getAllGroups(env);
   const channels = channelsResult.channels || [];
   const groups = groupsResult.groups || [];
-  const pageTitle = `IPTV Search \u2014 Free Live TV Channels (${channels.length}+ channels)`;
-  const metaDescription = `Search over ${channels.length} free IPTV channels from around the world. Browse live TV by country: USA, Brazil, China, India and more. No registration required. Updated daily.`;
-  const jsonLd = generateHomepageJsonLd(channels, groups, origin);
-  const categoryHtml = generateCategorySection(groups, channels, origin);
-  return `<!DOCTYPE html>
-
-<html lang="en">
-
-<head>
-
-  <meta charset="UTF-8">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>${escapeHtml(pageTitle)}</title>
-
-  <meta name="description" content="${escapeAttr(metaDescription)}">
-
-  <meta name="robots" content="index, follow, max-image-preview:large">
-
-  <link rel="canonical" href="${origin}/">
-
-  <link rel="alternate" hreflang="en" href="${origin}/">
-
-  <link rel="alternate" hreflang="x-default" href="${origin}/">
-
-  <meta property="og:title" content="${escapeAttr(pageTitle)}">
-
-  <meta property="og:description" content="${escapeAttr(metaDescription)}">
-
-  <meta property="og:type" content="website">
-  <meta property="og:description" content="Search over ${channels.length} free IPTV channels. Browse live TV by country. Updated daily.">
-  <meta property="og:url" content="${origin}/">
-
-  <meta property="og:image" content="${origin}/og-homepage.png">
-
-  <meta property="og:image:width" content="1200">
-
-  <meta property="og:image:height" content="630">
-
-  <meta property="og:site_name" content="IPTV Search">
-
-  <meta name="twitter:card" content="summary_large_image">
-
-  <meta name="twitter:title" content="${escapeAttr(pageTitle)}">
-
-  <meta name="twitter:description" content="${escapeAttr(metaDescription)}">
-
-  <meta name="twitter:image" content="${origin}/og-homepage.png">
-
-  <script type="application/ld+json">${JSON.stringify(jsonLd)}<\/script>
-
-  <script type="application/ld+json">
-
-  {
-
+  const systemConfig = await getSystemConfig(env);
+  const enableIpPlay = systemConfig.enable_ip_play !== false;
+  const perPage = 100;
+  const totalChannels = channels.length;
+  const totalPages = Math.max(1, Math.ceil(totalChannels / perPage));
+  const pageTitle = "IPTV Search \u2014 Free IPTV Channel Directory & Search Engine";
+  const metaDescription = "Search over " + totalChannels + " free IPTV channels from around the world. Sports, news, movies, entertainment. No registration required. Updated daily.";
+  const jsonLd = {
     "@context": "https://schema.org",
-
-    "@type": "FAQPage",
-
-    "mainEntity": [
-
-      {
-
-        "@type": "Question",
-
-        "name": "What is IPTV Search?",
-
-        "acceptedAnswer": {
-
-          "@type": "Answer",
-
-          "text": "IPTV Search is a free IPTV channel directory and search tool. We index and organize public IPTV channel playlists so you can easily find sports, news, movies, entertainment, and international TV channels. We do not stream or host any content."
-
-        }
-
-      },
-
-      {
-
-        "@type": "Question",
-
-        "name": "How do I use IPTV channels?",
-
-        "acceptedAnswer": {
-
-          "@type": "Answer",
-
-          "text": "Find the channel you want, copy its M3U playlist URL, and add it to any IPTV player app such as VLC, IPTV Smarters, or your smart TV. No subscription or registration required."
-
-        }
-
-      },
-
-      {
-
-        "@type": "Question",
-
-        "name": "How many channels are available?",
-
-        "acceptedAnswer": {
-
-          "@type": "Answer",
-
-          "text": "We index ${channels.length.toLocaleString()}+ live TV channels across ${groups.length} categories including sports, news, movies, entertainment, kids, music, and international content."
-
-        }
-
-      },
-
-      {
-
-        "@type": "Question",
-
-        "name": "Do I need to register or pay?",
-
-        "acceptedAnswer": {
-
-          "@type": "Answer",
-
-          "text": "No registration and no payment required. Browse channels, find what you want, and use the M3U URL with any compatible player \u2014 completely free."
-
-        }
-
-      },
-
-      {
-
-        "@type": "Question",
-
-        "name": "What devices work with IPTV playlists?",
-
-        "acceptedAnswer": {
-
-          "@type": "Answer",
-
-          "text": "M3U playlists work on mobile phones (iOS/Android), smart TVs, streaming devices (Fire TV, Roku), and desktop computers using VLC, IPTV apps, Kodi, or any IPTV-compatible player."
-
-        }
-
-      }
-
-    ]
-
-  }
-
-  <\/script>
-
-  <script type="application/ld+json">
-
-  {
-
-    "@context": "https://schema.org",
-
-    "@type": "Organization",
-
+    "@type": "WebSite",
     "name": "IPTV Search",
-
-    "url": "${origin}",
-
-    "description": "Free IPTV channel directory and search tool. Browse ${channels.length.toLocaleString()}+ live TV channels across ${groups.length} categories.",
-
-    "logo": { "@type": "ImageObject", "url": "${origin}/logo-new.svg", "width": 200, "height": 60 }
-
-  }
-
-  <\/script>
-
-  <script type="application/ld+json">
-
-  {
-
-    "@context": "https://schema.org",
-
-    "@type": "BreadcrumbList",
-
-    "itemListElement": [{ "@type": "ListItem", "position": 1, "name": "Home", "item": "${origin}/" }]
-
-  }
-
-  <\/script>
-
-  ${SHARED_CSS}
-
-  <style>
-
-    .hero{background:linear-gradient(135deg,#1a1a2e,#0f0f1a);padding:3rem 2rem;text-align:center;border-bottom:1px solid rgba(255,255,255,0.05)}
-
-    .hero h1{font-size:2.5rem;margin-bottom:1rem}
-
-    .hero p{font-size:1.2rem;color:rgba(255,255,255,0.7);margin-bottom:2rem}
-
-    .stats{display:flex;justify-content:center;gap:3rem;margin-top:2rem;flex-wrap:wrap}
-
-    .stat{text-align:center}
-
-    .stat-number{font-size:2rem;font-weight:700;color:#e50914}
-
-    .stat-label{color:rgba(255,255,255,0.6);font-size:0.9rem}
-
-    .search-box{background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:2rem;margin-bottom:3rem}
-
-    .search-box h2{margin-bottom:1rem;font-size:1.3rem}
-
-    .search-form{display:flex;gap:0.5rem;max-width:600px;margin:0 auto}
-
-    .search-form input{flex:1;padding:0.8rem 1rem;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:#0a0a0a;color:#fff;font-size:1rem}
-
-    .search-form button{padding:0.8rem 1.5rem;background:#e50914;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:1rem;font-weight:600}
-
-    .category-section{margin-bottom:3rem;padding:1.5rem;background:#141414;border-radius:8px;border:1px solid rgba(255,255,255,0.08)}
-
-    .category-section h2{font-size:1.4rem;margin-bottom:1rem;color:#fff;border-bottom:2px solid #e50914;padding-bottom:0.5rem}
-
-    .category-section h2 .count{font-size:0.9rem;color:rgba(255,255,255,0.5);font-weight:normal}
-
-    .category-section>p{margin-top:1rem;font-size:0.9rem}
-
-    .channel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem}
-
-    .channel-card{background:#1a1a1a;border-radius:6px;padding:0.75rem;border:1px solid rgba(255,255,255,0.05);transition:border-color 0.2s}
-
-    .channel-card:hover{border-color:rgba(229,9,20,0.5)}
-
-    .channel-link{display:flex;align-items:center;gap:0.75rem;color:#fff}
-
-    .channel-link:hover{text-decoration:none}
-
-    .channel-link img{width:36px;height:36px;object-fit:contain;border-radius:4px;flex-shrink:0}
-
-    .channel-logo-placeholder{width:36px;height:36px;background:#2a2a2a;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
-
-    .channel-name{font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-    .toc{background:#1a1a1a;border-radius:8px;padding:1.5rem;margin-bottom:2rem;border:1px solid rgba(255,255,255,0.1)}
-
-    .toc h2{font-size:1.2rem;margin-bottom:1rem}
-
-    .toc-list{display:flex;flex-wrap:wrap;gap:0.5rem 1rem;list-style:none}
-
-    .toc-list a{color:#e50914;font-size:0.9rem}
-
-    @media(max-width:768px){.hero h1{font-size:1.8rem}.stats{gap:1.5rem}.channel-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
-
-  </style>
-
-</head>
-
-<body>
-
-  ${NAV_HTML(origin)}
-
-  <div class="hero">
-
-    <h1>Free IPTV Channel Search Engine</h1>
-
-    <p>Search over ${channels.length.toLocaleString()} live TV channels from ${groups.length} categories worldwide</p>
-
-    <div class="stats">
-
-      <div class="stat"><div class="stat-number">${channels.length.toLocaleString()}+</div><div class="stat-label">Live TV Channels</div></div>
-
-      <div class="stat"><div class="stat-number">${groups.length}</div><div class="stat-label">Categories</div></div>
-
-      <div class="stat"><div class="stat-number">Daily</div><div class="stat-label">Updated</div></div>
-
-    </div>
-
-  </div>
-
-  <main>
-
-    <div class="search-box">
-
-      <h2>Search Channels</h2>
-
-      <form class="search-form" action="${origin}/" method="get">
-
-        <input type="text" name="search" placeholder="Search channels (e.g. BBC, ESPN, CNN...)" aria-label="Search channels">
-
-        <button type="submit">Search</button>
-
-      </form>
-
-    </div>
-
-    ${groups.length > 0 ? `<div class="toc"><h2>Browse by Category</h2><ul class="toc-list">${groups.map((g) => `<li><a href="#${slugify(g)}">${escapeHtml(g)}</a></li>`).join("")}</ul></div>` : ""}
-
-    ${categoryHtml || "<p>No channels available.</p>"}
-
-  </main>
-
-  ${FOOTER_HTML(origin)}
-
-</body>
-
-</html>`;
-  return new Response(html, {
-    status: 200,
-    headers: {
-      "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "public, max-age=3600",
-      "X-Seo-Version": "2.0"
+    "description": "Free IPTV channel directory with " + totalChannels + "+ live TV channels.",
+    "url": origin,
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": { "@type": "EntryPoint", "urlTemplate": origin + "/search?q={search_term_string}" },
+      "query-input": "required name=q"
     }
+  };
+  const STATIC_HEADER = '<header class="header"><div class="header-left"><a href="' + origin + '/" class="logo-link"><div class="logo"><img src="' + origin + '/logo.svg" alt="IPTV Search Logo" /></div></a><div class="online-counter"><span class="online-dot"></span><span class="online-count">' + totalChannels.toLocaleString() + '</span><span>channels</span></div></div><div class="header-right"><div class="search-box"><form action="' + origin + '/search" method="get"><input type="text" name="q" class="search-input" placeholder="Search channels..." aria-label="Search channels"></form></div><div class="quick-entries"><a class="quick-entry" href="' + origin + '/tutorial" title="How to Watch"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg><span class="quick-entry-tip">How to Watch</span></a><a class="quick-entry" href="' + origin + '/freesub" title="Plans"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg><span class="quick-entry-tip">Plans</span></a><a class="quick-entry" href="' + origin + '/privacy-policy" title="Privacy"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><span class="quick-entry-tip">Privacy</span></a></div><a class="auth-btn" href="' + origin + '/login">Login</a><div id="translate"><select onchange="if(this.value)location.href=this.value"><option value="' + origin + '/?lang=en">English</option><option value="' + origin + '/?lang=zh-CN">\u4E2D\u6587</option></select></div></div></header>';
+  const sidebarItems = groups.slice(0, 100).map(function(g) {
+    const safeGroup = slugify(g);
+    const count = channels.filter(function(ch) {
+      return ch.group_title === g;
+    }).length;
+    return '<div class="group-item"><a href="' + origin + "/category/" + safeGroup + '" style="color:rgba(255,255,255,0.7);text-decoration:none;display:block">' + escapeHtml(g) + ' <span style="opacity:0.5;font-size:0.8em">(' + count + ")</span></a></div>";
+  }).join("");
+  const STATIC_SIDEBAR = '<aside class="sidebar" id="sidebar"><div class="group-item active"><a href="' + origin + '/" style="color:#fff;text-decoration:none;display:block">All Channels</a></div>' + sidebarItems + "</aside>";
+  const channelCardsHtml = channels.slice(0, perPage).map(function(ch) {
+    var logo;
+    if (ch.logo) {
+      logo = '<img src="' + escapeAttr(ch.logo) + '" alt="' + escapeHtml(ch.channel_name) + `" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">\u{1F4FA}</div>`;
+    } else {
+      logo = '<div class="channel-icon">\u{1F4FA}</div>';
+    }
+    return '<div class="channel-card"><div class="channel-poster"><a href="' + origin + "/channel/" + escapeAttr(ch.channel_hash) + '" style="display:block;width:100%;height:100%;text-decoration:none">' + logo + '</a><a href="' + origin + "/channel/" + escapeAttr(ch.channel_hash) + '" class="play-overlay" style="display:flex;align-items:center;justify-content:center;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(229,9,20,0.8);opacity:0;transition:opacity .3s;text-decoration:none"><div style="width:60px;height:60px;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div></a></div><div class="channel-info"><div class="channel-name"><a href="' + origin + "/channel/" + escapeAttr(ch.channel_hash) + '" style="color:#fff;text-decoration:none" title="' + escapeHtml(ch.channel_name) + '">' + escapeHtml(ch.channel_name) + '</a></div><div class="channel-group">' + escapeHtml(ch.group_title || "") + "</div></div></div>";
+  }).join("");
+  var paginationHtml = "";
+  if (totalPages > 1) {
+    paginationHtml = '<div class="pagination" style="display:flex;gap:8px;flex-wrap:wrap;margin:20px 0;justify-content:center"><a href="' + origin + '/page/2" style="padding:8px 16px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;text-decoration:none;font-size:14px">Next \u2192</a></div>';
+  }
+  var enableFlag = enableIpPlay ? "true" : "false";
+  var playOverlayJS = "<script>window.enableIpPlay = " + enableFlag + ';document.querySelectorAll(".play-overlay").forEach(function(overlay) {overlay.addEventListener("click", function(e) {e.preventDefault();var href = overlay.getAttribute("href");var hash = (href.split("/channel/")[1] || "");if (!window.enableIpPlay) { window.location.href = href; return; }var apiUrl = "' + origin + '/api/play/link?hash=" + hash;var btn = overlay.querySelector("div") || overlay;btn.style.opacity = "0.5";fetch(apiUrl).then(function(r) { return r.json(); }).then(function(data) {if (data.success && data.play_link) { window.location.href = data.play_link; }else { window.location.href = href; }}).catch(function() { window.location.href = href; });});});<\/script>';
+  var sectionLabel = 'All Channels <span style="color:rgba(255,255,255,0.5);font-weight:400;font-size:14px;margin-left:12px">' + totalChannels.toLocaleString() + " channels</span>";
+  var faqJsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "What is IPTV Search?", "acceptedAnswer": { "@type": "Answer", "text": "IPTV Search indexes public IPTV channel playlists. Find sports, news, movies, entertainment, and international TV channels \u2014 no subscription required." } },
+      { "@type": "Question", "name": "How do I use IPTV channels?", "acceptedAnswer": { "@type": "Answer", "text": "Find the channel you want, copy its M3U URL, and add it to any IPTV player app such as VLC, IPTV Smarters, or your smart TV." } },
+      { "@type": "Question", "name": "How many channels are available?", "acceptedAnswer": { "@type": "Answer", "text": "We index " + totalChannels.toLocaleString() + "+ live TV channels across " + groups.length + " categories." } },
+      { "@type": "Question", "name": "Is registration required?", "acceptedAnswer": { "@type": "Answer", "text": "No. Browse channels, get the M3U URL, and use it with any compatible player \u2014 completely free." } }
+    ]
   });
+  var html2 = '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>' + escapeHtml(pageTitle) + '</title>\n  <meta name="description" content="' + escapeAttr(metaDescription) + '">\n  <meta name="robots" content="index, follow, max-image-preview:large">\n  <link rel="canonical" href="' + origin + '/">\n  <link rel="alternate" hreflang="en" href="' + origin + '/">\n  <link rel="alternate" hreflang="zh-CN" href="' + origin + '/?lang=zh-CN">\n  <link rel="alternate" hreflang="x-default" href="' + origin + '/">\n  <link rel="icon" type="image/svg+xml" href="' + origin + '/favicon.svg">\n  <link rel="apple-touch-icon" href="' + origin + '/apple-touch-icon.png" sizes="180x180">\n  <link rel="stylesheet" href="' + origin + '/seo-home.css">\n  <meta property="og:type" content="website">\n  <meta property="og:url" content="' + origin + '/">\n  <meta property="og:title" content="' + escapeAttr(pageTitle) + '">\n  <meta property="og:description" content="' + escapeAttr(metaDescription) + '">\n  <meta property="og:image" content="' + origin + '/og-homepage.png">\n  <meta property="og:image:width" content="1200">\n  <meta property="og:image:height" content="630">\n  <meta property="og:site_name" content="IPTV Search">\n  <meta name="twitter:card" content="summary_large_image">\n  <meta name="twitter:title" content="' + escapeAttr(pageTitle) + '">\n  <meta name="twitter:description" content="' + escapeAttr(metaDescription) + '">\n  <meta name="twitter:image" content="' + origin + '/og-homepage.png">\n  <script type="application/ld+json">' + JSON.stringify(jsonLd) + '<\/script>\n  <script type="application/ld+json">' + faqJsonLd + "<\/script>\n</head>\n<body>\n  " + STATIC_HEADER + '\n  <div class="main">\n    ' + STATIC_SIDEBAR + '\n    <div class="content">\n      <div class="section-title" style="font-size:18px;font-weight:600;margin-bottom:20px;color:#fff">' + sectionLabel + '</div>\n      <div class="channels-grid">' + channelCardsHtml + "</div>\n      " + paginationHtml + "\n    </div>\n  </div>\n  " + PAGE_FOOTER + "\n  " + playOverlayJS + "\n</body>\n</html>";
+  return html2;
 }
 async function generateChannelPage(request, env, channelHash) {
   const url = new URL(request.url);
@@ -15983,430 +16477,6 @@ var USER_ACTIVATE_HTML = `<!DOCTYPE html>
 // account-page.js
 init_checked_fetch();
 init_modules_watch_stub();
-
-// components/page-header.js
-init_checked_fetch();
-init_modules_watch_stub();
-var PAGE_HEADER = `
-  <header class="page-header">
-    <div class="header-container">
-      <a href="/" class="header-logo">
-        <img src="/logo-new.svg" alt="IPTV Search" width="160" height="48" />
-      </a>
-      <nav class="header-nav">
-        <a href="/" class="nav-item home-icon" title="\u9996\u9875">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
-        </a>
-        <!-- Translate.js \u8BED\u8A00\u5207\u6362\u5668\u5BB9\u5668 -->
-        <div id="translate" style="margin-left: 12px;"></div>
-      </nav>
-    </div>
-  </header>
-
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-padding-top: 70px;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-    }
-
-    .page-header {
-      background: rgba(20, 20, 20, 0.95);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-    }
-
-    .header-container {
-      max-width: 100%;
-      margin: 0;
-      padding: 0 20px;
-      height: 70px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-    }
-
-    .header-logo {
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      transition: opacity 0.2s;
-    }
-
-    .header-logo:hover {
-      opacity: 0.8;
-    }
-
-    .header-logo img {
-      width: 160px;
-      height: 48px;
-    }
-
-    .header-nav {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .nav-item {
-      color: rgba(255, 255, 255, 0.8);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      padding: 8px 16px;
-      border-radius: 8px;
-      transition: all 0.2s;
-    }
-
-    .nav-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-    }
-
-    .nav-item.home-icon {
-      width: 44px;
-      height: 44px;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      transition: all 0.2s;
-    }
-
-    .nav-item.home-icon:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-    }
-
-    /* Translate.js \u8BED\u8A00\u5207\u6362\u5668\u6837\u5F0F */
-    #translate {
-      display: inline-flex;
-      align-items: center;
-    }
-
-    #translate select {
-      height: 40px;
-      padding: 0 32px 0 12px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      background: rgba(0, 0, 0, 0.6);
-      color: #fff;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 10px center;
-    }
-
-    #translate select:hover {
-      border-color: rgba(255, 255, 255, 0.5);
-      background-color: rgba(0, 0, 0, 0.8);
-    }
-
-    #translate select:focus {
-      outline: none;
-      border-color: #e50914;
-    }
-
-    #translate select option {
-      background: #1a1a1a;
-      color: #fff;
-    }
-
-    @media (max-width: 768px) {
-      html {
-        scroll-padding-top: 60px;
-      }
-
-      .header-container {
-        padding: 0 15px;
-        height: 60px;
-      }
-
-      .header-logo img {
-        width: 130px;
-        height: 39px;
-      }
-
-      .header-nav {
-        gap: 4px;
-      }
-
-      .nav-item {
-        font-size: 13px;
-        padding: 6px 10px;
-      }
-
-      .nav-item.home-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-      }
-
-      .nav-item.home-icon:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-      }
-
-      .nav-item.home-icon svg {
-        width: 16px;
-        height: 16px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      html {
-        scroll-padding-top: 50px;
-      }
-
-      .header-container {
-        padding: 0 10px;
-      }
-
-      .header-logo img {
-        width: 110px;
-        height: 33px;
-      }
-
-      .nav-item {
-        font-size: 12px;
-        padding: 5px 8px;
-      }
-
-      .nav-item.home-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-      }
-
-      .nav-item.home-icon:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
-      }
-
-      .nav-item.home-icon svg {
-        width: 15px;
-        height: 15px;
-      }
-    }
-  </style>
-  
-`;
-
-// components/page-footer.js
-init_checked_fetch();
-init_modules_watch_stub();
-var PAGE_FOOTER = `
-  <footer class="page-footer">
-    <div class="footer-content">
-  <p class="footer-copyright">&copy; 2026 IPTV Search. Free IPTV Channel Directory & Search Tool</p>
-      
-      <!-- SEO \u53CB\u597D\u94FE\u63A5 -->
-      <div class="footer-links">
-        <a href="/tutorial">How to Watch on TV Devices</a>
-        <a href="/sitemap.xml">Sitemap</a>
-        <a href="/robots.txt">Robots</a>
-        <a href="/privacy-policy">Privacy Policy</a>
-        <a href="/terms">Terms of Service</a>
-        <a href="mailto:support@iptv-search.com">Contact Us</a>
-      </div>
-      
-      <!-- Cloudflare\u6258\u7BA1\u8BF4\u660E\u548C\u5FBD\u7AE0 -->
-      <div class="footer-badges">
-        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
-          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
-        </a>
-        <span>This site is powered by Cloudflare for acceleration and security</span>
-      </div>
-      
-      <!-- \u514D\u8D23\u58F0\u660E -->
-      <div class="footer-disclaimer">
-        All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.
-      </div>
-    </div>
-  </footer>
-
-  <style>
-    .page-footer {
-      background: #0a0a0a;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 40px 20px;
-      margin-top: 60px;
-    }
-
-    .footer-content {
-      max-width: 1000px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .footer-copyright {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 14px;
-      margin-bottom: 20px;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-top: 15px;
-      font-size: 12px;
-    }
-
-    .footer-links a {
-      color: rgba(255, 255, 255, 0.6);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .footer-links a:hover {
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    .footer-badges {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .footer-badges img {
-      height: 12px;
-      width: auto;
-      opacity: 0.8;
-      transition: opacity 0.2s;
-    }
-
-    .footer-badges img:hover {
-      opacity: 1;
-    }
-
-    .footer-badges span {
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    .footer-disclaimer {
-      margin-top: 15px;
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.4);
-      line-height: 1.5;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    @media (max-width: 768px) {
-      .page-footer {
-        padding: 30px 15px;
-        margin-top: 40px;
-      }
-
-      .footer-copyright {
-        font-size: 13px;
-      }
-
-      .footer-links {
-        gap: 12px;
-        font-size: 11px;
-      }
-
-      .footer-badges span {
-        font-size: 11px;
-      }
-
-      .footer-disclaimer {
-        font-size: 10px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .page-footer {
-        padding: 25px 10px;
-        margin-top: 30px;
-      }
-
-      .footer-links {
-        gap: 10px;
-        flex-direction: column;
-      }
-
-      .footer-links a {
-        margin: 3px 0;
-      }
-
-      .footer-badges {
-        flex-direction: column;
-      }
-    }
-  </style>
-  <!-- Translate.js \u81EA\u52A8\u7FFB\u8BD1 -->
-  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"><\/script>
-  <script>
-    function initTranslate() {
-      if (typeof translate !== 'undefined' && !window.translate) {
-        window.translate = translate;
-      }
-      if (typeof translate !== 'undefined' && translate.language) {
-        translate.language.setLocal('english');
-        translate.service.use('client.edge');
-        translate.listener.start();
-        translate.setAutoDiscriminateLocalLanguage();
-        translate.execute();
-      } else {
-        setTimeout(initTranslate, 100);
-      }
-    }
-    initTranslate();
-
-    function changeLanguage(lang) {
-      var t = window.translate || translate;
-      if (t && t.changeLanguage) {
-        t.changeLanguage(lang);
-      }
-    }
-  <\/script>
-
-  <!-- 100%\u586B\u5145 -->
-  <!--<script src="https://quge5.com/88/tag.min.js" data-zone="211982" async data-cfasync="false"><\/script>-->
-`;
-
-// account-page.js
 var ACCOUNT_HTML = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -16970,7 +17040,7 @@ var HOME_HTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IPTV Search \u2014 Free IPTV Channel Directory & Search Engine</title>
+  <title>IPTV Search \u2014 Free IPTV Channel Directory &amp; Search Engine</title>
 
   <!-- ========== SEO Meta Tags ========== -->
   <!-- \u57FA\u7840Meta\u6807\u7B7E -->
@@ -16985,7 +17055,7 @@ var HOME_HTML = `<!DOCTYPE html>
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com">
-  <meta property="og:title" content="IPTV Search \u2014 Free IPTV Channel Directory & Search Engine">
+  <meta property="og:title" content="IPTV Search \u2014 Free IPTV Channel Directory &amp; Search Engine">
   <meta property="og:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.">
   <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
   <meta property="og:site_name" content="IPTV Search">
@@ -16994,7 +17064,7 @@ var HOME_HTML = `<!DOCTYPE html>
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://iptv-search.com">
-  <meta name="twitter:title" content="IPTV Search \u2014 Free IPTV Channel Directory & Search Engine">
+  <meta name="twitter:title" content="IPTV Search - Free IPTV Link Search Engine">
   <meta name="twitter:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment.">
 
   <!-- Canonical URL -->
@@ -17030,7 +17100,7 @@ var HOME_HTML = `<!DOCTYPE html>
   <!-- Open Graph\u56FE\u6807 -->
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:type" content="image/svg+xml">
 
   <!-- \u7ED3\u6784\u5316\u6570\u636E (JSON-LD) -->
   <script type="application/ld+json" id="structured-data">
@@ -17038,8 +17108,6 @@ var HOME_HTML = `<!DOCTYPE html>
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "IPTV Search",
-    "alternateName": "IPTV Live",
-    "foundingDate": "2024",
     "url": "https://iptv-search.com",
     "description": "Free IPTV link search engine - discover and share public IPTV channels with m3u8 playlists.",
     "potentialAction": {
@@ -17139,19 +17207,15 @@ var HOME_HTML = `<!DOCTYPE html>
     "url": "https://iptv-search.com",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://iptv-search.com/logo-new.svg",
+      "url": "https://iptv-search.com/logo.svg",
       "width": 200,
       "height": 60
     },
     "description": "IPTV Search is a free IPTV link search engine providing access to 10,000+ public channels including sports, news, entertainment, and movies worldwide.",
-    "foundingDate": "2024",
-    "sameAs": [
-      "https://twitter.com/iptvsearch",
-      "https://facebook.com/iptvsearch",
-      "https://instagram.com/iptvsearch",
-      "https://youtube.com/@iptvsearch",
-      "https://t.me/iptvsearch"
-    ],
+    "foundingDate": "2026",
+  "sameAs": [
+    "https://t.me/+-3ApDTfNb19jNWI1"
+  ]
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "customer service",
@@ -17168,7 +17232,7 @@ var HOME_HTML = `<!DOCTYPE html>
     "name": "IPTV Search - Free IPTV Link Search Engine",
     "url": "https://iptv-search.com",
     "description": "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.",
-    "dateModified": "2026-02-19",
+    "dateModified": "${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}",
     "author": {
       "@type": "Organization",
       "name": "IPTV Search",
@@ -17260,10 +17324,9 @@ var HOME_HTML = `<!DOCTYPE html>
   <\/script>
 
   <!-- ========== GEO Optimization: Update Date Meta Tag (Freshness Signal) ========== -->
-  <meta name="article:modified_time" content="2026-02-19">
-  <meta name="last-modified" content="2026-02-19">
+  <meta name="article:modified_time" content="${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}">
+  <meta name="last-modified" content="${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}">
 
-  <title>IPTV Search \u2014 Free IPTV Channel Directory & Search Engine</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff}
@@ -17637,7 +17700,7 @@ var HOME_HTML = `<!DOCTYPE html>
     <div class="header-left">
       <a href="/" class="logo-link">
         <div class="logo">
-          <img src="/logo-new.svg" alt="IPTV Search Logo" />
+          <img src="/logo.svg" alt="IPTV Search Logo" />
         </div>
       </a>
       <div class="online-counter">
@@ -18395,7 +18458,7 @@ var HOME_HTML = `<!DOCTYPE html>
         "description": isZhCN ? 
           "\u514D\u8D39IPTV\u94FE\u63A5\u641C\u7D22\u5F15\u64CE - \u53D1\u73B0\u548C\u5206\u4EAB\u516C\u5171IPTV\u9891\u9053\u3002\u63D0\u4F9Bm3u8\u3001m3u\u64AD\u653E\u5217\u8868\uFF0C\u5305\u542B\u4F53\u80B2\u3001\u65B0\u95FB\u3001\u7535\u5F71\u3001\u5A31\u4E50\u7B49\u9891\u9053\uFF0C\u6BCF\u65E5\u66F4\u65B0\u3002" :
           "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.",
-        "dateModified": "2026-02-19",
+        "dateModified": "${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}",
         "inLanguage": lang,
         "author": {
           "@type": "Organization",
@@ -27484,7 +27547,7 @@ var worker_default = {
             "Cache-Control": "public, max-age=86400"
           }
         });
-      } else if (path === "/logo.svg" || path === "/logo-new.svg") {
+      } else if (path === "/logo.svg") {
         return new Response(LOGO_SVG, {
           headers: {
             "Content-Type": "image/svg+xml",
@@ -27495,6 +27558,13 @@ var worker_default = {
         return new Response(OG_IMAGE_SVG, {
           headers: {
             "Content-Type": "image/svg+xml",
+            "Cache-Control": "public, max-age=86400"
+          }
+        });
+      } else if (path === "/seo-home.css") {
+        return new Response(SEO_HOME_CSS, {
+          headers: {
+            "Content-Type": "text/css; charset=utf-8",
             "Cache-Control": "public, max-age=86400"
           }
         });
@@ -27567,10 +27637,7 @@ window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
       const channelMatch = path.match(/^\/channel\/([a-zA-Z0-9_-]+)$/);
       const categoryMatch = path.match(/^\/category\/([a-zA-Z0-9-]+)$/);
       if (channelMatch || categoryMatch) {
-        if (isSearchEngineBot(request)) {
-          return await handleSEOPage(request, env);
-        }
-        return new Response("Not Found", { status: 404 });
+        return await handleSEOPage(request, env);
       } else if (path === "/api/config") {
         return await handlePublicConfig(request, env, ctx);
       } else if (path === "/api/announcement") {
@@ -28004,10 +28071,10 @@ window.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};
             });
           }
         } else {
-          return new Response("Not Found", { status: 404 });
+          return await generate404Page(request, env);
         }
       } else {
-        return new Response("Not Found", { status: 404 });
+        return await generate404Page(request, env);
       }
     } catch (error) {
       console.error("Worker error:", error);
@@ -28064,7 +28131,7 @@ var jsonError = async (request, env, _ctx, middlewareCtx) => {
 };
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-xRs0rO/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-Dyhmup/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -28095,7 +28162,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   ]);
 }
 
-// .wrangler/tmp/bundle-xRs0rO/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-Dyhmup/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

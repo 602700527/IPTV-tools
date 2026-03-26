@@ -9,6 +9,24 @@ export const FREE_SUB_HTML = `
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title data-i18n-title="pageTitle">免费订阅 - TV Live Service</title>
+  <meta name="description" content="免费获取TV Live Service订阅地址，无需注册、无需付费，立即使用。支持多种IPTV播放器。">
+  <meta name="robots" content="noindex, follow">
+  <link rel="canonical" href="https://iptv-search.com/freesub">
+  <link rel="alternate" hreflang="zh-CN" href="https://iptv-search.com/freesub">
+  <link rel="alternate" hreflang="en" href="https://iptv-search.com/freesub?lang=en">
+  <link rel="alternate" hreflang="x-default" href="https://iptv-search.com/freesub?lang=en">
+  <meta property="og:title" content="免费订阅 - TV Live Service">
+  <meta property="og:description" content="免费获取TV Live Service订阅地址，无需注册、无需付费，立即使用。支持多种IPTV播放器。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://iptv-search.com/freesub">
+  <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="TV Live Service">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="免费订阅 - TV Live Service">
+  <meta name="twitter:description" content="免费获取TV Live Service订阅地址，无需注册、无需付费，立即使用。支持多种IPTV播放器。">
+  <meta name="twitter:image" content="https://iptv-search.com/og-homepage.png">
 
   <style>
     * {

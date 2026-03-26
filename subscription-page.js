@@ -9,6 +9,24 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title data-i18n-title="pageTitle">Subscription - TV Live Service</title>
+  <meta name="description" content="Subscribe to TV Live Service for unlimited access to live TV channels. Choose a plan that fits your needs.">
+  <meta name="robots" content="noindex, follow">
+  <link rel="canonical" href="https://iptv-search.com/subscription">
+  <link rel="alternate" hreflang="en" href="https://iptv-search.com/subscription">
+  <link rel="alternate" hreflang="zh-CN" href="https://iptv-search.com/subscription?lang=zh-CN">
+  <link rel="alternate" hreflang="x-default" href="https://iptv-search.com/subscription">
+  <meta property="og:title" content="Subscription - TV Live Service">
+  <meta property="og:description" content="Subscribe to TV Live Service for unlimited access to live TV channels. Choose a plan that fits your needs.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://iptv-search.com/subscription">
+  <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="TV Live Service">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Subscription - TV Live Service">
+  <meta name="twitter:description" content="Subscribe to TV Live Service for unlimited access to live TV channels. Choose a plan that fits your needs.">
+  <meta name="twitter:image" content="https://iptv-search.com/og-homepage.png">
   <style>
     * {
       margin: 0;

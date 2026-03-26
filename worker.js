@@ -54,6 +54,7 @@ import { generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 import { LOGO_SVG, FAVICON_SVG, OG_IMAGE_SVG, APPLE_TOUCH_ICON_SVG, ICON_192_SVG, FAVICON_ICO_SVG } from './assets.js';
+import { SEO_HOME_CSS } from './static-assets.js';
 import { ALIPAY_PNG_DATA, WECHAT_PAY_PNG_DATA } from './image-data.js';
 import {
   createCoinbaseOrder,
@@ -167,6 +168,14 @@ export default {
       return new Response(OG_IMAGE_SVG, {
         headers: {
           'Content-Type': 'image/svg+xml',
+          'Cache-Control': 'public, max-age=86400'
+        }
+      });
+    } else if (path === '/seo-home.css') {
+      // 首页静态 HTML 专用 CSS
+      return new Response(SEO_HOME_CSS, {
+        headers: {
+          'Content-Type': 'text/css; charset=utf-8',
           'Cache-Control': 'public, max-age=86400'
         }
       });

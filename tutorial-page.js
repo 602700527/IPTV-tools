@@ -8,6 +8,24 @@ export const TUTORIAL_HTML = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>使用教程 - TV Live Service</title>
+  <meta name="description" content="了解如何在各种IPTV播放器中添加订阅地址。支持的播放器包括VLC、IPTV Smarters、Kodi等。">
+  <meta name="robots" content="noindex, follow">
+  <link rel="canonical" href="https://iptv-search.com/tutorial">
+  <link rel="alternate" hreflang="zh-CN" href="https://iptv-search.com/tutorial">
+  <link rel="alternate" hreflang="en" href="https://iptv-search.com/tutorial?lang=en">
+  <link rel="alternate" hreflang="x-default" href="https://iptv-search.com/tutorial?lang=en">
+  <meta property="og:title" content="使用教程 - TV Live Service">
+  <meta property="og:description" content="了解如何在各种IPTV播放器中添加订阅地址。支持的播放器包括VLC、IPTV Smarters、Kodi等。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://iptv-search.com/tutorial">
+  <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="TV Live Service">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="使用教程 - TV Live Service">
+  <meta name="twitter:description" content="了解如何在各种IPTV播放器中添加订阅地址。支持的播放器包括VLC、IPTV Smarters、Kodi等。">
+  <meta name="twitter:image" content="https://iptv-search.com/og-homepage.png">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     html{scroll-padding-top:70px}

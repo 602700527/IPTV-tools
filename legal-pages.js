@@ -59,13 +59,33 @@ Sitemap: https://iptv-search.com/sitemap.xml`;
 }
 
 // 生成隐私政策页面
-export function generatePrivacyPolicy() {
+export function generatePrivacyPolicy(origin = 'https://iptv-search.com') {
+  const pageUrl = `${origin}/privacy-policy`;
+  const pageTitle = 'Privacy Policy - IPTV Live';
+  const metaDescription = 'IPTV Live respects and protects your privacy. Learn how we collect, use, store, and protect your personal information when you use our IPTV streaming service.';
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Privacy Policy - IPTV Live</title>
+  <title>${pageTitle}</title>
+  <meta name="description" content="${metaDescription}">
+  <meta name="robots" content="noindex, follow">
+  <link rel="canonical" href="${pageUrl}">
+  <link rel="alternate" hreflang="en" href="${pageUrl}">
+  <link rel="alternate" hreflang="x-default" href="${pageUrl}">
+  <meta property="og:title" content="${pageTitle}">
+  <meta property="og:description" content="${metaDescription}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${pageUrl}">
+  <meta property="og:image" content="${origin}/og-homepage.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="IPTV Live">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${pageTitle}">
+  <meta name="twitter:description" content="${metaDescription}">
+  <meta name="twitter:image" content="${origin}/og-homepage.png">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff;line-height:1.6;padding:0;display:flex;flex-direction:column;min-height:100vh}
@@ -222,13 +242,33 @@ ${PAGE_FOOTER}
 }
 
   // 生成服务条款页面
-  export function generateTermsOfService() {
+  export function generateTermsOfService(origin = 'https://iptv-search.com') {
+  const pageUrl = `${origin}/terms`;
+  const pageTitle = 'Terms of Service - IPTV Live';
+  const metaDescription = 'Read the Terms of Service for IPTV Live. Learn the rules, disclaimers, and conditions for using our free IPTV streaming service.';
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terms of Service - IPTV Live</title>
+  <title>${pageTitle}</title>
+  <meta name="description" content="${metaDescription}">
+  <meta name="robots" content="noindex, follow">
+  <link rel="canonical" href="${pageUrl}">
+  <link rel="alternate" hreflang="en" href="${pageUrl}">
+  <link rel="alternate" hreflang="x-default" href="${pageUrl}">
+  <meta property="og:title" content="${pageTitle}">
+  <meta property="og:description" content="${metaDescription}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${pageUrl}">
+  <meta property="og:image" content="${origin}/og-homepage.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="IPTV Live">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${pageTitle}">
+  <meta name="twitter:description" content="${metaDescription}">
+  <meta name="twitter:image" content="${origin}/og-homepage.png">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff;line-height:1.6;padding:0;display:flex;flex-direction:column;min-height:100vh}
