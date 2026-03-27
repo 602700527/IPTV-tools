@@ -191,7 +191,7 @@ export async function generateSEOHomepage(request, env) {
   const totalPages = Math.max(1, Math.ceil(totalChannels / perPage));
 
   const pageTitle = 'IPTV Search \u2014 Free IPTV Channel Directory & Search Engine';
-  const metaDescription = 'Search over ' + totalChannels + ' free IPTV channels from around the world. Sports, news, movies, entertainment. No registration required. Updated daily.';
+  const metaDescription = 'Search over ' + totalChannels + ' free IPTV channels from 100+ countries. Browse live TV by region: USA, Brazil, China, India and more. No registration required. Updated daily.';
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -636,7 +636,7 @@ export async function generateCategoryPage(request, env, groupSlug) {
 
   const pageTitle = `${matchedGroup} IPTV Channels - Free Live TV [${new Date().getFullYear()}]`;
 
-  const metaDescription = `Watch ${groupChannels.length} free ${matchedGroup} IPTV channels live online. TV from ${matchedGroup} including news, sports and movies. No registration required. Updated daily.`;
+  const metaDescription = `Watch ${groupChannels.length} free ${matchedGroup} IPTV channels live online. TV from ${matchedGroup}. No registration required. Updated daily.`;
 
   const jsonLd = {
 
