@@ -252,11 +252,24 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       });
     }
 
-    // SEO 路由：/channel/{hash} 和 /category/{slug}（给搜索引擎爬虫）
+    // SEO 路由：/channel/{hash} 和 /category/{slug}
     const channelMatch = path.match(/^\/channel\/([a-zA-Z0-9_-]+)$/);
     const categoryMatch = path.match(/^\/category\/([a-zA-Z0-9-]+)$/);
-    if (channelMatch || categoryMatch) {
+    if (channelMatch) {
+      // 频道页保持静态 HTML（用于 SEO）
       return await handleSEOPage(request, env);
+    } else if (categoryMatch) {
+      // 分类页：如果是搜索爬虫则返回静态 HTML，否则重定向到首页
+      if (isSearchEngineBot(request)) {
+        return await handleSEOPage(request, env);
+      } else {
+        // 人类用户：重定向到首页，使用 ?group=slug 参数实现 SPA 体验
+        const groupSlug = categoryMatch[1];
+        const redirectUrl = new URL(url);
+        redirectUrl.pathname = '/';
+        redirectUrl.searchParams.set('group', groupSlug);
+        return Response.redirect(redirectUrl.toString(), 302);
+      }
     } else if (path === '/api/config') {
       // 公开配置API - 获取前端需要的配置（如加密密钥）
       return await handlePublicConfig(request, env, ctx);

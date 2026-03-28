@@ -1,0 +1,40 @@
+{
+  "name": "cf-tv-service",
+  "main": "worker.js",
+  "compatibility_date": "2023-05-18",
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "d5e943d023d0474382b04b3c15c47ffb",
+      "preview_id": "d5e943d023d0474382b04b3c15c47ffb"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tv-service-db",
+      "database_id": "9c7c22f1-fa0e-48da-8874-19731483c550"
+    }
+  ],
+  "vars": {
+    "ADMIN_KEY": "admin-key-please-change-in-production",
+    "TIMEZONE": "Asia/Shanghai",
+    "RESEND_API_KEY": "re_SV65wtWn_6zDFiwGvPFRRv3gbcLDACDKe",
+    "FROM_EMAIL": "support@iptv-search.com",
+    "APP_URL": "https://iptv-search.com",
+    "XUNHUPAY_ALIPAY_APP_ID": "202303140161",
+    "XUNHUPAY_ALIPAY_APP_SECRET": "9265ede6d1d85a9ecb7cbf2b97ca0cbd",
+    "XUNHUPAY_WECHAT_APP_ID": "",
+    "XUNHUPAY_WECHAT_APP_SECRET": "",
+    "XUNHUPAY_GATEWAY": "https://api.xunhuweb.com/payment/do.html",
+    "GOOGLE_CLIENT_ID": "1070165774283-e75bs3en213p81iaq3g5dmpt15e6te9l.apps.googleusercontent.com",
+    "GOOGLE_CLIENT_SECRET": "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"
+  },
+  "triggers": {
+    "crons": [
+      "0 3 * * *",
+      "0 9 * * *",
+      "0 21 * * *"
+    ]
+  }
+}

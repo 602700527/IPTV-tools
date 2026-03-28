@@ -225,10 +225,10 @@ export async function generateSEOHomepage(request, env) {
   '</header>';
 
   // ===== Sidebar 分组导航 =====
+  // 注意：链接使用 ?group= 参数，这样会在首页（home-page.js）显示分类内容，实现 SPA 体验
   const sidebarItems = groups.slice(0, 100).map(function(g) {
-    const safeGroup = slugify(g);
     const count = channels.filter(function(ch) { return ch.group_title === g; }).length;
-    return '<div class="group-item"><a href="' + origin + '/category/' + safeGroup + '" style="color:rgba(255,255,255,0.7);text-decoration:none;display:block">' + escapeHtml(g) + ' <span style="opacity:0.5;font-size:0.8em">(' + count + ')</span></a></div>';
+    return '<div class="group-item"><a href="' + origin + '/?group=' + encodeURIComponent(g) + '" style="color:rgba(255,255,255,0.7);text-decoration:none;display:block">' + escapeHtml(g) + ' <span style="opacity:0.5;font-size:0.8em">(' + count + ')</span></a></div>';
   }).join('');
 
   const STATIC_SIDEBAR = '<aside class="sidebar" id="sidebar"><div class="group-item active"><a href="' + origin + '/" style="color:#fff;text-decoration:none;display:block">All Channels</a></div>' + sidebarItems + '</aside>';

@@ -439,9 +439,19 @@ export const HOME_HTML = `<!DOCTYPE html>
           </p>
         </div>
 
+        <!-- 面包屑导航（仅在详情视图显示） -->
+        <div class="breadcrumb" id="breadcrumb" style="display:none;"></div>
+
         <div class="section-title" id="sectionTitle">All Channels</div>
         <div class="channels-grid" id="channelsGrid"></div>
         <div class="pagination" id="pagination"></div>
+      </div>
+
+      <!-- 频道详情视图 -->
+      <div id="channelDetailView" class="channel-detail-view" style="display:none;">
+        <!-- 面包屑放在详情视图内 -->
+        <div class="breadcrumb" id="detailBreadcrumb"></div>
+        <div class="channel-detail-container" id="channelDetailContainer"></div>
       </div>
 
       <div id="emptyState" class="empty-state" style="display:none;">
@@ -1266,7 +1276,7 @@ export const HOME_HTML = `<!DOCTYPE html>
     let announcementClosed = false;
     let currentSearch = '';
     let favorites = JSON.parse(localStorage.getItem('iptv_favorites') || '[]');
-    let history = JSON.parse(localStorage.getItem('iptv_history') || '[]');
+    let playHistory = JSON.parse(localStorage.getItem('iptv_history') || '[]');
     let featuredChannels = [];
     let isUpdatingKey = false;  // 防止重复更新密钥
     let currentPlayingChannel = null;  // 当前播放的频道
@@ -1335,7 +1345,28 @@ export const HOME_HTML = `<!DOCTYPE html>
         console.log('[Cache] 从缓存加载分组:', allGroups.length, '个分组');
       }
 
-      loadChannels();
+      // 检查 URL 是否有 channel 参数，如果有则显示频道详情
+      const urlChannel = new URLSearchParams(window.location.search).get('channel');
+
+      // 检查 URL 是否有 group 参数，如果有则加载对应分组
+      const urlGroup = getGroupFromUrl();
+      if (urlGroup) {
+        console.log('[Init] 从 URL 检测到分组:', urlGroup);
+        currentGroup = urlGroup;
+        document.getElementById('sectionTitle').textContent = urlGroup;
+      }
+
+      loadChannels().then(() => {
+        // 频道加载完成后，检查是否有 channel 参数
+        if (urlChannel) {
+          const channel = allChannels.find(ch => ch.channel_hash === urlChannel);
+          if (channel) {
+            console.log('[Init] 从 URL 检测到频道:', channel.channel_name);
+            showChannelDetail(channel.channel_hash, channel.channel_name, channel.group_title || '');
+          }
+        }
+      });
+
       updateOnlineCounter();
       updateBadges();
       setInterval(updateOnlineCounter, 30000); // 每30秒更新在线人数
@@ -1852,20 +1883,22 @@ export const HOME_HTML = `<!DOCTYPE html>
       // 处理 groups 可能是对象数组 [{name: 'xxx'}] 或字符串数组 ['xxx']
       const groupNames = allGroups.map(g => typeof g === 'string' ? g : g.name);
 
+      // 使用 <a> 标签替代 <div>，这样用户可以看到链接 URL
       container.innerHTML = groupNames.map(group =>
-        \`<div class="group-item ripple" data-group="\${escapeHtml(group)}" onclick="filterByGroup('\${escapeHtml(group)}')">
+        \`<a class="group-item ripple" data-group="\${escapeHtml(group)}" href="/?group=\${encodeURIComponent(group)}">
           \${escapeHtml(group)}
-        </div>\`
+        </a>\`
       ).join('');
 
       // 渲染移动端分组列表
       const mobileContainer = document.getElementById('mobileGroupList');
+      const allChannelsText3 = typeof t !== 'undefined' ? t('allChannels') : 'All Channels';
       if (mobileContainer) {
-        mobileContainer.innerHTML = \`<div class="mobile-group-item active" data-group="" onclick="filterByGroup('')">\${t('allChannels')}</div>\` +
+        mobileContainer.innerHTML = \`<a class="mobile-group-item active" data-group="" href="/?group=">\${allChannelsText3}</a>\` +
           groupNames.map(group =>
-            \`<div class="mobile-group-item" data-group="\${escapeHtml(group)}" onclick="filterByGroup(&apos;\${escapeHtml(group)}&apos;)">
+            \`<a class="mobile-group-item" data-group="\${escapeHtml(group)}" href="/?group=\${encodeURIComponent(group)}">
               \${escapeHtml(group)}
-            </div>\`
+            </a>\`
           ).join('');
       }
 
@@ -1997,7 +2030,78 @@ export const HOME_HTML = `<!DOCTYPE html>
         container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
       }
     }
-    
+
+    // ========== URL 处理与 History API 支持 ==========
+
+    // 从 URL 参数中获取分组名称
+    function getGroupFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('group') || '';
+    }
+
+    // 处理分组链接点击（使用事件委托）
+    document.addEventListener('click', function(event) {
+      const target = event.target.closest('.group-item, .mobile-group-item');
+      if (target) {
+        event.preventDefault(); // 阻止默认的链接跳转
+        const group = target.dataset.group || '';
+        filterByGroup(group);
+      }
+    });
+
+    // 处理浏览器前进/后退按钮
+    window.addEventListener('popstate', function(event) {
+      const params = new URLSearchParams(window.location.search);
+      const channelHash = params.get('channel');
+
+      if (channelHash) {
+        // 如果 URL 中有 channel 参数，显示频道详情
+        const channel = allChannels.find(ch => ch.channel_hash === channelHash);
+        if (channel) {
+          showChannelDetail(channel.channel_hash, channel.channel_name, channel.group_title || '');
+        } else {
+          // 频道未找到，返回列表
+          showChannelList();
+        }
+      } else if (event.state && event.state.channel !== undefined) {
+        // 浏览器返回，但没有 channel 参数，显示列表
+        showChannelList();
+      } else if (event.state && event.state.group !== undefined) {
+        // 恢复分组筛选
+        const group = event.state.group;
+        currentGroup = group;
+        currentPage = 1;
+        currentSearch = '';
+
+        // 清空搜索框
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) searchInput.value = '';
+
+        // 更新标题
+        if (group) {
+          document.getElementById('sectionTitle').textContent = group;
+        } else {
+          document.getElementById('sectionTitle').textContent = t('allChannels');
+        }
+
+        // 更新分组选中状态
+        document.querySelectorAll('.group-item').forEach(item => {
+          item.classList.remove('active');
+          if (item.dataset.group === currentGroup) {
+            item.classList.add('active');
+          }
+        });
+
+        // 显示列表视图
+        showChannelList();
+
+        // 加载对应分组的频道
+        loadChannels(1, true);
+
+        console.log('[History] 恢复分组:', group || '全部');
+      }
+    });
+
     function filterByGroup(group) {
       // 隐藏收藏下载按钮（只有收藏页面才显示）
 
@@ -2023,6 +2127,18 @@ export const HOME_HTML = `<!DOCTYPE html>
 
       currentGroup = group;
       currentPage = 1; // 重置到第一页
+
+      // 更新 URL（使用 pushState 保存历史记录，但不刷新页面）
+      // 特殊分组（history/favorites/random）不更新 URL
+      if (group !== 'history' && group !== 'favorites' && group !== 'random') {
+        const newUrl = new URL(window.location.href);
+        if (group) {
+          newUrl.searchParams.set('group', group);
+        } else {
+          newUrl.searchParams.delete('group');
+        }
+        history.pushState({ group: group }, '', newUrl.toString());
+      }
 
       // 清空搜索框和搜索状态
       const searchInput = document.getElementById('searchInput');
@@ -2068,13 +2184,8 @@ export const HOME_HTML = `<!DOCTYPE html>
       loadChannels(1, true);
     }
 
-    // 处理频道点击
+    // 处理频道点击 - 打开详情视图
     function handleChannelClick(event, hash, name, group) {
-      // 如果IP直连播放已禁用，忽略点击
-      if (!enableIpPlay) {
-        return;
-      }
-      
       // 添加点击高亮效果
       const card = event.currentTarget;
       card.classList.add('click-highlight');
@@ -2082,8 +2193,303 @@ export const HOME_HTML = `<!DOCTYPE html>
         card.classList.remove('click-highlight');
       }, 300);
 
-      // 播放频道
-      playChannel(hash, name, group);
+      // 打开频道详情视图
+      showChannelDetail(hash, name, group);
+    }
+
+    // 打开频道详情视图 - 重新设计的丰富布局
+    function showChannelDetail(hash, name, group) {
+      const detailView = document.getElementById('channelDetailView');
+      const detailContainer = document.getElementById('channelDetailContainer');
+      const channelList = document.getElementById('channelList');
+      const breadcrumb = document.getElementById('detailBreadcrumb');
+
+      // 查找频道完整信息
+      const channel = allChannels.find(ch => ch.channel_hash === hash);
+      const isFavorited = favorites.some(f => f.hash === hash);
+
+      // 获取相关频道（同分组）
+      const relatedChannels = channel && group
+        ? allChannels.filter(ch => ch.group_title === group && ch.channel_hash !== hash).slice(0, 8)
+        : [];
+
+      // 构建面包屑
+      const allChannelsText = typeof t !== 'undefined' ? t('allChannels') : 'All Channels';
+      breadcrumb.innerHTML = '<a href="/" data-nav="showChannelList">' + escapeHtml(allChannelsText) + '</a>' +
+        '<span class="breadcrumb-separator">&raquo;</span>';
+      if (group) {
+        breadcrumb.innerHTML += '<a href="/" data-nav="filterGroup" data-group="' + escapeHtml(group) + '">' + escapeHtml(group) + '</a>' +
+          '<span class="breadcrumb-separator">&raquo;</span>';
+      }
+      breadcrumb.innerHTML += '<span class="breadcrumb-current">' + escapeHtml(name) + '</span>';
+
+      // 构建 Logo HTML
+      const logoHtml = channel && channel.logo
+        ? '<div class="cd-hero-logo"><img src="' + escapeHtml(channel.logo) + '" alt="' + escapeHtml(name) + '" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;"></div><div class="cd-hero-logo-placeholder" style="display:none;">📺</div>'
+        : '<div class="cd-hero-logo"><div class="cd-hero-logo-placeholder">📺</div></div>';
+
+      // 构建分组标签
+      const groupTag = group
+        ? '<span class="cd-tag cd-tag-group" data-nav="filterGroup" data-group="' + escapeHtml(group) + '">' +
+          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>' + escapeHtml(group) + '</span>'
+        : '';
+
+      // 获取当前时间用于显示
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+      // 构建详情内容 - 丰富的卡片布局
+      detailContainer.innerHTML = 
+        // ===== 英雄区：频道Logo + 名称 + 操作按钮 =====
+        '<div class="cd-hero">' +
+          logoHtml +
+          '<div class="cd-hero-info">' +
+            '<h1 class="cd-hero-title">' + escapeHtml(name) + '</h1>' +
+            '<div class="cd-hero-meta">' + groupTag + '</div>' +
+            '<div class="cd-hero-actions">' +
+              '<button class="cd-btn cd-btn-primary" id="detailPlayBtn">' +
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play Now' +
+              '</button>' +
+              '<button class="cd-btn cd-btn-secondary' + (isFavorited ? ' active' : '') + '" id="detailFavBtn">' +
+                (isFavorited ? '★' : '☆') + ' ' + (isFavorited ? 'Favorited' : 'Favorite') +
+              '</button>' +
+              '<button class="cd-btn cd-btn-icon" id="detailCopyBtn" title="Copy Link">' +
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        // ===== 信息卡片网格 =====
+        '<div class="cd-cards-grid">' +
+
+          // 卡片1：频道信息
+          '<div class="cd-card">' +
+            '<div class="cd-card-header">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>' +
+              '<span>Channel Information</span>' +
+            '</div>' +
+            '<div class="cd-card-body">' +
+              '<div class="cd-info-row">' +
+                '<span class="cd-info-label">Channel Name</span>' +
+                '<span class="cd-info-value">' + escapeHtml(name) + '</span>' +
+              '</div>' +
+              '<div class="cd-info-row">' +
+                '<span class="cd-info-label">Category</span>' +
+                '<span class="cd-info-value cd-info-category">' + escapeHtml(group || 'Uncategorized') + '</span>' +
+              '</div>' +
+              '<div class="cd-info-row">' +
+                '<span class="cd-info-label">Channel ID</span>' +
+                '<span class="cd-info-value cd-info-id">' + escapeHtml(hash) + '</span>' +
+              '</div>' +
+              '<div class="cd-info-row">' +
+                '<span class="cd-info-label">Added Date</span>' +
+                '<span class="cd-info-value">' + escapeHtml(dateStr) + '</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          // 卡片2：播放信息
+          '<div class="cd-card">' +
+            '<div class="cd-card-header">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>' +
+              '<span>Playback Info</span>' +
+            '</div>' +
+            '<div class="cd-card-body">' +
+              '<div class="cd-info-row">' +
+                '<span class="cd-info-label">Quality</span>' +
+                '<span class="cd-info-value">HD / SD Auto</span>' +
+              '</div>' +
+              '<div class="cd-info-row">' +
+                '<span class="cd-info-label">Format</span>' +
+                '<span class="cd-info-value">M3U8 / M3U</span>' +
+              '</div>' +
+              '<div class="cd-info-row">' +
+                '<span class="cd-info-label">Protocol</span>' +
+                '<span class="cd-info-value">HTTP / HTTPS</span>' +
+              '</div>' +
+              '<div class="cd-info-row">' +
+                '<span class="cd-info-label">Status</span>' +
+                '<span class="cd-info-value cd-status-active">● Active</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          // 卡片3：EPG节目预告（占位）
+          '<div class="cd-card cd-card-epg">' +
+            '<div class="cd-card-header">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' +
+              '<span>Program Guide</span>' +
+              '<span class="cd-card-badge">Coming Soon</span>' +
+            '</div>' +
+            '<div class="cd-card-body cd-epg-body">' +
+              '<div class="cd-epg-placeholder">' +
+                '<div class="cd-epg-icon">📺</div>' +
+                '<p>Electronic Program Guide</p>' +
+                '<p class="cd-epg-sub">TV schedule and program info will be available soon</p>' +
+              '</div>' +
+              '<div class="cd-epg-slots">' +
+                '<div class="cd-epg-slot">' +
+                  '<span class="cd-epg-time">Now</span>' +
+                  '<span class="cd-epg-program">Loading...</span>' +
+                '</div>' +
+                '<div class="cd-epg-slot">' +
+                  '<span class="cd-epg-time">Next</span>' +
+                  '<span class="cd-epg-program">—</span>' +
+                '</div>' +
+                '<div class="cd-epg-slot">' +
+                  '<span class="cd-epg-time">Later</span>' +
+                  '<span class="cd-epg-program">—</span>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          // 卡片4：频道描述（占位）
+          '<div class="cd-card cd-card-desc">' +
+            '<div class="cd-card-header">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>' +
+              '<span>Description</span>' +
+              '<span class="cd-card-badge">Coming Soon</span>' +
+            '</div>' +
+            '<div class="cd-card-body">' +
+              '<div class="cd-desc-placeholder">' +
+                '<p>Channel description and detailed information will be available soon.</p>' +
+                '<p class="cd-desc-sub">Stay tuned for updates!</p>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+        '</div>' +
+
+        // ===== 相关频道 =====
+        (relatedChannels.length > 0 ? 
+        '<div class="cd-related">' +
+          '<div class="cd-related-header">' +
+            '<h2 class="cd-section-title">More from ' + escapeHtml(group || 'This Category') + '</h2>' +
+            '<a href="/" class="cd-related-link" data-nav="filterGroup" data-group="' + escapeHtml(group || '') + '">View All →</a>' +
+          '</div>' +
+          '<div class="cd-related-grid" id="relatedChannelsGrid">' +
+            relatedChannels.map(ch => {
+              const chLogo = ch.logo
+                ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.channel_name) + '" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;"><div class="cd-related-logo-placeholder" style="display:none;">📺</div>'
+                : '<div class="cd-related-logo-placeholder">📺</div>';
+              return '<div class="cd-related-card" data-channel-hash="' + escapeHtml(ch.channel_hash) + '" data-channel-name="' + escapeHtml(ch.channel_name) + '" data-channel-group="' + escapeHtml(ch.group_title || '') + '">' +
+                '<div class="cd-related-poster">' + chLogo + '</div>' +
+                '<div class="cd-related-info">' +
+                  '<span class="cd-related-name">' + escapeHtml(ch.channel_name) + '</span>' +
+                '</div>' +
+              '</div>';
+            }).join('') +
+          '</div>' +
+        '</div>' : '');
+
+      // 绑定按钮事件
+      const playBtnEl = document.getElementById('detailPlayBtn');
+      if (playBtnEl) {
+        playBtnEl.onclick = function() {
+          playChannel(hash, name, group || '');
+        };
+      }
+      const favBtnEl = document.getElementById('detailFavBtn');
+      if (favBtnEl) {
+        favBtnEl.onclick = function() {
+          toggleFavorite(hash, name, group || '');
+          const isFav = favorites.some(f => f.hash === hash);
+          this.classList.toggle('active', isFav);
+          this.innerHTML = (isFav ? '★' : '☆') + ' ' + (isFav ? 'Favorited' : 'Favorite');
+        };
+      }
+      const copyBtnEl = document.getElementById('detailCopyBtn');
+      if (copyBtnEl) {
+        copyBtnEl.onclick = function() {
+          copyPlayLink(hash);
+        };
+      }
+
+      // 绑定面包屑导航
+      breadcrumb.querySelectorAll('a[data-nav]').forEach(function(link) {
+        link.onclick = function(e) {
+          e.preventDefault();
+          var navType = this.getAttribute('data-nav');
+          if (navType === 'showChannelList') {
+            showChannelList();
+          } else if (navType === 'filterGroup') {
+            var g = this.getAttribute('data-group');
+            filterByGroup(g);
+            showChannelList();
+          }
+        };
+      });
+
+      // 绑定分组标签点击
+      var groupTagEl = detailContainer.querySelector('.cd-tag-group');
+      if (groupTagEl) {
+        groupTagEl.onclick = function() {
+          filterByGroup(group);
+          showChannelList();
+        };
+      }
+
+      // 绑定相关频道点击
+      var relatedGrid = document.getElementById('relatedChannelsGrid');
+      if (relatedGrid) {
+        relatedGrid.querySelectorAll('.cd-related-card').forEach(function(card) {
+          card.onclick = function() {
+            var h = this.getAttribute('data-channel-hash');
+            var n = this.getAttribute('data-channel-name');
+            var g = this.getAttribute('data-channel-group');
+            showChannelDetail(h, n, g);
+          };
+        });
+      }
+
+      // 切换视图
+      channelList.style.display = 'none';
+      detailView.style.display = 'block';
+
+      // 显示详情面包屑
+      breadcrumb.style.display = 'flex';
+
+      // 更新 URL
+      var newUrl = new URL(window.location.href);
+      newUrl.searchParams.set('channel', hash);
+      history.pushState({ channel: hash }, '', newUrl.toString());
+
+      // 滚动到顶部
+      document.querySelector('.content').scrollTop = 0;
+    }
+
+    // 从详情页收藏/取消收藏
+    function toggleFavoriteFromDetail(hash, name, group) {
+      toggleFavorite(hash, name, group);
+      // 更新按钮状态
+      const btn = document.querySelector('.channel-detail-btn-favorite');
+      if (btn) {
+        const isFavorited = favorites.some(f => f.hash === hash);
+        btn.classList.toggle('active', isFavorited);
+        btn.innerHTML = (isFavorited ? '&#9733;' : '&#9734;') + ' ' + (isFavorited ? 'Favorited' : 'Favorite');
+      }
+    }
+
+    // 返回频道列表视图
+    function showChannelList() {
+      const detailView = document.getElementById('channelDetailView');
+      const channelList = document.getElementById('channelList');
+      const breadcrumb = document.getElementById('breadcrumb');
+      const detailBreadcrumb = document.getElementById('detailBreadcrumb');
+
+      // 隐藏详情面包屑
+      if (detailBreadcrumb) detailBreadcrumb.style.display = 'none';
+
+      // 切换视图
+      detailView.style.display = 'none';
+      channelList.style.display = 'block';
+
+      // 更新 URL（移除 channel 参数）
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('channel');
+      history.pushState({}, '', newUrl.toString());
     }
 
     // 处理订阅计划按钮点击
@@ -3482,13 +3888,13 @@ export const HOME_HTML = `<!DOCTYPE html>
     // 播放历史
     function addToHistory(channel) {
       const hash = channel.channel_hash || channel.hash;
-      const index = history.findIndex(h => h.hash === hash);
+      const index = playHistory.findIndex(h => h.hash === hash);
       if (index > -1) {
-        history.splice(index, 1);
+        playHistory.splice(index, 1);
       }
 
       // 统一字段名为 hash, name, group
-      history.unshift({
+      playHistory.unshift({
         hash: hash,
         name: channel.channel_name,
         group: channel.group_title,
@@ -3496,11 +3902,11 @@ export const HOME_HTML = `<!DOCTYPE html>
       });
 
       // 只保留最近30条
-      if (history.length > 30) {
-        history = history.slice(0, 30);
+      if (playHistory.length > 30) {
+        playHistory = playHistory.slice(0, 30);
       }
 
-      localStorage.setItem('iptv_history', JSON.stringify(history));
+      localStorage.setItem('iptv_history', JSON.stringify(playHistory));
       updateBadges();
     }
 
@@ -3537,7 +3943,7 @@ export const HOME_HTML = `<!DOCTYPE html>
       document.getElementById('pagination').innerHTML = '';
 
       // 获取前30条历史记录
-      const historyItems = history.slice(0, 30);
+      const historyItems = playHistory.slice(0, 30);
 
       if (historyItems.length === 0) {
         const container = document.getElementById('channelsGrid');
