@@ -10,7 +10,7 @@ export const HOME_HTML = `<!DOCTYPE html>
 
   <!-- ========== SEO Meta Tags ========== -->
   <!-- 基础Meta标签 -->
-  <meta name="description" content="Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment channels. Updated daily.">
+  <meta name="description" content="Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists. Search free IPTV channels by country. Updated daily.">
   <meta name="keywords" content="IPTV link search,public IPTV channels,m3u,m3u8,flv,mp3,mp4,ts,udp,rtp,video,player,free IPTV,live TV streaming,TV channel search,IPTV playlist">
   <meta name="author" content="IPTV Search">
   <meta name="robots" content="index, follow">
@@ -22,7 +22,7 @@ export const HOME_HTML = `<!DOCTYPE html>
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com">
   <meta property="og:title" content="IPTV Search — Free IPTV Channel Directory &amp; Search Engine">
-  <meta property="og:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.">
+  <meta property="og:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with free IPTV channel links. Updated daily.">
   <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
   <meta property="og:site_name" content="IPTV Search">
   <meta property="og:locale" content="en_US">
@@ -31,7 +31,7 @@ export const HOME_HTML = `<!DOCTYPE html>
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://iptv-search.com">
   <meta name="twitter:title" content="IPTV Search - Free IPTV Link Search Engine">
-  <meta name="twitter:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment.">
+  <meta name="twitter:description" content="Search and discover public IPTV channels. Find free m3u8, m3u playlists with free IPTV channel links.">
 
   <!-- Canonical URL -->
   <link rel="canonical" href="https://iptv-search.com">
@@ -116,7 +116,7 @@ export const HOME_HTML = `<!DOCTYPE html>
         "name": "How do I find free IPTV channels?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Search for IPTV channels using our search engine. We index and share public IPTV channel links including sports, news, movies, and entertainment. Find m3u8 and m3u playlists that work with VLC, IPTV apps, and other media players."
+          "text": "Search for IPTV channels using our search engine. We index and share public IPTV channel links free IPTV channels by country. Find m3u8 and m3u playlists that work with VLC, IPTV apps, and other media players."
         }
       },
       {
@@ -197,7 +197,7 @@ export const HOME_HTML = `<!DOCTYPE html>
     "@type": "WebPage",
     "name": "IPTV Search - Free IPTV Link Search Engine",
     "url": "https://iptv-search.com",
-    "description": "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.",
+    "description": "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists. Search free IPTV channels by country. Updated daily.",
     "dateModified": "${new Date().toISOString().split('T')[0]}",
     "author": {
       "@type": "Organization",
@@ -928,10 +928,10 @@ export const HOME_HTML = `<!DOCTYPE html>
         },
         'en': {
           title: 'IPTV Search - Free IPTV Link Search Engine | M3U8 M3U Playlist Search',
-          description: 'Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment channels. Updated daily.',
+          description: 'Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists. Search free IPTV channels by country. Updated daily.',
           keywords: 'IPTV link search,public IPTV channels,m3u,m3u8,flv,mp3,mp4,ts,udp,rtp,video,player,free IPTV,live TV streaming,TV channel search,IPTV playlist',
           ogTitle: 'IPTV Search - Free IPTV Link Search Engine',
-          ogDescription: 'Search and discover public IPTV channels. Find free m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.',
+          ogDescription: 'Search and discover public IPTV channels. Find free m3u8, m3u playlists with free IPTV channel links. Updated daily.',
           ogLocale: 'en_US'
         }
       };
@@ -1035,7 +1035,7 @@ export const HOME_HTML = `<!DOCTYPE html>
             "name": "How do I find free IPTV channels?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Search for IPTV channels using our search engine. We index and share public IPTV channel links including sports, news, movies, and entertainment. Find m3u8 and m3u playlists that work with VLC, IPTV apps, and other media players."
+              "text": "Search for IPTV channels using our search engine. We index and share public IPTV channel links free IPTV channels by country. Find m3u8 and m3u playlists that work with VLC, IPTV apps, and other media players."
             }
           },
           {
@@ -1099,7 +1099,7 @@ export const HOME_HTML = `<!DOCTYPE html>
         "url": isZhCN ? origin + "/?lang=zh-CN" : origin + "/",
         "description": isZhCN ? 
           "免费IPTV链接搜索引擎 - 发现和分享公共IPTV频道。提供m3u8、m3u播放列表，包含体育、新闻、电影、娱乐等频道，每日更新。" :
-          "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.",
+          "Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists. Search free IPTV channels by country. Updated daily.",
         "dateModified": "${new Date().toISOString().split('T')[0]}",
         "inLanguage": lang,
         "author": {
@@ -1478,7 +1478,7 @@ export const HOME_HTML = `<!DOCTYPE html>
           description = '免费IPTV链接搜索引擎 - 发现和分享公共IPTV频道。提供m3u8、m3u播放列表，包含体育、新闻、电影、娱乐等频道，每日更新。';
         } else {
           title = 'IPTV Search - Free IPTV Link Search Engine';
-          description = 'Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists with sports, news, movies, entertainment. Updated daily.';
+          description = 'Free IPTV link search engine - discover and share public IPTV channels. Find m3u8, m3u playlists. Search free IPTV channels by country. Updated daily.';
         }
       }
 

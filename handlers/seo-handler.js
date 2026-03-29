@@ -244,11 +244,6 @@ export async function generateSEOHomepage(request, env) {
     return '<div class="channel-card">' +
       '<div class="channel-poster">' +
         '<a href="' + origin + '/channel/' + escapeAttr(ch.channel_hash) + '" style="display:block;width:100%;height:100%;text-decoration:none">' + logo + '</a>' +
-        '<a href="' + origin + '/channel/' + escapeAttr(ch.channel_hash) + '" class="play-overlay" style="display:flex;align-items:center;justify-content:center;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(229,9,20,0.8);opacity:0;transition:opacity .3s;text-decoration:none">' +
-          '<div style="width:60px;height:60px;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center">' +
-            '<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>' +
-          '</div>' +
-        '</a>' +
       '</div>' +
       '<div class="channel-info">' +
         '<div class="channel-name"><a href="' + origin + '/channel/' + escapeAttr(ch.channel_hash) + '" style="color:#fff;text-decoration:none" title="' + escapeHtml(ch.channel_name) + '">' + escapeHtml(ch.channel_name) + '</a></div>' +
@@ -265,37 +260,13 @@ export async function generateSEOHomepage(request, env) {
     '</div>';
   }
 
-  // ===== Play 覆盖层 JS（admin enable_ip_play 禁用时跳频道页） =====
-  var enableFlag = enableIpPlay ? 'true' : 'false';
-  var playOverlayJS = '<script>' +
-  'window.enableIpPlay = ' + enableFlag + ';' +
-  'document.querySelectorAll(".play-overlay").forEach(function(overlay) {' +
-    'overlay.addEventListener("click", function(e) {' +
-      'e.preventDefault();' +
-      'var href = overlay.getAttribute("href");' +
-      'var hash = (href.split("/channel/")[1] || "");' +
-      'if (!window.enableIpPlay) { window.location.href = href; return; }' +
-      'var apiUrl = "' + origin + '/api/play/link?hash=" + hash;' +
-      'var btn = overlay.querySelector("div") || overlay;' +
-      'btn.style.opacity = "0.5";' +
-      'fetch(apiUrl)' +
-        '.then(function(r) { return r.json(); })' +
-        '.then(function(data) {' +
-          'if (data.success && data.play_link) { window.location.href = data.play_link; }' +
-          'else { window.location.href = href; }' +
-        '})' +
-        '.catch(function() { window.location.href = href; });' +
-    '});' +
-  '});' +
-  '</script>';
-
   var sectionLabel = 'All Channels <span style="color:rgba(255,255,255,0.5);font-weight:400;font-size:14px;margin-left:12px">' + totalChannels.toLocaleString() + ' channels</span>';
 
   var faqJsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     'mainEntity': [
-      {'@type': 'Question', 'name': 'What is IPTV Search?', 'acceptedAnswer': {'@type': 'Answer', 'text': 'IPTV Search indexes public IPTV channel playlists. Find sports, news, movies, entertainment, and international TV channels \u2014 no subscription required.'}},
+      {'@type': 'Question', 'name': 'What is IPTV Search?', 'acceptedAnswer': {'@type': 'Answer', 'text': 'IPTV Search indexes public IPTV channel playlists. Search free IPTV channels by country \u2014 no subscription required.'}},
       {'@type': 'Question', 'name': 'How do I use IPTV channels?', 'acceptedAnswer': {'@type': 'Answer', 'text': 'Find the channel you want, copy its M3U URL, and add it to any IPTV player app such as VLC, IPTV Smarters, or your smart TV.'}},
       {'@type': 'Question', 'name': 'How many channels are available?', 'acceptedAnswer': {'@type': 'Answer', 'text': 'We index ' + totalChannels.toLocaleString() + '+ live TV channels across ' + groups.length + ' categories.'}},
       {'@type': 'Question', 'name': 'Is registration required?', 'acceptedAnswer': {'@type': 'Answer', 'text': 'No. Browse channels, get the M3U URL, and use it with any compatible player \u2014 completely free.'}}
@@ -344,7 +315,6 @@ export async function generateSEOHomepage(request, env) {
     '    </div>\n' +
     '  </div>\n' +
     '  ' + PAGE_FOOTER + '\n' +
-    '  ' + playOverlayJS + '\n' +
     '</body>\n' +
     '</html>';
 
@@ -366,9 +336,9 @@ export async function generateChannelPage(request, env, channelHash) {
 
   const safeGroup = slugify(channel.group_title || '');
 
-  const pageTitle = `${channel.channel_name} — Free Live IPTV Stream`;
+  const pageTitle = `${channel.channel_name} — Free IPTV Channel Directory`;
 
-  const metaDescription = `Watch ${channel.channel_name} live online free. ${channel.group_title ? `${channel.group_title} channel. ` : ''}No subscription required.`;
+  const metaDescription = `${channel.channel_name} IPTV channel info. ${channel.group_title ? `${channel.group_title} category. ` : ''}Copy M3U link to watch in your player.`;
 
   const jsonLd = {
 
@@ -634,9 +604,9 @@ export async function generateCategoryPage(request, env, groupSlug) {
 
 
 
-  const pageTitle = `${matchedGroup} IPTV Channels - Free Live TV [${new Date().getFullYear()}]`;
+  const pageTitle = `${matchedGroup} IPTV Channels - Free Directory`;
 
-  const metaDescription = `Watch ${groupChannels.length} free ${matchedGroup} IPTV channels live online. TV from ${matchedGroup}. No registration required. Updated daily.`;
+  const metaDescription = `Browse ${groupChannels.length} free ${matchedGroup} IPTV channels. Search by country. Copy M3U link to watch in your player. No registration required.`;
 
   const jsonLd = {
 
