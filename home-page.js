@@ -452,7 +452,7 @@ export const HOME_HTML = `<!DOCTYPE html>
         <div class="breadcrumb" id="breadcrumb">
           <a href="#" onclick="showCategoryBrowse(); return false;">🏠 <span id="breadcrumbHome">Home</span></a>
           <span class="breadcrumb-sep">»</span>
-          <span class="breadcrumb-current" id="breadcrumbCurrent">All Channels</span>
+          <a href="#" class="breadcrumb-current" id="breadcrumbCurrent" onclick="filterByGroup(''); return false;">All Channels</a>
         </div>
 
         <div class="channel-list" id="channelsGrid"></div>
@@ -2045,6 +2045,54 @@ export const HOME_HTML = `<!DOCTYPE html>
 
       // 重置 currentGroup
       currentGroup = '';
+      currentSearch = '';
+      currentPage = 1;
+
+      // 清空搜索框
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) searchInput.value = '';
+
+      // 重新渲染分类列表
+      renderCategories();
+
+      // 更新面包屑
+      const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
+      if (breadcrumbCurrent) {
+        breadcrumbCurrent.textContent = t('allChannels');
+      }
+
+      // 更新分组选中状态
+      document.querySelectorAll('.group-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.group === '') {
+          item.classList.add('active');
+        }
+      });
+
+      // 更新横向筛选标签
+      document.querySelectorAll('.filter-tag').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.group === '') {
+          item.classList.add('active');
+        }
+      });
+
+      // 更新"全部"标签
+      const allChannelsFilter = document.getElementById('filterAllChannels');
+      if (allChannelsFilter) {
+        allChannelsFilter.classList.add('active');
+      }
+
+      // 更新 URL（只在有变化时才更新，避免重复历史记录）
+      const newUrl = new URL(window.location.href);
+      const hadGroup = newUrl.searchParams.has('group');
+      const hadChannel = newUrl.searchParams.has('channel');
+      newUrl.searchParams.delete('group');
+      newUrl.searchParams.delete('channel');
+
+      if (hadGroup || hadChannel) {
+        history.pushState({ group: '' }, '', newUrl.toString());
+      }
     }
 
     // 渲染"其他分类"横向滚动
@@ -2079,7 +2127,7 @@ export const HOME_HTML = `<!DOCTYPE html>
           : '<div class="channel-icon">📺</div>';
 
         const isPlaying = currentPlayingChannel === channel.channel_hash;
-        const playCount = channel.play_count || Math.floor(Math.random() * 5000);
+        const isFavorited = favorites.some(f => f.hash === channel.channel_hash);
 
         return \`
           <div class="channel-item" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
@@ -2088,7 +2136,9 @@ export const HOME_HTML = `<!DOCTYPE html>
               <div class="ch-name">\${escapeHtml(channel.channel_name)}</div>
               <div class="ch-group">\${escapeHtml(channel.group_title || '')}</div>
             </div>
-            <span class="ch-views">⭐ \${playCount}</span>
+            <button class="ch-fav-btn \${isFavorited ? 'favorited' : ''}" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}', this)">
+              \${isFavorited ? '⭐' : '☆'}
+            </button>
             <span class="ch-arrow">→</span>
           </div>
         \`;
@@ -2546,7 +2596,7 @@ export const HOME_HTML = `<!DOCTYPE html>
       history.pushState({ channel: hash }, '', newUrl.toString());
 
       // 滚动到顶部
-      document.querySelector('.content').scrollTop = 0;
+      window.scrollTo(0, 0);
     }
 
     // 从详情页收藏/取消收藏
@@ -3675,45 +3725,25 @@ export const HOME_HTML = `<!DOCTYPE html>
             ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">📺</div>\`
             : '<div class="channel-icon">📺</div>';
           const isPlaying = currentPlayingChannel === channel.channel_hash;
-          const showRecommendTag = index < 5 && !isPlaying; // 正在播放时隐藏推荐标签
 
           return \`
-            <div class="channel-card ripple \${isPlaying ? 'playing' : ''}" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
-              <div class="channel-poster">
-                \${logo}
-                \${showRecommendTag ? '<div class="hot-tag">' + t('recommend') + '</div>' : ''}
-                \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
-              <div class="play-overlay">
-                <div class="play-icon"></div>
+            <div class="channel-item" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
+              <div class="ch-icon">\${logo}</div>
+              <div class="ch-info">
+                <div class="ch-name">\${escapeHtml(channel.channel_name)}</div>
+                <div class="ch-group">\${escapeHtml(channel.group_title || '')}</div>
               </div>
-              </div>
-              <div class="channel-info">
-                <div class="channel-name">
-                  <span class="channel-name-text">\${escapeHtml(channel.channel_name)}</span>
-                  <button class="copy-link-btn" onclick="event.stopPropagation();copyPlayLink('\${escapeHtml(channel.channel_hash)}')" title="Copy play link">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                    </svg>
-                  </button>
-                </div>
-                <div class="channel-group">\${escapeHtml(channel.group_title || '')}</div>
-              </div>
+              <span class="ch-arrow">→</span>
             </div>
           \`;
         }).join('');
 
         // 添加波纹效果
-        container.querySelectorAll('.channel-card').forEach(card => {
-          card.addEventListener('click', function(e) {
-            createRipple(card);
+        container.querySelectorAll('.channel-item').forEach(item => {
+          item.addEventListener('click', function(e) {
+            createRipple(item);
           });
         });
-
-        // 如果IP直连播放已禁用，禁用所有播放按钮
-        if (!enableIpPlay) {
-          container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
-        }
       });
     }
 
@@ -3877,8 +3907,10 @@ export const HOME_HTML = `<!DOCTYPE html>
     }
 
     // 收藏功能
-    function toggleFavorite(hash, name, group) {
+    function toggleFavorite(hash, name, group, btn) {
       const index = favorites.findIndex(f => f.hash === hash);
+      const isFavorited = index === -1; // 添加前是未收藏的，添加后是收藏的
+
       if (index > -1) {
         favorites.splice(index, 1);
       } else {
@@ -3894,12 +3926,20 @@ export const HOME_HTML = `<!DOCTYPE html>
         renderFavorites();
       }
 
-      // 更新当前页面的收藏按钮状态
-      const btn = document.querySelector(\`.favorite-btn[data-hash="\${hash}"]\`);
+      // 立即更新按钮状态（通过传入的按钮元素）
       if (btn) {
-        btn.textContent = index > -1 ? '☆' : '⭐';
-        btn.classList.toggle('favorited', index > -1);
+        btn.textContent = isFavorited ? '⭐' : '☆';
+        btn.classList.toggle('favorited', isFavorited);
       }
+
+      // 同时更新当前页面所有相同hash的收藏按钮（兼容方式）
+      document.querySelectorAll('.ch-fav-btn').forEach(favBtn => {
+        // 通过onclick字符串匹配hash
+        if (favBtn.getAttribute('onclick') && favBtn.getAttribute('onclick').includes(hash)) {
+          favBtn.textContent = isFavorited ? '⭐' : '☆';
+          favBtn.classList.toggle('favorited', isFavorited);
+        }
+      });
     }
 
     function renderFavorites() {
@@ -3913,46 +3953,34 @@ export const HOME_HTML = `<!DOCTYPE html>
       if (favoritesItems.length === 0) {
         container.innerHTML = '';
         emptyState.style.display = 'block';
-          document.querySelector('.empty-title').textContent = t('noFavorites');
+        document.querySelector('.empty-title').textContent = t('noFavorites');
         document.querySelector('.empty-desc').textContent = t('noFavoritesDesc');
         return;
       }
 
-      // 显示下载按钮
       emptyState.style.display = 'none';
+      
+      // 直接从 allChannels 查找 logo，和随机推荐一样的方式
       container.innerHTML = favoritesItems.map(fav => {
-        const logo = getLogoByHash(fav.hash);
+        // 查找频道信息获取 logo
+        const channel = allChannels.find(c => c.channel_hash === fav.hash);
+        const logo = channel && channel.logo
+          ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">📺</div>\`
+          : '<div class="channel-icon">📺</div>';
         const isPlaying = currentPlayingChannel === fav.hash;
+
         return \`
-          <div class="channel-card \${isPlaying ? 'playing' : ''}" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
-            <div class="channel-poster">
-              \${logo}
-              \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
-              <button class="favorite-btn favorited" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')" data-hash="\${escapeHtml(fav.hash)}">⭐</button>
-              <div class="play-overlay">
-                <div class="play-icon"></div>
-              </div>
+          <div class="channel-item" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
+            <div class="ch-icon">\${logo}</div>
+            <div class="ch-info">
+              <div class="ch-name">\${escapeHtml(fav.name)}</div>
+              <div class="ch-group">\${escapeHtml(fav.group)}</div>
             </div>
-            <div class="channel-info">
-              <div class="channel-name">
-                <span class="channel-name-text">\${escapeHtml(fav.name)}</span>
-                <button class="copy-link-btn" onclick="event.stopPropagation();copyPlayLink('\${escapeHtml(fav.hash)}')" title="Copy play link">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                  </svg>
-                </button>
-              </div>
-              <div class="channel-group">\${escapeHtml(fav.group)}</div>
-            </div>
+            <button class="ch-fav-btn favorited" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}', this)">⭐</button>
+            <span class="ch-arrow">→</span>
           </div>
         \`;
       }).join('');
-
-      // 如果IP直连播放已禁用，禁用所有播放按钮
-      if (!enableIpPlay) {
-        container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
-      }
     }
 
     function getLogoByHash(hash) {
@@ -4070,32 +4098,24 @@ export const HOME_HTML = `<!DOCTYPE html>
       emptyState.style.display = 'none';
 
       container.innerHTML = historyItems.map(h => {
-        const logoHtml = getLogoByHash(h.hash);
+        // 查找频道信息获取 logo
+        const channel = allChannels.find(c => c.channel_hash === h.hash);
+        const logo = channel && channel.logo
+          ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">📺</div>\`
+          : '<div class="channel-icon">📺</div>';
         const timeAgo = getTimeAgo(h.watchedAt);
-        const isPlaying = currentPlayingChannel === h.hash;
 
         return \`
-          <div class="channel-card \${isPlaying ? 'playing' : ''}" onclick="playChannel('\${escapeHtml(h.hash)}', '\${escapeHtml(h.name)}', '\${escapeHtml(h.group)}')">
-            <div class="channel-poster">
-              \${logoHtml}
-              \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
-              <div class="play-overlay">
-                <div class="play-icon"></div>
-              </div>
+          <div class="channel-item" onclick="playChannel('\${escapeHtml(h.hash)}', '\${escapeHtml(h.name)}', '\${escapeHtml(h.group)}')">
+            <div class="ch-icon">\${logo}</div>
+            <div class="ch-info">
+              <div class="ch-name">\${escapeHtml(h.name)}</div>
+              <div class="ch-group">\${escapeHtml(h.group)} · \${timeAgo}</div>
             </div>
-            <div class="channel-info">
-              <div class="channel-name">\${escapeHtml(h.name)}</div>
-              <div class="channel-group">\${escapeHtml(h.group)}</div>
-              <div class="channel-group" style="margin-top:4px;font-size:11px;color:#e50914">\${timeAgo}</div>
-            </div>
+            <span class="ch-arrow">→</span>
           </div>
         \`;
       }).join('');
-
-      // 如果IP直连播放已禁用，禁用所有播放按钮
-      if (!enableIpPlay) {
-        container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
-      }
     }
 
     // 在主数据区域显示收藏
@@ -4140,32 +4160,25 @@ export const HOME_HTML = `<!DOCTYPE html>
       emptyState.style.display = 'none';
 
       container.innerHTML = favoritesItems.map(fav => {
-        const logo = getLogoByHash(fav.hash);
-        const logoHtml = logo ? \`<img src="\${escapeHtml(logo)}" alt="\${escapeHtml(fav.name)}">\` : '<div class="channel-icon">📺</div>';
+        // 查找频道信息获取 logo
+        const channel = allChannels.find(c => c.channel_hash === fav.hash);
+        const logo = channel && channel.logo
+          ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">📺</div>\`
+          : '<div class="channel-icon">📺</div>';
         const isPlaying = currentPlayingChannel === fav.hash;
 
         return \`
-          <div class="channel-card \${isPlaying ? 'playing' : ''}" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
-            <div class="channel-poster">
-              \${logoHtml}
-              \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
-              <button class="favorite-btn favorited" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')" data-hash="\${escapeHtml(fav.hash)}">⭐</button>
-              <div class="play-overlay">
-                <div class="play-icon"></div>
-              </div>
+          <div class="channel-item" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
+            <div class="ch-icon">\${logo}</div>
+            <div class="ch-info">
+              <div class="ch-name">\${escapeHtml(fav.name)}</div>
+              <div class="ch-group">\${escapeHtml(fav.group)}</div>
             </div>
-            <div class="channel-info">
-              <div class="channel-name">\${escapeHtml(fav.name)}</div>
-              <div class="channel-group">\${escapeHtml(fav.group)}</div>
-            </div>
+            <button class="ch-fav-btn favorited" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}', this)">⭐</button>
+            <span class="ch-arrow">→</span>
           </div>
         \`;
       }).join('');
-
-      // 如果IP直连播放已禁用，禁用所有播放按钮
-      if (!enableIpPlay) {
-        container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
-      }
     }
 
     // 显示播放历史面板

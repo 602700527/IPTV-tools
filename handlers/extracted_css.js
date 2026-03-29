@@ -567,7 +567,9 @@ const ORIGINAL_CSS = `
       font-size:20px;
       flex-shrink:0;
     }
-    .channel-item .ch-icon img{width:100%;height:100%;object-fit:contain}
+    .channel-item .ch-icon img,
+    .channel-item .ch-icon .channel-icon{width:40px!important;height:40px!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:20px!important;object-fit:contain!important;flex-shrink:0!important;border-radius:8px!important;background:#141414!important}
+    .channel-item .ch-icon .channel-icon{opacity:0.6!important}
     .channel-item .ch-info{
       flex:1;
       min-width:0;
@@ -596,6 +598,18 @@ const ORIGINAL_CSS = `
       flex-shrink:0;
       transition:all .2s;
     }
+    .ch-fav-btn{
+      background:none;
+      border:none;
+      font-size:18px;
+      cursor:pointer;
+      padding:4px 8px;
+      flex-shrink:0;
+      transition:all .2s;
+    }
+    .ch-fav-btn:hover{transform:scale(1.2)}
+    .ch-fav-btn.favorited{color:#e50914}
+    .ch-fav-btn:not(.favorited){color:rgba(255,255,255,0.3)}
     .channel-item:hover .ch-arrow{
       color:#e50914;
       transform:translateX(4px);
