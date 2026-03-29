@@ -297,18 +297,19 @@ export const HOME_HTML = `<!DOCTYPE html>
 </head>
 <body>
   <header class="header">
-    <div class="header-left">
-      <a href="/" class="logo-link">
-        <div class="logo">
-          <img src="/logo.svg" alt="IPTV Search Logo" />
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="/" class="logo-link">
+          <div class="logo">
+            <img src="/logo.svg" alt="IPTV Search Logo" />
+          </div>
+        </a>
+        <div class="online-counter">
+          <span class="online-dot"></span>
+          <span class="online-count" id="onlineCount">0</span> <span id="onlineCountText">viewers</span>
         </div>
-      </a>
-      <div class="online-counter">
-        <span class="online-dot"></span>
-        <span class="online-count" id="onlineCount">0</span> <span id="onlineCountText">viewers</span>
       </div>
-    </div>
-    <div class="header-right">
+      <div class="header-right">
       <div class="search-box">
         <input type="text" class="search-input" id="searchInput" placeholder="Search channels..." oninput="handleSearch()">
       </div>
@@ -349,6 +350,7 @@ export const HOME_HTML = `<!DOCTYPE html>
     <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
       ☰
     </button>
+    </div>
   </header>
 
   <!-- 移动端菜单 -->
@@ -391,13 +393,20 @@ export const HOME_HTML = `<!DOCTYPE html>
     </div>
   </div>
 
-  <div class="main">
-    <aside class="sidebar" id="sidebar">
-      <div class="group-item active" data-group="" onclick="filterByGroup('')">All Channels</div>
-      <div id="groupList"></div>
-    </aside>
+  <!-- 首页分类浏览模式 -->
+  <div class="category-browse" id="categoryBrowse">
+    <div class="page-container">
+      <div class="browse-header">
+        <h2 class="browse-title">📺 Browse Categories</h2>
+        <p class="browse-subtitle">Select a category to explore channels</p>
+      </div>
+      <div class="category-list" id="categoryGrid"></div>
+    </div>
+  </div>
 
-    <div class="content">
+  <!-- 频道列表区域 - 点击分类后显示 -->
+  <div class="content-full" id="contentArea" style="display:none;">
+    <div class="page-container">
       <div id="loading" class="loading">
         <div class="spinner"></div>
         <span class="loading-text">Loading...</span>
@@ -439,17 +448,27 @@ export const HOME_HTML = `<!DOCTYPE html>
           </p>
         </div>
 
-        <!-- 面包屑导航（仅在详情视图显示） -->
-        <div class="breadcrumb" id="breadcrumb" style="display:none;"></div>
+        <!-- 面包屑导航 -->
+        <div class="breadcrumb" id="breadcrumb">
+          <a href="#" onclick="showCategoryBrowse(); return false;">🏠 <span id="breadcrumbHome">Home</span></a>
+          <span class="breadcrumb-sep">»</span>
+          <span class="breadcrumb-current" id="breadcrumbCurrent">All Channels</span>
+        </div>
 
-        <div class="section-title" id="sectionTitle">All Channels</div>
-        <div class="channels-grid" id="channelsGrid"></div>
+        <div class="channel-list" id="channelsGrid"></div>
         <div class="pagination" id="pagination"></div>
+
+        <!-- 其他分类横向滚动 -->
+        <div class="other-categories" id="otherCategories">
+          <div class="other-categories-header">
+            <span class="other-categories-title">📂 Other Categories</span>
+          </div>
+          <div class="other-categories-scroll" id="otherCategoriesScroll"></div>
+        </div>
       </div>
 
       <!-- 频道详情视图 -->
-      <div id="channelDetailView" class="channel-detail-view" style="display:none;">
-        <!-- 面包屑放在详情视图内 -->
+      <div id="channelDetailView" class="channel-detail-view page-container" style="display:none;">
         <div class="breadcrumb" id="detailBreadcrumb"></div>
         <div class="channel-detail-container" id="channelDetailContainer"></div>
       </div>
@@ -459,7 +478,6 @@ export const HOME_HTML = `<!DOCTYPE html>
         <div class="empty-title">No Channels Found</div>
         <div class="empty-desc">Try other search terms or groups</div>
       </div>
-
     </div>
   </div>
 
@@ -1353,17 +1371,29 @@ export const HOME_HTML = `<!DOCTYPE html>
       if (urlGroup) {
         console.log('[Init] 从 URL 检测到分组:', urlGroup);
         currentGroup = urlGroup;
-        document.getElementById('sectionTitle').textContent = urlGroup;
       }
 
       loadChannels().then(() => {
-        // 频道加载完成后，检查是否有 channel 参数
-        if (urlChannel) {
+        // 频道加载完成后
+        if (urlGroup) {
+          // 有分组参数：切换到频道列表模式
+          const categoryBrowse = document.getElementById('categoryBrowse');
+          const contentArea = document.getElementById('contentArea');
+          if (categoryBrowse) categoryBrowse.style.display = 'none';
+          if (contentArea) contentArea.style.display = 'block';
+          document.getElementById('breadcrumbCurrent').textContent = urlGroup;
+          renderOtherCategories(urlGroup);
+        } else if (urlChannel) {
+          // 有 channel 参数：显示频道详情
           const channel = allChannels.find(ch => ch.channel_hash === urlChannel);
           if (channel) {
             console.log('[Init] 从 URL 检测到频道:', channel.channel_name);
             showChannelDetail(channel.channel_hash, channel.channel_name, channel.group_title || '');
           }
+        } else {
+          // 无参数：显示分类浏览模式（首页）
+          showCategoryBrowse();
+          renderCategories();
         }
       });
 
@@ -1879,16 +1909,28 @@ export const HOME_HTML = `<!DOCTYPE html>
     }
     
     function renderGroups() {
-      const container = document.getElementById('groupList');
       // 处理 groups 可能是对象数组 [{name: 'xxx'}] 或字符串数组 ['xxx']
       const groupNames = allGroups.map(g => typeof g === 'string' ? g : g.name);
 
-      // 使用 <a> 标签替代 <div>，这样用户可以看到链接 URL
-      container.innerHTML = groupNames.map(group =>
-        \`<a class="group-item ripple" data-group="\${escapeHtml(group)}" href="/?group=\${encodeURIComponent(group)}">
-          \${escapeHtml(group)}
-        </a>\`
-      ).join('');
+      // 渲染横向筛选标签栏 (Plan B)
+      const filterContainer = document.getElementById('filterTagsContainer');
+      if (filterContainer) {
+        filterContainer.innerHTML = groupNames.map(group =>
+          \`<a class="filter-tag" data-group="\${escapeHtml(group)}" href="/?group=\${encodeURIComponent(group)}">
+            \${escapeHtml(group)}
+          </a>\`
+        ).join('');
+      }
+
+      // 渲染旧侧边栏分组列表（保留以防需要）
+      const container = document.getElementById('groupList');
+      if (container) {
+        container.innerHTML = groupNames.map(group =>
+          \`<a class="group-item ripple" data-group="\${escapeHtml(group)}" href="/?group=\${encodeURIComponent(group)}">
+            \${escapeHtml(group)}
+          </a>\`
+        ).join('');
+      }
 
       // 渲染移动端分组列表
       const mobileContainer = document.getElementById('mobileGroupList');
@@ -1910,6 +1952,20 @@ export const HOME_HTML = `<!DOCTYPE html>
         }
       });
 
+      // 更新横向筛选标签选中状态 (Plan B)
+      document.querySelectorAll('.filter-tag').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.group === currentGroup) {
+          item.classList.add('active');
+        }
+      });
+
+      // 更新"全部"标签
+      const allChannelsFilter = document.getElementById('filterAllChannels');
+      if (allChannelsFilter) {
+        allChannelsFilter.classList.toggle('active', currentGroup === '');
+      }
+
       // 更新移动端分组选中状态
       document.querySelectorAll('.mobile-group-item').forEach(item => {
         item.classList.remove('active');
@@ -1928,6 +1984,81 @@ export const HOME_HTML = `<!DOCTYPE html>
         });
       });
     }
+
+    // ========== 分类浏览模式 ==========
+    function renderCategories() {
+      const container = document.getElementById('categoryGrid');
+      if (!container) return;
+
+      // 处理 groups 可能是对象数组 [{name: 'xxx'}] 或字符串数组 ['xxx']
+      const groupNames = allGroups.map(g => typeof g === 'string' ? g : g.name);
+
+      // 生成分类列表
+      container.innerHTML = groupNames.map(group => {
+        const count = allChannels.filter(ch => ch.group_title === group).length;
+        return \`
+          <div class="category-item" onclick="filterByGroup('\${escapeHtml(group)}')">
+            <span class="cat-name">\${escapeHtml(group)}</span>
+            <span class="cat-count">\${count} channels</span>
+            <span class="cat-arrow">→</span>
+          </div>
+        \`;
+      }).join('');
+
+      // 更新统计数据
+      const totalChannelsEl = document.getElementById('totalChannelsStat');
+      const totalCategoriesEl = document.getElementById('totalCategoriesStat');
+      if (totalChannelsEl) totalChannelsEl.textContent = allChannels.length;
+      if (totalCategoriesEl) totalCategoriesEl.textContent = groupNames.length;
+    }
+
+    // 获取分类图标
+    function getCategoryIcon(groupName) {
+      const iconMap = {
+        '央视': '📺', 'CCTV': '📺',
+        '卫视': '🛰️',
+        '体育': '⚽', 'Sports': '⚽',
+        '电影': '🎬', 'Movies': '🎬',
+        '电视剧': '📺', 'Series': '📺',
+        '综艺': '🎭', 'Entertainment': '🎭',
+        '动漫': '🐱', 'Animation': '🐱', 'Kids': '🐱',
+        '音乐': '🎵', 'Music': '🎵',
+        '新闻': '📰', 'News': '📰',
+        '教育': '📚', 'Education': '📚',
+        '纪录': '🎥', 'Documentary': '🎥',
+        '财经': '💰', 'Finance': '💰',
+        '国际': '🌍', 'International': '🌍',
+        '游戏': '🎮', 'Gaming': '🎮',
+      };
+      return iconMap[groupName] || '📺';
+    }
+
+    // 显示分类浏览模式（首页）
+    function showCategoryBrowse() {
+      const categoryBrowse = document.getElementById('categoryBrowse');
+      const contentArea = document.getElementById('contentArea');
+      const detailView = document.getElementById('channelDetailView');
+
+      if (categoryBrowse) categoryBrowse.style.display = 'block';
+      if (contentArea) contentArea.style.display = 'none';
+      if (detailView) detailView.style.display = 'none';
+
+      // 重置 currentGroup
+      currentGroup = '';
+    }
+
+    // 渲染"其他分类"横向滚动
+    function renderOtherCategories(currentGroup) {
+      const container = document.getElementById('otherCategoriesScroll');
+      if (!container) return;
+
+      const groupNames = allGroups.map(g => typeof g === 'string' ? g : g.name);
+      const otherGroups = groupNames.filter(g => g !== currentGroup);
+
+      container.innerHTML = otherGroups.map(group =>
+        \`<button class="other-cat-btn" onclick="filterByGroup('\${escapeHtml(group)}')">\${escapeHtml(group)}</button>\`
+      ).join('');
+    }
     
     function renderChannels(channels) {
       const container = document.getElementById('channelsGrid');
@@ -1941,94 +2072,36 @@ export const HOME_HTML = `<!DOCTYPE html>
 
       emptyState.style.display = 'none';
       
-      // 生成广告卡片HTML（每页一个，位置在第三个）
-      const adCardHtml = \`
-        <div class="ad-card" onclick="event.stopPropagation();">
-          <div class="channel-poster"></div>
-          <div class="ad-label">AD</div>
-          <div class="ad-fullcard">
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-2205598928191137"
-                 data-ad-slot="4008350895"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
-          </div>
-          <div class="channel-info">
-            <div class="channel-name">Sponsored</div>
-            <div class="channel-group">Advertisement</div>
-          </div>
-        </div>
-      \`;
-      
-      // 生成频道卡片HTML
-      const channelCardsHtml = channels.map(channel => {
+      // 生成频道列表HTML
+      const channelListHtml = channels.map(channel => {
         const logo = channel.logo
           ? \`<img src="\${escapeHtml(channel.logo)}" alt="\${escapeHtml(channel.channel_name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">📺</div>\`
           : '<div class="channel-icon">📺</div>';
 
-        const isFavorited = favorites.some(f => f.hash === channel.channel_hash);
         const isPlaying = currentPlayingChannel === channel.channel_hash;
-        const hotIndex = Math.floor(Math.random() * 20); // 随机显示热门标签
-        const showHotTag = hotIndex === 0 && !isPlaying; // 正在播放时隐藏hot标签
+        const playCount = channel.play_count || Math.floor(Math.random() * 5000);
 
         return \`
-          <div class="channel-card ripple \${isPlaying ? 'playing' : ''}" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
-            <div class="channel-poster">
-              \${logo}
-              \${showHotTag ? '<div class="hot-tag">' + t('hot') + '</div>' : ''}
-              \${isPlaying ? '<div class="playing-indicator"><div class="playing-dots"><div class="playing-dot"></div><div class="playing-dot"></div><div class="playing-dot"></div></div><span>Playing</span></div>' : ''}
-              <button class="favorite-btn \${isFavorited ? 'favorited' : ''}" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')" data-hash="\${escapeHtml(channel.channel_hash)}">\${isFavorited ? '⭐' : '☆'}</button>
-              <div class="play-overlay">
-                <div class="play-icon"></div>
-              </div>
+          <div class="channel-item" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
+            <div class="ch-icon">\${logo}</div>
+            <div class="ch-info">
+              <div class="ch-name">\${escapeHtml(channel.channel_name)}</div>
+              <div class="ch-group">\${escapeHtml(channel.group_title || '')}</div>
             </div>
-            <div class="channel-info">
-              <div class="channel-name">
-                <span class="channel-name-text">\${escapeHtml(channel.channel_name)}</span>
-                <button class="copy-link-btn" onclick="event.stopPropagation();copyPlayLink('\${escapeHtml(channel.channel_hash)}')" title="Copy play link">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                  </svg>
-                </button>
-              </div>
-              <div class="channel-group">\${escapeHtml(channel.group_title || '')}</div>
-            </div>
+            <span class="ch-views">⭐ \${playCount}</span>
+            <span class="ch-arrow">→</span>
           </div>
         \`;
       });
 
-      // 在随机位置插入广告卡片（避免用户形成忽略习惯）
-      const minPosition = 1; // 最小位置（第2个，避免第一个位置）
-      const maxPosition = Math.min(10, channelCardsHtml.length); // 最大位置（第11个或最后一个）
-      const adPosition = channelCardsHtml.length > 0 
-        ? Math.floor(Math.random() * (maxPosition - minPosition + 1)) + minPosition 
-        : 0;
-      channelCardsHtml.splice(adPosition, 0, adCardHtml);
-      
-      container.innerHTML = channelCardsHtml.join('');
+      container.innerHTML = channelListHtml.join('');
 
       // 添加波纹效果
-      container.querySelectorAll('.channel-card').forEach(card => {
-        card.addEventListener('click', function(e) {
-          createRipple(card);
+      container.querySelectorAll('.channel-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+          createRipple(item);
         });
       });
-      
-      // 初始化广告（如果AdSense脚本已加载）
-      if (window.adsbygoogle) {
-        try {
-          (adsbygoogle = window.adsbygoogle || []).push({});
-        } catch (e) {
-          console.log('AdSense init error:', e);
-        }
-      }
-
-      // 如果IP直连播放已禁用，禁用所有播放按钮
-      if (!enableIpPlay) {
-        container.querySelectorAll('.play-overlay').forEach(el => el.classList.add('disabled'));
-      }
     }
 
     // ========== URL 处理与 History API 支持 ==========
@@ -2041,7 +2114,7 @@ export const HOME_HTML = `<!DOCTYPE html>
 
     // 处理分组链接点击（使用事件委托）
     document.addEventListener('click', function(event) {
-      const target = event.target.closest('.group-item, .mobile-group-item');
+      const target = event.target.closest('.group-item, .mobile-group-item, .filter-tag');
       if (target) {
         event.preventDefault(); // 阻止默认的链接跳转
         const group = target.dataset.group || '';
@@ -2077,11 +2150,10 @@ export const HOME_HTML = `<!DOCTYPE html>
         const searchInput = document.getElementById('searchInput');
         if (searchInput) searchInput.value = '';
 
-        // 更新标题
-        if (group) {
-          document.getElementById('sectionTitle').textContent = group;
-        } else {
-          document.getElementById('sectionTitle').textContent = t('allChannels');
+        // 更新面包屑
+        const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
+        if (breadcrumbCurrent) {
+          breadcrumbCurrent.textContent = group || t('allChannels');
         }
 
         // 更新分组选中状态
@@ -2091,6 +2163,20 @@ export const HOME_HTML = `<!DOCTYPE html>
             item.classList.add('active');
           }
         });
+
+        // 更新横向筛选标签选中状态 (Plan B)
+        document.querySelectorAll('.filter-tag').forEach(item => {
+          item.classList.remove('active');
+          if (item.dataset.group === currentGroup) {
+            item.classList.add('active');
+          }
+        });
+
+        // 更新"全部"标签
+        const allChannelsFilter = document.getElementById('filterAllChannels');
+        if (allChannelsFilter) {
+          allChannelsFilter.classList.toggle('active', currentGroup === '');
+        }
 
         // 显示列表视图
         showChannelList();
@@ -2103,7 +2189,13 @@ export const HOME_HTML = `<!DOCTYPE html>
     });
 
     function filterByGroup(group) {
-      // 隐藏收藏下载按钮（只有收藏页面才显示）
+      // 切换到频道列表模式
+      const categoryBrowse = document.getElementById('categoryBrowse');
+      const contentArea = document.getElementById('contentArea');
+      if (categoryBrowse) categoryBrowse.style.display = 'none';
+      if (contentArea) contentArea.style.display = 'block';
+
+      // 移动端：关闭菜单
 
 
       // 移动端：关闭菜单
@@ -2147,16 +2239,16 @@ export const HOME_HTML = `<!DOCTYPE html>
       }
       currentSearch = '';
 
-      // 更新标题
-      if (group === 'history') {
-        document.getElementById('sectionTitle').textContent = \`🕐 \${t('history')}\`;
-      } else if (group === 'favorites') {
-        document.getElementById('sectionTitle').textContent = \`⭐ \${t('favorites')}\`;
-      } else if (group === 'random') {
-        document.getElementById('sectionTitle').textContent = \`🎯 \${t('random')}\`;
-      } else {
-        document.getElementById('sectionTitle').textContent = group || t('allChannels');
+      // 更新标题（现在由面包屑显示）
+
+      // 更新面包屑
+      const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
+      if (breadcrumbCurrent) {
+        breadcrumbCurrent.textContent = group || t('allChannels');
       }
+
+      // 渲染"其他分类"横向滚动（排除当前分类）
+      renderOtherCategories(group);
 
       // 如果是收藏分组，显示收藏列表
       if (group === 'favorites') {
@@ -2247,9 +2339,6 @@ export const HOME_HTML = `<!DOCTYPE html>
             '<h1 class="cd-hero-title">' + escapeHtml(name) + '</h1>' +
             '<div class="cd-hero-meta">' + groupTag + '</div>' +
             '<div class="cd-hero-actions">' +
-              '<button class="cd-btn cd-btn-primary" id="detailPlayBtn">' +
-                '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play Now' +
-              '</button>' +
               '<button class="cd-btn cd-btn-secondary' + (isFavorited ? ' active' : '') + '" id="detailFavBtn">' +
                 (isFavorited ? '★' : '☆') + ' ' + (isFavorited ? 'Favorited' : 'Favorite') +
               '</button>' +
@@ -2621,7 +2710,11 @@ export const HOME_HTML = `<!DOCTYPE html>
 
         // 搜索时不更新分组列表，保持原有分组显示
         loadChannels(1, false);
-        document.getElementById('sectionTitle').textContent = \`\${t('search')}: \${escapeHtml(keyword)}\`;
+        // 更新面包屑
+        const breadcrumbCurrent2 = document.getElementById('breadcrumbCurrent');
+        if (breadcrumbCurrent2) {
+          breadcrumbCurrent2.textContent = t('search') + ': ' + escapeHtml(keyword);
+        }
       }, 300);
     }
 
@@ -3530,9 +3623,14 @@ export const HOME_HTML = `<!DOCTYPE html>
 
 
     function showRandomInMain() {
+      // 确保隐藏详情视图，切换到频道列表模式
+      const categoryBrowse = document.getElementById('categoryBrowse');
+      const contentArea = document.getElementById('contentArea');
+      if (categoryBrowse) categoryBrowse.style.display = 'none';
+      if (contentArea) contentArea.style.display = 'block';
+
       // 显示加载提示
       showLoadingIndicator(t('loadingRecommendations'));
-      // 隐藏收藏下载按钮
 
       // 重新生成随机推荐
       initFeaturedChannels().then(() => {
@@ -3540,8 +3638,11 @@ export const HOME_HTML = `<!DOCTYPE html>
         currentGroup = 'random';
         renderGroups();
 
-      // 更新标题
-      document.getElementById('sectionTitle').textContent = \`🎯 \${t('random')}\`;
+        // 更新面包屑
+        const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
+        if (breadcrumbCurrent) {
+          breadcrumbCurrent.textContent = t('random');
+        }
 
         // 隐藏加载指示器
         hideLoadingIndicator();
@@ -3925,17 +4026,25 @@ export const HOME_HTML = `<!DOCTYPE html>
     // 显示播放历史面板
 
     function showHistoryInMain() {
+      // 确保隐藏详情视图，切换到频道列表模式
+      const categoryBrowse = document.getElementById('categoryBrowse');
+      const contentArea = document.getElementById('contentArea');
+      if (categoryBrowse) categoryBrowse.style.display = 'none';
+      if (contentArea) contentArea.style.display = 'block';
+
       // 如果IP直连播放已禁用，隐藏历史记录功能
       if (!enableIpPlay) {
         return;
       }
-      // 隐藏收藏下载按钮
       // 清除分组选择
       currentGroup = 'history';
       renderGroups();
 
-      // 更新标题
-      document.getElementById('sectionTitle').textContent = \`🕐 \${t('history')}\`;
+      // 更新面包屑
+      const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
+      if (breadcrumbCurrent) {
+        breadcrumbCurrent.textContent = t('history');
+      }
 
       // 隐藏加载和分页
       document.getElementById('loading').style.display = 'none';
@@ -3991,12 +4100,21 @@ export const HOME_HTML = `<!DOCTYPE html>
 
     // 在主数据区域显示收藏
     function showFavoritesInMain() {
+      // 确保隐藏详情视图，切换到频道列表模式
+      const categoryBrowse = document.getElementById('categoryBrowse');
+      const contentArea = document.getElementById('contentArea');
+      if (categoryBrowse) categoryBrowse.style.display = 'none';
+      if (contentArea) contentArea.style.display = 'block';
+
       // 清除分组选择
       currentGroup = 'favorites';
       renderGroups();
 
-      // 更新标题
-      document.getElementById('sectionTitle').textContent = \`⭐ \${t('favorites')}\`;
+      // 更新面包屑
+      const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
+      if (breadcrumbCurrent) {
+        breadcrumbCurrent.textContent = t('favorites');
+      }
 
       // 隐藏加载和分页
       document.getElementById('loading').style.display = 'none';
