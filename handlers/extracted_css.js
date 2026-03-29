@@ -610,6 +610,21 @@ const ORIGINAL_CSS = `
     .ch-fav-btn:hover{transform:scale(1.2)}
     .ch-fav-btn.favorited{color:#e50914}
     .ch-fav-btn:not(.favorited){color:rgba(255,255,255,0.3)}
+    .clear-all-btn{
+      background:rgba(229,9,20,0.15);
+      border:1px solid rgba(229,9,20,0.4);
+      color:#e50914;
+      padding:8px 16px;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:14px;
+      margin-bottom:16px;
+      transition:all .2s;
+    }
+    .clear-all-btn:hover{
+      background:rgba(229,9,20,0.25);
+      border-color:#e50914;
+    }
     .channel-item:hover .ch-arrow{
       color:#e50914;
       transform:translateX(4px);

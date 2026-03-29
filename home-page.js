@@ -709,6 +709,14 @@ export const HOME_HTML = `<!DOCTYPE html>
       }
     })();
 
+    // ========== 工具函数 ==========
+    function escapeHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
     // ========== 翻译函数 ==========
     // 默认英文翻译
     function t(key) {
@@ -789,7 +797,13 @@ export const HOME_HTML = `<!DOCTYPE html>
         'firstPage': 'First',
         'prevPage': 'Prev',
         'nextPage': 'Next',
-        'lastPage': 'Last'
+        'lastPage': 'Last',
+        // 面包屑
+        'home': 'Home',
+        // 收藏相关
+        'clearAllFavorites': 'Clear All',
+        'confirmClearAllFavorites': 'Are you sure you want to clear all favorites?',
+        'favoritesCleared': 'All favorites cleared'
       };
       return translations[key] || key;
     }
@@ -1209,6 +1223,8 @@ export const HOME_HTML = `<!DOCTYPE html>
       } else if (currentGroup === 'random') {
         showRandomInMain();
       } else if (allChannels.length > 0) {
+        // 需要更新面包屑（翻译）
+        updateBreadcrumb('');
         renderChannels(allChannels);
       }
 
@@ -1277,6 +1293,10 @@ export const HOME_HTML = `<!DOCTYPE html>
     let pageSize = 50;
     let totalPages = 1;
     let totalChannels = 0;
+
+    // 收藏分页
+    let favoritesPage = 1;
+    let favoritesTotalPages = 1;
 
     // 认证状态
     let pendingVerifyEmail = null;
@@ -2033,6 +2053,31 @@ export const HOME_HTML = `<!DOCTYPE html>
       return iconMap[groupName] || '📺';
     }
 
+    // 更新面包屑导航
+    function updateBreadcrumb(group) {
+      const breadcrumb = document.getElementById('breadcrumb');
+      if (!breadcrumb) return;
+
+      const homeText = t('home') || 'Home';
+      const allChannelsText = t('allChannels');
+      const groupText = group ? (group === 'favorites' ? t('favorites') : group === 'history' ? t('history') : group === 'random' ? t('random') : group) : '';
+
+      // 构建面包屑：首页 » 所有频道 » 当前分类/功能（如果有）
+      const sq = String.fromCharCode(39); // single quote
+      const homeLink = '<a href="#" onclick="showCategoryBrowse();return false">🏠 <span id="breadcrumbHome">' + escapeHtml(homeText) + '</span></a>';
+      const sep = '<span class="breadcrumb-sep">»</span>';
+      const allChannelsLink = '<a href="#" class="breadcrumb-current" id="breadcrumbCurrent" onclick="filterByGroup(' + sq + sq + ');return false">' + escapeHtml(allChannelsText) + '</a>';
+      let html = homeLink + sep + allChannelsLink;
+
+      // 如果有选中分类或功能，添加
+      if (groupText) {
+        html += '<span class="breadcrumb-sep">»</span>';
+        html += '<span class="breadcrumb-current">' + escapeHtml(groupText) + '</span>';
+      }
+
+      breadcrumb.innerHTML = html;
+    }
+
     // 显示分类浏览模式（首页）
     function showCategoryBrowse() {
       const categoryBrowse = document.getElementById('categoryBrowse');
@@ -2056,10 +2101,7 @@ export const HOME_HTML = `<!DOCTYPE html>
       renderCategories();
 
       // 更新面包屑
-      const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
-      if (breadcrumbCurrent) {
-        breadcrumbCurrent.textContent = t('allChannels');
-      }
+      updateBreadcrumb('');
 
       // 更新分组选中状态
       document.querySelectorAll('.group-item').forEach(item => {
@@ -2292,10 +2334,7 @@ export const HOME_HTML = `<!DOCTYPE html>
       // 更新标题（现在由面包屑显示）
 
       // 更新面包屑
-      const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
-      if (breadcrumbCurrent) {
-        breadcrumbCurrent.textContent = group || t('allChannels');
-      }
+      updateBreadcrumb(group);
 
       // 渲染"其他分类"横向滚动（排除当前分类）
       renderOtherCategories(group);
@@ -2803,6 +2842,108 @@ export const HOME_HTML = `<!DOCTYPE html>
       html += \`<button onclick="goToPage(\${totalPages})" \${currentPage === totalPages ? 'disabled' : ''}>\${t('lastPage')}</button>\`;
 
       container.innerHTML = html;
+    }
+
+    // 收藏分页函数
+    function goToFavoritesPage(page) {
+      if (page >= 1 && page <= favoritesTotalPages) {
+        favoritesPage = page;
+        renderFavoritesList();
+        window.scrollTo(0, 0);
+      }
+    }
+
+    function renderFavoritesPagination() {
+      const container = document.getElementById('pagination');
+      if (favoritesTotalPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+
+      const totalFavorites = favorites.length;
+      const start = (favoritesPage - 1) * pageSize + 1;
+      const end = Math.min(favoritesPage * pageSize, totalFavorites);
+
+      let html = \`<span class="pagination-info">\${t('totalItems')} \${totalFavorites}, \${t('page')} \${favoritesPage}/\${favoritesTotalPages}</span>\`;
+      html += \`<button onclick="goToFavoritesPage(1)" \${favoritesPage === 1 ? 'disabled' : ''}>\${t('firstPage')}</button>\`;
+      html += \`<button onclick="goToFavoritesPage(\${favoritesPage - 1})" \${favoritesPage === 1 ? 'disabled' : ''}>\${t('prevPage')}</button>\`;
+
+      const maxButtons = 7;
+      let startPage = Math.max(1, favoritesPage - Math.floor(maxButtons / 2));
+      let endPage = Math.min(favoritesTotalPages, startPage + maxButtons - 1);
+
+      if (endPage - startPage + 1 < maxButtons) {
+        startPage = Math.max(1, endPage - maxButtons + 1);
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        html += \`<button onclick="goToFavoritesPage(\${i})" class="\${i === favoritesPage ? 'active' : ''}">\${i}</button>\`;
+      }
+
+      html += \`<button onclick="goToFavoritesPage(\${favoritesPage + 1})" \${favoritesPage === favoritesTotalPages ? 'disabled' : ''}>\${t('nextPage')}</button>\`;
+      html += \`<button onclick="goToFavoritesPage(\${favoritesTotalPages})" \${favoritesPage === favoritesTotalPages ? 'disabled' : ''}>\${t('lastPage')}</button>\`;
+
+      container.innerHTML = html;
+    }
+
+    // 渲染收藏列表（分页）
+    function renderFavoritesList() {
+      const container = document.getElementById('channelsGrid');
+      const emptyState = document.getElementById('emptyState');
+      document.getElementById('loading').style.display = 'none';
+
+      const favoritesItems = favorites.slice((favoritesPage - 1) * pageSize, favoritesPage * pageSize);
+
+      if (favoritesItems.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        document.querySelector('.empty-title').textContent = t('noFavorites');
+        document.querySelector('.empty-desc').textContent = t('noFavoritesDesc');
+        return;
+      }
+
+      emptyState.style.display = 'none';
+
+      // 清空按钮 HTML
+      const clearAllBtn = favorites.length > 0
+        ? \`<button class="clear-all-btn" onclick="clearAllFavorites()">🗑️ \${t('clearAllFavorites')}</button>\`
+        : '';
+
+      container.innerHTML = clearAllBtn + favoritesItems.map(fav => {
+        const channel = allChannels.find(c => c.channel_hash === fav.hash);
+        const logo = channel && channel.logo
+          ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">📺</div>\`
+          : '<div class="channel-icon">📺</div>';
+
+        return \`
+          <div class="channel-item" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
+            <div class="ch-icon">\${logo}</div>
+            <div class="ch-info">
+              <div class="ch-name">\${escapeHtml(fav.name)}</div>
+              <div class="ch-group">\${escapeHtml(fav.group)}</div>
+            </div>
+            <button class="ch-fav-btn favorited" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}', this)">⭐</button>
+            <span class="ch-arrow">→</span>
+          </div>
+        \`;
+      }).join('');
+
+      renderFavoritesPagination();
+    }
+
+    // 清空所有收藏
+    function clearAllFavorites() {
+      if (favorites.length === 0) return;
+
+      if (confirm(t('confirmClearAllFavorites') || 'Are you sure you want to clear all favorites?')) {
+        favorites = [];
+        localStorage.setItem('iptv_favorites', JSON.stringify(favorites));
+        updateBadges();
+        favoritesPage = 1;
+        favoritesTotalPages = 1;
+        renderFavoritesList();
+        showToast(t('favoritesCleared') || 'All favorites cleared', 'success');
+      }
     }
 
     // ========== GEO Optimization: Dynamic VideoObject Schema Update ==========
@@ -3676,8 +3817,10 @@ export const HOME_HTML = `<!DOCTYPE html>
       // 确保隐藏详情视图，切换到频道列表模式
       const categoryBrowse = document.getElementById('categoryBrowse');
       const contentArea = document.getElementById('contentArea');
+      const detailView = document.getElementById('channelDetailView');
       if (categoryBrowse) categoryBrowse.style.display = 'none';
       if (contentArea) contentArea.style.display = 'block';
+      if (detailView) detailView.style.display = 'none';
 
       // 显示加载提示
       showLoadingIndicator(t('loadingRecommendations'));
@@ -3689,10 +3832,7 @@ export const HOME_HTML = `<!DOCTYPE html>
         renderGroups();
 
         // 更新面包屑
-        const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
-        if (breadcrumbCurrent) {
-          breadcrumbCurrent.textContent = t('random');
-        }
+        updateBreadcrumb('random');
 
         // 隐藏加载指示器
         hideLoadingIndicator();
@@ -3923,7 +4063,13 @@ export const HOME_HTML = `<!DOCTYPE html>
 
       // 如果在收藏页面，重新渲染
       if (currentGroup === 'favorites') {
-        renderFavorites();
+        // 重新计算总页数
+        favoritesTotalPages = Math.max(1, Math.ceil(favorites.length / pageSize));
+        // 如果当前页超出范围，回到第一页
+        if (favoritesPage > favoritesTotalPages) {
+          favoritesPage = 1;
+        }
+        renderFavoritesList();
       }
 
       // 立即更新按钮状态（通过传入的按钮元素）
@@ -3940,47 +4086,6 @@ export const HOME_HTML = `<!DOCTYPE html>
           favBtn.classList.toggle('favorited', isFavorited);
         }
       });
-    }
-
-    function renderFavorites() {
-      const container = document.getElementById('channelsGrid');
-      const emptyState = document.getElementById('emptyState');
-      document.getElementById('pagination').innerHTML = '';
-
-      // 获取前30条收藏
-      const favoritesItems = favorites.slice(0, 30);
-
-      if (favoritesItems.length === 0) {
-        container.innerHTML = '';
-        emptyState.style.display = 'block';
-        document.querySelector('.empty-title').textContent = t('noFavorites');
-        document.querySelector('.empty-desc').textContent = t('noFavoritesDesc');
-        return;
-      }
-
-      emptyState.style.display = 'none';
-      
-      // 直接从 allChannels 查找 logo，和随机推荐一样的方式
-      container.innerHTML = favoritesItems.map(fav => {
-        // 查找频道信息获取 logo
-        const channel = allChannels.find(c => c.channel_hash === fav.hash);
-        const logo = channel && channel.logo
-          ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">📺</div>\`
-          : '<div class="channel-icon">📺</div>';
-        const isPlaying = currentPlayingChannel === fav.hash;
-
-        return \`
-          <div class="channel-item" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
-            <div class="ch-icon">\${logo}</div>
-            <div class="ch-info">
-              <div class="ch-name">\${escapeHtml(fav.name)}</div>
-              <div class="ch-group">\${escapeHtml(fav.group)}</div>
-            </div>
-            <button class="ch-fav-btn favorited" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}', this)">⭐</button>
-            <span class="ch-arrow">→</span>
-          </div>
-        \`;
-      }).join('');
     }
 
     function getLogoByHash(hash) {
@@ -4057,8 +4162,10 @@ export const HOME_HTML = `<!DOCTYPE html>
       // 确保隐藏详情视图，切换到频道列表模式
       const categoryBrowse = document.getElementById('categoryBrowse');
       const contentArea = document.getElementById('contentArea');
+      const detailView = document.getElementById('channelDetailView');
       if (categoryBrowse) categoryBrowse.style.display = 'none';
       if (contentArea) contentArea.style.display = 'block';
+      if (detailView) detailView.style.display = 'none';
 
       // 如果IP直连播放已禁用，隐藏历史记录功能
       if (!enableIpPlay) {
@@ -4069,10 +4176,7 @@ export const HOME_HTML = `<!DOCTYPE html>
       renderGroups();
 
       // 更新面包屑
-      const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
-      if (breadcrumbCurrent) {
-        breadcrumbCurrent.textContent = t('history');
-      }
+      updateBreadcrumb('history');
 
       // 隐藏加载和分页
       document.getElementById('loading').style.display = 'none';
@@ -4123,62 +4227,28 @@ export const HOME_HTML = `<!DOCTYPE html>
       // 确保隐藏详情视图，切换到频道列表模式
       const categoryBrowse = document.getElementById('categoryBrowse');
       const contentArea = document.getElementById('contentArea');
+      const detailView = document.getElementById('channelDetailView');
       if (categoryBrowse) categoryBrowse.style.display = 'none';
       if (contentArea) contentArea.style.display = 'block';
+      if (detailView) detailView.style.display = 'none';
 
       // 清除分组选择
       currentGroup = 'favorites';
       renderGroups();
 
       // 更新面包屑
-      const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
-      if (breadcrumbCurrent) {
-        breadcrumbCurrent.textContent = t('favorites');
-      }
+      updateBreadcrumb('favorites');
 
-      // 隐藏加载和分页
+      // 隐藏加载
       document.getElementById('loading').style.display = 'none';
       document.getElementById('channelList').style.display = 'block';
-      document.getElementById('pagination').innerHTML = '';
 
-      // 获取前30条收藏
-      const favoritesItems = favorites.slice(0, 30);
+      // 重置到第一页
+      favoritesPage = 1;
+      favoritesTotalPages = Math.max(1, Math.ceil(favorites.length / pageSize));
 
-      if (favoritesItems.length === 0) {
-        const container = document.getElementById('channelsGrid');
-        const emptyState = document.getElementById('emptyState');
-        container.innerHTML = '';
-        emptyState.style.display = 'block';
-        document.querySelector('.empty-title').textContent = t('noFavorites');
-        document.querySelector('.empty-desc').textContent = t('noFavoritesDesc');
-        return;
-      }
-
-      // 渲染收藏列表
-      const container = document.getElementById('channelsGrid');
-      const emptyState = document.getElementById('emptyState');
-      emptyState.style.display = 'none';
-
-      container.innerHTML = favoritesItems.map(fav => {
-        // 查找频道信息获取 logo
-        const channel = allChannels.find(c => c.channel_hash === fav.hash);
-        const logo = channel && channel.logo
-          ? \`<img src="\${escapeHtml(channel.logo)}" alt="logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">📺</div>\`
-          : '<div class="channel-icon">📺</div>';
-        const isPlaying = currentPlayingChannel === fav.hash;
-
-        return \`
-          <div class="channel-item" onclick="playChannel('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}')">
-            <div class="ch-icon">\${logo}</div>
-            <div class="ch-info">
-              <div class="ch-name">\${escapeHtml(fav.name)}</div>
-              <div class="ch-group">\${escapeHtml(fav.group)}</div>
-            </div>
-            <button class="ch-fav-btn favorited" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(fav.hash)}', '\${escapeHtml(fav.name)}', '\${escapeHtml(fav.group)}', this)">⭐</button>
-            <span class="ch-arrow">→</span>
-          </div>
-        \`;
-      }).join('');
+      // 使用分页渲染收藏列表
+      renderFavoritesList();
     }
 
     // 显示播放历史面板
