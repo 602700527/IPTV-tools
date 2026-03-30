@@ -252,13 +252,9 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       });
     }
 
-    // SEO 路由：/channel/{hash} 和 /category/{slug}
-    const channelMatch = path.match(/^\/channel\/([a-zA-Z0-9_-]+)$/);
+    // SEO 路由：/category/{slug}
     const categoryMatch = path.match(/^\/category\/([a-zA-Z0-9-]+)$/);
-    if (channelMatch) {
-      // 频道页保持静态 HTML（用于 SEO）
-      return await handleSEOPage(request, env);
-    } else if (categoryMatch) {
+    if (categoryMatch) {
       // 分类页：如果是搜索爬虫则返回静态 HTML，否则重定向到首页
       if (isSearchEngineBot(request)) {
         return await handleSEOPage(request, env);

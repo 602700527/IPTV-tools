@@ -1,6 +1,6 @@
 // SEO 优化处理器 - 为 Googlebot 生成带数据的静态 HTML
 
-import { getAllChannels, getAllGroups, getChannelByHash } from '../utils/channel-cache.js';
+import { getAllChannels, getAllGroups } from '../utils/channel-cache.js';
 import { PAGE_HEADER } from '../components/page-header.js';
 import { PAGE_FOOTER } from '../components/page-footer.js';
 import { SEO_HOME_CSS } from '../static-assets.js';
@@ -291,6 +291,7 @@ export async function generateSEOHomepage(request, env) {
     '  <link rel="stylesheet" href="' + origin + '/seo-home.css">\n' +
     '  <meta property="og:type" content="website">\n' +
     '  <meta property="og:url" content="' + origin + '/">\n' +
+    '  <meta property="og:locale" content="en_US">\n' +
     '  <meta property="og:title" content="' + escapeAttr(pageTitle) + '">\n' +
     '  <meta property="og:description" content="' + escapeAttr(metaDescription) + '">\n' +
     '  <meta property="og:image" content="' + origin + '/og-homepage.png">\n' +
@@ -321,262 +322,6 @@ export async function generateSEOHomepage(request, env) {
   return html;
 }
 
-
-export async function generateChannelPage(request, env, channelHash) {
-
-  const url = new URL(request.url);
-
-  const origin = `${url.protocol}//${url.host}`;
-
-  const channel = await getChannelByHash(env, channelHash);
-
-  if (!channel) return null;
-
-
-
-  const safeGroup = slugify(channel.group_title || '');
-
-  const pageTitle = `${channel.channel_name} — Free IPTV Channel Directory`;
-
-  const metaDescription = `${channel.channel_name} IPTV channel info. ${channel.group_title ? `${channel.group_title} category. ` : ''}Copy M3U link to watch in your player.`;
-
-  const jsonLd = {
-
-    '@context': 'https://schema.org',
-
-    '@type': 'WebPage',
-
-    'name': channel.channel_name,
-
-    'description': metaDescription,
-
-    'url': `${origin}/channel/${channelHash}`,
-
-    'isPartOf': { '@type': 'WebSite', 'name': 'IPTV Search', 'url': origin }
-
-  };
-
-
-
-  const allChannelsResult = await getAllChannels(env);
-
-  const relatedChannels = (allChannelsResult.channels || [])
-
-    .filter(ch => ch.group_title === channel.group_title && ch.channel_hash !== channelHash)
-
-    .slice(0, 12);
-
-
-
-  const breadcrumbJsonLd = {
-
-    '@context': 'https://schema.org',
-
-    '@type': 'BreadcrumbList',
-
-    'itemListElement': [
-
-      { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${origin}/` },
-
-      ...(channel.group_title ? [{ '@type': 'ListItem', 'position': 2, 'name': channel.group_title, 'item': `${origin}/category/${safeGroup}` }] : []),
-
-      { '@type': 'ListItem', 'position': channel.group_title ? 3 : 2, 'name': channel.channel_name, 'item': `${origin}/channel/${channelHash}` }
-
-    ]
-
-  };
-
-
-
-  return `<!DOCTYPE html>
-
-<html lang="en">
-
-<head>
-
-  <meta charset="UTF-8">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>${escapeHtml(pageTitle)}</title>
-
-  <meta name="description" content="${escapeAttr(metaDescription)}">
-
-  <meta name="robots" content="index, follow, max-image-preview:large">
-
-  <link rel="canonical" href="${origin}/channel/${channelHash}">
-
-  <link rel="alternate" hreflang="en" href="${origin}/channel/${channelHash}">
-
-  <link rel="alternate" hreflang="x-default" href="${origin}/channel/${channelHash}">
-
-  <meta property="og:title" content="${escapeAttr(pageTitle)}">
-
-  <meta property="og:description" content="${escapeAttr(metaDescription)}">
-
-  <meta property="og:type" content="website">
-
-  <meta property="og:url" content="${origin}/channel/${channelHash}">
-
-  ${channel.logo ? `<meta property="og:image" content="${escapeAttr(channel.logo)}">` : `<meta property="og:image" content="${origin}/og-homepage.png">`}
-
-  <meta property="og:image:width" content="1200">
-
-  <meta property="og:image:height" content="630">
-
-  <meta property="og:site_name" content="IPTV Search">
-
-  <meta name="twitter:card" content="summary_large_image">
-
-  <meta name="twitter:title" content="${escapeAttr(pageTitle)}">
-
-  <meta name="twitter:description" content="${escapeAttr(metaDescription)}">
-
-  ${channel.logo ? `<meta name="twitter:image" content="${escapeAttr(channel.logo)}">` : `<meta name="twitter:image" content="${origin}/og-homepage.png">`}
-
-  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
-
-  <script type="application/ld+json">${JSON.stringify(breadcrumbJsonLd)}</script>
-
-  ${SHARED_CSS}
-
-  <style>
-
-    .breadcrumb{padding:1rem 0;font-size:0.9rem;color:rgba(255,255,255,0.5)}
-
-    .breadcrumb a{color:#e50914}
-
-    .channel-header{display:flex;align-items:center;gap:1.5rem;background:#141414;border-radius:12px;padding:2rem;margin-bottom:2rem;border:1px solid rgba(255,255,255,0.08)}
-
-    .channel-logo{width:80px;height:80px;object-fit:contain;border-radius:8px;flex-shrink:0}
-
-    .channel-logo-placeholder{width:80px;height:80px;background:#2a2a2a;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;flex-shrink:0}
-
-    .channel-info h1{font-size:1.8rem;margin-bottom:0.5rem}
-
-    .channel-meta{display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.5rem}
-
-    .badge{background:rgba(229,9,20,0.15);color:#e50914;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.85rem}
-
-    .play-btn{display:inline-block;background:#e50914;color:#fff;padding:0.75rem 2rem;border-radius:8px;font-weight:600;margin-top:1rem}
-
-    .play-btn:hover{background:#f6121d;text-decoration:none}
-
-    .section{background:#141414;border-radius:12px;padding:1.5rem;margin-bottom:2rem;border:1px solid rgba(255,255,255,0.08)}
-
-    .section h2{font-size:1.2rem;margin-bottom:1rem;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:0.5rem}
-
-    .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.75rem}
-
-    .related-card{background:#1a1a1a;border-radius:6px;padding:0.75rem;border:1px solid rgba(255,255,255,0.05);transition:border-color 0.2s}
-
-    .related-card:hover{border-color:rgba(229,9,20,0.5)}
-
-    .related-card a{display:flex;align-items:center;gap:0.75rem;color:#fff}
-
-    .related-card img{width:32px;height:32px;object-fit:contain;border-radius:4px;flex-shrink:0}
-
-    .related-name{font-size:0.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-    @media(max-width:600px){.channel-header{flex-direction:column;text-align:center}.channel-meta{justify-content:center}}
-
-  </style>
-
-</head>
-
-<body>
-
-  ${NAV_HTML(origin)}
-
-  <main>
-
-    <div class="breadcrumb">
-
-      <a href="${origin}/">Home</a> &rsaquo;
-
-      ${channel.group_title ? `<a href="${origin}/category/${safeGroup}">${escapeHtml(channel.group_title)}</a> &rsaquo;` : ''}
-
-      ${escapeHtml(channel.channel_name)}
-
-    </div>
-
-    <div class="channel-header">
-
-      ${channel.logo ? `<img src="${escapeAttr(channel.logo)}" alt="${escapeAttr(channel.channel_name)} logo" class="channel-logo">` : '<div class="channel-logo-placeholder">📺</div>'}
-
-      <div class="channel-info">
-
-        <h1>${escapeHtml(channel.channel_name)}</h1>
-
-        <div class="channel-meta">
-
-          ${channel.group_title ? `<span class="badge">${escapeHtml(channel.group_title)}</span>` : ''}
-
-          <span class="badge">Free IPTV</span>
-
-          <span class="badge">No Registration</span>
-
-        </div>
-
-        <span class="play-btn" style="cursor:default">📺 Copy M3U Link Above to Watch</span>
-
-      </div>
-
-    </div>
-
-    ${relatedChannels.length > 0 ? `
-
-    <div class="section">
-
-      <h2>More ${escapeHtml(channel.group_title || '')} Channels</h2>
-
-      <div class="related-grid">
-
-        ${relatedChannels.map(ch => `
-
-          <div class="related-card">
-
-            <a href="${origin}/channel/${escapeAttr(ch.channel_hash)}">
-
-              ${ch.logo ? `<img src="${escapeAttr(ch.logo)}" alt="${escapeAttr(ch.channel_name)}">` : '📺'}
-
-              <span class="related-name">${escapeHtml(ch.channel_name)}</span>
-
-            </a>
-
-          </div>`).join('')}
-
-      </div>
-
-    </div>` : ''}
-
-  </main>
-
-  ${FOOTER_HTML(origin)}
-
-</body>
-
-</html>`;
-
-
-
-  return new Response(html, {
-
-    status: 200,
-
-    headers: {
-
-      'Content-Type': 'text/html; charset=utf-8',
-
-      'Cache-Control': 'public, max-age=3600',
-
-      'X-Seo-Version': '2.0'
-
-    }
-
-  });
-
-}
 
 export async function generateCategoryPage(request, env, groupSlug) {
 
@@ -677,6 +422,7 @@ export async function generateCategoryPage(request, env, groupSlug) {
   <meta property="og:type" content="website">
 
   <meta property="og:url" content="${origin}/category/${groupSlug}">
+  <meta property="og:locale" content="en_US">
 
   <meta property="og:image" content="${origin}/og-homepage.png">
 
@@ -878,18 +624,6 @@ export async function generateFullSitemap(request, env) {
 
 
 
-  // 频道页（最多5000个）
-
-  const activeChannels = channels.filter(ch => ch.is_active !== 0).slice(0, 5000);
-
-  for (const ch of activeChannels) {
-
-    xml += `  <url><loc>${origin}/channel/${escapeAttr(ch.channel_hash)}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>\n`;
-
-  }
-
-
-
   // 静态页
 
   const staticPages = [
@@ -947,20 +681,6 @@ export async function handleSEOPage(request, env) {
     if (path === '/' || path === '') {
 
       return new Response(await generateSEOHomepage(request, env), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=3600', 'X-Seo-Version': '2.0' } });
-
-    }
-
-
-
-    const channelMatch = path.match(/^\/channel\/([a-zA-Z0-9_-]+)$/);
-
-    if (channelMatch) {
-
-      const html = await generateChannelPage(request, env, channelMatch[1]);
-
-      if (!html) return await generate404Page(request, env, 'channel');
-
-      return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=86400', 'X-Seo-Version': '2.0' } });
 
     }
 
@@ -1087,6 +807,7 @@ export async function generate404Page(request, env, notFoundType = 'page') {
   <meta property="og:type" content="website">
 
   <meta property="og:url" content="${origin}/">
+  <meta property="og:locale" content="en_US">
 
   <meta property="og:image" content="${origin}/og-homepage.png">
 
