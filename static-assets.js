@@ -618,8 +618,8 @@ export const SEO_HOME_CSS = `
 
     /* ========== 分类浏览模式 ========== */
     .category-browse{
-      margin-top:70px;
-      padding:40px;
+      margin-top:24px;
+      padding:24px;
       min-height:calc(100vh - 70px);
     }
     .page-container{
@@ -679,6 +679,100 @@ export const SEO_HOME_CSS = `
     .category-item:hover .cat-arrow{
       color:#e50914;
       transform:translateX(4px);
+    }
+    /* 分类区块样式（带频道预览） */
+    .category-section{
+      background:#1a1a1a;
+      border-radius:12px;
+      margin-bottom:10px;
+      overflow:hidden;
+      border:1px solid #2a2a2a;
+    }
+    .category-section:hover{
+      border-color:#333;
+    }
+    .category-header{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:12px 16px;
+      cursor:pointer;
+      transition:background .2s;
+    }
+    .category-header:hover{
+      background:#222;
+    }
+    .category-header .cat-icon{
+      font-size:24px;
+    }
+    .category-header .cat-name{
+      flex:1;
+      font-size:16px;
+      font-weight:600;
+      color:#fff;
+    }
+    .category-header .cat-count{
+      font-size:13px;
+      color:rgba(255,255,255,0.4);
+      margin-right:8px;
+    }
+    .category-header .cat-arrow{
+      color:rgba(255,255,255,0.3);
+      font-size:12px;
+      transition:all .2s;
+    }
+    .category-header:hover .cat-arrow{
+      color:#e50914;
+    }
+    .category-channels-preview{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+      gap:12px;
+      padding:0 20px 16px;
+    }
+    .category-channel-item{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      padding:12px 8px;
+      background:#222;
+      border-radius:8px;
+      cursor:pointer;
+      transition:all .2s;
+      text-align:center;
+    }
+    .category-channel-item:hover{
+      background:#2a2a2a;
+      transform:translateY(-2px);
+    }
+    .category-channel-item .cat-ch-logo{
+      width:40px;
+      height:40px;
+      object-fit:contain;
+      border-radius:6px;
+      background:#333;
+    }
+    .category-channel-item .cat-ch-name{
+      font-size:12px;
+      color:rgba(255,255,255,0.8);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      max-width:100%;
+    }
+    .category-more{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px;
+      color:#e50914;
+      font-size:13px;
+      cursor:pointer;
+      grid-column:1/-1;
+    }
+    .category-more:hover{
+      text-decoration:underline;
     }
     .category-grid{
       display:grid;
@@ -780,7 +874,7 @@ export const SEO_HOME_CSS = `
       .content-full{padding:16px 24px}
     }
     @media(max-width:768px){
-      .category-browse{margin-top:60px}
+      .category-browse{margin-top:16px}
       .content-full{margin-top:60px}
     }
     @media(max-width:600px){

@@ -180,6 +180,87 @@ async function handleRandomChannels(env, count = 30) {
   }
 }
 
+// 分类分组频道 - 返回按分类名分组的频道数据
+async function handleGroupedChannels(env) {
+  console.log('[GroupedChannels] 获取分类分组数据');
+
+  try {
+    // 从 KV 缓存获取所有频道和分组
+    const cacheResult = await getAllChannels(env);
+    const groupsResult = await getAllGroups(env);
+    const allChannels = cacheResult.channels || [];
+    const allGroups = groupsResult.groups || [];
+
+    console.log('[GroupedChannels] 总频道数:', allChannels.length, '总分组数:', allGroups.length);
+
+    if (allChannels.length === 0) {
+      return new Response(JSON.stringify({
+        success: true,
+        grouped: {},
+        groups: []
+      }), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, max-age=300'
+        }
+      });
+    }
+
+    // 按分类名分组
+    const grouped = {};
+    for (const groupName of allGroups) {
+      grouped[groupName] = [];
+    }
+
+    // 将频道分配到对应分组
+    for (const channel of allChannels) {
+      const groupName = channel.group_title || '';
+      if (groupName && grouped[groupName]) {
+        grouped[groupName].push(channel);
+      }
+    }
+
+    // 计算每个分组的频道数量
+    const groupsWithCount = allGroups.map(name => ({
+      name,
+      count: grouped[name]?.length || 0
+    }));
+
+    // 按频道数量降序排序
+    groupsWithCount.sort((a, b) => b.count - a.count);
+
+    // 生成响应
+    const responseBody = JSON.stringify({
+      success: true,
+      grouped,
+      groups: groupsWithCount,
+      total_channels: allChannels.length,
+      total_groups: allGroups.length
+    });
+
+    // 生成ETag
+    const etag = await generateETag(responseBody);
+
+    return new Response(responseBody, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=300',
+        'ETag': etag
+      }
+    });
+
+  } catch (error) {
+    console.error('[GroupedChannels] 获取分组频道失败:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: '获取分组频道失败: ' + error.message
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
 // 调试接口 - 查看频道信息
 export async function handleChannelDebug(request, env, ctx) {
   const url = new URL(request.url);
@@ -367,6 +448,11 @@ export async function handlePublicChannels(request, env, ctx) {
     if (action === 'random') {
       const count = parseInt(url.searchParams.get('count') || '30', 10);
       return await handleRandomChannels(env, count);
+    }
+
+    // 分类分组接口 - 返回按分类名分组的频道数据
+    if (action === 'grouped') {
+      return await handleGroupedChannels(env);
     }
 
     const db = getDB();

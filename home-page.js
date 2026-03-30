@@ -353,7 +353,7 @@ export const HOME_HTML = `<!DOCTYPE html>
     </div>
   </header>
 
-  <style>.hero-section{padding:80px 20px 40px;text-align:center;background:linear-gradient(180deg,#1a1a1a 0%,#0a0a0a 100%)}.hero-section.hidden{display:none}.hero-tagline{max-width:700px;margin:0 auto 24px}.hero-tagline h2{font-size:2.2rem;font-weight:800;color:#fff;margin-bottom:14px}.hero-tagline p{font-size:1.15rem;color:rgba(255,255,255,0.75);max-width:700px;margin:0 auto 30px}.hero-search-form{display:flex;max-width:700px;margin:0 auto 20px;box-shadow:0 8px 32px rgba(229,9,20,0.25);border-radius:12px;overflow:hidden}.hero-search-input{flex:1;padding:18px 24px;border:none;border-radius:0;background:#2a2a2a;color:#fff;font-size:16px;outline:none;transition:background 0.2s}.hero-search-input::placeholder{color:rgba(255,255,255,0.5)}.hero-search-input:focus{background:#333}.hero-search-btn{display:flex;align-items:center;justify-content:center;padding:0 24px;background:#2a2a2a;border:none;color:rgba(255,255,255,0.7);cursor:pointer;transition:color 0.2s,background 0.2s}.hero-search-btn:hover{color:#e50914}.hero-stats{color:rgba(255,255,255,0.5);font-size:0.9rem;display:flex;gap:12px;justify-content:center;margin-top:8px;max-width:700px;margin-left:auto;margin-right:auto}.hero-trust{color:rgba(255,255,255,0.55);font-size:0.85rem;display:flex;gap:20px;justify-content:center;margin-top:16px;flex-wrap:wrap;max-width:700px;margin-left:auto;margin-right:auto}</style>
+  <style>.hero-section{margin-top:70px;padding:40px 20px 30px;text-align:center;background:linear-gradient(180deg,#1a1a1a 0%,#0a0a0a 100%)}.hero-section.hidden{display:none}.hero-tagline{max-width:700px;margin:0 auto 24px}.hero-tagline h2{font-size:2.2rem;font-weight:800;color:#fff;margin-bottom:14px}.hero-tagline p{font-size:1.15rem;color:rgba(255,255,255,0.75);max-width:700px;margin:0 auto 30px}.hero-search-form{display:flex;max-width:700px;margin:0 auto 20px;box-shadow:0 8px 32px rgba(229,9,20,0.25);border-radius:12px;overflow:hidden}.hero-search-input{flex:1;padding:18px 24px;border:none;border-radius:0;background:#2a2a2a;color:#fff;font-size:16px;outline:none;transition:background 0.2s}.hero-search-input::placeholder{color:rgba(255,255,255,0.5)}.hero-search-input:focus{background:#333}.hero-search-btn{display:flex;align-items:center;justify-content:center;padding:0 24px;background:#2a2a2a;border:none;color:rgba(255,255,255,0.7);cursor:pointer;transition:color 0.2s,background 0.2s}.hero-search-btn:hover{color:#e50914}.hero-stats{color:rgba(255,255,255,0.5);font-size:0.9rem;display:flex;gap:12px;justify-content:center;margin-top:8px;max-width:700px;margin-left:auto;margin-right:auto}.hero-trust{color:rgba(255,255,255,0.55);font-size:0.85rem;display:flex;gap:20px;justify-content:center;margin-top:16px;flex-wrap:wrap;max-width:700px;margin-left:auto;margin-right:auto}</style>
   <div class="hero-section" id="heroSection">
     <div class="hero-tagline">
       <h2>Find &amp; Watch Free Live TV — No Sign-up Required</h2>
@@ -427,10 +427,6 @@ export const HOME_HTML = `<!DOCTYPE html>
   <!-- 首页分类浏览模式 -->
   <div class="category-browse" id="categoryBrowse">
     <div class="page-container">
-      <div class="browse-header">
-        <h2 class="browse-title">📺 Browse Categories</h2>
-        <p class="browse-subtitle">Select a category to explore channels</p>
-      </div>
       <div class="category-list" id="categoryGrid"></div>
     </div>
   </div>
@@ -1313,6 +1309,7 @@ export const HOME_HTML = `<!DOCTYPE html>
     let currentUser = JSON.parse(localStorage.getItem('current_user') || 'null');
     let allChannels = [];
     let allGroups = [];
+    let groupedChannels = {};  // 分组后的频道数据 { groupName: [channels] }
     let currentGroup = '';
     let searchTimeout = null;
     let currentHls = null;
@@ -2081,30 +2078,89 @@ export const HOME_HTML = `<!DOCTYPE html>
     }
 
     // ========== 分类浏览模式 ==========
-    function renderCategories() {
+    
+    // 加载分组频道数据
+    async function loadGroupedChannels() {
+      try {
+        const cacheKey = getCacheKey('grouped_channels');
+        const cached = getFromCache(cacheKey);
+        if (cached) {
+          groupedChannels = cached.grouped || {};
+          return cached;
+        }
+
+        const response = await fetch(API_BASE + '/channels?action=grouped');
+        const data = await response.json();
+        
+        if (data.success) {
+          groupedChannels = data.grouped || {};
+          // 缓存一天
+          setCache(cacheKey, data, 24 * 60 * 60 * 1000);
+          return data;
+        }
+        return null;
+      } catch (error) {
+        console.error('[loadGroupedChannels] 加载失败:', error);
+        return null;
+      }
+    }
+
+    // 渲染分类浏览页面（类似 epg.pw 的分组展示）
+    async function renderCategories() {
       const container = document.getElementById('categoryGrid');
       if (!container) return;
 
-      // 处理 groups 可能是对象数组 [{name: 'xxx'}] 或字符串数组 ['xxx']
-      const groupNames = allGroups.map(g => typeof g === 'string' ? g : g.name);
+      // 如果还没有加载分组数据，先加载
+      if (Object.keys(groupedChannels).length === 0) {
+        await loadGroupedChannels();
+      }
 
-      // 生成分类列表
-      container.innerHTML = groupNames.map(group => {
-        const count = allChannels.filter(ch => ch.group_title === group).length;
-        return \`
-          <div class="category-item" onclick="filterByGroup('\${escapeHtml(group)}')">
-            <span class="cat-name">\${escapeHtml(group)}</span>
-            <span class="cat-count">\${count} channels</span>
-            <span class="cat-arrow">→</span>
-          </div>
-        \`;
-      }).join('');
+      const groups = Object.keys(groupedChannels)
+        .filter(name => (groupedChannels[name]?.length || 0) >= 8)  // 只显示8个频道以上的分类
+        .sort((a, b) => {
+          const countA = groupedChannels[a]?.length || 0;
+          const countB = groupedChannels[b]?.length || 0;
+          return countB - countA;  // 按频道数量降序
+        });
+
+      if (groups.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>No categories found</p></div>';
+        return;
+      }
 
       // 更新统计数据
       const totalChannelsEl = document.getElementById('totalChannelsStat');
       const totalCategoriesEl = document.getElementById('totalCategoriesStat');
-      if (totalChannelsEl) totalChannelsEl.textContent = allChannels.length;
-      if (totalCategoriesEl) totalCategoriesEl.textContent = groupNames.length;
+      const totalChannels = Object.values(groupedChannels).reduce((sum, chs) => sum + chs.length, 0);
+      if (totalChannelsEl) totalChannelsEl.textContent = totalChannels;
+      if (totalCategoriesEl) totalCategoriesEl.textContent = groups.length;
+
+      // 渲染每个分类区块
+      container.innerHTML = groups.map(groupName => {
+        const channels = groupedChannels[groupName] || [];
+        
+        // 每个分类显示前6个频道预览
+        const previewChannels = channels.slice(0, 6);
+        const channelsHtml = previewChannels.map(ch => \`
+          <div class="category-channel-item" onclick="filterByGroup('\${escapeHtml(groupName)}'); return false;">
+            \${ch.logo ? \`<img class="cat-ch-logo" src="\${escapeHtml(ch.logo)}" alt="\${escapeHtml(ch.channel_name)}" onerror="this.style.display='none'">\` : ''}
+            <span class="cat-ch-name">\${escapeHtml(ch.channel_name)}</span>
+          </div>
+        \`).join('');
+
+        return \`
+          <div class="category-section">
+            <div class="category-header" onclick="filterByGroup('\${escapeHtml(groupName)}')">
+              <span class="cat-name">\${escapeHtml(groupName)}</span>
+              <span class="cat-count">\${channels.length} channels</span>
+              <span class="cat-arrow">▶</span>
+            </div>
+            <div class="category-channels-preview">
+              \${channelsHtml}
+            </div>
+          </div>
+        \`;
+      }).join('');
     }
 
     // 获取分类图标
@@ -2154,7 +2210,7 @@ export const HOME_HTML = `<!DOCTYPE html>
     }
 
     // 显示分类浏览模式（首页）
-    function showCategoryBrowse() {
+    async function showCategoryBrowse() {
       const categoryBrowse = document.getElementById('categoryBrowse');
       const contentArea = document.getElementById('contentArea');
       const detailView = document.getElementById('channelDetailView');
@@ -2176,8 +2232,11 @@ export const HOME_HTML = `<!DOCTYPE html>
       const searchInput = document.getElementById('searchInput');
       if (searchInput) searchInput.value = '';
 
-      // 重新渲染分类列表
-      renderCategories();
+      // 加载并渲染分类列表
+      await renderCategories();
+
+      // 滚动到顶部（Hero区域）
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
       // 更新面包屑
       updateBreadcrumb('');
