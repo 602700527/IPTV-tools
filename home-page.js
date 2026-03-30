@@ -353,7 +353,7 @@ export const HOME_HTML = `<!DOCTYPE html>
     </div>
   </header>
 
-  <style>.hero-section{padding:80px 20px 40px;text-align:center;background:linear-gradient(180deg,#1a1a1a 0%,#0a0a0a 100%)}.hero-section.hidden{display:none}.hero-tagline{max-width:700px;margin:0 auto 24px}.hero-tagline h2{font-size:2.2rem;font-weight:800;color:#fff;margin-bottom:14px}.hero-tagline p{font-size:1.15rem;color:rgba(255,255,255,0.75);max-width:650px;margin:0 auto 30px}.hero-search-form{max-width:650px;margin:0 auto 20px;gap:0;box-shadow:0 8px 32px rgba(229,9,20,0.25)}.hero-search-input{flex:1;padding:16px 20px;border:2px solid #e50914;border-right:none;border-radius:8px 0 0 8px;background:#1a1a1a;color:#fff;font-size:16px}.hero-search-btn{padding:16px 28px;background:#e50914;border:2px solid #e50914;border-radius:0 8px 8px 0;color:#fff;font-size:16px;font-weight:600;cursor:pointer}.hero-stats{color:rgba(255,255,255,0.5);font-size:0.9rem;display:flex;gap:12px;justify-content:center;margin-top:8px}.hero-trust{color:rgba(255,255,255,0.55);font-size:0.85rem;display:flex;gap:20px;justify-content:center;margin-top:16px;flex-wrap:wrap}</style>
+  <style>.hero-section{padding:80px 20px 40px;text-align:center;background:linear-gradient(180deg,#1a1a1a 0%,#0a0a0a 100%)}.hero-section.hidden{display:none}.hero-tagline{max-width:700px;margin:0 auto 24px}.hero-tagline h2{font-size:2.2rem;font-weight:800;color:#fff;margin-bottom:14px}.hero-tagline p{font-size:1.15rem;color:rgba(255,255,255,0.75);max-width:700px;margin:0 auto 30px}.hero-search-form{display:flex;max-width:700px;margin:0 auto 20px;box-shadow:0 8px 32px rgba(229,9,20,0.25);border-radius:12px;overflow:hidden}.hero-search-input{flex:1;padding:18px 24px;border:none;border-radius:0;background:#2a2a2a;color:#fff;font-size:16px;outline:none;transition:background 0.2s}.hero-search-input::placeholder{color:rgba(255,255,255,0.5)}.hero-search-input:focus{background:#333}.hero-search-btn{display:flex;align-items:center;justify-content:center;padding:0 24px;background:#2a2a2a;border:none;color:rgba(255,255,255,0.7);cursor:pointer;transition:color 0.2s,background 0.2s}.hero-search-btn:hover{color:#e50914}.hero-stats{color:rgba(255,255,255,0.5);font-size:0.9rem;display:flex;gap:12px;justify-content:center;margin-top:8px;max-width:700px;margin-left:auto;margin-right:auto}.hero-trust{color:rgba(255,255,255,0.55);font-size:0.85rem;display:flex;gap:20px;justify-content:center;margin-top:16px;flex-wrap:wrap;max-width:700px;margin-left:auto;margin-right:auto}</style>
   <div class="hero-section" id="heroSection">
     <div class="hero-tagline">
       <h2>Find &amp; Watch Free Live TV — No Sign-up Required</h2>
@@ -362,7 +362,12 @@ export const HOME_HTML = `<!DOCTYPE html>
     <div class="hero-search">
       <form action="/search" method="get" class="hero-search-form" id="heroSearchForm">
         <input type="text" name="q" class="hero-search-input" placeholder="Search &apos;CCTV&apos;, &apos;ESPN&apos;, &apos;HBO&apos;..." aria-label="Search IPTV channels" id="heroSearchInput">
-        <button type="submit" class="hero-search-btn">Search</button>
+        <button type="submit" class="hero-search-btn" aria-label="Search">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="8"></circle>
+    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</button>
       </form>
     </div>
     <div class="hero-stats">
