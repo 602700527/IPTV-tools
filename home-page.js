@@ -353,7 +353,7 @@ export const HOME_HTML = `<!DOCTYPE html>
     </div>
   </header>
 
-  <style>.hero-section{margin-top:70px;padding:30px 20px 20px;text-align:center;background:linear-gradient(180deg,#1a1a1a 0%,#0a0a0a 100%)}.hero-section.hidden{display:none}.hero-title{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:16px}.hero-title h2{font-size:1.6rem;font-weight:800;color:#fff;margin:0}.hero-stats-inline{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.6);font-size:0.9rem}.hero-search-form{display:flex;max-width:700px;margin:0 auto 16px;box-shadow:0 8px 32px rgba(229,9,20,0.25);border-radius:12px;overflow:hidden}.hero-search-input{flex:1;padding:16px 20px;border:none;border-radius:0;background:#2a2a2a;color:#fff;font-size:16px;outline:none;transition:background 0.2s}.hero-search-input::placeholder{color:rgba(255,255,255,0.5)}.hero-search-input:focus{background:#333}.hero-search-btn{display:flex;align-items:center;justify-content:center;padding:0 20px;background:#2a2a2a;border:none;color:rgba(255,255,255,0.7);cursor:pointer;transition:color 0.2s,background 0.2s}.hero-search-btn:hover{color:#e50914}.hero-trust{color:rgba(255,255,255,0.55);font-size:0.85rem;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;max-width:700px;margin:0 auto}</style>
+  <style>.hero-section{margin-top:70px;padding:40px 20px 30px;text-align:center;background:#0a0a0a}.hero-section.hidden{display:none}.hero-title{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:20px}.hero-title h2{font-size:1.8rem;font-weight:800;color:#fff;margin:0;letter-spacing:-.02em}.hero-stats-inline{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.5);font-size:0.9rem;background:rgba(255,255,255,0.05);padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.08)}.hero-search-form{display:flex;max-width:700px;margin:0 auto 20px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)}.hero-search-input{flex:1;padding:18px 24px;border:none;border-radius:0;background:#1e1e1e;color:#fff;font-size:16px;outline:none;transition:background 0.2s}.hero-search-input::placeholder{color:rgba(255,255,255,0.4)}.hero-search-input:focus{background:#252525}.hero-search-btn{display:flex;align-items:center;justify-content:center;padding:0 24px;background:#2a2a2a;border:none;color:rgba(255,255,255,0.7);cursor:pointer;transition:all 0.2s}.hero-search-btn:hover{background:#e50914;color:#fff}.hero-trust{color:rgba(255,255,255,0.45);font-size:0.85rem;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;max-width:700px;margin:0 auto}</style>
   <div class="hero-section" id="heroSection">
     <div class="hero-title">
       <h2>The Most Comprehensive Global TV Channel Search Engine</h2>
@@ -472,7 +472,16 @@ export const HOME_HTML = `<!DOCTYPE html>
           </p>
         </div>
 
-        <div class="channel-list" id="channelsGrid"></div>
+        <div class="channel-table">
+          <div class="channel-table-header">
+            <span class="cth-logo"></span>
+            <span class="cth-name">Channel</span>
+            <span class="cth-group">Category</span>
+            <span class="cth-action">Favorite</span>
+            <span class="cth-action">Copy</span>
+          </div>
+          <div class="channel-list" id="channelsGrid"></div>
+        </div>
         <div class="pagination" id="pagination"></div>
 
         <!-- 其他分类横向滚动 -->
@@ -731,6 +740,10 @@ export const HOME_HTML = `<!DOCTYPE html>
       const div = document.createElement('div');
       div.textContent = str;
       return div.innerHTML;
+    }
+    function jsEncode(str) {
+      if (!str) return '';
+      return String(str).replace(/'/g, "\\'");
     }
 
     // ========== 翻译函数 ==========
@@ -2156,7 +2169,7 @@ export const HOME_HTML = `<!DOCTYPE html>
         // 每个分类显示前6个频道预览
         const previewChannels = channels.slice(0, 6);
         const channelsHtml = previewChannels.map(ch => \`
-          <div class="category-channel-item" onclick="filterByGroup('\${escapeHtml(groupName)}'); return false;">
+          <div class="category-channel-item" onclick="filterByGroup('\${jsEncode(groupName)}'); return false;">
             \${ch.logo ? \`<img class="cat-ch-logo" src="\${escapeHtml(ch.logo)}" alt="\${escapeHtml(ch.channel_name)}" onerror="this.style.display='none'">\` : ''}
             <span class="cat-ch-name">\${escapeHtml(ch.channel_name)}</span>
           </div>
@@ -2164,7 +2177,7 @@ export const HOME_HTML = `<!DOCTYPE html>
 
         return \`
           <div class="category-section">
-            <div class="category-header" onclick="filterByGroup('\${escapeHtml(groupName)}')">
+            <div class="category-header" onclick="filterByGroup('\${jsEncode(groupName)}')">
               <span class="cat-name">\${escapeHtml(groupName)}</span>
               <span class="cat-count">\${channels.length} channels</span>
               <span class="cat-arrow">▶</span>
@@ -2270,7 +2283,7 @@ export const HOME_HTML = `<!DOCTYPE html>
       const otherGroups = groupNames.filter(g => g !== currentGroup);
 
       container.innerHTML = otherGroups.map(group =>
-        \`<button class="other-cat-btn" onclick="filterByGroup('\${escapeHtml(group)}')">\${escapeHtml(group)}</button>\`
+        \`<button class="other-cat-btn" onclick="filterByGroup('\${jsEncode(group)}')">\${escapeHtml(group)}</button>\`
       ).join('');
     }
     
@@ -2292,20 +2305,21 @@ export const HOME_HTML = `<!DOCTYPE html>
           ? \`<img src="\${escapeHtml(channel.logo)}" alt="\${escapeHtml(channel.channel_name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="channel-icon" style="display:none;">📺</div>\`
           : '<div class="channel-icon">📺</div>';
 
-        const isPlaying = currentPlayingChannel === channel.channel_hash;
         const isFavorited = favorites.some(f => f.hash === channel.channel_hash);
 
         return \`
-          <div class="channel-item" onclick="handleChannelClick(event, '\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}')">
+          <div class="channel-item" onclick="handleChannelClick(event, '\${jsEncode(channel.channel_hash)}', '\${jsEncode(channel.channel_name)}', '\${jsEncode(channel.group_title || '')}')">
             <div class="ch-icon">\${logo}</div>
             <div class="ch-info">
               <div class="ch-name">\${escapeHtml(channel.channel_name)}</div>
-              <div class="ch-group">\${escapeHtml(channel.group_title || '')}</div>
             </div>
-            <button class="ch-fav-btn \${isFavorited ? 'favorited' : ''}" onclick="event.stopPropagation();toggleFavorite('\${escapeHtml(channel.channel_hash)}', '\${escapeHtml(channel.channel_name)}', '\${escapeHtml(channel.group_title || '')}', this)">
-              \${isFavorited ? '⭐' : '☆'}
+            <div class="ch-group">\${escapeHtml(channel.group_title || '')}</div>
+            <button class="ch-fav-btn \${isFavorited ? 'favorited' : ''}" onclick="event.stopPropagation();toggleFavorite('\${jsEncode(channel.channel_hash)}', '\${jsEncode(channel.channel_name)}', '\${jsEncode(channel.group_title || '')}', this)" title="\${isFavorited ? 'Remove from favorites' : 'Add to favorites'}">
+              \${isFavorited ? '★' : '☆'}
             </button>
-            <span class="ch-arrow">→</span>
+            <button class="ch-copy-btn" onclick="event.stopPropagation();copyPlayLink('\${jsEncode(channel.channel_hash)}')" title="Copy link">
+              🔗
+            </button>
           </div>
         \`;
       });
@@ -2454,9 +2468,6 @@ export const HOME_HTML = `<!DOCTYPE html>
 
       // 更新标题（现在由面包屑显示）
 
-      // 更新面包屑
-      updateBreadcrumb(group);
-
       // 渲染"其他分类"横向滚动（排除当前分类）
       renderOtherCategories(group);
 
@@ -2499,7 +2510,7 @@ export const HOME_HTML = `<!DOCTYPE html>
       showChannelDetail(hash, name, group);
     }
 
-    // 打开频道详情视图 - 重新设计的丰富布局
+    // 打开频道详情视图 - 紧凑信息流布局
     function showChannelDetail(hash, name, group) {
       const detailView = document.getElementById('channelDetailView');
       const detailContainer = document.getElementById('channelDetailContainer');
@@ -2516,202 +2527,131 @@ export const HOME_HTML = `<!DOCTYPE html>
 
       // 构建 Logo HTML
       const logoHtml = channel && channel.logo
-        ? '<div class="cd-hero-logo"><img src="' + escapeHtml(channel.logo) + '" alt="' + escapeHtml(name) + '" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;"></div><div class="cd-hero-logo-placeholder" style="display:none;">📺</div>'
-        : '<div class="cd-hero-logo"><div class="cd-hero-logo-placeholder">📺</div></div>';
+        ? '<img src="' + escapeHtml(channel.logo) + '" alt="' + escapeHtml(name) + '" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;;this.nextElementSibling.style.background=&quot;#1a1a1a&quot;"><div class="cd-detail-logo-placeholder" style="display:none;width:80px;height:80px;background:#1a1a1a;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:32px;">📺</div>'
+        : '<div class="cd-detail-logo-placeholder">📺</div>';
 
-      // 构建分组标签
-      const groupTag = group
-        ? '<span class="cd-tag cd-tag-group" data-nav="filterGroup" data-group="' + escapeHtml(group) + '">' +
-          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>' + escapeHtml(group) + '</span>'
-        : '';
-
-      // 获取当前时间用于显示
-      const now = new Date();
-      const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-
-      // 构建详情内容 - 丰富的卡片布局
+      // 构建详情内容 - 紧凑信息流
       detailContainer.innerHTML = 
-        // ===== 英雄区：频道Logo + 名称 + 操作按钮 =====
-        '<div class="cd-hero">' +
-          logoHtml +
-          '<div class="cd-hero-info">' +
-            '<h1 class="cd-hero-title">' + escapeHtml(name) + '</h1>' +
-            '<div class="cd-hero-meta">' + groupTag + '</div>' +
-            '<div class="cd-hero-actions">' +
-              '<button class="cd-btn cd-btn-secondary' + (isFavorited ? ' active' : '') + '" id="detailFavBtn">' +
-                (isFavorited ? '★' : '☆') + ' ' + (isFavorited ? 'Favorited' : 'Favorite') +
-              '</button>' +
-              '<button class="cd-btn cd-btn-icon" id="detailCopyBtn" title="Copy Link">' +
-                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>' +
-              '</button>' +
+        // ===== 顶部操作栏 =====
+        '<div class="cd-detail-header">' +
+          '<button class="cd-back-btn" onclick="showChannelList()">' +
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>' +
+            '<span>Back</span>' +
+          '</button>' +
+          '<div class="cd-header-actions">' +
+            '<button class="cd-action-btn' + (isFavorited ? ' active' : '') + '" id="detailFavBtn" title="' + (isFavorited ? 'Remove from favorites' : 'Add to favorites') + '">' +
+              (isFavorited ? '★' : '☆') +
+            '</button>' +
+            '<button class="cd-action-btn" onclick="copyPlayLink(&quot;' + jsEncode(hash) + '&quot;)" title="Copy link">' +
+              '🔗' +
+            '</button>' +
+            '<button class="cd-play-btn" onclick="playChannel(&quot;' + jsEncode(hash) + '&quot;,&quot;' + jsEncode(name) + '&quot;,&quot;' + jsEncode(group || '') + '&quot;)">' +
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>' +
+              '<span>Play</span>' +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+
+        // ===== 频道主信息 =====
+        '<div class="cd-detail-main">' +
+          '<div class="cd-detail-logo">' + logoHtml + '</div>' +
+          '<div class="cd-detail-info">' +
+            '<h1 class="cd-detail-title">' + escapeHtml(name) + '</h1>' +
+            '<div class="cd-detail-meta">' +
+              (group ? '<span class="cd-detail-tag">' + escapeHtml(group) + '</span>' : '') +
+              '<span class="cd-detail-status"><span class="cd-status-dot"></span> Active</span>' +
             '</div>' +
           '</div>' +
         '</div>' +
 
-        // ===== 信息卡片网格 =====
-        '<div class="cd-cards-grid">' +
+        // ===== 信息网格 =====
+        '<div class="cd-detail-grid">' +
 
-          // 卡片1：频道信息
-          '<div class="cd-card">' +
-            '<div class="cd-card-header">' +
-              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>' +
-              '<span>Channel Information</span>' +
-            '</div>' +
-            '<div class="cd-card-body">' +
-              '<div class="cd-info-row">' +
-                '<span class="cd-info-label">Channel Name</span>' +
+          // 频道信息
+          '<div class="cd-detail-section">' +
+            '<h3 class="cd-section-title">Channel Info</h3>' +
+            '<div class="cd-info-list">' +
+              '<div class="cd-info-item">' +
+                '<span class="cd-info-label">Channel</span>' +
                 '<span class="cd-info-value">' + escapeHtml(name) + '</span>' +
               '</div>' +
-              '<div class="cd-info-row">' +
+              '<div class="cd-info-item">' +
                 '<span class="cd-info-label">Category</span>' +
-                '<span class="cd-info-value cd-info-category">' + escapeHtml(group || 'Uncategorized') + '</span>' +
+                '<span class="cd-info-value cd-info-link" onclick="filterByGroup(&quot;' + jsEncode(group) + '&quot;)">' + escapeHtml(group || 'Uncategorized') + '</span>' +
               '</div>' +
-              '<div class="cd-info-row">' +
+              '<div class="cd-info-item">' +
                 '<span class="cd-info-label">Channel ID</span>' +
                 '<span class="cd-info-value cd-info-id">' + escapeHtml(hash) + '</span>' +
               '</div>' +
-              '<div class="cd-info-row">' +
-                '<span class="cd-info-label">Added Date</span>' +
-                '<span class="cd-info-value">' + escapeHtml(dateStr) + '</span>' +
-              '</div>' +
             '</div>' +
           '</div>' +
 
-          // 卡片2：播放信息
-          '<div class="cd-card">' +
-            '<div class="cd-card-header">' +
-              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>' +
-              '<span>Playback Info</span>' +
-            '</div>' +
-            '<div class="cd-card-body">' +
-              '<div class="cd-info-row">' +
+          // 播放信息
+          '<div class="cd-detail-section">' +
+            '<h3 class="cd-section-title">Playback</h3>' +
+            '<div class="cd-info-list">' +
+              '<div class="cd-info-item">' +
                 '<span class="cd-info-label">Quality</span>' +
-                '<span class="cd-info-value">HD / SD Auto</span>' +
+                '<span class="cd-info-value">HD / SD</span>' +
               '</div>' +
-              '<div class="cd-info-row">' +
+              '<div class="cd-info-item">' +
                 '<span class="cd-info-label">Format</span>' +
-                '<span class="cd-info-value">M3U8 / M3U</span>' +
+                '<span class="cd-info-value">M3U8</span>' +
               '</div>' +
-              '<div class="cd-info-row">' +
+              '<div class="cd-info-item">' +
                 '<span class="cd-info-label">Protocol</span>' +
-                '<span class="cd-info-value">HTTP / HTTPS</span>' +
-              '</div>' +
-              '<div class="cd-info-row">' +
-                '<span class="cd-info-label">Status</span>' +
-                '<span class="cd-info-value cd-status-active">● Active</span>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-
-          // 卡片3：EPG节目预告（占位）
-          '<div class="cd-card cd-card-epg">' +
-            '<div class="cd-card-header">' +
-              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' +
-              '<span>Program Guide</span>' +
-              '<span class="cd-card-badge">Coming Soon</span>' +
-            '</div>' +
-            '<div class="cd-card-body cd-epg-body">' +
-              '<div class="cd-epg-placeholder">' +
-                '<div class="cd-epg-icon">📺</div>' +
-                '<p>Electronic Program Guide</p>' +
-                '<p class="cd-epg-sub">TV schedule and program info will be available soon</p>' +
-              '</div>' +
-              '<div class="cd-epg-slots">' +
-                '<div class="cd-epg-slot">' +
-                  '<span class="cd-epg-time">Now</span>' +
-                  '<span class="cd-epg-program">Loading...</span>' +
-                '</div>' +
-                '<div class="cd-epg-slot">' +
-                  '<span class="cd-epg-time">Next</span>' +
-                  '<span class="cd-epg-program">—</span>' +
-                '</div>' +
-                '<div class="cd-epg-slot">' +
-                  '<span class="cd-epg-time">Later</span>' +
-                  '<span class="cd-epg-program">—</span>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-
-          // 卡片4：频道描述（占位）
-          '<div class="cd-card cd-card-desc">' +
-            '<div class="cd-card-header">' +
-              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>' +
-              '<span>Description</span>' +
-              '<span class="cd-card-badge">Coming Soon</span>' +
-            '</div>' +
-            '<div class="cd-card-body">' +
-              '<div class="cd-desc-placeholder">' +
-                '<p>Channel description and detailed information will be available soon.</p>' +
-                '<p class="cd-desc-sub">Stay tuned for updates!</p>' +
+                '<span class="cd-info-value">HTTP/HTTPS</span>' +
               '</div>' +
             '</div>' +
           '</div>' +
 
         '</div>' +
 
+        // ===== 查看更多 =====
+        (group ? 
+        '<div class="cd-detail-more">' +
+          '<a href="/" class="cd-more-link" onclick="event.preventDefault();filterByGroup(&quot;' + jsEncode(group) + '&quot;);return false">' +
+            'View all ' + relatedChannels.length + ' channels in ' + escapeHtml(group) + ' →' +
+          '</a>' +
+        '</div>' : '') +
+
         // ===== 相关频道 =====
         (relatedChannels.length > 0 ? 
-        '<div class="cd-related">' +
-          '<div class="cd-related-header">' +
-            '<h2 class="cd-section-title">More from ' + escapeHtml(group || 'This Category') + '</h2>' +
-            '<a href="/" class="cd-related-link" data-nav="filterGroup" data-group="' + escapeHtml(group || '') + '">View All →</a>' +
-          '</div>' +
-          '<div class="cd-related-grid" id="relatedChannelsGrid">' +
+        '<div class="cd-related-section">' +
+          '<h3 class="cd-section-title">Related Channels</h3>' +
+          '<div class="cd-related-scroll" id="relatedChannelsGrid">' +
             relatedChannels.map(ch => {
               const chLogo = ch.logo
                 ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.channel_name) + '" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;"><div class="cd-related-logo-placeholder" style="display:none;">📺</div>'
                 : '<div class="cd-related-logo-placeholder">📺</div>';
               return '<div class="cd-related-card" data-channel-hash="' + escapeHtml(ch.channel_hash) + '" data-channel-name="' + escapeHtml(ch.channel_name) + '" data-channel-group="' + escapeHtml(ch.group_title || '') + '">' +
                 '<div class="cd-related-poster">' + chLogo + '</div>' +
-                '<div class="cd-related-info">' +
-                  '<span class="cd-related-name">' + escapeHtml(ch.channel_name) + '</span>' +
-                '</div>' +
+                '<span class="cd-related-name">' + escapeHtml(ch.channel_name) + '</span>' +
               '</div>';
             }).join('') +
           '</div>' +
         '</div>' : '');
 
-      // 绑定按钮事件
-      const playBtnEl = document.getElementById('detailPlayBtn');
-      if (playBtnEl) {
-        playBtnEl.onclick = function() {
-          playChannel(hash, name, group || '');
-        };
-      }
+      // 绑定收藏按钮
       const favBtnEl = document.getElementById('detailFavBtn');
       if (favBtnEl) {
         favBtnEl.onclick = function() {
-          toggleFavorite(hash, name, group || '');
-          const isFav = favorites.some(f => f.hash === hash);
-          this.classList.toggle('active', isFav);
-          this.innerHTML = (isFav ? '★' : '☆') + ' ' + (isFav ? 'Favorited' : 'Favorite');
-        };
-      }
-      const copyBtnEl = document.getElementById('detailCopyBtn');
-      if (copyBtnEl) {
-        copyBtnEl.onclick = function() {
-          copyPlayLink(hash);
-        };
-      }
-
-      // 绑定分组标签点击
-      var groupTagEl = detailContainer.querySelector('.cd-tag-group');
-      if (groupTagEl) {
-        groupTagEl.onclick = function() {
-          filterByGroup(group);
-          showChannelList();
+          toggleFavoriteFromDetail(hash, name, group || '');
+          const newFav = favorites.some(f => f.hash === hash);
+          this.classList.toggle('active', newFav);
+          this.textContent = newFav ? '★' : '☆';
+          this.title = newFav ? 'Remove from favorites' : 'Add to favorites';
         };
       }
 
       // 绑定相关频道点击
-      var relatedGrid = document.getElementById('relatedChannelsGrid');
+      const relatedGrid = document.getElementById('relatedChannelsGrid');
       if (relatedGrid) {
         relatedGrid.querySelectorAll('.cd-related-card').forEach(function(card) {
           card.onclick = function() {
-            var h = this.getAttribute('data-channel-hash');
-            var n = this.getAttribute('data-channel-name');
-            var g = this.getAttribute('data-channel-group');
+            const h = this.getAttribute('data-channel-hash');
+            const n = this.getAttribute('data-channel-name');
+            const g = this.getAttribute('data-channel-group');
             showChannelDetail(h, n, g);
           };
         });
@@ -2722,7 +2662,7 @@ export const HOME_HTML = `<!DOCTYPE html>
       detailView.style.display = 'block';
 
       // 更新 URL
-      var newUrl = new URL(window.location.href);
+      const newUrl = new URL(window.location.href);
       newUrl.searchParams.set('channel', hash);
       history.pushState({ channel: hash }, '', newUrl.toString());
 
@@ -3913,9 +3853,6 @@ export const HOME_HTML = `<!DOCTYPE html>
         currentGroup = 'random';
         renderGroups();
 
-        // 更新面包屑
-        updateBreadcrumb('random');
-
         // 隐藏加载指示器
         hideLoadingIndicator();
 
@@ -4258,8 +4195,6 @@ export const HOME_HTML = `<!DOCTYPE html>
       renderGroups();
 
       // 更新面包屑
-      updateBreadcrumb('history');
-
       // 隐藏加载和分页
       document.getElementById('loading').style.display = 'none';
       document.getElementById('channelList').style.display = 'block';
@@ -4317,9 +4252,6 @@ export const HOME_HTML = `<!DOCTYPE html>
       // 清除分组选择
       currentGroup = 'favorites';
       renderGroups();
-
-      // 更新面包屑
-      updateBreadcrumb('favorites');
 
       // 隐藏加载
       document.getElementById('loading').style.display = 'none';
