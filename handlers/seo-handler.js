@@ -294,14 +294,14 @@ export async function generateSEOHomepage(request, env) {
     '  <meta property="og:locale" content="en_US">\n' +
     '  <meta property="og:title" content="' + escapeAttr(pageTitle) + '">\n' +
     '  <meta property="og:description" content="' + escapeAttr(metaDescription) + '">\n' +
-    '  <meta property="og:image" content="' + origin + '/og-homepage.png">\n' +
+    '  <meta property="og:image" content="' + origin + '/og-image.svg">\n' +
     '  <meta property="og:image:width" content="1200">\n' +
     '  <meta property="og:image:height" content="630">\n' +
     '  <meta property="og:site_name" content="IPTV Search">\n' +
     '  <meta name="twitter:card" content="summary_large_image">\n' +
     '  <meta name="twitter:title" content="' + escapeAttr(pageTitle) + '">\n' +
     '  <meta name="twitter:description" content="' + escapeAttr(metaDescription) + '">\n' +
-    '  <meta name="twitter:image" content="' + origin + '/og-homepage.png">\n' +
+    '  <meta name="twitter:image" content="' + origin + '/og-image.svg">\n' +
     '  <script type="application/ld+json">' + JSON.stringify(jsonLd) + '</script>\n' +
     '  <script type="application/ld+json">' + faqJsonLd + '</script>\n' +
     '</head>\n' +
@@ -310,7 +310,7 @@ export async function generateSEOHomepage(request, env) {
     '  <div class="main">\n' +
     '    ' + STATIC_SIDEBAR + '\n' +
     '    <div class="content">\n' +
-    '      <div class="section-title" style="font-size:18px;font-weight:600;margin-bottom:20px;color:#fff">' + sectionLabel + '</div>\n' +
+    '      <h1 class="section-title" style="font-size:18px;font-weight:600;margin-bottom:20px;color:#fff">' + sectionLabel + '</h1>\n' +
     '      <div class="channels-grid">' + channelCardsHtml + '</div>\n' +
     '      ' + paginationHtml + '\n' +
     '    </div>\n' +
@@ -424,7 +424,7 @@ export async function generateCategoryPage(request, env, groupSlug) {
   <meta property="og:url" content="${origin}/category/${groupSlug}">
   <meta property="og:locale" content="en_US">
 
-  <meta property="og:image" content="${origin}/og-homepage.png">
+  <meta property="og:image" content="${origin}/og-image.svg">
 
   <meta property="og:image:width" content="1200">
 
@@ -438,7 +438,7 @@ export async function generateCategoryPage(request, env, groupSlug) {
 
   <meta name="twitter:description" content="${escapeAttr(metaDescription)}">
 
-  <meta name="twitter:image" content="${origin}/og-homepage.png">
+  <meta name="twitter:image" content="${origin}/og-image.svg">
 
   <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
 
@@ -809,7 +809,7 @@ export async function generate404Page(request, env, notFoundType = 'page') {
   <meta property="og:url" content="${origin}/">
   <meta property="og:locale" content="en_US">
 
-  <meta property="og:image" content="${origin}/og-homepage.png">
+  <meta property="og:image" content="${origin}/og-image.svg">
 
   <meta name="twitter:card" content="summary_large_image">
 
