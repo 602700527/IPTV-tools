@@ -233,6 +233,34 @@ export async function generateSEOHomepage(request, env) {
 
   const STATIC_SIDEBAR = '<aside class="sidebar" id="sidebar"><div class="group-item active"><a href="' + origin + '/" style="color:#fff;text-decoration:none;display:block">All Channels</a></div>' + sidebarItems + '</aside>';
 
+  // ===== Hero Section（首页标语+搜索框） =====
+  const HERO_HTML = `
+<div class="hero-section" id="heroSection">
+  <div class="hero-tagline">
+    <h2>Find &amp; Watch Free Live TV — No Sign-up Required</h2>
+    <p>Access ` + totalChannels + `+ free live TV channels instantly. No account, no fees, just search and watch.</p>
+  </div>
+  <div class="hero-search">
+    <form action="` + origin + `/search" method="get" class="hero-search-form" id="heroSearchForm">
+      <input type="text" name="q" class="hero-search-input" placeholder="Search &apos;CCTV&apos;, &apos;ESPN&apos;, &apos;HBO&apos;..." aria-label="Search IPTV channels" id="heroSearchInput">
+      <button type="submit" class="hero-search-btn">Search</button>
+    </form>
+  </div>
+  <div class="hero-stats">
+    <span>` + totalChannels + `+ Channels</span>
+    <span>|</span>
+    <span>` + groups.length + ` Categories</span>
+    <span>|</span>
+    <span>100+ Countries</span>
+  </div>
+  <div class="hero-trust">
+    <span>✅ No registration</span>
+    <span>✅ Updated daily</span>
+    <span>✅ Works on any device</span>
+  </div>
+</div>
+`;
+
   // ===== 频道网格卡片（原版海报样式） =====
   const channelCardsHtml = channels.slice(0, perPage).map(function(ch) {
     var logo;
@@ -260,7 +288,7 @@ export async function generateSEOHomepage(request, env) {
     '</div>';
   }
 
-  var sectionLabel = 'All Channels <span style="color:rgba(255,255,255,0.5);font-weight:400;font-size:14px;margin-left:12px">' + totalChannels.toLocaleString() + ' channels</span>';
+  var sectionLabel = 'Browse All Channels <span style="color:rgba(255,255,255,0.5);font-weight:400;font-size:14px;margin-left:12px">' + totalChannels.toLocaleString() + ' channels</span>';
 
   var faqJsonLd = JSON.stringify({
     '@context': 'https://schema.org',
@@ -307,6 +335,8 @@ export async function generateSEOHomepage(request, env) {
     '</head>\n' +
     '<body>\n' +
     '  ' + STATIC_HEADER + '\n' +
+    '  <style>.hero-section{padding:80px 20px 40px;text-align:center;background:linear-gradient(180deg,#1a1a1a 0%,#0a0a0a 100%)}.hero-section.hidden{display:none}.hero-tagline{max-width:700px;margin:0 auto 24px}.hero-tagline h2{font-size:2.2rem;font-weight:800;color:#fff;margin-bottom:14px}.hero-tagline p{font-size:1.15rem;color:rgba(255,255,255,0.75);max-width:650px;margin:0 auto 30px}.hero-search-form{max-width:650px;margin:0 auto 20px;gap:0;box-shadow:0 8px 32px rgba(229,9,20,0.25)}.hero-search-input{flex:1;padding:16px 20px;border:2px solid #e50914;border-right:none;border-radius:8px 0 0 8px;background:#1a1a1a;color:#fff;font-size:16px}.hero-search-btn{padding:16px 28px;background:#e50914;border:2px solid #e50914;border-radius:0 8px 8px 0;color:#fff;font-size:16px;font-weight:600;cursor:pointer}.hero-stats{color:rgba(255,255,255,0.5);font-size:0.9rem;display:flex;gap:12px;justify-content:center;margin-top:8px}.hero-trust{color:rgba(255,255,255,0.55);font-size:0.85rem;display:flex;gap:20px;justify-content:center;margin-top:16px;flex-wrap:wrap}</style>\n' +
+    '  ' + HERO_HTML + '\n' +
     '  <div class="main">\n' +
     '    ' + STATIC_SIDEBAR + '\n' +
     '    <div class="content">\n' +

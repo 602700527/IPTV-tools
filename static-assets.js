@@ -795,4 +795,5 @@ export const SEO_HOME_CSS = `
       .browse-title{font-size:20px}
       .breadcrumb{padding:12px 0;font-size:13px}
     }
-  `;
+  `
+    

@@ -353,6 +353,32 @@ export const HOME_HTML = `<!DOCTYPE html>
     </div>
   </header>
 
+  <style>.hero-section{padding:80px 20px 40px;text-align:center;background:linear-gradient(180deg,#1a1a1a 0%,#0a0a0a 100%)}.hero-section.hidden{display:none}.hero-tagline{max-width:700px;margin:0 auto 24px}.hero-tagline h2{font-size:2.2rem;font-weight:800;color:#fff;margin-bottom:14px}.hero-tagline p{font-size:1.15rem;color:rgba(255,255,255,0.75);max-width:650px;margin:0 auto 30px}.hero-search-form{max-width:650px;margin:0 auto 20px;gap:0;box-shadow:0 8px 32px rgba(229,9,20,0.25)}.hero-search-input{flex:1;padding:16px 20px;border:2px solid #e50914;border-right:none;border-radius:8px 0 0 8px;background:#1a1a1a;color:#fff;font-size:16px}.hero-search-btn{padding:16px 28px;background:#e50914;border:2px solid #e50914;border-radius:0 8px 8px 0;color:#fff;font-size:16px;font-weight:600;cursor:pointer}.hero-stats{color:rgba(255,255,255,0.5);font-size:0.9rem;display:flex;gap:12px;justify-content:center;margin-top:8px}.hero-trust{color:rgba(255,255,255,0.55);font-size:0.85rem;display:flex;gap:20px;justify-content:center;margin-top:16px;flex-wrap:wrap}</style>
+  <div class="hero-section" id="heroSection">
+    <div class="hero-tagline">
+      <h2>Find &amp; Watch Free Live TV — No Sign-up Required</h2>
+      <p>Access <span id="totalChannels">91</span>+ free live TV channels instantly. No account, no fees, just search and watch.</p>
+    </div>
+    <div class="hero-search">
+      <form action="/search" method="get" class="hero-search-form" id="heroSearchForm">
+        <input type="text" name="q" class="hero-search-input" placeholder="Search &apos;CCTV&apos;, &apos;ESPN&apos;, &apos;HBO&apos;..." aria-label="Search IPTV channels" id="heroSearchInput">
+        <button type="submit" class="hero-search-btn">Search</button>
+      </form>
+    </div>
+    <div class="hero-stats">
+      <span><span id="statChannels">91</span>+ Channels</span>
+      <span>|</span>
+      <span><span id="statGroups">1</span> Categories</span>
+      <span>|</span>
+      <span>100+ Countries</span>
+    </div>
+    <div class="hero-trust">
+      <span>✅ No registration</span>
+      <span>✅ Updated daily</span>
+      <span>✅ Works on any device</span>
+    </div>
+  </div>
+
   <!-- 移动端菜单 -->
   <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="toggleMobileMenu()"></div>
   <div class="mobile-menu" id="mobileMenu">
@@ -1341,6 +1367,38 @@ export const HOME_HTML = `<!DOCTYPE html>
       // 初始化语言
       switchLanguage(currentLanguage);
 
+      // ===== Hero 表单拦截：阻止 form submit，改为 SPA 内部搜索（UX Plan A） =====
+      const heroForm = document.getElementById('heroSearchForm');
+      if (heroForm) {
+        heroForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const q = document.getElementById('heroSearchInput').value.trim();
+          if (!q) return;
+          // 聚焦 header 搜索框并执行搜索
+          const searchInput = document.getElementById('searchInput');
+          if (searchInput) {
+            searchInput.value = q;
+            searchInput.focus();
+            handleSearch();
+            // 如果有 categoryBrowse 显示，先切换过去
+            const categoryBrowse = document.getElementById('categoryBrowse');
+            const contentArea = document.getElementById('contentArea');
+            if (categoryBrowse) categoryBrowse.style.display = 'none';
+            if (contentArea) contentArea.style.display = 'block';
+            // 隐藏 Hero
+            const heroSection = document.getElementById('heroSection');
+            if (heroSection) heroSection.classList.add('hidden');
+            // 清除当前搜索，回到全量搜索
+            currentGroup = '';
+            currentSearch = q;
+            currentPage = 1;
+            loadChannels(1, true);
+            // 滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        });
+      }
+
       // 获取系统配置
       try {
         await updateEncryptionKey();
@@ -1394,26 +1452,37 @@ export const HOME_HTML = `<!DOCTYPE html>
       }
 
       loadChannels().then(() => {
+        // 更新 Hero 统计数据
+        const heroStatChannels = document.getElementById('statChannels');
+        const heroStatGroups = document.getElementById('statGroups');
+        const heroTotalDesc = document.getElementById('totalChannels');
+        if (heroStatChannels) heroStatChannels.textContent = totalChannels;
+        if (heroStatGroups) heroStatGroups.textContent = allGroups.length;
+        if (heroTotalDesc) heroTotalDesc.textContent = totalChannels;
         // 频道加载完成后
+        const heroSection = document.getElementById('heroSection');
         if (urlGroup) {
-          // 有分组参数：切换到频道列表模式
+          // 有分组参数：切换到频道列表模式 → 隐藏 Hero
           const categoryBrowse = document.getElementById('categoryBrowse');
           const contentArea = document.getElementById('contentArea');
           if (categoryBrowse) categoryBrowse.style.display = 'none';
           if (contentArea) contentArea.style.display = 'block';
           document.getElementById('breadcrumbCurrent').textContent = urlGroup;
           renderOtherCategories(urlGroup);
+          if (heroSection) heroSection.classList.add('hidden');
         } else if (urlChannel) {
-          // 有 channel 参数：显示频道详情
+          // 有 channel 参数：显示频道详情 → 隐藏 Hero
           const channel = allChannels.find(ch => ch.channel_hash === urlChannel);
           if (channel) {
             console.log('[Init] 从 URL 检测到频道:', channel.channel_name);
             showChannelDetail(channel.channel_hash, channel.channel_name, channel.group_title || '');
           }
+          if (heroSection) heroSection.classList.add('hidden');
         } else {
-          // 无参数：显示分类浏览模式（首页）
+          // 无参数：显示分类浏览模式（首页） → 显示 Hero
           showCategoryBrowse();
           renderCategories();
+          if (heroSection) heroSection.classList.remove('hidden');
         }
       });
 
@@ -1680,6 +1749,7 @@ export const HOME_HTML = `<!DOCTYPE html>
       }
 
       loadChannels();
+      // Hero 统计数据在 loadChannels().then() 中更新
       updateOnlineCounter();
       updateBadges();
       setInterval(updateOnlineCounter, 30000); // 每30秒更新在线人数
@@ -2093,6 +2163,10 @@ export const HOME_HTML = `<!DOCTYPE html>
       currentSearch = '';
       currentPage = 1;
 
+      // 返回首页时恢复 Hero 显示
+      const heroSection = document.getElementById('heroSection');
+      if (heroSection) heroSection.classList.remove('hidden');
+
       // 清空搜索框
       const searchInput = document.getElementById('searchInput');
       if (searchInput) searchInput.value = '';
@@ -2281,16 +2355,23 @@ export const HOME_HTML = `<!DOCTYPE html>
     });
 
     function filterByGroup(group) {
-      // 切换到频道列表模式
+      // 切换到频道列表模式 → 隐藏 Hero
       const categoryBrowse = document.getElementById('categoryBrowse');
       const contentArea = document.getElementById('contentArea');
       if (categoryBrowse) categoryBrowse.style.display = 'none';
       if (contentArea) contentArea.style.display = 'block';
+      const heroSection = document.getElementById('heroSection');
+      // Hero 显示/隐藏：history/favorites/random/'' 时显示，其他分类隐藏
+      if (heroSection) {
+        if (group === '' || group === 'history' || group === 'favorites' || group === 'random') {
+          heroSection.classList.remove('hidden');
+        } else {
+          heroSection.classList.add('hidden');
+        }
+      }
 
       // 移动端：关闭菜单
 
-
-      // 移动端：关闭菜单
       const mobileMenu = document.getElementById('mobileMenu');
       const overlay = document.getElementById('mobileMenuOverlay');
       if (mobileMenu && mobileMenu.classList.contains('open')) {
