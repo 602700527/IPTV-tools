@@ -353,11 +353,15 @@ export const HOME_HTML = `<!DOCTYPE html>
     </div>
   </header>
 
-  <style>.hero-section{margin-top:70px;padding:40px 20px 30px;text-align:center;background:linear-gradient(180deg,#1a1a1a 0%,#0a0a0a 100%)}.hero-section.hidden{display:none}.hero-tagline{max-width:700px;margin:0 auto 24px}.hero-tagline h2{font-size:2.2rem;font-weight:800;color:#fff;margin-bottom:14px}.hero-tagline p{font-size:1.15rem;color:rgba(255,255,255,0.75);max-width:700px;margin:0 auto 30px}.hero-search-form{display:flex;max-width:700px;margin:0 auto 20px;box-shadow:0 8px 32px rgba(229,9,20,0.25);border-radius:12px;overflow:hidden}.hero-search-input{flex:1;padding:18px 24px;border:none;border-radius:0;background:#2a2a2a;color:#fff;font-size:16px;outline:none;transition:background 0.2s}.hero-search-input::placeholder{color:rgba(255,255,255,0.5)}.hero-search-input:focus{background:#333}.hero-search-btn{display:flex;align-items:center;justify-content:center;padding:0 24px;background:#2a2a2a;border:none;color:rgba(255,255,255,0.7);cursor:pointer;transition:color 0.2s,background 0.2s}.hero-search-btn:hover{color:#e50914}.hero-stats{color:rgba(255,255,255,0.5);font-size:0.9rem;display:flex;gap:12px;justify-content:center;margin-top:8px;max-width:700px;margin-left:auto;margin-right:auto}.hero-trust{color:rgba(255,255,255,0.55);font-size:0.85rem;display:flex;gap:20px;justify-content:center;margin-top:16px;flex-wrap:wrap;max-width:700px;margin-left:auto;margin-right:auto}</style>
+  <style>.hero-section{margin-top:70px;padding:30px 20px 20px;text-align:center;background:linear-gradient(180deg,#1a1a1a 0%,#0a0a0a 100%)}.hero-section.hidden{display:none}.hero-title{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:16px}.hero-title h2{font-size:1.6rem;font-weight:800;color:#fff;margin:0}.hero-stats-inline{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.6);font-size:0.9rem}.hero-search-form{display:flex;max-width:700px;margin:0 auto 16px;box-shadow:0 8px 32px rgba(229,9,20,0.25);border-radius:12px;overflow:hidden}.hero-search-input{flex:1;padding:16px 20px;border:none;border-radius:0;background:#2a2a2a;color:#fff;font-size:16px;outline:none;transition:background 0.2s}.hero-search-input::placeholder{color:rgba(255,255,255,0.5)}.hero-search-input:focus{background:#333}.hero-search-btn{display:flex;align-items:center;justify-content:center;padding:0 20px;background:#2a2a2a;border:none;color:rgba(255,255,255,0.7);cursor:pointer;transition:color 0.2s,background 0.2s}.hero-search-btn:hover{color:#e50914}.hero-trust{color:rgba(255,255,255,0.55);font-size:0.85rem;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;max-width:700px;margin:0 auto}</style>
   <div class="hero-section" id="heroSection">
-    <div class="hero-tagline">
-      <h2>Find &amp; Watch Free Live TV — No Sign-up Required</h2>
-      <p>Access <span id="totalChannels">91</span>+ free live TV channels instantly. No account, no fees, just search and watch.</p>
+    <div class="hero-title">
+      <h2>The Most Comprehensive Global TV Channel Search Engine</h2>
+      <div class="hero-stats-inline">
+        <span><span id="statChannels">--</span> Channels</span>
+        <span>|</span>
+        <span><span id="statGroups">--</span> Categories</span>
+      </div>
     </div>
     <div class="hero-search">
       <form action="/search" method="get" class="hero-search-form" id="heroSearchForm">
@@ -369,13 +373,6 @@ export const HOME_HTML = `<!DOCTYPE html>
   </svg>
 </button>
       </form>
-    </div>
-    <div class="hero-stats">
-      <span><span id="statChannels">91</span>+ Channels</span>
-      <span>|</span>
-      <span><span id="statGroups">1</span> Categories</span>
-      <span>|</span>
-      <span>100+ Countries</span>
     </div>
     <div class="hero-trust">
       <span>✅ No registration</span>
@@ -475,13 +472,6 @@ export const HOME_HTML = `<!DOCTYPE html>
           </p>
         </div>
 
-        <!-- 面包屑导航 -->
-        <div class="breadcrumb" id="breadcrumb">
-          <a href="#" onclick="showCategoryBrowse(); return false;">🏠 <span id="breadcrumbHome">Home</span></a>
-          <span class="breadcrumb-sep">»</span>
-          <a href="#" class="breadcrumb-current" id="breadcrumbCurrent" onclick="filterByGroup(''); return false;">All Channels</a>
-        </div>
-
         <div class="channel-list" id="channelsGrid"></div>
         <div class="pagination" id="pagination"></div>
 
@@ -496,7 +486,6 @@ export const HOME_HTML = `<!DOCTYPE html>
 
       <!-- 频道详情视图 -->
       <div id="channelDetailView" class="channel-detail-view page-container" style="display:none;">
-        <div class="breadcrumb" id="detailBreadcrumb"></div>
         <div class="channel-detail-container" id="channelDetailContainer"></div>
       </div>
 
@@ -1250,8 +1239,6 @@ export const HOME_HTML = `<!DOCTYPE html>
       } else if (currentGroup === 'random') {
         showRandomInMain();
       } else if (allChannels.length > 0) {
-        // 需要更新面包屑（翻译）
-        updateBreadcrumb('');
         renderChannels(allChannels);
       }
 
@@ -1443,6 +1430,14 @@ export const HOME_HTML = `<!DOCTYPE html>
         console.log('[Cache] 从缓存加载分组:', allGroups.length, '个分组');
       }
 
+      // 尝试从缓存加载分组频道数据，更新 Hero 统计
+      const cachedGrouped = getFromCache(getCacheKey('grouped_channels'));
+      if (cachedGrouped) {
+        groupedChannels = cachedGrouped.grouped || {};
+        updateHeroStatsFromGrouped(cachedGrouped);
+        console.log('[Cache] 从缓存加载分组频道统计:', cachedGrouped.total_channels, '频道', cachedGrouped.total_groups, '分组');
+      }
+
       // 检查 URL 是否有 channel 参数，如果有则显示频道详情
       const urlChannel = new URLSearchParams(window.location.search).get('channel');
 
@@ -1454,32 +1449,33 @@ export const HOME_HTML = `<!DOCTYPE html>
       }
 
       loadChannels().then(() => {
-        // 更新 Hero 统计数据
-        const heroStatChannels = document.getElementById('statChannels');
-        const heroStatGroups = document.getElementById('statGroups');
-        const heroTotalDesc = document.getElementById('totalChannels');
-        if (heroStatChannels) heroStatChannels.textContent = totalChannels;
-        if (heroStatGroups) heroStatGroups.textContent = allGroups.length;
-        if (heroTotalDesc) heroTotalDesc.textContent = totalChannels;
+        // 如果分组数据还没加载（没有缓存），则用loadChannels的数据更新统计
+        if (Object.keys(groupedChannels).length === 0) {
+          const heroStatChannels = document.getElementById('statChannels');
+          const heroStatGroups = document.getElementById('statGroups');
+          const heroTotalDesc = document.getElementById('totalChannels');
+          if (heroStatChannels) heroStatChannels.textContent = totalChannels;
+          if (heroStatGroups) heroStatGroups.textContent = allGroups.length;
+          if (heroTotalDesc) heroTotalDesc.textContent = totalChannels;
+        }
         // 频道加载完成后
         const heroSection = document.getElementById('heroSection');
         if (urlGroup) {
-          // 有分组参数：切换到频道列表模式 → 隐藏 Hero
+          // 有分组参数：切换到频道列表模式 → Hero 始终显示
           const categoryBrowse = document.getElementById('categoryBrowse');
           const contentArea = document.getElementById('contentArea');
           if (categoryBrowse) categoryBrowse.style.display = 'none';
           if (contentArea) contentArea.style.display = 'block';
-          document.getElementById('breadcrumbCurrent').textContent = urlGroup;
           renderOtherCategories(urlGroup);
-          if (heroSection) heroSection.classList.add('hidden');
+          if (heroSection) heroSection.classList.remove('hidden');
         } else if (urlChannel) {
-          // 有 channel 参数：显示频道详情 → 隐藏 Hero
+          // 有 channel 参数：显示频道详情 → Hero 始终显示
           const channel = allChannels.find(ch => ch.channel_hash === urlChannel);
           if (channel) {
             console.log('[Init] 从 URL 检测到频道:', channel.channel_name);
             showChannelDetail(channel.channel_hash, channel.channel_name, channel.group_title || '');
           }
-          if (heroSection) heroSection.classList.add('hidden');
+          if (heroSection) heroSection.classList.remove('hidden');
         } else {
           // 无参数：显示分类浏览模式（首页） → 显示 Hero
           showCategoryBrowse();
@@ -2086,6 +2082,8 @@ export const HOME_HTML = `<!DOCTYPE html>
         const cached = getFromCache(cacheKey);
         if (cached) {
           groupedChannels = cached.grouped || {};
+          // 更新 Hero 统计数据
+          updateHeroStatsFromGrouped(cached);
           return cached;
         }
 
@@ -2096,6 +2094,8 @@ export const HOME_HTML = `<!DOCTYPE html>
           groupedChannels = data.grouped || {};
           // 缓存一天
           setCache(cacheKey, data, 24 * 60 * 60 * 1000);
+          // 更新 Hero 统计数据
+          updateHeroStatsFromGrouped(data);
           return data;
         }
         return null;
@@ -2103,6 +2103,20 @@ export const HOME_HTML = `<!DOCTYPE html>
         console.error('[loadGroupedChannels] 加载失败:', error);
         return null;
       }
+    }
+
+    // 从分组数据更新 Hero 统计
+    function updateHeroStatsFromGrouped(data) {
+      const totalChannels = data.total_channels || 0;
+      const totalGroups = data.total_groups || 0;
+      
+      const heroStatChannels = document.getElementById('statChannels');
+      const heroStatGroups = document.getElementById('statGroups');
+      const heroTotalDesc = document.getElementById('totalChannels');
+      
+      if (heroStatChannels) heroStatChannels.textContent = totalChannels;
+      if (heroStatGroups) heroStatGroups.textContent = totalGroups;
+      if (heroTotalDesc) heroTotalDesc.textContent = totalChannels;
     }
 
     // 渲染分类浏览页面（类似 epg.pw 的分组展示）
@@ -2184,31 +2198,6 @@ export const HOME_HTML = `<!DOCTYPE html>
       return iconMap[groupName] || '📺';
     }
 
-    // 更新面包屑导航
-    function updateBreadcrumb(group) {
-      const breadcrumb = document.getElementById('breadcrumb');
-      if (!breadcrumb) return;
-
-      const homeText = t('home') || 'Home';
-      const allChannelsText = t('allChannels');
-      const groupText = group ? (group === 'favorites' ? t('favorites') : group === 'history' ? t('history') : group === 'random' ? t('random') : group) : '';
-
-      // 构建面包屑：首页 » 所有频道 » 当前分类/功能（如果有）
-      const sq = String.fromCharCode(39); // single quote
-      const homeLink = '<a href="#" onclick="showCategoryBrowse();return false">🏠 <span id="breadcrumbHome">' + escapeHtml(homeText) + '</span></a>';
-      const sep = '<span class="breadcrumb-sep">»</span>';
-      const allChannelsLink = '<a href="#" class="breadcrumb-current" id="breadcrumbCurrent" onclick="filterByGroup(' + sq + sq + ');return false">' + escapeHtml(allChannelsText) + '</a>';
-      let html = homeLink + sep + allChannelsLink;
-
-      // 如果有选中分类或功能，添加
-      if (groupText) {
-        html += '<span class="breadcrumb-sep">»</span>';
-        html += '<span class="breadcrumb-current">' + escapeHtml(groupText) + '</span>';
-      }
-
-      breadcrumb.innerHTML = html;
-    }
-
     // 显示分类浏览模式（首页）
     async function showCategoryBrowse() {
       const categoryBrowse = document.getElementById('categoryBrowse');
@@ -2237,9 +2226,6 @@ export const HOME_HTML = `<!DOCTYPE html>
 
       // 滚动到顶部（Hero区域）
       window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // 更新面包屑
-      updateBreadcrumb('');
 
       // 更新分组选中状态
       document.querySelectorAll('.group-item').forEach(item => {
@@ -2380,12 +2366,6 @@ export const HOME_HTML = `<!DOCTYPE html>
         const searchInput = document.getElementById('searchInput');
         if (searchInput) searchInput.value = '';
 
-        // 更新面包屑
-        const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
-        if (breadcrumbCurrent) {
-          breadcrumbCurrent.textContent = group || t('allChannels');
-        }
-
         // 更新分组选中状态
         document.querySelectorAll('.group-item').forEach(item => {
           item.classList.remove('active');
@@ -2419,19 +2399,15 @@ export const HOME_HTML = `<!DOCTYPE html>
     });
 
     function filterByGroup(group) {
-      // 切换到频道列表模式 → 隐藏 Hero
+      // 切换到频道列表模式 → Hero 始终显示
       const categoryBrowse = document.getElementById('categoryBrowse');
       const contentArea = document.getElementById('contentArea');
       if (categoryBrowse) categoryBrowse.style.display = 'none';
       if (contentArea) contentArea.style.display = 'block';
       const heroSection = document.getElementById('heroSection');
-      // Hero 显示/隐藏：history/favorites/random/'' 时显示，其他分类隐藏
+      // Hero 始终显示（方便用户查询）
       if (heroSection) {
-        if (group === '' || group === 'history' || group === 'favorites' || group === 'random') {
-          heroSection.classList.remove('hidden');
-        } else {
-          heroSection.classList.add('hidden');
-        }
+        heroSection.classList.remove('hidden');
       }
 
       // 移动端：关闭菜单
@@ -2528,7 +2504,6 @@ export const HOME_HTML = `<!DOCTYPE html>
       const detailView = document.getElementById('channelDetailView');
       const detailContainer = document.getElementById('channelDetailContainer');
       const channelList = document.getElementById('channelList');
-      const breadcrumb = document.getElementById('detailBreadcrumb');
 
       // 查找频道完整信息
       const channel = allChannels.find(ch => ch.channel_hash === hash);
@@ -2538,16 +2513,6 @@ export const HOME_HTML = `<!DOCTYPE html>
       const relatedChannels = channel && group
         ? allChannels.filter(ch => ch.group_title === group && ch.channel_hash !== hash).slice(0, 8)
         : [];
-
-      // 构建面包屑
-      const allChannelsText = typeof t !== 'undefined' ? t('allChannels') : 'All Channels';
-      breadcrumb.innerHTML = '<a href="/" data-nav="showChannelList">' + escapeHtml(allChannelsText) + '</a>' +
-        '<span class="breadcrumb-separator">&raquo;</span>';
-      if (group) {
-        breadcrumb.innerHTML += '<a href="/" data-nav="filterGroup" data-group="' + escapeHtml(group) + '">' + escapeHtml(group) + '</a>' +
-          '<span class="breadcrumb-separator">&raquo;</span>';
-      }
-      breadcrumb.innerHTML += '<span class="breadcrumb-current">' + escapeHtml(name) + '</span>';
 
       // 构建 Logo HTML
       const logoHtml = channel && channel.logo
@@ -2730,21 +2695,6 @@ export const HOME_HTML = `<!DOCTYPE html>
         };
       }
 
-      // 绑定面包屑导航
-      breadcrumb.querySelectorAll('a[data-nav]').forEach(function(link) {
-        link.onclick = function(e) {
-          e.preventDefault();
-          var navType = this.getAttribute('data-nav');
-          if (navType === 'showChannelList') {
-            showChannelList();
-          } else if (navType === 'filterGroup') {
-            var g = this.getAttribute('data-group');
-            filterByGroup(g);
-            showChannelList();
-          }
-        };
-      });
-
       // 绑定分组标签点击
       var groupTagEl = detailContainer.querySelector('.cd-tag-group');
       if (groupTagEl) {
@@ -2771,9 +2721,6 @@ export const HOME_HTML = `<!DOCTYPE html>
       channelList.style.display = 'none';
       detailView.style.display = 'block';
 
-      // 显示详情面包屑
-      breadcrumb.style.display = 'flex';
-
       // 更新 URL
       var newUrl = new URL(window.location.href);
       newUrl.searchParams.set('channel', hash);
@@ -2799,11 +2746,6 @@ export const HOME_HTML = `<!DOCTYPE html>
     function showChannelList() {
       const detailView = document.getElementById('channelDetailView');
       const channelList = document.getElementById('channelList');
-      const breadcrumb = document.getElementById('breadcrumb');
-      const detailBreadcrumb = document.getElementById('detailBreadcrumb');
-
-      // 隐藏详情面包屑
-      if (detailBreadcrumb) detailBreadcrumb.style.display = 'none';
 
       // 切换视图
       detailView.style.display = 'none';
@@ -2944,11 +2886,6 @@ export const HOME_HTML = `<!DOCTYPE html>
 
         // 搜索时不更新分组列表，保持原有分组显示
         loadChannels(1, false);
-        // 更新面包屑
-        const breadcrumbCurrent2 = document.getElementById('breadcrumbCurrent');
-        if (breadcrumbCurrent2) {
-          breadcrumbCurrent2.textContent = t('search') + ': ' + escapeHtml(keyword);
-        }
       }, 300);
     }
 
