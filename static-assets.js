@@ -429,6 +429,7 @@ export const SEO_HOME_CSS = `
       font-size:16px;
       cursor:pointer;
       transition:all .2s;
+      color:#fff;
     }
     .cd-action-btn:hover{background:rgba(255,255,255,.1);transform:scale(1.05)}
     .cd-action-btn.active{color:#ffd700}

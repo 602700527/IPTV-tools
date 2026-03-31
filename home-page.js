@@ -2169,7 +2169,7 @@ export const HOME_HTML = `<!DOCTYPE html>
         // 每个分类显示前6个频道预览
         const previewChannels = channels.slice(0, 6);
         const channelsHtml = previewChannels.map(ch => \`
-          <div class="category-channel-item" onclick="filterByGroup('\${jsEncode(groupName)}'); return false;">
+          <div class="category-channel-item" onclick="handleChannelClick(event, '\${jsEncode(ch.channel_hash)}', '\${jsEncode(ch.channel_name)}', '\${jsEncode(ch.group_title || '')}')">
             \${ch.logo ? \`<img class="cat-ch-logo" src="\${escapeHtml(ch.logo)}" alt="\${escapeHtml(ch.channel_name)}" onerror="this.style.display='none'">\` : ''}
             <span class="cat-ch-name">\${escapeHtml(ch.channel_name)}</span>
           </div>
@@ -2516,14 +2516,33 @@ export const HOME_HTML = `<!DOCTYPE html>
       const detailContainer = document.getElementById('channelDetailContainer');
       const channelList = document.getElementById('channelList');
 
-      // 查找频道完整信息
-      const channel = allChannels.find(ch => ch.channel_hash === hash);
+      // 查找频道完整信息（优先从allChannels查找，否则从groupedChannels查找）
+      let channel = allChannels.find(ch => ch.channel_hash === hash);
+      if (!channel && groupedChannels) {
+        // 从groupedChannels中查找
+        for (const groupName in groupedChannels) {
+          const found = groupedChannels[groupName].find(ch => ch.channel_hash === hash);
+          if (found) {
+            channel = found;
+            break;
+          }
+        }
+      }
       const isFavorited = favorites.some(f => f.hash === hash);
 
       // 获取相关频道（同分组）
-      const relatedChannels = channel && group
-        ? allChannels.filter(ch => ch.group_title === group && ch.channel_hash !== hash).slice(0, 8)
-        : [];
+      let sameGroupChannels = [];
+      if (channel && group) {
+        // 优先从allChannels获取
+        if (allChannels.length > 0) {
+          sameGroupChannels = allChannels.filter(ch => ch.group_title === group && ch.channel_hash !== hash);
+        } else if (groupedChannels && groupedChannels[group]) {
+          // 否则从groupedChannels获取
+          sameGroupChannels = groupedChannels[group].filter(ch => ch.channel_hash !== hash);
+        }
+      }
+      const relatedChannels = sameGroupChannels.slice(0, 8);
+      const totalSameGroup = sameGroupChannels.length;
 
       // 构建 Logo HTML
       const logoHtml = channel && channel.logo
@@ -2611,7 +2630,7 @@ export const HOME_HTML = `<!DOCTYPE html>
         (group ? 
         '<div class="cd-detail-more">' +
           '<a href="/" class="cd-more-link" onclick="event.preventDefault();filterByGroup(&quot;' + jsEncode(group) + '&quot;);return false">' +
-            'View all ' + relatedChannels.length + ' channels in ' + escapeHtml(group) + ' →' +
+            'View all ' + totalSameGroup + ' channels in ' + escapeHtml(group) + ' →' +
           '</a>' +
         '</div>' : '') +
 
