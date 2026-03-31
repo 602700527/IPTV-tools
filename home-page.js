@@ -2169,7 +2169,7 @@ export const HOME_HTML = `<!DOCTYPE html>
         // 每个分类显示前6个频道预览
         const previewChannels = channels.slice(0, 6);
         const channelsHtml = previewChannels.map(ch => \`
-          <div class="category-channel-item" onclick="handleChannelClick(event, '\${jsEncode(ch.channel_hash)}', '\${jsEncode(ch.channel_name)}', '\${jsEncode(ch.group_title || '')}')">
+          <div class="category-channel-item" onclick="handleCategoryChannelClick(event, '\${jsEncode(ch.channel_hash)}', '\${jsEncode(ch.channel_name)}', '\${jsEncode(ch.group_title || '')}', '\${jsEncode(groupName)}')">
             \${ch.logo ? \`<img class="cat-ch-logo" src="\${escapeHtml(ch.logo)}" alt="\${escapeHtml(ch.channel_name)}" onerror="this.style.display='none'">\` : ''}
             <span class="cat-ch-name">\${escapeHtml(ch.channel_name)}</span>
           </div>
@@ -2510,6 +2510,24 @@ export const HOME_HTML = `<!DOCTYPE html>
       showChannelDetail(hash, name, group);
     }
 
+    // 处理首页分类频道点击 - 先导航到分类页，再显示详情
+    function handleCategoryChannelClick(event, hash, name, group, groupName) {
+      // 添加点击高亮效果
+      const card = event.currentTarget;
+      card.classList.add('click-highlight');
+      setTimeout(() => {
+        card.classList.remove('click-highlight');
+      }, 300);
+
+      // 先导航到分类页（这会设置 ?group=xxx）
+      filterByGroup(groupName);
+      
+      // 延迟后显示频道详情（等 filterByGroup 更新 URL 完成）
+      setTimeout(() => {
+        showChannelDetail(hash, name, groupName);
+      }, 50);
+    }
+
     // 打开频道详情视图 - 紧凑信息流布局
     function showChannelDetail(hash, name, group) {
       const detailView = document.getElementById('channelDetailView');
@@ -2680,10 +2698,15 @@ export const HOME_HTML = `<!DOCTYPE html>
       channelList.style.display = 'none';
       detailView.style.display = 'block';
 
-      // 更新 URL
+      // 更新 URL（确保 group 在前面，channel 在后面）
       const newUrl = new URL(window.location.href);
+      if (group) {
+        newUrl.searchParams.set('group', group);
+      } else {
+        newUrl.searchParams.delete('group');
+      }
       newUrl.searchParams.set('channel', hash);
-      history.pushState({ channel: hash }, '', newUrl.toString());
+      history.pushState({ channel: hash, group: group }, '', newUrl.toString());
 
       // 滚动到顶部
       window.scrollTo(0, 0);
