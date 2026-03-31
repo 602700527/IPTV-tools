@@ -310,9 +310,6 @@ export const HOME_HTML = `<!DOCTYPE html>
         </div>
       </div>
       <div class="header-right">
-      <div class="search-box">
-        <input type="text" class="search-input" id="searchInput" placeholder="Search channels..." oninput="handleSearch()">
-      </div>
       <div class="quick-entries">
         <button class="quick-entry ripple" id="historyQuickEntry" onclick="handleQuickEntryClick(event, 'history')" title="History">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -324,17 +321,9 @@ export const HOME_HTML = `<!DOCTYPE html>
           <span class="quick-entry-tip">My Favorites</span>
           <span class="quick-entry-badge" id="favoritesBadge" style="display:none;">0</span>
         </button>
-        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'random')" title="Random">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line><circle cx="16" cy="8" r="2" fill="currentColor"></circle><circle cx="8" cy="16" r="2" fill="currentColor"></circle></svg>
-          <span class="quick-entry-tip">Random</span>
-        </button>
         <button class="quick-entry ripple" onclick="handlePlansClick()" title="Plans">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
           <span class="quick-entry-tip">Plans</span>
-        </button>
-        <button class="quick-entry ripple" onclick="handleQuickEntryClick(event, 'clearCache')" title="Clear Cache">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-          <span class="quick-entry-tip">Clear Cache</span>
         </button>
         
         <div id="authButtons">
@@ -344,25 +333,15 @@ export const HOME_HTML = `<!DOCTYPE html>
         <div id="translate" style="margin-left: 12px;"></div>
       </div>
     </div>
-    <div class="mobile-search-header">
-      <input type="text" class="search-input" id="mobileHeaderSearchInput" placeholder="Search..." oninput="handleMobileHeaderSearch()">
-    </div>
     <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
       ☰
     </button>
     </div>
   </header>
 
-  <style>.hero-section{margin-top:70px;padding:40px 20px 30px;text-align:center;background:#0a0a0a}.hero-section.hidden{display:none}.hero-title{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:20px}.hero-title h2{font-size:1.8rem;font-weight:800;color:#fff;margin:0;letter-spacing:-.02em}.hero-stats-inline{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.5);font-size:0.9rem;background:rgba(255,255,255,0.05);padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.08)}.hero-search-form{display:flex;max-width:700px;margin:0 auto 20px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)}.hero-search-input{flex:1;padding:18px 24px;border:none;border-radius:0;background:#1e1e1e;color:#fff;font-size:16px;outline:none;transition:background 0.2s}.hero-search-input::placeholder{color:rgba(255,255,255,0.4)}.hero-search-input:focus{background:#252525}.hero-search-btn{display:flex;align-items:center;justify-content:center;padding:0 24px;background:#2a2a2a;border:none;color:rgba(255,255,255,0.7);cursor:pointer;transition:all 0.2s}.hero-search-btn:hover{background:#e50914;color:#fff}.hero-trust{color:rgba(255,255,255,0.45);font-size:0.85rem;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;max-width:700px;margin:0 auto}</style>
+  <style>.hero-section{margin-top:70px;padding:40px 20px 30px;text-align:center;background:#0a0a0a}.hero-section.hidden{display:none}.hero-title{font-size:1.8rem;font-weight:800;color:#fff;margin:0 0 24px 0;letter-spacing:-.02em;line-height:1.3}.hero-search-form{display:flex;max-width:700px;margin:0 auto 20px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);box-shadow:0 0 20px rgba(229,9,20,0.15),0 4px 20px rgba(0,0,0,0.3)}.hero-search-input{flex:1;padding:18px 24px;border:none;border-radius:0;background:#1e1e1e;color:#fff;font-size:16px;outline:none;transition:background 0.2s}.hero-search-input::placeholder{color:rgba(255,255,255,0.4)}.hero-search-input:focus{background:#252525}.hero-search-btn{display:flex;align-items:center;justify-content:center;padding:0 24px;background:#2a2a2a;border:none;color:rgba(255,255,255,0.7);cursor:pointer;transition:all 0.2s}.hero-search-btn:hover{background:#e50914;color:#fff}.hero-trust{color:rgba(255,255,255,0.45);font-size:0.85rem;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;max-width:700px;margin:0 auto}</style>
   <div class="hero-section" id="heroSection">
-    <div class="hero-title">
-      <h2>The Most Comprehensive Global TV Channel Search Engine</h2>
-      <div class="hero-stats-inline">
-        <span><span id="statChannels">--</span> Channels</span>
-        <span>|</span>
-        <span><span id="statGroups">--</span> Categories</span>
-      </div>
-    </div>
+    <h1 class="hero-title">IPTV Search — Free IPTV Channel Directory & Search Engine</h1>
     <div class="hero-search">
       <form action="/search" method="get" class="hero-search-form" id="heroSearchForm">
         <input type="text" name="q" class="hero-search-input" placeholder="Search &apos;CCTV&apos;, &apos;ESPN&apos;, &apos;HBO&apos;..." aria-label="Search IPTV channels" id="heroSearchInput">
@@ -1164,7 +1143,10 @@ export const HOME_HTML = `<!DOCTYPE html>
       document.title = t('title');
 
       // 更新搜索框
-      document.getElementById('searchInput').placeholder = t('searchPlaceholder');
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.placeholder = t('searchPlaceholder');
+      }
 
       // 更新移动端header搜索框
       const mobileHeaderSearchInput = document.getElementById('mobileHeaderSearchInput');
