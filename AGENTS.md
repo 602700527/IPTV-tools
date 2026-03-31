@@ -16,16 +16,9 @@ npm run db:console   # Interactive D1 query console (wrangler d1 execute tv-serv
 
 # Testing
 npx playwright test                        # Run all tests
-npx playwright test tests/*.spec.js        # Run specific test file
-npx playwright test --ui                   # Interactive UI mode
-npx playwright test --grep "keyword"       # Run tests matching keyword
-
-# Manual API Testing (with wrangler dev running)
-curl http://localhost:8787/api/config                              # Public config API
-curl http://localhost:8787/api/channels                            # Channels API
-curl -H "X-Admin-Key: admin-key-please-change-in-production" \
-  http://localhost:8787/admin/sources                              # Admin API
-curl http://localhost:8787/test/force-scheduled                    # Force run scheduled tasks
+npx playwright test tests/*.spec.js       # Run specific test file
+npx playwright test --ui                  # Interactive UI mode
+npx playwright test --grep "keyword"      # Run tests matching keyword
 ```
 
 ## Project Structure
@@ -34,27 +27,33 @@ curl http://localhost:8787/test/force-scheduled                    # Force run s
 cfworker2/
 ├── worker.js              # Main entry - routes all requests
 ├── database.js            # D1 schema, migrations, M3U parsing
-├── admin-page.js          # Admin dashboard (bundled HTML/JS)
-├── handlers/              # Request handlers (17 files)
-│   ├── admin.js          # Admin API (sources, channels, codes)
-│   ├── auth.js           # User auth, Google OAuth, sessions
-│   ├── live.js           # /live/{code}/{hash} playback
-│   ├── sub.js            # /sub/{code}.m3u subscription
-│   ├── public.js         # Public APIs (channels, config)
-│   ├── scheduler.js      # Cron tasks (sync, cache refresh)
-│   ├── subscription-api.js # Code generation, PayPal
-│   ├── freesub-api.js   # Free subscription system
-│   ├── mall-api.js       # Payment methods, mall settings
-│   └── ...              # 17 handlers total
+├── admin-page.js          # Admin dashboard (bundled HTML/JS with inline templates)
+├── handlers/              # Request handlers (17+ files)
+│   ├── admin.js           # Admin API (sources, channels, codes CRUD)
+│   ├── auth.js            # User auth, Google OAuth, sessions
+│   ├── live.js            # /live/{code}/{hash} playback
+│   ├── sub.js             # /sub/{code}.m3u subscription
+│   ├── public.js          # Public APIs (channels, config, play)
+│   ├── scheduler.js        # Cron tasks, source sync, cache refresh
+│   ├── subscription-api.js # Code generation, PayPal integration
+│   ├── freesub-api.js     # Free subscription system
+│   ├── mall-api.js        # Payment methods, mall settings
+│   ├── seo-handler.js     # SEO static HTML generation (homepage, category, sitemap)
+│   ├── ip-play.js         # IP direct play link generation
+│   └── ...
+├── components/            # Reusable HTML components
+│   ├── page-header.js     # SEO page header
+│   └── page-footer.js     # SEO page footer
 ├── utils/
-│   ├── cache.js          # Memory + KV caching
-│   └── channel-cache.js  # Channel KV cache
+│   ├── cache.js           # Memory + KV caching
+│   └── channel-cache.js   # Channel KV cache
 ├── security/
-│   ├── ip-blacklist.js   # IP rate limiting
-│   └── code-ban-cache.js # Code ban tracking
-├── migrations/            # SQL schema files
-├── tests/                # Playwright integration tests
-└── wrangler.toml         # Workers config, KV namespaces, D1 bindings
+│   ├── ip-blacklist.js    # IP rate limiting
+│   └── code-ban-cache.js  # Code ban tracking
+├── tests/                 # Playwright integration tests
+├── static-assets.js       # SEO homepage CSS
+├── assets.js              # SVG icons (logo, favicon)
+└── wrangler.toml          # Workers config, KV namespaces, D1 bindings
 ```
 
 ## Code Style Guidelines
@@ -82,24 +81,44 @@ cfworker2/
 import { getDB, createTables } from './database.js';
 import { handleAdminRequest } from './handlers/admin.js';
 
+// Multiple imports from same module (aligned)
+import { 
+  handleRegister,
+  handleSendVerificationCode,
+  handleVerifyEmail 
+} from './handlers/auth.js';
+
 // Default export from main worker
 import Worker from './worker.js';
+```
 
-// Multiple imports from same module
-import { 
-  handleGetPaymentMethods,
-  handleUpdatePaymentMethod 
-} from './mall-api.js';
+### HTML/Template Escaping
+```javascript
+// Admin-page.js uses inline escapeHtml (defined in file):
+function escapeHtml(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function escapeAttr(str) {
+  if (!str) return '';
+  return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
 ```
 
 ### Response Format
 ```javascript
-// Success response
+// JSON success response
 return new Response(JSON.stringify({ success: true, data: result }), {
   headers: { 'Content-Type': 'application/json' }
 });
 
-// Error response
+// JSON error response
 return new Response(JSON.stringify({ success: false, error: 'Human-readable message' }), {
   status: 400,
   headers: { 'Content-Type': 'application/json' }
@@ -107,7 +126,7 @@ return new Response(JSON.stringify({ success: false, error: 'Human-readable mess
 
 // HTML response
 return new Response(htmlContent, {
-  headers: { 'Content-Type': 'text/html' }
+  headers: { 'Content-Type': 'text/html; charset=utf-8' }
 });
 ```
 
@@ -162,10 +181,11 @@ try {
 |------|---------|
 | `worker.js` | Router, request dispatch, main entry |
 | `database.js` | Schema, migrations, M3U parser, security config |
-| `handlers/admin.js` | Admin CRUD operations (2342 lines) |
+| `handlers/admin.js` | Admin CRUD operations |
+| `handlers/public.js` | Public APIs, channel lists, play links |
 | `handlers/live.js` | Playback URL generation with caching |
 | `handlers/sub.js` | M3U subscription generation |
-| `handlers/scheduler.js` | Cron tasks, source sync, cache refresh |
+| `handlers/seo-handler.js` | SEO static HTML (homepage, category, sitemap) |
 | `wrangler.toml` | Workers config, KV namespaces, D1 bindings |
 | `playwright.config.js` | Test configuration (baseURL: http://localhost:8787) |
 
