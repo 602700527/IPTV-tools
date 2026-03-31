@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Favorites - IPTV Search</title>
+  <meta name="description" content="Your starred IPTV channels. Download your favorites as M3U playlist.">
+  <link rel="canonical" href="https://www.iptv-search.com/favorites">
+  
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-card: #1a1a1a;
+      --bg-hover: #252525;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --accent: #e50914;
+      --accent-hover: #f6121d;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.5);
+      --radius: 8px;
+      --transition: 0.2s ease;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #f0f0f0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border: rgba(0,0,0,0.08);
+      --border-hover: rgba(0,0,0,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* Header */
+    .header { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+    .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: 700; }
+    .logo-icon { width: 36px; height: 36px; }
+    .logo-icon svg { width: 100%; height: 100%; }
+    .logo-text span { color: var(--accent); }
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .icon-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 50%; font-size: 1.1rem; transition: all var(--transition); }
+    .icon-btn:hover { background: var(--bg-hover); transform: scale(1.05); }
+    /* Language Selector (translate.js) */
+    #translate {
+      position: relative;
+      display: inline-block;
+    }
+
+    #translateSelectLanguage {
+      appearance: none;
+      -webkit-appearance: none;
+      padding: 0.5rem 2rem 0.5rem 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      min-width: 100px;
+    }
+
+    #translateSelectLanguage:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
+    }
+
+    #translateSelectLanguage:hover {
+      border-color: var(--border-hover);
+    }
+
+    /* Custom dropdown arrow */
+    #translate::after {
+      content: "";
+      position: absolute;
+      right: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--text-secondary);
+      pointer-events: none;
+      transition: border-color var(--transition);
+    }
+
+    #translate:hover::after {
+      border-top-color: var(--accent);
+    }
+
+    /* Search Box */
+    .search-box {
+      position: relative;
+      width: 300px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.6rem 1rem 0.6rem 2.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
+    }
+
+    .search-box::before {
+      content: "🔍";
+      position: absolute;
+      left: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.9rem;
+      opacity: 0.5;
+    }
+
+    /* Page Header */
+    .page-header { max-width: 1400px; margin: 0 auto; padding: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .page-title { font-size: 1.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; }
+    .page-title-icon { font-size: 1.5rem; }
+    .favorites-count { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
+
+    .header-actions-row { display: flex; gap: 0.75rem; }
+    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; border-radius: var(--radius); font-size: 0.9rem; font-weight: 600; border: none; transition: all var(--transition); }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+    .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+
+    /* Main Content */
+    .main-container { max-width: 1400px; margin: 0 auto; padding: 0 2rem 2rem; }
+
+    /* Empty State */
+    .empty-state { text-align: center; padding: 4rem 2rem; }
+    .empty-state-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.3; }
+    .empty-state h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .empty-state p { color: var(--text-secondary); margin-bottom: 1.5rem; }
+
+    /* Channel Grid */
+    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+    .channel-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: all var(--transition); position: relative; cursor: pointer; }
+    .channel-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+
+    /* Star Button */
+    .star-btn { position: absolute; top: 0.5rem; right: 0.5rem; width: 32px; height: 32px; background: rgba(0,0,0,0.6); border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; transition: all var(--transition); z-index: 10; }
+    .star-btn:hover { background: rgba(0,0,0,0.8); transform: scale(1.1); }
+    .star-btn.starred { color: #fbbf24; }
+    .star-btn.not-starred { color: rgba(255,255,255,0.5); }
+
+    .channel-poster { aspect-ratio: 16/10; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .channel-poster img { width: 100%; height: 100%; object-fit: contain; padding: 1rem; }
+    .channel-poster .placeholder { font-size: 3rem; opacity: 0.3; }
+    .channel-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%); opacity: 0; transition: opacity var(--transition); display: flex; align-items: flex-end; justify-content: center; padding: 1rem; }
+    .channel-card:hover .channel-overlay { opacity: 1; }
+    .play-btn { padding: 0.5rem 1.5rem; background: var(--accent); border: none; border-radius: 20px; color: white; font-size: 0.85rem; font-weight: 600; transform: translateY(10px); transition: transform var(--transition); }
+    .channel-card:hover .play-btn { transform: translateY(0); }
+    .channel-info { padding: 0.75rem; }
+    .channel-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .channel-group { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; padding: 1rem 2rem; border-radius: var(--radius); font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 1000; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Footer */
+    .page-footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 1.25rem;
+      margin-top: 3rem;
+    }
+
+    .footer-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .footer-copyright {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      font-size: 0.75rem;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+
+    .footer-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .footer-badges {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.625rem;
+      margin-top: 1.25rem;
+    }
+
+    .footer-badges img {
+      height: 12px;
+      width: auto;
+      opacity: 0.8;
+      transition: opacity var(--transition);
+    }
+
+    .footer-badges img:hover {
+      opacity: 1;
+    }
+
+    .footer-badges span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .footer-disclaimer {
+      margin-top: 1rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: 600px) {
+      .header-inner { flex-wrap: wrap; }
+      .page-header { flex-direction: column; align-items: flex-start; }
+      .channel-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="tvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="36" height="36" rx="6" fill="url(#tvGradient)" />
+            <rect x="4" y="8" width="28" height="18" rx="2" fill="#0a0a0a" />
+            <path d="M14 12 L24 17 L14 22 Z" fill="#fff" />
+            <rect x="10" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+            <rect x="20" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+          </svg>
+        </div>
+        <div class="logo-text">IPTV<span>Search</span></div>
+      </a>
+      <div class="search-box">
+        <input type="text" id="headerSearch" placeholder="Search channels..." oninput="handleHeaderSearch()">
+      </div>
+      <div class="header-actions">
+        <a href="/favorites" class="icon-btn" title="Favorites" style="background: var(--accent);">⭐</a>
+        <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+        <div id="translate"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-header">
+    <h1 class="page-title">
+      <span class="page-title-icon">⭐</span>
+      My Favorites
+      <span class="favorites-count">(5 channels)</span>
+    </h1>
+    <div class="header-actions-row">
+      <button class="btn btn-secondary" onclick="clearAllFavorites()">
+        🗑️ Clear All
+      </button>
+      <button class="btn btn-primary" onclick="downloadM3U()">
+        📥 Download M3U
+      </button>
+    </div>
+  </div>
+
+  <main class="main-container">
+    <div class="channel-grid" id="favoritesGrid">
+      <!-- Channel Card 1 -->
+      <div class="channel-card">
+        <button class="star-btn starred" onclick="toggleStar(this, 'cctv1')">★</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/e/e5/CCTV-1.png" alt="CCTV-1" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">CCTV-1 综合频道</div>
+          <div class="channel-group">央视</div>
+        </div>
+      </div>
+
+      <!-- Channel Card 2 -->
+      <div class="channel-card">
+        <button class="star-btn starred" onclick="toggleStar(this, 'cctv5')">★</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/4/4f/CCTV-5.png" alt="CCTV-5" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">CCTV-5 体育频道</div>
+          <div class="channel-group">体育</div>
+        </div>
+      </div>
+
+      <!-- Channel Card 3 -->
+      <div class="channel-card">
+        <button class="star-btn starred" onclick="toggleStar(this, 'hunan')">★</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/1/17/Hunan_TV.png" alt="湖南卫视" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">湖南卫视</div>
+          <div class="channel-group">卫视频道</div>
+        </div>
+      </div>
+
+      <!-- Channel Card 4 -->
+      <div class="channel-card">
+        <button class="star-btn starred" onclick="toggleStar(this, 'hbo')">★</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/37/HBO_logo.svg" alt="HBO" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">HBO</div>
+          <div class="channel-group">国际</div>
+        </div>
+      </div>
+
+      <!-- Channel Card 5 -->
+      <div class="channel-card">
+        <button class="star-btn starred" onclick="toggleStar(this, 'espn')">★</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/ESPN_logo.svg" alt="ESPN" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">ESPN</div>
+          <div class="channel-group">体育</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State (hidden by default) -->
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <div class="empty-state-icon">⭐</div>
+      <h2>No favorites yet</h2>
+      <p>Start adding channels to your favorites by clicking the star icon on any channel.</p>
+      <a href="/" class="btn btn-primary">Browse Channels</a>
+    </div>
+  </main>
+
+  <div class="toast" id="toast">Copied to clipboard!</div>
+
+  <footer class="page-footer">
+    <div class="footer-content">
+      <p class="footer-copyright">&copy; 2026 IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+      
+      <div class="footer-links">
+        <a href="/tutorial">How to Watch on TV Devices</a>
+        <a href="/sitemap.xml">Sitemap</a>
+        <a href="/robots.txt">Robots</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="mailto:support@iptv-search.com">Contact Us</a>
+      </div>
+      
+      <div class="footer-badges">
+        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
+        </a>
+        <span>This site is powered by Cloudflare for acceleration and security</span>
+      </div>
+      
+      <div class="footer-disclaimer">
+        All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.selectLanguageTag.show = true;
+        translate.selectLanguageTag.documentId = 'translate';
+        translate.language.setLocal('english');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+    initTranslate();
+
+    // Favorites storage
+    const FAVORITES_KEY = 'iptv_favorites';
+    
+    function getFavorites() {
+      try {
+        return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
+      } catch { return []; }
+    }
+
+    function saveFavorites(favorites) {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+      updateFavoritesCount();
+    }
+
+    function updateFavoritesCount() {
+      const count = getFavorites().length;
+      document.querySelector('.favorites-count').textContent = `(${count} channels)`;
+    }
+
+    function toggleStar(btn, channelHash) {
+      const favorites = getFavorites();
+      const index = favorites.findIndex(f => f.channel_hash === channelHash);
+      
+      if (index > -1) {
+        // Remove from favorites
+        favorites.splice(index, 1);
+        btn.classList.remove('starred');
+        btn.classList.add('not-starred');
+        btn.textContent = '☆';
+        showToast('Removed from favorites');
+        
+        // Re-render after short delay to update count
+        setTimeout(() => {
+          saveFavorites(favorites);
+          renderFavorites();
+        }, 300);
+      } else {
+        // Add to favorites (demo - in real app, would add full channel data)
+        favorites.push({
+          channel_hash: channelHash,
+          channel_name: btn.closest('.channel-card').querySelector('.channel-name').textContent,
+          group_title: btn.closest('.channel-card').querySelector('.channel-group').textContent
+        });
+        btn.classList.remove('not-starred');
+        btn.classList.add('starred');
+        btn.textContent = '★';
+        showToast('Added to favorites');
+        saveFavorites(favorites);
+      }
+    }
+
+    function filterFavorites() {
+      const query = document.getElementById('headerSearch').value.toLowerCase();
+      const cards = document.querySelectorAll('#favoritesGrid .channel-card');
+      
+      cards.forEach(card => {
+        const name = card.querySelector('.channel-name').textContent.toLowerCase();
+        const group = card.querySelector('.channel-group').textContent.toLowerCase();
+        card.style.display = (name.includes(query) || group.includes(query)) ? '' : 'none';
+      });
+    }
+
+    function handleHeaderSearch() {
+      // On favorites page, filter locally
+      filterFavorites();
+    }
+
+    function downloadM3U() {
+      const favorites = getFavorites();
+      if (favorites.length === 0) {
+        showToast('No favorites to download!');
+        return;
+      }
+      
+      // Demo M3U content
+      let content = '#EXTM3U\n\n';
+      favorites.forEach(ch => {
+        content += `#EXTINF:-1 tvg-name="${ch.channel_name}" group-title="${ch.group_title}",${ch.channel_name}\n`;
+        content += `https://example.com/live/${ch.channel_hash}.m3u8\n\n`;
+      });
+      
+      const blob = new Blob([content], { type: 'audio/x-mpegurl' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const date = new Date().toISOString().split('T')[0];
+      a.download = `iptv-favorites-${date}.m3u`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      showToast(`Downloaded ${favorites.length} channels!`);
+    }
+
+    function clearAllFavorites() {
+      if (!confirm('Remove all favorites?')) return;
+      localStorage.removeItem(FAVORITES_KEY);
+      location.reload();
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function renderFavorites() {
+      const favorites = getFavorites();
+      const grid = document.getElementById('favoritesGrid');
+      const emptyState = document.getElementById('emptyState');
+      const countSpan = document.querySelector('.favorites-count');
+      
+      countSpan.textContent = `(${favorites.length} channels)`;
+      
+      if (favorites.length === 0) {
+        grid.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      grid.innerHTML = favorites.map(ch => `
+        <div class="channel-card">
+          <button class="star-btn starred" onclick="toggleStar(this, '${ch.channel_hash}')">★</button>
+          <div class="channel-poster">
+            <div class="placeholder" style="display:flex">📺</div>
+            <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+          </div>
+          <div class="channel-info">
+            <div class="channel-name">${ch.channel_name}</div>
+            <div class="channel-group">${ch.group_title}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      themeToggle.textContent = next === 'dark' ? '🌙' : '☀️';
+    });
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggle.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+
+    // Language selector - translate.js handles this automatically
+
+    // Sync star buttons across pages
+    window.addEventListener('storage', (e) => {
+      if (e.key === FAVORITES_KEY) {
+        location.reload();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>央视频道 - IPTV Search</title>
+  <meta name="description" content="Browse 28 free CCTV channels. Watch live CCTV-1, CCTV-2, CCTV-5 and more. No registration required.">
+  <link rel="canonical" href="https://www.iptv-search.com/category/cctv">
+  
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-card: #1a1a1a;
+      --bg-hover: #252525;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --accent: #e50914;
+      --accent-hover: #f6121d;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.5);
+      --radius: 8px;
+      --transition: 0.2s ease;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #f0f0f0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border: rgba(0,0,0,0.08);
+      --border-hover: rgba(0,0,0,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* Header */
+    .header { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+    .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: 700; }
+    .logo-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .logo-text span { color: var(--accent); }
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .search-box { position: relative; width: 300px; }
+    .search-box input { width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: border-color var(--transition); }
+    .search-box input:focus { border-color: var(--accent); }
+    .search-box::before { content: "🔍"; position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; opacity: 0.5; }
+    .icon-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 50%; font-size: 1.1rem; transition: all var(--transition); }
+    .icon-btn:hover { background: var(--bg-hover); transform: scale(1.05); }
+    /* Language Selector (translate.js) */
+    #translate {
+      position: relative;
+      display: inline-block;
+    }
+
+    #translateSelectLanguage {
+      appearance: none;
+      -webkit-appearance: none;
+      padding: 0.5rem 2rem 0.5rem 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      min-width: 100px;
+    }
+
+    #translateSelectLanguage:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
+    }
+
+    #translateSelectLanguage:hover {
+      border-color: var(--border-hover);
+    }
+
+    /* Custom dropdown arrow */
+    #translate::after {
+      content: "";
+      position: absolute;
+      right: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--text-secondary);
+      pointer-events: none;
+      transition: border-color var(--transition);
+    }
+
+    #translate:hover::after {
+      border-top-color: var(--accent);
+    }
+
+    /* Breadcrumb */
+    .breadcrumb { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem 0; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); }
+    .breadcrumb a { color: var(--accent); }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { opacity: 0.5; }
+
+    /* Category Header */
+    .category-header { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    .category-header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .category-header p { color: var(--text-secondary); font-size: 1rem; }
+    .category-stats { display: flex; gap: 1.5rem; margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); }
+    .category-stats span { display: flex; align-items: center; gap: 0.3rem; }
+
+    /* Category Nav */
+    .category-nav { max-width: 1400px; margin: 0 auto; padding: 0 2rem 1.5rem; }
+    .category-nav-list { display: flex; gap: 0.5rem; flex-wrap: wrap; list-style: none; }
+    .category-nav-list li a { display: block; padding: 0.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; font-size: 0.85rem; transition: all var(--transition); }
+    .category-nav-list li a:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+    .category-nav-list li.active a { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* Main Content */
+    .main-container { max-width: 1400px; margin: 0 auto; padding: 0 2rem 2rem; }
+    
+    .content-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .section-title { font-size: 1.25rem; font-weight: 600; }
+    .channel-count { color: var(--text-muted); font-weight: 400; font-size: 1rem; }
+
+    /* Channel Grid */
+    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+    .channel-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: all var(--transition); cursor: pointer; position: relative; }
+    .channel-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+    .channel-card.selected { border-color: var(--accent); background: var(--bg-hover); }
+
+    /* Checkbox for batch select */
+    .channel-checkbox {
+      position: absolute;
+      top: 0.5rem;
+      left: 0.5rem;
+      width: 22px;
+      height: 22px;
+      background: rgba(0,0,0,0.6);
+      border: 2px solid rgba(255,255,255,0.5);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      cursor: pointer;
+      z-index: 10;
+      opacity: 0;
+      transition: all var(--transition);
+    }
+    .channel-card:hover .channel-checkbox,
+    .batch-mode .channel-checkbox,
+    .channel-card.selected .channel-checkbox {
+      opacity: 1;
+    }
+    .channel-card.selected .channel-checkbox {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .channel-checkbox::after { content: ''; }
+
+    /* Star Button */
+    .star-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 32px;
+      height: 32px;
+      background: rgba(0,0,0,0.6);
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      z-index: 10;
+      opacity: 0;
+    }
+    .channel-card:hover .star-btn { opacity: 1; }
+    .star-btn:hover { background: rgba(0,0,0,0.8); transform: scale(1.1); }
+    .star-btn.starred { color: #fbbf24; opacity: 1; }
+    .star-btn.not-starred { color: rgba(255,255,255,0.5); }
+
+    .channel-poster { aspect-ratio: 16/10; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .channel-poster img { width: 100%; height: 100%; object-fit: contain; padding: 1rem; }
+    .channel-poster .placeholder { font-size: 3rem; opacity: 0.3; }
+    .channel-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%); opacity: 0; transition: opacity var(--transition); display: flex; align-items: flex-end; justify-content: center; padding: 1rem; }
+    .channel-card:hover .channel-overlay { opacity: 1; }
+    .play-btn { padding: 0.5rem 1.5rem; background: var(--accent); border: none; border-radius: 20px; color: white; font-size: 0.85rem; font-weight: 600; transform: translateY(10px); transition: transform var(--transition); }
+    .channel-card:hover .play-btn { transform: translateY(0); }
+    .channel-info { padding: 0.75rem; }
+    .channel-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .channel-group { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Batch Actions Bar */
+    .batch-bar {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .batch-bar.active { display: flex; }
+    .batch-info { font-size: 0.9rem; color: var(--text-secondary); }
+    .batch-info strong { color: var(--accent); }
+    .batch-actions { display: flex; gap: 0.5rem; }
+    .batch-btn { padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: all var(--transition); }
+    .batch-btn-primary { background: var(--accent); color: white; }
+    .batch-btn-primary:hover { background: var(--accent-hover); }
+    .batch-btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+    .batch-btn-secondary:hover { background: var(--bg-hover); }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; padding: 1rem 2rem; border-radius: var(--radius); font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 1000; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Pagination */
+    .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+    .pagination a, .pagination span { padding: 0.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; transition: all var(--transition); }
+    .pagination a:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+    .pagination .current { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* Footer */
+    /* Footer */
+    .page-footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 1.25rem;
+      margin-top: 3rem;
+    }
+
+    .footer-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .footer-copyright {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      font-size: 0.75rem;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+
+    .footer-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .footer-badges {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.625rem;
+      margin-top: 1.25rem;
+    }
+
+    .footer-badges img {
+      height: 12px;
+      width: auto;
+      opacity: 0.8;
+      transition: opacity var(--transition);
+    }
+
+    .footer-badges img:hover {
+      opacity: 1;
+    }
+
+    .footer-badges span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .footer-disclaimer {
+      margin-top: 1rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: 600px) {
+      .header-inner { flex-wrap: wrap; }
+      .search-box { width: 100%; order: 3; }
+      .category-header h1 { font-size: 1.5rem; }
+      .channel-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <div class="logo-icon">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="tvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="36" height="36" rx="6" fill="url(#tvGradient)" />
+          <rect x="4" y="8" width="28" height="18" rx="2" fill="#0a0a0a" />
+          <path d="M14 12 L24 17 L14 22 Z" fill="#fff" />
+          <rect x="10" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+          <rect x="20" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+        </svg>
+      </div>
+        <div class="logo-text">IPTV<span>Search</span></div>
+      </a>
+      <div class="search-box">
+        <input type="text" placeholder="Search channels...">
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+        <div id="translate"></div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb">
+    <a href="/">Home</a>
+    <span>›</span>
+    <span>央视</span>
+  </nav>
+
+  <div class="category-header">
+    <h1>📺 央视频道</h1>
+    <p>Watch all CCTV channels live. 中国中央电视台官方频道</p>
+    <div class="category-stats">
+      <span>📺 28 channels</span>
+      <span>🔄 Updated daily</span>
+      <span>🌍 China</span>
+    </div>
+  </div>
+
+  <nav class="category-nav">
+    <ul class="category-nav-list">
+      <li><a href="/category/cctv" class="active">央视</a></li>
+      <li><a href="/category/weishi">卫视频道</a></li>
+      <li><a href="/category/sports">体育</a></li>
+      <li><a href="/category/news">新闻</a></li>
+      <li><a href="/category/entertainment">综艺</a></li>
+      <li><a href="/category/movie">电影</a></li>
+      <li><a href="/category/kids">少儿</a></li>
+      <li><a href="/category/documentary">纪录片</a></li>
+      <li><a href="/category/international">国际</a></li>
+    </ul>
+  </nav>
+
+  <main class="main-container">
+    <div class="content-header">
+      <h2 class="section-title">All Channels <span class="channel-count">(28)</span></h2>
+      <button class="btn btn-secondary" onclick="toggleBatchMode()" id="batchModeBtn">
+        ☑️ Batch Select
+      </button>
+    </div>
+
+    <!-- Batch Actions Bar -->
+    <div class="batch-bar" id="batchBar">
+      <div class="batch-info">
+        <strong id="selectedCount">0</strong> selected
+      </div>
+      <div class="batch-actions">
+        <button class="batch-btn batch-btn-secondary" onclick="selectAll()">Select All</button>
+        <button class="batch-btn batch-btn-secondary" onclick="clearSelection()">Clear</button>
+        <button class="batch-btn batch-btn-primary" onclick="addSelectedToFavorites()">☆ Add to Favorites</button>
+      </div>
+    </div>
+
+    <div class="channel-grid" id="channelGrid">
+      <div class="channel-card" onclick="location.href='/channel/cctv1'">
+        <div class="channel-checkbox" onclick="toggleCheckbox(event, this)"></div>
+        <button class="star-btn not-starred" onclick="toggleStar(event, this, 'cctv1', 'CCTV-1 综合频道', '央视')">☆</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/e/e5/CCTV-1.png" alt="CCTV-1" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">CCTV-1 综合频道</div>
+          <div class="channel-group">央视</div>
+        </div>
+      </div>
+
+      <div class="channel-card" onclick="location.href='/channel/cctv2'">
+        <div class="channel-checkbox" onclick="toggleCheckbox(event, this)"></div>
+        <button class="star-btn not-starred" onclick="toggleStar(event, this, 'cctv2', 'CCTV-2 财经频道', '央视')">☆</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/c/cf/CCTV-2.png" alt="CCTV-2" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">CCTV-2 财经频道</div>
+          <div class="channel-group">央视</div>
+        </div>
+      </div>
+
+      <div class="channel-card" onclick="location.href='/channel/cctv3'">
+        <div class="channel-checkbox" onclick="toggleCheckbox(event, this)"></div>
+        <button class="star-btn not-starred" onclick="toggleStar(event, this, 'cctv3', 'CCTV-3 综艺频道', '央视')">☆</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/3/3d/CCTV-3.png" alt="CCTV-3" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">CCTV-3 综艺频道</div>
+          <div class="channel-group">央视</div>
+        </div>
+      </div>
+
+      <div class="channel-card" onclick="location.href='/channel/cctv4'">
+        <div class="channel-checkbox" onclick="toggleCheckbox(event, this)"></div>
+        <button class="star-btn not-starred" onclick="toggleStar(event, this, 'cctv4', 'CCTV-4 中文国际', '央视')">☆</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/a/a5/CCTV-4.png" alt="CCTV-4" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">CCTV-4 中文国际</div>
+          <div class="channel-group">央视</div>
+        </div>
+      </div>
+
+      <div class="channel-card" onclick="location.href='/channel/cctv5'">
+        <div class="channel-checkbox" onclick="toggleCheckbox(event, this)"></div>
+        <button class="star-btn not-starred" onclick="toggleStar(event, this, 'cctv5', 'CCTV-5 体育频道', '体育')">☆</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/4/4f/CCTV-5.png" alt="CCTV-5" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">CCTV-5 体育频道</div>
+          <div class="channel-group">体育</div>
+        </div>
+      </div>
+
+      <div class="channel-card" onclick="location.href='/channel/cctv5plus'">
+        <div class="channel-checkbox" onclick="toggleCheckbox(event, this)"></div>
+        <button class="star-btn not-starred" onclick="toggleStar(event, this, 'cctv5plus', 'CCTV-5+ 体育赛事', '体育')">☆</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/9/9f/CCTV-5+.png" alt="CCTV-5+" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">CCTV-5+ 体育赛事</div>
+          <div class="channel-group">体育</div>
+        </div>
+      </div>
+
+      <div class="channel-card" onclick="location.href='/channel/cctv6'">
+        <div class="channel-checkbox" onclick="toggleCheckbox(event, this)"></div>
+        <button class="star-btn not-starred" onclick="toggleStar(event, this, 'cctv6', 'CCTV-6 电影频道', '电影')">☆</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/3/33/CCTV-6.png" alt="CCTV-6" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">CCTV-6 电影频道</div>
+          <div class="channel-group">电影</div>
+        </div>
+      </div>
+
+      <div class="channel-card" onclick="location.href='/channel/cctv7'">
+        <div class="channel-checkbox" onclick="toggleCheckbox(event, this)"></div>
+        <button class="star-btn not-starred" onclick="toggleStar(event, this, 'cctv7', 'CCTV-7 国防军事', '军事')">☆</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/f/f0/CCTV-7.png" alt="CCTV-7" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">CCTV-7 国防军事</div>
+          <div class="channel-group">军事</div>
+        </div>
+      </div>
+
+      <div class="channel-card" onclick="location.href='/channel/cctv8'">
+        <div class="channel-checkbox" onclick="toggleCheckbox(event, this)"></div>
+        <button class="star-btn not-starred" onclick="toggleStar(event, this, 'cctv8', 'CCTV-8 电视剧', '电视剧')">☆</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/7/75/CCTV-8.png" alt="CCTV-8" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">CCTV-8 电视剧</div>
+          <div class="channel-group">电视剧</div>
+        </div>
+      </div>
+
+      <div class="channel-card" onclick="location.href='/channel/cctv9'">
+        <div class="channel-checkbox" onclick="toggleCheckbox(event, this)"></div>
+        <button class="star-btn not-starred" onclick="toggleStar(event, this, 'cctv9', 'CCTV-9 纪录频道', '纪录片')">☆</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/6/65/CCTV-9.png" alt="CCTV-9" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">CCTV-9 纪录频道</div>
+          <div class="channel-group">纪录片</div>
+        </div>
+      </div>
+
+      <div class="channel-card" onclick="location.href='/channel/cctv10'">
+        <div class="channel-checkbox" onclick="toggleCheckbox(event, this)"></div>
+        <button class="star-btn not-starred" onclick="toggleStar(event, this, 'cctv10', 'CCTV-10 科教频道', '科教')">☆</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/2/26/CCTV-10.png" alt="CCTV-10" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">CCTV-10 科教频道</div>
+          <div class="channel-group">科教</div>
+        </div>
+      </div>
+
+      <div class="channel-card" onclick="location.href='/channel/cctv11'">
+        <div class="channel-checkbox" onclick="toggleCheckbox(event, this)"></div>
+        <button class="star-btn not-starred" onclick="toggleStar(event, this, 'cctv11', 'CCTV-11 戏曲频道', '戏曲')">☆</button>
+        <div class="channel-poster">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/c/cf/CCTV-11.png" alt="CCTV-11" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+        </div>
+        <div class="channel-info">
+          <div class="channel-name">CCTV-11 戏曲频道</div>
+          <div class="channel-group">戏曲</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pagination">
+      <span class="current">1</span>
+      <a href="?page=2">2</a>
+      <a href="?page=3">3</a>
+      <a href="?page=2">Next ›</a>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <footer class="page-footer">
+    <div class="footer-content">
+      <p class="footer-copyright">&copy; 2026 IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+      
+      <div class="footer-links">
+        <a href="/tutorial">How to Watch on TV Devices</a>
+        <a href="/sitemap.xml">Sitemap</a>
+        <a href="/robots.txt">Robots</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="mailto:support@iptv-search.com">Contact Us</a>
+      </div>
+      
+      <div class="footer-badges">
+        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
+        </a>
+        <span>This site is powered by Cloudflare for acceleration and security</span>
+      </div>
+      
+      <div class="footer-disclaimer">
+        All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.selectLanguageTag.show = true;
+        translate.selectLanguageTag.documentId = 'translate';
+        translate.language.setLocal('english');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+    initTranslate();
+
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      themeToggle.textContent = next === 'dark' ? '🌙' : '☀️';
+    });
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggle.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+
+    // Language selector - translate.js handles this automatically
+
+    // Favorites storage
+    const FAVORITES_KEY = 'iptv_favorites';
+    let batchMode = false;
+    
+    function getFavorites() {
+      try {
+        return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
+      } catch { return []; }
+    }
+
+    function saveFavorites(favorites) {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+      localStorage.setItem(FAVORITES_KEY + '_update', Date.now().toString());
+    }
+
+    function toggleStar(event, btn, channelHash, channelName, groupTitle) {
+      event.stopPropagation();
+      const favorites = getFavorites();
+      const index = favorites.findIndex(f => f.channel_hash === channelHash);
+      
+      if (index > -1) {
+        favorites.splice(index, 1);
+        btn.classList.remove('starred');
+        btn.classList.add('not-starred');
+        btn.textContent = '☆';
+        showToast('Removed from favorites');
+      } else {
+        favorites.push({
+          channel_hash: channelHash,
+          channel_name: channelName,
+          group_title: groupTitle
+        });
+        btn.classList.remove('not-starred');
+        btn.classList.add('starred');
+        btn.textContent = '★';
+        showToast('Added to favorites');
+      }
+      
+      saveFavorites(favorites);
+    }
+
+    // Batch mode
+    function toggleBatchMode() {
+      batchMode = !batchMode;
+      const grid = document.getElementById('channelGrid');
+      const batchBar = document.getElementById('batchBar');
+      const batchBtn = document.getElementById('batchModeBtn');
+      
+      if (batchMode) {
+        grid.classList.add('batch-mode');
+        batchBar.classList.add('active');
+        batchBtn.textContent = '✓ Exit Batch';
+        batchBtn.classList.add('btn-primary');
+        batchBtn.classList.remove('btn-secondary');
+      } else {
+        grid.classList.remove('batch-mode');
+        batchBar.classList.remove('active');
+        batchBtn.textContent = '☑ Batch Select';
+        batchBtn.classList.remove('btn-primary');
+        batchBtn.classList.add('btn-secondary');
+        clearSelection();
+      }
+    }
+
+    function toggleCheckbox(event, checkbox) {
+      event.stopPropagation();
+      const card = checkbox.closest('.channel-card');
+      card.classList.toggle('selected');
+      updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
+      const selected = document.querySelectorAll('.channel-card.selected').length;
+      document.getElementById('selectedCount').textContent = selected;
+    }
+
+    function selectAll() {
+      document.querySelectorAll('.channel-card').forEach(card => {
+        card.classList.add('selected');
+      });
+      updateSelectedCount();
+    }
+
+    function clearSelection() {
+      document.querySelectorAll('.channel-card.selected').forEach(card => {
+        card.classList.remove('selected');
+      });
+      updateSelectedCount();
+    }
+
+    function addSelectedToFavorites() {
+      const favorites = getFavorites();
+      const selectedCards = document.querySelectorAll('.channel-card.selected');
+      let addedCount = 0;
+      
+      selectedCards.forEach(card => {
+        const starBtn = card.querySelector('.star-btn');
+        const channelHash = starBtn.getAttribute('onclick').match(/'([^']+)'/)[1];
+        const channelName = card.querySelector('.channel-name').textContent;
+        const groupTitle = card.querySelector('.channel-group').textContent;
+        
+        if (!favorites.some(f => f.channel_hash === channelHash)) {
+          favorites.push({ channel_hash: channelHash, channel_name: channelName, group_title: groupTitle });
+          addedCount++;
+          // Mark as starred
+          starBtn.classList.remove('not-starred');
+          starBtn.classList.add('starred');
+          starBtn.textContent = '★';
+        }
+      });
+      
+      saveFavorites(favorites);
+      showToast(`Added ${addedCount} channels to favorites`);
+      toggleBatchMode();
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // Initialize star buttons based on favorites
+    function initStarButtons() {
+      const favorites = getFavorites();
+      document.querySelectorAll('.star-btn').forEach(btn => {
+        const channelHash = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+        const isFavorited = favorites.some(f => f.channel_hash === channelHash);
+        if (isFavorited) {
+          btn.classList.remove('not-starred');
+          btn.classList.add('starred');
+          btn.textContent = '★';
+        }
+      });
+    }
+    initStarButtons();
+  </script>
+</body>
+</html>

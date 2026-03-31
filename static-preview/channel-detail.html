@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CCTV-1 综合频道 - IPTV Search</title>
+  <meta name="description" content="Watch CCTV-1 综合频道 live. Free IPTV streaming. No registration required.">
+  <link rel="canonical" href="https://www.iptv-search.com/channel/cctv1">
+  <meta property="og:title" content="CCTV-1 综合频道 - Watch Live">
+  <meta property="og:description" content="Watch CCTV-1 live streaming for free">
+  <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/zh/e/e5/CCTV-1.png">
+  <meta property="og:type" content="video.other">
+  
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TelevisionChannel",
+    "name": "CCTV-1 综合频道",
+    "url": "https://www.iptv-search.com/channel/cctv1",
+    "genre": "央视",
+    "image": "https://upload.wikimedia.org/wikipedia/zh/e/e5/CCTV-1.png"
+  }
+  </script>
+  
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-card: #1a1a1a;
+      --bg-hover: #252525;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --accent: #e50914;
+      --accent-hover: #f6121d;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.5);
+      --radius: 12px;
+      --transition: 0.2s ease;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #f0f0f0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border: rgba(0,0,0,0.08);
+      --border-hover: rgba(0,0,0,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* Header */
+    .header { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+    .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: 700; }
+    .logo-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+    .logo-text span { color: var(--accent); }
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .icon-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 50%; font-size: 1.1rem; transition: all var(--transition); }
+    .icon-btn:hover { background: var(--bg-hover); transform: scale(1.05); }
+    /* Language Selector (translate.js) */
+    #translate {
+      position: relative;
+      display: inline-block;
+    }
+
+    #translateSelectLanguage {
+      appearance: none;
+      -webkit-appearance: none;
+      padding: 0.5rem 2rem 0.5rem 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      min-width: 100px;
+    }
+
+    #translateSelectLanguage:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
+    }
+
+    #translateSelectLanguage:hover {
+      border-color: var(--border-hover);
+    }
+
+    /* Custom dropdown arrow */
+    #translate::after {
+      content: "";
+      position: absolute;
+      right: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--text-secondary);
+      pointer-events: none;
+      transition: border-color var(--transition);
+    }
+
+    #translate:hover::after {
+      border-top-color: var(--accent);
+    }
+
+    /* Search Box */
+    .search-box {
+      position: relative;
+      width: 300px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.6rem 1rem 0.6rem 2.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
+    }
+
+    .search-box::before {
+      content: "🔍";
+      position: absolute;
+      left: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.9rem;
+      opacity: 0.5;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb { max-width: 1200px; margin: 0 auto; padding: 1.5rem 2rem 0; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); }
+    .breadcrumb a { color: var(--accent); }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { opacity: 0.5; }
+
+    /* Main Content */
+    .main-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+    /* Channel Hero */
+    .channel-hero { display: grid; grid-template-columns: 300px 1fr; gap: 2rem; margin-bottom: 2rem; }
+    @media (max-width: 768px) {
+      .channel-hero { grid-template-columns: 1fr; }
+    }
+
+    .channel-poster-large {
+      aspect-ratio: 16/10;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .channel-poster-large img { width: 100%; height: 100%; object-fit: contain; padding: 2rem; }
+    .channel-poster-large .placeholder { font-size: 6rem; opacity: 0.2; }
+
+    .channel-details { display: flex; flex-direction: column; justify-content: center; }
+    .channel-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .channel-badge { padding: 0.3rem 0.8rem; background: var(--accent); border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+    .channel-source { font-size: 0.85rem; color: var(--text-muted); }
+    .channel-title { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .channel-subtitle { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 1rem; }
+
+    .channel-stats { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; }
+    .stat { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-secondary); }
+    .stat-icon { font-size: 1rem; }
+
+    /* Action Buttons */
+    .action-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.8rem 1.5rem; border-radius: var(--radius); font-size: 1rem; font-weight: 600; border: none; transition: all var(--transition); }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+
+    /* Info Card */
+    .info-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; }
+    .info-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-secondary); }
+    .info-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--text-muted); font-size: 0.9rem; }
+    .info-value { font-weight: 500; font-size: 0.9rem; }
+
+    /* How to Watch */
+    .how-to-watch { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; }
+    .how-to-watch h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
+    .step { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-start; }
+    .step:last-child { margin-bottom: 0; }
+    .step-number { width: 28px; height: 28px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+    .step-content h4 { font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .step-content p { font-size: 0.85rem; color: var(--text-secondary); }
+
+    /* Related Channels */
+    .related-section { margin-top: 3rem; }
+    .related-section h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+    .related-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.75rem; display: flex; gap: 0.75rem; align-items: center; transition: all var(--transition); cursor: pointer; }
+    .related-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .related-card img { width: 48px; height: 48px; object-fit: contain; border-radius: 4px; }
+    .related-card .placeholder { width: 48px; height: 48px; background: var(--bg-secondary); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; opacity: 0.3; }
+    .related-card-info { flex: 1; min-width: 0; }
+    .related-card-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .related-card-group { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Copy Toast */
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; padding: 1rem 2rem; border-radius: var(--radius); font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 1000; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Footer */
+    /* Footer */
+    .page-footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 1.25rem;
+      margin-top: 3rem;
+    }
+
+    .footer-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .footer-copyright {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      font-size: 0.75rem;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+
+    .footer-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .footer-badges {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.625rem;
+      margin-top: 1.25rem;
+    }
+
+    .footer-badges img {
+      height: 12px;
+      width: auto;
+      opacity: 0.8;
+      transition: opacity var(--transition);
+    }
+
+    .footer-badges img:hover {
+      opacity: 1;
+    }
+
+    .footer-badges span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .footer-disclaimer {
+      margin-top: 1rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <div class="logo-icon">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="tvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="36" height="36" rx="6" fill="url(#tvGradient)" />
+          <rect x="4" y="8" width="28" height="18" rx="2" fill="#0a0a0a" />
+          <path d="M14 12 L24 17 L14 22 Z" fill="#fff" />
+          <rect x="10" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+          <rect x="20" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+        </svg>
+      </div>
+        <div class="logo-text">IPTV<span>Search</span></div>
+      </a>
+      <div class="search-box">
+        <input type="text" id="headerSearch" placeholder="Search channels..." oninput="handleHeaderSearch()">
+      </div>
+      <div class="header-actions">
+        <a href="/favorites" class="icon-btn" title="Favorites">⭐</a>
+        <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+        <div id="translate"></div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb">
+    <a href="/">Home</a>
+    <span>›</span>
+    <a href="/category/cctv">央视</a>
+    <span>›</span>
+    <span>CCTV-1</span>
+  </nav>
+
+  <main class="main-container">
+    <!-- Channel Hero -->
+    <div class="channel-hero">
+      <div class="channel-poster-large">
+        <img src="https://upload.wikimedia.org/wikipedia/zh/e/e5/CCTV-1.png" alt="CCTV-1" onerror="this.style.display='none'">
+        <div class="placeholder" style="display:none">📺</div>
+      </div>
+      <div class="channel-details">
+        <div class="channel-meta">
+          <span class="channel-badge">LIVE</span>
+          <span class="channel-source">Source: 中国广播电视总台</span>
+        </div>
+        <h1 class="channel-title">CCTV-1 综合频道</h1>
+        <p class="channel-subtitle">China Central Television - General Channel</p>
+        
+        <div class="channel-stats">
+          <div class="stat"><span class="stat-icon">📺</span> <span>央视</span></div>
+          <div class="stat"><span class="stat-icon">🌍</span> <span>China</span></div>
+          <div class="stat"><span class="stat-icon">🔄</span> <span>Updated daily</span></div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn btn-primary" onclick="playChannel()">
+            <span>▶</span> Watch Now
+          </button>
+          <button class="btn btn-secondary" onclick="copyM3U()">
+            <span>📋</span> Copy M3U Link
+          </button>
+          <button class="btn btn-secondary" id="detailStarBtn" onclick="toggleChannelStar()">
+            <span>☆</span> <span id="starText">Add to Favorites</span>
+          </button>
+          <a href="/plans" class="btn btn-secondary">
+            <span>💎</span> Subscription Plans
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Card -->
+    <div class="info-card">
+      <h3>Channel Information</h3>
+      <div class="info-row">
+        <span class="info-label">Channel Name</span>
+        <span class="info-value">CCTV-1 综合频道</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Category</span>
+        <span class="info-value"><a href="/category/cctv" style="color: var(--accent)">央视</a></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Country/Region</span>
+        <span class="info-value">🇨🇳 China</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Source</span>
+        <span class="info-value">中国广播电视总台</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Last Updated</span>
+        <span class="info-value">March 31, 2026</span>
+      </div>
+    </div>
+
+    <!-- How to Watch -->
+    <div class="how-to-watch">
+      <h3>How to Watch</h3>
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Copy the M3U Link</h4>
+          <p>Click the "Copy M3U Link" button above to copy the playlist URL to your clipboard.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>Open IPTV Player</h4>
+          <p>Open your favorite IPTV player (VLC, IPTV Smarters, GSE Smart IPTV, etc.).</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>Add Playlist</h4>
+          <p>Paste the M3U link into your player and start watching live TV!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Channels -->
+    <section class="related-section">
+      <h2>More from 央视</h2>
+      <div class="related-grid">
+        <div class="related-card" onclick="location.href='/channel/cctv2'">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/c/cf/CCTV-2.png" alt="CCTV-2" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="related-card-info">
+            <div class="related-card-name">CCTV-2 财经</div>
+            <div class="related-card-group">央视</div>
+          </div>
+        </div>
+        <div class="related-card" onclick="location.href='/channel/cctv3'">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/3/3d/CCTV-3.png" alt="CCTV-3" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="related-card-info">
+            <div class="related-card-name">CCTV-3 综艺</div>
+            <div class="related-card-group">央视</div>
+          </div>
+        </div>
+        <div class="related-card" onclick="location.href='/channel/cctv4'">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/a/a5/CCTV-4.png" alt="CCTV-4" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="related-card-info">
+            <div class="related-card-name">CCTV-4 中文国际</div>
+            <div class="related-card-group">央视</div>
+          </div>
+        </div>
+        <div class="related-card" onclick="location.href='/channel/cctv5'">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/4/4f/CCTV-5.png" alt="CCTV-5" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="related-card-info">
+            <div class="related-card-name">CCTV-5 体育</div>
+            <div class="related-card-group">体育</div>
+          </div>
+        </div>
+        <div class="related-card" onclick="location.href='/channel/cctv6'">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/3/33/CCTV-6.png" alt="CCTV-6" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="related-card-info">
+            <div class="related-card-name">CCTV-6 电影</div>
+            <div class="related-card-group">电影</div>
+          </div>
+        </div>
+        <div class="related-card" onclick="location.href='/channel/cctv7'">
+          <img src="https://upload.wikimedia.org/wikipedia/zh/f/f0/CCTV-7.png" alt="CCTV-7" onerror="this.style.display='none'">
+          <div class="placeholder" style="display:none">📺</div>
+          <div class="related-card-info">
+            <div class="related-card-name">CCTV-7 国防军事</div>
+            <div class="related-card-group">军事</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast">Copied to clipboard!</div>
+
+  <footer class="page-footer">
+    <div class="footer-content">
+      <p class="footer-copyright">&copy; 2026 IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+      
+      <div class="footer-links">
+        <a href="/tutorial">How to Watch on TV Devices</a>
+        <a href="/sitemap.xml">Sitemap</a>
+        <a href="/robots.txt">Robots</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="mailto:support@iptv-search.com">Contact Us</a>
+      </div>
+      
+      <div class="footer-badges">
+        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
+        </a>
+        <span>This site is powered by Cloudflare for acceleration and security</span>
+      </div>
+      
+      <div class="footer-disclaimer">
+        All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.selectLanguageTag.show = true;
+        translate.selectLanguageTag.documentId = 'translate';
+        translate.language.setLocal('english');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+    initTranslate();
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function playChannel() {
+      // In real implementation, this would redirect to /live/{code}/{hash}
+      showToast('Opening player...');
+      setTimeout(() => {
+        window.location.href = '/freesub';
+      }, 500);
+    }
+
+    function copyM3U() {
+      // In real implementation, this would copy the actual M3U URL
+      navigator.clipboard.writeText('https://www.iptv-search.com/sub/demo.m3u').then(() => {
+        showToast('M3U link copied!');
+      });
+    }
+
+    function shareChannel() {
+      if (navigator.share) {
+        navigator.share({
+          title: 'CCTV-1 综合频道 - IPTV Search',
+          text: 'Watch CCTV-1 live for free!',
+          url: window.location.href
+        });
+      } else {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          showToast('Link copied to clipboard!');
+        });
+      }
+    }
+
+    // Channel detail page specific channel hash
+    const CURRENT_CHANNEL_HASH = 'cctv1';
+    const CURRENT_CHANNEL_NAME = 'CCTV-1 综合频道';
+    const CURRENT_CHANNEL_GROUP = '央视';
+
+    // Favorites
+    const FAVORITES_KEY = 'iptv_favorites';
+    
+    function getFavorites() {
+      try {
+        return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
+      } catch { return []; }
+    }
+
+    function saveFavorites(favorites) {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+      localStorage.setItem(FAVORITES_KEY + '_update', Date.now().toString());
+    }
+
+    function toggleChannelStar() {
+      const favorites = getFavorites();
+      const index = favorites.findIndex(f => f.channel_hash === CURRENT_CHANNEL_HASH);
+      const starBtn = document.getElementById('detailStarBtn');
+      const starText = document.getElementById('starText');
+      
+      if (index > -1) {
+        favorites.splice(index, 1);
+        starBtn.querySelector('span').textContent = '☆';
+        starText.textContent = 'Add to Favorites';
+        showToast('Removed from favorites');
+      } else {
+        favorites.push({
+          channel_hash: CURRENT_CHANNEL_HASH,
+          channel_name: CURRENT_CHANNEL_NAME,
+          group_title: CURRENT_CHANNEL_GROUP
+        });
+        starBtn.querySelector('span').textContent = '★';
+        starText.textContent = 'Remove from Favorites';
+        showToast('Added to favorites');
+      }
+      
+      saveFavorites(favorites);
+    }
+
+    function initDetailStarButton() {
+      const favorites = getFavorites();
+      const isFavorited = favorites.some(f => f.channel_hash === CURRENT_CHANNEL_HASH);
+      const starBtn = document.getElementById('detailStarBtn');
+      const starText = document.getElementById('starText');
+      
+      if (isFavorited) {
+        starBtn.querySelector('span').textContent = '★';
+        starText.textContent = 'Remove from Favorites';
+      }
+    }
+
+    // Search functionality (demo data)
+    const allChannels = [
+      { hash: 'cctv1', name: 'CCTV-1 综合频道', group: '央视', logo: 'https://upload.wikimedia.org/wikipedia/zh/e/e5/CCTV-1.png' },
+      { hash: 'cctv2', name: 'CCTV-2 财经频道', group: '央视', logo: 'https://upload.wikimedia.org/wikipedia/zh/c/cf/CCTV-2.png' },
+      { hash: 'cctv3', name: 'CCTV-3 综艺频道', group: '央视', logo: 'https://upload.wikimedia.org/wikipedia/zh/3/3d/CCTV-3.png' },
+      { hash: 'cctv4', name: 'CCTV-4 中文国际', group: '央视', logo: 'https://upload.wikimedia.org/wikipedia/zh/a/a5/CCTV-4.png' },
+      { hash: 'cctv5', name: 'CCTV-5 体育频道', group: '体育', logo: 'https://upload.wikimedia.org/wikipedia/zh/4/4f/CCTV-5.png' },
+      { hash: 'hunan', name: '湖南卫视', group: '卫视频道', logo: 'https://upload.wikimedia.org/wikipedia/zh/1/17/Hunan_TV.png' },
+      { hash: 'hbo', name: 'HBO', group: '国际', logo: 'https://upload.wikimedia.org/wikipedia/commons/3/37/HBO_logo.svg' },
+      { hash: 'espn', name: 'ESPN', group: '体育', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/20/ESPN_logo.svg' },
+    ];
+
+    function handleHeaderSearch() {
+      const query = document.getElementById('headerSearch').value.trim();
+      if (query.length >= 2) {
+        // In real implementation, redirect to search results or show dropdown
+        // For now, redirect to homepage with search param
+        window.location.href = '/?search=' + encodeURIComponent(query);
+      }
+    }
+
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      themeToggle.textContent = next === 'dark' ? '🌙' : '☀️';
+    });
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggle.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+
+    // Language selector - translate.js handles this automatically
+
+    // Initialize star button state
+    initDetailStarButton();
+  </script>
+</body>
+</html>

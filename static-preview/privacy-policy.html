@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - IPTV Search</title>
+  <meta name="description" content="IPTV Search Privacy Policy - Learn how we collect, use, and protect your information.">
+  <style>
+    /* ==================== CSS VARIABLES ==================== */
+    :root {
+      --accent: #e50914;
+      --accent-hover: #ff1a1a;
+      --radius: 8px;
+      --transition: 0.2s ease;
+      
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-card: #1a1a1a;
+      --bg-hover: #222222;
+      --text-primary: #ffffff;
+      --text-secondary: #999999;
+      --text-muted: #666666;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #f0f0f0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border: rgba(0,0,0,0.08);
+      --border-hover: rgba(0,0,0,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    /* ==================== RESET & BASE ==================== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ==================== HEADER ==================== */
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+    }
+
+    .logo-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .logo-text span { color: var(--accent); }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Icon Buttons */
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      font-size: 1.1rem;
+      transition: all var(--transition);
+    }
+
+    .icon-btn:hover {
+      background: var(--bg-hover);
+      transform: scale(1.05);
+    }
+
+    /* Language Selector (translate.js) */
+    #translate {
+      position: relative;
+      display: inline-block;
+    }
+
+    #translateSelectLanguage {
+      appearance: none;
+      -webkit-appearance: none;
+      padding: 0.5rem 2rem 0.5rem 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      min-width: 100px;
+    }
+
+    #translateSelectLanguage:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
+    }
+
+    #translateSelectLanguage:hover {
+      border-color: var(--border-hover);
+    }
+
+    /* Custom dropdown arrow */
+    #translate::after {
+      content: "";
+      position: absolute;
+      right: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--text-secondary);
+      pointer-events: none;
+      transition: border-color var(--transition);
+    }
+
+    #translate:hover::after {
+      border-top-color: var(--accent);
+    }
+
+    /* ==================== MAIN CONTENT ==================== */
+    .main-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .page-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-header .last-updated {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .content-section {
+      margin-bottom: 2rem;
+    }
+
+    .content-section h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
+    .content-section p {
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+
+    .content-section ul {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+
+    .content-section li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* ==================== FOOTER ==================== */
+    .page-footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 1.25rem;
+      margin-top: 3rem;
+    }
+
+    .footer-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .footer-copyright {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      font-size: 0.75rem;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+
+    .footer-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .footer-badges {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.625rem;
+      margin-top: 1.25rem;
+    }
+
+    .footer-badges img {
+      height: 12px;
+      width: auto;
+      opacity: 0.8;
+      transition: opacity var(--transition);
+    }
+
+    .footer-badges img:hover {
+      opacity: 1;
+    }
+
+    .footer-badges span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .footer-disclaimer {
+      margin-top: 1rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: 768px) {
+      .header-inner {
+        flex-wrap: wrap;
+      }
+      .main-container {
+        padding: 2rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <div class="logo-icon">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="tvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="36" height="36" rx="6" fill="url(#tvGradient)" />
+            <rect x="4" y="8" width="28" height="18" rx="2" fill="#0a0a0a" />
+            <path d="M14 12 L24 17 L14 22 Z" fill="#fff" />
+            <rect x="10" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+            <rect x="20" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+          </svg>
+        </div>
+        <div class="logo-text">IPTV<span>Search</span></div>
+      </a>
+      
+      <div class="header-actions">
+        <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+        <div id="translate"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    <div class="page-header">
+      <h1>Privacy Policy</h1>
+      <p class="last-updated">Last updated: January 1, 2026</p>
+    </div>
+
+    <div class="content-section">
+      <h2>1. Information We Collect</h2>
+      <p>IPTV Search does not collect personal information. We only collect anonymous usage data through Cloudflare Analytics to improve our service. This includes:</p>
+      <ul>
+        <li>Pages visited and time spent on each page</li>
+        <li>General geographic location (country/region level only)</li>
+        <li>Browser type and device information</li>
+        <li>Referring websites</li>
+      </ul>
+      <p>We do not collect your IP address, name, email, or any personally identifiable information.</p>
+    </div>
+
+    <div class="content-section">
+      <h2>2. How We Use Information</h2>
+      <p>Any information collected is used solely for:</p>
+      <ul>
+        <li>Improving website performance and user experience</li>
+        <li>Understanding which channels and content are most popular</li>
+        <li>Detecting and preventing technical issues</li>
+      </ul>
+    </div>
+
+    <div class="content-section">
+      <h2>3. Cookies</h2>
+      <p>We use minimal cookies for:</p>
+      <ul>
+        <li>Theme preference (dark/light mode)</li>
+        <li>Language preference</li>
+        <li>Favorites functionality (stored locally in your browser)</li>
+      </ul>
+      <p>We do not use tracking or advertising cookies.</p>
+    </div>
+
+    <div class="content-section">
+      <h2>4. Third-Party Services</h2>
+      <p>We use the following third-party services:</p>
+      <ul>
+        <li><strong>Cloudflare:</strong> For security and performance optimization</li>
+        <li><strong>Microsoft Edge Translate:</strong> For page translation functionality</li>
+        <li><strong>Cloudflare D1:</strong> For channel database storage</li>
+      </ul>
+    </div>
+
+    <div class="content-section">
+      <h2>5. Data Retention</h2>
+      <p>Anonymous analytics data is retained for 30 days. Channel information is updated daily from public sources.</p>
+    </div>
+
+    <div class="content-section">
+      <h2>6. Your Rights</h2>
+      <p>Since we don't collect personal data, there's nothing to delete or export. Your favorites are stored locally in your browser and can be cleared by clearing your browser data.</p>
+    </div>
+
+    <div class="content-section">
+      <h2>7. Contact Us</h2>
+      <p>For privacy-related questions, please contact us at:</p>
+      <p><a href="mailto:support@iptv-search.com" style="color: var(--accent);">support@iptv-search.com</a></p>
+    </div>
+
+    <div class="content-section">
+      <h2>8. Changes to This Policy</h2>
+      <p>We may update this privacy policy from time to time. Any changes will be posted on this page with an updated revision date.</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="page-footer">
+    <div class="footer-content">
+      <p class="footer-copyright">&copy; 2026 IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+      
+      <div class="footer-links">
+        <a href="/tutorial">How to Watch on TV Devices</a>
+        <a href="/sitemap.xml">Sitemap</a>
+        <a href="/robots.txt">Robots</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="mailto:support@iptv-search.com">Contact Us</a>
+      </div>
+      
+      <div class="footer-badges">
+        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
+        </a>
+        <span>This site is powered by Cloudflare for acceleration and security</span>
+      </div>
+      
+      <div class="footer-disclaimer">
+        All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Theme Toggle Script -->
+  <script>
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      themeToggle.textContent = next === 'dark' ? '🌙' : '☀️';
+    });
+
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggle.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+  </script>
+
+  <!-- Translate.js -->
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.selectLanguageTag.show = true;
+        translate.selectLanguageTag.documentId = 'translate';
+        translate.language.setLocal('english');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+    initTranslate();
+  </script>
+</body>
+</html>

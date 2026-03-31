@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Watch on TV Devices - IPTV Search</title>
+  <meta name="description" content="Learn how to watch free IPTV channels on your TV, smartphone, tablet, and computer.">
+  <style>
+    /* ==================== CSS VARIABLES ==================== */
+    :root {
+      --accent: #e50914;
+      --accent-hover: #ff1a1a;
+      --radius: 8px;
+      --transition: 0.2s ease;
+      
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-card: #1a1a1a;
+      --bg-hover: #222222;
+      --text-primary: #ffffff;
+      --text-secondary: #999999;
+      --text-muted: #666666;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #f0f0f0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border: rgba(0,0,0,0.08);
+      --border-hover: rgba(0,0,0,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ==================== HEADER ==================== */
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+    }
+
+    .logo-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .logo-text span { color: var(--accent); }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      font-size: 1.1rem;
+      transition: all var(--transition);
+    }
+
+    .icon-btn:hover {
+      background: var(--bg-hover);
+      transform: scale(1.05);
+    }
+
+    #translate {
+      position: relative;
+      display: inline-block;
+    }
+
+    #translateSelectLanguage {
+      appearance: none;
+      -webkit-appearance: none;
+      padding: 0.5rem 2rem 0.5rem 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      min-width: 100px;
+    }
+
+    #translateSelectLanguage:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
+    }
+
+    #translateSelectLanguage:hover {
+      border-color: var(--border-hover);
+    }
+
+    #translate::after {
+      content: "";
+      position: absolute;
+      right: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--text-secondary);
+      pointer-events: none;
+      transition: border-color var(--transition);
+    }
+
+    #translate:hover::after {
+      border-top-color: var(--accent);
+    }
+
+    /* ==================== MAIN CONTENT ==================== */
+    .main-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .page-header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .page-header p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Device Cards */
+    .devices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .device-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+      transition: all var(--transition);
+    }
+
+    .device-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .device-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .device-card h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .device-card p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    /* Guide Sections */
+    .guide-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .guide-section h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .guide-section h2 .icon {
+      font-size: 1.5rem;
+    }
+
+    .guide-steps {
+      list-style: none;
+      padding: 0;
+    }
+
+    .guide-steps li {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .guide-steps li:last-child {
+      border-bottom: none;
+    }
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    .step-content h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .step-content p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* Apps List */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .app-item {
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .app-item .app-icon {
+      font-size: 1.5rem;
+    }
+
+    .app-item .app-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .app-item .app-platform {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Tips */
+    .tips-section {
+      background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+
+    .tips-section h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .tips-section ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .tips-section li {
+      padding: 0.5rem 0;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tips-section li::before {
+      content: "✓";
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    /* ==================== FOOTER ==================== */
+    .page-footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 1.25rem;
+      margin-top: 3rem;
+    }
+
+    .footer-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .footer-copyright {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      font-size: 0.75rem;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+
+    .footer-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .footer-badges {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.625rem;
+      margin-top: 1.25rem;
+    }
+
+    .footer-badges img {
+      height: 12px;
+      width: auto;
+      opacity: 0.8;
+      transition: opacity var(--transition);
+    }
+
+    .footer-badges img:hover {
+      opacity: 1;
+    }
+
+    .footer-badges span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .footer-disclaimer {
+      margin-top: 1rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: 768px) {
+      .header-inner {
+        flex-wrap: wrap;
+      }
+      .main-container {
+        padding: 2rem 1rem;
+      }
+      .page-header h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <div class="logo-icon">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="tvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="36" height="36" rx="6" fill="url(#tvGradient)" />
+            <rect x="4" y="8" width="28" height="18" rx="2" fill="#0a0a0a" />
+            <path d="M14 12 L24 17 L14 22 Z" fill="#fff" />
+            <rect x="10" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+            <rect x="20" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+          </svg>
+        </div>
+        <div class="logo-text">IPTV<span>Search</span></div>
+      </a>
+      
+      <div class="header-actions">
+        <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+        <div id="translate"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    <div class="page-header">
+      <h1>How to Watch on TV Devices</h1>
+      <p>Learn how to watch free IPTV channels on your TV, smartphone, tablet, or computer with any M3U-compatible player.</p>
+    </div>
+
+    <!-- Supported Devices -->
+    <div class="devices-grid">
+      <div class="device-card">
+        <div class="device-icon">📺</div>
+        <h3>Smart TV</h3>
+        <p>Samsung, LG, TCL, Hisense, Android TV, Apple TV</p>
+      </div>
+      <div class="device-card">
+        <div class="device-icon">📱</div>
+        <h3>Mobile</h3>
+        <p>iPhone, iPad, Android phones and tablets</p>
+      </div>
+      <div class="device-card">
+        <div class="device-icon">💻</div>
+        <h3>Computer</h3>
+        <p>Windows PC, Mac, Linux, Chromecast</p>
+      </div>
+      <div class="device-card">
+        <div class="device-icon">🎮</div>
+        <h3>Gaming</h3>
+        <p>Firestick, NVIDIA Shield, Xbox, PlayStation</p>
+      </div>
+    </div>
+
+    <!-- Quick Start Guide -->
+    <div class="guide-section">
+      <h2><span class="icon">🚀</span> Quick Start Guide</h2>
+      <ul class="guide-steps">
+        <li>
+          <span class="step-number">1</span>
+          <div class="step-content">
+            <h4>Get a Subscription Code</h4>
+            <p>Purchase a subscription code or use the free trial to get access to premium channels. <a href="/plans" style="color: var(--accent);">View subscription plans →</a></p>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">2</span>
+          <div class="step-content">
+            <h4>Choose Your Channel</h4>
+            <p>Browse or search for the channel you want to watch and click on it.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">3</span>
+          <div class="step-content">
+            <h4>Click Play</h4>
+            <p>Your browser will open the stream directly, or copy the M3U link for external players.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">4</span>
+          <div class="step-content">
+            <h4>Enjoy!</h4>
+            <p>Sit back and enjoy thousands of live TV channels from around the world.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Recommended Apps -->
+    <div class="guide-section">
+      <h2><span class="icon">📲</span> Recommended Apps</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 1rem;">Download one of these free apps to watch on your TV or mobile device:</p>
+      
+      <div class="apps-grid">
+        <div class="app-item">
+          <span class="app-icon">📺</span>
+          <div>
+            <div class="app-name">VLC Media Player</div>
+            <div class="app-platform">All platforms</div>
+          </div>
+        </div>
+        <div class="app-item">
+          <span class="app-icon">🎬</span>
+          <div>
+            <div class="app-name">IPTV Smarters</div>
+            <div class="app-platform">Android, iOS, Smart TV</div>
+          </div>
+        </div>
+        <div class="app-item">
+          <span class="app-icon">🌐</span>
+          <div>
+            <div class="app-name">Tivimate</div>
+            <div class="app-platform">Android, Amazon Fire</div>
+          </div>
+        </div>
+        <div class="app-item">
+          <span class="app-icon">🍎</span>
+          <div>
+            <div class="app-name">GSE IPTV</div>
+            <div class="app-platform">iOS, Apple TV</div>
+          </div>
+        </div>
+        <div class="app-item">
+          <span class="app-icon">🖥️</span>
+          <div>
+            <div class="app-name">PotPlayer</div>
+            <div class="app-platform">Windows</div>
+          </div>
+        </div>
+        <div class="app-item">
+          <span class="app-icon">📡</span>
+          <div>
+            <div class="app-name">Perfect Player</div>
+            <div class="app-platform">Android, Amazon Fire</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Using M3U Links -->
+    <div class="guide-section">
+      <h2><span class="icon">🔗</span> How to Use M3U Links</h2>
+      <ul class="guide-steps">
+        <li>
+          <span class="step-number">1</span>
+          <div class="step-content">
+            <h4>Get the M3U URL</h4>
+            <p>Click "Copy M3U Link" on any channel page to get the subscription URL.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">2</span>
+          <div class="step-content">
+            <h4>Open Your Player</h4>
+            <p>Open your preferred IPTV player app (VLC, IPTV Smarters, etc.)</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">3</span>
+          <div class="step-content">
+            <h4>Add the Playlist</h4>
+            <p>Go to Settings > Playlist > Add URL and paste the M3U link.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-number">4</span>
+          <div class="step-content">
+            <h4>Start Watching</h4>
+            <p>Select your channel from the playlist and start streaming!</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Tips -->
+    <div class="tips-section">
+      <h3>💡 Pro Tips</h3>
+      <ul>
+        <li>Use a stable internet connection (minimum 10Mbps recommended)</li>
+        <li>For best quality, use a wired Ethernet connection on Smart TVs</li>
+        <li>Save your M3U link in the app so you don't need to copy it every time</li>
+        <li>Some channels may require a valid subscription code to work</li>
+        <li>Channel availability depends on the source - some may be offline temporarily</li>
+      </ul>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="page-footer">
+    <div class="footer-content">
+      <p class="footer-copyright">&copy; 2026 IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+      
+      <div class="footer-links">
+        <a href="/tutorial">How to Watch on TV Devices</a>
+        <a href="/sitemap.xml">Sitemap</a>
+        <a href="/robots.txt">Robots</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="mailto:support@iptv-search.com">Contact Us</a>
+      </div>
+      
+      <div class="footer-badges">
+        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
+        </a>
+        <span>This site is powered by Cloudflare for acceleration and security</span>
+      </div>
+      
+      <div class="footer-disclaimer">
+        All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      themeToggle.textContent = next === 'dark' ? '🌙' : '☀️';
+    });
+
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggle.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.selectLanguageTag.show = true;
+        translate.selectLanguageTag.documentId = 'translate';
+        translate.language.setLocal('english');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+    initTranslate();
+  </script>
+</body>
+</html>
