@@ -2152,7 +2152,6 @@ export const HOME_HTML = `<!DOCTYPE html>
         const previewChannels = channels.slice(0, 6);
         const channelsHtml = previewChannels.map(ch => \`
           <div class="category-channel-item" onclick="handleCategoryChannelClick(event, '\${jsEncode(ch.channel_hash)}', '\${jsEncode(ch.channel_name)}', '\${jsEncode(ch.group_title || '')}', '\${jsEncode(groupName)}')">
-            \${ch.logo ? \`<img class="cat-ch-logo" src="\${escapeHtml(ch.logo)}" alt="\${escapeHtml(ch.channel_name)}" onerror="this.style.display='none'">\` : ''}
             <span class="cat-ch-name">\${escapeHtml(ch.channel_name)}</span>
           </div>
         \`).join('');
