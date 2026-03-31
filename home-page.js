@@ -2545,7 +2545,7 @@ export const HOME_HTML = `<!DOCTYPE html>
 
       // 构建 Logo HTML
       const logoHtml = channel && channel.logo
-        ? '<img src="' + escapeHtml(channel.logo) + '" alt="' + escapeHtml(name) + '" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;;this.nextElementSibling.style.background=&quot;#1a1a1a&quot;"><div class="cd-detail-logo-placeholder" style="display:none;width:80px;height:80px;background:#1a1a1a;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:32px;">📺</div>'
+        ? '<img src="' + escapeHtml(channel.logo) + '" alt="' + escapeHtml(name) + '" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;;this.nextElementSibling.style.background=&quot;#1a1a1a&quot;;"><div class="cd-detail-logo-placeholder" style="display:none;width:80px;height:80px;background:#1a1a1a;border-radius:12px;align-items:center;justify-content:center;font-size:32px;">📺</div>'
         : '<div class="cd-detail-logo-placeholder">📺</div>';
 
       // 构建详情内容 - 紧凑信息流
