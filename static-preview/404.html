@@ -307,11 +307,117 @@
       color: var(--accent);
     }
 
-    @media (max-width: 600px) {
-      .hero-404 { font-size: 6rem; }
-      .hero h1 { font-size: 1.5rem; }
-      .search-box { flex-direction: column; }
-      .search-box button { width: 100%; }
+    /* ==================== RESPONSIVE ==================== */
+    /* Mobile */
+    @media (max-width: 768px) {
+      .header {
+        padding: 0.75rem 1rem;
+      }
+      .header-inner {
+        justify-content: center;
+      }
+      .logo {
+        font-size: 1.25rem;
+      }
+      .hero {
+        padding: 3rem 1.5rem;
+        min-height: 50vh;
+      }
+      .hero-404 {
+        font-size: 5rem;
+      }
+      .hero h1 {
+        font-size: 1.5rem;
+      }
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+      .search-container {
+        max-width: 100%;
+      }
+      .search-box {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .search-box input {
+        padding: 0.875rem 1rem;
+        font-size: 0.95rem;
+      }
+      .search-box button {
+        width: 100%;
+        padding: 0.875rem;
+      }
+      .action-buttons {
+        flex-direction: column;
+        width: 100%;
+        max-width: 280px;
+      }
+      .action-buttons .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .main-container {
+        padding: 2rem 1rem;
+      }
+      .info-box {
+        padding: 1.5rem;
+      }
+      .info-box h2 {
+        font-size: 1.1rem;
+      }
+      .info-box p {
+        font-size: 0.9rem;
+      }
+      .category-tags {
+        gap: 0.5rem;
+      }
+      .category-tag {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+      }
+      .section-title {
+        font-size: 1.25rem;
+      }
+      .channel-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      }
+      .channel-card {
+        padding: 0.75rem;
+      }
+      .channel-card img,
+      .channel-card .placeholder {
+        width: 32px;
+        height: 32px;
+      }
+      .channel-card .name {
+        font-size: 0.85rem;
+      }
+      footer {
+        padding: 1.5rem 1rem;
+      }
+    }
+
+    /* Small Mobile */
+    @media (max-width: 480px) {
+      .hero {
+        padding: 2rem 1rem;
+      }
+      .hero-404 {
+        font-size: 4rem;
+      }
+      .hero h1 {
+        font-size: 1.25rem;
+      }
+      .hero-subtitle {
+        font-size: 0.9rem;
+      }
+      .channel-grid {
+        grid-template-columns: 1fr;
+      }
+      .section-title {
+        font-size: 1.1rem;
+      }
     }
   </style>
 </head>

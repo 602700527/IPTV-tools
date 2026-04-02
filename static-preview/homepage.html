@@ -643,13 +643,140 @@
     }
 
     /* ==================== RESPONSIVE ==================== */
-    @media (max-width: 600px) {
-      .header-inner { flex-wrap: wrap; }
-      .search-box { width: 100%; order: 3; }
-      .hero { padding: 2rem 1rem; }
-      .hero h1 { font-size: 1.75rem; }
-      .main-container { padding: 1rem; }
-      .channel-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    /* Tablet */
+    @media (max-width: 900px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar { display: none; }
+      .header-actions .pill-btn span { display: none; }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .header {
+        padding: 0.75rem 1rem;
+      }
+      .header-inner {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+      .logo {
+        font-size: 1.25rem;
+      }
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+      }
+      .header-actions {
+        gap: 0.5rem;
+      }
+      .header-actions .pill-btn {
+        padding: 0.5rem 0.75rem;
+      }
+      .header-actions .pill-btn span { display: none; }
+      .theme-toggle {
+        width: 36px;
+        height: 36px;
+      }
+      .search-box {
+        width: 100%;
+        order: 3;
+        margin-top: 0.5rem;
+      }
+      .search-box input {
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem 0.5rem 2rem;
+      }
+      #translate { display: none; }
+    }
+
+    /* Small Mobile */
+    @media (max-width: 480px) {
+      .header {
+        padding: 0.5rem 0.75rem;
+      }
+      .header-inner {
+        justify-content: space-between;
+      }
+      .logo-text { display: none; }
+      .search-box {
+        width: 100%;
+        order: 3;
+        margin-top: 0;
+      }
+      .search-box input {
+        padding: 0.6rem 1rem 0.6rem 2rem;
+        font-size: 0.9rem;
+      }
+      .hero {
+        padding: 1.5rem 0.75rem;
+      }
+      .hero h1 {
+        font-size: 1.5rem;
+      }
+      .hero p {
+        font-size: 0.95rem;
+      }
+      .hero-stats {
+        gap: 1rem;
+      }
+      .hero-stat-value {
+        font-size: 1.5rem;
+      }
+      .hero-stat-label {
+        font-size: 0.75rem;
+      }
+      .main-container {
+        padding: 0.75rem;
+      }
+      .content-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+      .view-toggle {
+        align-self: flex-end;
+      }
+      .channel-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+      }
+      .channel-card {
+        border-radius: 6px;
+      }
+      .channel-info {
+        padding: 0.5rem;
+      }
+      .channel-name {
+        font-size: 0.8rem;
+      }
+      .channel-group {
+        font-size: 0.7rem;
+      }
+      .star-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
+        top: 0.3rem;
+        right: 0.3rem;
+      }
+      .page-footer {
+        padding: 1.5rem 0.75rem;
+      }
+      .footer-links {
+        font-size: 0.7rem;
+        gap: 0.75rem;
+      }
+      .footer-badges {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .toast {
+        bottom: 1rem;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+      }
     }
   </style>
 </head>
