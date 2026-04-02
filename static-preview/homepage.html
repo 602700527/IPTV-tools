@@ -168,7 +168,33 @@
     .pill-btn.active {
       background: var(--accent);
       border-color: var(--accent);
-      color: #fff;
+      color: white;
+    }
+
+    .account-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .account-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+    }
+
+    .account-btn svg {
+      width: 16px;
+      height: 16px;
     }
 
     .pill-btn svg {
@@ -670,14 +696,20 @@
       }
       .header-actions {
         gap: 0.5rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
+        padding-bottom: 0.25rem;
       }
       .header-actions .pill-btn {
         padding: 0.5rem 0.75rem;
+        flex-shrink: 0;
       }
       .header-actions .pill-btn span { display: none; }
       .theme-toggle {
         width: 36px;
         height: 36px;
+        flex-shrink: 0;
       }
       .search-box {
         width: 100%;
@@ -688,7 +720,21 @@
         font-size: 0.85rem;
         padding: 0.5rem 1rem 0.5rem 2rem;
       }
-      #translate { display: none; }
+      #translate {
+        flex-shrink: 0;
+      }
+      #translateSelectLanguage {
+        padding: 0.4rem 1.5rem 0.4rem 0.5rem;
+        font-size: 0.8rem;
+        min-width: 70px;
+      }
+      .account-btn {
+        padding: 0.5rem 0.75rem;
+        flex-shrink: 0;
+      }
+      .account-btn span {
+        display: none;
+      }
     }
 
     /* Small Mobile */
@@ -828,6 +874,13 @@
             <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
           </svg>
         </button>
+        <a href="/account" class="account-btn" title="My Account">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span>Account</span>
+        </a>
         <div id="translate"></div>
       </div>
     </div>
