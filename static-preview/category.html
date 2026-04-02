@@ -186,7 +186,7 @@
     /* Category Nav */
     .category-nav { max-width: 1400px; margin: 0 auto; padding: 0 2rem 1.5rem; }
     .category-nav-list { display: flex; gap: 0.5rem; flex-wrap: wrap; list-style: none; }
-    .category-nav-list li a { display: block; padding: 0.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; font-size: 0.85rem; transition: all var(--transition); }
+    .category-nav-list li a { display: block; padding: 0.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; font-size: 0.85rem; transition: all var(--transition); white-space: nowrap; }
     .category-nav-list li a:hover { background: var(--bg-hover); border-color: var(--border-hover); }
     .category-nav-list li.active a { background: var(--accent); border-color: var(--accent); color: white; }
 
@@ -447,12 +447,14 @@
         -webkit-overflow-scrolling: touch;
       }
       .category-nav-list {
+        display: flex;
         flex-wrap: nowrap;
         gap: 0.375rem;
       }
       .category-nav-list li a {
         padding: 0.4rem 0.75rem;
         font-size: 0.8rem;
+        white-space: nowrap;
       }
       .main-container {
         padding: 0 1rem 1.5rem;
