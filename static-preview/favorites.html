@@ -333,8 +333,10 @@
     .channel-group { font-size: 0.75rem; color: var(--text-muted); }
 
     /* Toast */
-    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; padding: 1rem 2rem; border-radius: var(--radius); font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 1000; }
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; padding: 1rem 2rem; border-radius: var(--radius); font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 1000; max-width: 90%; text-align: center; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast a { color: #fff; text-decoration: underline; font-weight: 700; }
+    .toast.show-link { background: linear-gradient(135deg, var(--accent), #b3080f); padding: 1rem 1.5rem; }
 
     /* Footer */
     .page-footer {
@@ -810,6 +812,13 @@
     // Max favorites limit
     const MAX_FAVORITES = 200;
 
+    function showLimitToast() {
+      const toast = document.getElementById('toast');
+      toast.innerHTML = `Maximum ${MAX_FAVORITES} channels. <a href="/plans" style="color: inherit; text-decoration: underline;">Get subscription</a> for more.`;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
     function toggleStar(btn, channelHash) {
       const favorites = getFavorites();
       const index = favorites.findIndex(f => f.channel_hash === channelHash);
@@ -830,7 +839,7 @@
       } else {
         // Check 200 limit when adding
         if (favorites.length >= MAX_FAVORITES) {
-          showToast('Maximum ' + MAX_FAVORITES + ' channels in favorites');
+          showLimitToast();
           return;
         }
         
@@ -879,7 +888,7 @@
       }
       
       if (favorites.length > MAX_FAVORITES) {
-        showToast('Maximum ' + MAX_FAVORITES + ' channels allowed');
+        showLimitToast();
         return;
       }
       

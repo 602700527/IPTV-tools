@@ -1120,6 +1120,12 @@
         return;
       }
 
+      // Check 200 limit
+      if (selectedCards.length > MAX_FAVORITES) {
+        showToastWithLink(`Maximum ${MAX_FAVORITES} channels per download. <a href="/plans">Get subscription</a> for full M3U.`);
+        return;
+      }
+
       // Generate M3U content
       let m3uContent = '#EXTM3U\n\n';
       
