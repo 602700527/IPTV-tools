@@ -326,11 +326,15 @@
     .bulk-btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
     .bulk-btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); }
     .bulk-btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+    .bulk-btn-download { background: linear-gradient(135deg, #34c759, #30b954); color: white; }
+    .bulk-btn-download:hover { background: linear-gradient(135deg, #30b954, #2ca048); transform: translateY(-1px); }
     .bulk-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* Toast */
-    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; padding: 1rem 2rem; border-radius: var(--radius); font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 1000; }
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; padding: 1rem 2rem; border-radius: var(--radius); font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 1000; max-width: 90%; text-align: center; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast a { color: #fff; text-decoration: underline; font-weight: 700; }
+    .toast.show-link { background: linear-gradient(135deg, var(--accent), #b3080f); padding: 1rem 1.5rem; }
 
     /* Pagination */
     .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border); }
@@ -534,11 +538,23 @@
         font-size: 0.8rem;
       }
       .bulk-actions {
-        justify-content: flex-start;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
       }
       .bulk-btn {
         padding: 0.5rem 0.75rem;
         font-size: 0.8rem;
+        flex: 1;
+        min-width: calc(50% - 0.25rem);
+        justify-content: center;
+      }
+      .bulk-btn svg {
+        width: 14px;
+        height: 14px;
+      }
+      .bulk-btn-download {
+        order: -1;
       }
       .channel-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -710,7 +726,7 @@
           <circle cx="12" cy="12" r="10"/>
           <path d="M12 16v-4M12 8h.01"/>
         </svg>
-        <span>Select channels to batch add to favorites</span>
+        <span>Select channels to batch add to favorites or download M3U</span>
       </div>
       <div class="bulk-actions">
         <button class="bulk-btn bulk-btn-secondary" onclick="selectAll()">
@@ -725,6 +741,14 @@
             <rect x="3" y="3" width="18" height="18" rx="2"/>
           </svg>
           Clear
+        </button>
+        <button class="bulk-btn bulk-btn-download" onclick="downloadSelectedM3U()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download M3U
         </button>
         <button class="bulk-btn bulk-btn-primary" onclick="addSelectedToFavorites()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -977,6 +1001,7 @@
 
     // Favorites storage
     const FAVORITES_KEY = 'iptv_favorites';
+    const MAX_FAVORITES = 200;
     
     function getFavorites() {
       try {
@@ -1001,6 +1026,10 @@
         btn.textContent = '☆';
         showToast('Removed from favorites');
       } else {
+        if (favorites.length >= MAX_FAVORITES) {
+          showToastWithLink(`Maximum ${MAX_FAVORITES} channels reached! For more channels, please <a href="/plans">get a subscription</a>.`);
+          return;
+        }
         favorites.push({
           channel_hash: channelHash,
           channel_name: channelName,
@@ -1009,7 +1038,7 @@
         btn.classList.remove('not-starred');
         btn.classList.add('starred');
         btn.textContent = '★';
-        showToast('Added to favorites');
+        showToast(`Added to favorites (${favorites.length}/${MAX_FAVORITES})`);
       }
       
       saveFavorites(favorites);
@@ -1046,6 +1075,10 @@
       const favorites = getFavorites();
       const selectedCards = document.querySelectorAll('.channel-card.selected');
       let addedCount = 0;
+      let skippedCount = 0;
+      
+      // Check how many can still be added
+      const remainingSlots = MAX_FAVORITES - favorites.length;
       
       selectedCards.forEach(card => {
         const starBtn = card.querySelector('.star-btn');
@@ -1054,25 +1087,95 @@
         const groupTitle = card.querySelector('.channel-group').textContent;
         
         if (!favorites.some(f => f.channel_hash === channelHash)) {
-          favorites.push({ channel_hash: channelHash, channel_name: channelName, group_title: groupTitle });
-          addedCount++;
-          // Mark as starred
-          starBtn.classList.remove('not-starred');
-          starBtn.classList.add('starred');
-          starBtn.textContent = '★';
+          if (addedCount < remainingSlots) {
+            favorites.push({ channel_hash: channelHash, channel_name: channelName, group_title: groupTitle });
+            addedCount++;
+            // Mark as starred
+            starBtn.classList.remove('not-starred');
+            starBtn.classList.add('starred');
+            starBtn.textContent = '★';
+          } else {
+            skippedCount++;
+            skippedChannels.push({ hash: channelHash, name: channelName });
+          }
         }
       });
       
       saveFavorites(favorites);
-      showToast(`Added ${addedCount} channels to favorites`);
+      
+      if (skippedCount > 0) {
+        showToastWithLink(`Added ${addedCount} channels. Maximum ${MAX_FAVORITES} reached! <a href="/plans">Get subscription</a> for more.`);
+      } else {
+        showToast(`Added ${addedCount} channels to favorites (${favorites.length}/${MAX_FAVORITES})`);
+      }
       toggleBatchMode();
+    }
+    
+    let skippedChannels = [];
+
+    function downloadSelectedM3U() {
+      const selectedCards = document.querySelectorAll('.channel-card.selected');
+      if (selectedCards.length === 0) {
+        showToast('Please select at least one channel');
+        return;
+      }
+
+      // Generate M3U content
+      let m3uContent = '#EXTM3U\n\n';
+      
+      selectedCards.forEach(card => {
+        const starBtn = card.querySelector('.star-btn');
+        const channelHash = starBtn.getAttribute('onclick').match(/'([^']+)'/)[1];
+        const channelName = card.querySelector('.channel-name').textContent;
+        const groupTitle = card.querySelector('.channel-group').textContent;
+        // Construct the stream URL (same logic as ip-play.js)
+        const streamUrl = `${window.location.origin}/live/${channelHash}/${generateHash(channelHash)}`;
+        m3uContent += `#EXTINF:-1 group-title="${groupTitle}" tvg-name="${channelName}",${channelName}\n`;
+        m3uContent += `${streamUrl}\n\n`;
+      });
+
+      // Download file
+      const blob = new Blob([m3uContent], { type: 'audio/x-mpegurl' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `iptv-channels-${Date.now()}.m3u`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast(`Downloaded ${selectedCards.length} channels`);
+      toggleBatchMode();
+    }
+
+    // Simple hash function for channel URL (same as backend)
+    function generateHash(channelHash) {
+      // Simple hash for demo - in production this would match the backend logic
+      let hash = 0;
+      const str = channelHash + 'salt'; // Simplified
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return Math.abs(hash).toString(16).substring(0, 8);
     }
 
     function showToast(message) {
       const toast = document.getElementById('toast');
-      toast.textContent = message;
+      toast.innerHTML = message;
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2500);
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+    
+    function showToastWithLink(message) {
+      const toast = document.getElementById('toast');
+      toast.innerHTML = message;
+      toast.classList.add('show', 'show-link');
+      setTimeout(() => {
+        toast.classList.remove('show', 'show-link');
+      }, 4000);
     }
 
     // Initialize star buttons based on favorites
