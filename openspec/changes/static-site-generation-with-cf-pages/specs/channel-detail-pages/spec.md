@@ -115,3 +115,52 @@ The site SHALL support dynamic language switching using the existing `translate.
 - **WHEN** a user changes language preference
 - **THEN** translate.js SHALL persist the preference
 - **AND** subsequent visits SHALL respect the saved preference
+
+### Requirement: Favorites System with localStorage
+
+The site SHALL support storing favorites in browser's localStorage without requiring backend storage.
+
+#### Scenario: Add channel to favorites
+- **WHEN** a user clicks the star button on a channel
+- **THEN** the channel SHALL be saved to localStorage with:
+  - `channel_hash`: unique channel identifier
+  - `channel_name`: display name
+  - `group_title`: category/group name
+  - `logo`: remote image URL (extracted from page DOM, NOT from API)
+- **AND** the star icon SHALL change to filled ★
+
+#### Scenario: 200 channel limit on favorites
+- **WHEN** a user attempts to add a channel to favorites
+- **AND** `favorites.length >= 200`
+- **THEN** the add operation SHALL be rejected
+- **AND** a toast message SHALL show "Maximum 200 channels in favorites"
+- **WHEN** a user attempts to download M3U with >200 channels
+- **THEN** the download SHALL be rejected
+- **AND** a toast message SHALL show "Maximum 200 channels allowed"
+
+#### Scenario: Copy single channel M3U to clipboard
+- **WHEN** a user clicks "Copy M3U" on a channel detail page
+- **THEN** the system SHALL call `/api/play/link?hash={channel_hash}` to get IP-bound play URL
+- **AND** assemble M3U text with:
+  - `#EXTM3U` header
+  - `#EXTINF:-1 tvg-logo="{logo_url}" group-title="{group}",{channel_name}`
+  - Real IP-bound play URL
+- **AND** copy the M3U text to clipboard
+- **AND** show toast: "M3U copied! Paste into VLC or IPTV player to watch."
+
+#### Scenario: M3U download with IP-bound play URLs
+- **WHEN** a user clicks "Download M3U" on the favorites page
+- **THEN** the system SHALL call `/api/play/link?hash={channel_hash}` for EACH favorited channel
+- **AND** use the returned `play_link` URL in the M3U file
+- **AND** the M3U SHALL include:
+  - `#EXTM3U` header
+  - `#EXTINF:-1 tvg-logo="{logo_url}" group-title="{group}",{channel_name}` for each channel
+  - Real IP-bound play URL (not fake/demo URLs)
+- **AND** trigger browser download with filename `favorites_{date}.m3u`
+- **AND** show loading spinner on button during fetch
+- **NOTE**: Logo URLs are stored during favorite-add, not fetched from API during download
+
+#### Scenario: Sync favorites across pages
+- **WHEN** favorites are updated in one tab
+- **THEN** other tabs SHALL detect the change via `storage` event
+- **AND** update star button states accordingly

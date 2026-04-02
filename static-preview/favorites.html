@@ -237,6 +237,20 @@
     .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
     .btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-hover); }
     .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+    .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    /* Spinner */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
     /* Download Hint - positioned below button */
     .download-hint {
@@ -611,6 +625,9 @@
       document.querySelector('.favorites-count').textContent = `(${count} channels)`;
     }
 
+    // Max favorites limit
+    const MAX_FAVORITES = 200;
+
     function toggleStar(btn, channelHash) {
       const favorites = getFavorites();
       const index = favorites.findIndex(f => f.channel_hash === channelHash);
@@ -629,11 +646,22 @@
           renderFavorites();
         }, 300);
       } else {
-        // Add to favorites (demo - in real app, would add full channel data)
+        // Check 200 limit when adding
+        if (favorites.length >= MAX_FAVORITES) {
+          showToast('Maximum ' + MAX_FAVORITES + ' channels in favorites');
+          return;
+        }
+        
+        // Add to favorites - extract logo from card image
+        const card = btn.closest('.channel-card');
+        const logoImg = card.querySelector('.channel-poster img');
+        const logo = logoImg && logoImg.src && logoImg.style.display !== 'none' ? logoImg.src : '';
+        
         favorites.push({
           channel_hash: channelHash,
-          channel_name: btn.closest('.channel-card').querySelector('.channel-name').textContent,
-          group_title: btn.closest('.channel-card').querySelector('.channel-group').textContent
+          channel_name: card.querySelector('.channel-name').textContent,
+          group_title: card.querySelector('.channel-group').textContent,
+          logo: logo
         });
         btn.classList.remove('not-starred');
         btn.classList.add('starred');
@@ -661,30 +689,84 @@
 
     function downloadM3U() {
       const favorites = getFavorites();
+      
+      // Check limit when downloading
       if (favorites.length === 0) {
         showToast('No favorites to download!');
         return;
       }
       
-      // Demo M3U content
-      let content = '#EXTM3U\n\n';
-      favorites.forEach(ch => {
-        content += `#EXTINF:-1 tvg-name="${ch.channel_name}" group-title="${ch.group_title}",${ch.channel_name}\n`;
-        content += `https://example.com/live/${ch.channel_hash}.m3u8\n\n`;
+      if (favorites.length > MAX_FAVORITES) {
+        showToast('Maximum ' + MAX_FAVORITES + ' channels allowed');
+        return;
+      }
+      
+      const btn = document.querySelector('.btn-primary');
+      const originalContent = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span>';
+      btn.disabled = true;
+
+      // M3U standard format: #EXTM3U header followed by channel entries
+      const m3uLines = ['#EXTM3U'];
+      let channelCount = 0;
+
+      // Fetch play links one by one
+      const fetchPromises = favorites.map(async (fav) => {
+        try {
+          const response = await fetch('/api/play/link?hash=' + encodeURIComponent(fav.channel_hash));
+          const data = await response.json();
+
+          if (data.success && data.play_link) {
+            // Build EXTINF line - M3U standard: #EXTINF:-1 tvg-logo="..." group-title="...",Channel Name
+            let extInf = '#EXTINF:-1';
+            if (fav.logo) {
+              extInf += ' tvg-logo="' + escapeHtml(fav.logo) + '" group-title="' + escapeHtml(fav.group_title) + '",' + escapeHtml(fav.channel_name);
+            } else {
+              extInf += ' group-title="' + escapeHtml(fav.group_title) + '",' + escapeHtml(fav.channel_name);
+            }
+
+            m3uLines.push(extInf);
+            m3uLines.push(data.play_link);
+            channelCount++;
+          }
+        } catch (e) {
+          console.error('Failed to get link for', fav.channel_name, e);
+        }
       });
-      
-      const blob = new Blob([content], { type: 'audio/x-mpegurl' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      const date = new Date().toISOString().split('T')[0];
-      a.download = `iptv-favorites-${date}.m3u`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      showToast(`Downloaded ${favorites.length} channels!`);
+
+      Promise.all(fetchPromises)
+        .then(() => {
+          if (channelCount === 0) {
+            showToast('Failed to get play links');
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+            return;
+          }
+
+          // Create M3U content
+          const m3uContent = m3uLines.join(String.fromCharCode(10));
+          const blob = new Blob([m3uContent], { type: 'audio/x-mpegurl' });
+          const url = URL.createObjectURL(blob);
+
+          // Create download link
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'favorites_' + new Date().toISOString().slice(0, 10) + '.m3u';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          showToast('Downloaded ' + channelCount + ' channels');
+        })
+        .catch((error) => {
+          console.error('Download favorites error:', error);
+          showToast('Failed to download favorites');
+        })
+        .finally(() => {
+          btn.innerHTML = originalContent;
+          btn.disabled = false;
+        });
     }
 
     function clearAllFavorites() {
@@ -719,7 +801,7 @@
         <div class="channel-card">
           <button class="star-btn starred" onclick="toggleStar(this, '${ch.channel_hash}')">★</button>
           <div class="channel-poster">
-            <div class="placeholder" style="display:flex">📺</div>
+            ${ch.logo ? '<img src="' + ch.logo + '" alt="' + ch.channel_name + '" onerror="this.style.display=\'none\'">' : '<div class="placeholder" style="display:flex">📺</div>'}
             <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
           </div>
           <div class="channel-info">

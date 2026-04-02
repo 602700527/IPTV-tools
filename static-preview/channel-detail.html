@@ -260,6 +260,20 @@
     .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
     .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
     .btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+    .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    /* Spinner */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
     /* Info Card */
     .info-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; }
@@ -708,10 +722,48 @@
     }
 
     function copyM3U() {
-      // In real implementation, this would copy the actual M3U URL
-      navigator.clipboard.writeText('https://www.iptv-search.com/sub/demo.m3u').then(() => {
-        showToast('M3U link copied!');
-      });
+      const btn = document.querySelector('[onclick="copyM3U()"]');
+      const originalContent = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span>';
+      btn.disabled = true;
+
+      // Get play link from API
+      fetch('/api/play/link?hash=' + encodeURIComponent(CURRENT_CHANNEL_HASH))
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.play_link) {
+            // Get logo from channel poster
+            const logoImg = document.querySelector('.channel-poster-large img');
+            const logo = logoImg && logoImg.src ? logoImg.src : '';
+            
+            // Build M3U content
+            let extInf = '#EXTINF:-1';
+            if (logo) {
+              extInf += ' tvg-logo="' + escapeHtml(logo) + '" group-title="' + escapeHtml(CURRENT_CHANNEL_GROUP) + '",' + escapeHtml(CURRENT_CHANNEL_NAME);
+            } else {
+              extInf += ' group-title="' + escapeHtml(CURRENT_CHANNEL_GROUP) + '",' + escapeHtml(CURRENT_CHANNEL_NAME);
+            }
+            
+            const m3uContent = '#EXTM3U\n' + extInf + '\n' + data.play_link;
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(m3uContent).then(() => {
+              showToast('M3U copied! Paste into VLC or IPTV player to watch.');
+            }).catch(() => {
+              showToast('Failed to copy');
+            });
+          } else {
+            showToast('Failed to get play link');
+          }
+        })
+        .catch(error => {
+          console.error('copyM3U error:', error);
+          showToast('Failed to get play link');
+        })
+        .finally(() => {
+          btn.innerHTML = originalContent;
+          btn.disabled = false;
+        });
     }
 
     function shareChannel() {
@@ -735,6 +787,7 @@
 
     // Favorites
     const FAVORITES_KEY = 'iptv_favorites';
+    const MAX_FAVORITES = 200;
     
     function getFavorites() {
       try {
@@ -759,10 +812,20 @@
         starText.textContent = 'Add to Favorites';
         showToast('Removed from favorites');
       } else {
+        // Check 200 limit when adding
+        if (favorites.length >= MAX_FAVORITES) {
+          showToast('Maximum ' + MAX_FAVORITES + ' channels in favorites');
+          return;
+        }
+        // Get logo from channel poster
+        const logoImg = document.querySelector('.channel-poster-large img');
+        const logo = logoImg && logoImg.src ? logoImg.src : '';
+        
         favorites.push({
           channel_hash: CURRENT_CHANNEL_HASH,
           channel_name: CURRENT_CHANNEL_NAME,
-          group_title: CURRENT_CHANNEL_GROUP
+          group_title: CURRENT_CHANNEL_GROUP,
+          logo: logo
         });
         starBtn.querySelector('span').textContent = '★';
         starText.textContent = 'Remove from Favorites';
