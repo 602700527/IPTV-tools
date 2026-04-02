@@ -61,8 +61,83 @@
     .logo-icon svg { width: 100%; height: 100%; }
     .logo-text span { color: var(--accent); }
     .header-actions { display: flex; align-items: center; gap: 1rem; }
-    .icon-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 50%; font-size: 1.1rem; transition: all var(--transition); }
-    .icon-btn:hover { background: var(--bg-hover); transform: scale(1.05); }
+    /* Pill Buttons (nav links) */
+    .pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .pill-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+      transform: translateY(-1px);
+    }
+
+    .pill-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .pill-btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-primary);
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .theme-toggle:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+      transform: scale(1.05);
+    }
+
+    /* Download Hint */
+    .download-hint {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: rgba(229, 9, 20, 0.1);
+      border: 1px solid rgba(229, 9, 20, 0.3);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .download-hint svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--accent);
+    }
     /* Language Selector (translate.js) */
     #translate {
       position: relative;
@@ -147,18 +222,44 @@
     }
 
     /* Page Header */
-    .page-header { max-width: 1400px; margin: 0 auto; padding: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .page-header { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 1.5rem; }
     .page-title { font-size: 1.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; }
     .page-title-icon { font-size: 1.5rem; }
     .favorites-count { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
 
-    .header-actions-row { display: flex; gap: 0.75rem; }
+    /* Action Column */
+    .action-column { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; }
+
+    .btn-group { display: flex; gap: 0.5rem; }
     .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; border-radius: var(--radius); font-size: 0.9rem; font-weight: 600; border: none; transition: all var(--transition); }
     .btn-primary { background: var(--accent); color: white; }
-    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3); }
     .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
     .btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-hover); }
     .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+
+    /* Download Hint - positioned below button */
+    .download-hint {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.4rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .download-hint svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+
+    @media (max-width: 600px) {
+      .page-header { grid-template-columns: 1fr; }
+      .action-column { align-items: stretch; }
+      .btn-group { justify-content: flex-end; }
+    }
 
     /* Main Content */
     .main-container { max-width: 1400px; margin: 0 auto; padding: 0 2rem 2rem; }
@@ -301,8 +402,26 @@
         <input type="text" id="headerSearch" placeholder="Search channels..." oninput="handleHeaderSearch()">
       </div>
       <div class="header-actions">
-        <a href="/favorites" class="icon-btn" title="Favorites" style="background: var(--accent);">⭐</a>
-        <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+        <a href="/favorites" class="pill-btn active" title="My Favorites">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span>Favorites</span>
+        </a>
+        <a href="/plans" class="pill-btn" title="Subscription Plans">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+          <span>Plans</span>
+        </a>
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </button>
         <div id="translate"></div>
       </div>
     </div>
@@ -310,17 +429,37 @@
 
   <div class="page-header">
     <h1 class="page-title">
-      <span class="page-title-icon">⭐</span>
+      <span class="page-title-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </span>
       My Favorites
       <span class="favorites-count">(5 channels)</span>
     </h1>
-    <div class="header-actions-row">
-      <button class="btn btn-secondary" onclick="clearAllFavorites()">
-        🗑️ Clear All
-      </button>
-      <button class="btn btn-primary" onclick="downloadM3U()">
-        📥 Download M3U
-      </button>
+    <div class="action-column">
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="downloadM3U()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download M3U
+        </button>
+        <button class="btn btn-secondary" onclick="clearAllFavorites()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          Clear All
+        </button>
+      </div>
+      <div class="download-hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 16v-4M12 8h.01"/>
+        </svg>
+        <span>已收藏频道可下载为M3U文件，方便导入播放器使用</span>
+      </div>
     </div>
   </div>
 
@@ -399,7 +538,9 @@
 
     <!-- Empty State (hidden by default) -->
     <div class="empty-state" id="emptyState" style="display: none;">
-      <div class="empty-state-icon">⭐</div>
+      <div class="empty-state-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="64" height="64"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
       <h2>No favorites yet</h2>
       <p>Start adding channels to your favorites by clicking the star icon on any channel.</p>
       <a href="/" class="btn btn-primary">Browse Channels</a>
@@ -591,16 +732,19 @@
 
     // Theme Toggle
     const themeToggle = document.getElementById('themeToggle');
+    const sunSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+    const moonSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    
     themeToggle.addEventListener('click', () => {
       const current = document.documentElement.getAttribute('data-theme');
       const next = current === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
       localStorage.setItem('theme', next);
-      themeToggle.textContent = next === 'dark' ? '🌙' : '☀️';
+      themeToggle.innerHTML = next === 'dark' ? moonSVG : sunSVG;
     });
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    themeToggle.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+    themeToggle.innerHTML = savedTheme === 'dark' ? moonSVG : sunSVG;
 
     // Language selector - translate.js handles this automatically
 

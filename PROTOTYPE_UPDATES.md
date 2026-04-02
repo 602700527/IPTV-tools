@@ -1,0 +1,182 @@
+# 原型更新需求记录
+
+## 日期：2026-04-02
+
+---
+
+## ⚠️ 重要说明：原型文件
+
+**`static-preview/` 目录下的所有文件均为原型文件**，开发实现时必须 **100% 还原**：
+- HTML 结构
+- CSS 样式（包括颜色、间距、动画）
+- SVG 图标
+- 交互逻辑
+
+禁止：
+- 自行简化或省略任何 UI 元素
+- 随意修改颜色、字体、间距等样式
+- 用 emoji 替代 SVG 图标
+- 省略任何提示文字或说明
+
+---
+
+## 一、需求回顾与确认
+
+### 1. 静态网站生成与存储
+
+**存储方案**：
+- 使用 **R2 bucket**：`iptv-static-assets`（已有）
+- KV 免费额度不够（8000 操作/天），不采用
+
+**路由处理**：
+- 用户访问 `/channel/{hash}` → Workers 从 R2 读取静态文件返回
+- 访问过期/不存在频道 → 返回友好 404 页面
+  - ⚠️ **需要营销专家和 UI 设计提供文案和设计**
+  - 目标：拖住用户失望心理，引导去首页寻找其他喜爱节目
+
+**收藏页处理**：
+- **动态页面**，不生成静态文件
+- 读取 `localStorage` 中的收藏数据
+- 触发 M3U 下载逻辑
+- 不影响 SEO（无需 R2 参与）
+
+**Copy M3U Link 逻辑**：
+- 复用已有的"生成播放链接"逻辑
+- 读取用户 IP 生成专属播放链接
+- 支持最多 3 个 IP 同时播放
+- 超出限制不返回真实播放地址
+
+### 2. Admin 后台管理
+
+**触发方式**：
+- Admin 后台 → 静态生成管理（新增 Tab 或按钮）
+- 点击后**后台运行**（`ctx.waitUntil()`）
+- 不占用前台请求
+
+**进度与日志**：
+- 实时显示：当前生成文件名、完成数/总数
+- 日志输出：成功/失败状态、错误详情
+- 前端轮询：`GET /api/admin/static-generation/status`
+
+**API 设计**：
+```
+POST /api/admin/static-generate/start
+  - 触发静态生成任务
+  - 返回 task_id
+
+GET /api/admin/static-generate/status
+  - 返回: { status: 'running'|'completed'|'failed', progress: {...}, logs: [...] }
+```
+
+**生成流程**：
+1. 首页 `/` → R2
+2. 分类页 `/category/{slug}` → R2
+3. 频道详情页 `/channel/{hash}` → R2 (8000+)
+4. sitemap.xml → R2
+5. 完成后更新状态
+
+**定时任务**：
+- 每天凌晨 3:00 自动执行
+- 使用 `ctx.waitUntil()` 后台处理
+
+### 3. 共享页头页脚组件
+
+**实现方案**：
+```
+components/
+├── header.html    ← 共享头部（含导航、Favorites/Plans pill-btn）
+├── footer.html    ← 共享尾部
+
+static-preview/*.html  ← 原型文件引用
+        ↓
+scripts/inject-components.js  ← 构建时注入
+        ↓
+handlers/*.js  ← 最终生成函数使用
+```
+
+**执行方式**：通过 `scripts/inject-components.js` 构建时注入
+
+---
+
+## 二、需要清理的旧 SEO 逻辑
+
+### 需删除/修改的代码
+
+**worker.js**：
+- 第 12 行：移除 `isSearchEngineBot` import
+- 第 219-220 行：移除搜索引擎爬虫判断 → 直接返回首页
+- 第 259-260 行：移除 category 页的爬虫判断
+- 第 551 行：移除爬虫处理
+
+**handlers/seo-handler.js**：
+- 整个文件可能需要删除或大幅精简
+- 保留 `generate404Page`（404 页面仍需要）
+
+**Python 生成脚本**（全部删除）：
+```
+handlers/gen_new_homepage.py
+handlers/gen_seo_homepage.py
+handlers/gen_seo_homepage_new.py
+handlers/gen_seo_v2.py
+handlers/gen_seo_v3.py
+handlers/gen_static.py
+handlers/gen_static_assets.py
+handlers/gen_static_homepage.py
+handlers/generate_seo_homepage_new.js
+```
+
+**其他可能相关**：
+- 检查 `static-assets.js` 是否复用
+- 检查 `components/page-header.js`, `page-footer.js`
+
+### 需保留的代码
+
+**handlers/ip-play.js**：
+- `handleGetPlayLink` - 生成播放链接逻辑（Copy M3U Link 需要用）
+
+**handlers/sub.js**：
+- 订阅 M3U 生成逻辑
+
+---
+
+## 三、待处理事项
+
+| 优先级 | 事项 | 说明 |
+|--------|------|------|
+| **高** | 清理旧 SEO 代码 | 删除上述文件和逻辑 |
+| **高** | 共享页头页脚组件 | 创建 `components/` 和注入脚本 |
+| **高** | 静态生成到 R2 | Admin 触发、进度日志、R2 读取路由 |
+| **高** | 友好 404 页面 | **📋 UI/UX + 营销团队负责** - 提供设计和文案，开发实现 |
+| **中** | Copy M3U Link | 复用 ip-play.js 已有逻辑 |
+| **中** | 收藏页动态化 | 读取 localStorage、触发下载 |
+| **低** | 定时任务集成 | 每天 3:00 自动生成 |
+
+---
+
+## 四、已完成的原型更新
+
+### 页头导航更新（已完成）
+- [x] 所有页面添加 Favorites/Plans pill-btn 导航
+- [x] Theme toggle 改为 SVG 图标（太阳/月亮切换）
+- [x] 按钮使用统一的 pill-btn 样式
+
+### 频道详情页更新（已完成）
+- [x] 移除 "Watch Now" 播放按钮
+- [x] Action buttons 改为：Add to Favorites / Copy M3U Link / Get Subscription
+- [x] "How to Watch" 改为双方案（收藏下载 / 订阅）
+- [x] 添加内链到 Favorites 和 Plans 页面
+
+### 收藏页面更新（已完成）
+- [x] 页面头部添加 Favorites（高亮）/ Plans pill-btn
+- [x] M3U 下载提示移到按钮下方
+- [x] Download/Clear All 按钮使用 SVG 图标
+- [x] 整体布局优化
+
+### 分类页批量操作优化（已完成）
+- [x] 移除隐藏的"Batch Select"按钮
+- [x] 批量操作栏始终可见
+- [x] 添加提示文字引导用户
+
+### Emoji 替换（已完成）
+- [x] 所有按钮、标题、图标改用 SVG
+- [x] 保留频道卡片占位符（不影响显示）

@@ -142,8 +142,43 @@
       opacity: 0.5;
     }
 
-    /* Icon Buttons */
-    .icon-btn {
+    /* Pill Buttons (nav links) */
+    .pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .pill-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+      transform: translateY(-1px);
+    }
+
+    .pill-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .pill-btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
       width: 40px;
       height: 40px;
       display: flex;
@@ -152,11 +187,13 @@
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 50%;
+      color: var(--text-primary);
       font-size: 1.1rem;
+      cursor: pointer;
       transition: all var(--transition);
     }
 
-    .icon-btn:hover {
+    .theme-toggle:hover {
       background: var(--bg-hover);
       border-color: var(--border-hover);
       transform: scale(1.05);
@@ -644,7 +681,26 @@
       </div>
       
       <div class="header-actions">
-        <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+        <a href="/favorites" class="pill-btn" title="My Favorites">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span>Favorites</span>
+        </a>
+        <a href="/plans" class="pill-btn" title="Subscription Plans">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+          <span>Plans</span>
+        </a>
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </button>
         <div id="translate"></div>
       </div>
     </div>
@@ -970,20 +1026,7 @@
       }
     }
 
-    // Theme Toggle
-    const themeToggle = document.getElementById('themeToggle');
-    themeToggle.addEventListener('click', () => {
-      const html = document.documentElement;
-      const current = html.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      html.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      themeToggle.textContent = next === 'dark' ? '🌙' : '☀️';
-    });
-
-    // Apply saved theme icon
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    themeToggle.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+    // Theme Toggle (SVG版本 - 无需切换图标)
 
     // Language selector - translate.js handles this automatically
 

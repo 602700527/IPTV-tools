@@ -75,8 +75,62 @@
     .logo-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
     .logo-text span { color: var(--accent); }
     .header-actions { display: flex; align-items: center; gap: 1rem; }
-    .icon-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 50%; font-size: 1.1rem; transition: all var(--transition); }
-    .icon-btn:hover { background: var(--bg-hover); transform: scale(1.05); }
+    /* Pill Buttons (nav links) */
+    .pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .pill-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+      transform: translateY(-1px);
+    }
+
+    .pill-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .pill-btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-primary);
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .theme-toggle:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+      transform: scale(1.05);
+    }
     /* Language Selector (translate.js) */
     #translate {
       position: relative;
@@ -218,11 +272,35 @@
     /* How to Watch */
     .how-to-watch { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; }
     .how-to-watch h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
-    .step { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-start; }
+    
+    .watch-option { margin-bottom: 1.5rem; }
+    .watch-option:last-child { margin-bottom: 0; }
+    
+    .option-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    
+    .option-icon { font-size: 1.25rem; }
+    
+    .option-header h4 { font-size: 1rem; font-weight: 600; margin: 0; }
+    
+    .option-steps { padding-left: 0.5rem; }
+    
+    .step { display: flex; gap: 1rem; margin-bottom: 0.75rem; align-items: flex-start; }
     .step:last-child { margin-bottom: 0; }
-    .step-number { width: 28px; height: 28px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
-    .step-content h4 { font-size: 0.95rem; margin-bottom: 0.25rem; }
-    .step-content p { font-size: 0.85rem; color: var(--text-secondary); }
+    .step-number { width: 24px; height: 24px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+    .step-content h4 { font-size: 0.9rem; margin-bottom: 0.2rem; }
+    .step-content h4 a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+    .step-content h4 a:hover { text-decoration: none; }
+    .step-content p { font-size: 0.8rem; color: var(--text-secondary); }
+    .step-content p a { color: var(--accent); font-weight: 500; }
+    .step-content p a:hover { text-decoration: underline; }
 
     /* Related Channels */
     .related-section { margin-top: 3rem; }
@@ -341,8 +419,26 @@
         <input type="text" id="headerSearch" placeholder="Search channels..." oninput="handleHeaderSearch()">
       </div>
       <div class="header-actions">
-        <a href="/favorites" class="icon-btn" title="Favorites">⭐</a>
-        <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+        <a href="/favorites" class="pill-btn" title="My Favorites">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span>Favorites</span>
+        </a>
+        <a href="/plans" class="pill-btn" title="Subscription Plans">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+          <span>Plans</span>
+        </a>
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </button>
         <div id="translate"></div>
       </div>
     </div>
@@ -372,23 +468,32 @@
         <p class="channel-subtitle">China Central Television - General Channel</p>
         
         <div class="channel-stats">
-          <div class="stat"><span class="stat-icon">📺</span> <span>央视</span></div>
-          <div class="stat"><span class="stat-icon">🌍</span> <span>China</span></div>
-          <div class="stat"><span class="stat-icon">🔄</span> <span>Updated daily</span></div>
+          <div class="stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
+            <span>央视</span>
+          </div>
+          <div class="stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span>China</span>
+          </div>
+          <div class="stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            <span>Updated daily</span>
+          </div>
         </div>
 
         <div class="action-buttons">
-          <button class="btn btn-primary" onclick="playChannel()">
-            <span>▶</span> Watch Now
-          </button>
-          <button class="btn btn-secondary" onclick="copyM3U()">
-            <span>📋</span> Copy M3U Link
-          </button>
           <button class="btn btn-secondary" id="detailStarBtn" onclick="toggleChannelStar()">
-            <span>☆</span> <span id="starText">Add to Favorites</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span id="starText">Add to Favorites</span>
+          </button>
+          <button class="btn btn-primary" onclick="copyM3U()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy M3U Link
           </button>
           <a href="/plans" class="btn btn-secondary">
-            <span>💎</span> Subscription Plans
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Get Subscription
           </a>
         </div>
       </div>
@@ -407,7 +512,7 @@
       </div>
       <div class="info-row">
         <span class="info-label">Country/Region</span>
-        <span class="info-value">🇨🇳 China</span>
+        <span class="info-value">China</span>
       </div>
       <div class="info-row">
         <span class="info-label">Source</span>
@@ -422,25 +527,66 @@
     <!-- How to Watch -->
     <div class="how-to-watch">
       <h3>How to Watch</h3>
-      <div class="step">
-        <div class="step-number">1</div>
-        <div class="step-content">
-          <h4>Copy the M3U Link</h4>
-          <p>Click the "Copy M3U Link" button above to copy the playlist URL to your clipboard.</p>
+      
+      <!-- Option 1: Download M3U -->
+      <div class="watch-option">
+        <div class="option-header">
+          <span class="option-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+          <h4>Option 1: Add to Favorites & Download M3U</h4>
+        </div>
+        <div class="option-steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h4><a href="/favorites">Add to Favorites</a></h4>
+              <p>Click the "Add to Favorites" button above, or <a href="/favorites">view your favorites</a>.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h4><a href="/favorites">Copy M3U Link</a></h4>
+              <p>Go to <a href="/favorites">My Favorites</a> and click "Download M3U" to export your playlist.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h4>Import to Player</h4>
+              <p>Open your IPTV player and import the downloaded M3U file to start watching.</p>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="step">
-        <div class="step-number">2</div>
-        <div class="step-content">
-          <h4>Open IPTV Player</h4>
-          <p>Open your favorite IPTV player (VLC, IPTV Smarters, GSE Smart IPTV, etc.).</p>
+
+      <!-- Option 2: Subscription -->
+      <div class="watch-option">
+        <div class="option-header">
+          <span class="option-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span>
+          <h4>Option 2: Get Subscription</h4>
         </div>
-      </div>
-      <div class="step">
-        <div class="step-number">3</div>
-        <div class="step-content">
-          <h4>Add Playlist</h4>
-          <p>Paste the M3U link into your player and start watching live TV!</p>
+        <div class="option-steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h4><a href="/plans">Get a Subscription</a></h4>
+              <p>Click <a href="/plans">Subscription Plans</a> to get your personal playlist URL.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h4>Add to IPTV Player</h4>
+              <p>Use the subscription URL in any IPTV player (VLC, IPTV Smarters, GSE Smart IPTV, etc.).</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h4>Enjoy All Channels</h4>
+              <p>Your subscription gives you access to 10,000+ live TV channels worldwide.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -660,16 +806,19 @@
     }
 
     const themeToggle = document.getElementById('themeToggle');
+    const sunSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+    const moonSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    
     themeToggle.addEventListener('click', () => {
       const current = document.documentElement.getAttribute('data-theme');
       const next = current === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
       localStorage.setItem('theme', next);
-      themeToggle.textContent = next === 'dark' ? '🌙' : '☀️';
+      themeToggle.innerHTML = next === 'dark' ? moonSVG : sunSVG;
     });
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    themeToggle.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+    themeToggle.innerHTML = savedTheme === 'dark' ? moonSVG : sunSVG;
 
     // Language selector - translate.js handles this automatically
 

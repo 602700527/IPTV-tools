@@ -9,7 +9,7 @@ import { handleUserActivate } from './handlers/user.js';
 import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings } from './handlers/public.js';
 import { handleFreeSubAPI } from './handlers/freesub-api.js';
 import { handleGetPlans } from './handlers/plans-api.js';
-import { handleSEOPage, generate404Page, isSearchEngineBot } from './handlers/seo-handler.js';
+import { generate404Page } from './handlers/seo-handler.js';
 import {
   handleRegister,
   handleSendVerificationCode,
@@ -215,10 +215,6 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
 
     // 路由处理
     if (path === '/' || path === '') {
-      // SEO: 如果是搜索引擎爬虫，返回带数据的静态 HTML
-      if (isSearchEngineBot(request)) {
-        return await handleSEOPage(request, env);
-      }
       // 首页 - 显示交互式播放站，添加安全头防止代理
       // 注入允许的域名配置和解密密钥
       const systemConfig = await getSystemConfig();
@@ -252,20 +248,14 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       });
     }
 
-    // SEO 路由：/category/{slug}
+    // 分类页路由：/category/{slug} -> 重定向到首页使用 ?group=slug
     const categoryMatch = path.match(/^\/category\/([a-zA-Z0-9-]+)$/);
     if (categoryMatch) {
-      // 分类页：如果是搜索爬虫则返回静态 HTML，否则重定向到首页
-      if (isSearchEngineBot(request)) {
-        return await handleSEOPage(request, env);
-      } else {
-        // 人类用户：重定向到首页，使用 ?group=slug 参数实现 SPA 体验
-        const groupSlug = categoryMatch[1];
-        const redirectUrl = new URL(url);
-        redirectUrl.pathname = '/';
-        redirectUrl.searchParams.set('group', groupSlug);
-        return Response.redirect(redirectUrl.toString(), 302);
-      }
+      const groupSlug = categoryMatch[1];
+      const redirectUrl = new URL(url);
+      redirectUrl.pathname = '/';
+      redirectUrl.searchParams.set('group', groupSlug);
+      return Response.redirect(redirectUrl.toString(), 302);
     } else if (path === '/api/config') {
       // 公开配置API - 获取前端需要的配置（如加密密钥）
       return await handlePublicConfig(request, env, ctx);
@@ -547,8 +537,11 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       // 管理后台API处理
       return await handleAdminRequest(request, env, ctx);
     } else if (path === '/sitemap.xml') {
-      // 网站地图（动态生成，包含所有频道和分类）
-      return await handleSEOPage(request, env);
+      // TODO: Serve sitemap from R2 (静态生成)
+      // 临时返回 placeholder
+      return new Response('<?xml version="1.0"?><sitemap><loc>/</loc></sitemap>', {
+        headers: { 'Content-Type': 'application/xml; charset=utf-8' }
+      });
     } else if (path === '/robots.txt') {
       // Robots.txt
       return new Response(generateRobotsTxt(), {
