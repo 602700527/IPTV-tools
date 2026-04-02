@@ -312,3 +312,41 @@ handlers/generate_seo_homepage_new.js
 - [ ] Logo 加载失败显示首字母
 - [ ] 移动端海报居中
 - [ ] Action buttons 功能正常
+
+---
+
+### 9. SEO 优化 ✅
+
+**涉及文件**：所有页面
+
+**已完成的 SEO 优化**：
+
+| 页面 | 优化项 |
+|------|--------|
+| homepage.html | Title, Description, Keywords, canonical, Open Graph (og:title, og:description, og:type, og:url, og:image) |
+| category.html | Title, Description, canonical, Open Graph, BreadcrumbList Schema |
+| channel-detail.html | Title, Description, canonical, Open Graph (og:url, og:title, og:description, og:image, og:type), VideoObject Schema, BreadcrumbList Schema |
+| privacy-policy.html | canonical |
+| terms.html | canonical |
+| tutorial.html | canonical |
+
+**域名统一**：
+- 所有页面 canonical 和内部链接使用 `https://iptv-search.com/`（非 www）
+- 原型文件中的 `www.iptv-search.com` 已全部替换为 `iptv-search.com`
+
+**Open Graph 标签**：
+- og:title - 页面标题
+- og:description - 页面描述
+- og:type - 内容类型
+- og:url - 页面 URL
+- og:image - 社交分享图片
+
+**Schema Markup**：
+- VideoObject - 频道详情页
+- BreadcrumbList - 分类页、频道详情页
+
+**待开发时实现**：
+- [ ] sitemap.xml 生成
+- [ ] robots.txt
+- [ ] 频道详情页增强 VideoObject（添加 contentUrl）
+- [ ] 首页添加更多相关频道推荐

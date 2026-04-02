@@ -70,12 +70,20 @@
     }
 
     .hero-404 {
-      font-size: 10rem;
-      font-weight: 900;
-      color: rgba(229,9,20,0.12);
-      line-height: 1;
-      margin-bottom: 1rem;
-      letter-spacing: -0.05em;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .hero-404 svg {
+      width: 48px;
+      height: 48px;
+      opacity: 0.5;
     }
 
     .hero h1 {
@@ -448,9 +456,14 @@
 
   <!-- Hero -->
   <section class="hero">
-    <div class="hero-404">404</div>
-    <h1>Oops! This channel seems to have wandered off</h1>
-    <p class="hero-subtitle">Don't worry — thousands of amazing channels are still waiting for you. Let's find something new to watch together.</p>
+    <div class="hero-404">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="M21 21l-4.35-4.35"/>
+      </svg>
+    </div>
+    <h1>Channel Not Found</h1>
+    <p class="hero-subtitle">Don't worry — thousands of live TV channels are still waiting for you. Let's find something new to watch together.</p>
 
     <div class="search-container">
       <form class="search-box" action="/" method="get">
@@ -478,7 +491,7 @@
       <p>We index thousands of public IPTV channels from broadcasters worldwide. Like TV networks, these channels sometimes change their streaming sources or go offline. When that happens, we automatically remove them from our search. The good news? There are always new channels joining, and we're here to help you find them.</p>
       
       <div class="category-tags">
-        <a href="/category/cctv" class="category-tag">央视</a>
+        <a href="/category/cctv" class="category-tag">CCTV</a>
         <a href="/category/sports" class="category-tag">Sports</a>
         <a href="/category/movie" class="category-tag">Movies</a>
         <a href="/category/news" class="category-tag">News</a>
@@ -492,7 +505,7 @@
       <a href="/channel/cctv1" class="channel-card">
         <img src="https://upload.wikimedia.org/wikipedia/zh/e/e5/CCTV-1.png" alt="CCTV-1" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="placeholder" style="display:none">📺</div>
-        <span class="name">CCTV-1 综合</span>
+        <span class="name">CCTV-1 General</span>
       </a>
       <a href="/channel/cctv5" class="channel-card">
         <img src="https://upload.wikimedia.org/wikipedia/zh/4/4f/CCTV-5.png" alt="CCTV-5" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
