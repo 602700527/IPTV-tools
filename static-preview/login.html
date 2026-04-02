@@ -262,35 +262,6 @@
       font-size: 0.95rem;
     }
 
-    /* Tab Buttons */
-    .tab-buttons {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 0.75rem;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-      font-weight: 500;
-      transition: all var(--transition);
-    }
-
-    .tab-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: white;
-    }
-
-    .tab-btn:hover:not(.active) {
-      background: var(--bg-hover);
-    }
-
     /* Form */
     .form-group {
       margin-bottom: 1.25rem;
@@ -542,13 +513,26 @@
       .header-inner {
         flex-wrap: wrap;
         justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
       }
       .logo {
         font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
       .logo-icon {
         width: 32px;
         height: 32px;
+        flex-shrink: 0;
+      }
+      .logo-icon svg {
+        width: 100%;
+        height: 100%;
+      }
+      .logo-text {
+        flex-shrink: 0;
       }
       .header-actions {
         gap: 0.5rem;
@@ -556,6 +540,8 @@
         -webkit-overflow-scrolling: touch;
         flex-wrap: nowrap;
         padding-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
       }
       .header-actions .pill-btn {
         padding: 0.5rem 0.75rem;
@@ -582,8 +568,6 @@
       .main { padding: 1rem; }
       .login-container { padding: 1.5rem; }
       .login-header h1 { font-size: 1.5rem; }
-      .tab-buttons { gap: 0.375rem; }
-      .tab-btn { padding: 0.625rem; font-size: 0.85rem; }
     }
 
     @media (max-width: 480px) {
@@ -667,12 +651,6 @@
       <div class="login-header">
         <h1 id="formTitle">Welcome Back</h1>
         <p id="formSubtitle">Login to manage your favorites and subscriptions</p>
-      </div>
-
-      <!-- Tab Buttons -->
-      <div class="tab-buttons">
-        <button class="tab-btn active" id="loginTabBtn" onclick="switchTab('login')">Login</button>
-        <button class="tab-btn" id="registerTabBtn" onclick="switchTab('register')">Register</button>
       </div>
 
       <!-- Login Form -->
