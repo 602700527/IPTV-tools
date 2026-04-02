@@ -155,28 +155,160 @@ handlers/generate_seo_homepage_new.js
 
 ## 四、已完成的原型更新
 
-### 页头导航更新（已完成）
+所有更新均已在 `static-preview/` 目录下的原型文件中实现，开发时需 100% 还原。
+
+### 1. 页头导航更新 ✅
+
+**涉及文件**：所有页面
 - [x] 所有页面添加 Favorites/Plans pill-btn 导航
 - [x] Theme toggle 改为 SVG 图标（太阳/月亮切换）
 - [x] 按钮使用统一的 pill-btn 样式
+- [x] **添加 Account 账号入口按钮**（/account 链接）
 
-### 频道详情页更新（已完成）
+### 2. 移动端适配 ✅
+
+**涉及文件**：所有页面（10 个 HTML 文件）
+- [x] 响应式断点：768px（移动）、900px（平板）、480px（小屏）
+- [x] 频道网格：桌面 4-6 列 → 平板 3 列 → 移动 2 列
+- [x] 搜索框：移动端全宽显示
+- [x] 按钮最小触摸尺寸 44x44px
+- [x] **语言切换栏在移动端保留**（仅缩小，不隐藏）
+- [x] Header 按钮横向滚动（overflow-x: auto）
+
+### 3. 频道详情页更新 ✅
+
+**涉及文件**：`channel-detail.html`
 - [x] 移除 "Watch Now" 播放按钮
-- [x] Action buttons 改为：Add to Favorites / Copy M3U Link / Get Subscription
+- [x] Action buttons：Add to Favorites / Copy M3U Link / Get Subscription
 - [x] "How to Watch" 改为双方案（收藏下载 / 订阅）
 - [x] 添加内链到 Favorites 和 Plans 页面
+- [x] **移动端海报缩小为 100x100px 正方形，居中显示**
+- [x] **Logo 加载失败时显示频道名首字母 + 背景色**
 
-### 收藏页面更新（已完成）
+### 4. 收藏页面更新 ✅
+
+**涉及文件**：`favorites.html`
 - [x] 页面头部添加 Favorites（高亮）/ Plans pill-btn
 - [x] M3U 下载提示移到按钮下方
 - [x] Download/Clear All 按钮使用 SVG 图标
 - [x] 整体布局优化
 
-### 分类页批量操作优化（已完成）
+### 5. 分类页批量操作优化 ✅
+
+**涉及文件**：`category.html`
 - [x] 移除隐藏的"Batch Select"按钮
 - [x] 批量操作栏始终可见
 - [x] 添加提示文字引导用户
+- [x] **添加 Download M3U 按钮**（绿色渐变背景）
+- [x] **批量下载也受 200 限制**
 
-### Emoji 替换（已完成）
+### 6. 收藏数量限制 ✅
+
+**涉及文件**：`category.html`, `favorites.html`, `channel-detail.html`
+- [x] 收藏上限 200 个频道
+- [x] 超限时显示友好提示
+- [x] **提示文案含内链**：`Get subscription` → /plans
+
+**提示样式**：
+```
+┌────────────────────────────────────────────┐
+│ ⚠️  Maximum 200 channels.                 │
+│     Get subscription → /plans              │
+└────────────────────────────────────────────┘
+```
+
+### 7. Emoji 替换 ✅
+
+**涉及文件**：所有页面
 - [x] 所有按钮、标题、图标改用 SVG
 - [x] 保留频道卡片占位符（不影响显示）
+
+### 8. 语言切换栏保留 ✅
+
+**涉及文件**：所有页面
+- [x] 移动端不再隐藏 `#translate` 元素
+- [x] 语言选择器在移动端显示（尺寸缩小）
+- [x] Header 支持横向滚动
+
+### ⚠️ 重要：分类导航必须动态生成
+
+**问题**：`static-preview/category.html` 中的分类导航（央视、卫星电视、体育、新闻...）是**写死在 HTML 中的**，这是**原型演示用的**，**不能直接用于生产环境**。
+
+**需求**：
+```
+分类导航栏的分类列表，必须从数据源动态读取生成，禁止写死。
+
+数据来源：sources 表 → channels 表的 group_title 或 category 字段
+```
+
+**实现要求**：
+1. 分类列表从数据库动态获取（去重后的 category/group）
+2. 分类顺序可配置（权重字段）
+3. 当前激活分类通过 URL 参数 `/category/{slug}` 判断
+4. 分类数量不限（原型中写死了 9 个，实际可扩展）
+
+**原型文件中的分类（仅供演示）**：
+```html
+<!-- ⚠️ 这些是写死的原型数据，生产环境必须从数据库读取 -->
+<li><a href="/category/cctv" class="active">CCTV</a></li>
+<li><a href="/category/weishi">Satellite TV</a></li>
+<li><a href="/category/sports">Sports</a></li>
+<!-- ... 更多分类 -->
+```
+
+**开发时注意**：静态生成阶段，分类页的分类导航也需要一并生成。
+
+---
+
+### ⚠️ 重要：所有页面文字已英文化
+
+**问题**：原型文件中曾有部分中文内容，现已全部翻译为英文。
+
+**已翻译文件**：`category.html`
+
+**翻译对照表**：
+| 中文 | 英文 |
+|------|------|
+| 央视频道 | CCTV Channels |
+| 央视 | CCTV |
+| 卫视频道 | Satellite TV |
+| 综合频道 | General |
+| 财经频道 | Finance |
+| 综艺频道 | Entertainment |
+| 体育频道 | Sports |
+| 体育赛事 | Sports Events |
+| 纪录频道 | Documentary |
+| 科教频道 | Education |
+| 戏曲频道 | Opera |
+
+**开发时**：所有页面显示文字必须与原型一致。
+
+---
+
+### ⚠️ 开发检查清单
+
+开发实现时，需逐一核对以下功能点：
+
+**Header 导航**：
+- [ ] Favorites 按钮链接到 /favorites
+- [ ] Plans 按钮链接到 /plans
+- [ ] Account 按钮链接到 /account
+- [ ] Theme toggle 正常工作
+- [ ] 语言切换正常工作
+
+**分类页**：
+- [ ] 分类导航从数据库动态读取
+- [ ] 批量操作栏始终可见
+- [ ] Download M3U 按钮功能正常
+- [ ] 批量添加受 200 限制
+- [ ] 移动端横向滚动正常
+
+**收藏功能**：
+- [ ] 收藏上限 200 个
+- [ ] 超限提示含订阅链接
+- [ ] M3U 下载功能正常
+
+**频道详情页**：
+- [ ] Logo 加载失败显示首字母
+- [ ] 移动端海报居中
+- [ ] Action buttons 功能正常
