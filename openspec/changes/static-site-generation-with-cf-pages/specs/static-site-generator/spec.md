@@ -1,5 +1,41 @@
 ## ADDED Requirements
 
+### Requirement: Strict Template Compliance
+
+**⚠️ IMPORTANT**: All development MUST 100% match the prototype templates in `static-preview/` directory.
+
+The `static-preview/` directory contains prototype HTML/CSS/JS files that define the exact UI that must be implemented. During development, you MUST:
+
+#### Forbidden Actions (NEVER do these):
+- Simplify or omit any UI elements
+- Modify colors, fonts, spacing, or animations arbitrarily
+- Replace SVG icons with emoji
+- Omit any hint text or descriptions
+- Use different component structures than the template
+
+#### Must Do:
+- [ ] Match HTML structure exactly (element order, class names, attributes)
+- [ ] Match CSS styles exactly (colors, spacing, animations)
+- [ ] Use the exact SVG icons provided in templates
+- [ ] Implement all interaction logic (hover effects, toggles, animations)
+- [ ] Include all hint text and descriptions
+
+#### Prototype Files Reference:
+```
+static-preview/
+├── homepage.html         # Homepage template
+├── category.html         # Category page template
+├── channel-detail.html   # Channel detail page template
+├── favorites.html        # Favorites page template
+├── login.html            # Login page template
+├── account.html          # Account page template
+├── privacy-policy.html   # Legal page template
+├── terms.html            # Legal page template
+└── tutorial.html         # Tutorial page template
+```
+
+---
+
 ### Requirement: Static Site Generator CLI
 
 The system SHALL provide a Node.js CLI tool (`scripts/generate-static-site.js`) that reads channel data from D1 database and generates pre-rendered HTML files for static hosting.
@@ -41,13 +77,150 @@ The generator script SHALL read channel data directly from the configured D1 dat
 
 The generator SHALL reuse the HTML generation logic from `handlers/seo-handler.js` by refactoring functions into a shared module.
 
+**IMPORTANT**: The generated HTML MUST match the prototype templates in `static-preview/` exactly.
+
 #### Scenario: Reuse homepage template
 - **WHEN** generating homepage
 - **THEN** the output HTML SHALL match the structure and styling of `generateSEOHomepage()`
+- **AND** SHALL match `static-preview/homepage.html` exactly
 
 #### Scenario: Reuse category template
 - **WHEN** generating category pages
 - **THEN** the output HTML SHALL match the structure and styling of `generateCategoryPage()`
+- **AND** SHALL match `static-preview/category.html` exactly
+
+#### Scenario: Reuse channel detail template
+- **WHEN** generating channel detail pages
+- **THEN** the output HTML SHALL match `static-preview/channel-detail.html` exactly
+
+---
+
+### Requirement: Complete SEO Meta Tags Preservation
+
+**⚠️ IMPORTANT**: All SEO meta tags MUST be preserved exactly as defined in prototype templates. SEO information is critical for search engine indexing and social sharing.
+
+#### Homepage SEO Requirements:
+
+| Tag | Content |
+|-----|---------|
+| `<title>` | `IPTV Search - 10,000+ Free Live TV Channels Directory` |
+| `<meta name="description">` | Search and watch free live TV channels from around the world. 10,000+ channels including CCTV, sports, news, entertainment and more. No signup required.` |
+| `<meta name="keywords">` | `free IPTV, live TV, watch TV online, TV streaming, CCTV, sports channels, news channels, entertainment` |
+| `<link rel="canonical">` | `https://iptv-search.com/` |
+| `og:title` | `IPTV Search - 10,000+ Free Live TV Channels Directory` |
+| `og:description` | Search and watch free live TV channels from around the world. |
+| `og:type` | `website` |
+| `og:url` | `https://iptv-search.com/` |
+| `og:image` | Social sharing image URL |
+
+#### Category Page SEO Requirements:
+
+| Tag | Content |
+|-----|---------|
+| `<title>` | `{Category Name} - Free Live TV Streaming \| IPTV Search` |
+| `<meta name="description">` | Watch free {Category Name} TV channels online. {Category Name} live streaming including all major channels.` |
+| `<meta name="keywords">` | `free IPTV, {Category Name}, live TV, streaming, {specific channels}` |
+| `<link rel="canonical">` | `https://iptv-search.com/category/{slug}` |
+| `og:title` | `{Category Name} - Free Live TV Streaming \| IPTV Search` |
+| `og:description` | Watch free {Category Name} TV channels online. |
+| `og:type` | `website` |
+| `og:url` | `https://iptv-search.com/category/{slug}` |
+| `og:image` | Social sharing image URL |
+
+#### Channel Detail Page SEO Requirements:
+
+| Tag | Content |
+|-----|---------|
+| `<title>` | `{Channel Name} Live - Watch Free HD IPTV Streaming \| IPTV Search` |
+| `<meta name="description">` | Watch {Channel Name} live streaming free. {Group Name} channel with HD quality. No signup required.` |
+| `<meta name="keywords">` | `free IPTV, live TV, {Channel Name}, {Group Name}, streaming, watch TV online` |
+| `<link rel="canonical">` | `https://iptv-search.com/channel/{hash}` |
+| `og:title` | `{Channel Name} Live - Watch Free HD IPTV Streaming \| IPTV Search` |
+| `og:description` | Watch {Channel Name} live streaming free online. {Group Name} channel available 24/7.` |
+| `og:type` | `video` |
+| `og:url` | `https://iptv-search.com/channel/{hash}` |
+| `og:image` | Channel logo URL |
+| `og:site_name` | `IPTV Search` |
+
+#### Privacy Policy & Terms Page SEO Requirements:
+
+| Tag | Content |
+|-----|---------|
+| `<title>` | `{Page Name} \| IPTV Search` |
+| `<link rel="canonical">` | `https://iptv-search.com/{page-path}` |
+
+#### Legal Pages SEO Requirements:
+
+| Tag | Content |
+|-----|---------|
+| `<title>` | `{Page Name} \| IPTV Search` |
+| `<link rel="canonical">` | `https://iptv-search.com/{page-path}` |
+
+---
+
+### Requirement: JSON-LD Schema Markup
+
+All generated pages MUST include proper JSON-LD structured data for rich search results.
+
+#### Homepage JSON-LD:
+- FAQ schema with common questions about IPTV, registration, devices, etc.
+
+#### Category Page JSON-LD:
+- BreadcrumbList schema:
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://iptv-search.com/"},
+    {"@type": "ListItem", "position": 2, "name": "{Category Name}"}
+  ]
+}
+```
+
+#### Channel Detail Page JSON-LD:
+- VideoObject schema:
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  "name": "{Channel Name}",
+  "description": "Watch {Channel Name} live streaming free",
+  "thumbnailUrl": "{Logo URL}",
+  "uploadDate": "{Current Date}",
+  "expires": "{Future Date}"
+}
+```
+- BreadcrumbList schema (same structure as category page)
+
+---
+
+### Requirement: Domain Consistency
+
+**CRITICAL**: All canonical URLs and internal links MUST use consistent domain.
+
+| Requirement | Value |
+|-------------|-------|
+| Domain | `https://iptv-search.com/` (NOT `www.iptv-search.com`) |
+| Internal links | Must use full `https://iptv-search.com/` paths |
+| Canonical tags | Must use `https://iptv-search.com/` domain |
+
+---
+
+### Requirement: sitemap.xml and robots.txt
+
+The static site generator SHALL also generate:
+
+#### sitemap.xml
+- List all static pages (homepage, category pages, channel pages)
+- Include `<loc>`, `<lastmod>`, `<changefreq>`, `<priority>` for each URL
+- Channel pages priority: 0.6
+- Category pages priority: 0.8
+- Homepage priority: 1.0
+
+#### robots.txt
+- Allow all crawlers: `User-agent: * Allow: /`
+- Point to sitemap: `Sitemap: https://iptv-search.com/sitemap.xml`
 
 ### Requirement: Scheduled generation
 

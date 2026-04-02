@@ -1,5 +1,41 @@
 ## ADDED Requirements
 
+### Requirement: Strict Template Compliance
+
+**⚠️ IMPORTANT**: All development MUST 100% match the prototype templates in `static-preview/` directory.
+
+The `static-preview/` directory contains prototype HTML/CSS/JS files that define the exact UI that must be implemented. During development, you MUST:
+
+#### Forbidden Actions (NEVER do these):
+- Simplify or omit any UI elements
+- Modify colors, fonts, spacing, or animations arbitrarily
+- Replace SVG icons with emoji
+- Omit any hint text or descriptions
+- Use different component structures than the template
+
+#### Must Do:
+- [ ] Match HTML structure exactly (element order, class names, attributes)
+- [ ] Match CSS styles exactly (colors, spacing, animations)
+- [ ] Use the exact SVG icons provided in templates
+- [ ] Implement all interaction logic (hover effects, toggles, animations)
+- [ ] Include all hint text and descriptions
+
+#### Prototype Files Reference:
+```
+static-preview/
+├── homepage.html         # Homepage template
+├── category.html         # Category page template
+├── channel-detail.html   # Channel detail page template
+├── favorites.html        # Favorites page template
+├── login.html            # Login page template
+├── account.html          # Account page template
+├── privacy-policy.html   # Legal page template
+├── terms.html            # Legal page template
+└── tutorial.html         # Tutorial page template
+```
+
+---
+
 ### Requirement: Channel Detail Page Generation
 
 The system SHALL generate static HTML pages for individual channel details, accessible at `/channel/{hash}`.
@@ -47,6 +83,7 @@ The generated channel detail pages SHALL be optimized for search engine indexing
 #### Scenario: Channel page has canonical URL
 - **WHEN** a channel detail page is generated
 - **THEN** the HTML SHALL include a `<link rel="canonical">` tag pointing to the channel page URL
+- **AND** canonical URL SHALL use `https://iptv-search.com/` (NOT www)
 
 #### Scenario: Channel page has JSON-LD structured data
 - **WHEN** a channel detail page is generated
@@ -54,7 +91,65 @@ The generated channel detail pages SHALL be optimized for search engine indexing
 
 #### Scenario: Channel page has Open Graph meta tags
 - **WHEN** a channel detail page is generated
-- **THEN** the HTML SHALL include OG meta tags (og:title, og:description, og:image)
+- **THEN** the HTML SHALL include OG meta tags:
+  - `og:title` - Channel name + "Live - Watch Free HD IPTV Streaming | IPTV Search"
+  - `og:description` - Channel description
+  - `og:url` - Full canonical URL of the channel page
+  - `og:image` - Channel logo URL
+  - `og:type` - "video"
+
+#### Scenario: Channel page has BreadcrumbList Schema
+- **WHEN** a channel detail page is generated
+- **THEN** the HTML SHALL include BreadcrumbList JSON-LD schema:
+  - Home > Category > Channel Name
+
+---
+
+### Requirement: Complete SEO Meta Tags
+
+**⚠️ IMPORTANT**: All SEO meta tags MUST be preserved exactly as defined in prototype templates.
+
+#### Required Meta Tags for Channel Detail Pages:
+
+| Tag | Content |
+|-----|---------|
+| `<title>` | `{Channel Name} Live - Watch Free HD IPTV Streaming \| IPTV Search` |
+| `<meta name="description">` | Watch {Channel Name} live streaming free. {Group Name} channel with HD quality. No signup required. |
+| `<meta name="keywords">` | free IPTV, live TV, {Channel Name}, {Group Name}, streaming, watch TV online |
+| `<link rel="canonical">` | `https://iptv-search.com/channel/{hash}` |
+| `og:title` | `{Channel Name} Live - Watch Free HD IPTV Streaming \| IPTV Search` |
+| `og:description` | Watch {Channel Name} live streaming free online. {Group Name} channel available 24/7. |
+| `og:url` | `https://iptv-search.com/channel/{hash}` |
+| `og:image` | Channel logo URL |
+| `og:type` | `video` |
+| `og:site_name` | `IPTV Search` |
+
+#### Required JSON-LD Schema for Channel Detail Pages:
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  "name": "{Channel Name}",
+  "description": "Watch {Channel Name} live streaming free",
+  "thumbnailUrl": "{Logo URL}",
+  "uploadDate": "{Current Date}",
+  "expires": "{Future Date}"
+}
+```
+
+#### Required BreadcrumbList Schema:
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://iptv-search.com/"},
+    {"@type": "ListItem", "position": 2, "name": "{Category}", "item": "https://iptv-search.com/category/{slug}"},
+    {"@type": "ListItem", "position": 3, "name": "{Channel Name}"}
+  ]
+}
+```
 
 ### Requirement: Channel Detail Page Template
 
@@ -94,11 +189,14 @@ The site SHALL support switching between dark and light themes with user prefere
 
 ### Requirement: Dynamic Translation (i18n)
 
-The site SHALL support dynamic language switching using the existing `translate.js` library.
+The site SHALL support dynamic language switching using `translate.js` from CDN.
 
 #### Scenario: Translate.js included in static pages
 - **WHEN** any static page is generated
-- **THEN** the HTML SHALL include `translate.js` from CDN
+- **THEN** the HTML SHALL include `translate.js` from:
+  ```
+  https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js
+  ```
 - **AND** `translate.execute()` SHALL be called to auto-translate the page
 
 #### Scenario: Manual language switching

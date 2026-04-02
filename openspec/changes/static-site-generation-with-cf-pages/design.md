@@ -9,7 +9,7 @@ The current architecture renders pages dynamically on each request in Cloudflare
 **Problem:**
 1. Humans don't get pre-rendered HTML, resulting in slower perceived load
 2. Every page view hits Workers compute, even for content that never changes
-3. Cannot host on Cloudflare Pages (static hosting) - stuck with Workers pricing
+3. SPA approach requires client-side API calls for channel data
 
 **Constraints:**
 - Channel data comes from D1 database, synced daily from M3U sources
@@ -21,16 +21,17 @@ The current architecture renders pages dynamically on each request in Cloudflare
 
 **Goals:**
 - Pre-generate static HTML for homepage, all category pages, and all channel detail pages
-- Serve static files from Cloudflare Pages for unlimited access (no Workers bandwidth limit)
+- Serve static files from Workers for instant page loads
 - Maintain existing dynamic playback (`/live/{code}/{hash}`) and subscription (`/sub/{code}.m3u`) functionality
-- Generate static files via CF Worker scheduled cron job (daily at 12:00)
-- Support fallback to Workers serving static files if CF Pages not configured
+- Generate static files via CF Worker scheduled cron job (daily at 3:00 AM)
+- Support R2 bucket for static file storage (optional enhancement)
 
 **Non-Goals:**
 - Static generation of M3U subscription files (must remain dynamic per user)
 - Pre-generating personalized playback URLs (IP binding is inherently dynamic)
 - Real-time channel updates (daily regeneration is acceptable per existing sync schedule)
 - Modifying the admin dashboard or API endpoints
+- Cloudflare Pages deployment (abandoned)
 
 ## Decisions
 
@@ -45,55 +46,39 @@ The current architecture renders pages dynamically on each request in Cloudflare
 **Rationale:**
 - Existing `seo-handler.js` already has the HTML generation logic
 - Refactoring into a reusable generator allows both Workers runtime and CLI use
-- CLI tool can run via `wrangler d1 execute` or `wrangler pages deploy`
-- Avoids complex build-time Worker simulation
+- CLI tool can run via cron or manual trigger
 
 **Alternatives Considered:**
 - *Build-time Worker simulation*: Would require mocking Cloudflare runtime APIs (env.DB, env.KV) which is complex and brittle
 - *Workers-as-build-engine*: Using a separate Worker to generate pages on-demand and cache them adds complexity
 
-### Decision 2: Cloudflare Pages Deployment
+### Decision 2: Workers Static File Serving
 
-**Choice:** Deploy generated static files to Cloudflare Pages using `wrangler pages deploy`
+**Choice:** Workers serves pre-generated HTML files from `static-output/` directory or R2 bucket
 
 **Rationale:**
-- CF Pages provides free static hosting with global edge network
-- Instant cache hits for all static assets (HTML, CSS, images)
-- Automatic builds can be triggered via GitHub Actions or Wrangler CLI
-- Workers can remain dedicated to dynamic APIs only
+- Single deployment target (Workers only)
+- Static files served directly from Workers
+- Optional R2 integration for multi-instance consistency
+- No additional infrastructure needed
 
 **Alternatives Considered:**
-- *Workers static file serving*: Adding `static-output/` asassets in worker bundle works but doesn't leverage CF Pages edge
-- *External CDN*: Would add complexity and cost; CF Pages is native to Cloudflare ecosystem
+- *Cloudflare Pages*: Abandoned - adds complexity without sufficient benefit
 
-### Decision 3: Hybrid Routing Architecture (Plan B - CONFIRMED)
+### Decision 3: Static File Routing Architecture
 
 **Choice:** 
-- **Workers**: `iptv-search.com` — handles `/live/*`, `/sub/*`, `/api/*`
-- **Pages**: `www.iptv-search.com` — serves static HTML (`/`, `/category/*`, `/channel/*`)
-- Pages uses `_routes.json` to exclude dynamic routes from Pages Functions
-- Pages uses Origin Rules to proxy API requests back to Workers
-
-**Domain Configuration:**
-| Domain | Service | Handles |
-|--------|---------|---------|
-| `iptv-search.com` | Workers | `/live/*`, `/sub/*`, `/api/*` |
-| `www.iptv-search.com` | Pages | `/`, `/category/*`, `/channel/*` |
+- **Workers**: `iptv-search.com` — serves static HTML (`/`, `/category/*`, `/channel/*`) AND handles dynamic APIs (`/live/*`, `/sub/*`, `/api/*`)
 
 **Routing Setup:**
-1. Deploy Workers to `iptv-search.com`
-2. Deploy Pages to `www.iptv-search.com` via custom domain
-3. Configure `_routes.json` in Pages to exclude dynamic routes:
-   ```json
-   { "version": 1, "include": ["/"], "exclude": ["/live/*", "/sub/*", "/api/*"] }
-   ```
-4. Create Origin Rule on `www.iptv-search.com` to proxy `/live/*`, `/sub/*`, `/api/*` back to Workers
+1. Check if request path matches pre-generated static file
+2. If yes, serve static file directly
+3. If no, fall through to dynamic handlers
 
 **Rationale:**
-- Clean separation: Pages = static content (unlimited), Workers = dynamic APIs
-- Workers dedicated to what must be dynamic (IP binding, user-specific M3U)
-- Pages handles SEO-critical content at edge with no bandwidth limits
-- Existing subscription URLs (`/sub/{code}.m3u`) work unchanged on Workers
+- Single deployment target simplifies operations
+- Static files served with edge caching
+- Dynamic APIs remain fully functional
 
 ### Decision 4: Add Channel Detail Page Generation
 
@@ -109,16 +94,7 @@ The current architecture renders pages dynamically on each request in Cloudflare
 - Shows: channel name, logo, group, source, M3U copy button
 - Links to: play page (via `/live/{code}/{hash}` or `/sub/{code}.m3u`)
 
-### Decision 5: Fallback Static File Serving in Workers
-
-**Choice:** If `STATIC_OUTPUT_DIR` env var points to a local directory, Workers can serve pre-generated HTML files directly
-
-**Rationale:**
-- Allows development/testing without deploying to CF Pages
-- Provides fallback if CF Pages is not configured
-- Keeps single deployment option (Workers) for simpler setups
-
-### Decision 6: Dark/Light Theme Switching
+### Decision 5: Dark/Light Theme Switching
 
 **Choice:** Implement CSS variable-based theming with localStorage persistence and system preference detection
 
@@ -143,12 +119,16 @@ The current architecture renders pages dynamically on each request in Cloudflare
 - System preference detection provides sensible defaults
 - No backend state needed - pure client-side
 
-### Decision 7: JavaScript-Based Dynamic Translation (i18n)
+### Decision 6: JavaScript-Based Dynamic Translation (i18n)
 
-**Choice:** Keep existing `translate.js` library for automatic page translation
+**Choice:** Use `translate.js` library for automatic page translation
 
-**Existing Implementation:**
-- Uses `translate.js` from CDN (`cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js`)
+**CDN URL:**
+```
+https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js
+```
+
+**Features:**
 - Automatic language detection based on browser locale
 - Manual language switching via `translate.changeLanguage(lang)`
 - Language selector in header (built-in translate.js language menu)
@@ -170,7 +150,7 @@ The current architecture renders pages dynamically on each request in Cloudflare
 - No language JSON files needed - library handles everything
 - Pure client-side solution, no backend changes needed
 
-### Decision 8: Favorites/Starred Channels System
+### Decision 7: Favorites/Starred Channels System
 
 **Choice:** Implement client-side favorites system using localStorage with star button on all channel cards
 
@@ -208,20 +188,16 @@ The current architecture renders pages dynamically on each request in Cloudflare
 - Instant feedback without server round-trips
 - Users control their own data (privacy-friendly)
 
+## Risks & Mitigations
+
 - **[Risk]** Daily regeneration means new channels won't appear for up to 24 hours
   - **Mitigation**: This matches existing sync schedule (acceptable)
-  
-- **[Risk]** CF Pages deployment could fail silently
-  - **Mitigation**: Add deployment verification step; use wrangler's built-in deployment checking
-
+   
 - **[Risk]** Large number of channel pages (10,000+) could slow generation
   - **Mitigation**: Generate in batches; use streaming HTML generation; skip channels without logos
 
-- **[Trade-off]** Two deployment targets (Workers + Pages) vs single target
-  - **Accept**: Operational complexity is manageable; benefits (speed, cost) outweigh it
-
-- **[Trade-off]** Channel detail pages increase storage/processing
-  - **Accept**: Most channels don't have detail pages today; generation is optional
+- **[Risk]** Static file serving increases Workers bandwidth usage
+  - **Mitigation**: Use Cache API for static files; consider R2 for large-scale deployment
 
 ## Migration Plan
 
@@ -235,31 +211,32 @@ The current architecture renders pages dynamically on each request in Cloudflare
    - Add route `/channel/{hash}` to `worker.js`
    - Test static generation includes all channels
 
-3. **Phase 3: CF Pages Deployment (Plan B)**
-   - Create `wrangler-pages.toml` for Pages project
-   - Configure custom domain `www.iptv-search.com`
-   - Create `_routes.json` to exclude dynamic routes
-   - Create Origin Rules to proxy API routes to Workers
-   - Deploy static files via `wrangler pages deploy`
+3. **Phase 3: Workers Static File Serving**
+   - Add static file reading in `worker.js`
+   - Configure `STATIC_OUTPUT_DIR` in `wrangler.toml`
+   - Test serving pre-generated HTML files
 
 4. **Phase 4: Scheduler Integration**
-   - Add static generation to existing cron schedule (daily 12:00)
-   - Add Pages deployment step to scheduler
+   - Add static generation to existing cron schedule (daily 3:00 AM)
    - Verify scheduled runs succeed
 
-5. **Phase 5: Fallback Mode**
-   - Add Workers static file serving
-   - Test fallback when Pages unavailable
+5. **Phase 5: Admin UI (Optional)**
+   - Add button in Admin to trigger static generation
+   - Add progress tracking API
+
+6. **Phase 6: R2 Integration (Optional Enhancement)**
+   - Configure R2 bucket for static file storage
+   - Upload generated files to R2 instead of local directory
 
 ## Confirmed Decisions
 
 | Item | Decision |
 |------|----------|
 | Channel count | 8000-10000 channels |
-| Generation time | Daily at 12:00 |
-| Domain config | Workers: `iptv-search.com`, Pages: `www.iptv-search.com` |
-| Build environment | CF Worker scheduled task (not GitHub Actions) |
-| Routing | Plan B: Pages excludes routes, Origin Rules proxy to Workers |
+| Generation time | Daily at 3:00 AM |
+| Domain config | Single Workers deployment at `iptv-search.com` |
+| Static file serving | Workers reads from `static-output/` or R2 |
 | Theme | Dark/light mode with localStorage + system preference |
 | Theme default | Dark |
-| Translation | translate.js (auto-translation, supports 10+ languages) |
+| Translation | translate.js from `cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js` |
+| i18n approach | Client-side auto-translation via translate.js |

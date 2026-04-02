@@ -16,14 +16,16 @@
 - [ ] 1b.6 Test theme switch on homepage, category pages, and channel detail pages
 - [ ] 1b.7 Verify localStorage persistence works across sessions
 
-## 1c. Preserve JavaScript Translation (i18n)
+## 1c. Implement Translation via translate.js
 
-- [ ] 1c.1 Identify existing translate.js initialization code in current pages
-- [ ] 1c.2 Extract translate.js script tag and initialization from page-footer.js
-- [ ] 1c.3 Include translate.js CDN link in static HTML generation
-- [ ] 1c.4 Add `translate.execute()` call in generated HTML
-- [ ] 1c.5 Test auto-translation works on homepage, category pages, and channel detail pages
-- [ ] 1c.6 Verify language preference persists across sessions
+- [ ] 1c.1 Include translate.js CDN in all static HTML pages:
+  ```
+  https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js
+  ```
+- [ ] 1c.2 Add `translate.execute()` call after page load to auto-translate
+- [ ] 1c.3 Verify language selector is displayed in header (translate.js built-in)
+- [ ] 1c.4 Verify language preference persists via translate.js localStorage
+- [ ] 1c.5 Test auto-translation on homepage, category pages, and channel detail pages
 
 ## 2. Create Static Site Generator CLI
 
@@ -40,10 +42,10 @@
 ## 3. Add Channel Detail Page Route
 
 - [ ] 3.1 Add route handler in `worker.js` for `/channel/{hash}` path
-- [ ] 3.2 Implement static file serving fallback in `worker.js` for pre-generated HTML
+- [ ] 3.2 Implement static file serving in `worker.js` (read from `static-output/` directory)
 - [ ] 3.3 Add 404 handling for unknown channel hashes
 - [ ] 3.4 Add proper cache headers for channel pages (public, max-age=86400)
-- [ ] 3.5 Test channel route with existing bot detection and new static file serving
+- [ ] 3.5 Test channel route with static file serving
 
 ## 3b. Implement Favorites/Starred Channels System
 
@@ -113,19 +115,60 @@
   - Check login status on page load
   - Include token in API requests header
 
-## 3d. SEO Optimization
+## 3d. SEO Optimization (CRITICAL - Must Preserve Exactly)
 
-- [ ] 3d.1 All page titles and meta descriptions in English
-  - Homepage: "IPTV Search - 10,000+ Free Live TV Channels Directory"
-  - Category pages: "{Category Name} - Free Live TV Streaming | IPTV Search"
-  - Channel pages: "{Channel Name} Live - Watch Free HD IPTV Streaming | IPTV Search"
-- [ ] 3d.2 Add meta keywords tag to all pages
-  - Include relevant keywords: free IPTV, live TV, streaming, {category names}
-- [ ] 3d.3 Add Open Graph meta tags (og:title, og:description, og:type, og:url)
-- [ ] 3d.4 Add FAQ schema JSON-LD to homepage
-  - Include common questions about IPTV, registration, devices, etc.
-- [ ] 3d.5 Add TelevisionChannel schema to channel detail pages
-- [ ] 3d.6 Ensure canonical URLs use `https://iptv-search.com` (not www)
+**⚠️ IMPORTANT**: All SEO meta tags MUST be preserved exactly as defined in prototype templates. SEO is critical for search engine ranking and social sharing.
+
+### 3d.1 Homepage SEO Tags (EXACT values from template)
+- [ ] `<title>`: "IPTV Search - 10,000+ Free Live TV Channels Directory"
+- [ ] `<meta name="description">`: "Search and watch free live TV channels from around the world. 10,000+ channels including CCTV, sports, news, entertainment and more. No signup required."
+- [ ] `<meta name="keywords">`: "free IPTV, live TV, watch TV online, TV streaming, CCTV, sports channels, news channels, entertainment"
+- [ ] `<link rel="canonical">`: "https://iptv-search.com/"
+- [ ] `og:title`: "IPTV Search - 10,000+ Free Live TV Channels Directory"
+- [ ] `og:description`: "Search and watch free live TV channels from around the world."
+- [ ] `og:type`: "website"
+- [ ] `og:url`: "https://iptv-search.com/"
+- [ ] `og:image`: Social sharing image URL
+
+### 3d.2 Category Page SEO Tags (per category)
+- [ ] `<title>`: "{Category Name} - Free Live TV Streaming | IPTV Search"
+- [ ] `<meta name="description">`: "Watch free {Category Name} TV channels online. {Category Name} live streaming including all major channels."
+- [ ] `<meta name="keywords">`: "free IPTV, {Category Name}, live TV, streaming, {specific channels}"
+- [ ] `<link rel="canonical">`: "https://iptv-search.com/category/{slug}"
+- [ ] `og:title`: "{Category Name} - Free Live TV Streaming | IPTV Search"
+- [ ] `og:description`: "Watch free {Category Name} TV channels online."
+- [ ] `og:type`: "website"
+- [ ] `og:url`: "https://iptv-search.com/category/{slug}"
+
+### 3d.3 Channel Detail Page SEO Tags (per channel)
+- [ ] `<title>`: "{Channel Name} Live - Watch Free HD IPTV Streaming | IPTV Search"
+- [ ] `<meta name="description">`: "Watch {Channel Name} live streaming free. {Group Name} channel with HD quality. No signup required."
+- [ ] `<meta name="keywords">`: "free IPTV, live TV, {Channel Name}, {Group Name}, streaming, watch TV online"
+- [ ] `<link rel="canonical">`: "https://iptv-search.com/channel/{hash}"
+- [ ] `og:title`: "{Channel Name} Live - Watch Free HD IPTV Streaming | IPTV Search"
+- [ ] `og:description`: "Watch {Channel Name} live streaming free online. {Group Name} channel available 24/7."
+- [ ] `og:type`: "video"
+- [ ] `og:url`: "https://iptv-search.com/channel/{hash}"
+- [ ] `og:image`: Channel logo URL
+- [ ] `og:site_name`: "IPTV Search"
+
+### 3d.4 JSON-LD Schema Markup
+- [ ] 3d.4.1 Homepage: FAQ schema JSON-LD
+- [ ] 3d.4.2 Category pages: BreadcrumbList schema JSON-LD
+- [ ] 3d.4.3 Channel pages: VideoObject + BreadcrumbList schema JSON-LD
+- [ ] 3d.4.4 VideoObject includes: name, description, thumbnailUrl, uploadDate, expires
+
+### 3d.5 Domain Consistency (CRITICAL)
+- [ ] 3d.5.1 All canonical URLs MUST use `https://iptv-search.com/` (NOT www)
+- [ ] 3d.5.2 All internal links MUST use full `https://iptv-search.com/` paths
+- [ ] 3d.5.3 og:url MUST match canonical URL exactly
+
+### 3d.6 sitemap.xml and robots.txt
+- [ ] 3d.6.1 Generate sitemap.xml with all static pages
+- [ ] 3d.6.2 sitemap.xml includes `<loc>`, `<lastmod>`, `<changefreq>`, `<priority>`
+- [ ] 3d.6.3 Channel pages priority: 0.6, Category pages: 0.8, Homepage: 1.0
+- [ ] 3d.6.4 Generate robots.txt allowing all crawlers
+- [ ] 3d.6.5 robots.txt includes Sitemap reference
 
 ## 3e. Marketing Enhancement
 
@@ -161,38 +204,42 @@
 - [ ] 3f.5 Mobile sidebar
   - Hidden by default, show via hamburger menu
 
-## 4. Integrate with Scheduler (Daily 12:00)
+## 4. Integrate with Scheduler (Daily 3:00)
 
 - [ ] 4.1 Add static site generation call to scheduler in `handlers/scheduler.js`
-- [ ] 4.2 Update cron trigger from "0 3 * * *" to "0 12 * * *" in `wrangler.toml`
+- [ ] 4.2 Keep cron trigger at "0 3 * * *" (daily at 3:00 AM) in `wrangler.toml`
 - [ ] 4.3 Add error handling so generation failure doesn't break cron job
 - [ ] 4.4 Add generation stats logging after successful run
 - [ ] 4.5 Test scheduler runs correctly via `GET /test/scheduled`
 
-## 5. Domain and DNS Configuration
+## 5. Static File Serving via Workers
 
-- [ ] 5.1 Ensure Workers is deployed on `iptv-search.com`
-- [ ] 5.2 Set up Pages project on `www.iptv-search.com` via Cloudflare Dashboard
-- [ ] 5.3 Configure Origin Rule: if hostname is `www.iptv-search.com` AND path is `/live/*` OR `/sub/*` OR `/api/*`, proxy to Workers
-- [ ] 5.4 Verify DNS is pointing correctly (CNAME for www to Pages)
-- [ ] 5.5 Test API proxy from Pages to Workers
+- [ ] 5.1 Add `STATIC_OUTPUT_DIR` configuration option to `wrangler.toml`
+- [ ] 5.2 Implement static file reading in `worker.js`
+- [ ] 5.3 Serve pre-generated HTML files for homepage, category pages, and channel pages
+- [ ] 5.4 Test static file serving works locally with `npm run dev`
+- [ ] 5.5 Document static file serving mode in README
 
-## 6. Create CF Pages Deployment Configuration
+## 6. Admin Static Generation Trigger
 
-- [ ] 6.1 Create `wrangler-pages.toml` for Pages project
-- [ ] 6.2 Configure Pages project name and build output directory
-- [ ] 6.3 Set up custom domain `www.iptv-search.com` in Pages dashboard
-- [ ] 6.4 Create `_routes.json` to exclude dynamic routes (`/live/*`, `/sub/*`, `/api/*`)
-- [ ] 6.5 Configure Origin Rules in Cloudflare Dashboard to proxy API routes to Workers
-- [ ] 6.6 Test Pages deployment via `wrangler pages deploy`
-- [ ] 6.7 Verify Pages custom domain works correctly
+- [ ] 6.1 Add Admin UI button to trigger static site generation
+- [ ] 6.2 Implement background generation using `ctx.waitUntil()`
+- [ ] 6.3 Add progress tracking API: `GET /api/admin/static-generation/status`
+- [ ] 6.4 Display real-time progress: current file, completed/total count
+- [ ] 6.5 Add logs output: success/failure status, error details
+- [ ] 6.6 Generation flow:
+  1. Homepage `/` → static file
+  2. Category pages `/category/{slug}` → static files
+  3. Channel detail pages `/channel/{hash}` → static files (8000+)
+  4. sitemap.xml → static file
+  5. Update generation status on completion
 
-## 7. Workers Fallback Static File Serving
+## 7. R2 Bucket Integration (Optional Enhancement)
 
-- [ ] 7.1 Add `STATIC_OUTPUT_DIR` configuration option to `wrangler.toml`
-- [ ] 7.2 Implement static file reading in `worker.js` for when Pages is not configured
-- [ ] 7.3 Test fallback serving works locally with `npm run dev`
-- [ ] 7.4 Document fallback mode in README
+- [ ] 7.1 Configure R2 bucket `iptv-static-assets` for static file storage
+- [ ] 7.2 Upload generated files to R2 instead of local `static-output/`
+- [ ] 7.3 Workers reads from R2 for multi-instance consistency
+- [ ] 7.4 Note: KV free tier insufficient (8000 ops/day), R2 recommended
 
 ## 8. Testing and Verification
 
@@ -200,6 +247,6 @@
 - [ ] 8.2 Verify homepage HTML matches existing `generateSEOHomepage()` output
 - [ ] 8.3 Verify category pages generate for all groups
 - [ ] 8.4 Verify channel detail pages contain all required information
-- [ ] 8.5 Test deployment to CF Pages preview environment
-- [ ] 8.6 Verify Pages routing proxies correctly to Workers for dynamic routes
-- [ ] 8.7 Test end-to-end user flow: homepage → category → channel → play
+- [ ] 8.5 Test end-to-end user flow: homepage → category → channel → play
+- [ ] 8.6 Verify favorites system works across pages
+- [ ] 8.7 Verify theme switching persists correctly
