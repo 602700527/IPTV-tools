@@ -92,6 +92,75 @@
   - Check limit when downloading: if `favorites.length > 200`, show error and reject
   - This prevents abuse (API rate limits are finite)
 
+## 3c. Implement User Account System
+
+- [ ] 3c.1 Create login page (`/login`)
+  - Email + password login form
+  - Send verification code flow (for registration)
+  - Login API: `POST /api/auth/login` (already exists in `handlers/auth.js`)
+  - Remember to call `translate.execute()` for i18n
+- [ ] 3c.2 Account page already exists (`/account`)
+  - User info tab (email, member since, subscription status)
+  - Order history tab
+  - Logout button
+  - Account API: `GET /api/auth/user` (already exists)
+- [ ] 3c.3 Header navigation updates
+  - Add "Login" link when not logged in
+  - Replace with user avatar/email dropdown when logged in
+  - Add "Account" link in dropdown
+- [ ] 3c.4 Session management
+  - Store auth token in `localStorage.auth_token`
+  - Check login status on page load
+  - Include token in API requests header
+
+## 3d. SEO Optimization
+
+- [ ] 3d.1 All page titles and meta descriptions in English
+  - Homepage: "IPTV Search - 10,000+ Free Live TV Channels Directory"
+  - Category pages: "{Category Name} - Free Live TV Streaming | IPTV Search"
+  - Channel pages: "{Channel Name} Live - Watch Free HD IPTV Streaming | IPTV Search"
+- [ ] 3d.2 Add meta keywords tag to all pages
+  - Include relevant keywords: free IPTV, live TV, streaming, {category names}
+- [ ] 3d.3 Add Open Graph meta tags (og:title, og:description, og:type, og:url)
+- [ ] 3d.4 Add FAQ schema JSON-LD to homepage
+  - Include common questions about IPTV, registration, devices, etc.
+- [ ] 3d.5 Add TelevisionChannel schema to channel detail pages
+- [ ] 3d.6 Ensure canonical URLs use `https://iptv-search.com` (not www)
+
+## 3e. Marketing Enhancement
+
+- [ ] 3e.1 Homepage hero section
+  - Clear value proposition: "10,000+ Free Live TV Channels - Watch Instantly"
+  - Primary CTA: "Start Watching Free" button
+  - Secondary CTA: "Browse All Channels" button
+- [ ] 3e.2 Add trust signals to homepage hero
+  - "🔒 No Signup Required"
+  - "✅ Works on Any Device"
+  - "📺 HD Quality Available"
+- [ ] 3e.3 CTA buttons styling
+  - Primary: Red accent color, rounded, shadow
+  - Secondary: Outline style, hover effect
+- [ ] 3e.4 Batch download M3U on category pages
+  - "Download M3U" button in bulk actions bar
+  - Fetches play links for selected channels
+
+## 3f. Mobile Optimization
+
+- [ ] 3f.1 Touch target sizes
+  - All buttons minimum 44x44px
+  - Pill buttons adequately sized for touch
+- [ ] 3f.2 Responsive breakpoints
+  - 768px: Tablet adjustments
+  - 480px: Mobile phone adjustments
+- [ ] 3f.3 Mobile header
+  - Search box full width
+  - Compact navigation
+- [ ] 3f.4 Mobile channel grid
+  - 2 columns on small screens
+  - Reduced gaps
+- [ ] 3f.5 Mobile sidebar
+  - Hidden by default, show via hamburger menu
+
 ## 4. Integrate with Scheduler (Daily 12:00)
 
 - [ ] 4.1 Add static site generation call to scheduler in `handlers/scheduler.js`

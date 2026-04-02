@@ -168,3 +168,39 @@ The site SHALL support storing favorites in browser's localStorage without requi
 - **WHEN** favorites are updated in one tab
 - **THEN** other tabs SHALL detect the change via `storage` event
 - **AND** update star button states accordingly
+
+### Requirement: User Account System
+
+The site SHALL provide user authentication and account management using existing auth APIs.
+
+#### Scenario: User login
+- **WHEN** a user navigates to `/login`
+- **THEN** the page SHALL display a login form with email and password fields
+- **AND** submit to `POST /api/auth/login`
+- **AND** store returned token in `localStorage.auth_token`
+- **AND** redirect to homepage or intended page on success
+
+#### Scenario: User registration
+- **WHEN** a user submits registration form on login page
+- **THEN** system SHALL send verification code to email via `POST /api/auth/send-code`
+- **AND** user enters 6-digit code to complete registration via `POST /api/auth/register`
+- **AND** auto-login and store token on success
+
+#### Scenario: Account page access
+- **WHEN** a logged-in user navigates to `/account`
+- **THEN** display user info (email, member since date)
+- **AND** display order history
+- **AND** show logout button
+- **AND** fetch data from `GET /api/auth/user` with auth token
+
+#### Scenario: Unauthenticated access to protected pages
+- **WHEN** a user tries to access `/account` without being logged in
+- **THEN** redirect to `/login` page
+- **AND** store intended page URL for redirect after login
+
+#### Scenario: Header authentication state
+- **WHEN** a user is NOT logged in
+- **THEN** header SHALL show "Login" link
+- **WHEN** a user IS logged in
+- **THEN** header SHALL show user email or avatar dropdown
+- **AND** dropdown contains "Account" and "Logout" options

@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - IPTV Search</title>
+  <meta name="description" content="Login to your IPTV Search account to manage favorites and subscriptions.">
+  <link rel="canonical" href="https://iptv-search.com/login">
+  
+  <!-- Theme detection to prevent flash -->
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  
+  <!-- Shared CSS Components -->
+  <link rel="stylesheet" href="/components/variables.css">
+  <link rel="stylesheet" href="/components/header.css">
+  <link rel="stylesheet" href="/components/mobile.css">
+  
+  <style>
+    /* ==================== PAGE SPECIFIC STYLES ==================== */
+    
+    /* Auth page variable overrides */
+    :root {
+      --radius: 12px;
+    }
+    
+    /* Page layout for auth pages */
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .login-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--shadow);
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .login-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-header p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
+    }
+
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Verification Code */
+    .code-input-group {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .code-input-group .form-input {
+      flex: 1;
+    }
+
+    .send-code-btn {
+      padding: 0.875rem 1.25rem;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: all var(--transition);
+    }
+
+    .send-code-btn:hover:not(:disabled) {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .send-code-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius);
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    /* Toggle */
+    .form-toggle {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .form-toggle span {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .form-toggle a {
+      color: var(--accent);
+      font-weight: 500;
+      margin-left: 0.25rem;
+    }
+
+    .form-toggle a:hover {
+      text-decoration: underline;
+    }
+
+    /* Tab Buttons */
+    .tab-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.75rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all var(--transition);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: var(--bg-hover);
+    }
+
+    /* Verification code section */
+    .verify-section {
+      display: none;
+    }
+
+    .verify-section.active {
+      display: block;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    .toast.success {
+      border-color: #34c759;
+      color: #34c759;
+    }
+
+    .toast.error {
+      border-color: #ff3b30;
+      color: #ff3b30;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ==================== PAGE SPECIFIC MOBILE RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+      .main { padding: 1rem; }
+      .login-container { padding: 1.5rem; }
+      .login-header h1 { font-size: 1.5rem; }
+      .tab-buttons { gap: 0.375rem; }
+      .tab-btn { padding: 0.625rem; font-size: 0.85rem; }
+    }
+
+    @media (max-width: 480px) {
+      .login-header h1 { font-size: 1.25rem; }
+      .login-header p { font-size: 0.85rem; }
+      .login-container { padding: 1.25rem; }
+      .form-input { padding: 0.75rem; font-size: 0.9rem; }
+      .code-input-group { flex-direction: column; }
+      .send-code-btn { width: 100%; }
+      .submit-btn { padding: 0.875rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <div class="logo-icon">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <defs>
+              <linearGradient id="tvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#e50914" />
+                <stop offset="100%" style="stop-color:#ff3b30" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="36" height="36" rx="6" fill="url(#tvGradient)" />
+            <rect x="4" y="8" width="28" height="18" rx="2" fill="#0a0a0a" />
+            <path d="M14 12 L24 17 L14 22 Z" fill="#fff" />
+            <rect x="10" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+            <rect x="20" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+          </svg>
+        </div>
+        <div class="logo-text">IPTV<span>Search</span></div>
+      </a>
+      
+      <button class="pill-btn" id="themeToggle" title="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <circle cx="12" cy="12" r="5"/>
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+        <span>Theme</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="login-container">
+      <div class="login-header">
+        <h1 id="formTitle">Welcome Back</h1>
+        <p id="formSubtitle">Login to manage your favorites and subscriptions</p>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div class="tab-buttons">
+        <button class="tab-btn active" id="loginTabBtn" onclick="switchTab('login')">Login</button>
+        <button class="tab-btn" id="registerTabBtn" onclick="switchTab('register')">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label" for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" class="form-input" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="submit-btn" id="loginSubmitBtn">
+          <span>Login</span>
+        </button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" class="verify-section" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label class="form-label" for="regEmail">Email</label>
+          <input type="email" id="regEmail" class="form-input" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="regPassword">Password</label>
+          <input type="password" id="regPassword" class="form-input" placeholder="At least 8 characters" required minlength="8">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="regCode">Verification Code</label>
+          <div class="code-input-group">
+            <input type="text" id="regCode" class="form-input" placeholder="6-digit code" required maxlength="6" pattern="\d{6}">
+            <button type="button" class="send-code-btn" id="sendCodeBtn" onclick="sendVerificationCode()">Send Code</button>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn" id="registerSubmitBtn">
+          <span>Create Account</span>
+        </button>
+      </form>
+
+      <!-- Toggle -->
+      <div class="form-toggle">
+        <span id="toggleText">Don't have an account?</span>
+        <a href="#" id="toggleLink" onclick="switchTab('register'); return false;">Register</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateThemeIcon();
+    });
+
+    function updateThemeIcon() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      themeToggle.innerHTML = isDark 
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    }
+    updateThemeIcon();
+
+    // Tab Switching
+    function switchTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const loginTabBtn = document.getElementById('loginTabBtn');
+      const registerTabBtn = document.getElementById('registerTabBtn');
+      const formTitle = document.getElementById('formTitle');
+      const formSubtitle = document.getElementById('formSubtitle');
+      const toggleText = document.getElementById('toggleText');
+      const toggleLink = document.getElementById('toggleLink');
+
+      if (tab === 'login') {
+        loginForm.classList.add('active');
+        loginForm.style.display = 'block';
+        registerForm.classList.remove('active');
+        registerForm.style.display = 'none';
+        loginTabBtn.classList.add('active');
+        registerTabBtn.classList.remove('active');
+        formTitle.textContent = 'Welcome Back';
+        formSubtitle.textContent = 'Login to manage your favorites and subscriptions';
+        toggleText.textContent = "Don't have an account?";
+        toggleLink.textContent = 'Register';
+        toggleLink.onclick = () => { switchTab('register'); return false; };
+      } else {
+        loginForm.classList.remove('active');
+        loginForm.style.display = 'none';
+        registerForm.classList.add('active');
+        registerForm.style.display = 'block';
+        loginTabBtn.classList.remove('active');
+        registerTabBtn.classList.add('active');
+        formTitle.textContent = 'Create Account';
+        formSubtitle.textContent = 'Register to save favorites and get subscriptions';
+        toggleText.textContent = 'Already have an account?';
+        toggleLink.textContent = 'Login';
+        toggleLink.onclick = () => { switchTab('login'); return false; };
+      }
+    }
+
+    // Show Toast
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast show ' + type;
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Send Verification Code
+    let codeCooldown = 0;
+    const API_BASE = '/api/auth';
+
+    async function sendVerificationCode() {
+      const email = document.getElementById('regEmail').value;
+      const btn = document.getElementById('sendCodeBtn');
+      
+      if (!email) {
+        showToast('Please enter your email first', 'error');
+        return;
+      }
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showToast('Please enter a valid email', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      const originalText = btn.textContent;
+      btn.textContent = 'Sending...';
+
+      try {
+        const response = await fetch(API_BASE + '/send-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          showToast('Verification code sent!', 'success');
+          codeCooldown = 60;
+          startCooldown();
+        } else {
+          showToast(data.error || 'Failed to send code', 'error');
+          btn.disabled = false;
+          btn.textContent = originalText;
+        }
+      } catch (error) {
+        console.error('Send code error:', error);
+        showToast('Failed to send code', 'error');
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
+
+    function startCooldown() {
+      const btn = document.getElementById('sendCodeBtn');
+      if (codeCooldown > 0) {
+        btn.textContent = codeCooldown + 's';
+        codeCooldown--;
+        setTimeout(startCooldown, 1000);
+      } else {
+        btn.textContent = 'Send Code';
+        btn.disabled = false;
+      }
+    }
+
+    // Handle Login
+    async function handleLogin(event) {
+      event.preventDefault();
+      const btn = document.getElementById('loginSubmitBtn');
+      const originalContent = btn.innerHTML;
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span><span>Logging in...</span>';
+
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        const response = await fetch(API_BASE + '/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          // Store token
+          localStorage.setItem('auth_token', data.token);
+          showToast('Login successful!', 'success');
+          // Redirect to intended page or homepage
+          const redirect = new URLSearchParams(window.location.search).get('redirect') || '/';
+          setTimeout(() => {
+            window.location.href = redirect;
+          }, 1000);
+        } else {
+          showToast(data.error || 'Login failed', 'error');
+          btn.disabled = false;
+          btn.innerHTML = originalContent;
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        showToast('Login failed', 'error');
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+      }
+    }
+
+    // Handle Register
+    async function handleRegister(event) {
+      event.preventDefault();
+      const btn = document.getElementById('registerSubmitBtn');
+      const originalContent = btn.innerHTML;
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span><span>Creating account...</span>';
+
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+      const verification_code = document.getElementById('regCode').value;
+
+      try {
+        const response = await fetch(API_BASE + '/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, verification_code })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          // Store token
+          localStorage.setItem('auth_token', data.token);
+          showToast('Account created!', 'success');
+          // Redirect to homepage
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1000);
+        } else {
+          showToast(data.error || 'Registration failed', 'error');
+          btn.disabled = false;
+          btn.innerHTML = originalContent;
+        }
+      } catch (error) {
+        console.error('Register error:', error);
+        showToast('Registration failed', 'error');
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+      }
+    }
+
+    // Check if already logged in
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      // Optionally verify token with API and redirect if valid
+      // For now, just show the login page (user can log out if needed)
+    }
+  </script>
+
+  <!-- Translate.js -->
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.selectLanguageTag.show = true;
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initTranslate);
+    } else {
+      initTranslate();
+    }
+  </script>
+</body>
+</html>
