@@ -737,7 +737,7 @@
       Promise.all(fetchPromises)
         .then(() => {
           if (channelCount === 0) {
-            showToast('Failed to get play links');
+            showToast('All channels unavailable, please try other channels');
             btn.innerHTML = originalContent;
             btn.disabled = false;
             return;
@@ -761,7 +761,7 @@
         })
         .catch((error) => {
           console.error('Download favorites error:', error);
-          showToast('Failed to download favorites');
+          showToast('Download failed, please try again');
         })
         .finally(() => {
           btn.innerHTML = originalContent;

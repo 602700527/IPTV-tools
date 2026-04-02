@@ -147,6 +147,8 @@ The site SHALL support storing favorites in browser's localStorage without requi
   - Real IP-bound play URL
 - **AND** copy the M3U text to clipboard
 - **AND** show toast: "M3U copied! Paste into VLC or IPTV player to watch."
+- **WHEN** API call fails (channel unavailable)
+- **THEN** show toast: "Channel unavailable, please try another channel."
 
 #### Scenario: M3U download with IP-bound play URLs
 - **WHEN** a user clicks "Download M3U" on the favorites page
@@ -158,6 +160,8 @@ The site SHALL support storing favorites in browser's localStorage without requi
   - Real IP-bound play URL (not fake/demo URLs)
 - **AND** trigger browser download with filename `favorites_{date}.m3u`
 - **AND** show loading spinner on button during fetch
+- **WHEN** all channels fail to fetch (data source expired)
+- **THEN** show toast: "All channels unavailable, please try other channels."
 - **NOTE**: Logo URLs are stored during favorite-add, not fetched from API during download
 
 #### Scenario: Sync favorites across pages

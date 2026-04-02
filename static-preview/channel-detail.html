@@ -758,7 +758,7 @@
         })
         .catch(error => {
           console.error('copyM3U error:', error);
-          showToast('Failed to get play link');
+          showToast('Channel unavailable, please try another channel');
         })
         .finally(() => {
           btn.innerHTML = originalContent;

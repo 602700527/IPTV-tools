@@ -68,11 +68,12 @@
   - Empty state: "No favorites yet" message with link to browse
 - [ ] 3b.5 Implement M3U functionality
   - **Channel detail page: "Copy M3U" button**
-    - Call `/api/play/link?hash={channel_hash}` to get IP-bound play URL
+    - Call `/api/play/link?hash={channel_hash}` to get IP-bound play URL (free, no auth required)
     - Assemble M3U text with header and channel info
     - Copy to clipboard using `navigator.clipboard.writeText()`
     - Show toast: "M3U copied! Paste into VLC or IPTV player to watch."
     - Show loading spinner on button during fetch
+    - On failure: show toast "Channel unavailable, please try another channel"
   - **Favorites page: "Download M3U" button**
     - **MAX 200 channels limit enforced on both add AND download**
     - Generate M3U file from starred channels
@@ -81,6 +82,7 @@
     - Assemble M3U with real play links (not fake/demo links)
     - Trigger browser download with filename `favorites_{date}.m3u`
     - Show loading spinner on button during fetch
+    - On all channels fail: show toast "All channels unavailable, please try other channels"
 - [ ] 3b.6 Sync star state across pages
   - Use localStorage event listeners
   - Update all visible star buttons when favorites change
