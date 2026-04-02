@@ -17,26 +17,217 @@
     })();
   </script>
   
-  <!-- Shared CSS Components -->
-  <link rel="stylesheet" href="/components/variables.css">
-  <link rel="stylesheet" href="/components/header.css">
-  <link rel="stylesheet" href="/components/mobile.css">
-  
   <style>
-    /* ==================== PAGE SPECIFIC STYLES ==================== */
-    
-    /* Auth page variable overrides */
+    /* ==================== CSS VARIABLES ==================== */
     :root {
+      --accent: #e50914;
+      --accent-hover: #ff1a1a;
       --radius: 12px;
+      --transition: 0.2s ease;
+      
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-card: #1a1a1a;
+      --bg-hover: #252525;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
+
+    [data-theme="light"] {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #f0f0f0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border: rgba(0,0,0,0.08);
+      --border-hover: rgba(0,0,0,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    /* ==================== RESET & BASE ==================== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     
-    /* Page layout for auth pages */
     body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      transition: background var(--transition), color var(--transition);
     }
-    
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ==================== HEADER ==================== */
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+    }
+
+    .logo-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .logo-text span { color: var(--accent); }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .pill-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+      transform: translateY(-1px);
+    }
+
+    .pill-btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .account-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .account-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+    }
+
+    .theme-toggle {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-primary);
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .theme-toggle:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+      transform: scale(1.05);
+    }
+
+    #translate {
+      position: relative;
+      display: inline-block;
+    }
+
+    #translateSelectLanguage {
+      appearance: none;
+      -webkit-appearance: none;
+      padding: 0.5rem 2rem 0.5rem 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      min-width: 100px;
+    }
+
+    #translateSelectLanguage:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
+    }
+
+    #translate::after {
+      content: "";
+      position: absolute;
+      right: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--text-secondary);
+      pointer-events: none;
+      transition: border-color var(--transition);
+    }
+
+    #translate:hover::after {
+      border-top-color: var(--accent);
+    }
+
+    /* ==================== MAIN CONTENT ==================== */
     .main {
       flex: 1;
       display: flex;
@@ -69,6 +260,35 @@
     .login-header p {
       color: var(--text-secondary);
       font-size: 0.95rem;
+    }
+
+    /* Tab Buttons */
+    .tab-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.75rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all var(--transition);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: var(--bg-hover);
     }
 
     /* Form */
@@ -187,35 +407,6 @@
       text-decoration: underline;
     }
 
-    /* Tab Buttons */
-    .tab-buttons {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 0.75rem;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-      font-weight: 500;
-      transition: all var(--transition);
-    }
-
-    .tab-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: white;
-    }
-
-    .tab-btn:hover:not(.active) {
-      background: var(--bg-hover);
-    }
-
     /* Verification code section */
     .verify-section {
       display: none;
@@ -271,8 +462,123 @@
       to { transform: rotate(360deg); }
     }
 
-    /* ==================== PAGE SPECIFIC MOBILE RESPONSIVE ==================== */
+    /* ==================== FOOTER ==================== */
+    .page-footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 2rem 1.25rem;
+    }
+
+    .footer-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .footer-copyright {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      font-size: 0.75rem;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+
+    .footer-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .footer-badges {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.625rem;
+      margin-top: 1.25rem;
+    }
+
+    .footer-badges img {
+      height: 12px;
+      width: auto;
+      opacity: 0.8;
+      transition: opacity var(--transition);
+    }
+
+    .footer-badges img:hover {
+      opacity: 1;
+    }
+
+    .footer-badges span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .footer-disclaimer {
+      margin-top: 1rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
     @media (max-width: 768px) {
+      .header {
+        padding: 0.75rem 1rem;
+      }
+      .header-inner {
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+      .logo {
+        font-size: 1.25rem;
+      }
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+      }
+      .header-actions {
+        gap: 0.5rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
+        padding-bottom: 0.25rem;
+      }
+      .header-actions .pill-btn {
+        padding: 0.5rem 0.75rem;
+        flex-shrink: 0;
+      }
+      .header-actions .pill-btn span { display: none; }
+      .theme-toggle {
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+      }
+      .account-btn {
+        padding: 0.5rem 0.75rem;
+        flex-shrink: 0;
+      }
+      .account-btn span { display: none; }
+      #translate { flex-shrink: 0; }
+      #translateSelectLanguage {
+        padding: 0.4rem 1.5rem 0.4rem 0.5rem;
+        font-size: 0.8rem;
+        min-width: 70px;
+      }
+
       .main { padding: 1rem; }
       .login-container { padding: 1.5rem; }
       .login-header h1 { font-size: 1.5rem; }
@@ -281,6 +587,7 @@
     }
 
     @media (max-width: 480px) {
+      .logo-text { display: none; }
       .login-header h1 { font-size: 1.25rem; }
       .login-header p { font-size: 0.85rem; }
       .login-container { padding: 1.25rem; }
@@ -288,6 +595,13 @@
       .code-input-group { flex-direction: column; }
       .send-code-btn { width: 100%; }
       .submit-btn { padding: 0.875rem; }
+      .page-footer {
+        padding: 1.5rem 0.75rem;
+      }
+      .footer-links {
+        font-size: 0.7rem;
+        gap: 0.75rem;
+      }
     }
   </style>
 </head>
@@ -297,11 +611,11 @@
     <div class="header-inner">
       <a href="/" class="logo">
         <div class="logo-icon">
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="tvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:#e50914" />
-                <stop offset="100%" style="stop-color:#ff3b30" />
+                <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:1" />
               </linearGradient>
             </defs>
             <rect x="0" y="0" width="36" height="36" rx="6" fill="url(#tvGradient)" />
@@ -314,13 +628,36 @@
         <div class="logo-text">IPTV<span>Search</span></div>
       </a>
       
-      <button class="pill-btn" id="themeToggle" title="Toggle theme">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-          <circle cx="12" cy="12" r="5"/>
-          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-        </svg>
-        <span>Theme</span>
-      </button>
+      <div class="header-actions">
+        <a href="/favorites" class="pill-btn" title="My Favorites">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span>Favorites</span>
+        </a>
+        <a href="/plans" class="pill-btn" title="Subscription Plans">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+          <span>Plans</span>
+        </a>
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </button>
+        <a href="/account" class="account-btn" title="My Account">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span>Account</span>
+        </a>
+        <div id="translate"></div>
+      </div>
     </div>
   </header>
 
@@ -385,6 +722,33 @@
 
   <!-- Toast -->
   <div class="toast" id="toast"></div>
+
+  <!-- Footer -->
+  <footer class="page-footer">
+    <div class="footer-content">
+      <p class="footer-copyright">&copy; 2026 IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+      
+      <div class="footer-links">
+        <a href="/tutorial">How to Watch on TV Devices</a>
+        <a href="/sitemap.xml">Sitemap</a>
+        <a href="/robots.txt">Robots</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="mailto:support@iptv-search.com">Contact Us</a>
+      </div>
+      
+      <div class="footer-badges">
+        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
+        </a>
+        <span>This site is powered by Cloudflare for acceleration and security</span>
+      </div>
+      
+      <div class="footer-disclaimer">
+        All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.
+      </div>
+    </div>
+  </footer>
 
   <script>
     // Theme Toggle
@@ -612,6 +976,14 @@
     function initTranslate() {
       if (typeof translate !== 'undefined' && translate.language) {
         translate.selectLanguageTag.show = true;
+        translate.selectLanguageTag.documentId = 'translate';
+        translate.language.setLocal('english');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
       }
     }
     if (document.readyState === 'loading') {

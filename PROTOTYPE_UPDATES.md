@@ -313,6 +313,13 @@ handlers/generate_seo_homepage_new.js
 - [ ] 移动端海报居中
 - [ ] Action buttons 功能正常
 
+**登录/账户/法律页面**：
+- [ ] Header 导航按钮完整（Home/Favorites/Plans/Account）
+- [ ] 移动端语言选择器可见
+- [ ] Footer 链接正确
+- [ ] 登录表单功能正常
+- [ ] 注册表单功能正常
+
 ---
 
 ### 9. SEO 优化 ✅
@@ -350,3 +357,43 @@ handlers/generate_seo_homepage_new.js
 - [ ] robots.txt
 - [ ] 频道详情页增强 VideoObject（添加 contentUrl）
 - [ ] 首页添加更多相关频道推荐
+
+---
+
+### 10. 登录/账户/法律页面样式统一 ✅
+
+**涉及文件**：login.html, account.html, privacy-policy.html, terms.html
+
+**问题修复**：
+- login.html 移除了不存在的外部 CSS 引用（`/components/*.css`）
+- 所有页面 Header 添加了 Favorites 和 Plans pill-btn 导航按钮
+- 所有页面 Header 添加了 Account 账号入口按钮
+- login.html 添加了 Footer
+- 修复了移动端 #translate 语言选择器被隐藏的问题
+
+**统一后的 Header 结构**：
+```html
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo">...</a>
+    <div class="header-actions">
+      <a href="/favorites" class="pill-btn">Favorites</a>
+      <a href="/plans" class="pill-btn">Plans</a>
+      <button class="theme-toggle">Theme</button>
+      <a href="/account" class="account-btn">Account</a>
+      <div id="translate"></div>
+    </div>
+  </div>
+</header>
+```
+
+**移动端适配**：
+- 语言选择器在移动端保持可见（尺寸缩小）
+- Header 按钮支持横向滚动
+- Favorites/Plans 按钮文字在移动端隐藏
+
+**开发检查清单**：
+- [ ] Header 导航按钮链接正确
+- [ ] 移动端语言选择器可见
+- [ ] 主题切换功能正常
+- [ ] Footer 链接正确
