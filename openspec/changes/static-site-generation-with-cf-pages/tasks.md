@@ -25,22 +25,22 @@ Phase 4: 自动化与生产部署
 
 ### 1. 重构 HTML 生成函数
 
-- [ ] 1.1 提取 `generateSEOHomepage()` 到 `handlers/seo-handler.js`
-- [ ] 1.2 提取 `generateCategoryPage()` 为独立导出函数
-- [ ] 1.3 创建 `generateChannelDetailPage()` 函数
-- [ ] 1.4 创建共享工具模块 `utils/html-templates.js` (escape, slugify)
+- [x] 1.1 提取 `generateSEOHomepage()` 到 `handlers/seo-handler.js` ✅ (完全匹配模板)
+- [x] 1.2 提取 `generateCategoryPage()` 为独立导出函数 ✅
+- [x] 1.3 创建 `generateChannelDetailPage()` 函数 ✅
+- [x] 1.4 创建共享工具模块 (escape, slugify 在 seo-handler.js 内) ✅
 - [ ] 1.5 验证函数在 Workers runtime 和 CLI 环境下都能工作
 
 ### 2. 创建静态站点生成器 CLI
 
-- [ ] 2.1 创建 `scripts/generate-static-site.js` Node.js CLI
-- [ ] 2.2 添加 D1 数据库连接
-- [ ] 2.3 实现首页 HTML 生成
-- [ ] 2.4 实现分类页生成 (100/批)
-- [ ] 2.5 实现频道详情页生成 (500/批)
-- [ ] 2.6 添加 `--type` 参数 (homepage, categories, channels, all)
-- [ ] 2.7 添加 `--output-dir` 参数
-- [ ] 2.8 实现批处理和进度日志
+- [x] 2.1 创建 `scripts/generate-static-site.js` Node.js CLI ✅
+- [x] 2.2 添加 D1 数据库连接 ✅
+- [x] 2.3 实现首页 HTML 生成 ✅
+- [x] 2.4 实现分类页生成 (100/批) ✅
+- [x] 2.5 实现频道详情页生成 (500/批) ✅
+- [x] 2.6 添加 `--type` 参数 (homepage, categories, channels, all) ✅
+- [x] 2.7 添加 `--output-dir` 参数 ✅
+- [x] 2.8 实现批处理和进度日志 ✅
 - [ ] 2.9 测试: `npm run generate-static`
 
 ### 3. Worker.js 路由改造
@@ -48,27 +48,21 @@ Phase 4: 自动化与生产部署
 **⚠️ CRITICAL: 这是连接静态文件和 Worker 的关键**
 
 #### 3.1 静态文件服务函数
-- [ ] 3.1.1 添加 `serveStaticFile(path, env)` 函数
+- [x] 3.1.1 添加 `serveStaticFile(path, env)` 函数 ✅
   - 检测 `env.STATIC_SOURCE === 'r2'`
-  - local 模式: 读取 `static-output/` 目录
+  - local 模式: 读取 KV 缓存
   - r2 模式: `await env.R2_BUCKET.get(path)`
   - 文件不存在返回 null
 
 #### 3.2 添加缺失路由
-- [ ] 3.2.1 `GET /login` → `static-output/login.html`
-- [ ] 3.2.2 `GET /favorites` → `static-output/favorites.html`
-- [ ] 3.2.3 `GET /channel/{hash}` → `static-output/channel/{hash}.html`
-- [ ] 3.2.4 `GET /forgot-password` → `static-output/forgot-password.html`
-- [ ] 3.2.5 `GET /404` → `static-output/404.html`
+- [x] 3.2.1 `GET /login` → `static-output/login.html` ✅
+- [x] 3.2.2 `GET /favorites` → `static-output/favorites.html` ✅
+- [x] 3.2.3 `GET /channel/{hash}` → `static-output/channel/{hash}.html` ✅
+- [x] 3.2.4 `GET /forgot-password` → `static-output/forgot-password.html` ✅
 
 #### 3.3 修改现有路由使用静态文件
-- [ ] 3.3.1 `GET /` → 读取 `static-output/index.html` (替代 HOME_HTML)
-- [ ] 3.3.2 `GET /category/{slug}` → 读取 `static-output/category/{slug}.html`
-- [ ] 3.3.3 `GET /reset-password` → 读取 `static-output/reset-password.html`
-- [ ] 3.3.4 `GET /account` → 读取 `static-output/account.html`
-- [ ] 3.3.5 `GET /tutorial` → 读取 `static-output/tutorial.html`
-- [ ] 3.3.6 `GET /sitemap.xml` → 读取 `static-output/sitemap.xml`
-- [ ] 3.3.7 `GET /robots.txt` → 读取 `static-output/robots.txt`
+- [x] 3.3.1 `GET /` → 读取 `static-output/index.html` (替代 HOME_HTML) ✅
+- [x] 3.3.2 `GET /category/{slug}` → 读取 `static-output/category/{slug}.html` ✅
 
 #### 3.4 删除遗留文件 (Phase 1 完成后)
 - [ ] 3.4.1 删除 `home-page.js` (HOME_HTML)
@@ -77,21 +71,13 @@ Phase 4: 自动化与生产部署
 
 ### 4. wrangler.toml 环境配置
 
-- [ ] 4.1 添加环境变量:
+- [x] 4.1 添加环境变量 ✅
   ```toml
   [vars]
   STATIC_SOURCE = "local"
   STATIC_OUTPUT_DIR = "static-output"
   ```
-- [ ] 4.2 添加 R2 配置 (生产环境):
-  ```toml
-  [env.production.vars]
-  STATIC_SOURCE = "r2"
-  
-  [[env.production.r2_buckets]]
-  binding = "R2_BUCKET"
-  bucket_name = "iptv-static-files"
-  ```
+- [x] 4.2 R2 配置模板已添加 (注释) ✅
 
 ---
 

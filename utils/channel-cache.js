@@ -205,8 +205,15 @@ export async function getChannelByHash(env, channelHash) {
  */
 export async function getAllChannels(env) {
   try {
-    // 尝试从 KV 获取
-    const cacheData = await env.KV.get(CHANNELS_CACHE_KEY, { type: 'json' });
+    // 尝试从 KV 获取（检查 KV 是否可用）
+    let cacheData = null;
+    if (env && env.KV) {
+      try {
+        cacheData = await env.KV.get(CHANNELS_CACHE_KEY, { type: 'json' });
+      } catch (kvError) {
+        console.warn('[ChannelCache] KV get failed, falling back to DB:', kvError.message);
+      }
+    }
 
     if (cacheData && cacheData.channels) {
       return {
@@ -256,8 +263,15 @@ export async function getAllChannels(env) {
  */
 export async function getAllGroups(env) {
   try {
-    // 尝试从 KV 获取
-    const cacheData = await env.KV.get(GROUPS_CACHE_KEY, { type: 'json' });
+    // 尝试从 KV 获取（检查 KV 是否可用）
+    let cacheData = null;
+    if (env && env.KV) {
+      try {
+        cacheData = await env.KV.get(GROUPS_CACHE_KEY, { type: 'json' });
+      } catch (kvError) {
+        console.warn('[ChannelCache] KV get failed, falling back to DB:', kvError.message);
+      }
+    }
 
     if (cacheData && cacheData.groups) {
       return {

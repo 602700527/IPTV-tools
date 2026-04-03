@@ -4,6 +4,7 @@ import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest } from './handlers/sub.js';
 import { handleGetPlayLink, handleIPPlayRequest, handleGetPlayLinkStatus } from './handlers/ip-play.js';
 import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
+import { handleAdminStaticGenerate, handleAdminStaticStatus, handleAdminStaticClearCache } from './handlers/admin-static.js';
 import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } from './handlers/scheduler.js';
 import { handleUserActivate } from './handlers/user.js';
 import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings } from './handlers/public.js';
@@ -63,6 +64,51 @@ import {
   createCryptoPaymentOrder,
   confirmCryptoPayment
 } from './handlers/crypto-payment.js';
+
+// 静态文件服务
+// 使用统一的存储层，支持 KV (dev) 和 R2 (production)
+import { getStaticFile, detectEnvironment } from './utils/static-storage.js';
+
+async function serveStaticFile(filePath, env) {
+  try {
+    const content = await getStaticFile(env, filePath);
+    
+    if (content === null) {
+      return null; // 文件不存在
+    }
+
+    // 根据文件扩展名设置 Content-Type
+    let contentType = 'text/html; charset=utf-8';
+    if (filePath.endsWith('.css')) {
+      contentType = 'text/css; charset=utf-8';
+    } else if (filePath.endsWith('.js')) {
+      contentType = 'application/javascript; charset=utf-8';
+    } else if (filePath.endsWith('.xml')) {
+      contentType = 'application/xml; charset=utf-8';
+    } else if (filePath.endsWith('.txt')) {
+      contentType = 'text/plain; charset=utf-8';
+    } else if (filePath.endsWith('.svg')) {
+      contentType = 'image/svg+xml';
+    } else if (filePath.endsWith('.png')) {
+      contentType = 'image/png';
+    } else if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
+      contentType = 'image/jpeg';
+    } else if (filePath.endsWith('.ico')) {
+      contentType = 'image/x-icon';
+    }
+
+    const envType = detectEnvironment(env);
+    return new Response(content, {
+      headers: {
+        'Content-Type': contentType,
+        'Cache-Control': envType === 'production' ? 'public, max-age=86400' : 'public, max-age=3600'
+      }
+    });
+  } catch (error) {
+    console.error('[StaticFile] Error serving file:', error);
+    return null;
+  }
+}
 
 // 计算订阅价格（从数据库获取套餐配置）
 async function calculatePriceForSubscription(durationDays, maxIPs, env) {
@@ -215,47 +261,133 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
 
     // 路由处理
     if (path === '/' || path === '') {
-      // 首页 - 显示交互式播放站，添加安全头防止代理
-      // 注入允许的域名配置和解密密钥
-      const systemConfig = await getSystemConfig();
-      const allowedDomains = [url.hostname];
-      const decryptionKey = systemConfig.enable_url_encryption && systemConfig.url_encryption_key
-        ? systemConfig.url_encryption_key
-        : env.SECRET_KEY || 'default-secret-key';
-
-      const htmlWithConfig = HOME_HTML.replace(
-        '<script>',
-        `<script>window.ALLOWED_DOMAINS = ${JSON.stringify(allowedDomains)};\nwindow.DECRYPTION_KEY = '${decryptionKey}';\nwindow.ENABLE_URL_ENCRYPTION = ${systemConfig.enable_url_encryption};\n`
-      );
-
-      // 生成ETag（基于HTML内容）
-      const encoder = new TextEncoder();
-      const data = encoder.encode(htmlWithConfig);
-      const hash = await crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hash));
-      const etag = `"${hashArray.map(b => b.toString(16).padStart(2, '0')).join('')}"`;
-
-      return new Response(htmlWithConfig, {
+      // 首页 - 优先尝试使用静态文件
+      const staticResponse = await serveStaticFile('/index.html', env);
+      if (staticResponse) {
+        return staticResponse;
+      }
+      
+      // Fallback: 动态生成首页
+      const { generateSEOHomepage } = await import('./handlers/seo-handler.js');
+      const html = await generateSEOHomepage({ origin: url.origin, env });
+      
+      return new Response(html, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'public, max-age=600', // 10分钟缓存
-          'ETag': etag,
-          'X-Frame-Options': 'SAMEORIGIN', // 允许同源iframe（某些广告需要）
-          'X-Content-Type-Options': 'nosniff', // 防止MIME类型嗅探
-          'Referrer-Policy': 'strict-origin-when-cross-origin', // 严格的引用策略
-          'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=()' // 限制敏感权限
+          'Cache-Control': 'public, max-age=600'
         }
       });
     }
 
-    // 分类页路由：/category/{slug} -> 重定向到首页使用 ?group=slug
-    const categoryMatch = path.match(/^\/category\/([a-zA-Z0-9-]+)$/);
+    // 分类页路由：/category/{slug}
+    const categoryMatch = path.match(/^\/category\/([^\/]+)$/);
     if (categoryMatch) {
-      const groupSlug = categoryMatch[1];
-      const redirectUrl = new URL(url);
-      redirectUrl.pathname = '/';
-      redirectUrl.searchParams.set('group', groupSlug);
-      return Response.redirect(redirectUrl.toString(), 302);
+      const slug = decodeURIComponent(categoryMatch[1]);
+      // 优先尝试使用静态文件（URL 编码的 slug）
+      const encodedSlug = encodeURIComponent(slug);
+      const staticResponse = await serveStaticFile(`/category/${encodedSlug}.html`, env);
+      if (staticResponse) {
+        return staticResponse;
+      }
+      
+      // Fallback: 动态生成分类页
+      // 需要把 slug 转回真实的 category name（因为数据库存的是原名）
+      const db = await initDB(env);
+      const groupsResult = await db.prepare(`
+        SELECT DISTINCT c.group_title
+        FROM channels c
+        INNER JOIN sources s ON c.source_id = s.id
+        WHERE c.is_active = 1 AND s.is_active = 1
+          AND c.group_title IS NOT NULL AND c.group_title != ''
+      `).all();
+      
+      // slugify 函数：和 seo-handler.js 中的一致（支持中文、emoji）
+      const slugify = (str) => {
+        if (!str) return '';
+        return str
+          .trim()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '')
+          .replace(/-+/g, '-')
+          .replace(/^-+|-+$/g, '');
+      };
+      
+      // 找到匹配的分类
+      const matchedGroup = (groupsResult.results || []).find(g => slugify(g.group_title) === slug);
+      
+      if (!matchedGroup) {
+        return await generate404Page(request, env, 'category');
+      }
+      
+      const { generateCategoryPage } = await import('./handlers/seo-handler.js');
+      const html = await generateCategoryPage({ 
+        origin: url.origin, 
+        category: matchedGroup.group_title, // 用真实分类名
+        slug: slug,
+        env 
+      });
+      return new Response(html, {
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'public, max-age=600'
+        }
+      });
+    } else if (path === '/channel') {
+      // 频道详情页: /channel/{hash}
+      const hashMatch = path.match(/^\/channel\/([a-zA-Z0-9]+)$/);
+      if (hashMatch) {
+        const hash = hashMatch[1];
+        const staticResponse = await serveStaticFile(`/channel/${hash}.html`, env);
+        if (staticResponse) {
+          return staticResponse;
+        }
+        // Fallback: 动态生成频道详情页
+        const { generateChannelDetailPage } = await import('./handlers/seo-handler.js');
+        const db = await initDB(env);
+        const channel = await db.prepare(`
+          SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active
+          FROM channels c WHERE c.channel_hash = ? AND c.is_active = 1
+        `).bind(hash).first();
+        
+        if (!channel) {
+          return await generate404Page(request, env, 'channel');
+        }
+        
+        const html = await generateChannelDetailPage({ 
+          origin: url.origin, 
+          channel: channel,
+          channelHash: hash,
+          env 
+        });
+        return new Response(html, {
+          headers: {
+            'Content-Type': 'text/html; charset=utf-8',
+            'Cache-Control': 'public, max-age=600'
+          }
+        });
+      }
+    } else if (path === '/login') {
+      // 登录页
+      const staticResponse = await serveStaticFile('/login.html', env);
+      if (staticResponse) {
+        return staticResponse;
+      }
+      // Fallback: 使用原有的登录页
+      return Response.redirect(url.origin + '/', 302);
+    } else if (path === '/favorites') {
+      // 收藏页
+      const staticResponse = await serveStaticFile('/favorites.html', env);
+      if (staticResponse) {
+        return staticResponse;
+      }
+      return Response.redirect(url.origin + '/', 302);
+    } else if (path === '/forgot-password') {
+      // 忘记密码页
+      const staticResponse = await serveStaticFile('/forgot-password.html', env);
+      if (staticResponse) {
+        return staticResponse;
+      }
+      return Response.redirect(url.origin + '/', 302);
     } else if (path === '/api/config') {
       // 公开配置API - 获取前端需要的配置（如加密密钥）
       return await handlePublicConfig(request, env, ctx);
@@ -274,6 +406,15 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/admin/mall/payment-methods') {
       // 管理员支付方式管理 API（在 admin.js 处理）
       return await handleAdminRequest(request, env, ctx);
+    } else if (path === '/api/admin/static/generate') {
+      // 静态页面生成 API
+      return await handleAdminStaticGenerate(request, env);
+    } else if (path === '/api/admin/static/status') {
+      // 静态文件状态 API
+      return await handleAdminStaticStatus(request, env);
+    } else if (path === '/api/admin/static/cache') {
+      // 清除静态文件缓存
+      return await handleAdminStaticClearCache(request, env);
     } else if (path === '/api/channels') {
       // 公开频道列表API（无需卡密）
       return await handlePublicChannels(request, env, ctx);

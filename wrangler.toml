@@ -32,6 +32,9 @@ XUNHUPAY_WECHAT_APP_ID = ""
 XUNHUPAY_WECHAT_APP_SECRET = ""
 # 虎皮椒支付网关
 XUNHUPAY_GATEWAY = "https://api.xunhuweb.com/payment/do.html"
+# 静态文件配置
+STATIC_SOURCE = "local"
+STATIC_OUTPUT_DIR = "static-output"
 
 # Google OAuth configuration
 GOOGLE_CLIENT_ID = "1070165774283-e75bs3en213p81iaq3g5dmpt15e6te9l.apps.googleusercontent.com"
@@ -44,3 +47,10 @@ GOOGLE_CLIENT_SECRET = "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"
 # ⚠️ 已暂时禁用所有定时任务
 [triggers]
 crons = ["0 3 * * *", "0 9 * * *", "0 21 * * *"]  # 3:00同步数据源，9:00/21:00刷新缓存
+
+# R2 Bucket for static files (production)
+# Create bucket: wrangler r2 bucket create iptv-static-files
+# Add to wrangler.toml:
+# [[r2_buckets]]
+# binding = "R2_BUCKET"
+# bucket_name = "iptv-static-files"

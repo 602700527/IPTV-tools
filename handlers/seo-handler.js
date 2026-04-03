@@ -1,6 +1,8 @@
-// 404 页面处理器
+// SEO 页面处理器 - 生成静态 HTML
+// 支持 Workers runtime 和 CLI 环境
 
 import { getAllChannels, getAllGroups } from '../utils/channel-cache.js';
+import { getDB } from '../database.js';
 
 // HTML 转义
 function escapeHtml(str) {
@@ -12,6 +14,1758 @@ function escapeHtml(str) {
 function escapeAttr(str) {
   if (!str) return '';
   return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+// Slugify: 将字符串转换为 URL 友好的 slug
+// 支持中文、英文、数字、emoji 和连字符
+function slugify(str) {
+  if (!str) return '';
+  return str
+    .trim()
+    .replace(/\s+/g, '-')  // 空格转连字符
+    .replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '')  // 保留中文、英文、数字、emoji和连字符
+    .replace(/-+/g, '-')   // 多个连字符合并
+    .replace(/^-+|-+$/g, '');  // 去除首尾连字符
+}
+
+// 生成频道卡片 HTML - 完全匹配模板
+function generateChannelCard(channel, origin) {
+  const hash = escapeAttr(channel.channel_hash || '');
+  const name = escapeHtml(channel.channel_name || 'Unknown');
+  const group = escapeHtml(channel.group_title || 'Other');
+  const logo = channel.logo ? escapeAttr(channel.logo) : '';
+  const channelUrl = `${origin}/channel/${hash}`;
+
+  return `<div class="channel-card" onclick="location.href='${channelUrl}'">
+  <div class="channel-checkbox" onclick="toggleCheckbox(event, this)"></div>
+  <button class="star-btn not-starred" onclick="toggleStar(event, this, '${hash}', '${name.replace(/'/g, '\\\'')}', '${group.replace(/'/g, '\\\'')}')">☆</button>
+  <div class="channel-poster">
+    ${logo ? `<img src="${logo}" alt="${name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
+    <div class="placeholder" style="display:${logo ? 'none' : 'flex'}">📺</div>
+    <div class="channel-overlay"><button class="play-btn">▶ Play</button></div>
+  </div>
+  <div class="channel-info">
+    <div class="channel-name">${name}</div>
+    <div class="channel-group">${group}</div>
+  </div>
+</div>`;
+}
+
+// 生成频道网格 HTML
+function generateChannelGrid(channels, origin) {
+  return channels.map(ch => generateChannelCard(ch, origin)).join('\n');
+}
+
+// 生成侧边栏分组项 HTML
+function generateSidebarItem(group, count, origin, isActive = false) {
+  const slug = slugify(group);
+  const href = `${origin}/category/${slug}`;
+  return `<li class="sidebar-item${isActive ? ' active' : ''}">
+  <a href="${href}">
+    <span>${escapeHtml(group)}</span>
+    <span class="sidebar-count">${count}</span>
+  </a>
+</li>`;
+}
+
+// 生成首页 HTML - 完全匹配 static-preview/homepage.html 模板
+/**
+ * 生成首页 HTML
+ * @param {Object} options - 配置选项
+ * @param {string} options.origin - 网站 origin (如 https://iptv-search.com)
+ * @param {Object} options.env - Workers 环境变量 (可选, CLI 模式可不传)
+ * @param {number} options.limit - 限制显示的频道数量 (默认 100)
+ * @returns {Promise<string>} 生成的 HTML 字符串
+ */
+export async function generateSEOHomepage(options = {}) {
+  const { origin = 'https://iptv-search.com', env, limit = 100 } = options;
+
+  let channels = [];
+  let groups = [];
+
+  // 在 CLI 环境下直接使用 D1
+  if (!env || !env.KV) {
+    try {
+      const db = getDB();
+      
+      const channelsResult = await db.prepare(`
+        SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active
+        FROM channels c
+        INNER JOIN sources s ON c.source_id = s.id
+        WHERE c.is_active = 1 AND s.is_active = 1
+        ORDER BY c.channel_name
+        LIMIT ?
+      `).bind(limit).all();
+      channels = channelsResult.results || [];
+
+      const groupsResult = await db.prepare(`
+        SELECT c.group_title, COUNT(*) as count
+        FROM channels c
+        INNER JOIN sources s ON c.source_id = s.id
+        WHERE c.is_active = 1 AND s.is_active = 1
+          AND c.group_title IS NOT NULL AND c.group_title != ''
+        GROUP BY c.group_title
+        ORDER BY c.group_title
+      `).all();
+      groups = (groupsResult.results || []).map(r => ({
+        name: r.group_title,
+        count: r.count
+      }));
+    } catch (error) {
+      console.error('[SEO] CLI mode D1 query error:', error);
+    }
+  } else {
+    const [channelsResult, groupsResult] = await Promise.all([
+      getAllChannels(env),
+      getAllGroups(env)
+    ]);
+    channels = (channelsResult.channels || []).slice(0, limit);
+    groups = (groupsResult.groups || []).map(g => ({ name: g, count: 0 }));
+  }
+
+  const displayChannels = channels.slice(0, limit);
+  const totalChannels = channels.length || displayChannels.length;
+  const totalGroups = groups.length || 0;
+
+  // 生成侧边栏 - 匹配模板结构
+  const sidebarItemsHtml = groups.slice(0, 20).map((g, idx) => {
+    const count = g.count || channels.filter(ch => ch.group_title === g.name).length;
+    const slug = slugify(g.name);
+    const activeClass = idx === 0 ? ' active' : '';
+    return `<li class="sidebar-item${activeClass}">
+  <a href="${origin}/category/${slug}"><span>${escapeHtml(g.name)}</span><span class="sidebar-count">${count}</span></a>
+</li>`;
+  }).join('\n');
+
+  // 生成频道卡片
+  const channelCardsHtml = displayChannels.map(ch => {
+    const hash = escapeAttr(ch.channel_hash || '');
+    const name = escapeHtml(ch.channel_name || 'Unknown');
+    const group = escapeHtml(ch.group_title || 'Other');
+    const logo = ch.logo ? escapeAttr(ch.logo) : '';
+    const channelUrl = `/channel/${hash}`;
+    return `<div class="channel-card" onclick="location.href='${channelUrl}'">
+  <button class="star-btn not-starred" onclick="toggleStar(event, this, '${hash}', '${name.replace(/'/g, "\\'")}', '${group.replace(/'/g, "\\'")}')">☆</button>
+  <div class="channel-poster">
+    ${logo ? `<img src="${logo}" alt="${name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : ''}
+    <div class="placeholder" style="display:${logo ? 'none' : 'flex'}">📺</div>
+    <div class="channel-overlay">
+      <button class="play-btn">▶ Play</button>
+    </div>
+  </div>
+  <div class="channel-info">
+    <div class="channel-name">${name}</div>
+    <div class="channel-group">${group}</div>
+  </div>
+</div>`;
+  }).join('\n');
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPTV Search - Free Live TV Channel Directory</title>
+  <meta name="description" content="Discover 10,000+ free live TV channels. Search by category, country, or genre. Start watching instantly - no signup required!">
+  <meta name="keywords" content="free iptv, live tv, streaming channels, watch tv online, iptv m3u, tv channel list">
+  <link rel="canonical" href="${origin}/">
+  <meta property="og:title" content="IPTV Search - Free Live TV Channel Directory">
+  <meta property="og:description" content="Discover 10,000+ free live TV channels. Search by category, country, or genre. Start watching instantly - no signup required!">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${origin}/">
+  <meta property="og:image" content="${origin}/og-image.png">
+  
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-card: #1a1a1a;
+      --bg-hover: #252525;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --accent: #e50914;
+      --accent-hover: #f6121d;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.5);
+      --radius: 8px;
+      --transition: 0.2s ease;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #f0f0f0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border: rgba(0,0,0,0.08);
+      --border-hover: rgba(0,0,0,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; transition: background var(--transition), color var(--transition); }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; font-family: inherit; }
+
+    .header { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+    .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: 700; }
+    .logo-icon { width: 36px; height: 36px; }
+    .logo-icon svg { width: 100%; height: 100%; }
+    .logo-text span { color: var(--accent); }
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+
+    .search-box { position: relative; width: 300px; }
+    .search-box input { width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: border-color var(--transition); }
+    .search-box input:focus { border-color: var(--accent); }
+    .search-box::before { content: "🔍"; position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; opacity: 0.5; }
+
+    .pill-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text-primary); font-size: 0.85rem; font-weight: 500; text-decoration: none; transition: all var(--transition); white-space: nowrap; }
+    .pill-btn:hover { background: var(--bg-hover); border-color: var(--border-hover); transform: translateY(-1px); }
+    .pill-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+    .account-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text-primary); font-size: 0.85rem; font-weight: 500; text-decoration: none; transition: all var(--transition); white-space: nowrap; }
+    .account-btn:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+    .account-btn svg { width: 16px; height: 16px; }
+    .pill-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .theme-toggle { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 50%; color: var(--text-primary); font-size: 1.1rem; cursor: pointer; transition: all var(--transition); }
+    .theme-toggle:hover { background: var(--bg-hover); border-color: var(--border-hover); transform: scale(1.05); }
+
+    #translate { position: relative; display: inline-block; }
+    #translateSelectLanguage { appearance: none; -webkit-appearance: none; padding: 0.5rem 2rem 0.5rem 0.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-size: 0.85rem; cursor: pointer; outline: none; transition: border-color var(--transition); min-width: 100px; }
+    #translateSelectLanguage:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(229,9,20,0.2); }
+    #translateSelectLanguage:hover { border-color: var(--border-hover); }
+    #translate::after { content: ""; position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--text-secondary); pointer-events: none; }
+
+    .hero { background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%); padding: 4rem 2rem; text-align: center; border-bottom: 1px solid var(--border); }
+    .hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; background: linear-gradient(135deg, #fff 0%, #999 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    [data-theme="light"] .hero h1 { background: linear-gradient(135deg, #1a1a1a 0%, #666 100%); -webkit-background-clip: text; background-clip: text; }
+    .hero p { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto 2rem; }
+    .hero-stats { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+    .hero-stat { text-align: center; }
+    .hero-stat-value { font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .hero-stat-label { font-size: 0.85rem; color: var(--text-muted); }
+
+    .main-container { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 240px 1fr; gap: 2rem; }
+    @media (max-width: 900px) { .main-container { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+    .sidebar { position: sticky; top: 100px; height: fit-content; }
+    .sidebar-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 1rem; padding-left: 0.5rem; }
+    .sidebar-list { list-style: none; background: var(--bg-secondary); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+    .sidebar-item { border-bottom: 1px solid var(--border); }
+    .sidebar-item:last-child { border-bottom: none; }
+    .sidebar-item a { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; font-size: 0.9rem; transition: background var(--transition); }
+    .sidebar-item a:hover { background: var(--bg-hover); }
+    .sidebar-item.active a { background: var(--accent); color: white; }
+    .sidebar-count { font-size: 0.75rem; padding: 0.15rem 0.5rem; background: var(--bg-card); border-radius: 10px; color: var(--text-muted); }
+    .sidebar-item.active .sidebar-count { background: rgba(255,255,255,0.2); color: white; }
+
+    .content-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .section-title { font-size: 1.25rem; font-weight: 600; }
+    .view-toggle { display: flex; gap: 0.5rem; }
+    .view-toggle button { padding: 0.4rem 0.6rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; transition: all var(--transition); }
+    .view-toggle button.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+    .channel-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: all var(--transition); cursor: pointer; position: relative; }
+    .channel-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+    .star-btn { position: absolute; top: 0.5rem; right: 0.5rem; width: 32px; height: 32px; background: rgba(0,0,0,0.6); border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; transition: all var(--transition); z-index: 10; opacity: 0; }
+    .channel-card:hover .star-btn { opacity: 1; }
+    .star-btn:hover { background: rgba(0,0,0,0.8); transform: scale(1.1); }
+    .star-btn.starred { color: #fbbf24; opacity: 1; }
+    .star-btn.not-starred { color: rgba(255,255,255,0.5); }
+    .channel-poster { aspect-ratio: 16/10; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .channel-poster img { width: 100%; height: 100%; object-fit: contain; padding: 1rem; }
+    .channel-poster .placeholder { font-size: 3rem; opacity: 0.3; }
+    .channel-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%); opacity: 0; transition: opacity var(--transition); display: flex; align-items: flex-end; justify-content: center; padding: 1rem; }
+    .channel-card:hover .channel-overlay { opacity: 1; }
+    .play-btn { padding: 0.5rem 1.5rem; background: var(--accent); border: none; border-radius: 20px; color: white; font-size: 0.85rem; font-weight: 600; transform: translateY(10px); transition: transform var(--transition); }
+    .channel-card:hover .play-btn { transform: translateY(0); }
+    .channel-info { padding: 0.75rem; }
+    .channel-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .channel-group { font-size: 0.75rem; color: var(--text-muted); }
+
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 2rem; font-size: 0.9rem; box-shadow: var(--shadow); transition: transform 0.3s ease; z-index: 1000; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    .page-footer { background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 2.5rem 1.25rem; margin-top: 3rem; }
+    .footer-content { max-width: 1000px; margin: 0 auto; text-align: center; }
+    .footer-copyright { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem; }
+    .footer-links { display: flex; justify-content: center; align-items: center; gap: 1.25rem; flex-wrap: wrap; font-size: 0.75rem; }
+    .footer-links a { color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
+    .footer-links a:hover { color: var(--text-primary); }
+    .footer-badges { display: flex; align-items: center; justify-content: center; gap: 0.625rem; margin-top: 1.25rem; }
+    .footer-badges img { height: 12px; width: auto; opacity: 0.8; transition: opacity var(--transition); }
+    .footer-badges img:hover { opacity: 1; }
+    .footer-badges span { font-size: 0.75rem; color: var(--text-secondary); }
+    .footer-disclaimer { margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+    @media (max-width: 768px) {
+      .header { padding: 0.75rem 1rem; }
+      .header-inner { flex-wrap: wrap; }
+      .search-box { width: 100%; order: 3; }
+      .header-actions { gap: 0.5rem; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 0.25rem; }
+      .header-actions .pill-btn { padding: 0.5rem 0.75rem; flex-shrink: 0; }
+      .header-actions .pill-btn span { display: none; }
+      .theme-toggle { width: 36px; height: 36px; flex-shrink: 0; }
+      .account-btn { padding: 0.5rem 0.75rem; flex-shrink: 0; }
+      .account-btn span { display: none; }
+      .hero { padding: 2rem 1rem; }
+      .hero h1 { font-size: 1.75rem; }
+      .hero-stats { gap: 1.5rem; }
+      .hero-stat-value { font-size: 1.5rem; }
+      .main-container { padding: 1rem; }
+      .channel-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
+    }
+    @media (max-width: 480px) {
+      .header-inner { justify-content: space-between; }
+      .logo-text { display: none; }
+      .search-box { width: 100%; order: 3; margin-top: 0.5rem; }
+      .hero { padding: 1.5rem 0.75rem; }
+      .hero h1 { font-size: 1.5rem; }
+      .hero p { font-size: 0.95rem; }
+      .hero-stats { gap: 1rem; }
+      .main-container { padding: 0.75rem; }
+      .channel-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+      .channel-info { padding: 0.5rem; }
+      .channel-name { font-size: 0.8rem; }
+      .page-footer { padding: 1.5rem 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="${origin}/" class="logo">
+        <div class="logo-icon">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="tvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="36" height="36" rx="6" fill="url(#tvGradient)" />
+            <rect x="4" y="8" width="28" height="18" rx="2" fill="#0a0a0a" />
+            <path d="M14 12 L24 17 L14 22 Z" fill="#fff" />
+            <rect x="10" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+            <rect x="20" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+          </svg>
+        </div>
+        <div class="logo-text">IPTV<span>Search</span></div>
+      </a>
+      
+      <div class="search-box">
+        <input type="text" placeholder="Search channels (CCTV, ESPN, HBO...)">
+      </div>
+      
+      <div class="header-actions">
+        <a href="${origin}/favorites" class="pill-btn" title="My Favorites">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <span>Favorites</span>
+        </a>
+        <a href="${origin}/plans" class="pill-btn" title="Subscription Plans">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span>Plans</span>
+        </a>
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+        <a href="${origin}/account" class="account-btn" title="My Account">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Account</span>
+        </a>
+        <div id="translate"></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Find & Watch Free Live TV</h1>
+    <p>Access 10,000+ free live TV channels instantly. No account, no fees, just search and watch.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-value">${totalChannels >= 10000 ? '10,000+' : totalChannels.toLocaleString()}+</div>
+        <div class="hero-stat-label">Channels</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value">${totalGroups >= 100 ? '100+' : totalGroups}+</div>
+        <div class="hero-stat-label">Categories</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value">50+</div>
+        <div class="hero-stat-label">Countries</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="main-container">
+    <aside class="sidebar">
+      <div class="sidebar-title">Categories</div>
+      <ul class="sidebar-list">
+        <li class="sidebar-item active">
+          <a href="${origin}/"><span>All Channels</span><span class="sidebar-count">${totalChannels}</span></a>
+        </li>
+        ${sidebarItemsHtml}
+      </ul>
+    </aside>
+
+    <main class="content">
+      <div class="content-header">
+        <h2 class="section-title">Browse All Channels (${totalChannels})</h2>
+        <div class="view-toggle">
+          <button class="active">Grid</button>
+          <button>List</button>
+        </div>
+      </div>
+      <div class="channel-grid">
+        ${channelCardsHtml || '<p>No channels found</p>'}
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <footer class="page-footer">
+    <div class="footer-content">
+      <p class="footer-copyright">&copy; ${new Date().getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+      <div class="footer-links">
+        <a href="${origin}/tutorial">How to Watch on TV Devices</a>
+        <a href="${origin}/sitemap.xml">Sitemap</a>
+        <a href="${origin}/privacy-policy">Privacy Policy</a>
+        <a href="${origin}/terms">Terms of Service</a>
+        <a href="mailto:support@iptv-search.com">Contact Us</a>
+      </div>
+      <div class="footer-badges">
+        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
+        </a>
+        <span>This site is powered by Cloudflare for acceleration and security</span>
+      </div>
+      <div class="footer-disclaimer">All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.</div>
+    </div>
+  </footer>
+
+  <script>
+    const FAVORITES_KEY = 'iptv_favorites';
+    
+    function getFavorites() {
+      try { return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || []; } catch { return []; }
+    }
+    
+    function saveFavorites(favorites) {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+      localStorage.setItem(FAVORITES_KEY + '_update', Date.now().toString());
+    }
+
+    function toggleStar(event, btn, channelHash, channelName, groupTitle) {
+      event.stopPropagation();
+      const favorites = getFavorites();
+      const index = favorites.findIndex(f => f.channel_hash === channelHash);
+      
+      if (index > -1) {
+        favorites.splice(index, 1);
+        btn.classList.remove('starred');
+        btn.classList.add('not-starred');
+        btn.textContent = '☆';
+        showToast('Removed from favorites');
+      } else {
+        favorites.push({ channel_hash: channelHash, channel_name: channelName, group_title: groupTitle });
+        btn.classList.remove('not-starred');
+        btn.classList.add('starred');
+        btn.textContent = '★';
+        showToast('Added to favorites');
+      }
+      saveFavorites(favorites);
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function initStarButtons() {
+      const favorites = getFavorites();
+      document.querySelectorAll('.star-btn').forEach(btn => {
+        const channelHash = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+        const isFavorited = favorites.some(f => f.channel_hash === channelHash);
+        if (isFavorited) {
+          btn.classList.remove('not-starred');
+          btn.classList.add('starred');
+          btn.textContent = '★';
+        }
+      });
+    }
+    initStarButtons();
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.selectLanguageTag.show = true;
+        translate.selectLanguageTag.documentId = 'translate';
+        translate.language.setLocal('english');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else { setTimeout(initTranslate, 100); }
+    }
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initTranslate); } else { initTranslate(); }
+  </script>
+</body>
+</html>`;
+
+  return html;
+}
+
+// 生成分类页 HTML
+/**
+ * 生成分类页 HTML
+ * @param {Object} options - 配置选项
+ * @param {string} options.origin - 网站 origin
+ * @param {string} options.category - 分类名称 (如 "CCTV")
+ * @param {string} options.slug - URL slug (如 "cctv")
+ * @param {Object} options.env - Workers 环境变量 (可选, CLI 模式可不传)
+ * @param {number} options.limit - 限制显示的频道数量
+ * @returns {Promise<string>} 生成的 HTML 字符串
+ */
+export async function generateCategoryPage(options = {}) {
+  const { origin = 'https://iptv-search.com', category, slug, env, limit = 500 } = options;
+
+  if (!category) {
+    throw new Error('category is required');
+  }
+
+  let channels = [];
+
+  // 在 CLI 环境下直接使用 D1
+  let allGroups = [];
+  if (!env || !env.KV) {
+    try {
+      const db = getDB();
+      const result = await db.prepare(`
+        SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active
+        FROM channels c
+        INNER JOIN sources s ON c.source_id = s.id
+        WHERE c.is_active = 1 AND s.is_active = 1
+          AND c.group_title = ?
+        ORDER BY c.channel_name
+        LIMIT ?
+      `).bind(category, limit).all();
+      channels = result.results || [];
+      
+      // 获取所有分类（CLI 模式）
+      const groupsResult = await db.prepare(`
+        SELECT DISTINCT c.group_title
+        FROM channels c
+        INNER JOIN sources s ON c.source_id = s.id
+        WHERE c.is_active = 1 AND s.is_active = 1
+          AND c.group_title IS NOT NULL AND c.group_title != ''
+        ORDER BY c.group_title
+      `).all();
+      allGroups = (groupsResult.results || []).map(r => r.group_title);
+    } catch (error) {
+      console.error('[SEO] CLI mode D1 query error:', error);
+    }
+  } else {
+    const channelsResult = await getAllChannels(env);
+    channels = (channelsResult.channels || [])
+      .filter(ch => ch.is_active !== 0 && ch.group_title === category)
+      .slice(0, limit);
+    
+    // 获取所有分类
+    const groupsResult = await getAllGroups(env);
+    allGroups = groupsResult.groups || [];
+  }
+
+  // 生成分类导航 HTML
+  const categoryNavHtml = allGroups.map(g => {
+    const gSlug = slugify(g);
+    const isActive = g === category;
+    return `<li${isActive ? ' class="active"' : ''}><a href="${origin}/category/${encodeURIComponent(gSlug)}">${escapeHtml(g)}</a></li>`;
+  }).join('\n      ');
+
+  const displayChannels = channels;
+  const channelGrid = generateChannelGrid(displayChannels, origin);
+  const channelCount = channels.length;
+
+  // SEO 标签
+  const pageTitle = `${category} Live TV - Watch Free ${category} Channels | IPTV Search`;
+  const metaDescription = `Watch ${channelCount}+ live ${category} channels streaming free online. No signup required. Browse ${category} official channels.`;
+  const canonicalUrl = `${origin}/category/${slug}`;
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(pageTitle)}</title>
+  <meta name="description" content="${escapeAttr(metaDescription)}">
+  <link rel="canonical" href="${canonicalUrl}">
+  <meta property="og:title" content="${escapeAttr(pageTitle)}">
+  <meta property="og:description" content="${escapeAttr(metaDescription)}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${canonicalUrl}">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "${origin}/"},
+      {"@type": "ListItem", "position": 2, "name": "${escapeAttr(category)}", "item": "${canonicalUrl}"}
+    ]
+  }
+  </script>
+  
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-card: #1a1a1a;
+      --bg-hover: #252525;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --accent: #e50914;
+      --accent-hover: #f6121d;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.5);
+      --radius: 8px;
+      --transition: 0.2s ease;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #f0f0f0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border: rgba(0,0,0,0.08);
+      --border-hover: rgba(0,0,0,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; font-family: inherit; }
+
+    .header { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+    .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: 700; }
+    .logo-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .logo-text span { color: var(--accent); }
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .search-box { position: relative; width: 300px; }
+    .search-box input { width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: border-color var(--transition); }
+    .search-box input:focus { border-color: var(--accent); }
+    .search-box::before { content: "🔍"; position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; opacity: 0.5; }
+
+    .pill-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+      color: var(--text-primary); font-size: 0.85rem; font-weight: 500; text-decoration: none;
+      transition: all var(--transition); white-space: nowrap;
+    }
+    .pill-btn:hover { background: var(--bg-hover); border-color: var(--border-hover); transform: translateY(-1px); }
+    .pill-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+    .pill-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .account-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+      color: var(--text-primary); font-size: 0.85rem; font-weight: 500; text-decoration: none;
+      transition: all var(--transition); white-space: nowrap;
+    }
+    .account-btn:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+    .account-btn svg { width: 16px; height: 16px; }
+
+    .theme-toggle {
+      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 50%;
+      color: var(--text-primary); font-size: 1.1rem; cursor: pointer; transition: all var(--transition);
+    }
+    .theme-toggle:hover { background: var(--bg-hover); border-color: var(--border-hover); transform: scale(1.05); }
+
+    #translate { position: relative; display: inline-block; }
+    #translateSelectLanguage {
+      appearance: none; -webkit-appearance: none; padding: 0.5rem 2rem 0.5rem 0.75rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text-primary); font-size: 0.85rem; cursor: pointer; outline: none;
+      transition: border-color var(--transition); min-width: 100px;
+    }
+    #translateSelectLanguage:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(229,9,20,0.2); }
+    #translateSelectLanguage:hover { border-color: var(--border-hover); }
+    #translate::after { content: ""; position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--text-secondary); pointer-events: none; }
+    #translate:hover::after { border-top-color: var(--accent); }
+
+    /* Breadcrumb */
+    .breadcrumb { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem 0; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); }
+    .breadcrumb a { color: var(--accent); }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { opacity: 0.5; }
+
+    /* Category Header */
+    .category-header { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    .category-header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .category-header p { color: var(--text-secondary); font-size: 1rem; }
+    .category-stats { display: flex; gap: 1.5rem; margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); }
+    .category-stats span { display: flex; align-items: center; gap: 0.3rem; }
+
+    /* Main Content */
+    .main-container { max-width: 1400px; margin: 0 auto; padding: 0 2rem 2rem; }
+    .content-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .section-title { font-size: 1.25rem; font-weight: 600; }
+    .channel-count { color: var(--text-muted); font-weight: 400; font-size: 1rem; }
+    .download-m3u { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; background: var(--accent); border: none; border-radius: 20px; color: white; font-size: 0.85rem; font-weight: 500; text-decoration: none; transition: all var(--transition); }
+    .download-m3u:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    .download-m3u svg { width: 16px; height: 16px; }
+
+    .search-section { background: var(--bg-secondary); padding: 2rem; border-bottom: 1px solid var(--border); }
+    .search-container { max-width: 1400px; margin: 0 auto; }
+    .search-hero { text-align: center; margin-bottom: 1.5rem; }
+    .search-hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .search-hero p { color: var(--text-secondary); font-size: 1rem; }
+    .search-box-main { max-width: 600px; margin: 0 auto; }
+    .search-form { display: flex; gap: 0.5rem; }
+    .search-input {
+      flex: 1; padding: 0.875rem 1rem; background: var(--bg-primary); border: 1px solid var(--border);
+      border-radius: var(--radius); color: var(--text-primary); font-size: 1rem; outline: none;
+      transition: border-color var(--transition);
+    }
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(229,9,20,0.2); }
+    .search-btn {
+      padding: 0.875rem 1.5rem; background: var(--accent); border: none; border-radius: var(--radius);
+      color: white; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all var(--transition);
+    }
+    .search-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+    .main-container { flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; padding: 1.5rem 2rem; }
+    .content-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .section-title { font-size: 1.25rem; font-weight: 600; }
+    .channel-count { color: var(--text-secondary); font-size: 0.9rem; }
+    .download-m3u { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; background: var(--accent); border: none; border-radius: 20px; color: white; font-size: 0.85rem; font-weight: 500; text-decoration: none; transition: all var(--transition); }
+    .download-m3u:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    .download-m3u svg { width: 16px; height: 16px; }
+
+    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+
+    .channel-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; transition: all var(--transition); cursor: pointer; position: relative;
+    }
+    .channel-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+
+    .star-btn {
+      position: absolute; top: 0.5rem; right: 0.5rem; width: 32px; height: 32px;
+      background: rgba(0,0,0,0.6); border: none; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer;
+      transition: all var(--transition); z-index: 10; opacity: 0;
+    }
+    .channel-card:hover .star-btn { opacity: 1; }
+    .star-btn:hover { background: rgba(0,0,0,0.8); transform: scale(1.1); }
+    .star-btn.starred { color: #fbbf24; opacity: 1; }
+    .star-btn.not-starred { color: rgba(255,255,255,0.5); }
+
+    .channel-poster { aspect-ratio: 16/10; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .channel-poster img { width: 100%; height: 100%; object-fit: contain; padding: 1rem; }
+    .channel-poster .placeholder { font-size: 3rem; opacity: 0.3; }
+    .channel-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%); opacity: 0; transition: opacity var(--transition); display: flex; align-items: flex-end; justify-content: center; padding: 1rem; }
+    .channel-card:hover .channel-overlay { opacity: 1; }
+    .play-btn { padding: 0.5rem 1.5rem; background: var(--accent); border: none; border-radius: 20px; color: white; font-size: 0.85rem; font-weight: 600; transform: translateY(10px); transition: transform var(--transition); }
+    .channel-card:hover .play-btn { transform: translateY(0); }
+    .channel-info { padding: 0.75rem; }
+    .channel-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .channel-group { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Checkbox for batch select */
+    .channel-checkbox {
+      position: absolute; top: 0.5rem; left: 0.5rem; width: 22px; height: 22px;
+      background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.5); border-radius: 4px;
+      display: flex; align-items: center; justify-content: center; font-size: 0.9rem; cursor: pointer;
+      z-index: 10; opacity: 1; transition: all var(--transition);
+    }
+    .channel-card.selected .channel-checkbox { background: var(--accent); border-color: var(--accent); }
+    .channel-checkbox::after { content: ''; }
+
+    /* Bulk Actions Bar */
+    .bulk-actions-bar {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1rem; margin-bottom: 1.5rem; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+    .bulk-hint { display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+    .bulk-hint svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+    .bulk-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .bulk-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; border: none; cursor: pointer; transition: all var(--transition); }
+    .bulk-btn svg { width: 16px; height: 16px; }
+    .bulk-btn-primary { background: var(--accent); color: white; }
+    .bulk-btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    .bulk-btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); }
+    .bulk-btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+    .bulk-btn-download { background: linear-gradient(135deg, #34c759, #30b954); color: white; }
+    .bulk-btn-download:hover { background: linear-gradient(135deg, #30b954, #2ca048); transform: translateY(-1px); }
+    .bulk-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Category Navigation */
+    .category-nav { max-width: 1400px; margin: 0 auto; padding: 0 2rem 1.5rem; }
+    .category-nav-list { display: flex; gap: 0.5rem; flex-wrap: wrap; list-style: none; }
+    .category-nav-list li a { display: block; padding: 0.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; font-size: 0.85rem; transition: all var(--transition); white-space: nowrap; }
+    .category-nav-list li a:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+    .category-nav-list li.active a { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; padding: 1rem 2rem; border-radius: var(--radius); font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 1000; max-width: 90%; text-align: center; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast a { color: #fff; text-decoration: underline; font-weight: 700; }
+    .toast.show-link { background: linear-gradient(135deg, var(--accent), #b3080f); padding: 1rem 1.5rem; }
+
+    /* Pagination */
+    .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+    .pagination a, .pagination span { padding: 0.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; transition: all var(--transition); }
+    .pagination a:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+    .pagination .current { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* Footer */
+    .page-footer { background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 2.5rem 1.25rem; margin-top: 3rem; }
+    .footer-content { max-width: 1000px; margin: 0 auto; text-align: center; }
+    .footer-copyright { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.25rem; }
+    .footer-links { display: flex; justify-content: center; align-items: center; gap: 1.25rem; flex-wrap: wrap; margin-top: 1rem; font-size: 0.75rem; }
+    .footer-links a { color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
+    .footer-links a:hover { color: var(--text-primary); }
+    .footer-badges { display: flex; align-items: center; justify-content: center; gap: 0.625rem; margin-top: 1.25rem; }
+    .footer-badges img { height: 12px; width: auto; opacity: 0.8; transition: opacity var(--transition); }
+    .footer-badges img:hover { opacity: 1; }
+    .footer-badges span { font-size: 0.75rem; color: var(--text-secondary); }
+    .footer-disclaimer { margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .header-actions .pill-btn span { display: none; }
+    }
+    @media (max-width: 768px) {
+      .header { padding: 0.75rem 1rem; }
+      .header-inner { flex-wrap: wrap; gap: 0.75rem; }
+      .logo { font-size: 1.25rem; }
+      .header-actions { gap: 0.5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; padding-bottom: 0.25rem; }
+      .header-actions .pill-btn { padding: 0.5rem 0.75rem; flex-shrink: 0; }
+      .header-actions .pill-btn span { display: none; }
+      .search-box { width: 100%; order: 3; margin-top: 0.5rem; }
+      #translate { flex-shrink: 0; }
+      #translateSelectLanguage { padding: 0.4rem 1.5rem 0.4rem 0.5rem; font-size: 0.8rem; min-width: 70px; }
+      .theme-toggle { width: 36px; height: 36px; padding: 0; }
+      .account-btn { padding: 0.5rem 0.75rem; flex-shrink: 0; }
+      .account-btn span { display: none; }
+      .search-section { padding: 1.5rem 1rem; }
+      .search-hero h1 { font-size: 1.5rem; }
+      .search-form { flex-direction: column; }
+      .search-btn { width: 100%; }
+      .breadcrumb { padding: 1rem 1rem 0; font-size: 0.8rem; overflow-x: auto; white-space: nowrap; }
+      .category-header { padding: 1.5rem 1rem 1rem; }
+      .category-header h1 { font-size: 1.5rem; }
+      .category-header p { font-size: 0.9rem; }
+      .category-stats { font-size: 0.8rem; flex-wrap: wrap; gap: 0.75rem; }
+      .category-nav { padding: 0 1rem 1rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .category-nav-list { display: flex; flex-wrap: nowrap; gap: 0.375rem; }
+      .category-nav-list li a { padding: 0.4rem 0.75rem; font-size: 0.8rem; white-space: nowrap; }
+      .main-container { padding: 0 1rem 1.5rem; }
+      .content-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      .section-title { font-size: 1.1rem; }
+      .channel-count { font-size: 0.9rem; }
+      .channel-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
+      .bulk-actions-bar { flex-direction: column; align-items: stretch; gap: 0.75rem; padding: 0.75rem; }
+      .bulk-hint { font-size: 0.8rem; }
+      .bulk-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+      .bulk-btn { padding: 0.5rem 0.75rem; font-size: 0.8rem; flex: 1; min-width: calc(50% - 0.25rem); justify-content: center; }
+      .bulk-btn svg { width: 14px; height: 14px; }
+      .bulk-btn-download { order: -1; }
+      .pagination { flex-wrap: wrap; gap: 0.375rem; }
+      .pagination a, .pagination span { padding: 0.4rem 0.75rem; font-size: 0.85rem; }
+    }
+    @media (max-width: 480px) {
+      .logo-text { display: none; }
+      .channel-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="${origin}/" class="logo">
+        <div class="logo-icon">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="tvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="36" height="36" rx="6" fill="url(#tvGradient)" />
+          <rect x="4" y="8" width="28" height="18" rx="2" fill="#0a0a0a" />
+          <path d="M14 12 L24 17 L14 22 Z" fill="#fff" />
+          <rect x="10" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+          <rect x="20" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
+        </svg>
+        </div>
+        <div class="logo-text">IPTV<span>Search</span></div>
+      </a>
+      <div class="search-box">
+        <input type="text" placeholder="Search channels...">
+      </div>
+      <div class="header-actions">
+        <a href="${origin}/favorites" class="pill-btn" title="My Favorites">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span>Favorites</span>
+        </a>
+        <a href="${origin}/plans" class="pill-btn" title="Subscription Plans">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+          <span>Plans</span>
+        </a>
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </button>
+        <a href="${origin}/account" class="pill-btn account-btn" title="My Account">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span>Account</span>
+        </a>
+        <div id="translate"></div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb">
+    <a href="${origin}/">Home</a>
+    <span>›</span>
+    <span>${escapeHtml(category)}</span>
+  </nav>
+
+  <div class="category-header">
+    <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" style="vertical-align:middle;margin-right:0.3em"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>${escapeHtml(category)} Channels</h1>
+    <p>Watch all ${escapeHtml(category)} channels live.</p>
+    <div class="category-stats">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align:middle"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg> ${channelCount} channels</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align:middle"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/></svg> Updated daily</span>
+    </div>
+  </div>
+
+  <nav class="category-nav">
+    <ul class="category-nav-list">
+      ${categoryNavHtml}
+    </ul>
+  </nav>
+
+  <main class="main-container">
+    <div class="content-header">
+      <h2 class="section-title">All Channels <span class="channel-count">(${channelCount})</span></h2>
+    </div>
+
+    <!-- Bulk Actions Bar -->
+    <div class="bulk-actions-bar">
+      <div class="bulk-hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 16v-4M12 8h.01"/>
+        </svg>
+        <span>Select channels to batch add to favorites or download M3U</span>
+      </div>
+      <div class="bulk-actions">
+        <button class="bulk-btn bulk-btn-secondary" onclick="selectAll()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+          Select All
+        </button>
+        <button class="bulk-btn bulk-btn-secondary" onclick="clearSelection()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+          </svg>
+          Clear
+        </button>
+        <button class="bulk-btn bulk-btn-download" onclick="downloadSelectedM3U()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download M3U
+        </button>
+        <button class="bulk-btn bulk-btn-primary" onclick="addSelectedToFavorites()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          Add to Favorites
+        </button>
+      </div>
+    </div>
+
+    <div class="channel-grid">
+      ${channelGrid || '<p>No channels found</p>'}
+    </div>
+
+    <div class="pagination">
+      <span class="current">1</span>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <footer class="page-footer">
+    <div class="footer-content">
+      <p class="footer-copyright">&copy; ${new Date().getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+      <div class="footer-links">
+        <a href="${origin}/tutorial">How to Watch on TV Devices</a>
+        <a href="${origin}/sitemap.xml">Sitemap</a>
+        <a href="${origin}/robots.txt">Robots</a>
+        <a href="${origin}/privacy-policy">Privacy Policy</a>
+        <a href="${origin}/terms">Terms of Service</a>
+        <a href="mailto:support@iptv-search.com">Contact Us</a>
+      </div>
+      <div class="footer-badges">
+        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
+        </a>
+        <span>This site is powered by Cloudflare for acceleration and security</span>
+      </div>
+      <div class="footer-disclaimer">
+        All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.selectLanguageTag.show = true;
+        translate.selectLanguageTag.documentId = 'translate';
+        translate.language.setLocal('english');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else { setTimeout(initTranslate, 100); }
+    }
+    initTranslate();
+
+    const themeToggle = document.getElementById('themeToggle');
+    const sunSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+    const moonSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      themeToggle.innerHTML = next === 'dark' ? moonSVG : sunSVG;
+    });
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggle.innerHTML = savedTheme === 'dark' ? moonSVG : sunSVG;
+
+    // Favorites storage
+    const FAVORITES_KEY = 'iptv_favorites';
+    const MAX_FAVORITES = 200;
+    
+    function getFavorites() {
+      try { return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || []; } catch { return []; }
+    }
+
+    function saveFavorites(favorites) {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+      localStorage.setItem(FAVORITES_KEY + '_update', Date.now().toString());
+    }
+
+    function toggleStar(event, btn, channelHash, channelName, groupTitle) {
+      event.stopPropagation();
+      const favorites = getFavorites();
+      const index = favorites.findIndex(f => f.channel_hash === channelHash);
+      
+      if (index > -1) {
+        favorites.splice(index, 1);
+        btn.classList.remove('starred');
+        btn.classList.add('not-starred');
+        btn.textContent = '☆';
+        showToast('Removed from favorites');
+      } else {
+        if (favorites.length >= MAX_FAVORITES) {
+          showToastWithLink('Maximum ' + MAX_FAVORITES + ' channels reached! For more channels, please <a href="${origin}/plans">get a subscription</a>.');
+          return;
+        }
+        favorites.push({ channel_hash: channelHash, channel_name: channelName, group_title: groupTitle });
+        btn.classList.remove('not-starred');
+        btn.classList.add('starred');
+        btn.textContent = '★';
+        showToast('Added to favorites (' + favorites.length + '/' + MAX_FAVORITES + ')');
+      }
+      saveFavorites(favorites);
+    }
+
+    // Batch mode
+    function toggleCheckbox(event, checkbox) {
+      event.stopPropagation();
+      const card = checkbox.closest('.channel-card');
+      card.classList.toggle('selected');
+      updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
+      const selected = document.querySelectorAll('.channel-card.selected').length;
+    }
+
+    function selectAll() {
+      document.querySelectorAll('.channel-card').forEach(card => card.classList.add('selected'));
+      updateSelectedCount();
+    }
+
+    function clearSelection() {
+      document.querySelectorAll('.channel-card.selected').forEach(card => card.classList.remove('selected'));
+      updateSelectedCount();
+    }
+
+    let skippedChannels = [];
+
+    function addSelectedToFavorites() {
+      const favorites = getFavorites();
+      const selectedCards = document.querySelectorAll('.channel-card.selected');
+      let addedCount = 0;
+      let skippedCount = 0;
+      const remainingSlots = MAX_FAVORITES - favorites.length;
+      
+      selectedCards.forEach(card => {
+        const starBtn = card.querySelector('.star-btn');
+        const onclick = starBtn.getAttribute('onclick');
+        const match = onclick.match(/'([^']+)'/g);
+        if (match && match.length >= 3) {
+          const channelHash = match[0].slice(1, -1);
+          const channelName = match[2].slice(1, -1);
+          const groupTitle = match[3].slice(1, -1);
+          
+          if (!favorites.some(f => f.channel_hash === channelHash)) {
+            if (addedCount < remainingSlots) {
+              favorites.push({ channel_hash: channelHash, channel_name: channelName, group_title: groupTitle });
+              addedCount++;
+              starBtn.classList.remove('not-starred');
+              starBtn.classList.add('starred');
+              starBtn.textContent = '★';
+            } else {
+              skippedCount++;
+              skippedChannels.push({ hash: channelHash, name: channelName });
+            }
+          }
+        }
+      });
+      
+      saveFavorites(favorites);
+      
+      if (skippedCount > 0) {
+        showToastWithLink('Added ' + addedCount + ' channels. Maximum ' + MAX_FAVORITES + ' reached! <a href="${origin}/plans">Get subscription</a> for more.');
+      } else {
+        showToast('Added ' + addedCount + ' channels to favorites (' + favorites.length + '/' + MAX_FAVORITES + ')');
+      }
+    }
+
+    function downloadSelectedM3U() {
+      const selectedCards = document.querySelectorAll('.channel-card.selected');
+      if (selectedCards.length === 0) { showToast('Please select at least one channel'); return; }
+      if (selectedCards.length > MAX_FAVORITES) {
+        showToastWithLink('Maximum ' + MAX_FAVORITES + ' channels per download. <a href="${origin}/plans">Get subscription</a> for full M3U.');
+        return;
+      }
+
+      let m3uContent = '#EXTM3U\\n\\n';
+      
+      selectedCards.forEach(card => {
+        const starBtn = card.querySelector('.star-btn');
+        const onclick = starBtn.getAttribute('onclick');
+        const match = onclick.match(/'([^']+)'/g);
+        if (match && match.length >= 3) {
+          const channelHash = match[0].slice(1, -1);
+          const channelName = match[2].slice(1, -1);
+          const groupTitle = match[3].slice(1, -1);
+          const channelNameEscaped = channelName.replace(/"/g, '\\\\"');
+          const groupTitleEscaped = groupTitle.replace(/"/g, '\\\\"');
+          m3uContent += '#EXTINF:-1 group-title="' + groupTitleEscaped + '" tvg-name="' + channelNameEscaped + '",' + channelName + '\\n';
+          m3uContent += window.location.origin + '/live/' + channelHash + '/' + generateHash(channelHash) + '\\n\\n';
+        }
+      });
+
+      const blob = new Blob([m3uContent], { type: 'audio/x-mpegurl' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'iptv-channels-' + Date.now() + '.m3u';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Downloaded ' + selectedCards.length + ' channels');
+    }
+
+    function generateHash(channelHash) {
+      let hash = 0;
+      const str = channelHash + 'salt';
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return Math.abs(hash).toString(16).substring(0, 8);
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.innerHTML = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+    
+    function showToastWithLink(message) {
+      const toast = document.getElementById('toast');
+      toast.innerHTML = message;
+      toast.classList.add('show', 'show-link');
+      setTimeout(() => toast.classList.remove('show', 'show-link'), 4000);
+    }
+
+    // Initialize star buttons based on favorites
+    function initStarButtons() {
+      const favorites = getFavorites();
+      document.querySelectorAll('.star-btn').forEach(btn => {
+        const onclick = btn.getAttribute('onclick');
+        const match = onclick.match(/'([^']+)'/);
+        if (match) {
+          const channelHash = match[1];
+          const isFavorited = favorites.some(f => f.channel_hash === channelHash);
+          if (isFavorited) {
+            btn.classList.remove('not-starred');
+            btn.classList.add('starred');
+            btn.textContent = '★';
+          }
+        }
+      });
+    }
+    initStarButtons();
+  </script>
+</body>
+</html>`;
+
+  return html;
+}
+
+// 生成频道详情页 HTML
+/**
+ * 生成频道详情页 HTML
+ * @param {Object} options - 配置选项
+ * @param {string} options.origin - 网站 origin
+ * @param {Object} options.channel - 频道数据对象
+ * @param {string} options.channelHash - 频道 hash
+ * @param {Object} options.env - Workers 环境变量 (可选, CLI 模式可不传)
+ * @returns {Promise<string>} 生成的 HTML 字符串
+ */
+export async function generateChannelDetailPage(options = {}) {
+  const { origin = 'https://iptv-search.com', channel, channelHash, env } = options;
+
+  if (!channel || !channelHash) {
+    throw new Error('channel and channelHash are required');
+  }
+
+  const hash = escapeAttr(channelHash);
+  const name = escapeHtml(channel.channel_name || 'Unknown');
+  const group = escapeHtml(channel.group_title || 'Other');
+  const logo = channel.logo ? escapeAttr(channel.logo) : '';
+  const playUrl = channel.play_url ? escapeAttr(channel.play_url) : '';
+  const slug = slugify(group);
+
+  // 获取同分类的其他频道 (用于推荐)
+  let relatedChannels = [];
+  if (!env || !env.KV) {
+    try {
+      const db = getDB();
+      const result = await db.prepare(`
+        SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active
+        FROM channels c
+        INNER JOIN sources s ON c.source_id = s.id
+        WHERE c.is_active = 1 AND s.is_active = 1
+          AND c.group_title = ? AND c.channel_hash != ?
+        ORDER BY RANDOM()
+        LIMIT 12
+      `).bind(group, hash).all();
+      relatedChannels = result.results || [];
+    } catch (error) {
+      console.error('[SEO] CLI mode D1 query error:', error);
+    }
+  } else {
+    const channelsResult = await getAllChannels(env);
+    relatedChannels = (channelsResult.channels || [])
+      .filter(ch => ch.is_active !== 0 && ch.group_title === group && ch.channel_hash !== hash)
+      .slice(0, 12);
+  }
+
+  const relatedGrid = generateChannelGrid(relatedChannels.slice(0, 12), origin);
+
+  // SEO 标签
+  const pageTitle = `${name} - Watch Live | IPTV Search`;
+  const metaDescription = `Watch ${name} live streaming for free. No registration required. ${group} channels on IPTV Search.`;
+  const canonicalUrl = `${origin}/channel/${hash}`;
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${pageTitle}</title>
+  <meta name="description" content="${escapeAttr(metaDescription)}">
+  <link rel="canonical" href="${canonicalUrl}">
+  <meta property="og:url" content="${canonicalUrl}">
+  <meta property="og:title" content="${escapeAttr(pageTitle)}">
+  <meta property="og:description" content="${escapeAttr(metaDescription)}">
+  <meta property="og:type" content="video.other">
+  ${logo ? `<meta property="og:image" content="${logo}">` : ''}
+  
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": "${escapeAttr(name)} - Live TV",
+    "description": "Watch ${escapeAttr(name)} live streaming for free. No registration required.",
+    "thumbnailUrl": "${logo || ''}",
+    "genre": "TV Channel",
+    "publisher": {
+      "@type": "Organization",
+      "name": "IPTV Search",
+      "url": "${origin}"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "${origin}/"},
+      {"@type": "ListItem", "position": 2, "name": "${escapeAttr(group)}", "item": "${origin}/category/${slug}"},
+      {"@type": "ListItem", "position": 3, "name": "${escapeAttr(name)}"}
+    ]
+  }
+  </script>
+  
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-card: #1a1a1a;
+      --bg-hover: #252525;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --accent: #e50914;
+      --accent-hover: #f6121d;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.5);
+      --radius: 12px;
+      --transition: 0.2s ease;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #f0f0f0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border: rgba(0,0,0,0.08);
+      --border-hover: rgba(0,0,0,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; font-family: inherit; }
+
+    .header { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+    .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: 700; }
+    .logo-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+    .logo-text span { color: var(--accent); }
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+
+    .pill-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+      color: var(--text-primary); font-size: 0.85rem; font-weight: 500; text-decoration: none;
+      transition: all var(--transition); white-space: nowrap;
+    }
+    .pill-btn:hover { background: var(--bg-hover); border-color: var(--border-hover); transform: translateY(-1px); }
+    .pill-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .account-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+      color: var(--text-primary); font-size: 0.85rem; font-weight: 500; text-decoration: none;
+      transition: all var(--transition); white-space: nowrap;
+    }
+    .account-btn:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+    .account-btn svg { width: 16px; height: 16px; }
+
+    .theme-toggle {
+      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 50%;
+      color: var(--text-primary); font-size: 1.1rem; cursor: pointer; transition: all var(--transition);
+    }
+    .theme-toggle:hover { background: var(--bg-hover); border-color: var(--border-hover); transform: scale(1.05); }
+
+    #translate { position: relative; display: inline-block; }
+    #translateSelectLanguage {
+      appearance: none; -webkit-appearance: none; padding: 0.5rem 2rem 0.5rem 0.75rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text-primary); font-size: 0.85rem; cursor: pointer; outline: none;
+      transition: border-color var(--transition); min-width: 100px;
+    }
+    #translateSelectLanguage:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(229,9,20,0.2); }
+    #translate::after { content: ""; position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--text-secondary); pointer-events: none; }
+
+    .breadcrumb { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 0.75rem 2rem; }
+    .breadcrumb-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-secondary); }
+    .breadcrumb a:hover { color: var(--accent); }
+    .breadcrumb span { color: var(--text-muted); }
+
+    .player-section { background: var(--bg-secondary); padding: 2rem; border-bottom: 1px solid var(--border); }
+    .player-container { max-width: 1000px; margin: 0 auto; }
+    .player-wrapper { position: relative; aspect-ratio: 16/9; background: #000; border-radius: var(--radius); overflow: hidden; margin-bottom: 1.5rem; }
+    .player-wrapper iframe { width: 100%; height: 100%; border: none; }
+    .player-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; }
+    .player-placeholder .logo-big { max-width: 150px; max-height: 80px; object-fit: contain; }
+    .player-placeholder .play-icon { font-size: 4rem; opacity: 0.8; }
+    .player-actions { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .action-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem;
+      background: var(--accent); border: none; border-radius: 25px; color: white; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; transition: all var(--transition);
+    }
+    .action-btn:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(229,9,20,0.4); }
+    .action-btn.secondary { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary); }
+    .action-btn.secondary:hover { background: var(--bg-hover); border-color: var(--border-hover); box-shadow: none; }
+    .action-btn svg { width: 18px; height: 18px; }
+
+    .channel-info-header { text-align: center; margin-bottom: 1rem; }
+    .channel-info-header h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .channel-meta { display: flex; justify-content: center; gap: 1rem; font-size: 0.9rem; color: var(--text-secondary); }
+    .channel-meta a { color: var(--accent); }
+    .channel-meta a:hover { text-decoration: underline; }
+
+    .main-content { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    .section-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+    .section-title a { font-size: 0.85rem; color: var(--accent); font-weight: 400; }
+
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+
+    .channel-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; transition: all var(--transition); cursor: pointer; position: relative;
+    }
+    .channel-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+
+    .star-btn {
+      position: absolute; top: 0.5rem; right: 0.5rem; width: 32px; height: 32px;
+      background: rgba(0,0,0,0.6); border: none; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer;
+      transition: all var(--transition); z-index: 10; opacity: 0;
+    }
+    .channel-card:hover .star-btn { opacity: 1; }
+    .star-btn:hover { background: rgba(0,0,0,0.8); transform: scale(1.1); }
+    .star-btn.starred { color: #fbbf24; opacity: 1; }
+    .star-btn.not-starred { color: rgba(255,255,255,0.5); }
+
+    .channel-poster { aspect-ratio: 16/10; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .channel-poster img { width: 100%; height: 100%; object-fit: contain; padding: 1rem; }
+    .channel-poster .placeholder { font-size: 2.5rem; opacity: 0.3; }
+    .channel-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%); opacity: 0; transition: opacity var(--transition); display: flex; align-items: flex-end; justify-content: center; padding: 1rem; }
+    .channel-card:hover .channel-overlay { opacity: 1; }
+    .play-btn { padding: 0.5rem 1.5rem; background: var(--accent); border: none; border-radius: 20px; color: white; font-size: 0.85rem; font-weight: 600; transform: translateY(10px); transition: transform var(--transition); }
+    .channel-card:hover .play-btn { transform: translateY(0); }
+    .channel-info { padding: 0.75rem; }
+    .channel-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .channel-group { font-size: 0.75rem; color: var(--text-muted); }
+
+    .page-footer { background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 2rem 1.25rem; margin-top: 3rem; }
+    .footer-content { max-width: 1000px; margin: 0 auto; text-align: center; }
+    .footer-copyright { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem; }
+    .footer-links { display: flex; justify-content: center; align-items: center; gap: 1.25rem; flex-wrap: wrap; font-size: 0.75rem; }
+    .footer-links a { color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
+    .footer-links a:hover { color: var(--text-primary); }
+
+    @media (max-width: 768px) {
+      .header { padding: 0.75rem 1rem; }
+      .header-inner { flex-wrap: wrap; }
+      .breadcrumb { padding: 0.75rem 1rem; }
+      .player-section { padding: 1.5rem 1rem; }
+      .player-actions { flex-direction: column; }
+      .action-btn { width: 100%; justify-content: center; }
+      .main-content { padding: 1.5rem 1rem; }
+      .related-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
+    }
+    @media (max-width: 480px) {
+      .channel-info-header h1 { font-size: 1.5rem; }
+      .related-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="${origin}/" class="logo">
+        <div class="logo-icon">📺</div>
+        <div class="logo-text">IPTV<span>Search</span></div>
+      </a>
+      <div class="header-actions">
+        <a href="${origin}/favorites" class="pill-btn">⭐ <span>Favorites</span></a>
+        <button class="theme-toggle" id="themeToggle">🌙</button>
+        <a href="${origin}/login" class="account-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Login</span>
+        </a>
+        <div id="translate"></div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb">
+    <div class="breadcrumb-inner">
+      <a href="${origin}/">Home</a>
+      <span>/</span>
+      <a href="${origin}/category/${slug}">${group}</a>
+      <span>/</span>
+      <span>${name}</span>
+    </div>
+  </nav>
+
+  <section class="player-section">
+    <div class="player-container">
+      <div class="player-wrapper" id="playerWrapper">
+        ${logo ? `<img src="${logo}" alt="${name}" class="logo-big">` : '<div class="placeholder" style="font-size:5rem;opacity:0.3">📺</div>'}
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="channel-info-header">
+        <h1>${name}</h1>
+        <div class="channel-meta">
+          <a href="${origin}/category/${slug}">${group}</a>
+        </div>
+      </div>
+      <div class="player-actions">
+        <button class="action-btn" id="playBtn" data-url="${escapeAttr(playUrl)}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Watch Now
+        </button>
+        <button class="action-btn secondary" onclick="copyM3U()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy M3U
+        </button>
+        <button class="action-btn secondary" id="favoriteBtn" data-hash="${hash}" data-name="${escapeAttr(name)}" data-group="${escapeAttr(group)}" data-logo="${logo}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <span id="favoriteText">Add to Favorites</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  ${relatedChannels.length > 0 ? `
+  <main class="main-content">
+    <h2 class="section-title">
+      More ${group} Channels
+      <a href="${origin}/category/${slug}">View all →</a>
+    </h2>
+    <div class="related-grid">
+      ${relatedGrid}
+    </div>
+  </main>` : ''}
+
+  <footer class="page-footer">
+    <div class="footer-content">
+      <p class="footer-copyright">&copy; ${new Date().getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+      <div class="footer-links">
+        <a href="${origin}/tutorial">How to Watch</a>
+        <a href="${origin}/privacy-policy">Privacy Policy</a>
+        <a href="${origin}/terms">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      themeToggle.textContent = next === 'dark' ? '🌙' : '☀️';
+    });
+
+    // Favorites
+    function getFavorites() { return JSON.parse(localStorage.getItem('favorites') || '[]'); }
+    function saveFavorites(favorites) { localStorage.setItem('favorites', JSON.stringify(favorites)); }
+
+    const favoriteBtn = document.getElementById('favoriteBtn');
+    const favoriteText = document.getElementById('favoriteText');
+    const hash = favoriteBtn.dataset.hash;
+    const name = favoriteBtn.dataset.name;
+    const group = favoriteBtn.dataset.group;
+    const logo = favoriteBtn.dataset.logo;
+
+    function updateFavoriteBtn() {
+      const favorites = getFavorites();
+      const isFavorited = favorites.some(f => f.hash === hash);
+      if (isFavorited) {
+        favoriteText.textContent = 'Remove from Favorites';
+        favoriteBtn.querySelector('svg').setAttribute('fill', '#fbbf24');
+      } else {
+        favoriteText.textContent = 'Add to Favorites';
+        favoriteBtn.querySelector('svg').setAttribute('fill', 'none');
+      }
+    }
+
+    favoriteBtn.addEventListener('click', () => {
+      const favorites = getFavorites();
+      const index = favorites.findIndex(f => f.hash === hash);
+      if (index >= 0) {
+        favorites.splice(index, 1);
+      } else {
+        if (favorites.length >= 200) { alert('Maximum 200 favorites allowed'); return; }
+        favorites.push({ hash, name, group, logo });
+      }
+      saveFavorites(favorites);
+      updateFavoriteBtn();
+    });
+
+    updateFavoriteBtn();
+
+    // Initialize star states on related channels
+    document.addEventListener('DOMContentLoaded', () => {
+      const favorites = getFavorites();
+      const favoriteHashes = favorites.map(f => f.hash);
+      document.querySelectorAll('.star-btn').forEach(btn => {
+        const h = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+        if (favoriteHashes.includes(h)) {
+          btn.classList.remove('not-starred');
+          btn.classList.add('starred');
+          btn.textContent = '★';
+        }
+      });
+    });
+
+    function toggleStar(e, btn, h, n, g) {
+      e.stopPropagation();
+      const favorites = getFavorites();
+      const index = favorites.findIndex(f => f.hash === h);
+      if (index >= 0) {
+        favorites.splice(index, 1);
+        btn.classList.remove('starred');
+        btn.classList.add('not-starred');
+        btn.textContent = '☆';
+      } else {
+        if (favorites.length >= 200) { alert('Maximum 200 favorites allowed'); return; }
+        favorites.push({ hash: h, name: n, group: g, logo: btn.closest('.channel-card').querySelector('img')?.src || '' });
+        btn.classList.remove('not-starred');
+        btn.classList.add('starred');
+        btn.textContent = '★';
+      }
+      saveFavorites(favorites);
+    }
+
+    // Copy M3U
+    function copyM3U() {
+      const m3u = '#EXTM3U\\n#EXTINF:-1 tvg-name="' + name + '" tvg-logo="' + (logo || '') + '",' + name + '\\n/live/{code}/' + hash;
+      navigator.clipboard.writeText(m3u).then(() => {
+        alert('M3U link copied to clipboard!');
+      }).catch(() => {
+        alert('Failed to copy. Please copy manually.');
+      });
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.selectLanguageTag.show = true;
+        translate.selectLanguageTag.documentId = 'translate';
+        translate.language.setLocal('english');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else { setTimeout(initTranslate, 100); }
+    }
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initTranslate); } else { initTranslate(); }
+  </script>
+</body>
+</html>`;
+
+  return html;
 }
 
 // 生成 404 页面

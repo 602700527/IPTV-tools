@@ -136,6 +136,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab" onclick="showTab('homepage-display')">首页展示</button>
       <button class="nav-tab" onclick="showTab('ad-management')">广告管理</button>
       <button class="nav-tab" onclick="showTab('system-settings')">系统设置</button>
+      <button class="nav-tab" onclick="showTab('static-generator')">静态生成</button>
     </div>
     <div id="sources" class="tab-content active">
       <div class="card">
@@ -1023,6 +1024,65 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
       </div>
     </div>
+    <div id="static-generator" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>🖥️ 静态页面生成</h3>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span id="staticEnvBadge" class="badge badge-warning">检测中...</span>
+            <button class="btn" onclick="loadStaticStatus()">🔄 刷新状态</button>
+          </div>
+        </div>
+        
+        <div id="staticStatusInfo" style="margin-bottom:20px;padding:16px;background:#f9f9fb;border-radius:8px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
+            <div>
+              <div style="color:#86868b;font-size:12px;margin-bottom:4px;">环境</div>
+              <div id="staticEnv" style="font-weight:600;">-</div>
+            </div>
+            <div>
+              <div style="color:#86868b;font-size:12px;margin-bottom:4px;">存储位置</div>
+              <div id="staticStorage" style="font-weight:600;">-</div>
+            </div>
+            <div>
+              <div style="color:#86868b;font-size:12px;margin-bottom:4px;">最后生成</div>
+              <div id="staticLastGenerated" style="font-weight:600;">-</div>
+            </div>
+            <div>
+              <div style="color:#86868b;font-size:12px;margin-bottom:4px;">文件总数</div>
+              <div id="staticFileCount" style="font-weight:600;">-</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <h4 style="margin-bottom:12px;">生成选项</h4>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:8px;padding:12px;background:#f9f9fb;border-radius:8px;cursor:pointer;">
+              <input type="radio" name="staticType" value="homepage" checked> 首页
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;padding:12px;background:#f9f9fb;border-radius:8px;cursor:pointer;">
+              <input type="radio" name="staticType" value="categories"> 分类页
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;padding:12px;background:#f9f9fb;border-radius:8px;cursor:pointer;">
+              <input type="radio" name="staticType" value="channels"> 频道页
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;padding:12px;background:#f9f9fb;border-radius:8px;cursor:pointer;">
+              <input type="radio" name="staticType" value="all"> 全部
+            </label>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-bottom:20px;">
+          <button class="btn btn-primary" onclick="generateStaticPages()">🚀 开始生成</button>
+          <button class="btn btn-danger" onclick="clearStaticCache()">🗑️ 清除缓存</button>
+        </div>
+
+        <div id="staticLog" style="display:none;padding:16px;background:#1a1a1a;border-radius:8px;color:#fff;font-family:monospace;font-size:13px;max-height:300px;overflow-y:auto;">
+          <div id="staticLogContent"></div>
+        </div>
+      </div>
+    </div>
   </div>
   <div id="loadingOverlay" class="loading-overlay">
     <div class="loading-spinner"></div>
@@ -1607,6 +1667,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         loadSystemConfig();
         loadAnnouncement(); // 加载公告
         loadCacheStatus(); // 加载缓存状态
+      }
+      else if (tabName === 'static-generator') {
+        loadStaticStatus();
       }
     }
 
@@ -5170,6 +5233,127 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         showToast('操作失败', 'error');
       });
     }
+
+    // ========== 静态页面生成 ==========
+    async function loadStaticStatus() {
+      try {
+        const response = await fetch('/api/admin/static/status', {
+          headers: { 'X-Admin-Key': adminKey }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          document.getElementById('staticEnv').textContent = data.environment === 'production' ? '🏢 生产环境' : '🔧 测试环境';
+          document.getElementById('staticEnvBadge').textContent = data.environment === 'production' ? '生产环境' : '测试环境';
+          document.getElementById('staticEnvBadge').className = data.environment === 'production' ? 'badge badge-danger' : 'badge badge-warning';
+          document.getElementById('staticStorage').textContent = data.storage || '-';
+          document.getElementById('staticLastGenerated').textContent = data.lastGenerated ? new Date(data.lastGenerated).toLocaleString() : '从未生成';
+          document.getElementById('staticFileCount').textContent = data.fileCount ? (data.fileCount.total + ' (首页:' + data.fileCount.homepage + ' 分类:' + data.fileCount.categories + ' 频道:' + data.fileCount.channels + ')') : '-';
+        } else {
+          showToast('获取状态失败: ' + data.error, 'error');
+        }
+      } catch (error) {
+        console.error('Failed to load static status:', error);
+        showToast('获取状态失败', 'error');
+      }
+    }
+
+    function logStatic(message, isError = false) {
+      const logEl = document.getElementById('staticLog');
+      const contentEl = document.getElementById('staticLogContent');
+      if (!logEl || !contentEl) return;
+      
+      logEl.style.display = 'block';
+      const time = new Date().toLocaleTimeString();
+      const line = document.createElement('div');
+      line.style.color = isError ? '#ff6b6b' : '#69db7c';
+      line.textContent = '[' + time + '] ' + message;
+      contentEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    async function generateStaticPages() {
+      const typeEl = document.querySelector('input[name="staticType"]:checked');
+      const type = typeEl ? typeEl.value : 'all';
+      
+      if (!confirm('确定要生成 ' + (type === 'all' ? '全部' : type) + ' 静态页面吗？这可能需要几分钟时间。')) {
+        return;
+      }
+
+      const logEl = document.getElementById('staticLog');
+      const contentEl = document.getElementById('staticLogContent');
+      if (logEl) logEl.style.display = 'none';
+      if (contentEl) contentEl.innerHTML = '';
+      
+      logStatic('开始生成静态页面 (类型: ' + type + ')...');
+      
+      try {
+        const response = await fetch('/api/admin/static/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Admin-Key': adminKey
+          },
+          body: JSON.stringify({ type })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          logStatic('生成成功!');
+          logStatic('   总数: ' + data.stats.total);
+          logStatic('   成功: ' + data.stats.success);
+          logStatic('   失败: ' + data.stats.failed);
+          logStatic('   耗时: ' + (data.stats.duration / 1000).toFixed(1) + 's');
+          logStatic('   环境: ' + data.environment);
+          logStatic('   存储: ' + data.storage);
+          showToast('静态页面生成成功!', 'success');
+          loadStaticStatus();
+        } else {
+          logStatic('生成失败: ' + (data.error || data.message), true);
+          showToast('生成失败: ' + (data.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        console.error('Failed to generate static pages:', error);
+        logStatic('请求失败: ' + error.message, true);
+        showToast('生成失败: ' + error.message, 'error');
+      }
+    }
+
+    async function clearStaticCache() {
+      if (!confirm('确定要清除所有静态文件缓存吗？')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/admin/static/cache', {
+          method: 'DELETE',
+          headers: { 'X-Admin-Key': adminKey }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          showToast('已清除 ' + data.deleted + ' 个文件', 'success');
+          loadStaticStatus();
+        } else {
+          showToast('清除失败: ' + data.error, 'error');
+        }
+      } catch (error) {
+        console.error('Failed to clear cache:', error);
+        showToast('清除失败', 'error');
+      }
+    }
+
+    // 页面加载时自动获取状态
+    document.addEventListener('DOMContentLoaded', () => {
+      // 只有在当前 tab 是 static-generator 时才加载状态
+      setTimeout(() => {
+        const activeTab = document.querySelector('.tab-content.active');
+        if (activeTab && activeTab.id === 'static-generator') {
+          loadStaticStatus();
+        }
+      }, 100);
+    });
   </script>
 </body>
 </html>`;
