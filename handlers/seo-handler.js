@@ -396,7 +396,7 @@ export async function generateSEOHomepage(options = {}) {
 
   <section class="hero">
     <h1>Find & Watch Free Live TV</h1>
-    <p>Access 10,000+ free live TV channels instantly. No account, no fees, just search and watch.</p>
+    <p>Free IPTV Search Engine. Find Live TV Streams, M3U Playlists & HD Channels.</p>
     <div class="hero-stats">
       <div class="hero-stat">
         <div class="hero-stat-value">${totalChannels >= 10000 ? '10,000+' : totalChannels.toLocaleString()}+</div>
@@ -818,13 +818,18 @@ export async function generateCategoryPage(options = {}) {
 
     /* Checkbox for batch select */
     .channel-checkbox {
-      position: absolute; top: 0.5rem; left: 0.5rem; width: 22px; height: 22px;
-      background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.5); border-radius: 4px;
+      position: absolute; top: 0.5rem; left: 0.5rem; width: 20px; height: 20px;
+      background: white; border: 2px solid #d2d2d7; border-radius: 4px;
       display: flex; align-items: center; justify-content: center; font-size: 0.9rem; cursor: pointer;
-      z-index: 10; opacity: 1; transition: all var(--transition);
+      z-index: 10; opacity: 1; transition: all 0.2s ease;
     }
-    .channel-card.selected .channel-checkbox { background: var(--accent); border-color: var(--accent); }
-    .channel-checkbox::after { content: ''; }
+    .channel-checkbox:hover { border-color: #333333; }
+    .channel-card.selected .channel-checkbox { background: white; border-color: #333333; }
+    .channel-card.selected .channel-checkbox::after {
+      content: ''; position: absolute; left: 6px; top: 2px;
+      width: 5px; height: 9px; border: solid black; border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
 
     /* Bulk Actions Bar */
     .bulk-actions-bar {

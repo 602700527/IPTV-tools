@@ -103,6 +103,45 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     .btn-copy:hover{background:#e8e8ed}
     .headers-cell{max-width:200px;padding:8px;font-size:11px;color:#86868b}
     .headers-tag{display:inline-block;padding:2px 6px;background:#f5f5f7;border-radius:4px;margin:2px;font-size:10px}
+    /* 自定义白色打钩复选框样式 */
+    .custom-checkbox {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #d2d2d7;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      position: relative;
+      vertical-align: middle;
+      margin: 0;
+      padding: 0;
+      transition: all 0.2s ease;
+    }
+    .custom-checkbox:hover {
+      border-color: #0071e3;
+    }
+    .custom-checkbox:checked {
+      background: #0071e3;
+      border-color: #0071e3;
+    }
+    .custom-checkbox:checked::after {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 2px;
+      width: 5px;
+      height: 9px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .custom-checkbox:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -233,7 +272,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <button class="btn" onclick="clearCodeFilters()">重置</button>
           </div>
         </div>
-        <table><thead><tr><th><input type="checkbox" id="selectAllCodes" onclick="toggleSelectAllCodes()" style="width:auto;"></th><th>卡密</th><th>状态</th><th>有效期(天)</th><th>最大IP数</th><th>激活时间</th><th>过期时间</th><th>备注</th><th>操作</th></tr></thead><tbody id="codesTable"></tbody></table>
+        <table><thead><tr><th><input type="checkbox" id="selectAllCodes" class="custom-checkbox" onclick="toggleSelectAllCodes()"></th><th>卡密</th><th>状态</th><th>有效期(天)</th><th>最大IP数</th><th>激活时间</th><th>过期时间</th><th>备注</th><th>操作</th></tr></thead><tbody id="codesTable"></tbody></table>
         <div id="codePagination" class="pagination"></div>
       </div>
     </div>
@@ -2290,7 +2329,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             const status = statusMap[code.status] || { text: code.status, class: 'badge-warning' };
             return \`
               <tr>
-                <td><input type="checkbox" class="code-checkbox" value="\${escapeHtml(code.code)}" style="width:auto;"></td>
+                <td><input type="checkbox" class="code-checkbox custom-checkbox" value="\${escapeHtml(code.code)}"></td>
                 <td><span class="code-display">\${escapeHtml(code.code)}</span></td>
                 <td><span class="badge \${status.class}">\${status.text}</span></td>
                 <td>\${code.duration_days}</td>

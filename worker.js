@@ -45,7 +45,6 @@ import {
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { ACCOUNT_HTML } from './account-page.js';
-import { HOME_HTML } from './home-page.js';
 import { FREE_SUB_HTML } from './freesub-page.js';
 import { SUBSCRIPTION_HTML } from './subscription-page.js';
 import { PLANS_HTML } from './plans-page.js';
