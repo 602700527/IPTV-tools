@@ -249,10 +249,10 @@
       position: absolute;
       top: 0.5rem;
       left: 0.5rem;
-      width: 22px;
-      height: 22px;
-      background: rgba(0,0,0,0.6);
-      border: 2px solid rgba(255,255,255,0.5);
+      width: 20px;
+      height: 20px;
+      background: white;
+      border: 2px solid #d2d2d7;
       border-radius: 4px;
       display: flex;
       align-items: center;
@@ -261,13 +261,21 @@
       cursor: pointer;
       z-index: 10;
       opacity: 1;
-      transition: all var(--transition);
+      transition: all 0.2s ease;
     }
-    .channel-card.selected .channel-checkbox {
-      background: var(--accent);
-      border-color: var(--accent);
+    .channel-checkbox:hover { border-color: #333333; }
+    .channel-card.selected .channel-checkbox { background: white; border-color: #333333; }
+    .channel-card.selected .channel-checkbox::after {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 2px;
+      width: 5px;
+      height: 9px;
+      border: solid black;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
     }
-    .channel-checkbox::after { content: ''; }
 
     /* Star Button */
     .star-btn {
