@@ -52,18 +52,59 @@ The current architecture renders pages dynamically on each request in Cloudflare
 - *Build-time Worker simulation*: Would require mocking Cloudflare runtime APIs (env.DB, env.KV) which is complex and brittle
 - *Workers-as-build-engine*: Using a separate Worker to generate pages on-demand and cache them adds complexity
 
-### Decision 2: Workers Static File Serving
+### Decision 2: Workers Static File Serving with Environment Detection
 
-**Choice:** Workers serves pre-generated HTML files from `static-output/` directory or R2 bucket
+**Choice:** Workers serves pre-generated HTML files with intelligent environment detection
+
+**Environment Detection:**
+- `STATIC_SOURCE` environment variable: `"local"` or `"r2"`
+- Local dev (`npm run dev`): Reads from `static-output/` directory
+- Production (`wrangler deploy`): Reads from R2 bucket
+
+**Storage Interface:**
+```javascript
+// Unified static file reading interface
+async function serveStaticFile(path, env) {
+  const source = env.STATIC_SOURCE || 'local';
+
+  if (source === 'r2' && env.R2_BUCKET) {
+    // Production: Read from R2
+    const object = await env.R2_BUCKET.get(path);
+    if (object) return new Response(object.body, { headers: getMimeType(path) });
+  } else {
+    // Local dev: Read from local filesystem via static-output/
+    // Workers serves from the built-in static assets or internal fetch
+  }
+
+  return null; // Fallback to dynamic handler
+}
+```
+
+**Wrangler Configuration:**
+```toml
+# wrangler.toml - Base config (local development)
+[vars]
+STATIC_SOURCE = "local"
+STATIC_OUTPUT_DIR = "static-output"
+
+# wrangler.toml - Production env (use --env production)
+[env.production.vars]
+STATIC_SOURCE = "r2"
+
+[[env.production.r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "iptv-static-files"
+```
 
 **Rationale:**
-- Single deployment target (Workers only)
-- Static files served directly from Workers
-- Optional R2 integration for multi-instance consistency
-- No additional infrastructure needed
+- Single codebase handles both environments
+- Local dev: Fast iteration, no cloud costs
+- Production: R2 ensures multi-instance consistency
+- No code changes needed between environments
 
 **Alternatives Considered:**
 - *Cloudflare Pages*: Abandoned - adds complexity without sufficient benefit
+- *KV storage*: Free tier insufficient (10,000 ops/day limit)
 
 ### Decision 3: Static File Routing Architecture
 
@@ -188,16 +229,78 @@ https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js
 - Instant feedback without server round-trips
 - Users control their own data (privacy-friendly)
 
+### Decision 8: Delete Old Dynamic JS Rendering Code
+
+**Choice:** Remove the old SPA/JS-based dynamic rendering entirely
+
+**Files/Code to Delete:**
+| File/Code | Description |
+|-----------|-------------|
+| `home-page.js` (or similar) | Frontend JS rendering for dynamic homepage |
+| `HOME_HTML` constant | JS SPA HTML template in handler |
+| Dynamic homepage route logic | Simplify to static file serving |
+| Client-side `getAllChannels()` calls | No longer needed on homepage |
+
+**Routing After Deletion:**
+```
+GET /           → Static HTML (index.html)
+GET /category/* → Static HTML (category/{slug}.html)
+GET /channel/*  → Static HTML (channel/{hash}.html)
+GET /favorites  → Static HTML (favorites.html)
+GET /login      → Static HTML (login.html)
+GET /account    → Dynamic (checks auth state) or Static
+GET /live/*     → Dynamic (playback, IP binding)
+GET /sub/*      → Dynamic (subscription M3U)
+GET /api/*      → Dynamic (APIs)
+```
+
+**Rationale:**
+- Eliminates dual code paths (dynamic + static)
+- Reduces maintenance burden
+- Faster page loads (no JS download + execute)
+- SEO already covered by static HTML
+
+### Decision 9: Batch Generation Strategy
+
+**Choice:** Generate static files in small batches to avoid memory issues
+
+**Batch Sizes:**
+| Type | Batch Size | Rationale |
+|------|------------|-----------|
+| Homepage | 1 (single file) | Always one |
+| Category pages | 100 per batch | ~100 categories typical |
+| Channel pages | 500 per batch | Avoids Workers memory limits |
+| Sitemap | 1 (single file) | Aggregated at end |
+
+**Generation Order:**
+```
+1. Homepage (index.html)
+2. Category listing (category/index.html)
+3. Category pages (category/{slug}.html) - 100/batch
+4. Channel listing (channel/index.html)
+5. Channel pages (channel/{hash}.html) - 500/batch
+6. Special pages (favorites.html, login.html, etc.)
+7. sitemap.xml, robots.txt
+```
+
+**Progress Tracking:**
+- Log current batch number and total
+- Log generated files count
+- Log any errors per batch (don't fail entire run)
+
 ## Risks & Mitigations
 
 - **[Risk]** Daily regeneration means new channels won't appear for up to 24 hours
   - **Mitigation**: This matches existing sync schedule (acceptable)
-   
-- **[Risk]** Large number of channel pages (10,000+) could slow generation
-  - **Mitigation**: Generate in batches; use streaming HTML generation; skip channels without logos
+
+- **[Risk]** Large number of channel pages (10,000+) could exceed Workers memory
+  - **Mitigation**: Batch generation (500/batch), streaming output
 
 - **[Risk]** Static file serving increases Workers bandwidth usage
-  - **Mitigation**: Use Cache API for static files; consider R2 for large-scale deployment
+  - **Mitigation**: Use Cache API for static files; R2 for production
+
+- **[Risk]** Environment misconfiguration causes wrong storage access
+  - **Mitigation**: `STATIC_SOURCE` env var must be set correctly; fallback to local
 
 ## Migration Plan
 
@@ -205,6 +308,7 @@ https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js
    - Create `scripts/generate-static-site.js`
    - Refactor `seo-handler.js` to export generation functions
    - Test generation locally, verify output matches current bot experience
+   - Implement batch generation (500 channels/batch)
 
 2. **Phase 2: Add Channel Detail Pages**
    - Add `generateChannelDetailPage()` function
@@ -212,21 +316,34 @@ https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js
    - Test static generation includes all channels
 
 3. **Phase 3: Workers Static File Serving**
-   - Add static file reading in `worker.js`
-   - Configure `STATIC_OUTPUT_DIR` in `wrangler.toml`
-   - Test serving pre-generated HTML files
+   - Add environment-aware static file reading in `worker.js`
+   - Configure `STATIC_SOURCE` and `STATIC_OUTPUT_DIR` in `wrangler.toml`
+   - Test serving pre-generated HTML files locally
+   - Add R2 configuration for production
 
-4. **Phase 4: Scheduler Integration**
+4. **Phase 4: Delete Old Dynamic Rendering Code**
+   - Remove `home-page.js` or equivalent SPA code
+   - Remove `HOME_HTML` constant from handlers
+   - Remove dynamic homepage route logic
+   - Verify homepage now serves static HTML
+
+5. **Phase 5: Scheduler Integration**
    - Add static generation to existing cron schedule (daily 3:00 AM)
    - Verify scheduled runs succeed
 
-5. **Phase 5: Admin UI (Optional)**
+5b. **Phase 5b: Generate Special Pages**
+   - Generate favorites.html, login.html, account.html
+   - Generate legal pages (privacy-policy.html, terms.html)
+   - Generate tutorial.html
+
+6. **Phase 6: Admin UI (Optional)**
    - Add button in Admin to trigger static generation
    - Add progress tracking API
 
-6. **Phase 6: R2 Integration (Optional Enhancement)**
+7. **Phase 7: R2 Production Deployment**
    - Configure R2 bucket for static file storage
-   - Upload generated files to R2 instead of local directory
+   - Upload generated files to R2 in production
+   - Verify R2 reading works in production
 
 ## Confirmed Decisions
 
@@ -235,8 +352,14 @@ https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js
 | Channel count | 8000-10000 channels |
 | Generation time | Daily at 3:00 AM |
 | Domain config | Single Workers deployment at `iptv-search.com` |
-| Static file serving | Workers reads from `static-output/` or R2 |
+| Static file serving | Environment-aware: local (`static-output/`) or R2 |
 | Theme | Dark/light mode with localStorage + system preference |
 | Theme default | Dark |
 | Translation | translate.js from `cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js` |
 | i18n approach | Client-side auto-translation via translate.js |
+| Local dev storage | `static-output/` directory |
+| Production storage | R2 bucket `iptv-static-files` |
+| Environment detection | `STATIC_SOURCE` env var: `"local"` or `"r2"` |
+| Batch size (channels) | 500 per batch |
+| Batch size (categories) | 100 per batch |
+| Old JS rendering | DELETE - replaced by static HTML |

@@ -302,3 +302,55 @@ The site SHALL provide user authentication and account management using existing
 - **WHEN** a user IS logged in
 - **THEN** header SHALL show user email or avatar dropdown
 - **AND** dropdown contains "Account" and "Logout" options
+
+#### Scenario: User forgot password
+- **WHEN** a user clicks "Forgot Password?" on login page
+- **THEN** navigate to `/forgot-password`
+- **AND** display email input form
+- **WHEN** user submits email
+- **THEN** system SHALL call `POST /api/auth/forgot-password`
+- **AND** show message: "If an account exists with this email, a reset link has been sent"
+- **AND** rate limit: max 3 requests per IP per hour
+
+#### Scenario: User resets password via email link
+- **WHEN** user clicks reset link in email (contains token)
+- **THEN** navigate to `/reset-password?token=xxx`
+- **WHEN** page loads with valid token
+- **THEN** display password reset form
+- **WHEN** user enters new password and submits
+- **THEN** system SHALL call `POST /api/auth/reset-password`
+- **AND** validate token is not expired (1 hour max)
+- **AND** update user password in database
+- **AND** invalidate token after use
+- **AND** redirect to login with success message
+- **WHEN** token is invalid or expired
+- **THEN** show error: "This reset link has expired. Please request a new one."
+- **AND** provide link to `/forgot-password`
+
+#### Scenario: Password reset token security
+- **WHEN** a reset token is generated
+- **THEN** it SHALL be cryptographically random (UUID or JWT with short expiry)
+- **AND** stored securely in database with expiration timestamp
+- **AND** invalidated immediately after use
+- **AND** rejected if expired or already used
+
+#### Scenario: Google OAuth login
+- **WHEN** user clicks "Continue with Google" on any auth page
+- **THEN** system SHALL call `POST /api/auth/google/init`
+- **AND** receive Google OAuth URL
+- **AND** redirect to Google consent screen
+- **WHEN** user grants permission
+- **THEN** Google redirects to `/api/auth/google/callback` with auth code
+- **AND** system exchanges code for tokens
+- **AND** creates user account if not exists (email-only, no password)
+- **AND** generates session token
+- **AND** redirects to `/account?token=xxx`
+- **AND** frontend stores token in `localStorage.auth_token`
+
+#### Scenario: Google OAuth button placement
+- **WHEN** user is on login page (`/login`)
+- **THEN** "Continue with Google" button SHALL appear above email/password form
+- **WHEN** user is on forgot-password page (`/forgot-password`)
+- **THEN** "Continue with Google" button SHALL appear below email form
+- **WHEN** user is on reset-password page (`/reset-password`)
+- **THEN** "Continue with Google" button SHALL appear below password form

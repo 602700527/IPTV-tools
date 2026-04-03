@@ -23,15 +23,18 @@ The `static-preview/` directory contains prototype HTML/CSS/JS files that define
 #### Prototype Files Reference:
 ```
 static-preview/
-├── homepage.html         # Homepage template
-├── category.html         # Category page template
-├── channel-detail.html   # Channel detail page template
-├── favorites.html        # Favorites page template
-├── login.html            # Login page template
-├── account.html          # Account page template
-├── privacy-policy.html   # Legal page template
-├── terms.html            # Legal page template
-└── tutorial.html         # Tutorial page template
+├── homepage.html         # ✅ Homepage template
+├── category.html        # ✅ Category page template
+├── channel-detail.html  # ✅ Channel detail page template
+├── favorites.html       # ✅ Favorites page template
+├── login.html           # ✅ Login + Register + Google OAuth
+├── account.html         # ✅ Account page template
+├── privacy-policy.html  # ✅ Legal page template
+├── terms.html           # ✅ Legal page template
+├── tutorial.html        # ✅ Tutorial page template
+├── forgot-password.html  # ✅ Password reset request + Google OAuth
+├── reset-password.html   # ✅ Password reset form + Google OAuth
+└── 404.html             # ✅ Not found page
 ```
 
 ---
@@ -92,6 +95,65 @@ The generator SHALL reuse the HTML generation logic from `handlers/seo-handler.j
 #### Scenario: Reuse channel detail template
 - **WHEN** generating channel detail pages
 - **THEN** the output HTML SHALL match `static-preview/channel-detail.html` exactly
+
+---
+
+### Requirement: Static File Serving via Workers
+
+**⚠️ CRITICAL**: All dynamic HTML rendering in `worker.js` MUST be replaced with static file serving.
+
+#### Scenario: Static file serving with environment detection
+- **WHEN** a request comes to Workers
+- **AND** the path matches a static file route
+- **THEN** Workers SHALL call `serveStaticFile(path, env)`
+- **AND** if `env.STATIC_SOURCE === 'r2'` and `env.R2_BUCKET` exists
+- **THEN** Workers SHALL read from R2 bucket: `await env.R2_BUCKET.get(path)`
+- **ELSE** Workers SHALL read from local `static-output/` directory
+- **AND** return the file with correct Content-Type header
+- **IF** the file does not exist
+- **THEN** return `null` to trigger fallback to dynamic handlers
+
+#### Static Routes Reference:
+
+| Route | Static File Path | Notes |
+|-------|----------------|-------|
+| `GET /` | `static-output/index.html` | Homepage |
+| `GET /login` | `static-output/login.html` | Login + Register + Google OAuth |
+| `GET /favorites` | `static-output/favorites.html` | User favorites |
+| `GET /forgot-password` | `static-output/forgot-password.html` | Password reset request |
+| `GET /reset-password` | `static-output/reset-password.html` | Password reset form |
+| `GET /account` | `static-output/account.html` | User account |
+| `GET /tutorial` | `static-output/tutorial.html` | How to watch |
+| `GET /plans` | `static-output/plans.html` | Subscription plans |
+| `GET /category/{slug}` | `static-output/category/{slug}.html` | Category page |
+| `GET /channel/{hash}` | `static-output/channel/{hash}.html` | Channel detail |
+| `GET /sitemap.xml` | `static-output/sitemap.xml` | SEO sitemap |
+| `GET /robots.txt` | `static-output/robots.txt` | SEO robots |
+| `GET /404` | `static-output/404.html` | Not found page |
+
+#### Scenario: Content-Type mapping
+- **WHEN** serving a static file
+- **THEN** Workers SHALL set the correct Content-Type based on file extension:
+  - `.html` → `text/html; charset=utf-8`
+  - `.css` → `text/css; charset=utf-8`
+  - `.js` → `application/javascript`
+  - `.json` → `application/json`
+  - `.xml` → `application/xml`
+  - `.txt` → `text/plain`
+  - `.svg` → `image/svg+xml`
+  - `.png` → `image/png`
+  - `.jpg` → `image/jpeg`
+
+#### Scenario: Legacy HTML files removal
+- **WHEN** static file serving is fully implemented
+- **THEN** the following dynamic HTML files SHALL be deleted:
+  - `home-page.js` (HOME_HTML)
+  - `reset-password-page.js` (RESET_PASSWORD_HTML)
+  - `account-page.js` (ACCOUNT_HTML)
+  - `tutorial-page.js` (TUTORIAL_HTML)
+  - `freesub-page.js` (FREE_SUB_HTML)
+  - `subscription-page.js` (SUBSCRIPTION_HTML)
+  - `plans-page.js` (PLANS_HTML)
 
 ---
 
