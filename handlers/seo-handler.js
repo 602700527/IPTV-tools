@@ -234,22 +234,25 @@ export async function generateSEOHomepage(options = {}) {
     .search-box input:focus { border-color: var(--accent); }
     .search-box::before { content: "🔍"; position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; opacity: 0.5; }
 
-    .pill-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text-primary); font-size: 0.85rem; font-weight: 500; text-decoration: none; transition: all var(--transition); white-space: nowrap; }
-    .pill-btn:hover { background: var(--bg-hover); border-color: var(--border-hover); transform: translateY(-1px); }
-    .pill-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
-    .account-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text-primary); font-size: 0.85rem; font-weight: 500; text-decoration: none; transition: all var(--transition); white-space: nowrap; }
-    .account-btn:hover { background: var(--bg-hover); border-color: var(--border-hover); }
-    .account-btn svg { width: 16px; height: 16px; }
-    .pill-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .header-actions .pill-btn span,
+    .header-actions .account-btn span { display: none; }
+    .pill-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
+    .pill-btn:hover { color: var(--accent); }
+    .pill-btn.active { color: var(--accent); }
+    .account-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
+    .account-btn:hover { color: var(--accent); }
+    .account-btn svg,
+    .pill-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
 
-    .theme-toggle { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 50%; color: var(--text-primary); font-size: 1.1rem; cursor: pointer; transition: all var(--transition); }
-    .theme-toggle:hover { background: var(--bg-hover); border-color: var(--border-hover); transform: scale(1.05); }
+    .theme-toggle { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: transparent; color: var(--text-secondary); cursor: pointer; transition: color var(--transition); border: none; }
+    .theme-toggle:hover { color: var(--accent); }
 
-    #translate { position: relative; display: inline-block; }
-    #translateSelectLanguage { appearance: none; -webkit-appearance: none; padding: 0.5rem 2rem 0.5rem 0.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-size: 0.85rem; cursor: pointer; outline: none; transition: border-color var(--transition); min-width: 100px; }
-    #translateSelectLanguage:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(229,9,20,0.2); }
-    #translateSelectLanguage:hover { border-color: var(--border-hover); }
+    #translate { position: relative; display: inline-flex; align-items: center; }
+    #translateSelectLanguage { appearance: none; -webkit-appearance: none; padding: 0.5rem 2rem 0.5rem 0.75rem; background: transparent; border: none; border-radius: 6px; color: var(--text-secondary); font-size: 0.85rem; cursor: pointer; outline: none; transition: color var(--transition); min-width: 80px; }
+    #translateSelectLanguage:focus { color: var(--accent); }
+    #translateSelectLanguage:hover { color: var(--accent); }
     #translate::after { content: ""; position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--text-secondary); pointer-events: none; }
+    #translate:hover::after { border-top-color: var(--accent); }
 
     .hero { background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%); padding: 4rem 2rem; text-align: center; border-bottom: 1px solid var(--border); }
     .hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; background: linear-gradient(135deg, #fff 0%, #999 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
@@ -315,15 +318,22 @@ export async function generateSEOHomepage(options = {}) {
     .footer-disclaimer { margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; max-width: 600px; margin-left: auto; margin-right: auto; }
 
     @media (max-width: 768px) {
-      .header { padding: 0.75rem 1rem; }
-      .header-inner { flex-wrap: wrap; }
-      .search-box { width: 100%; order: 3; }
-      .header-actions { gap: 0.5rem; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 0.25rem; }
-      .header-actions .pill-btn { padding: 0.5rem 0.75rem; flex-shrink: 0; }
+      .header { padding: 0.5rem 0.75rem; }
+      .header-inner { flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; }
+      .logo { flex-shrink: 0; }
+      .logo-icon svg { width: 32px; height: 32px; }
+      .logo-text { display: none; }
+      .search-box { width: 100%; order: 3; margin-top: 0.5rem; }
+      .search-box input { padding: 0.5rem 1rem 0.5rem 2.5rem; font-size: 0.9rem; }
+      .search-box::before { font-size: 0.9rem; left: 0.8rem; }
+      .header-actions { gap: 0.25rem; flex-shrink: 0; }
+      .header-actions .pill-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
       .header-actions .pill-btn span { display: none; }
-      .theme-toggle { width: 36px; height: 36px; flex-shrink: 0; }
-      .account-btn { padding: 0.5rem 0.75rem; flex-shrink: 0; }
+      .theme-toggle { width: 32px; height: 32px; background: transparent; border: none; padding: 0; flex-shrink: 0; }
+      .account-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
       .account-btn span { display: none; }
+      #translate { flex-shrink: 0; }
+      #translateSelectLanguage { padding: 0.25rem 1.5rem 0.25rem 0.5rem; background: transparent; border: none; font-size: 0.75rem; min-width: 60px; }
       .hero { padding: 2rem 1rem; }
       .hero h1 { font-size: 1.75rem; }
       .hero-stats { gap: 1.5rem; }
@@ -699,41 +709,40 @@ export async function generateCategoryPage(options = {}) {
     .search-box input:focus { border-color: var(--accent); }
     .search-box::before { content: "🔍"; position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; opacity: 0.5; }
 
+    .header-actions .pill-btn span,
+    .header-actions .account-btn span { display: none; }
     .pill-btn {
-      display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem;
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
-      color: var(--text-primary); font-size: 0.85rem; font-weight: 500; text-decoration: none;
-      transition: all var(--transition); white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+      color: var(--text-secondary); text-decoration: none;
+      transition: color var(--transition);
     }
-    .pill-btn:hover { background: var(--bg-hover); border-color: var(--border-hover); transform: translateY(-1px); }
-    .pill-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
-    .pill-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .pill-btn:hover { color: var(--accent); }
+    .pill-btn.active { color: var(--accent); }
+    .pill-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
 
     .account-btn {
-      display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem;
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
-      color: var(--text-primary); font-size: 0.85rem; font-weight: 500; text-decoration: none;
-      transition: all var(--transition); white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+      color: var(--text-secondary); text-decoration: none;
+      transition: color var(--transition);
     }
-    .account-btn:hover { background: var(--bg-hover); border-color: var(--border-hover); }
-    .account-btn svg { width: 16px; height: 16px; }
+    .account-btn:hover { color: var(--accent); }
+    .account-btn svg { width: 18px; height: 18px; }
 
     .theme-toggle {
-      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 50%;
-      color: var(--text-primary); font-size: 1.1rem; cursor: pointer; transition: all var(--transition);
+      width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+      background: transparent; border: none; color: var(--text-secondary); cursor: pointer; transition: color var(--transition);
     }
-    .theme-toggle:hover { background: var(--bg-hover); border-color: var(--border-hover); transform: scale(1.05); }
+    .theme-toggle:hover { color: var(--accent); }
 
-    #translate { position: relative; display: inline-block; }
+    #translate { position: relative; display: inline-flex; align-items: center; }
     #translateSelectLanguage {
       appearance: none; -webkit-appearance: none; padding: 0.5rem 2rem 0.5rem 0.75rem;
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
-      color: var(--text-primary); font-size: 0.85rem; cursor: pointer; outline: none;
-      transition: border-color var(--transition); min-width: 100px;
+      background: transparent; border: none; border-radius: 6px;
+      color: var(--text-secondary); font-size: 0.85rem; cursor: pointer; outline: none;
+      transition: color var(--transition); min-width: 80px;
     }
-    #translateSelectLanguage:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(229,9,20,0.2); }
-    #translateSelectLanguage:hover { border-color: var(--border-hover); }
+    #translateSelectLanguage:focus { color: var(--accent); }
+    #translateSelectLanguage:hover { color: var(--accent); }
     #translate::after { content: ""; position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--text-secondary); pointer-events: none; }
     #translate:hover::after { border-top-color: var(--accent); }
 
@@ -887,17 +896,21 @@ export async function generateCategoryPage(options = {}) {
       .header-actions .pill-btn span { display: none; }
     }
     @media (max-width: 768px) {
-      .header { padding: 0.75rem 1rem; }
-      .header-inner { flex-wrap: wrap; gap: 0.75rem; }
-      .logo { font-size: 1.25rem; }
-      .header-actions { gap: 0.5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; padding-bottom: 0.25rem; }
-      .header-actions .pill-btn { padding: 0.5rem 0.75rem; flex-shrink: 0; }
-      .header-actions .pill-btn span { display: none; }
+      .header { padding: 0.5rem 0.75rem; }
+      .header-inner { flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; }
+      .logo { font-size: 1.25rem; flex-shrink: 0; }
+      .logo-icon svg { width: 32px; height: 32px; }
+      .logo-text { display: none; }
       .search-box { width: 100%; order: 3; margin-top: 0.5rem; }
+      .search-box input { padding: 0.5rem 1rem 0.5rem 2.5rem; font-size: 0.9rem; }
+      .search-box::before { font-size: 0.9rem; left: 0.8rem; }
+      .header-actions { gap: 0.25rem; flex-shrink: 0; }
+      .header-actions .pill-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
+      .header-actions .pill-btn span { display: none; }
       #translate { flex-shrink: 0; }
-      #translateSelectLanguage { padding: 0.4rem 1.5rem 0.4rem 0.5rem; font-size: 0.8rem; min-width: 70px; }
-      .theme-toggle { width: 36px; height: 36px; padding: 0; }
-      .account-btn { padding: 0.5rem 0.75rem; flex-shrink: 0; }
+      #translateSelectLanguage { padding: 0.25rem 1.5rem 0.25rem 0.5rem; background: transparent; border: none; font-size: 0.75rem; min-width: 60px; }
+      .theme-toggle { width: 32px; height: 32px; background: transparent; border: none; padding: 0; flex-shrink: 0; }
+      .account-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
       .account-btn span { display: none; }
       .search-section { padding: 1.5rem 1rem; }
       .search-hero h1 { font-size: 1.5rem; }
@@ -1458,40 +1471,41 @@ export async function generateChannelDetailPage(options = {}) {
     .logo-text span { color: var(--accent); }
     .header-actions { display: flex; align-items: center; gap: 1rem; }
 
+    .header-actions .pill-btn span,
+    .header-actions .account-btn span { display: none; }
     .pill-btn {
-      display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem;
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
-      color: var(--text-primary); font-size: 0.85rem; font-weight: 500; text-decoration: none;
-      transition: all var(--transition); white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+      color: var(--text-secondary); text-decoration: none;
+      transition: color var(--transition);
     }
-    .pill-btn:hover { background: var(--bg-hover); border-color: var(--border-hover); transform: translateY(-1px); }
-    .pill-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .pill-btn:hover { color: var(--accent); }
+    .pill-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
 
     .account-btn {
-      display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem;
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
-      color: var(--text-primary); font-size: 0.85rem; font-weight: 500; text-decoration: none;
-      transition: all var(--transition); white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+      color: var(--text-secondary); text-decoration: none;
+      transition: color var(--transition);
     }
-    .account-btn:hover { background: var(--bg-hover); border-color: var(--border-hover); }
-    .account-btn svg { width: 16px; height: 16px; }
+    .account-btn:hover { color: var(--accent); }
+    .account-btn svg { width: 18px; height: 18px; }
 
     .theme-toggle {
-      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 50%;
-      color: var(--text-primary); font-size: 1.1rem; cursor: pointer; transition: all var(--transition);
+      width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+      background: transparent; border: none; color: var(--text-secondary); cursor: pointer; transition: color var(--transition);
     }
-    .theme-toggle:hover { background: var(--bg-hover); border-color: var(--border-hover); transform: scale(1.05); }
+    .theme-toggle:hover { color: var(--accent); }
 
     #translate { position: relative; display: inline-flex; align-items: center; }
     #translateSelectLanguage {
       appearance: none; -webkit-appearance: none; padding: 0.5rem 2rem 0.5rem 0.75rem;
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
-      color: var(--text-primary); font-size: 0.85rem; cursor: pointer; outline: none;
-      transition: border-color var(--transition); min-width: 100px;
+      background: transparent; border: none; border-radius: 6px;
+      color: var(--text-secondary); font-size: 0.85rem; cursor: pointer; outline: none;
+      transition: color var(--transition); min-width: 80px;
     }
-    #translateSelectLanguage:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(229,9,20,0.2); }
+    #translateSelectLanguage:focus { color: var(--accent); }
+    #translateSelectLanguage:hover { color: var(--accent); }
     #translate::after { content: ""; position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--text-secondary); pointer-events: none; }
+    #translate:hover::after { border-top-color: var(--accent); }
 
     .breadcrumb { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 0.75rem 2rem; }
     .breadcrumb-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-secondary); }
@@ -1564,8 +1578,22 @@ export async function generateChannelDetailPage(options = {}) {
     .footer-links a:hover { color: var(--text-primary); }
 
     @media (max-width: 768px) {
-      .header { padding: 0.75rem 1rem; }
-      .header-inner { flex-wrap: wrap; }
+      .header { padding: 0.5rem 0.75rem; }
+      .header-inner { flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; }
+      .logo { flex-shrink: 0; }
+      .logo-icon svg { width: 32px; height: 32px; }
+      .logo-text { display: none; }
+      .search-box { width: 100%; order: 3; margin-top: 0.5rem; }
+      .search-box input { padding: 0.5rem 1rem 0.5rem 2.5rem; font-size: 0.9rem; }
+      .search-box::before { font-size: 0.9rem; left: 0.8rem; }
+      .header-actions { gap: 0.25rem; flex-shrink: 0; }
+      .header-actions .pill-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
+      .header-actions .pill-btn span { display: none; }
+      .theme-toggle { width: 32px; height: 32px; background: transparent; border: none; padding: 0; flex-shrink: 0; }
+      .account-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
+      .account-btn span { display: none; }
+      #translate { flex-shrink: 0; }
+      #translateSelectLanguage { padding: 0.25rem 1.5rem 0.25rem 0.5rem; background: transparent; border: none; font-size: 0.75rem; min-width: 60px; }
       .breadcrumb { padding: 0.75rem 1rem; }
       .player-section { padding: 1.5rem 1rem; }
       .player-actions { flex-direction: column; }
