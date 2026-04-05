@@ -82,12 +82,31 @@ export async function generateSEOHomepage(options = {}) {
 
   let channels = [];
   let groups = [];
+  let totalChannels = 0;
+  let totalGroups = 0;
 
   // 在 CLI 环境下直接使用 D1
   if (!env || !env.KV) {
     try {
       const db = getDB();
       
+      // Get total counts first (without LIMIT)
+      const totalCountResult = await db.prepare(`
+        SELECT COUNT(*) as total FROM channels c
+        INNER JOIN sources s ON c.source_id = s.id
+        WHERE c.is_active = 1 AND s.is_active = 1
+      `).first();
+      totalChannels = totalCountResult?.total || 0;
+
+      const totalGroupsResult = await db.prepare(`
+        SELECT COUNT(DISTINCT c.group_title) as total FROM channels c
+        INNER JOIN sources s ON c.source_id = s.id
+        WHERE c.is_active = 1 AND s.is_active = 1
+          AND c.group_title IS NOT NULL AND c.group_title != ''
+      `).first();
+      totalGroups = totalGroupsResult?.total || 0;
+
+      // Get channels with LIMIT for display
       const channelsResult = await db.prepare(`
         SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active
         FROM channels c
@@ -98,6 +117,7 @@ export async function generateSEOHomepage(options = {}) {
       `).bind(limit).all();
       channels = channelsResult.results || [];
 
+      // Get groups with counts
       const groupsResult = await db.prepare(`
         SELECT c.group_title, COUNT(*) as count
         FROM channels c
@@ -119,17 +139,25 @@ export async function generateSEOHomepage(options = {}) {
       getAllChannels(env),
       getAllGroups(env)
     ]);
-    channels = (channelsResult.channels || []).slice(0, limit);
-    groups = (groupsResult.groups || []).map(g => ({ name: g, count: 0 }));
+    const allChannels = channelsResult.channels || [];
+    totalChannels = allChannels.length;
+    channels = allChannels.slice(0, limit);
+    
+    // In KV mode, groups don't have counts - calculate from all channels
+    const allGroupsObj = {};
+    allChannels.forEach(ch => {
+      if (ch.group_title) {
+        allGroupsObj[ch.group_title] = (allGroupsObj[ch.group_title] || 0) + 1;
+      }
+    });
+    totalGroups = Object.keys(allGroupsObj).length;
+    groups = Object.entries(allGroupsObj).map(([name, count]) => ({ name, count }));
+    groups.sort((a, b) => a.name.localeCompare(b.name));
   }
-
-  const displayChannels = channels.slice(0, limit);
-  const totalChannels = channels.length || displayChannels.length;
-  const totalGroups = groups.length || 0;
 
   // 生成侧边栏 - 匹配模板结构
   const sidebarItemsHtml = groups.slice(0, 20).map((g, idx) => {
-    const count = g.count || channels.filter(ch => ch.group_title === g.name).length;
+    const count = g.count;
     const slug = slugify(g.name);
     const activeClass = idx === 0 ? ' active' : '';
     return `<li class="sidebar-item${activeClass}">
@@ -138,7 +166,7 @@ export async function generateSEOHomepage(options = {}) {
   }).join('\n');
 
   // 生成频道卡片
-  const channelCardsHtml = displayChannels.map(ch => {
+  const channelCardsHtml = channels.map(ch => {
     const hash = escapeAttr(ch.channel_hash || '');
     const name = escapeHtml(ch.channel_name || 'Unknown');
     const group = escapeHtml(ch.group_title || 'Other');
@@ -279,9 +307,7 @@ export async function generateSEOHomepage(options = {}) {
 
     .content-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
     .section-title { font-size: 1.25rem; font-weight: 600; }
-    .view-toggle { display: flex; gap: 0.5rem; }
-    .view-toggle button { padding: 0.4rem 0.6rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; transition: all var(--transition); }
-    .view-toggle button.active { background: var(--accent); border-color: var(--accent); color: white; }
+    .channel-count { color: var(--text-muted); font-weight: 400; font-size: 1rem; }
 
     .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
     .channel-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: all var(--transition); cursor: pointer; position: relative; }
@@ -427,20 +453,13 @@ export async function generateSEOHomepage(options = {}) {
     <aside class="sidebar">
       <div class="sidebar-title">Categories</div>
       <ul class="sidebar-list">
-        <li class="sidebar-item active">
-          <a href="${origin}/"><span>All Channels</span><span class="sidebar-count">${totalChannels}</span></a>
-        </li>
         ${sidebarItemsHtml}
       </ul>
     </aside>
 
     <main class="content">
       <div class="content-header">
-        <h2 class="section-title">Browse All Channels (${totalChannels})</h2>
-        <div class="view-toggle">
-          <button class="active">Grid</button>
-          <button>List</button>
-        </div>
+        <h2 class="section-title">${groups.length > 0 ? groups[0].name : 'Channels'} <span class="channel-count">(${groups.length > 0 ? groups[0].count : totalChannels})</span></h2>
       </div>
       <div class="channel-grid">
         ${channelCardsHtml || '<p>No channels found</p>'}
