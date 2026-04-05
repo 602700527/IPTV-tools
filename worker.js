@@ -380,6 +380,18 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         return staticResponse;
       }
       return Response.redirect(url.origin + '/', 302);
+    } else if (path.startsWith('/search')) {
+      // 搜索结果页
+      const query = url.searchParams.get('q') || '';
+      const { generateSearchPage } = await import('./handlers/seo-handler.js');
+      const html = await generateSearchPage({ origin: url.origin, query, env });
+
+      return new Response(html, {
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'public, max-age=60'
+        }
+      });
     } else if (path === '/forgot-password') {
       // 忘记密码页
       const staticResponse = await serveStaticFile('/forgot-password.html', env);
