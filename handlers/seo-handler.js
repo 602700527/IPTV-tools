@@ -1483,7 +1483,7 @@ export async function generateChannelDetailPage(options = {}) {
     }
     .theme-toggle:hover { background: var(--bg-hover); border-color: var(--border-hover); transform: scale(1.05); }
 
-    #translate { position: relative; display: inline-block; }
+    #translate { position: relative; display: inline-flex; align-items: center; }
     #translateSelectLanguage {
       appearance: none; -webkit-appearance: none; padding: 0.5rem 2rem 0.5rem 0.75rem;
       background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
