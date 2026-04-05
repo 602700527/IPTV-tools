@@ -155,17 +155,40 @@ export async function generateSEOHomepage(options = {}) {
     groups.sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  // 生成侧边栏 - 匹配模板结构
+  // 生成分类卡片 - 用于首页展示
+  const categorySVGs = {
+    'cctv': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 19h10M12 19v-3"/></svg>',
+    'sports': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2c5 0 9 4 9 9s-4 9-9 9-9-4-9-9 4-9 9-9z"/><path d="M2 12h20M12 2c2.5 2 4 5 4 10s-1.5 8-4 10c-2.5-2-4-5-4-10s1.5-8 4-10z"/></svg>',
+    'news': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2zm0 0a2 2 0 01-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M18 18h-8M10 6h4M10 10h4M10 14h4"/></svg>',
+    'entertainment': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20M10 4v4M14 4v4"/></svg>',
+    'movie': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2.5"/><path d="M2 7l5 3-5 3V7zM12 4v13M22 7l-5 3 5 3V7z"/></svg>',
+    'music': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+    'kids': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>',
+    'documentary': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>',
+    'regional': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>',
+    'international': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10zM12 2v20"/></svg>',
+    'hd': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M8 9l2 3-2 3M14 15h3M14 9h3"/></svg>',
+    '4k': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 15h3v-6H7v6zM11.5 15h2l1-3 1 3zM16 15h2M18 12h1.5"/></svg>',
+    'weather': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/><circle cx="12" cy="12" r="4"/></svg>',
+    'lifestyle': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>',
+    'education': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>',
+    'religious': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M4 6h16M4 18h16"/></svg>',
+    'shopping': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>',
+    'other': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 19h10M12 19v-3"/></svg>'
+  };
+  
   const sidebarItemsHtml = groups.slice(0, 20).map((g, idx) => {
     const count = g.count;
     const slug = slugify(g.name);
-    const activeClass = idx === 0 ? ' active' : '';
-    return `<li class="sidebar-item${activeClass}">
-  <a href="${origin}/category/${slug}"><span>${escapeHtml(g.name)}</span><span class="sidebar-count">${count}</span></a>
-</li>`;
+    const svgIcon = categorySVGs[slug.toLowerCase()] || categorySVGs['other'];
+    return `<a href="${origin}/category/${encodeURIComponent(slug)}" class="category-card">
+      <span class="category-icon">${svgIcon}</span>
+      <span class="category-name">${escapeHtml(g.name)}</span>
+      <span class="category-count">${count} channels</span>
+    </a>`;
   }).join('\n');
 
-  // 生成频道卡片
+  // 生成频道卡片 - 分类页使用
   const channelCardsHtml = channels.map(ch => {
     const hash = escapeAttr(ch.channel_hash || '');
     const name = escapeHtml(ch.channel_name || 'Unknown');
@@ -291,19 +314,36 @@ export async function generateSEOHomepage(options = {}) {
     .hero-stat-value { font-size: 2rem; font-weight: 700; color: var(--accent); }
     .hero-stat-label { font-size: 0.85rem; color: var(--text-muted); }
 
-    .main-container { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 240px 1fr; gap: 2rem; }
-    @media (max-width: 900px) { .main-container { grid-template-columns: 1fr; } .sidebar { display: none; } }
+    .category-showcase { max-width: 1400px; margin: 0 auto; padding: 3rem 2rem; }
+    .showcase-header { text-align: center; margin-bottom: 2.5rem; }
+    .showcase-header h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .showcase-header p { color: var(--text-secondary); font-size: 1rem; }
 
-    .sidebar { position: sticky; top: 100px; height: fit-content; }
-    .sidebar-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 1rem; padding-left: 0.5rem; }
-    .sidebar-list { list-style: none; background: var(--bg-secondary); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
-    .sidebar-item { border-bottom: 1px solid var(--border); }
-    .sidebar-item:last-child { border-bottom: none; }
-    .sidebar-item a { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; font-size: 0.9rem; transition: background var(--transition); }
-    .sidebar-item a:hover { background: var(--bg-hover); }
-    .sidebar-item.active a { background: var(--accent); color: white; }
-    .sidebar-count { font-size: 0.75rem; padding: 0.15rem 0.5rem; background: var(--bg-card); border-radius: 10px; color: var(--text-muted); }
-    .sidebar-item.active .sidebar-count { background: rgba(255,255,255,0.2); color: white; }
+    .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+    .category-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; text-decoration: none; transition: all 0.25s ease; cursor: pointer; position: relative; overflow: hidden; }
+    .category-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--accent) 0%, transparent 100%); opacity: 0; transition: opacity 0.25s ease; }
+    .category-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(229, 9, 20, 0.15); }
+    .category-card:hover::before { opacity: 0.08; }
+    .category-icon { width: 40px; height: 40px; margin-bottom: 0.75rem; color: var(--accent); }
+    .category-icon svg { width: 100%; height: 100%; }
+    .category-name { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; text-align: center; }
+    .category-count { font-size: 0.75rem; color: var(--text-muted); text-align: center; }
+
+    @media (max-width: 768px) {
+      .category-showcase { padding: 2rem 1rem; }
+      .category-grid { grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+      .category-card { padding: 1rem 0.5rem; }
+      .category-icon { width: 32px; height: 32px; }
+      .category-name { font-size: 0.8rem; }
+      .category-count { font-size: 0.7rem; }
+      .showcase-header h2 { font-size: 1.5rem; }
+    }
+
+    @media (max-width: 480px) {
+      .category-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+      .category-card { padding: 0.75rem 0.5rem; }
+      .category-icon { font-size: 1.75rem; }
+    }
 
     .content-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
     .section-title { font-size: 1.25rem; font-weight: 600; }
@@ -449,23 +489,15 @@ export async function generateSEOHomepage(options = {}) {
     </div>
   </section>
 
-  <div class="main-container">
-    <aside class="sidebar">
-      <div class="sidebar-title">Categories</div>
-      <ul class="sidebar-list">
-        ${sidebarItemsHtml}
-      </ul>
-    </aside>
-
-    <main class="content">
-      <div class="content-header">
-        <h2 class="section-title">${groups.length > 0 ? groups[0].name : 'Channels'} <span class="channel-count">(${groups.length > 0 ? groups[0].count : totalChannels})</span></h2>
-      </div>
-      <div class="channel-grid">
-        ${channelCardsHtml || '<p>No channels found</p>'}
-      </div>
-    </main>
-  </div>
+  <section class="category-showcase">
+    <div class="showcase-header">
+      <h2>Explore Free Live TV Channels by Category</h2>
+      <p>Browse thousands of free IPTV streams organized by genre, country, and content type</p>
+    </div>
+    <div class="category-grid">
+      ${sidebarItemsHtml}
+    </div>
+  </section>
 
   <div class="toast" id="toast"></div>
 
