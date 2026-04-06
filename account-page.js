@@ -238,7 +238,7 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
     
     // 检查登录状态
     if (!getToken()) {
-      window.location.href = '/';
+      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
     }
     
     // 验证token是否有效
@@ -251,9 +251,9 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
         });
         
         if (response.status === 401) {
-          // token无效，清除登录态并返回首页
+          // token无效，清除登录态并重定向到登录页
           localStorage.removeItem('auth_token');
-          window.location.href = '/';
+          window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
           return false;
         }
         return response.ok;
@@ -267,7 +267,7 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
     (async () => {
       const isValid = await validateToken();
       if (!isValid) {
-        window.location.href = '/';
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
       }
     })();
     
@@ -327,7 +327,7 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
         } else {
           showToast(data.error || t('loadUserInfoFailed'), 'error');
           if (response.status === 401) {
-            window.location.href = '/';
+            window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
           }
         }
       } catch (error) {
@@ -418,7 +418,7 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
         } else {
           showToast(data.error || t('loadUserInfoFailed'), 'error');
           if (response.status === 401) {
-            window.location.href = '/';
+            window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
           }
         }
       } catch (error) {

@@ -167,30 +167,9 @@ Phase 4: 自动化与生产部署
 
 ---
 
-## 🔵 Phase 4: 自动化与生产部署
+## 🔵 Phase 4: 自动化与生产部署 (已删除)
 
-### 12. 调度器集成 (每日 3:00)
-
-- [ ] 12.1 添加静态站点生成到 `handlers/scheduler.js`
-- [ ] 12.2 保持 cron trigger: `0 3 * * *`
-- [ ] 12.3 错误处理 (生成失败不影响 cron)
-- [ ] 12.4 生成统计日志
-- [ ] 12.5 测试: `GET /test/scheduled`
-
-### 13. 管理员触发
-
-- [ ] 13.1 Admin UI 添加生成按钮
-- [ ] 13.2 使用 `ctx.waitUntil()` 后台生成
-- [ ] 13.3 进度跟踪 API: `GET /api/admin/static-generation/status`
-- [ ] 13.4 实时进度显示 (当前文件, 已完成/总数)
-- [ ] 13.5 日志输出 (成功/失败, 错误详情)
-
-### 14. R2 Bucket 集成 (生产)
-
-- [ ] 14.1 在 Cloudflare dashboard 创建 R2 bucket
-- [ ] 14.2 配置 wrangler.toml R2 binding
-- [ ] 14.3 修改生成器支持 R2 上传 (`--upload-r2`)
-- [ ] 14.4 验证生产环境 Worker 从 R2 读取
+> 注：自动化部署任务已删除，静态站点通过 Workers 动态生成
 
 ### 15. 测试与验证
 

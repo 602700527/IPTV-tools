@@ -66,6 +66,8 @@ import { PAGE_FOOTER } from './components/page-footer.js';
 import { pageTitle as privacyTitle, pageDescription as privacyDesc, styles as privacyStyles, content as privacyContent } from './pages-content/privacy-policy.js';
 import { pageTitle as termsTitle, pageDescription as termsDesc, styles as termsStyles, content as termsContent } from './pages-content/terms.js';
 import { pageTitle as tutorialTitle, pageDescription as tutorialDesc, styles as tutorialStyles, content as tutorialContent } from './pages-content/tutorial.js';
+import { pageTitle as loginTitle, pageDescription as loginDesc, styles as loginStyles, content as loginContent } from './pages-content/login.js';
+import { pageTitle as forgotTitle, pageDescription as forgotDesc, styles as forgotStyles, content as forgotContent } from './pages-content/forgot-password.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 import { LOGO_SVG, FAVICON_SVG, OG_IMAGE_SVG, APPLE_TOUCH_ICON_SVG, ICON_192_SVG, FAVICON_ICO_SVG } from './assets.js';
@@ -494,13 +496,10 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         });
       }
     } else if (path === '/login') {
-      // 登录页
-      const staticResponse = await serveStaticFile('/login.html', env);
-      if (staticResponse) {
-        return staticResponse;
-      }
-      // Fallback: 使用原有的登录页
-      return Response.redirect(url.origin + '/', 302);
+      // 登录页 - 使用静态页面系统
+      return new Response(generateStaticPage(loginTitle, loginDesc, loginStyles, loginContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     } else if (path === '/favorites') {
       // 收藏页 - 使用服务端渲染的收藏页
       const { generateFavoritesPage } = await import('./pages/favorites-page.js');
@@ -526,12 +525,10 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         }
       });
     } else if (path === '/forgot-password') {
-      // 忘记密码页
-      const staticResponse = await serveStaticFile('/forgot-password.html', env);
-      if (staticResponse) {
-        return staticResponse;
-      }
-      return Response.redirect(url.origin + '/', 302);
+      // 忘记密码页 - 使用静态页面系统
+      return new Response(generateStaticPage(forgotTitle, forgotDesc, forgotStyles, forgotContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     } else if (path === '/api/home') {
       // 首页数据 API
       const { handleApiHome } = await import('./handlers/api/home.js');
