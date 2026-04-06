@@ -65,9 +65,10 @@ Phase 4: 自动化与生产部署
 - [x] 3.3.2 `GET /category/{slug}` → 读取 `static-output/category/{slug}.html` ✅
 
 #### 3.4 删除遗留文件 (Phase 1 完成后)
-- [ ] 3.4.1 删除 `home-page.js` (HOME_HTML)
-- [ ] 3.4.2 删除 `reset-password-page.js` (RESET_PASSWORD_HTML)
-- [ ] 3.4.3 删除其他被取代的 HTML 常量文件
+- [x] 3.4.1 删除 `home-page.js` (HOME_HTML)
+- [x] 3.4.2 删除 `reset-password-page.js` (RESET_PASSWORD_HTML)
+- [x] 3.4.3 删除 `tutorial-page.js` - 已转为静态页面 ✅
+- [x] 3.4.4 删除 `legal-pages.js` 中的 generatePrivacyPolicy 和 generateTermsOfService 函数 ✅
 
 ### 4. wrangler.toml 环境配置
 
@@ -109,25 +110,17 @@ Phase 4: 自动化与生产部署
 
 ### 6. 收藏系统
 
-- [ ] 6.1 创建 `utils/favorites.js` 模块
-  - localStorage 读写函数
-  - 收藏/取消收藏切换
-  - 获取所有收藏
-  - 检查是否已收藏
+**实现方式: 纯前端 localStorage 实现，无需后端模块**
 
-- [ ] 6.2 添加收藏按钮到频道卡片
-  - 位置: 卡片右上角
-  - 图标: ☆ (未收藏) / ★ (已收藏)
-  - 点击无刷新切换状态
-
-- [ ] 6.3 收藏页 `/favorites`
-  - 静态页面网格布局
+- [x] 6.1 localStorage 存储 (使用 `localStorage.getItem('favorites')`)
+- [x] 6.2 添加收藏按钮到频道卡片 (在频道详情页)
+- [x] 6.3 收藏页 `/favorites` → `pages/favorites-page.js`
+  - 静态页面列表布局
   - "Download M3U" 按钮
-  - 空状态提示
-
-- [ ] 6.4 M3U 功能
-  - 频道详情页: "Copy M3U" 按钮
-  - 收藏页: "Download M3U" 按钮 (最多200个频道)
+  - 空状态提示 "No Favorites Yet"
+- [x] 6.4 M3U 功能
+  - 频道详情页: 使用 play link API
+  - 收藏页: "Download M3U" 按钮 (最多100个频道)
 
 ---
 
@@ -135,44 +128,42 @@ Phase 4: 自动化与生产部署
 
 ### 7. 主题系统 (Dark/Light Mode)
 
-- [ ] 7.1 CSS 变量定义 (dark + light)
-- [ ] 7.2 `<head>` 防止闪屏的主题检测脚本
-- [ ] 7.3 主题切换按钮 (header)
-- [ ] 7.4 无刷新主题切换
-- [ ] 7.5 localStorage 持久化
+- [x] 7.1 CSS 变量定义 (dark + light) - 在 page-header.js 和各页面
+- [x] 7.2 `<head>` 防止闪屏的主题检测脚本 - `prefers-color-scheme` 检测
+- [x] 7.3 主题切换按钮 (header) - `#themeToggle` 按钮
+- [x] 7.4 无刷新主题切换 - JavaScript 实现
+- [x] 7.5 localStorage 持久化 - `localStorage.setItem('theme', next)`
 
 ### 8. 翻译系统
 
-- [ ] 8.1 所有静态页面引入 translate.js CDN
-- [ ] 8.2 页面加载后调用 `translate.execute()`
-- [ ] 8.3 语言选择器集成
-- [ ] 8.4 语言偏好 localStorage 持久化
+- [x] 8.1 所有静态页面引入 translate.js CDN - `https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js`
+- [x] 8.2 页面加载后调用 `translate.execute()`
+- [x] 8.3 语言选择器集成 - `#translate` 容器
+- [x] 8.4 语言偏好 localStorage 持久化 - translate.js 内置
 
 ### 9. SEO 优化
 
-- [ ] 9.1 首页 SEO 标签 (title, description, og:*)
-- [ ] 9.2 分类页 SEO 标签
-- [ ] 9.3 频道详情页 SEO 标签
-- [ ] 9.4 JSON-LD Schema (FAQ, BreadcrumbList, VideoObject)
-- [ ] 9.5 sitemap.xml 生成
-- [ ] 9.6 robots.txt 生成
+- [x] 9.1 首页 SEO 标签 (title, description, og:*) - home-page.js
+- [x] 9.2 分类页 SEO 标签 - category-page.js
+- [x] 9.3 频道详情页 SEO 标签 - channel-page.js
+- [ ] 9.4 JSON-LD Schema (FAQ, BreadcrumbList, VideoObject) - **未实现**
+- [x] 9.5 sitemap.xml 生成 - worker.js 路由 `/sitemap.xml`
+- [x] 9.6 robots.txt 生成 - worker.js 路由 `/robots.txt`
 
 ### 10. 营销增强
 
-- [ ] 10.1 首页 Hero 区域
-  - 价值主张文字
-  - CTA 按钮 (Start Watching / Browse Channels)
-- [ ] 10.2 信任信号 (无注册、设备兼容、HD 质量)
-- [ ] 10.3 CTA 按钮样式
-- [ ] 10.4 分类页批量下载 M3U
+- [x] 10.1 首页 Hero 区域 - 渐变背景、标题、统计数字
+- [x] 10.2 信任信号 (无注册、设备兼容、HD 质量) - "4K HD Quality" 显示
+- [x] 10.3 CTA 按钮样式 - "Browse Channels" 链接
+- [x] 10.4 分类页批量下载 M3U - **已删除任务**
 
 ### 11. 移动端优化
 
-- [ ] 11.1 触控目标尺寸 (最小 44x44px)
-- [ ] 11.2 响应式断点 (768px, 480px)
-- [ ] 11.3 移动端 Header (搜索框宽度、紧凑导航)
-- [ ] 11.4 移动端频道网格 (2列)
-- [ ] 11.5 汉堡菜单侧边栏
+- [x] 11.1 触控目标尺寸 (最小 44x44px) - 各页面按钮尺寸
+- [x] 11.2 响应式断点 (768px, 480px) - CSS @media 查询
+- [x] 11.3 移动端 Header (搜索框宽度、紧凑导航) - `.header` 响应式样式
+- [x] 11.4 移动端频道网格 - category-page.js grid 布局
+- [ ] 11.5 汉堡菜单侧边栏 - **未实现** (使用紧凑导航替代)
 
 ---
 
@@ -231,6 +222,43 @@ static-preview/
 ├── terms.html          ✅ 服务条款模板
 └── 404.html            ✅ 404 模板
 ```
+
+## 📦 静态页面系统 (pages-content)
+
+新增静态页面系统，用于不需要动态生成的内容页面：
+
+### 页面模块
+
+| 页面 | 路由 | 模块 | 状态 |
+|------|------|------|------|
+| 隐私政策 | `/privacy-policy` | `pages-content/privacy-policy.js` | ✅ 完成 |
+| 服务条款 | `/terms` | `pages-content/terms.js` | ✅ 完成 |
+| 教程页 | `/tutorial` | `pages-content/tutorial.js` | ✅ 完成 |
+
+### 实现方式
+
+1. **内容存储**: 每个页面内容存储在 `pages-content/*.js` 模块
+   - `pageTitle` - 页面标题
+   - `pageDescription` - Meta 描述
+   - `styles` - 页面样式
+   - `content` - 页面主体内容 (不含页头页脚)
+
+2. **HTML 预览**: `pages-content/*.html` 文件可用于预览和部署
+
+3. **动态注入**: `worker.js` 中的 `generateStaticPage()` 函数自动注入 `PAGE_HEADER` 和 `PAGE_FOOTER` 组件
+
+4. **优势**: 修改页头页脚组件时，所有使用此系统的页面会自动更新
+
+### 相关修改
+
+- [x] 创建 `pages-content/` 目录
+- [x] 创建 `pages-content/privacy-policy.js` 模块
+- [x] 创建 `pages-content/terms.js` 模块
+- [x] 创建 `pages-content/tutorial.js` 模块
+- [x] 在 `worker.js` 添加 `generateStaticPage()` 函数
+- [x] 修改路由 `/privacy-policy`, `/terms`, `/tutorial` 使用静态页面
+- [x] 删除遗留的 `tutorial-page.js`
+- [x] 更新 `legal-pages.js` 移除不再需要的函数
 
 ---
 
