@@ -146,10 +146,12 @@ export function generateCategoryPage(options = {}) {
     #translate::after { content: ""; position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--text-secondary); pointer-events: none; }
     #translate:hover::after { border-top-color: var(--accent); }
 
-    .breadcrumb { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem 0; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); }
-    .breadcrumb a { color: var(--accent); }
+    .breadcrumb { max-width: 1400px; margin: 0 auto; padding: 1rem 2rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); overflow-x: auto; white-space: nowrap; scrollbar-width: none; -ms-overflow-style: none; }
+    .breadcrumb::-webkit-scrollbar { display: none; }
+    .breadcrumb a { color: var(--accent); display: flex; align-items: center; gap: 0.25rem; }
     .breadcrumb a:hover { text-decoration: underline; }
-    .breadcrumb span { opacity: 0.5; }
+    .breadcrumb-sep { opacity: 0.5; margin: 0 0.1rem; }
+    .breadcrumb-icon { width: 14px; height: 14px; }
 
     .category-header { max-width: 1400px; margin: 0 auto; padding: 2rem; }
     .category-header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
@@ -168,16 +170,19 @@ export function generateCategoryPage(options = {}) {
     .main-container { flex: 1; min-width: 0; }
 
     /* Batch actions bar */
-    .batch-bar { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1rem; flex-wrap: wrap; }
-    .batch-bar label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem; color: var(--text-secondary); }
+    .batch-bar { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1rem; flex-wrap: wrap; }
+    .batch-select-all { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); flex-shrink: 0; }
     .batch-bar input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
-    .selected-count { font-size: 0.9rem; color: var(--text-secondary); margin-left: auto; }
+    .batch-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .selected-count { font-size: 0.8rem; color: var(--text-secondary); margin-left: auto; flex-shrink: 0; }
     .selected-count strong { color: var(--accent); }
-    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-primary); font-size: 0.85rem; cursor: pointer; transition: all var(--transition); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.5rem 0.75rem; background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-primary); font-size: 0.8rem; cursor: pointer; transition: all var(--transition); white-space: nowrap; }
     .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .btn svg { width: 16px; height: 16px; }
+    .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
     .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
     .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-favorite-batch { min-width: 44px; }
+    .btn-favorite-batch:hover svg { stroke: var(--accent); }
 
     /* Channel list */
     .channel-list { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -228,19 +233,59 @@ export function generateCategoryPage(options = {}) {
       .header-actions .pill-btn span { display: none; }
       .theme-toggle { width: 32px; height: 32px; background: transparent; border: none; padding: 0; flex-shrink: 0; }
       .account-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
-      .breadcrumb { padding: 1rem 1rem 0; font-size: 0.8rem; overflow-x: auto; white-space: nowrap; }
-      .category-header { padding: 1.5rem 1rem 1rem; }
-      .category-header h1 { font-size: 1.5rem; }
-      .page-layout { flex-direction: column; padding: 0 1rem 1.5rem; gap: 1rem; }
+      
+      /* Breadcrumb mobile */
+      .breadcrumb { padding: 0.75rem 1rem; }
+      .breadcrumb-text { display: none; }
+      .breadcrumb-icon { width: 16px; height: 16px; }
+      .breadcrumb-sep { font-size: 1rem; }
+      .breadcrumb-current { font-size: 0.8rem; }
+      
+      .category-header { padding: 1rem; }
+      .category-header h1 { font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
+      .category-header p { font-size: 0.85rem; }
+      .page-layout { flex-direction: column; padding: 0 0.75rem 1.5rem; gap: 1rem; }
       .sidebar { width: 100%; }
       .category-list { flex-direction: row; flex-wrap: wrap; gap: 0.5rem; }
       .category-item { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
       .main-container { width: 100%; }
-      .batch-bar { padding: 0.75rem; gap: 0.5rem; }
-      .btn { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+      
+      /* Batch bar mobile - stacked layout */
+      .batch-bar { 
+        padding: 0.6rem 0.75rem; 
+        gap: 0.5rem;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .batch-select-all { padding: 0.25rem 0; }
+      .batch-actions { 
+        display: flex; 
+        gap: 0.5rem; 
+        width: 100%;
+      }
+      .batch-actions .btn { 
+        flex: 1; 
+        justify-content: center;
+        padding: 0.5rem 0.5rem;
+        font-size: 0.8rem;
+      }
+      .batch-actions .btn svg { width: 16px; height: 16px; }
+      .selected-count { 
+        text-align: center; 
+        margin: 0;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--border);
+      }
+      
       .ch-logo { width: 40px; height: 28px; }
       .ch-logo-placeholder { width: 40px; height: 28px; font-size: 1rem; }
       .btn-favorite { width: 32px; height: 32px; }
+    }
+    
+    @media (max-width: 480px) {
+      .batch-actions { flex-direction: column; }
+      .batch-actions .btn { width: 100%; }
+      .btn-text { display: inline; }
     }
   </style>
 </head>
@@ -289,9 +334,12 @@ export function generateCategoryPage(options = {}) {
   </header>
 
   <nav class="breadcrumb">
-    <a href="${origin}/">Home</a>
-    <span>›</span>
-    <span>${escapeHtml(category)}</span>
+    <a href="${origin}/">
+      <svg class="breadcrumb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="breadcrumb-text">Home</span>
+    </a>
+    <span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current">${escapeHtml(category)}</span>
   </nav>
 
   <div class="category-header">
@@ -312,19 +360,21 @@ export function generateCategoryPage(options = {}) {
     </aside>
     <div class="main-container">
       <div class="batch-bar">
-        <label>
+        <label class="batch-select-all">
           <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
-          Select All
+          <span class="batch-select-text">全选</span>
         </label>
-        <button class="btn" onclick="addSelectedToFavorites()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          Add to Favorites
-        </button>
-        <button class="btn btn-primary" onclick="downloadSelectedM3U()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download M3U
-        </button>
-        <span class="selected-count"><strong id="selectedCount">0</strong> selected</span>
+        <div class="batch-actions">
+          <button class="btn btn-favorite-batch" onclick="addSelectedToFavorites()" title="添加收藏">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span class="btn-text">收藏</span>
+          </button>
+          <button class="btn btn-primary" onclick="downloadSelectedM3U()" title="下载M3U">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span class="btn-text">下载M3U</span>
+          </button>
+        </div>
+        <span class="selected-count"><strong id="selectedCount">0</strong> 已选</span>
       </div>
       <div id="channelList">
         ${channelListHtml}

@@ -221,10 +221,12 @@ export function generateChannelPage(options = {}) {
     #translate:hover::after { border-top-color: var(--accent); }
 
     /* Breadcrumb */
-    .breadcrumb { max-width: 1200px; margin: 0 auto; padding: 1.5rem 2rem 0; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); }
-    .breadcrumb a { color: var(--accent); }
+    .breadcrumb { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); overflow-x: auto; white-space: nowrap; scrollbar-width: none; -ms-overflow-style: none; }
+    .breadcrumb::-webkit-scrollbar { display: none; }
+    .breadcrumb a { color: var(--accent); display: flex; align-items: center; gap: 0.25rem; }
     .breadcrumb a:hover { text-decoration: underline; }
-    .breadcrumb span { opacity: 0.5; }
+    .breadcrumb-sep { opacity: 0.5; margin: 0 0.1rem; }
+    .breadcrumb-icon { width: 14px; height: 14px; }
 
     /* Main Content */
     .main-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
@@ -328,7 +330,12 @@ export function generateChannelPage(options = {}) {
       .header-actions .pill-btn span { display: none; }
       .theme-toggle { width: 32px; height: 32px; background: transparent; border: none; padding: 0; flex-shrink: 0; }
       .account-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
-      .breadcrumb { padding: 1rem 1rem 0; font-size: 0.8rem; overflow-x: auto; white-space: nowrap; }
+      .breadcrumb { padding: 0.75rem 1rem; font-size: 0.8rem; }
+      .breadcrumb-text { display: none; }
+      .breadcrumb-icon { width: 16px; height: 16px; }
+      .breadcrumb-sep { font-size: 1rem; }
+      .breadcrumb-current { font-size: 0.8rem; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .breadcrumb-cat { max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .main-container { padding: 1rem; }
       .channel-hero { grid-template-columns: 1fr; gap: 1.5rem; }
       .channel-poster-large { aspect-ratio: 16/10; }
@@ -421,11 +428,14 @@ export function generateChannelPage(options = {}) {
   </header>
 
   <nav class="breadcrumb">
-    <a href="${origin}/">Home</a>
-    <span>›</span>
-    <a href="${origin}/category/${encodeURIComponent(channel.group || '')}">${escapeHtml(channel.group || 'Other')}</a>
-    <span>›</span>
-    <span>${escapeHtml(channel.name)}</span>
+    <a href="${origin}/">
+      <svg class="breadcrumb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="breadcrumb-text">Home</span>
+    </a>
+    <span class="breadcrumb-sep">›</span>
+    <a href="${origin}/category/${encodeURIComponent(channel.group || '')}" class="breadcrumb-cat">${escapeHtml(channel.group || 'Other')}</a>
+    <span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current">${escapeHtml(channel.name)}</span>
   </nav>
 
   <main class="main-container">
