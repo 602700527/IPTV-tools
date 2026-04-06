@@ -622,9 +622,9 @@ export function generateChannelPage(options = {}) {
             const m3uContent = '#EXTM3U\\n' + extInf + '\\n' + data.play_link;
             
             navigator.clipboard.writeText(m3uContent).then(() => {
-              showToast('M3U copied! Paste into VLC or IPTV player to watch.');
+              showToast('M3U link ready! Paste into VLC or any IPTV player to watch. Enjoy!');
             }).catch(() => {
-              showToast('Failed to copy');
+              showToast('Failed to copy to clipboard');
             });
           } else {
             showToast('Failed to get play link');
