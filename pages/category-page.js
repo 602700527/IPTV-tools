@@ -14,27 +14,36 @@ export function generateCategoryPage(options = {}) {
     const isActive = cat.slug === slug ? ' active' : '';
     return '<a href="' + origin + '/category/' + encodeURIComponent(cat.slug) + '" class="category-item' + isActive + '">' +
       '<span class="cat-name">' + escapeHtml(cat.name) + '</span>' +
-      '<span class="cat-count">' + cat.count + '</span>' +
     '</a>';
   }).join('') : '<div style="padding:1rem;font-size:0.85rem;color:var(--text-muted);">No categories</div>';
 
-  // Build channel grid HTML
-  let channelGridHtml = '';
+  // Build channel list HTML (list view with checkboxes)
+  let channelListHtml = '';
   if (channels.length > 0) {
-    channelGridHtml = '<div class="channel-grid">' + channels.map(ch => {
+    channelListHtml = '<div class="channel-list">' + channels.map(ch => {
       const logoHtml = ch.logo 
-        ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '">' 
-        : '<div class="placeholder">📺</div>';
-      return '<a href="' + origin + '/channel/' + ch.hash + '" class="channel-card">' +
-        '<div class="channel-poster">' + logoHtml + '</div>' +
-        '<div class="channel-info">' +
-          '<div class="channel-name">' + escapeHtml(ch.name) + '</div>' +
-          '<div class="channel-group">' + escapeHtml(ch.group || category) + '</div>' +
-        '</div>' +
-      '</a>';
+        ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '" class="ch-logo">' 
+        : '<div class="ch-logo-placeholder">📺</div>';
+      return '<div class="channel-row" data-hash="' + escapeHtml(ch.hash) + '" data-name="' + escapeHtml(ch.name) + '" data-logo="' + escapeHtml(ch.logo || '') + '" data-group="' + escapeHtml(ch.group || category) + '">' +
+        '<label class="channel-checkbox">' +
+          '<input type="checkbox" onchange="updateSelectedCount()">' +
+          '<span class="checkmark"></span>' +
+        '</label>' +
+        '<a href="' + origin + '/channel/' + ch.hash + '" class="channel-link">' +
+          '<div class="ch-logo">' + logoHtml + '</div>' +
+          '<div class="ch-info">' +
+            '<div class="ch-name">' + escapeHtml(ch.name) + '</div>' +
+            '<div class="ch-group">' + escapeHtml(ch.group || category) + '</div>' +
+          '</div>' +
+        '</a>' +
+        '<button class="btn-favorite" onclick="toggleFavorite(\'' + ch.hash + '\')" title="Add to favorites">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' +
+        '</button>' +
+        '<a href="' + origin + '/live/' + ch.hash + '" class="btn-play" title="Play">▶</a>' +
+      '</div>';
     }).join('') + '</div>';
   } else {
-    channelGridHtml = '<p class="loading">No channels found in this category</p>';
+    channelListHtml = '<div class="empty-state"><p>No channels found in this category</p></div>';
   }
 
   // Generate JSON-LD
@@ -123,10 +132,7 @@ export function generateCategoryPage(options = {}) {
       border-radius: 20px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: border-color var(--transition);
     }
     .search-box input:focus { border-color: var(--accent); }
-    .search-box::before {
-      content: '🔍'; position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%);
-      font-size: 0.9rem; pointer-events: none;
-    }
+    .search-box::before { content: '🔍'; position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; pointer-events: none; }
     .pill-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
     .pill-btn:hover { color: var(--accent); }
     .account-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
@@ -156,24 +162,43 @@ export function generateCategoryPage(options = {}) {
     .sidebar { width: 220px; flex-shrink: 0; }
     .sidebar-title { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; padding-left: 0.5rem; }
     .category-list { display: flex; flex-direction: column; gap: 0.25rem; }
-    .category-item { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.75rem; border-radius: var(--radius); color: var(--text-secondary); font-size: 0.9rem; transition: all var(--transition); }
+    .category-item { display: flex; align-items: center; padding: 0.6rem 0.75rem; border-radius: var(--radius); color: var(--text-secondary); font-size: 0.9rem; transition: all var(--transition); }
     .category-item:hover { background: var(--bg-hover); color: var(--text-primary); }
     .category-item.active { background: var(--accent); color: #fff; }
     .category-item .cat-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .category-item .cat-count { font-size: 0.75rem; opacity: 0.7; margin-left: 0.5rem; }
     .main-container { flex: 1; min-width: 0; }
-    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
-    .channel-card {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
-      overflow: hidden; transition: all var(--transition); cursor: pointer; position: relative;
-    }
-    .channel-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
-    .channel-poster { aspect-ratio: 16/10; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-    .channel-poster img { width: 100%; height: 100%; object-fit: contain; padding: 1rem; }
-    .channel-poster .placeholder { font-size: 3rem; opacity: 0.3; }
-    .channel-info { padding: 0.75rem; }
-    .channel-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .channel-group { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Batch actions bar */
+    .batch-bar { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1rem; flex-wrap: wrap; }
+    .batch-bar label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem; color: var(--text-secondary); }
+    .batch-bar input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
+    .selected-count { font-size: 0.9rem; color: var(--text-secondary); margin-left: auto; }
+    .selected-count strong { color: var(--accent); }
+    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-primary); font-size: 0.85rem; cursor: pointer; transition: all var(--transition); }
+    .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+    /* Channel list */
+    .channel-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .channel-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); transition: all var(--transition); }
+    .channel-row:hover { border-color: var(--border-hover); background: var(--bg-hover); }
+    .channel-row.selected { border-color: var(--accent); background: rgba(229, 9, 20, 0.1); }
+    .channel-checkbox { display: flex; align-items: center; cursor: pointer; }
+    .channel-checkbox input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+    .channel-link { display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0; }
+    .ch-logo { width: 48px; height: 32px; object-fit: contain; background: var(--bg-secondary); border-radius: 4px; padding: 0.25rem; }
+    .ch-logo-placeholder { width: 48px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); border-radius: 4px; font-size: 1.25rem; opacity: 0.5; }
+    .ch-info { flex: 1; min-width: 0; }
+    .ch-name { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ch-group { font-size: 0.75rem; color: var(--text-muted); }
+    .btn-favorite { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: none; color: var(--text-muted); border-radius: var(--radius); transition: all var(--transition); }
+    .btn-favorite:hover { color: var(--accent); background: var(--bg-hover); }
+    .btn-favorite.active { color: var(--accent); }
+    .btn-favorite.active svg { fill: var(--accent); }
+    .btn-play { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: var(--accent); border: none; color: #fff; border-radius: 50%; font-size: 0.8rem; transition: all var(--transition); }
+    .btn-play:hover { background: var(--accent-hover); transform: scale(1.05); }
 
     .page-footer { background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 2.5rem 1.25rem; margin-top: 3rem; }
     .footer-content { max-width: 1000px; margin: 0 auto; text-align: center; }
@@ -210,11 +235,11 @@ export function generateCategoryPage(options = {}) {
       .category-list { flex-direction: row; flex-wrap: wrap; gap: 0.5rem; }
       .category-item { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
       .main-container { width: 100%; }
-      .channel-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
-    }
-    @media (max-width: 480px) {
-      .logo-text { display: none; }
-      .channel-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+      .batch-bar { padding: 0.75rem; gap: 0.5rem; }
+      .btn { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+      .ch-logo { width: 40px; height: 28px; }
+      .ch-logo-placeholder { width: 40px; height: 28px; font-size: 1rem; }
+      .btn-favorite, .btn-play { width: 32px; height: 32px; }
     }
   </style>
 </head>
@@ -285,8 +310,23 @@ export function generateCategoryPage(options = {}) {
       </div>
     </aside>
     <div class="main-container">
-      <div id="channelGrid">
-        ${channelGridHtml}
+      <div class="batch-bar">
+        <label>
+          <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+          Select All
+        </label>
+        <button class="btn" onclick="addSelectedToFavorites()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Add to Favorites
+        </button>
+        <button class="btn btn-primary" onclick="downloadSelectedM3U()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download M3U
+        </button>
+        <span class="selected-count"><strong id="selectedCount">0</strong> selected</span>
+      </div>
+      <div id="channelList">
+        ${channelListHtml}
       </div>
     </div>
   </main>
@@ -327,6 +367,129 @@ export function generateCategoryPage(options = {}) {
       const next = current === 'dark' ? 'light' : 'dark';
       html.setAttribute('data-theme', next);
       localStorage.setItem('theme', next);
+    });
+
+    // Select all toggle
+    function toggleSelectAll() {
+      const selectAll = document.getElementById('selectAll');
+      const checkboxes = document.querySelectorAll('.channel-row input[type="checkbox"]');
+      checkboxes.forEach(cb => {
+        cb.checked = selectAll.checked;
+        cb.closest('.channel-row').classList.toggle('selected', selectAll.checked);
+      });
+      updateSelectedCount();
+    }
+
+    // Update selected count
+    function updateSelectedCount() {
+      const checked = document.querySelectorAll('.channel-row input[type="checkbox"]:checked');
+      document.getElementById('selectedCount').textContent = checked.length;
+      
+      // Update row visual state
+      document.querySelectorAll('.channel-row').forEach(row => {
+        const cb = row.querySelector('input[type="checkbox"]');
+        row.classList.toggle('selected', cb.checked);
+      });
+    }
+
+    // Get selected channels
+    function getSelectedChannels() {
+      const selected = [];
+      document.querySelectorAll('.channel-row input[type="checkbox"]:checked').forEach(cb => {
+        const row = cb.closest('.channel-row');
+        selected.push({
+          hash: row.dataset.hash,
+          name: row.dataset.name,
+          logo: row.dataset.logo,
+          group: row.dataset.group
+        });
+      });
+      return selected;
+    }
+
+    // Toggle favorite
+    function toggleFavorite(hash) {
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      const index = favorites.findIndex(f => f.hash === hash);
+      const btn = document.querySelector('.channel-row[data-hash="' + hash + '"] .btn-favorite');
+      
+      if (index === -1) {
+        const row = btn.closest('.channel-row');
+        favorites.push({
+          hash: hash,
+          name: row.dataset.name,
+          logo: row.dataset.logo,
+          group: row.dataset.group
+        });
+        btn.classList.add('active');
+      } else {
+        favorites.splice(index, 1);
+        btn.classList.remove('active');
+      }
+      
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+    }
+
+    // Add selected to favorites
+    function addSelectedToFavorites() {
+      const selected = getSelectedChannels();
+      if (selected.length === 0) {
+        alert('Please select at least one channel');
+        return;
+      }
+      
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      selected.forEach(ch => {
+        if (!favorites.find(f => f.hash === ch.hash)) {
+          favorites.push(ch);
+        }
+      });
+      
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+      
+      // Update button states
+      selected.forEach(ch => {
+        const btn = document.querySelector('.channel-row[data-hash="' + ch.hash + '"] .btn-favorite');
+        if (btn) btn.classList.add('active');
+      });
+      
+      alert('Added ' + selected.length + ' channels to favorites');
+    }
+
+    // Download selected as M3U
+    function downloadSelectedM3U() {
+      const selected = getSelectedChannels();
+      if (selected.length === 0) {
+        alert('Please select at least one channel');
+        return;
+      }
+      
+      const origin = '${origin}';
+      let m3u = '#EXTM3U\\n';
+      selected.forEach(ch => {
+        const logo = ch.logo ? ' tvg-logo="' + ch.logo + '"' : '';
+        m3u += '#EXTINF:-1' + logo + ' group-title="' + ch.group + '",' + ch.name + '\\n';
+        m3u += origin + '/live/' + ch.hash + '\\n';
+      });
+      
+      const blob = new Blob([m3u], { type: 'audio/x-mpegurl' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'channels.m3u';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Initialize favorite buttons
+    document.addEventListener('DOMContentLoaded', function() {
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      favorites.forEach(f => {
+        const btn = document.querySelector('.channel-row[data-hash="' + f.hash + '"] .btn-favorite');
+        if (btn) btn.classList.add('active');
+      });
     });
   </script>
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
