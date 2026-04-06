@@ -4,13 +4,24 @@ import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest } from './handlers/sub.js';
 import { handleGetPlayLink, handleIPPlayRequest, handleGetPlayLinkStatus } from './handlers/ip-play.js';
 import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
-import { handleAdminStaticGenerate, handleAdminStaticStatus, handleAdminStaticClearCache } from './handlers/admin-static.js';
 import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } from './handlers/scheduler.js';
 import { handleUserActivate } from './handlers/user.js';
 import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings } from './handlers/public.js';
 import { handleFreeSubAPI } from './handlers/freesub-api.js';
 import { handleGetPlans } from './handlers/plans-api.js';
-import { generate404Page } from './handlers/seo-handler.js';
+
+// 内联 404 页面生成函数
+async function generate404Page(request, env) {
+  const url = new URL(request.url);
+  const origin = url.protocol + '//' + url.host;
+  const backUrl = origin + '/';
+  const html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>404 - Page Not Found | IPTV Search</title>\n  <style>\n    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0a0a0a; color: #fff; text-align: center; padding: 4rem 2rem; margin: 0; }\n    h1 { font-size: 6rem; margin-bottom: 1rem; color: #e50914; }\n    h2 { font-size: 1.5rem; margin-bottom: 1rem; }\n    p { color: #a0a0a0; max-width: 400px; margin: 0 auto 2rem; }\n    a { display: inline-block; padding: 0.75rem 2rem; background: #e50914; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; }\n    a:hover { background: #f6121d; }\n  </style>\n</head>\n<body>\n  <h1>404</h1>\n  <h2>Page Not Found</h2>\n  <p>The page you\'re looking for doesn\'t exist or has been moved.</p>\n  <a href="' + backUrl + '">Back to Home</a>\n</body>\n</html>';
+  return new Response(html, {
+    status: 404,
+    headers: { 'Content-Type': 'text/html; charset=utf-8' }
+  });
+}
+
 import {
   handleRegister,
   handleSendVerificationCode,
@@ -266,14 +277,14 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         return staticResponse;
       }
       
-      // Fallback: 动态生成首页
-      const { generateSEOHomepage } = await import('./handlers/seo-handler.js');
-      const html = await generateSEOHomepage({ origin: url.origin, env });
+      // 使用新的 HTML 壳 + API 方案
+      const { generateHomePage } = await import('./pages/home-page.js');
+      const html = generateHomePage({ origin: url.origin });
       
       return new Response(html, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'public, max-age=600'
+          'Cache-Control': 'public, max-age=60'
         }
       });
     }
@@ -315,23 +326,22 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       const matchedGroup = (groupsResult.results || []).find(g => slugify(g.group_title) === slug);
       
       if (!matchedGroup) {
-        return await generate404Page(request, env, 'category');
+        return await generate404Page(request, env);
       }
       
-      const { generateCategoryPage } = await import('./handlers/seo-handler.js');
-      const html = await generateCategoryPage({ 
+      const { generateCategoryPage } = await import('./pages/category-page.js');
+      const html = generateCategoryPage({ 
         origin: url.origin, 
-        category: matchedGroup.group_title, // 用真实分类名
-        slug: slug,
-        env 
+        category: matchedGroup.group_title,
+        slug: slug
       });
       return new Response(html, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'public, max-age=600'
+          'Cache-Control': 'public, max-age=60'
         }
       });
-    } else if (path === '/channel') {
+    } else if (path.startsWith('/channel/')) {
       // 频道详情页: /channel/{hash}
       const hashMatch = path.match(/^\/channel\/([a-zA-Z0-9]+)$/);
       if (hashMatch) {
@@ -341,7 +351,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           return staticResponse;
         }
         // Fallback: 动态生成频道详情页
-        const { generateChannelDetailPage } = await import('./handlers/seo-handler.js');
+        const { generateChannelPage } = await import('./pages/channel-page.js');
         const db = await initDB(env);
         const channel = await db.prepare(`
           SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active
@@ -349,14 +359,12 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         `).bind(hash).first();
         
         if (!channel) {
-          return await generate404Page(request, env, 'channel');
+          return await generate404Page(request, env);
         }
         
-        const html = await generateChannelDetailPage({ 
+        const html = generateChannelPage({ 
           origin: url.origin, 
-          channel: channel,
-          channelHash: hash,
-          env 
+          channelHash: hash
         });
         return new Response(html, {
           headers: {
@@ -381,15 +389,16 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       }
       return Response.redirect(url.origin + '/', 302);
     } else if (path.startsWith('/search')) {
-      // 搜索结果页
+      // 搜索结果页 - 使用新的 HTML 壳 + API 方案
       const query = url.searchParams.get('q') || '';
-      const { generateSearchPage } = await import('./handlers/seo-handler.js');
-      const html = await generateSearchPage({ origin: url.origin, query, env });
+      const { generateSearchPage } = await import('./pages/search-page.js');
+      const html = generateSearchPage({ origin: url.origin, query });
 
       return new Response(html, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'public, max-age=60'
+          'Cache-Control': 'public, max-age=60',
+          'X-Robots-Tag': 'noindex'
         }
       });
     } else if (path === '/forgot-password') {
@@ -399,6 +408,22 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         return staticResponse;
       }
       return Response.redirect(url.origin + '/', 302);
+    } else if (path === '/api/home') {
+      // 首页数据 API
+      const { handleApiHome } = await import('./handlers/api/home.js');
+      return await handleApiHome(request, env, ctx);
+    } else if (path.startsWith('/api/search')) {
+      // 搜索结果 API
+      const { handleApiSearch } = await import('./handlers/api/search.js');
+      return await handleApiSearch(request, env, ctx);
+    } else if (path.startsWith('/api/category/')) {
+      // 分类页数据 API: /api/category/{slug}
+      const { handleApiCategory } = await import('./handlers/api/category.js');
+      return await handleApiCategory(request, env, ctx);
+    } else if (path.startsWith('/api/channel/')) {
+      // 频道详情 API: /api/channel/{hash}
+      const { handleApiChannel } = await import('./handlers/api/channel.js');
+      return await handleApiChannel(request, env, ctx);
     } else if (path === '/api/config') {
       // 公开配置API - 获取前端需要的配置（如加密密钥）
       return await handlePublicConfig(request, env, ctx);
@@ -417,15 +442,6 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/admin/mall/payment-methods') {
       // 管理员支付方式管理 API（在 admin.js 处理）
       return await handleAdminRequest(request, env, ctx);
-    } else if (path === '/api/admin/static/generate') {
-      // 静态页面生成 API
-      return await handleAdminStaticGenerate(request, env);
-    } else if (path === '/api/admin/static/status') {
-      // 静态文件状态 API
-      return await handleAdminStaticStatus(request, env);
-    } else if (path === '/api/admin/static/cache') {
-      // 清除静态文件缓存
-      return await handleAdminStaticClearCache(request, env);
     } else if (path === '/api/channels') {
       // 公开频道列表API（无需卡密）
       return await handlePublicChannels(request, env, ctx);
