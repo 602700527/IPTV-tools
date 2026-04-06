@@ -60,8 +60,12 @@ import { FREE_SUB_HTML } from './freesub-page.js';
 import { SUBSCRIPTION_HTML } from './subscription-page.js';
 import { PLANS_HTML } from './plans-page.js';
 import { RESET_PASSWORD_HTML } from './reset-password-page.js';
-import { TUTORIAL_HTML } from './tutorial-page.js';
-import { generateRobotsTxt, generatePrivacyPolicy, generateTermsOfService } from './legal-pages.js';
+import { generateRobotsTxt } from './legal-pages.js';
+import { PAGE_HEADER } from './components/page-header.js';
+import { PAGE_FOOTER } from './components/page-footer.js';
+import { pageTitle as privacyTitle, pageDescription as privacyDesc, styles as privacyStyles, content as privacyContent } from './pages-content/privacy-policy.js';
+import { pageTitle as termsTitle, pageDescription as termsDesc, styles as termsStyles, content as termsContent } from './pages-content/terms.js';
+import { pageTitle as tutorialTitle, pageDescription as tutorialDesc, styles as tutorialStyles, content as tutorialContent } from './pages-content/tutorial.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 import { LOGO_SVG, FAVICON_SVG, OG_IMAGE_SVG, APPLE_TOUCH_ICON_SVG, ICON_192_SVG, FAVICON_ICO_SVG } from './assets.js';
@@ -118,6 +122,38 @@ async function serveStaticFile(filePath, env) {
     console.error('[StaticFile] Error serving file:', error);
     return null;
   }
+}
+
+// 生成静态页面（注入页头页脚组件）
+function generateStaticPage(pageTitle, pageDescription, styles, content) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${pageTitle}</title>
+  <meta name="description" content="${pageDescription}">
+  <meta name="robots" content="noindex, follow">
+  <link rel="canonical" href="https://iptv-search.com${pageTitle === 'Privacy Policy' ? '/privacy-policy' : pageTitle === 'Terms of Service' ? '/terms' : '/tutorial'}">
+  <style>
+    ${styles}
+  </style>
+</head>
+<body>
+${PAGE_HEADER}
+${content}
+${PAGE_FOOTER}
+  <script>
+    document.getElementById('themeToggle')?.addEventListener('click', function() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
+  </script>
+</body>
+</html>`;
 }
 
 // 计算订阅价格（从数据库获取套餐配置）
@@ -564,8 +600,8 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     } else if (path === '/tutorial' || path === '/tutorial/' || path === '/tutorial/index' || path === '/tutorial/index.html') {
-      // 教程页面
-      return new Response(TUTORIAL_HTML, {
+      // 教程页面 - 使用静态页面（注入页头页脚组件）
+      return new Response(generateStaticPage(tutorialTitle, tutorialDesc, tutorialStyles, tutorialContent), {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     } else if (path === '/api/activate') {
@@ -809,13 +845,13 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=86400' }
       });
     } else if (path === '/privacy-policy') {
-      // 隐私政策
-      return new Response(generatePrivacyPolicy(), {
+      // 隐私政策 - 使用静态页面
+      return new Response(generateStaticPage(privacyTitle, privacyDesc, privacyStyles, privacyContent), {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     } else if (path === '/terms') {
-      // 服务条款
-      return new Response(generateTermsOfService(), {
+      // 服务条款 - 使用静态页面
+      return new Response(generateStaticPage(termsTitle, termsDesc, termsStyles, termsContent), {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     } else if (path.startsWith('/api/freesub')) {
