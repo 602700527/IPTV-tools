@@ -254,6 +254,8 @@ export function generateChannelPage(options = {}) {
     .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
     .btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-hover); }
     .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+    .btn-favorited { border-color: var(--accent) !important; }
+    .btn-favorited svg { fill: var(--accent); }
 
     /* Spinner */
     .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -576,7 +578,8 @@ export function generateChannelPage(options = {}) {
       }
     }
     initTranslate();
-
+  </script>
+  <script>
     function escapeHtml(str) {
       if (!str) return '';
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
@@ -678,7 +681,7 @@ export function generateChannelPage(options = {}) {
       
       if (index > -1) {
         favorites.splice(index, 1);
-        starBtn.querySelector('span').textContent = '☆';
+        starBtn.classList.remove('btn-favorited');
         starText.textContent = 'Add to Favorites';
         showToast('Removed from favorites');
       } else {
@@ -691,7 +694,7 @@ export function generateChannelPage(options = {}) {
           group: CURRENT_CHANNEL_GROUP,
           logo: logo
         });
-        starBtn.querySelector('span').textContent = '★';
+        starBtn.classList.add('btn-favorited');
         starText.textContent = 'Remove from Favorites';
         showToast('Added to favorites');
       }
@@ -706,7 +709,7 @@ export function generateChannelPage(options = {}) {
       const starText = document.getElementById('starText');
       
       if (isFavorited) {
-        starBtn.querySelector('span').textContent = '★';
+        starBtn.classList.add('btn-favorited');
         starText.textContent = 'Remove from Favorites';
       }
     }
