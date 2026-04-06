@@ -138,6 +138,25 @@ function generateStaticPage(pageTitle, pageDescription, styles, content) {
   <meta name="robots" content="noindex, follow">
   <link rel="canonical" href="https://iptv-search.com${pageTitle === 'Privacy Policy' ? '/privacy-policy' : pageTitle === 'Terms of Service' ? '/terms' : '/tutorial'}">
   <style>
+    :root {
+      --accent: #e50914;
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-card: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-secondary: #999999;
+      --text-muted: #666666;
+      --border: rgba(255,255,255,0.08);
+    }
+    [data-theme="light"] {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border: rgba(0,0,0,0.08);
+    }
     ${styles}
   </style>
 </head>
@@ -152,6 +171,12 @@ ${PAGE_FOOTER}
       const next = current === 'dark' ? 'light' : 'dark';
       html.setAttribute('data-theme', next);
       localStorage.setItem('theme', next);
+      const sun = document.querySelector('.sun-icon');
+      const moon = document.querySelector('.moon-icon');
+      if (sun && moon) {
+        sun.style.display = next === 'dark' ? 'none' : 'block';
+        moon.style.display = next === 'dark' ? 'block' : 'none';
+      }
     });
   </script>
 </body>

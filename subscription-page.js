@@ -1978,6 +1978,38 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
 
+    // 主题初始化
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = saved ? saved === 'dark' : prefersDark;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      updateThemeIcons(isDark);
+    })();
+    function updateThemeIcons(isDark) {
+      const sun = document.querySelector('.sun-icon');
+      const moon = document.querySelector('.moon-icon');
+      if (sun && moon) {
+        sun.style.display = isDark ? 'none' : 'block';
+        moon.style.display = isDark ? 'block' : 'none';
+      }
+    }
+
+    // 主题切换
+    document.getElementById('themeToggle')?.addEventListener('click', function() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      const sun = document.querySelector('.sun-icon');
+      const moon = document.querySelector('.moon-icon');
+      if (sun && moon) {
+        sun.style.display = next === 'dark' ? 'none' : 'block';
+        moon.style.display = next === 'dark' ? 'block' : 'none';
+      }
+    });
+
     // 页面加载时直接渲染套餐,不检查登录状态
     document.addEventListener('DOMContentLoaded', () => {
       loadPlans(); // 从数据库加载套餐配置

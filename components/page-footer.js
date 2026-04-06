@@ -31,8 +31,8 @@ export const PAGE_FOOTER = `
 
   <style>
     .page-footer {
-      background: #0a0a0a;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
       padding: 40px 20px;
       margin-top: 60px;
     }
@@ -44,7 +44,7 @@ export const PAGE_FOOTER = `
     }
 
     .footer-copyright {
-      color: rgba(255, 255, 255, 0.8);
+      color: var(--text-secondary);
       font-size: 14px;
       margin-bottom: 20px;
     }
@@ -60,13 +60,13 @@ export const PAGE_FOOTER = `
     }
 
     .footer-links a {
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-muted);
       text-decoration: none;
       transition: color 0.2s;
     }
 
     .footer-links a:hover {
-      color: rgba(255, 255, 255, 0.9);
+      color: var(--text-primary);
     }
 
     .footer-badges {
@@ -90,13 +90,13 @@ export const PAGE_FOOTER = `
 
     .footer-badges span {
       font-size: 12px;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-muted);
     }
 
     .footer-disclaimer {
       margin-top: 15px;
       font-size: 11px;
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--text-muted);
       line-height: 1.5;
       max-width: 600px;
       margin-left: auto;
@@ -173,7 +173,4 @@ export const PAGE_FOOTER = `
       }
     }
   </script>
-
-  <!-- 100%填充 -->
-  <!--<script src="https://quge5.com/88/tag.min.js" data-zone="211982" async data-cfasync="false"></script>-->
 `;

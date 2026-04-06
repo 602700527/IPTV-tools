@@ -3,16 +3,33 @@ export const pageTitle = 'Privacy Policy';
 export const pageDescription = 'IPTV Search Privacy Policy';
 
 export const styles = `
+  :root {
+    --bg-primary: #0a0a0a;
+    --bg-card: #141414;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255,255,255,0.8);
+    --text-muted: rgba(255,255,255,0.5);
+    --border: rgba(255,255,255,0.1);
+    --accent: #e50914;
+  }
+  [data-theme="light"] {
+    --bg-primary: #f5f5f5;
+    --bg-card: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #333333;
+    --text-muted: #666666;
+    --border: rgba(0,0,0,0.1);
+  }
   .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
-  h1 { font-size: 28px; margin-bottom: 20px; color: #e50914; }
-  h2 { font-size: 22px; margin: 30px 0 15px; color: #fff; }
-  h3 { font-size: 18px; margin: 20px 0 10px; color: rgba(255,255,255,0.9); }
-  p { margin-bottom: 15px; color: rgba(255,255,255,0.8); }
-  ul { margin-bottom: 15px; padding-left: 30px; color: rgba(255,255,255,0.8); }
+  h1 { font-size: 28px; margin-bottom: 20px; color: var(--accent); }
+  h2 { font-size: 22px; margin: 30px 0 15px; color: var(--text-primary); }
+  h3 { font-size: 18px; margin: 20px 0 10px; color: var(--text-primary); }
+  p { margin-bottom: 15px; color: var(--text-secondary); }
+  ul { margin-bottom: 15px; padding-left: 30px; color: var(--text-secondary); }
   li { margin-bottom: 8px; }
-  .section { background: #141414; padding: 25px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
-  .last-updated { color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 20px; }
-  a { color: #e50914; text-decoration: none; }
+  .section { background: var(--bg-card); padding: 25px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border); }
+  .last-updated { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+  a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
   @media (max-width: 768px) {
     .container { padding: 30px 15px; }
