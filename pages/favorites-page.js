@@ -228,7 +228,7 @@ export function generateFavoritesPage(options = {}) {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download M3U
       </button>
-      <span class="selected-count"><strong id="selectedCount">0</strong> selected</span>
+      <span class="selected-count"><strong id="selectedCount">0</strong> selected <span id="downloadLimit" style="color: var(--text-muted); font-size: 0.8rem;"></span></span>
     </div>
 
     <div id="channelList"></div>
@@ -255,23 +255,48 @@ export function generateFavoritesPage(options = {}) {
     </div>
   </footer>
 
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <style>
+  .toast-container { position: fixed; top: 80px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2); display: flex; align-items: flex-start; gap: 14px; min-width: 300px; max-width: 400px; pointer-events: auto; animation: toastSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .toast.toast-exit { animation: toastSlideOut 0.3s ease forwards; }
+  .toast-icon-wrap { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .toast-icon-wrap svg { width: 18px; height: 18px; }
+  .toast.toast-success .toast-icon-wrap { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4); }
+  .toast.toast-error .toast-icon-wrap { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }
+  .toast.toast-warning .toast-icon-wrap { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4); }
+  .toast.toast-info .toast-icon-wrap { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+  .toast-content { flex: 1; min-width: 0; padding-top: 2px; }
+  .toast-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+  .toast-message { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; }
+  .toast-action { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .toast-action a { color: var(--accent); font-weight: 600; font-size: 0.875rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+  .toast-action a:hover { text-decoration: underline; }
+  .toast-action a::after { content: '→'; font-size: 1em; }
+  .toast-close { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 6px; margin: -6px -6px -6px 0; border-radius: 8px; flex-shrink: 0; opacity: 0.6; transition: opacity 0.2s, background 0.2s; }
+  .toast-close:hover { opacity: 1; background: var(--bg-hover); }
+  @keyframes toastSlideIn { from { transform: translateX(120%) scale(0.8); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+  @keyframes toastSlideOut { from { transform: translateX(0) scale(1); opacity: 1; } to { transform: translateX(120%) scale(0.8); opacity: 0; } }
+  @media (max-width: 480px) { .toast-container { top: auto; bottom: 24px; left: 16px; right: 16px; } .toast { min-width: auto; width: 100%; } }
+  </style>
+
   <script>
     const FAVORITES_KEY = 'favorites';
+    const MAX_DOWNLOAD = 100;
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-    }
+    function escapeHtml(str) { if (!str) return ''; return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
 
-    function getFavorites() {
-      try {
-        return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
-      } catch { return []; }
-    }
+    // Toast functions
+    function showToast(options) { const { title = '', message = '', type = 'info', duration = 4000, action = null } = options; const container = document.getElementById('toastContainer'); const toast = document.createElement('div'); toast.className = 'toast toast-' + type; const icons = { success: '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>', error: '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>', warning: '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', info: '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>' }; let actionHtml = ''; if (action) { actionHtml = '<div class="toast-action"><a href="' + action.href + '">' + action.text + '</a></div>'; } toast.innerHTML = '<div class="toast-icon-wrap">' + icons[type] + '</div><div class="toast-content">' + (title ? '<div class="toast-title">' + title + '</div>' : '') + (message ? '<div class="toast-message">' + message + '</div>' : '') + actionHtml + '</div><button class="toast-close" onclick="this.parentElement.remove()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'; container.appendChild(toast); if (duration > 0) { setTimeout(() => { toast.classList.add('toast-exit'); setTimeout(() => toast.remove(), 300); }, duration); } return toast; }
+    function showToastSuccess(message, title = 'Success') { return showToast({ type: 'success', title, message }); }
+    function showToastError(message, title = 'Error') { return showToast({ type: 'error', title, message, duration: 6000 }); }
+    function showToastWarning(message, title = 'Warning', action = null) { return showToast({ type: 'warning', title, message, action }); }
+    function showToastInfo(message, title = '', action = null) { return showToast({ type: 'info', title, message, action }); }
 
-    function saveFavorites(favorites) {
-      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-    }
+    function getFavorites() { try { return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || []; } catch { return []; } }
+    function saveFavorites(favorites) { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); }
 
     function renderFavorites() {
       const favorites = getFavorites();
@@ -342,7 +367,16 @@ export function generateFavoritesPage(options = {}) {
 
     function updateSelectedCount() {
       const checked = document.querySelectorAll('.channel-row input[type="checkbox"]:checked');
-      document.getElementById('selectedCount').textContent = checked.length;
+      const count = checked.length;
+      document.getElementById('selectedCount').textContent = count;
+      
+      const limitSpan = document.getElementById('downloadLimit');
+      if (count > MAX_DOWNLOAD) {
+        limitSpan.textContent = ' (' + (count - MAX_DOWNLOAD) + ' over limit)';
+        limitSpan.style.color = 'var(--accent)';
+      } else {
+        limitSpan.textContent = '';
+      }
       
       document.querySelectorAll('.channel-row').forEach(row => {
         const cb = row.querySelector('input[type="checkbox"]');
@@ -367,11 +401,7 @@ export function generateFavoritesPage(options = {}) {
     function removeSelected() {
       const selected = getSelectedChannels();
       if (selected.length === 0) {
-        alert('Please select at least one channel');
-        return;
-      }
-      
-      if (!confirm('Remove ' + selected.length + ' channel(s) from favorites?')) {
+        showToastWarning('No channels selected', 'Please select at least one channel to remove.');
         return;
       }
       
@@ -379,13 +409,19 @@ export function generateFavoritesPage(options = {}) {
       const selectedHashes = selected.map(s => s.hash);
       const newFavorites = favorites.filter(f => !selectedHashes.includes(f.hash));
       saveFavorites(newFavorites);
+      showToastSuccess('Removed ' + selected.length + ' channel(s) from favorites');
       renderFavorites();
     }
 
     function downloadSelectedM3U() {
       const selected = getSelectedChannels();
       if (selected.length === 0) {
-        alert('Please select at least one channel');
+        showToastWarning('No channels selected', 'Please select at least one channel to download.');
+        return;
+      }
+      
+      if (selected.length > MAX_DOWNLOAD) {
+        showToastWarning('Selection exceeds limit', 'Free users can download up to ' + MAX_DOWNLOAD + ' channels at once. Subscribe to get the complete M3U playlist with all channels.', { text: 'View Plans', href: '${origin}/plans' });
         return;
       }
       
@@ -405,6 +441,7 @@ export function generateFavoritesPage(options = {}) {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      showToastSuccess('Download started!', selected.length + ' channels ready to import into your player.');
     }
 
     // Theme toggle
