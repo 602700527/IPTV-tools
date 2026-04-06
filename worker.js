@@ -466,12 +466,16 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       // Fallback: 使用原有的登录页
       return Response.redirect(url.origin + '/', 302);
     } else if (path === '/favorites') {
-      // 收藏页
-      const staticResponse = await serveStaticFile('/favorites.html', env);
-      if (staticResponse) {
-        return staticResponse;
-      }
-      return Response.redirect(url.origin + '/', 302);
+      // 收藏页 - 使用服务端渲染的收藏页
+      const { generateFavoritesPage } = await import('./pages/favorites-page.js');
+      const html = generateFavoritesPage({ origin: url.origin });
+
+      return new Response(html, {
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'public, max-age=60'
+        }
+      });
     } else if (path.startsWith('/search')) {
       // 搜索结果页 - 使用新的 HTML 壳 + API 方案
       const query = url.searchParams.get('q') || '';

@@ -1,76 +1,16 @@
-// Category Page - HTML shell with server-side rendered content
+// Favorites Page - Client-side rendered from localStorage
 
-export function generateCategoryPage(options = {}) {
-  const { 
-    origin = 'https://iptv-search.com', 
-    slug = '', 
-    category = '',
-    categories = [],  // Pre-rendered categories array
-    channels = []     // Pre-rendered channels array for current category
-  } = options;
-
-  // Build category list HTML
-  const categoryListHtml = categories.length > 0 ? categories.map(cat => {
-    const isActive = cat.slug === slug ? ' active' : '';
-    return '<a href="' + origin + '/category/' + encodeURIComponent(cat.slug) + '" class="category-item' + isActive + '">' +
-      '<span class="cat-name">' + escapeHtml(cat.name) + '</span>' +
-    '</a>';
-  }).join('') : '<div style="padding:1rem;font-size:0.85rem;color:var(--text-muted);">No categories</div>';
-
-  // Build channel list HTML (list view with checkboxes)
-  let channelListHtml = '';
-  if (channels.length > 0) {
-    channelListHtml = '<div class="channel-list">' + channels.map(ch => {
-      const logoHtml = ch.logo 
-        ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '" class="ch-logo">' 
-        : '<div class="ch-logo-placeholder">📺</div>';
-      return '<div class="channel-row" data-hash="' + escapeHtml(ch.hash) + '" data-name="' + escapeHtml(ch.name) + '" data-logo="' + escapeHtml(ch.logo || '') + '" data-group="' + escapeHtml(ch.group || category) + '">' +
-        '<label class="channel-checkbox">' +
-          '<input type="checkbox" onchange="updateSelectedCount()">' +
-          '<span class="checkmark"></span>' +
-        '</label>' +
-        '<a href="' + origin + '/channel/' + ch.hash + '" class="channel-link">' +
-          '<div class="ch-logo">' + logoHtml + '</div>' +
-          '<div class="ch-info">' +
-            '<div class="ch-name">' + escapeHtml(ch.name) + '</div>' +
-            '<div class="ch-group">' + escapeHtml(ch.group || category) + '</div>' +
-          '</div>' +
-        '</a>' +
-        '<button class="btn-favorite" data-hash="' + escapeHtml(ch.hash) + '" onclick="toggleFavorite(this)" title="Add to favorites">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' +
-        '</button>' +
-      '</div>';
-    }).join('') + '</div>';
-  } else {
-    channelListHtml = '<div class="empty-state"><p>No channels found in this category</p></div>';
-  }
-
-  // Generate JSON-LD
-  const jsonLd = channels.length > 0 ? {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    "name": category + " Channels",
-    "numberOfItems": channels.length,
-    "itemListElement": channels.slice(0, 10).map((ch, i) => ({
-      "@type": "ListItem",
-      "position": i + 1,
-      "name": ch.name,
-      "url": origin + "/channel/" + ch.hash
-    }))
-  } : null;
+export function generateFavoritesPage(options = {}) {
+  const { origin = 'https://iptv-search.com' } = options;
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(category)} Channels | IPTV Search</title>
-  <meta name="description" content="Watch all ${escapeHtml(category)} channels live. Free IPTV streaming.">
-  <link rel="canonical" href="${origin}/category/${encodeURIComponent(slug)}">
-  <meta property="og:title" content="${escapeHtml(category)} Channels | IPTV Search">
-  <meta property="og:description" content="Watch all ${escapeHtml(category)} channels live. Free IPTV streaming.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="${origin}/category/${encodeURIComponent(slug)}">
+  <title>My Favorites | IPTV Search</title>
+  <meta name="description" content="Your favorite IPTV channels">
+  <link rel="canonical" href="${origin}/favorites">
   
   <script>
     (function() {
@@ -118,6 +58,7 @@ export function generateCategoryPage(options = {}) {
     img { max-width: 100%; display: block; }
     button { cursor: pointer; font-family: inherit; }
 
+    /* Header */
     .header { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
     .header-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
     .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: 700; flex-shrink: 0; }
@@ -126,10 +67,7 @@ export function generateCategoryPage(options = {}) {
     .header-actions { display: flex; align-items: center; gap: 1rem; }
     .search-box { position: relative; width: 300px; }
     .search-box form { display: flex; }
-    .search-box input {
-      width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 20px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: border-color var(--transition);
-    }
+    .search-box input { width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: border-color var(--transition); }
     .search-box input:focus { border-color: var(--accent); }
     .search-box::before { content: '🔍'; position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; pointer-events: none; }
     .pill-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
@@ -146,26 +84,12 @@ export function generateCategoryPage(options = {}) {
     #translate::after { content: ""; position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--text-secondary); pointer-events: none; }
     #translate:hover::after { border-top-color: var(--accent); }
 
-    .breadcrumb { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem 0; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); }
-    .breadcrumb a { color: var(--accent); }
-    .breadcrumb a:hover { text-decoration: underline; }
-    .breadcrumb span { opacity: 0.5; }
-
-    .category-header { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-    .category-header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .category-header p { color: var(--text-secondary); font-size: 1rem; }
-    .category-stats { display: flex; gap: 1.5rem; margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); }
-    .category-stats span { display: flex; align-items: center; gap: 0.3rem; }
-
-    .page-layout { display: flex; max-width: 1400px; margin: 0 auto; padding: 0 2rem 2rem; gap: 2rem; }
-    .sidebar { width: 220px; flex-shrink: 0; }
-    .sidebar-title { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; padding-left: 0.5rem; }
-    .category-list { display: flex; flex-direction: column; gap: 0.25rem; }
-    .category-item { display: flex; align-items: center; padding: 0.6rem 0.75rem; border-radius: var(--radius); color: var(--text-secondary); font-size: 0.9rem; transition: all var(--transition); }
-    .category-item:hover { background: var(--bg-hover); color: var(--text-primary); }
-    .category-item.active { background: var(--accent); color: #fff; }
-    .category-item .cat-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .main-container { flex: 1; min-width: 0; }
+    /* Main Content */
+    .page-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .page-header p { color: var(--text-secondary); font-size: 1rem; }
 
     /* Batch actions bar */
     .batch-bar { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1rem; flex-wrap: wrap; }
@@ -192,11 +116,19 @@ export function generateCategoryPage(options = {}) {
     .ch-info { flex: 1; min-width: 0; }
     .ch-name { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ch-group { font-size: 0.75rem; color: var(--text-muted); }
-    .btn-favorite { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: none; color: var(--text-muted); border-radius: var(--radius); transition: all var(--transition); }
-    .btn-favorite:hover { color: var(--accent); background: var(--bg-hover); }
-    .btn-favorite.active { color: var(--accent); }
-    .btn-favorite.active svg { fill: var(--accent); }
+    .btn-remove { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: none; color: var(--text-muted); border-radius: var(--radius); transition: all var(--transition); }
+    .btn-remove:hover { color: var(--accent); background: var(--bg-hover); }
+    .btn-remove.active { color: var(--accent); }
+    .btn-remove.active svg { fill: var(--accent); }
 
+    /* Empty state */
+    .empty-state { text-align: center; padding: 4rem 2rem; }
+    .empty-state-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
+    .empty-state h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .empty-state p { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .empty-state .btn { display: inline-flex; }
+
+    /* Footer */
     .page-footer { background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 2.5rem 1.25rem; margin-top: 3rem; }
     .footer-content { max-width: 1000px; margin: 0 auto; text-align: center; }
     .footer-copyright { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.25rem; }
@@ -208,7 +140,6 @@ export function generateCategoryPage(options = {}) {
     .footer-badges img:hover { opacity: 1; }
     .footer-badges span { font-size: 0.75rem; color: var(--text-secondary); }
     .footer-disclaimer { margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; max-width: 600px; margin-left: auto; margin-right: auto; }
-    .loading { text-align: center; padding: 4rem; color: var(--text-secondary); }
 
     @media (max-width: 768px) {
       .header { padding: 0.5rem 0.75rem; }
@@ -224,19 +155,13 @@ export function generateCategoryPage(options = {}) {
       .header-actions .pill-btn span { display: none; }
       .theme-toggle { width: 32px; height: 32px; background: transparent; border: none; padding: 0; flex-shrink: 0; }
       .account-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
-      .breadcrumb { padding: 1rem 1rem 0; font-size: 0.8rem; overflow-x: auto; white-space: nowrap; }
-      .category-header { padding: 1.5rem 1rem 1rem; }
-      .category-header h1 { font-size: 1.5rem; }
-      .page-layout { flex-direction: column; padding: 0 1rem 1.5rem; gap: 1rem; }
-      .sidebar { width: 100%; }
-      .category-list { flex-direction: row; flex-wrap: wrap; gap: 0.5rem; }
-      .category-item { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
-      .main-container { width: 100%; }
+      .page-container { padding: 1rem; }
+      .page-header h1 { font-size: 1.5rem; }
       .batch-bar { padding: 0.75rem; gap: 0.5rem; }
       .btn { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
       .ch-logo { width: 40px; height: 28px; }
       .ch-logo-placeholder { width: 40px; height: 28px; font-size: 1rem; }
-      .btn-favorite { width: 32px; height: 32px; }
+      .btn-remove { width: 32px; height: 32px; }
     }
   </style>
 </head>
@@ -267,8 +192,8 @@ export function generateCategoryPage(options = {}) {
         </form>
       </div>
       <div class="header-actions">
-        <a href="${origin}/favorites" class="pill-btn" title="My Favorites">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <a href="${origin}/favorites" class="pill-btn active" title="My Favorites">
+          <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         </a>
         <a href="${origin}/plans" class="pill-btn" title="Subscription Plans">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
@@ -284,48 +209,29 @@ export function generateCategoryPage(options = {}) {
     </div>
   </header>
 
-  <nav class="breadcrumb">
-    <a href="${origin}/">Home</a>
-    <span>›</span>
-    <span>${escapeHtml(category)}</span>
-  </nav>
-
-  <div class="category-header">
-    <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" style="vertical-align:middle;margin-right:0.3em"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>${escapeHtml(category)} Channels</h1>
-    <p>Watch all ${escapeHtml(category)} channels live.</p>
-    <div class="category-stats">
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align:middle"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg> <span id="channelCount">${channels.length}</span> channels</span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align:middle"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/></svg> Updated daily</span>
+  <main class="page-container">
+    <div class="page-header">
+      <h1><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" width="28" height="28" style="vertical-align:middle;margin-right:0.3em;color:var(--accent)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>My Favorites</h1>
+      <p>Your saved channels. Select channels to download M3U or remove from favorites.</p>
     </div>
-  </div>
 
-  <main class="page-layout">
-    <aside class="sidebar">
-      <div class="sidebar-title">All Categories</div>
-      <div class="category-list">
-        ${categoryListHtml}
-      </div>
-    </aside>
-    <div class="main-container">
-      <div class="batch-bar">
-        <label>
-          <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
-          Select All
-        </label>
-        <button class="btn" onclick="addSelectedToFavorites()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          Add to Favorites
-        </button>
-        <button class="btn btn-primary" onclick="downloadSelectedM3U()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download M3U
-        </button>
-        <span class="selected-count"><strong id="selectedCount">0</strong> selected</span>
-      </div>
-      <div id="channelList">
-        ${channelListHtml}
-      </div>
+    <div id="batchBar" class="batch-bar" style="display:none;">
+      <label>
+        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+        Select All
+      </label>
+      <button class="btn" onclick="removeSelected()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Remove
+      </button>
+      <button class="btn btn-primary" onclick="downloadSelectedM3U()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download M3U
+      </button>
+      <span class="selected-count"><strong id="selectedCount">0</strong> selected</span>
     </div>
+
+    <div id="channelList"></div>
   </main>
 
   <footer class="page-footer">
@@ -349,24 +255,81 @@ export function generateCategoryPage(options = {}) {
     </div>
   </footer>
 
-  ${jsonLd ? '<script id="json-ld" type="application/ld+json">' + JSON.stringify(jsonLd) + '</script>' : ''}
-
   <script>
+    const FAVORITES_KEY = 'favorites';
+
     function escapeHtml(str) {
       if (!str) return '';
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
-    // Theme toggle
-    document.getElementById('themeToggle')?.addEventListener('click', function() {
-      const html = document.documentElement;
-      const current = html.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      html.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-    });
+    function getFavorites() {
+      try {
+        return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
+      } catch { return []; }
+    }
 
-    // Select all toggle
+    function saveFavorites(favorites) {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    }
+
+    function renderFavorites() {
+      const favorites = getFavorites();
+      const channelList = document.getElementById('channelList');
+      const batchBar = document.getElementById('batchBar');
+
+      if (favorites.length === 0) {
+        batchBar.style.display = 'none';
+        channelList.innerHTML = \`
+          <div class="empty-state">
+            <div class="empty-state-icon">⭐</div>
+            <h2>No Favorites Yet</h2>
+            <p>Start adding channels to your favorites from the category pages or channel detail pages.</p>
+            <a href="${origin}/" class="btn btn-primary">Browse Channels</a>
+          </div>
+        \`;
+        return;
+      }
+
+      batchBar.style.display = 'flex';
+      
+      const html = '<div class="channel-list">' + favorites.map(ch => {
+        const hash = escapeHtml(ch.hash);
+        const name = escapeHtml(ch.name);
+        const logo = escapeHtml(ch.logo || '');
+        const group = escapeHtml(ch.group || '');
+        const logoHtml = ch.logo 
+          ? \`<img src="\${logo}" alt="\${name}" class="ch-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="ch-logo-placeholder" style="display:none">📺</div>\`
+          : '<div class="ch-logo-placeholder">📺</div>';
+        return \`<div class="channel-row" data-hash="\${hash}" data-name="\${name}" data-logo="\${logo}" data-group="\${group}">
+          <label class="channel-checkbox">
+            <input type="checkbox" onchange="updateSelectedCount()">
+            <span class="checkmark"></span>
+          </label>
+          <a href="${origin}/channel/\${ch.hash}" class="channel-link">
+            <div class="ch-logo">\${logoHtml}</div>
+            <div class="ch-info">
+              <div class="ch-name">\${name}</div>
+              <div class="ch-group">\${group}</div>
+            </div>
+          </a>
+          <button class="btn-remove active" data-hash="\${hash}" onclick="removeFavorite(this)" title="Remove from favorites">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </button>
+        </div>\`;
+      }).join('') + '</div>';
+      channelList.innerHTML = html;
+    }
+
+    function removeFavorite(btn) {
+      const hash = btn.closest('.channel-row').dataset.hash;
+      const favorites = getFavorites();
+      const newFavorites = favorites.filter(f => f.hash !== hash);
+      saveFavorites(newFavorites);
+      renderFavorites();
+    }
+
     function toggleSelectAll() {
       const selectAll = document.getElementById('selectAll');
       const checkboxes = document.querySelectorAll('.channel-row input[type="checkbox"]');
@@ -377,19 +340,16 @@ export function generateCategoryPage(options = {}) {
       updateSelectedCount();
     }
 
-    // Update selected count
     function updateSelectedCount() {
       const checked = document.querySelectorAll('.channel-row input[type="checkbox"]:checked');
       document.getElementById('selectedCount').textContent = checked.length;
       
-      // Update row visual state
       document.querySelectorAll('.channel-row').forEach(row => {
         const cb = row.querySelector('input[type="checkbox"]');
         row.classList.toggle('selected', cb.checked);
       });
     }
 
-    // Get selected channels
     function getSelectedChannels() {
       const selected = [];
       document.querySelectorAll('.channel-row input[type="checkbox"]:checked').forEach(cb => {
@@ -404,58 +364,24 @@ export function generateCategoryPage(options = {}) {
       return selected;
     }
 
-    // Toggle favorite
-    function toggleFavorite(btn) {
-      const row = btn.closest('.channel-row');
-      const hash = row.dataset.hash;
-      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-      const index = favorites.findIndex(f => f.hash === hash);
-      
-      if (index === -1) {
-        favorites.push({
-          hash: hash,
-          name: row.dataset.name,
-          logo: row.dataset.logo,
-          group: row.dataset.group
-        });
-        btn.classList.add('active');
-        btn.querySelector('svg').setAttribute('fill', 'currentColor');
-      } else {
-        favorites.splice(index, 1);
-        btn.classList.remove('active');
-        btn.querySelector('svg').setAttribute('fill', 'none');
-      }
-      
-      localStorage.setItem('favorites', JSON.stringify(favorites));
-    }
-
-    // Add selected to favorites
-    function addSelectedToFavorites() {
+    function removeSelected() {
       const selected = getSelectedChannels();
       if (selected.length === 0) {
         alert('Please select at least one channel');
         return;
       }
       
-      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-      selected.forEach(ch => {
-        if (!favorites.find(f => f.hash === ch.hash)) {
-          favorites.push(ch);
-        }
-      });
+      if (!confirm('Remove ' + selected.length + ' channel(s) from favorites?')) {
+        return;
+      }
       
-      localStorage.setItem('favorites', JSON.stringify(favorites));
-      
-      // Update button states
-      selected.forEach(ch => {
-        const btn = document.querySelector('.channel-row[data-hash="' + ch.hash + '"] .btn-favorite');
-        if (btn) btn.classList.add('active');
-      });
-      
-      alert('Added ' + selected.length + ' channels to favorites');
+      const favorites = getFavorites();
+      const selectedHashes = selected.map(s => s.hash);
+      const newFavorites = favorites.filter(f => !selectedHashes.includes(f.hash));
+      saveFavorites(newFavorites);
+      renderFavorites();
     }
 
-    // Download selected as M3U
     function downloadSelectedM3U() {
       const selected = getSelectedChannels();
       if (selected.length === 0) {
@@ -463,36 +389,35 @@ export function generateCategoryPage(options = {}) {
         return;
       }
       
-      const origin = '${origin}';
       let m3u = '#EXTM3U\\n';
       selected.forEach(ch => {
         const logo = ch.logo ? ' tvg-logo="' + ch.logo + '"' : '';
         m3u += '#EXTINF:-1' + logo + ' group-title="' + ch.group + '",' + ch.name + '\\n';
-        m3u += origin + '/live/' + ch.hash + '\\n';
+        m3u += '${origin}/live/' + ch.hash + '\\n';
       });
       
       const blob = new Blob([m3u], { type: 'audio/x-mpegurl' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'channels.m3u';
+      a.download = 'favorites.m3u';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
 
-    // Initialize favorite buttons
-    document.addEventListener('DOMContentLoaded', function() {
-      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-      favorites.forEach(f => {
-        const btn = document.querySelector('.channel-row[data-hash="' + f.hash + '"] .btn-favorite');
-        if (btn) {
-          btn.classList.add('active');
-          btn.querySelector('svg').setAttribute('fill', 'currentColor');
-        }
-      });
+    // Theme toggle
+    document.getElementById('themeToggle')?.addEventListener('click', function() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
     });
+
+    // Initialize
+    renderFavorites();
   </script>
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
   <script>
@@ -511,9 +436,4 @@ export function generateCategoryPage(options = {}) {
   </script>
 </body>
 </html>`;
-}
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }

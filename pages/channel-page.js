@@ -283,7 +283,7 @@ export function generateChannelPage(options = {}) {
     .related-card .placeholder { width: 48px; height: 48px; background: var(--bg-secondary); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; opacity: 0.3; }
     .related-card-info { flex: 1; min-width: 0; }
     .related-card-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .related-card-group { font-size: 0.75rem; color: var(--text-muted); }
+    .related-card-group { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     /* Copy Toast */
     .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; padding: 1rem 2rem; border-radius: var(--radius); font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 1000; }
@@ -338,7 +338,7 @@ export function generateChannelPage(options = {}) {
       .step-number { width: 28px; height: 28px; font-size: 0.8rem; }
       .related-section { margin-top: 2rem; }
       .related-section h2 { font-size: 1.1rem; }
-      .related-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+      .related-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
       .related-card { padding: 0.5rem; gap: 0.5rem; }
       .related-card img, .related-card .placeholder { width: 36px; height: 36px; }
       .related-card-name { font-size: 0.8rem; }
@@ -361,7 +361,7 @@ export function generateChannelPage(options = {}) {
       .info-card h3 { font-size: 0.9rem; }
       .how-to-watch h3 { font-size: 0.95rem; }
       .option-header h4 { font-size: 0.9rem; }
-      .related-grid { grid-template-columns: repeat(2, 1fr); }
+      .related-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
     }
   </style>
 </head>
@@ -631,7 +631,7 @@ export function generateChannelPage(options = {}) {
     const CURRENT_CHANNEL_GROUP = '${escapeJs(channel.group || '')}';
 
     // Favorites
-    const FAVORITES_KEY = 'iptv_favorites';
+    const FAVORITES_KEY = 'favorites';
     const MAX_FAVORITES = 200;
     
     function getFavorites() {
