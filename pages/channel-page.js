@@ -632,7 +632,6 @@ export function generateChannelPage(options = {}) {
 
     // Favorites
     const FAVORITES_KEY = 'favorites';
-    const MAX_FAVORITES = 200;
     
     function getFavorites() {
       try {
@@ -647,7 +646,7 @@ export function generateChannelPage(options = {}) {
 
     function toggleChannelStar() {
       const favorites = getFavorites();
-      const index = favorites.findIndex(f => f.channel_hash === CURRENT_CHANNEL_HASH);
+      const index = favorites.findIndex(f => f.hash === CURRENT_CHANNEL_HASH);
       const starBtn = document.getElementById('detailStarBtn');
       const starText = document.getElementById('starText');
       
@@ -657,17 +656,13 @@ export function generateChannelPage(options = {}) {
         starText.textContent = 'Add to Favorites';
         showToast('Removed from favorites');
       } else {
-        if (favorites.length >= MAX_FAVORITES) {
-          showToast('Maximum ' + MAX_FAVORITES + ' channels in favorites');
-          return;
-        }
         const logoImg = document.querySelector('.channel-poster-large img');
         const logo = logoImg && logoImg.src ? logoImg.src : '';
         
         favorites.push({
-          channel_hash: CURRENT_CHANNEL_HASH,
-          channel_name: CURRENT_CHANNEL_NAME,
-          group_title: CURRENT_CHANNEL_GROUP,
+          hash: CURRENT_CHANNEL_HASH,
+          name: CURRENT_CHANNEL_NAME,
+          group: CURRENT_CHANNEL_GROUP,
           logo: logo
         });
         starBtn.querySelector('span').textContent = '★';
@@ -680,7 +675,7 @@ export function generateChannelPage(options = {}) {
 
     function initDetailStarButton() {
       const favorites = getFavorites();
-      const isFavorited = favorites.some(f => f.channel_hash === CURRENT_CHANNEL_HASH);
+      const isFavorited = favorites.some(f => f.hash === CURRENT_CHANNEL_HASH);
       const starBtn = document.getElementById('detailStarBtn');
       const starText = document.getElementById('starText');
       

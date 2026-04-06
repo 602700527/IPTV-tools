@@ -197,6 +197,10 @@ export function generateCategoryPage(options = {}) {
     .btn-favorite.active { color: var(--accent); }
     .btn-favorite.active svg { fill: var(--accent); }
 
+    /* Spinner */
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     .page-footer { background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 2.5rem 1.25rem; margin-top: 3rem; }
     .footer-content { max-width: 1000px; margin: 0 auto; text-align: center; }
     .footer-copyright { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.25rem; }
@@ -463,7 +467,7 @@ export function generateCategoryPage(options = {}) {
     const MAX_DOWNLOAD = 100;
 
     // Download selected as M3U
-    function downloadSelectedM3U() {
+    async function downloadSelectedM3U() {
       const selected = getSelectedChannels();
       if (selected.length === 0) {
         showToastWarning('No channels selected', 'Please select at least one channel to download.');
@@ -475,24 +479,46 @@ export function generateCategoryPage(options = {}) {
         return;
       }
       
-      const origin = '${origin}';
-      let m3u = '#EXTM3U\\n';
-      selected.forEach(ch => {
-        const logo = ch.logo ? ' tvg-logo="' + ch.logo + '"' : '';
-        m3u += '#EXTINF:-1' + logo + ' group-title="' + ch.group + '",' + ch.name + '\\n';
-        m3u += origin + '/live/' + ch.hash + '\\n';
-      });
+      // Show loading state
+      const btn = document.querySelector('[onclick="downloadSelectedM3U()"]');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span> Generating...';
+      btn.disabled = true;
       
-      const blob = new Blob([m3u], { type: 'audio/x-mpegurl' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'channels.m3u';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToastSuccess('Download started!', selected.length + ' channels ready to import into your player.');
+      try {
+        const origin = '${origin}';
+        let m3u = '#EXTM3U\\n';
+        
+        // Fetch play links for each channel
+        for (const ch of selected) {
+          const response = await fetch(origin + '/api/play/link?hash=' + encodeURIComponent(ch.hash));
+          const data = await response.json();
+          
+          let playUrl = data.play_link || (origin + '/play/error/' + ch.hash);
+          
+          const logo = ch.logo ? ' tvg-logo="' + ch.logo + '"' : '';
+          m3u += '#EXTINF:-1' + logo + ' group-title="' + ch.group + '",' + ch.name + '\\n';
+          m3u += playUrl + '\\n';
+        }
+        
+        const timestamp = new Date().toISOString().replace(/[:-]/g, '').replace('T', '_').slice(0, 15);
+        const blob = new Blob([m3u], { type: 'audio/x-mpegurl' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'channels_' + timestamp + '.m3u';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToastSuccess('Download started!', selected.length + ' channels ready to import into your player.');
+      } catch (error) {
+        console.error('M3U download error:', error);
+        showToastError('Download failed', 'Failed to generate M3U. Please try again.');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
     }
 
     // Initialize favorite buttons
