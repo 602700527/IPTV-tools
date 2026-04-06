@@ -404,21 +404,51 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         if (staticResponse) {
           return staticResponse;
         }
-        // Fallback: 动态生成频道详情页
+        
+        // 动态生成频道详情页 - 服务端预渲染
         const { generateChannelPage } = await import('./pages/channel-page.js');
         const db = await initDB(env);
-        const channel = await db.prepare(`
-          SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active
-          FROM channels c WHERE c.channel_hash = ? AND c.is_active = 1
-        `).bind(hash).first();
+        
+        // 获取所有频道（用于同分类推荐）
+        const allChannelsResult = await db.prepare(`
+          SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active, c.source_id, s.name as source_name
+          FROM channels c
+          INNER JOIN sources s ON c.source_id = s.id
+          WHERE c.is_active = 1 AND s.is_active = 1
+        `).all();
+        
+        const allChannels = allChannelsResult.results || [];
+        
+        // 获取当前频道
+        const channel = allChannels.find(ch => ch.channel_hash === hash);
         
         if (!channel) {
           return await generate404Page(request, env);
         }
         
+        // 获取同分类的其他频道（用于侧边栏推荐）
+        const relatedChannels = allChannels
+          .filter(ch => ch.group_title === channel.group_title && ch.channel_hash !== hash)
+          .slice(0, 10)
+          .map(ch => ({
+            name: ch.channel_name,
+            hash: ch.channel_hash,
+            logo: ch.logo,
+            group: ch.group_title
+          }));
+        
         const html = generateChannelPage({ 
           origin: url.origin, 
-          hash: hash
+          hash: hash,
+          channel: {
+            id: channel.id,
+            name: channel.channel_name,
+            group: channel.group_title,
+            logo: channel.logo,
+            playUrl: channel.play_url,
+            sourceName: channel.source_name
+          },
+          relatedChannels: relatedChannels
         });
         return new Response(html, {
           headers: {
