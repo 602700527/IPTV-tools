@@ -39,7 +39,6 @@ export function generateCategoryPage(options = {}) {
         '<button class="btn-favorite" onclick="toggleFavorite(\'' + ch.hash + '\')" title="Add to favorites">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' +
         '</button>' +
-        '<a href="' + origin + '/live/' + ch.hash + '" class="btn-play" title="Play">▶</a>' +
       '</div>';
     }).join('') + '</div>';
   } else {
@@ -197,8 +196,6 @@ export function generateCategoryPage(options = {}) {
     .btn-favorite:hover { color: var(--accent); background: var(--bg-hover); }
     .btn-favorite.active { color: var(--accent); }
     .btn-favorite.active svg { fill: var(--accent); }
-    .btn-play { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: var(--accent); border: none; color: #fff; border-radius: 50%; font-size: 0.8rem; transition: all var(--transition); }
-    .btn-play:hover { background: var(--accent-hover); transform: scale(1.05); }
 
     .page-footer { background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 2.5rem 1.25rem; margin-top: 3rem; }
     .footer-content { max-width: 1000px; margin: 0 auto; text-align: center; }
@@ -239,7 +236,7 @@ export function generateCategoryPage(options = {}) {
       .btn { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
       .ch-logo { width: 40px; height: 28px; }
       .ch-logo-placeholder { width: 40px; height: 28px; font-size: 1rem; }
-      .btn-favorite, .btn-play { width: 32px; height: 32px; }
+      .btn-favorite { width: 32px; height: 32px; }
     }
   </style>
 </head>
