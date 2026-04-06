@@ -222,7 +222,7 @@ export function generateHomePage(options = {}) {
   <section class="category-showcase">
     <div class="showcase-header">
       <h2>Browse by Category</h2>
-      <p>Explore our channel collection organized by category</p>
+      <p>Discover thousands of free live TV channels across all categories - CCTV, Sports, Movies, News and more</p>
     </div>
     <div class="category-grid" id="categoryGrid">
       <div class="loading">Loading categories...</div>

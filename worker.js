@@ -303,13 +303,6 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       // Fallback: 动态生成分类页
       // 需要把 slug 转回真实的 category name（因为数据库存的是原名）
       const db = await initDB(env);
-      const groupsResult = await db.prepare(`
-        SELECT DISTINCT c.group_title
-        FROM channels c
-        INNER JOIN sources s ON c.source_id = s.id
-        WHERE c.is_active = 1 AND s.is_active = 1
-          AND c.group_title IS NOT NULL AND c.group_title != ''
-      `).all();
       
       // slugify 函数：和 seo-handler.js 中的一致（支持中文、emoji）
       const slugify = (str) => {
@@ -322,6 +315,33 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           .replace(/^-+|-+$/g, '');
       };
       
+      // 获取所有频道（用于构建分类列表）
+      const allChannelsResult = await db.prepare(`
+        SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active, c.source_id, s.name as source_name
+        FROM channels c
+        INNER JOIN sources s ON c.source_id = s.id
+        WHERE c.is_active = 1 AND s.is_active = 1
+      `).all();
+      
+      const allChannels = allChannelsResult.results || [];
+      
+      // 获取所有分组并计算每个分组的频道数量
+      const groupCounts = {};
+      allChannels.forEach(ch => {
+        const group = ch.group_title || 'Other';
+        groupCounts[group] = (groupCounts[group] || 0) + 1;
+      });
+      
+      // 获取所有分组
+      const groupsResult = await db.prepare(`
+        SELECT DISTINCT c.group_title
+        FROM channels c
+        INNER JOIN sources s ON c.source_id = s.id
+        WHERE c.is_active = 1 AND s.is_active = 1
+          AND c.group_title IS NOT NULL AND c.group_title != ''
+        ORDER BY c.group_title
+      `).all();
+      
       // 找到匹配的分类
       const matchedGroup = (groupsResult.results || []).find(g => slugify(g.group_title) === slug);
       
@@ -329,11 +349,45 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         return await generate404Page(request, env);
       }
       
+      // 构建分类列表（用于侧边栏）
+      const categorySVGs = {
+        'cctv': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 19h10M12 19v-3"/></svg>',
+        'sports': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2c5 0 9 4 9 9s-4 9-9 9-9-4-9-9 4-9 9-9z"/></svg>',
+        'news': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2zm0 0a2 2 0 01-2-2v-9c0-1.1.9-2 2-2h2"/></svg>',
+        'movie': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2.5"/><path d="M2 7l5 3-5 3V7zM12 4v13M22 7l-5 3 5 3V7z"/></svg>',
+        'entertainment': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20M10 4v4M14 4v4"/></svg>',
+        'music': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+        'kids': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>',
+        'other': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 19h10M12 19v-3"/></svg>'
+      };
+      
+      const categories = groupsResult.results.map(g => {
+        const catSlug = slugify(g.group_title);
+        return {
+          name: g.group_title,
+          slug: catSlug,
+          count: groupCounts[g.group_title] || 0,
+          icon: categorySVGs[catSlug.toLowerCase()] || categorySVGs['other']
+        };
+      });
+      
+      // 获取当前分类的频道
+      const categoryChannels = allChannels
+        .filter(ch => ch.group_title === matchedGroup.group_title)
+        .map(ch => ({
+          name: ch.channel_name,
+          hash: ch.channel_hash,
+          logo: ch.logo,
+          group: ch.group_title
+        }));
+      
       const { generateCategoryPage } = await import('./pages/category-page.js');
       const html = generateCategoryPage({ 
         origin: url.origin, 
         category: matchedGroup.group_title,
-        slug: slug
+        slug: slug,
+        categories: categories,
+        channels: categoryChannels
       });
       return new Response(html, {
         headers: {
@@ -364,7 +418,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         
         const html = generateChannelPage({ 
           origin: url.origin, 
-          channelHash: hash
+          hash: hash
         });
         return new Response(html, {
           headers: {

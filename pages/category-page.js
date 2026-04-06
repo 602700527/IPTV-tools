@@ -1,7 +1,55 @@
-// Category Page - HTML shell that loads data via API
+// Category Page - HTML shell with server-side rendered content
 
 export function generateCategoryPage(options = {}) {
-  const { origin = 'https://iptv-search.com', slug = '', category = '' } = options;
+  const { 
+    origin = 'https://iptv-search.com', 
+    slug = '', 
+    category = '',
+    categories = [],  // Pre-rendered categories array
+    channels = []     // Pre-rendered channels array for current category
+  } = options;
+
+  // Build category list HTML
+  const categoryListHtml = categories.length > 0 ? categories.map(cat => {
+    const isActive = cat.slug === slug ? ' active' : '';
+    return '<a href="' + origin + '/category/' + encodeURIComponent(cat.slug) + '" class="category-item' + isActive + '">' +
+      '<span class="cat-name">' + escapeHtml(cat.name) + '</span>' +
+      '<span class="cat-count">' + cat.count + '</span>' +
+    '</a>';
+  }).join('') : '<div style="padding:1rem;font-size:0.85rem;color:var(--text-muted);">No categories</div>';
+
+  // Build channel grid HTML
+  let channelGridHtml = '';
+  if (channels.length > 0) {
+    channelGridHtml = '<div class="channel-grid">' + channels.map(ch => {
+      const logoHtml = ch.logo 
+        ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '">' 
+        : '<div class="placeholder">📺</div>';
+      return '<a href="' + origin + '/channel/' + ch.hash + '" class="channel-card">' +
+        '<div class="channel-poster">' + logoHtml + '</div>' +
+        '<div class="channel-info">' +
+          '<div class="channel-name">' + escapeHtml(ch.name) + '</div>' +
+          '<div class="channel-group">' + escapeHtml(ch.group || category) + '</div>' +
+        '</div>' +
+      '</a>';
+    }).join('') + '</div>';
+  } else {
+    channelGridHtml = '<p class="loading">No channels found in this category</p>';
+  }
+
+  // Generate JSON-LD
+  const jsonLd = channels.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": category + " Channels",
+    "numberOfItems": channels.length,
+    "itemListElement": channels.slice(0, 10).map((ch, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "name": ch.name,
+      "url": origin + "/channel/" + ch.hash
+    }))
+  } : null;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -104,7 +152,16 @@ export function generateCategoryPage(options = {}) {
     .category-stats { display: flex; gap: 1.5rem; margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); }
     .category-stats span { display: flex; align-items: center; gap: 0.3rem; }
 
-    .main-container { max-width: 1400px; margin: 0 auto; padding: 0 2rem 2rem; }
+    .page-layout { display: flex; max-width: 1400px; margin: 0 auto; padding: 0 2rem 2rem; gap: 2rem; }
+    .sidebar { width: 220px; flex-shrink: 0; }
+    .sidebar-title { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; padding-left: 0.5rem; }
+    .category-list { display: flex; flex-direction: column; gap: 0.25rem; }
+    .category-item { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.75rem; border-radius: var(--radius); color: var(--text-secondary); font-size: 0.9rem; transition: all var(--transition); }
+    .category-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .category-item.active { background: var(--accent); color: #fff; }
+    .category-item .cat-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .category-item .cat-count { font-size: 0.75rem; opacity: 0.7; margin-left: 0.5rem; }
+    .main-container { flex: 1; min-width: 0; }
     .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
     .channel-card {
       background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
@@ -138,10 +195,21 @@ export function generateCategoryPage(options = {}) {
       .logo-icon svg { width: 32px; height: 32px; }
       .logo-text { display: none; }
       .search-box { width: 100%; order: 3; margin-top: 0.5rem; }
+      .search-box input { padding: 0.5rem 1rem 0.5rem 2.5rem; font-size: 0.9rem; }
+      .search-box::before { font-size: 0.9rem; left: 0.8rem; }
+      .header-actions { gap: 0.25rem; flex-shrink: 0; }
+      .header-actions .pill-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
+      .header-actions .pill-btn span { display: none; }
+      .theme-toggle { width: 32px; height: 32px; background: transparent; border: none; padding: 0; flex-shrink: 0; }
+      .account-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
       .breadcrumb { padding: 1rem 1rem 0; font-size: 0.8rem; overflow-x: auto; white-space: nowrap; }
       .category-header { padding: 1.5rem 1rem 1rem; }
       .category-header h1 { font-size: 1.5rem; }
-      .main-container { padding: 0 1rem 1.5rem; }
+      .page-layout { flex-direction: column; padding: 0 1rem 1.5rem; gap: 1rem; }
+      .sidebar { width: 100%; }
+      .category-list { flex-direction: row; flex-wrap: wrap; gap: 0.5rem; }
+      .category-item { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+      .main-container { width: 100%; }
       .channel-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
     }
     @media (max-width: 480px) {
@@ -204,14 +272,22 @@ export function generateCategoryPage(options = {}) {
     <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" style="vertical-align:middle;margin-right:0.3em"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>${escapeHtml(category)} Channels</h1>
     <p>Watch all ${escapeHtml(category)} channels live.</p>
     <div class="category-stats">
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align:middle"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg> <span id="channelCount">--</span> channels</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align:middle"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg> <span id="channelCount">${channels.length}</span> channels</span>
       <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align:middle"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/></svg> Updated daily</span>
     </div>
   </div>
 
-  <main class="main-container">
-    <div id="channelGrid">
-      <div class="loading">Loading channels...</div>
+  <main class="page-layout">
+    <aside class="sidebar">
+      <div class="sidebar-title">All Categories</div>
+      <div class="category-list">
+        ${categoryListHtml}
+      </div>
+    </aside>
+    <div class="main-container">
+      <div id="channelGrid">
+        ${channelGridHtml}
+      </div>
     </div>
   </main>
 
@@ -236,7 +312,7 @@ export function generateCategoryPage(options = {}) {
     </div>
   </footer>
 
-  <script id="json-ld" type="application/ld+json"></script>
+  ${jsonLd ? '<script id="json-ld" type="application/ld+json">' + JSON.stringify(jsonLd) + '</script>' : ''}
 
   <script>
     function escapeHtml(str) {
@@ -252,62 +328,6 @@ export function generateCategoryPage(options = {}) {
       html.setAttribute('data-theme', next);
       localStorage.setItem('theme', next);
     });
-
-    // Load category data from API
-    async function loadCategoryData() {
-      const slug = '${escapeJs(slug)}';
-      const origin = '${origin}';
-      const channelGrid = document.getElementById('channelGrid');
-      const channelCount = document.getElementById('channelCount');
-
-      try {
-        const response = await fetch(origin + '/api/category/' + encodeURIComponent(slug));
-        if (!response.ok) {
-          channelGrid.innerHTML = '<p class="loading">Category not found</p>';
-          return;
-        }
-        const data = await response.json();
-        const channels = data.data?.channels || [];
-        const categoryName = data.data?.category || slug;
-
-        channelCount.textContent = channels.length;
-
-        if (channels.length > 0) {
-          channelGrid.innerHTML = '<div class="channel-grid">' + channels.map(ch => {
-            const logoHtml = ch.logo ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '">' : '<div class="placeholder">📺</div>';
-            return '<a href="' + origin + '/channel/' + ch.hash + '" class="channel-card">' +
-              '<div class="channel-poster">' + logoHtml + '</div>' +
-              '<div class="channel-info">' +
-                '<div class="channel-name">' + escapeHtml(ch.name) + '</div>' +
-                '<div class="channel-group">' + escapeHtml(ch.group || categoryName) + '</div>' +
-              '</div>' +
-            '</a>';
-          }).join('') + '</div>';
-
-          // Inject JSON-LD
-          const jsonLd = {
-            "@context": "https://schema.org",
-            "@type": "ItemList",
-            "name": categoryName + " Channels",
-            "numberOfItems": channels.length,
-            "itemListElement": channels.slice(0, 10).map((ch, i) => ({
-              "@type": "ListItem",
-              "position": i + 1,
-              "name": ch.name,
-              "url": origin + "/channel/" + ch.hash
-            }))
-          };
-          document.getElementById('json-ld').textContent = JSON.stringify(jsonLd);
-        } else {
-          channelGrid.innerHTML = '<p class="loading">No channels found in this category</p>';
-        }
-      } catch (error) {
-        console.error('Failed to load category data:', error);
-        channelGrid.innerHTML = '<p class="loading">Failed to load channels. Please refresh.</p>';
-      }
-    }
-
-    loadCategoryData();
   </script>
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
   <script>
@@ -331,9 +351,4 @@ export function generateCategoryPage(options = {}) {
 function escapeHtml(str) {
   if (!str) return '';
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-}
-
-function escapeJs(str) {
-  if (!str) return '';
-  return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
 }
