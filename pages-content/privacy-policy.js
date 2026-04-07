@@ -52,7 +52,7 @@ export const content = `
 
   <div class="section">
     <h2>Introduction</h2>
-    <p>IPTV Live ("we" or "us") respects and protects your privacy. This Privacy Policy explains how we collect, use, store, and protect your personal information. By using our service, you agree to the terms of this policy.</p>
+    <p>IPTV Search ("we" or "us") respects and protects your privacy. This Privacy Policy explains how we collect, use, store, and protect your personal information. By using our service, you agree to the terms of this policy.</p>
   </div>
 
   <div class="section">
@@ -60,7 +60,7 @@ export const content = `
     <h3>1.1 Types of information we collect:</h3>
     <ul>
       <li><strong>Browsing information:</strong> Your IP address, browser type, device information, access time, and page view records</li>
-      <li><strong>Usage information:</strong> Channels you watch, search history, favorites, and playback history (stored locally)</li>
+      <li><strong>Usage information:</strong> Search history, favorites, and channel browsing records (stored locally)</li>
       <li><strong>Technical information:</strong> Cookies, web beacons, and other tracking technologies</li>
     </ul>
 
@@ -85,7 +85,7 @@ export const content = `
   <div class="section">
     <h2>3. Information Storage</h2>
     <ul>
-      <li>Your viewing history and favorites are stored in your browser's localStorage and are not uploaded to our servers</li>
+      <li>Your favorites and browsing history are stored in your browser's localStorage and are not uploaded to our servers</li>
       <li>Server logs may contain IP addresses but are not linked to personal identity</li>
       <li>Data is protected with industry-standard security measures</li>
     </ul>

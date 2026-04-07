@@ -52,16 +52,17 @@ export const content = `
   <p class="last-updated">Last updated: January 1, 2024</p>
 
   <div class="section">
-    <h2>Welcome to IPTV Live</h2>
-    <p>Thank you for using IPTV Live service (the "Service"). By using this Service, you agree to comply with the following Terms of Service. If you do not agree to these terms, please do not use this Service.</p>
+    <h2>Welcome to IPTV Search</h2>
+    <p>Thank you for using IPTV Search service (the "Service"). By using this Service, you agree to comply with the following Terms of Service. If you do not agree to these terms, please do not use this Service.</p>
   </div>
 
   <div class="section">
     <h2>1. Service Description</h2>
     <h3>1.1 Service content:</h3>
     <ul>
-      <li>IPTV Live provides free online TV viewing services</li>
-      <li>Services include channel list, search, favorites, playback history, and other features</li>
+      <li>IPTV Search is a free IPTV channel directory and search engine</li>
+      <li>Services include channel list, search, favorites, and other features</li>
+      <li>We do not provide online video streaming or playback services</li>
       <li>Users can access the Service through a web browser</li>
     </ul>
 
@@ -97,7 +98,7 @@ export const content = `
     <h2>3. Content Copyright</h2>
     <div class="warning">
       <strong>Important Notice:</strong>
-      <p>IPTV Live is only a content aggregation platform providing channel link services. This platform does not own, produce, or store any video content. All channel content copyright belongs to their respective owners.</p>
+      <p>IPTV Search is a channel directory service that provides information about publicly available IPTV streams. This platform does not host, provide, or transmit any video content. All channel information and stream sources belong to their respective owners.</p>
     </div>
 
     <h3>3.1 Intellectual property:</h3>
