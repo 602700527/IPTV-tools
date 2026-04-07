@@ -55,7 +55,11 @@ export function generateChannelPage(options = {}) {
     '</button>' +
     '<button class="btn btn-secondary" onclick="copyM3U()">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
-      'Copy M3U Link' +
+      'M3U' +
+    '</button>' +
+    '<button class="btn btn-secondary" onclick="copyPlayLink()">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
+      'Copy Link' +
     '</button>';
 
   // Build info card rows
@@ -633,6 +637,35 @@ export function generateChannelPage(options = {}) {
         .catch(error => {
           console.error('copyM3U error:', error);
           showToast('Channel unavailable, please try another channel');
+        })
+        .finally(() => {
+          btn.innerHTML = originalContent;
+          btn.disabled = false;
+        });
+    }
+
+    function copyPlayLink() {
+      const btn = document.querySelector('[onclick="copyPlayLink()"]');
+      const originalContent = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span>';
+      btn.disabled = true;
+
+      fetch('${origin}/api/play/link?hash=' + encodeURIComponent(CURRENT_CHANNEL_HASH))
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.play_link) {
+            navigator.clipboard.writeText(data.play_link).then(() => {
+              showToast('Play link copied!', 'success');
+            }).catch(() => {
+              showToast('Failed to copy link');
+            });
+          } else {
+            showToast('Failed to get play link');
+          }
+        })
+        .catch(error => {
+          console.error('copyPlayLink error:', error);
+          showToast('Channel unavailable');
         })
         .finally(() => {
           btn.innerHTML = originalContent;

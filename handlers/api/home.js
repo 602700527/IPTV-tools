@@ -46,8 +46,8 @@ export async function handleApiHome(request, env) {
       groupCounts[group] = (groupCounts[group] || 0) + 1;
     });
 
-    // Build categories array
-    const categories = groups.slice(0, 20).map(g => {
+    // Build categories array (all groups, not limited)
+    const categories = groups.map(g => {
       const slug = slugify(g);
       return {
         name: g,

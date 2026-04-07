@@ -1,5 +1,5 @@
 // Cloudflare Worker 主入口文件
-import { initDB, createTables, isMallEnabled } from './database.js';
+import { initDB, createTables, isMallEnabled, getDB } from './database.js';
 import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest } from './handlers/sub.js';
 import { handleGetPlayLink, handleIPPlayRequest, handleGetPlayLinkStatus } from './handlers/ip-play.js';
@@ -851,10 +851,101 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       // 管理后台API处理
       return await handleAdminRequest(request, env, ctx);
     } else if (path === '/sitemap.xml') {
-      // TODO: Serve sitemap from R2 (静态生成)
-      // 临时返回 placeholder
-      return new Response('<?xml version="1.0"?><sitemap><loc>/</loc></sitemap>', {
-        headers: { 'Content-Type': 'application/xml; charset=utf-8' }
+      // 动态生成 sitemap.xml
+      const baseUrl = url.origin;
+      let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n';
+      sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+      
+      // 静态页面
+      const staticPages = [
+        { loc: '/', priority: '1.0', changefreq: 'daily' },
+        { loc: '/favorites', priority: '0.8', changefreq: 'weekly' },
+        { loc: '/plans', priority: '0.8', changefreq: 'weekly' },
+        { loc: '/account', priority: '0.6', changefreq: 'monthly' },
+        { loc: '/tutorial', priority: '0.7', changefreq: 'monthly' },
+        { loc: '/privacy-policy', priority: '0.5', changefreq: 'yearly' },
+        { loc: '/terms', priority: '0.5', changefreq: 'yearly' }
+      ];
+      
+      staticPages.forEach(page => {
+        sitemap += '  <url>\n';
+        sitemap += `    <loc>${baseUrl}${page.loc}</loc>\n`;
+        sitemap += `    <changefreq>${page.changefreq}</changefreq>\n`;
+        sitemap += `    <priority>${page.priority}</priority>\n`;
+        sitemap += '  </url>\n';
+      });
+      
+      // 从数据库获取全部分类和频道（频道限制1000但覆盖所有分类）
+      try {
+        const db = getDB();
+        
+        // 获取所有分类
+        const categories = await db.prepare(`
+          SELECT DISTINCT channel_group as category, COUNT(*) as count 
+          FROM channels 
+          WHERE is_active = 1 AND channel_group IS NOT NULL AND channel_group != ''
+          GROUP BY channel_group 
+          ORDER BY count DESC
+        `).all();
+        
+        categories.forEach(cat => {
+          sitemap += '  <url>\n';
+          sitemap += `    <loc>${baseUrl}/category/${encodeURIComponent(cat.category)}</loc>\n`;
+          sitemap += '    <changefreq>daily</changefreq>\n';
+          sitemap += '    <priority>0.8</priority>\n';
+          sitemap += '  </url>\n';
+        });
+        
+        // 获取频道：每个分类至少1个，随机抽取总共不超1000
+        // 首先获取每个分类的第一个频道（保证覆盖）
+        const channels = await db.prepare(`
+          SELECT c.hash, c.name, c.channel_group 
+          FROM channels c
+          WHERE c.is_active = 1
+          ORDER BY c.channel_group, c.view_count DESC
+        `).all();
+        
+        // 按分类组织，用Set去重，确保每个分类至少1个
+        const categorySeen = new Set();
+        const selectedChannels = [];
+        
+        for (const ch of channels) {
+          if (!categorySeen.has(ch.channel_group)) {
+            selectedChannels.push(ch);
+            categorySeen.add(ch.channel_group);
+            if (selectedChannels.length >= 1000) break;
+          }
+        }
+        
+        // 如果还没到1000，随机补充其他频道
+        if (selectedChannels.length < 1000) {
+          const otherChannels = channels.filter(ch => !selectedChannels.some(s => s.hash === ch.hash));
+          for (const ch of otherChannels) {
+            selectedChannels.push(ch);
+            if (selectedChannels.length >= 1000) break;
+          }
+        }
+        
+        selectedChannels.forEach(ch => {
+          sitemap += '  <url>\n';
+          sitemap += `    <loc>${baseUrl}/channel/${ch.hash}</loc>\n`;
+          sitemap += '    <changefreq>weekly</changefreq>\n';
+          sitemap += '    <priority>0.7</priority>\n';
+          sitemap += '  </url>\n';
+        });
+        
+        console.log(`Sitemap: ${categories.length} categories, ${selectedChannels.length} channels`);
+      } catch (e) {
+        console.error('Sitemap: Failed to fetch data:', e);
+      }
+      
+      sitemap += '</urlset>';
+      
+      return new Response(sitemap, {
+        headers: { 
+          'Content-Type': 'application/xml; charset=utf-8',
+          'Cache-Control': 'public, max-age=3600'
+        }
       });
     } else if (path === '/robots.txt') {
       // Robots.txt
