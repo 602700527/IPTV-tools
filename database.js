@@ -420,6 +420,13 @@ export async function createTables(env) {
       await db.prepare('ALTER TABLE ad_ts_files ADD COLUMN description TEXT').run();
       console.log('Database: Added description column to ad_ts_files table');
     }
+
+    // 检查并添加 remote_url 字段（用于远程广告文件）
+    const hasRemoteUrlColumn = columns.some(col => col.name === 'remote_url');
+    if (!hasRemoteUrlColumn) {
+      await db.prepare('ALTER TABLE ad_ts_files ADD COLUMN remote_url TEXT').run();
+      console.log('Database: Added remote_url column to ad_ts_files table');
+    }
   } catch (e) {
     console.error('Database: Failed to migrate ad_ts_files table:', e);
   }
@@ -2372,9 +2379,37 @@ export async function getBoundAdByAction(actionType, clientIP) {
 
   // 如果有ad_id但没有content，查询广告详情
   const adFile = await db.prepare('SELECT * FROM ad_ts_files WHERE id = ? AND is_active = 1').bind(binding.ad_id).first();
-  if (!adFile || !adFile.content) {
+  if (!adFile) {
     return null;
   }
+
+  // 如果有本地content，直接返回
+  if (adFile.content) {
+    return {
+      id: adFile.id,
+      ad_id: adFile.id,
+      name: adFile.name,
+      content: adFile.content,
+      ad_type: adFile.ad_type,
+      remote_url: adFile.remote_url,
+      cooldown_seconds: binding.cooldown_seconds
+    };
+  }
+
+  // 如果有远程URL，也返回广告对象（会在handleAdTsFile中获取远程内容）
+  if (adFile.remote_url) {
+    return {
+      id: adFile.id,
+      ad_id: adFile.id,
+      name: adFile.name,
+      content: null,
+      ad_type: adFile.ad_type,
+      remote_url: adFile.remote_url,
+      cooldown_seconds: binding.cooldown_seconds
+    };
+  }
+
+  return null;
 
   return {
     id: adFile.id,

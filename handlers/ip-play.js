@@ -119,7 +119,7 @@ export async function handleIPPlayRequest(request, env, ctx) {
     if (result.error.includes('Maximum IP limit')) {
       const adBinding = await getBoundAdByAction('copy_link_ip_limit', clientIP);
       if (adBinding) {
-        const adTsUrl = `${url.origin}/api/ads/${adBinding.id}.ts`;
+        const adTsUrl = `${url.origin}/api/ads/${adBinding.ad_id}.ts`;
         console.log(`[IPPlay] IP limit reached, serving ad for copy_link_ip_limit, redirecting to: ${adTsUrl}`);
         return new Response(null, {
           status: 302,
@@ -177,7 +177,7 @@ export async function handleIPPlayRequest(request, env, ctx) {
   // 检查广告绑定 - copy_link_normal
   const adBinding = await getBoundAdByAction('copy_link_normal', clientIP);
   if (adBinding) {
-    const adTsUrl = `${url.origin}/api/ads/${adBinding.id}.ts`;
+    const adTsUrl = `${url.origin}/api/ads/${adBinding.ad_id}.ts`;
     console.log(`[IPPlay] Serving ad for copy_link_normal, redirecting to: ${adTsUrl}`);
     return new Response(null, {
       status: 302,

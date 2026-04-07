@@ -1634,16 +1634,54 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST' && adTsSubAction === 'upload') {
-          // 上传广告TS文件
+          // 上传广告TS文件 或 添加远程广告URL
           const formData = await request.formData();
           const file = formData.get('file');
           const name = formData.get('name');
           const adType = formData.get('ad_type') || 'normal';
           const description = formData.get('description') || '';
           const isActive = formData.get('is_active') === 'true';
+          const remoteUrl = formData.get('remote_url') || '';
 
+          const db = getDB();
+          const now = new Date().toISOString();
+
+          // 如果提供了远程URL，则不需要上传文件
+          if (remoteUrl) {
+            // 验证远程URL格式
+            try {
+              new URL(remoteUrl);
+            } catch (e) {
+              return new Response(JSON.stringify({
+                success: false,
+                error: '远程URL格式无效'
+              }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+            }
+
+            // 保存远程URL
+            await db.prepare(`
+              INSERT INTO ad_ts_files (name, content, ad_type, description, is_active, remote_url, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `).bind(
+              name || '远程广告',
+              '',
+              adType,
+              description,
+              isActive ? 1 : 0,
+              remoteUrl,
+              now,
+              now
+            ).run();
+
+            return new Response(JSON.stringify({
+              success: true,
+              message: '远程广告URL添加成功'
+            }), { headers: { 'Content-Type': 'application/json' } });
+          }
+
+          // 如果没有文件也没有远程URL，返回错误
           if (!file) {
-            return new Response(JSON.stringify({ success: false, error: 'No file provided' }), {
+            return new Response(JSON.stringify({ success: false, error: '请上传TS文件或填写远程广告URL' }), {
               status: 400,
               headers: { 'Content-Type': 'application/json' }
             });
@@ -1659,20 +1697,17 @@ export async function handleAdminRequest(request, env, ctx) {
           }
           const base64 = btoa(binary);
 
-          // 检查 Base64 编码后的大小（D1 限制约 1MB，但实际可能有 1.5MB 左右的余量）
-          // Base64 编码后大小约为原始大小的 4/3
-          if (base64.length > 1.5 * 1024 * 1024) {
+          // 检查 Base64 编码后的大小 (D1 实际限制约 1MB)
+          // Base64 编码后大小约为原始大小的 4/3，我们保留约 800KB 的安全余量
+          if (base64.length > 800 * 1024) {
             return new Response(JSON.stringify({
               success: false,
-              error: `文件大小超出数据库限制 (${(file.size / 1024).toFixed(2)}KB)，编码后 ${(base64.length / 1024).toFixed(2)}KB > 1.5MB`
+              error: `文件大小超出数据库限制 (${(file.size / 1024).toFixed(2)}KB)，编码后 ${(base64.length / 1024).toFixed(2)}KB > 800KB。建议压缩TS文件内容`
             }), {
               status: 400,
               headers: { 'Content-Type': 'application/json' }
             });
           }
-
-          const db = getDB();
-          const now = new Date().toISOString();
 
           try {
             const result = await db.prepare(`
@@ -2260,12 +2295,45 @@ export async function handleAdTsFile(request, env, ctx) {
   // 查询广告TS文件
   const adFile = await db.prepare('SELECT * FROM ad_ts_files WHERE id = ?').bind(adIdNum).first();
 
-  if (!adFile || !adFile.content) {
-    console.log('[AdTS] Ad file not found or empty content:', adIdNum);
+  if (!adFile) {
+    console.log('[AdTS] Ad file not found:', adIdNum);
     return new Response('Ad not found', { status: 404 });
   }
 
-  console.log('[AdTS] Serving ad file:', adIdNum, 'name:', adFile.name, 'content length:', adFile.content.length);
+  // 如果没有本地content，尝试获取远程URL内容
+  let content = adFile.content;
+  if (!content && adFile.remote_url) {
+    try {
+      console.log('[AdTS] Fetching remote ad content:', adFile.remote_url);
+      const remoteResponse = await fetch(adFile.remote_url);
+      if (remoteResponse.ok) {
+        const arrayBuffer = await remoteResponse.arrayBuffer();
+        // 使用chunked方式编码，避免栈溢出
+        const uint8Array = new Uint8Array(arrayBuffer);
+        let binaryString = '';
+        const chunkSize = 8192;
+        for (let i = 0; i < uint8Array.length; i += chunkSize) {
+          const chunk = uint8Array.slice(i, i + chunkSize);
+          binaryString += String.fromCharCode.apply(null, chunk);
+        }
+        content = btoa(binaryString);
+        console.log('[AdTS] Fetched remote content length:', content.length);
+      } else {
+        console.error('[AdTS] Failed to fetch remote URL:', remoteResponse.status);
+        return new Response('Failed to load remote ad content', { status: 502 });
+      }
+    } catch (fetchError) {
+      console.error('[AdTS] Fetch error:', fetchError);
+      return new Response('Failed to load remote ad content', { status: 502 });
+    }
+  }
+
+  if (!content) {
+    console.log('[AdTS] Ad file has no content:', adIdNum);
+    return new Response('Ad content not available', { status: 404 });
+  }
+
+  console.log('[AdTS] Serving ad file:', adIdNum, 'name:', adFile.name, 'content length:', content.length);
 
   // 解码base64内容
   try {

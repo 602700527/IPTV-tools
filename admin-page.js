@@ -4048,7 +4048,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       const modalHtml = '<div id="uploadAdModal" class="modal active">' +
         '<div class="modal-content">' +
           '<div class="modal-header">' +
-            '<h3>上传广告TS文件</h3>' +
+            '<h3>添加广告</h3>' +
             '<button class="close-btn" onclick="closeUploadAdModal()">&times;</button>' +
           '</div>' +
           '<div style="padding:20px;">' +
@@ -4070,11 +4070,33 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               '<input type="text" id="adDescription" placeholder="例如：春节促销活动" style="width:100%;">' +
             '</div>' +
             '<div class="form-group">' +
-              '<label>选择TS文件</label>' +
-              '<input type="file" id="adTsFile" accept=".ts" style="width:100%;">' +
-              '<small style="color:#86868b;font-size:12px;margin-top:4px;display:block;">' +
-                ' 支持.ts格式，建议文件大小不超过1MB' +
-              '</small>' +
+              '<label>广告来源 (二选一)</label>' +
+              '<div style="display:flex;gap:8px;align-items:center;margin-top:8px;">' +
+                '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;">' +
+                  '<input type="radio" name="adSource" value="upload" checked onclick="toggleAdSource(&quot;upload&quot;)"> 上传TS文件' +
+                '</label>' +
+                '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;">' +
+                  '<input type="radio" name="adSource" value="remote" onclick="toggleAdSource(&quot;remote&quot;)"> 远程URL' +
+                '</label>' +
+              '</div>' +
+            '</div>' +
+            '<div id="uploadSection">' +
+              '<div class="form-group">' +
+                '<label>选择TS文件</label>' +
+                '<input type="file" id="adTsFile" accept=".ts" style="width:100%;">' +
+                '<small style="color:#86868b;font-size:12px;margin-top:4px;display:block;">' +
+                  ' 支持.ts格式，建议文件大小不超过800KB' +
+                '</small>' +
+              '</div>' +
+            '</div>' +
+            '<div id="remoteSection" style="display:none;">' +
+              '<div class="form-group">' +
+                '<label>远程广告URL</label>' +
+                '<input type="url" id="adRemoteUrl" placeholder="https://example.com/ad.ts" style="width:100%;">' +
+                '<small style="color:#86868b;font-size:12px;margin-top:4px;display:block;">' +
+                  ' 输入广告TS文件的直接下载链接' +
+                '</small>' +
+              '</div>' +
             '</div>' +
             '<div class="form-group">' +
               '<label>' +
@@ -4084,12 +4106,17 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             '</div>' +
             '<div class="modal-footer">' +
               '<button class="btn" onclick="closeUploadAdModal()">取消</button>' +
-              '<button class="btn btn-primary" onclick="uploadAdTs()">上传</button>' +
+              '<button class="btn btn-primary" onclick="uploadAdTs()">保存</button>' +
             '</div>' +
           '</div>' +
         '</div>' +
       '</div>';
       document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+
+    function toggleAdSource(source) {
+      document.getElementById('uploadSection').style.display = source === 'upload' ? 'block' : 'none';
+      document.getElementById('remoteSection').style.display = source === 'remote' ? 'block' : 'none';
     }
 
     function closeUploadAdModal() {
@@ -4105,37 +4132,60 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       const typeInput = document.getElementById('adType');
       const descInput = document.getElementById('adDescription');
       const activeInput = document.getElementById('adIsActive');
+      const remoteUrlInput = document.getElementById('adRemoteUrl');
 
-      if (!fileInput.files || fileInput.files.length === 0) {
-        showToast('请选择TS文件', 'error');
-        return;
-      }
+      // 获取选择的广告来源
+      const sourceRadio = document.querySelector('input[name="adSource"]:checked');
+      const source = sourceRadio ? sourceRadio.value : 'upload';
 
-      const file = fileInput.files[0];
-      const name = nameInput.value || file.name;
+      const name = nameInput ? nameInput.value : '';
       const adType = typeInput ? typeInput.value : 'normal';
       const description = descInput ? descInput.value : '';
       const isActive = activeInput ? activeInput.checked : true;
+      const remoteUrl = remoteUrlInput ? remoteUrlInput.value.trim() : '';
 
-      // 检查文件类型
-      if (!file.name.endsWith('.ts')) {
-        showToast('只支持.ts格式的文件', 'error');
-        return;
+      // 验证：必须选择其一
+      if (source === 'upload') {
+        if (!fileInput.files || fileInput.files.length === 0) {
+          showToast('请选择TS文件', 'error');
+          return;
+        }
+        const file = fileInput.files[0];
+        if (!file.name.endsWith('.ts')) {
+          showToast('只支持.ts格式的文件', 'error');
+          return;
+        }
+      } else if (source === 'remote') {
+        if (!remoteUrl) {
+          showToast('请输入远程广告URL', 'error');
+          return;
+        }
+        // 简单验证URL格式
+        try {
+          new URL(remoteUrl);
+        } catch (e) {
+          showToast('远程URL格式无效', 'error');
+          return;
+        }
       }
-
-      // 注意：前端不做硬性限制，让后端检查 Base64 编码后的实际大小
-      // D1 实际限制约 1.5MB，Base64 编码后约为原始大小的 4/3
-      // 建议文件大小不超过 1MB 以确保安全
 
       try {
         showLoading();
 
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('name', name);
+
+        if (source === 'upload') {
+          const file = fileInput.files[0];
+          formData.append('file', file);
+          formData.append('name', name || file.name);
+        } else {
+          formData.append('name', name || '远程广告');
+        }
+
         formData.append('ad_type', adType);
         formData.append('description', description);
         formData.append('is_active', isActive.toString());
+        formData.append('remote_url', remoteUrl);
 
         const response = await fetch('/admin/ad-ts/upload', {
           method: 'POST',
@@ -4148,16 +4198,16 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         const result = await response.json();
 
         if (result.success) {
-          showToast('广告上传成功', 'success');
+          showToast(source === 'remote' ? '远程广告添加成功' : '广告上传成功', 'success');
           closeUploadAdModal();
           // 刷新列表
           await loadAdTsFiles();
         } else {
-          showToast('广告上传失败: ' + (result.error || '未知错误'), 'error');
+          showToast('操作失败: ' + (result.error || '未知错误'), 'error');
         }
       } catch (error) {
-        console.error('广告上传失败:', error);
-        showToast('广告上传失败: ' + (error.message || '未知错误'), 'error');
+        console.error('广告操作失败:', error);
+        showToast('操作失败: ' + (error.message || '未知错误'), 'error');
       } finally {
         hideLoading();
       }
