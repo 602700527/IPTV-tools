@@ -44,7 +44,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .container {
       max-width: 1000px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 0 20px;
     }
 
     .header {
@@ -596,18 +596,15 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     body {
-      padding-top: 70px !important;
     }
 
     @media (max-width: 768px) {
       body {
-        padding-top: 60px !important;
       }
     }
 
     @media (max-width: 480px) {
       body {
-        padding-top: 50px !important;
       }
     }
 
