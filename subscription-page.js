@@ -28,6 +28,34 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   <meta name="twitter:description" content="Subscribe to TV Live Service for unlimited access to live TV channels. Choose a plan that fits your needs.">
   <meta name="twitter:image" content="https://iptv-search.com/og-homepage.png">
   <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-card: #1a1a1a;
+      --bg-hover: #252525;
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.5);
+      --border: rgba(255, 255, 255, 0.1);
+      --accent: #e50914;
+      --accent-hover: #f7262c;
+      --gold: #fbbf24;
+      --success: #34c759;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #f0f0f0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border: rgba(0, 0, 0, 0.1);
+      --accent: #e50914;
+      --accent-hover: #f6121d;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -36,9 +64,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: #0a0a0a;
+      background: var(--bg-primary);
       min-height: 100vh;
-      color: #fff;
+      color: var(--text-primary);
+      transition: background 0.2s, color 0.2s;
     }
 
     .container {
@@ -58,16 +87,17 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-size: 28px;
       font-weight: 700;
       margin-bottom: 10px;
+      color: var(--text-primary);
     }
 
     .page-header-section p {
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-secondary);
       font-size: 14px;
     }
 
     /* Hero Section - Marketing Psychology: Clear Value Proposition */
     .sub-hero {
-      background: linear-gradient(135deg, #141414 0%, #0a0a0a 50%, rgba(229, 9, 20, 0.1) 100%);
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 50%, rgba(229, 9, 20, 0.1) 100%);
       border-radius: 20px;
       padding: 40px;
       margin-bottom: 40px;
@@ -89,7 +119,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     .sub-hero-badge {
       display: inline-block;
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      background: linear-gradient(135deg, var(--gold) 0%, #f59e0b 100%);
       color: #000;
       font-weight: 700;
       padding: 6px 16px;
@@ -101,14 +131,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .sub-hero-title {
       font-size: 2.5rem;
       font-weight: 800;
-      color: #fff;
+      color: var(--text-primary);
       margin-bottom: 12px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
 
     .sub-hero-subtitle {
       font-size: 1.1rem;
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--text-secondary);
       margin-bottom: 24px;
     }
 
@@ -127,22 +156,21 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       display: block;
       font-size: 1.8rem;
       font-weight: 800;
-      color: #e50914;
-      text-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
+      color: var(--accent);
     }
 
     .sub-stat-label {
       font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.5);
+      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
     .plans-container {
-      background: #141414;
+      background: var(--bg-secondary);
       backdrop-filter: blur(20px);
       border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
       padding: 30px;
       margin-bottom: 40px;
     }
@@ -152,7 +180,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .selection-label {
-      color: rgba(255, 255, 255, 0.8);
+      color: var(--text-secondary);
       font-size: 14px;
       font-weight: 600;
       margin-bottom: 15px;
@@ -166,8 +194,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .option-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid rgba(255, 255, 255, 0.1);
+      background: var(--bg-card);
+      border: 2px solid var(--border);
       border-radius: 12px;
       padding: 20px;
       cursor: pointer;
@@ -182,7 +210,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .option-card.selected {
-      border-color: #e50914;
+      border-color: var(--accent);
       background: rgba(229, 9, 20, 0.15);
       box-shadow: 0 0 20px rgba(229, 9, 20, 0.2);
     }
@@ -192,7 +220,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       position: absolute;
       top: 8px;
       right: 8px;
-      color: #e50914;
+      color: var(--accent);
       font-size: 16px;
       font-weight: bold;
     }
@@ -200,19 +228,19 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .option-title {
       font-size: 16px;
       font-weight: 700;
-      color: #fff;
+      color: var(--text-primary);
       margin-bottom: 8px;
     }
 
     .option-subtitle {
       font-size: 13px;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-secondary);
     }
 
     .option-price {
       font-size: 24px;
       font-weight: 700;
-      color: #e50914;
+      color: var(--accent);
       margin: 10px 0 5px;
     }
 
@@ -228,7 +256,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     .payment-summary {
       background: rgba(229, 9, 20, 0.1);
-      border: 2px solid #e50914;
+      border: 2px solid var(--accent);
       border-radius: 16px;
       padding: 25px;
       margin-bottom: 30px;
@@ -239,7 +267,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       justify-content: space-between;
       align-items: center;
       padding: 12px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid var(--border);
     }
 
     .summary-row:last-child {
@@ -247,12 +275,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .summary-label {
-      color: rgba(255, 255, 255, 0.8);
+      color: var(--text-secondary);
       font-size: 14px;
     }
 
     .summary-value {
-      color: #fff;
+      color: var(--text-primary);
       font-size: 16px;
       font-weight: 600;
     }
@@ -268,7 +296,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .total-label {
-      color: #fff;
+      color: var(--text-primary);
       font-size: 18px;
       font-weight: 700;
     }
@@ -276,7 +304,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .total-price {
       font-size: 36px;
       font-weight: 700;
-      color: #e50914;
+      color: var(--accent);
     }
 
     .ip-selector {
@@ -285,7 +313,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     .ip-selector label {
       display: block;
-      color: rgba(255, 255, 255, 0.8);
+      color: var(--text-secondary);
       font-size: 14px;
       margin-bottom: 8px;
       font-weight: 500;
@@ -294,10 +322,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .ip-selector select {
       width: 100%;
       padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid rgba(255, 255, 255, 0.2);
+      background: var(--bg-card);
+      border: 2px solid var(--border);
       border-radius: 10px;
-      color: #fff;
+      color: var(--text-primary);
       font-size: 16px;
       cursor: pointer;
       transition: border-color 0.2s;
@@ -305,14 +333,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     .ip-selector select:focus {
       outline: none;
-      border-color: #e50914;
+      border-color: var(--accent);
     }
 
     .payment-section {
-      background: #141414;
+      background: var(--bg-secondary);
       backdrop-filter: blur(20px);
       border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
       padding: 40px 30px;
       text-align: center;
       display: flex;
@@ -331,8 +359,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .payment-method-tab {
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid rgba(255, 255, 255, 0.1);
+      background: var(--bg-card);
+      border: 2px solid var(--border);
       border-radius: 10px;
       padding: 12px 24px;
       cursor: pointer;
@@ -348,7 +376,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .payment-method-tab.active {
-      border-color: #e50914;
+      border-color: var(--accent);
       background: rgba(229, 9, 20, 0.15);
     }
 
@@ -375,7 +403,32 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .payment-method-name {
       font-size: 14px;
       font-weight: 600;
-      color: #fff;
+      color: var(--text-primary);
+    }
+
+    /* Trust badges */
+    .trust-badges {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .trust-icon {
+      font-size: 16px;
     }
 
 
@@ -424,13 +477,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .success-content {
-      background: #141414;
+      background: var(--bg-secondary);
       backdrop-filter: blur(20px);
       border-radius: 20px;
       padding: 40px;
       max-width: 400px;
       text-align: center;
-      border: 2px solid #34c759;
+      border: 2px solid var(--success);
       box-shadow: 0 20px 60px rgba(52, 199, 89, 0.3);
     }
 
@@ -442,12 +495,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .success-title {
       font-size: 24px;
       font-weight: 700;
-      color: #fff;
+      color: var(--text-primary);
       margin-bottom: 10px;
     }
 
     .success-message {
-      color: rgba(255, 255, 255, 0.8);
+      color: var(--text-secondary);
       font-size: 14px;
       margin-bottom: 20px;
       line-height: 1.6;
@@ -455,7 +508,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     .code-display {
       background: rgba(229, 9, 20, 0.1);
-      border: 2px solid #e50914;
+      border: 2px solid var(--accent);
       border-radius: 10px;
       padding: 15px;
       margin-bottom: 15px;
@@ -468,10 +521,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       display: flex;
       align-items: center;
       justify-content: center;
+      color: var(--text-primary);
     }
 
     .copy-button {
-      background: #e50914;
+      background: var(--accent);
       color: white;
       border: none;
       padding: 12px 30px;
@@ -484,13 +538,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .copy-button:hover {
-      background: #f7262c;
+      background: var(--accent-hover);
     }
 
     .close-button {
-      background: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: var(--bg-hover);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
       padding: 12px 30px;
       border-radius: 8px;
       cursor: pointer;
@@ -501,7 +555,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .close-button:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: var(--bg-card);
     }
 
     .copy-message {
@@ -516,7 +570,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .copy-message.success {
       background: rgba(52, 199, 89, 0.15);
       border: 1px solid rgba(52, 199, 89, 0.3);
-      color: #34c759;
+      color: var(--success);
       display: block;
     }
 
@@ -530,11 +584,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .modal-tips {
       margin-top: 20px;
       padding-top: 20px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid var(--border);
     }
 
     .modal-tip {
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-secondary);
       font-size: 13px;
       line-height: 1.6;
       margin-bottom: 8px;
@@ -545,7 +599,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .modal-tip-highlight {
-      color: rgba(255, 255, 255, 0.5);
+      color: var(--text-muted);
       font-size: 12px;
       margin-top: 12px;
     }
@@ -557,9 +611,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--bg-hover);
       border: none;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-secondary);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -1070,6 +1124,27 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         padding: 10px 16px 18px 16px;
       }
     }
+
+    /* Light theme overrides */
+    [data-theme="light"] .success-content {
+      background: #ffffff;
+      border-color: var(--success);
+    }
+
+    [data-theme="light"] .close-button,
+    [data-theme="light"] .modal-close {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    [data-theme="light"] .trust-badges {
+      background: rgba(0, 0, 0, 0.03);
+      border-color: rgba(0, 0, 0, 0.08);
+    }
+
+    [data-theme="light"] .trust-badges span {
+      color: #333 !important;
+    }
   </style>
 
 </head>
@@ -1113,19 +1188,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
 
       <!-- Trust badges - Marketing Psychology: Trust Building -->
-      <div class="trust-badges" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
-        <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgba(255,255,255,0.7);">
-          <span style="color: #34c759;">🛡️</span> 7-Day Money Back
-        </span>
-        <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgba(255,255,255,0.7);">
-          <span style="color: #3b82f6;">🔒</span> Secure Payment
-        </span>
-        <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgba(255,255,255,0.7);">
-          <span style="color: #f59e0b;">💳</span> Multiple Payment Methods
-        </span>
-        <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgba(255,255,255,0.7);">
-          <span style="color: #8b5cf6;">📧</span> 24h Support
-        </span>
+      <div class="trust-badges">
+        <span class="trust-item"><span class="trust-icon">🛡️</span> 7-Day Money Back</span>
+        <span class="trust-item"><span class="trust-icon">🔒</span> Secure Payment</span>
+        <span class="trust-item"><span class="trust-icon">💳</span> Multiple Payment Methods</span>
+        <span class="trust-item"><span class="trust-icon">📧</span> 24h Support</span>
       </div>
 
       <div id="xunhupay-button-container" style="margin: 20px 0;">
