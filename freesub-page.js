@@ -35,13 +35,42 @@ export const FREE_SUB_HTML = `
       box-sizing: border-box;
     }
 
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-card: #1a1a1a;
+      --bg-hover: #252525;
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --text-muted: rgba(255, 255, 255, 0.5);
+      --border: rgba(255, 255, 255, 0.1);
+      --border-input: rgba(255, 255, 255, 0.2);
+      --accent: #e50914;
+      --accent-hover: #f7262c;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #f0f0f0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-input: rgba(0, 0, 0, 0.15);
+      --accent: #e50914;
+      --accent-hover: #f7262c;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: #0a0a0a;
+      background: var(--bg-primary);
       min-height: 100vh;
-      color: #fff;
+      color: var(--text-primary);
       display: flex;
       flex-direction: column;
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
     .main-content {
@@ -67,7 +96,7 @@ export const FREE_SUB_HTML = `
     }
 
     .header p {
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-secondary);
       font-size: 14px;
     }
 
@@ -102,25 +131,26 @@ export const FREE_SUB_HTML = `
     }
 
     .card {
-      background: #141414;
+      background: var(--bg-card);
       backdrop-filter: blur(20px);
       border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
       padding: 30px;
       margin-bottom: 30px;
+      transition: background 0.2s ease, border-color 0.2s ease;
     }
 
     .card h2 {
       font-size: 18px;
       font-weight: 700;
-      color: #fff;
+      color: var(--text-primary);
       margin-bottom: 20px;
     }
 
     .subscription-id {
       font-size: 20px;
       font-weight: 700;
-      color: #e50914;
+      color: var(--accent);
       text-align: center;
       margin-bottom: 15px;
       word-break: break-all;
@@ -135,7 +165,7 @@ export const FREE_SUB_HTML = `
       margin: 15px 0;
       word-break: break-all;
       font-size: 13px;
-      color: rgba(255, 255, 255, 0.9);
+      color: var(--text-primary);
       line-height: 1.6;
     }
 
@@ -147,38 +177,38 @@ export const FREE_SUB_HTML = `
     }
 
     .status-item {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--bg-hover);
       border-radius: 10px;
       padding: 20px 15px;
       text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
     }
 
     .status-value {
       font-size: 28px;
       font-weight: 700;
-      color: #e50914;
+      color: var(--accent);
       margin-bottom: 5px;
     }
 
     .status-label {
       font-size: 12px;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-secondary);
     }
 
     .features {
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--bg-hover);
       border-radius: 12px;
       padding: 20px;
       margin-top: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
     }
 
     .feature-item {
       display: flex;
       align-items: center;
       padding: 12px 0;
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--text-secondary);
       font-size: 14px;
       line-height: 1.6;
     }
@@ -198,12 +228,12 @@ export const FREE_SUB_HTML = `
     .checkin-section h2 {
       font-size: 18px;
       font-weight: 700;
-      color: #fff;
+      color: var(--text-primary);
       margin-bottom: 15px;
     }
 
     .checkin-desc {
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-secondary);
       font-size: 14px;
       margin-bottom: 20px;
       text-align: center;
@@ -219,43 +249,43 @@ export const FREE_SUB_HTML = `
     .captcha-input {
       flex: 1;
       padding: 14px 16px;
-      border: 2px solid rgba(255, 255, 255, 0.2);
+      border: 2px solid var(--border-input);
       border-radius: 10px;
       font-size: 16px;
       text-align: center;
       letter-spacing: 2px;
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
+      background: var(--bg-hover);
+      color: var(--text-primary);
       transition: all 0.3s ease;
       flex-shrink: 1;
     }
 
     .captcha-input:focus {
       outline: none;
-      border-color: #e50914;
-      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--accent);
+      background: var(--bg-card);
     }
 
     .captcha-canvas {
       width: 100px;
       height: 44px;
-      border: 2px solid rgba(255, 255, 255, 0.2);
+      border: 2px solid var(--border-input);
       border-radius: 10px;
       cursor: pointer;
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--bg-hover);
       flex-shrink: 0;
       transition: all 0.3s ease;
     }
 
     .captcha-canvas:hover {
-      border-color: rgba(229, 9, 20, 0.5);
+      border-color: var(--accent);
       background: rgba(229, 9, 20, 0.1);
     }
 
     .checkin-btn {
       width: 100%;
       padding: 16px;
-      background: linear-gradient(135deg, #e50914 0%, #b81d24 100%);
+      background: linear-gradient(135deg, var(--accent) 0%, #b81d24 100%);
       color: white;
       border: none;
       border-radius: 12px;
@@ -307,7 +337,7 @@ export const FREE_SUB_HTML = `
 
     .copy-btn {
       width: 100%;
-      background: #e50914;
+      background: var(--accent);
       color: white;
       border: none;
       padding: 14px;
@@ -320,7 +350,7 @@ export const FREE_SUB_HTML = `
     }
 
     .copy-btn:hover {
-      background: #f7262c;
+      background: var(--accent-hover);
       transform: translateY(-2px);
     }
 
@@ -365,8 +395,8 @@ export const FREE_SUB_HTML = `
     .spinner {
       width: 40px;
       height: 40px;
-      border: 3px solid rgba(255, 255, 255, 0.1);
-      border-top-color: #e50914;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin: 0 auto 15px;
@@ -376,9 +406,7 @@ export const FREE_SUB_HTML = `
       to { transform: rotate(360deg); }
     }
 
-    body {
-      padding-top: 70px !important;
-    }
+    
 
     @media (max-width: 768px) {
       .container {
@@ -411,9 +439,7 @@ export const FREE_SUB_HTML = `
         font-size: 15px;
       }
 
-      body {
-        padding-top: 60px !important;
-      }
+    
     }
 
     @media (max-width: 480px) {
@@ -483,53 +509,9 @@ export const FREE_SUB_HTML = `
         font-size: 13px;
       }
 
-      body {
-        padding-top: 50px !important;
-      }
+    
     }
   </style>
-  
-  <!-- Translate.js 自动翻译 -->
-  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
-  <script>
-    // 等待 translate.js 加载完成后初始化
-    function initTranslate() {
-      console.log('translate:', typeof translate);
-      console.log('window.translate:', typeof window.translate);
-      
-      // 手动将 translate 暴露到 window（兼容某些环境）
-      if (typeof translate !== 'undefined' && !window.translate) {
-        window.translate = translate;
-      }
-      
-      if (typeof translate !== 'undefined' && translate.language) {
-        translate.language.setLocal('chinese_simplified');
-        translate.service.use('client.edge');
-        translate.listener.start();
-        translate.setAutoDiscriminateLocalLanguage();
-        translate.execute();
-        console.log('Translate.js initialized successfully');
-      } else {
-        console.log('Waiting for translate.js to load...');
-        setTimeout(initTranslate, 100);
-      }
-    }
-    
-    // 页面加载完成后也尝试初始化
-    window.addEventListener('load', initTranslate);
-    initTranslate();
-    
-    // 语言切换函数
-    function changeLanguage(lang) {
-      var t = window.translate || translate;
-      if (t && t.changeLanguage) {
-        console.log('Changing language to:', lang);
-        t.changeLanguage(lang);
-      } else {
-        console.error('Translate.js not loaded yet', {translate: typeof translate, windowTranslate: typeof window.translate});
-      }
-    }
-  </script>
   ${PAGE_HEADER}
   <div class="main-content">
     <div class="container">
@@ -554,7 +536,7 @@ export const FREE_SUB_HTML = `
         <button class="copy-btn" onclick="copySubscriptionUrl()" data-i18n="copyUrl">Copy URL</button>
         <div class="copy-message" id="copyMessage"></div>
         <div style="text-align: center; margin-top: 15px;">
-          <a href="/tutorial" style="display: inline-flex; align-items: center; gap: 8px; color: #e50914; text-decoration: none; font-size: 14px; font-weight: 500;">
+          <a href="/tutorial" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 500;">
             <span>📺</span>
             <span style="text-decoration: underline;">How to add to player</span>
           </a>
@@ -800,7 +782,7 @@ export const FREE_SUB_HTML = `
           showMessage('Subscription expired over 89 days ago. Please subscribe again', 'error');
         }
       } else {
-        daysLeftEl.style.color = '#e50914'; // 正常颜色
+        daysLeftEl.style.color = ''; // 重置为默认颜色（使用CSS变量）
       }
     }
 

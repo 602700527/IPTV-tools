@@ -2,7 +2,7 @@
 export const PAGE_FOOTER = `
   <footer class="page-footer">
     <div class="footer-content">
-  <p class="footer-copyright">&copy; ${new Date().getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+  <p class="footer-copyright">&copy; 2024 IPTV Search. Free IPTV Channel Directory & Search Tool</p>
       
       <!-- SEO 友好链接 -->
       <div class="footer-links">
@@ -155,6 +155,8 @@ export const PAGE_FOOTER = `
         window.translate = translate;
       }
       if (typeof translate !== 'undefined' && translate.language) {
+        translate.selectLanguageTag.show = true;
+        translate.selectLanguageTag.documentId = 'translate';
         translate.language.setLocal('english');
         translate.service.use('client.edge');
         translate.listener.start();

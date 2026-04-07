@@ -33,13 +33,38 @@ export const PLANS_HTML = `<!DOCTYPE html>
       box-sizing: border-box;
     }
 
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-card: #1a1a1a;
+      --bg-hover: #252525;
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.6);
+      --border: rgba(255, 255, 255, 0.1);
+      --accent: #e50914;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #f0f0f0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #999999;
+      --border: rgba(0, 0, 0, 0.08);
+      --accent: #e50914;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: #0a0a0a;
+      background: var(--bg-primary);
       min-height: 100vh;
-      color: #fff;
+      color: var(--text-primary);
       display: flex;
       flex-direction: column;
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
     .main-content {
@@ -70,7 +95,7 @@ export const PLANS_HTML = `<!DOCTYPE html>
     }
 
     .plans-page-header p {
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--text-secondary);
       font-size: 16px;
     }
 
@@ -82,8 +107,8 @@ export const PLANS_HTML = `<!DOCTYPE html>
     }
 
     .plan-card {
-      background: #141414;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
       border-radius: 16px;
       padding: 32px;
       position: relative;
@@ -93,7 +118,7 @@ export const PLANS_HTML = `<!DOCTYPE html>
     .plan-card:hover {
       transform: translateY(-6px);
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
-      border-color: rgba(255, 255, 255, 0.2);
+      border-color: var(--accent);
     }
 
     .plan-card.premium {
@@ -113,8 +138,8 @@ export const PLANS_HTML = `<!DOCTYPE html>
     }
 
     .plan-badge.free {
-      background: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.8);
+      background: var(--bg-hover);
+      color: var(--text-secondary);
     }
 
     .plan-badge.premium {
@@ -137,11 +162,11 @@ export const PLANS_HTML = `<!DOCTYPE html>
     .plan-price .period {
       font-size: 15px;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-muted);
     }
 
     .plan-description {
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-muted);
       font-size: 14px;
       margin-bottom: 24px;
       line-height: 1.6;
@@ -156,12 +181,13 @@ export const PLANS_HTML = `<!DOCTYPE html>
       display: flex;
       align-items: center;
       padding: 10px 0;
-      color: rgba(255, 255, 255, 0.8);
+      color: var(--text-secondary);
       font-size: 14px;
     }
 
     .plan-features li.disabled {
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--text-muted);
+      opacity: 0.6;
     }
 
     .plan-features li svg {
@@ -176,7 +202,8 @@ export const PLANS_HTML = `<!DOCTYPE html>
     }
 
     .plan-features li.disabled svg {
-      color: rgba(255, 255, 255, 0.3);
+      color: var(--text-muted);
+      opacity: 0.5;
     }
 
     .plan-button {
@@ -194,12 +221,12 @@ export const PLANS_HTML = `<!DOCTYPE html>
     }
 
     .plan-button.free {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
+      background: var(--bg-hover);
+      color: var(--text-primary);
     }
 
     .plan-button.free:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: var(--border);
     }
 
     .plan-button.premium {
@@ -225,8 +252,8 @@ export const PLANS_HTML = `<!DOCTYPE html>
     }
 
     .faq-item {
-      background: #141414;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
       border-radius: 12px;
       margin-bottom: 12px;
       overflow: hidden;
@@ -244,7 +271,7 @@ export const PLANS_HTML = `<!DOCTYPE html>
     }
 
     .faq-question:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--bg-hover);
     }
 
     .faq-question::after {
@@ -270,7 +297,7 @@ export const PLANS_HTML = `<!DOCTYPE html>
 
     .faq-answer-content {
       padding: 0 20px 16px;
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--text-secondary);
       font-size: 14px;
       line-height: 1.6;
     }
