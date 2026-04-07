@@ -109,8 +109,8 @@ export function generateChannelPage(options = {}) {
     "description": "Watch " + channel.name + " live streaming for free on IPTV Search. " + channel.group + " category.",
     "thumbnailUrl": channel.logo || null,
     "image": channel.logo || null,
-    "contentUrl": origin + "/play/" + linkId + "/" + hash,
-    "embedUrl": origin + "/play/" + linkId + "/" + hash,
+    "contentUrl": channel.playUrl || origin + "/play/" + hash,
+    "embedUrl": channel.playUrl || origin + "/play/" + hash,
     "genre": channel.group || "TV Channel",
     "publisher": {
       "@type": "Organization",
