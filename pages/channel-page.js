@@ -1,4 +1,5 @@
 // Channel Detail Page - Server-side rendered matching template exactly
+import { PAGE_FOOTER } from '../components/page-footer.js';
 
 export function generateChannelPage(options = {}) {
   const { 
@@ -70,8 +71,8 @@ export function generateChannelPage(options = {}) {
       '<span class="info-value"><a href="' + origin + '/category/' + encodeURIComponent(channel.group || '') + '" style="color: var(--accent)">' + escapeHtml(channel.group || 'Other') + '</a></span>' +
     '</div>' +
     '<div class="info-row">' +
-      '<span class="info-label">Country/Region</span>' +
-      '<span class="info-value">China</span>' +
+      '<span class="info-label">Region</span>' +
+      '<span class="info-value">Global</span>' +
     '</div>' +
     
     '<div class="info-row">' +
@@ -543,33 +544,8 @@ export function generateChannelPage(options = {}) {
 
   <div class="toast" id="toast">Copied to clipboard!</div>
 
-  <footer class="page-footer">
-    <div class="footer-content">
-      <p class="footer-copyright">&copy; ${new Date().getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
-      
-      <div class="footer-links">
-        <a href="${origin}/tutorial">How to Watch on TV Devices</a>
-        <a href="${origin}/sitemap.xml">Sitemap</a>
-        <a href="${origin}/robots.txt">Robots</a>
-        <a href="${origin}/privacy-policy">Privacy Policy</a>
-        <a href="${origin}/terms">Terms of Service</a>
-        <a href="mailto:support@iptv-search.com">Contact Us</a>
-      </div>
-      
-      <div class="footer-badges">
-        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
-          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
-        </a>
-        <span>This site is powered by Cloudflare for acceleration and security</span>
-      </div>
-      
-      <div class="footer-disclaimer">
-        All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.
-      </div>
-    </div>
-  </footer>
+  ${PAGE_FOOTER}
 
-  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
   <script>
     function initTranslate() {
       if (typeof translate !== 'undefined' && translate.language) {
