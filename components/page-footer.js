@@ -2,7 +2,38 @@
 export const PAGE_FOOTER = `
   <footer class="page-footer">
     <div class="footer-content">
-  <p class="footer-copyright">&copy; 2024 IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+  <p class="footer-copyright">&copy; ${new Date().getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+      
+      <!-- FAQ常见问题区块 -->
+      <div class="footer-faq">
+        <h3 class="footer-faq-title">Frequently Asked Questions</h3>
+        <div class="faq-grid">
+          <details class="faq-card">
+            <summary>How can I watch IPTV for free?</summary>
+            <div class="faq-answer">Browse our directory, select a channel, and start watching instantly. No registration required.</div>
+          </details>
+          <details class="faq-card">
+            <summary>What devices are supported?</summary>
+            <div class="faq-answer">Smart TVs, Roku, Firestick, Apple TV, computers, smartphones & tablets.</div>
+          </details>
+          <details class="faq-card">
+            <summary>Is using IPTV legal?</summary>
+            <div class="faq-answer">We index public links. Users must comply with local laws in their region.</div>
+          </details>
+          <details class="faq-card">
+            <summary>Why isn't a channel playing?</summary>
+            <div class="faq-answer">Try refreshing, different player, or check your internet connection.</div>
+          </details>
+          <details class="faq-card">
+            <summary>What are the subscription plans?</summary>
+            <div class="faq-answer">Free with ads, Premium removes ads & offers HD/4K quality.</div>
+          </details>
+          <details class="faq-card">
+            <summary>How often are channels updated?</summary>
+            <div class="faq-answer">Daily updates - dead links removed & new channels added regularly.</div>
+          </details>
+        </div>
+      </div>
       
       <!-- SEO 友好链接 -->
       <div class="footer-links">
@@ -24,7 +55,7 @@ export const PAGE_FOOTER = `
       
       <!-- 免责声明 -->
       <div class="footer-disclaimer">
-        All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.
+        This site does not host or provide any IPTV streams. All channels are sourced from publicly available M3U playlists. Channels may go offline at any time as their source streams change.
       </div>
     </div>
   </footer>
@@ -103,6 +134,69 @@ export const PAGE_FOOTER = `
       margin-right: auto;
     }
 
+    /* FAQ区块样式 */
+    .footer-faq {
+      margin: 2.5rem 0;
+    }
+
+    .footer-faq-title {
+      color: var(--text-primary);
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .faq-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color var(--transition);
+    }
+
+    .faq-card:hover {
+      border-color: var(--accent);
+    }
+
+    .faq-card summary {
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      font-weight: 500;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-card summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq-card summary::after {
+      content: '+';
+      font-size: 1.25rem;
+      color: var(--accent);
+      transition: transform 0.2s;
+    }
+
+    .faq-card details[open] summary::after {
+      transform: rotate(45deg);
+    }
+
+    .faq-card .faq-answer {
+      padding: 0 1.25rem 1.25rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
     @media (max-width: 768px) {
       .page-footer {
         padding: 30px 15px;
@@ -155,8 +249,6 @@ export const PAGE_FOOTER = `
         window.translate = translate;
       }
       if (typeof translate !== 'undefined' && translate.language) {
-        translate.selectLanguageTag.show = true;
-        translate.selectLanguageTag.documentId = 'translate';
         translate.language.setLocal('english');
         translate.service.use('client.edge');
         translate.listener.start();

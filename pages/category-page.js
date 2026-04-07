@@ -48,9 +48,22 @@ export function generateCategoryPage(options = {}) {
   // Generate JSON-LD
   const jsonLd = channels.length > 0 ? {
     "@context": "https://schema.org",
-    "@type": "ItemList",
+    "@type": "CollectionPage",
     "name": category + " Channels",
-    "numberOfItems": channels.length,
+    "description": "Watch all " + category + " channels live on IPTV Search. Free IPTV streaming.",
+    "url": origin + "/category/" + slug,
+    "publisher": {
+      "@type": "Organization",
+      "name": "IPTV Search",
+      "url": origin
+    },
+    "mainEntity": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": origin + "/"},
+        {"@type": "ListItem", "position": 2, "name": category, "item": origin + "/category/" + slug}
+      ]
+    },
     "itemListElement": channels.slice(0, 10).map((ch, i) => ({
       "@type": "ListItem",
       "position": i + 1,

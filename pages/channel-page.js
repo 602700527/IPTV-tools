@@ -73,10 +73,7 @@ export function generateChannelPage(options = {}) {
       '<span class="info-label">Country/Region</span>' +
       '<span class="info-value">China</span>' +
     '</div>' +
-    '<div class="info-row">' +
-      '<span class="info-label">Source</span>' +
-      '<span class="info-value">' + escapeHtml(sourceDisplay) + '</span>' +
-    '</div>' +
+    
     '<div class="info-row">' +
       '<span class="info-label">Last Updated</span>' +
       '<span class="info-value">' + new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + '</span>' +
@@ -109,15 +106,24 @@ export function generateChannelPage(options = {}) {
     "@context": "https://schema.org",
     "@type": "VideoObject",
     "name": channel.name + " - Live TV",
-    "description": "Watch " + channel.name + " live streaming for free. No registration required.",
+    "description": "Watch " + channel.name + " live streaming for free on IPTV Search. " + channel.group + " category.",
     "thumbnailUrl": channel.logo || null,
-    "uploadDate": "2024-01-01",
-    "expires": "2025-12-31",
-    "genre": "TV Channel",
+    "image": channel.logo || null,
+    "contentUrl": origin + "/play/" + linkId + "/" + hash,
+    "embedUrl": origin + "/play/" + linkId + "/" + hash,
+    "genre": channel.group || "TV Channel",
     "publisher": {
       "@type": "Organization",
       "name": "IPTV Search",
       "url": origin
+    },
+    "mainEntity": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": origin + "/"},
+        {"@type": "ListItem", "position": 2, "name": channel.group || "Channels", "item": origin + "/category/" + encodeURIComponent(channel.group || "")},
+        {"@type": "ListItem", "position": 3, "name": channel.name, "item": origin + "/channel/" + hash}
+      ]
     }
   };
 
@@ -450,7 +456,7 @@ export function generateChannelPage(options = {}) {
       <div class="channel-details">
         <div class="channel-meta">
           <span class="channel-badge">LIVE</span>
-          <span class="channel-source">Source: ${escapeHtml(sourceDisplay)}</span>
+    
         </div>
         <h1 class="channel-title">${escapeHtml(channel.name)}</h1>
         <p class="channel-subtitle">China Central Television - ${escapeHtml(channel.group || 'General Channel')}</p>

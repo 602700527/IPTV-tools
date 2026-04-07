@@ -127,6 +127,44 @@ export function generateHomePage(options = {}) {
     .footer-badges img:hover { opacity: 1; }
     .footer-badges span { font-size: 0.75rem; color: var(--text-secondary); }
     .footer-disclaimer { margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; max-width: 600px; margin-left: auto; margin-right: auto; }
+    
+    /* FAQ区块样式 */
+    .footer-faq { margin: 2.5rem 0; }
+    .footer-faq-title { color: var(--text-primary); font-size: 1.25rem; margin-bottom: 1.5rem; }
+    .faq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .faq-card { 
+      background: var(--bg-card); 
+      border: 1px solid var(--border); 
+      border-radius: 12px; 
+      overflow: hidden; 
+      transition: border-color var(--transition);
+    }
+    .faq-card:hover { border-color: var(--accent); }
+    .faq-card summary { 
+      padding: 1rem 1.25rem; 
+      cursor: pointer; 
+      color: var(--text-primary); 
+      font-size: 0.95rem; 
+      font-weight: 500; 
+      list-style: none; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+    }
+    .faq-card summary::-webkit-details-marker { display: none; }
+    .faq-card summary::after { 
+      content: '+'; 
+      font-size: 1.25rem; 
+      color: var(--accent); 
+      transition: transform 0.2s; 
+    }
+    .faq-card details[open] summary::after { transform: rotate(45deg); }
+    .faq-card .faq-answer { 
+      padding: 0 1.25rem 1.25rem; 
+      color: var(--text-secondary); 
+      font-size: 0.85rem; 
+      line-height: 1.6; 
+    }
 
     .loading { text-align: center; padding: 4rem; color: var(--text-secondary); }
 
@@ -233,6 +271,38 @@ export function generateHomePage(options = {}) {
   <footer class="page-footer">
     <div class="footer-content">
       <p class="footer-copyright">&copy; ${new Date().getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+      
+      <!-- FAQ常见问题区块 -->
+      <div class="footer-faq">
+        <h3 class="footer-faq-title">Frequently Asked Questions</h3>
+        <div class="faq-grid">
+          <details class="faq-card">
+            <summary>How can I watch IPTV for free?</summary>
+            <div class="faq-answer">Browse our directory, select a channel, and start watching instantly. No registration required.</div>
+          </details>
+          <details class="faq-card">
+            <summary>What devices are supported?</summary>
+            <div class="faq-answer">Smart TVs, Roku, Firestick, Apple TV, computers, smartphones & tablets.</div>
+          </details>
+          <details class="faq-card">
+            <summary>Is using IPTV legal?</summary>
+            <div class="faq-answer">We index public links. Users must comply with local laws in their region.</div>
+          </details>
+          <details class="faq-card">
+            <summary>Why isn't a channel playing?</summary>
+            <div class="faq-answer">Try refreshing, different player, or check your internet connection.</div>
+          </details>
+          <details class="faq-card">
+            <summary>What are the subscription plans?</summary>
+            <div class="faq-answer">Free with ads, Premium removes ads & offers HD/4K quality.</div>
+          </details>
+          <details class="faq-card">
+            <summary>How often are channels updated?</summary>
+            <div class="faq-answer">Daily updates - dead links removed & new channels added regularly.</div>
+          </details>
+        </div>
+      </div>
+      
       <div class="footer-links">
         <a href="${origin}/tutorial">How to Watch on TV Devices</a>
         <a href="${origin}/sitemap.xml">Sitemap</a>
@@ -326,6 +396,28 @@ export function generateHomePage(options = {}) {
             "@type": "SearchAction",
             "target": origin + "/search?q={search_term_string}",
             "query-input": "required name=search_term_string"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "IPTV Search",
+            "url": origin,
+            "sameAs": ["https://twitter.com/iptvsearch"]
+          },
+          "mainEntity": {
+            "@type": "FAQPage",
+            "name": "Frequently Asked Questions",
+            "mainEntity": [
+              {"@type": "Question", "name": "How can I watch IPTV channels for free?", "acceptedAnswer": {"@type": "Answer", "text": "IPTV Search provides free access to watch live TV channels. Simply browse our directory, select a channel, and start watching. No registration or subscription required for basic access."}},
+              {"@type": "Question", "name": "What devices support IPTV streaming?", "acceptedAnswer": {"@type": "Answer", "text": "Our IPTV streams work on most devices including Smart TVs (Samsung, LG, Sony), streaming devices (Roku, Firestick, Apple TV), computers, smartphones, and tablets. Use VLC player or any IPTV-compatible app."}},
+              {"@type": "Question", "name": "How many channels are available?", "acceptedAnswer": {"@type": "Answer", "text": "We offer over 10,000 live TV channels from around the world, covering news, sports, entertainment, movies, and more. New channels are added regularly."}},
+              {"@type": "Question", "name": "Is IPTV legal?", "acceptedAnswer": {"@type": "Answer", "text": "IPTV Search only indexes publicly available streaming links. We do not host or produce any content. Users are responsible for ensuring compliance with their local laws and the content provider's terms of service."}},
+              {"@type": "Question", "name": "What is the subscription plans?", "acceptedAnswer": {"@type": "Answer", "text": "We offer free basic access with ads. Premium subscription removes ads, provides HD/4K quality, and allows simultaneous connections. Visit our /plans page for current pricing."}},
+              {"@type": "Question", "name": "Why is my channel not playing?", "acceptedAnswer": {"@type": "Answer", "text": "If a channel won't play, try: 1) Refresh the page, 2) Use a different player, 3) Check your internet connection, 4) Try a different channel. Some links may be temporary."}},
+              {"@type": "Question", "name": "Do you offer technical support?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, premium subscribers get 24/7 technical support. Free users can find help in our tutorial section and FAQ."}},
+              {"@type": "Question", "name": "How often are channels updated?", "acceptedAnswer": {"@type": "Answer", "text": "We update our channel database daily. Dead links are removed and new channels are added regularly to maintain quality."}},
+              {"@type": "Question", "name": "Can I record live TV?", "acceptedAnswer": {"@type": "Answer", "text": "Recording functionality is not available on our free service. Some third-party players support DVR features for IPTV streams."}},
+              {"@type": "Question", "name": "What countries channels are available?", "acceptedAnswer": {"@type": "Answer", "text": "We have channels from 150+ countries including USA, UK, Canada, Australia, India, China, Brazil, and many more. Browse by category or country on our homepage."}}
+            ]
           }
         };
         document.getElementById('json-ld').textContent = JSON.stringify(jsonLd);
