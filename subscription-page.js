@@ -47,20 +47,95 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       padding: 0 20px;
     }
 
-    .header {
+    /* Page header section (title) - different from sticky nav header */
+    .page-header-section {
       text-align: center;
       margin-bottom: 40px;
+      padding-top: 20px;
     }
 
-    .header h1 {
+    .page-header-section h1 {
       font-size: 28px;
       font-weight: 700;
       margin-bottom: 10px;
     }
 
-    .header p {
+    .page-header-section p {
       color: rgba(255, 255, 255, 0.6);
       font-size: 14px;
+    }
+
+    /* Hero Section - Marketing Psychology: Clear Value Proposition */
+    .sub-hero {
+      background: linear-gradient(135deg, #141414 0%, #0a0a0a 50%, rgba(229, 9, 20, 0.1) 100%);
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sub-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 30% 50%, rgba(229, 9, 20, 0.15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .sub-hero-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+    }
+
+    .sub-hero-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .sub-hero-subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 24px;
+    }
+
+    .sub-hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .sub-stat {
+      text-align: center;
+    }
+
+    .sub-stat-value {
+      display: block;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #e50914;
+      text-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
+    }
+
+    .sub-stat-label {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .plans-container {
@@ -144,7 +219,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .option-discount {
       display: inline-block;
       background: linear-gradient(135deg, #ffcc00 0%, #ff9500 100%);
-      color: white;
+      color: #1a1a1a;
       padding: 3px 10px;
       border-radius: 12px;
       font-size: 10px;
@@ -282,6 +357,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       height: 24px;
       display: inline-block;
       flex-shrink: 0;
+    }
+
+    .payment-method-icon img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      display: block;
     }
 
     .payment-method-icon svg {
@@ -996,10 +1078,26 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
 
   <div class="container">
-    <div class="header">
-      <h1 data-i18n="title">👑 Premium Subscription</h1>
-      <p data-i18n="subtitle">Choose the perfect plan for your HD streaming needs</p>
-    </div>
+    <!-- Hero Section -->
+    <section class="sub-hero">
+      <span class="sub-hero-badge">👑 Premium Access</span>
+      <h1 class="sub-hero-title">Unlock 8,000+ Live TV Channels</h1>
+      <p class="sub-hero-subtitle">One subscription. All devices. Forever upgraded.</p>
+      <div class="sub-hero-stats">
+        <div class="sub-stat">
+          <span class="sub-stat-value">8,000+</span>
+          <span class="sub-stat-label">Channels</span>
+        </div>
+        <div class="sub-stat">
+          <span class="sub-stat-value">150+</span>
+          <span class="sub-stat-label">Countries</span>
+        </div>
+        <div class="sub-stat">
+          <span class="sub-stat-value">99.9%</span>
+          <span class="sub-stat-label">Uptime</span>
+        </div>
+      </div>
+    </section>
 
     <div id="plansContainer" class="plans-container">
       <!-- 时长和IP选择器将通过JS动态生成 -->
@@ -1037,11 +1135,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
 
       <div id="loading" class="loading">
-      <div class="spinner"></div>
-      <p data-i18n="processing">Processing...</p>
-    </div>
+        <div class="spinner"></div>
+        <p data-i18n="processing">Processing...</p>
+      </div>
 
-    <div id="errorMessage" class="error-message" style="display: none;"></div>
+      <div id="errorMessage" class="error-message" style="display: none;"></div>
+    </div>
   </div>
 
   <div id="successModal" class="success-modal">
@@ -1134,28 +1233,47 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       try {
         const response = await fetch('/api/mall/plans');
         const data = await response.json();
-        if (data.success && data.plans) {
-          durationOptions = data.plans.map(plan => ({
-            days: plan.days,
-            basePrice: plan.base_price,
-            pricePerIP: plan.price_per_ip,
-            discount: plan.discount,
-            name: 'plan_' + plan.id
-          }));
-
-          // 更新套餐名称
-          translations.planNames = data.plans.reduce((acc, plan) => {
-            acc['plan_' + plan.id] = plan.name;
-            return acc;
-          }, {});
-
-          // 如果没有选中的套餐，默认选中第一个
-          if (durationOptions.length > 0 && !selectedDuration) {
-            selectedDuration = durationOptions[0];
-          }
-
+        
+        // 如果没有有效的 plans 数据，使用默认配置
+        if (!data.success || !data.plans || data.plans.length === 0) {
+          console.warn('No plans from API, using defaults');
+          durationOptions = [
+            { days: 30, basePrice: 20, pricePerIP: 9, discount: 0, name: 'plan_default_1' },
+            { days: 90, basePrice: 79, pricePerIP: 18, discount: 0, name: 'plan_default_2' },
+            { days: 180, basePrice: 149, pricePerIP: 28, discount: 10, name: 'plan_default_3' },
+            { days: 365, basePrice: 279, pricePerIP: 49, discount: 20, name: 'plan_default_4' }
+          ];
+          translations.planNames = {
+            'plan_default_1': '1 Month',
+            'plan_default_2': '3 Months',
+            'plan_default_3': '6 Months',
+            'plan_default_4': '1 Year'
+          };
+          selectedDuration = durationOptions[0];
           renderPlans();
+          return;
         }
+        
+        durationOptions = data.plans.map(plan => ({
+          days: plan.days,
+          basePrice: plan.base_price,
+          pricePerIP: plan.price_per_ip,
+          discount: plan.discount || 0,
+          name: 'plan_' + plan.id
+        }));
+
+        // 更新套餐名称
+        translations.planNames = data.plans.reduce((acc, plan) => {
+          acc['plan_' + plan.id] = plan.name_en || plan.name || ('Plan ' + plan.id);
+          return acc;
+        }, {});
+
+        // 如果没有选中的套餐，默认选中第一个
+        if (durationOptions.length > 0 && !selectedDuration) {
+          selectedDuration = durationOptions[0];
+        }
+
+        renderPlans();
       } catch (error) {
         console.error('Failed to load plans:', error);
         // 如果加载失败，使用默认配置
@@ -1165,6 +1283,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           { days: 180, basePrice: 149, pricePerIP: 28, discount: 10, name: 'plan_default_3' },
           { days: 365, basePrice: 279, pricePerIP: 49, discount: 20, name: 'plan_default_4' }
         ];
+        translations.planNames = {
+          'plan_default_1': '1 Month',
+          'plan_default_2': '3 Months',
+          'plan_default_3': '6 Months',
+          'plan_default_4': '1 Year'
+        };
         selectedDuration = durationOptions[0];
         renderPlans();
       }
@@ -1225,6 +1349,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     function renderPlans() {
       const container = document.getElementById('plansContainer');
+      
+      // Guard: if no duration selected, use first option
+      if (!selectedDuration && durationOptions.length > 0) {
+        selectedDuration = durationOptions[0];
+      }
+      
+      // Guard: if still no duration, show loading state
+      if (!selectedDuration) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.6);">Loading plans...</div>';
+        return;
+      }
+
       let html = '';
 
       // Duration selector
@@ -1233,10 +1369,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       html += '<div class="option-grid">';
       durationOptions.forEach(duration => {
         const price = calculatePrice(duration, selectedIPs);
-        const isSelected = selectedDuration.name === duration.name;
+        const isSelected = selectedDuration && selectedDuration.name === duration.name;
         const daysText = duration.days === -1 ? 'Lifetime' : duration.days + ' days';
         html += '<div class="option-card ' + (isSelected ? 'selected' : '') + '" onclick="selectDuration(' + "'" + duration.name + "'" + ')">';
-        html += '<div class="option-title">' + t('planNames')[duration.name] + '</div>';
+        html += '<div class="option-title">' + (t('planNames')[duration.name] || duration.name) + '</div>';
         html += '<div class="option-subtitle">' + daysText + '</div>';
         html += '<div class="option-price">¥' + price.discounted.toFixed(2) + '</div>';
         if (duration.discount > 0) {
@@ -1266,6 +1402,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     function renderPaymentSummary() {
       const summaryEl = document.getElementById('paymentSummary');
+      
+      // Guard: if no duration selected, don't render summary
+      if (!selectedDuration) {
+        summaryEl.innerHTML = '';
+        return;
+      }
+      
       const price = calculatePrice(selectedDuration, selectedIPs);
 
       const daysText = selectedDuration.days === -1 ? 'Lifetime' : selectedDuration.days + ' days';
