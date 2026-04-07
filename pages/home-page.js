@@ -152,8 +152,8 @@ export function generateHomePage(options = {}) {
   ${pageHeader}
 
   <section class="hero">
-    <h1>Find & Watch Free Live TV</h1>
-    <p>Free IPTV Search Engine. Find Live TV Streams, M3U Playlists & HD Channels.</p>
+    <h1>8,000+ Global Live TV Channels</h1>
+    <p>Overseas Chinese' no.1 Choice | Works with VLC, APTV, Smarters & all platforms</p>
     <div class="hero-stats">
       <div class="hero-stat">
         <div class="hero-stat-value" id="totalChannels">--</div>

@@ -813,10 +813,11 @@
     const MAX_FAVORITES = 200;
 
     function showLimitToast() {
+      // Marketing Psychology: FOMO + Value Proposition + Loss Aversion
       const toast = document.getElementById('toast');
-      toast.innerHTML = `Maximum ${MAX_FAVORITES} channels. <a href="/plans" style="color: inherit; text-decoration: underline;">Get subscription</a> for more.`;
+      toast.innerHTML = `💔 Free users: max ${MAX_FAVORITES} channels | 🎁 <strong>Upgrade Premium</strong> - download all 10,000+ channels at once | <a href="/plans" style="color: #34c759; font-weight: 600;">Upgrade Now →</a>`;
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 4000);
+      setTimeout(() => toast.classList.remove('show'), 8000);
     }
 
     function toggleStar(btn, channelHash) {

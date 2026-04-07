@@ -1014,6 +1014,22 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         <!-- 支付方式将通过 JS 动态加载 -->
       </div>
 
+      <!-- Trust badges - Marketing Psychology: Trust Building -->
+      <div class="trust-badges" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+        <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgba(255,255,255,0.7);">
+          <span style="color: #34c759;">🛡️</span> 7-Day Money Back
+        </span>
+        <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgba(255,255,255,0.7);">
+          <span style="color: #3b82f6;">🔒</span> Secure Payment
+        </span>
+        <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgba(255,255,255,0.7);">
+          <span style="color: #f59e0b;">💳</span> Multiple Payment Methods
+        </span>
+        <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgba(255,255,255,0.7);">
+          <span style="color: #8b5cf6;">📧</span> 24h Support
+        </span>
+      </div>
+
       <div id="xunhupay-button-container" style="margin: 20px 0;">
         <button id="pay-button" onclick="handlePayClick()" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: 600; transition: all 0.3s; width: 100%; max-width: 300px;">
           Pay Now

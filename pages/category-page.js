@@ -557,7 +557,18 @@ export function generateCategoryPage(options = {}) {
       }
       
       if (selected.length > MAX_DOWNLOAD) {
-        showToastWarning('Selection exceeds limit', 'Free users can download up to ' + MAX_DOWNLOAD + ' channels at once. Subscribe to get the complete M3U playlist with all channels.', { text: 'View Plans', href: '${origin}/plans' });
+        // Marketing Psychology: FOMO + Value Proposition + Loss Aversion
+        const upgradeMessage = 'You selected <strong style="color:#e50914">' + selected.length + '</strong> channels<br><br>' +
+          '💔 Free users can download up to <strong>' + MAX_DOWNLOAD + '</strong> channels<br>' +
+          '🎁 <strong style="color:#34c759">Upgrade to Premium</strong> - download all 10,000+ channels at once<br><br>' +
+          '<span style="font-size:12px;color:#888;">👥 5,000+ users already upgraded - enjoy unlimited access</span>';
+        showToast({
+          type: 'info',
+          title: '🎁 Unlock All Channels - No More Limits',
+          message: upgradeMessage,
+          duration: 8000,
+          action: { text: 'Upgrade Now →', href: '${origin}/plans' }
+        });
         return;
       }
       
