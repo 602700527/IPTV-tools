@@ -33,15 +33,32 @@ export function generateHomePage(options = {}) {
   
   <style>
     :root {
+      /* 背景层次 */
       --bg-primary: #0a0a0a;
       --bg-secondary: #141414;
       --bg-card: #1a1a1a;
       --bg-hover: #252525;
+      --bg-elevated: #222222;
+      
+      /* 文字层次 */
       --text-primary: #ffffff;
       --text-secondary: #a0a0a0;
       --text-muted: #666666;
+      
+      /* 主色调 - Netflix红 */
       --accent: #e50914;
-      --accent-hover: #f6121d;
+      --accent-hover: #f7262c;
+      
+      /* 辅助色系 - 情感多元化 */
+      --premium-gold: #fbbf24;
+      --success-green: #22c55e;
+      --trust-blue: #3b82f6;
+      --alert-orange: #f59e0b;
+      
+      /* 价格高亮 */
+      --price-glow: 0 0 20px rgba(229, 9, 20, 0.4);
+      
+      /* 边框与阴影 */
       --border: rgba(255,255,255,0.08);
       --border-hover: rgba(255,255,255,0.15);
       --shadow: 0 4px 20px rgba(0,0,0,0.5);
@@ -54,6 +71,7 @@ export function generateHomePage(options = {}) {
       --bg-secondary: #ffffff;
       --bg-card: #ffffff;
       --bg-hover: #f0f0f0;
+      --bg-elevated: #ffffff;
       --text-primary: #1a1a1a;
       --text-secondary: #666666;
       --text-muted: #999999;
@@ -105,8 +123,35 @@ export function generateHomePage(options = {}) {
     .hero p { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto 2rem; }
     .hero-stats { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
     .hero-stat { text-align: center; }
-    .hero-stat-value { font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .hero-stat-value { font-size: 2rem; font-weight: 700; color: var(--accent); text-shadow: var(--price-glow); }
     .hero-stat-label { font-size: 0.85rem; color: var(--text-muted); }
+    
+    /* Category card hover effect - premium feel */
+    .category-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(229, 9, 20, 0.15); }
+    
+    /* Premium gold for special elements */
+    .premium-badge { 
+      background: linear-gradient(135deg, var(--premium-gold) 0%, var(--alert-orange) 100%);
+      color: #000;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+    }
+    
+    /* Success green for positive actions */
+    .success-highlight { color: var(--success-green); }
+    
+    /* Alert orange for urgency */
+    .alert-badge {
+      background: linear-gradient(135deg, var(--alert-orange) 0%, #ea580c 100%);
+      color: #fff;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+    }
 
     .category-showcase { max-width: 1400px; margin: 0 auto; padding: 3rem 2rem; }
     .showcase-header { text-align: center; margin-bottom: 2.5rem; }
