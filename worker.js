@@ -342,7 +342,11 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       
       // 使用新的 HTML 壳 + API 方案
       const { generateHomePage } = await import('./pages/home-page.js');
-      const html = generateHomePage({ origin: url.origin });
+      const html = generateHomePage({ 
+        origin: url.origin,
+        header: PAGE_HEADER,
+        footer: PAGE_FOOTER
+      });
       
       return new Response(html, {
         headers: {

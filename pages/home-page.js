@@ -2,7 +2,11 @@
 // This page is rendered on the client side via JavaScript
 
 export function generateHomePage(options = {}) {
-  const { origin = 'https://iptv-search.com' } = options;
+  const { origin = 'https://iptv-search.com', header = '', footer = '' } = options;
+
+  // 如果传入了header和footer，直接使用；否则使用内嵌的
+  const pageHeader = header || `<header class="header">...</header>`;
+  const pageFooter = footer || `<footer class="page-footer">...</footer>`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -116,56 +120,6 @@ export function generateHomePage(options = {}) {
     .category-name { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; text-align: center; }
     .category-count { font-size: 0.75rem; color: var(--text-muted); }
 
-    .page-footer { background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 2.5rem 1.25rem; margin-top: 3rem; }
-    .footer-content { max-width: 1000px; margin: 0 auto; text-align: center; }
-    .footer-copyright { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.25rem; }
-    .footer-links { display: flex; justify-content: center; align-items: center; gap: 1.25rem; flex-wrap: wrap; margin-top: 1rem; font-size: 0.75rem; }
-    .footer-links a { color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
-    .footer-links a:hover { color: var(--text-primary); }
-    .footer-badges { display: flex; align-items: center; justify-content: center; gap: 0.625rem; margin-top: 1.25rem; }
-    .footer-badges img { height: 12px; width: auto; opacity: 0.8; transition: opacity var(--transition); }
-    .footer-badges img:hover { opacity: 1; }
-    .footer-badges span { font-size: 0.75rem; color: var(--text-secondary); }
-    .footer-disclaimer { margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; max-width: 600px; margin-left: auto; margin-right: auto; }
-    
-    /* FAQ区块样式 */
-    .footer-faq { margin: 2.5rem 0; }
-    .footer-faq-title { color: var(--text-primary); font-size: 1.25rem; margin-bottom: 1.5rem; }
-    .faq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
-    .faq-card { 
-      background: var(--bg-card); 
-      border: 1px solid var(--border); 
-      border-radius: 12px; 
-      overflow: hidden; 
-      transition: border-color var(--transition);
-    }
-    .faq-card:hover { border-color: var(--accent); }
-    .faq-card summary { 
-      padding: 1rem 1.25rem; 
-      cursor: pointer; 
-      color: var(--text-primary); 
-      font-size: 0.95rem; 
-      font-weight: 500; 
-      list-style: none; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-    }
-    .faq-card summary::-webkit-details-marker { display: none; }
-    .faq-card summary::after { 
-      content: '+'; 
-      font-size: 1.25rem; 
-      color: var(--accent); 
-      transition: transform 0.2s; 
-    }
-    .faq-card details[open] summary::after { transform: rotate(45deg); }
-    .faq-card .faq-answer { 
-      padding: 0 1.25rem 1.25rem; 
-      color: var(--text-secondary); 
-      font-size: 0.85rem; 
-      line-height: 1.6; 
-    }
-
     .loading { text-align: center; padding: 4rem; color: var(--text-secondary); }
 
     @media (max-width: 768px) {
@@ -195,49 +149,7 @@ export function generateHomePage(options = {}) {
   </style>
 </head>
 <body>
-  <header class="header">
-    <div class="header-inner">
-      <a href="${origin}/" class="logo">
-        <div class="logo-icon">
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="tvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:1" />
-              </linearGradient>
-            </defs>
-            <rect x="0" y="0" width="36" height="36" rx="6" fill="url(#tvGradient)" />
-            <rect x="4" y="8" width="28" height="18" rx="2" fill="#0a0a0a" />
-            <path d="M14 12 L24 17 L14 22 Z" fill="#fff" />
-            <rect x="10" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
-            <rect x="20" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
-          </svg>
-        </div>
-        <div class="logo-text">IPTV<span>Search</span></div>
-      </a>
-      <div class="search-box">
-        <form action="${origin}/search" method="get">
-          <input type="text" name="q" placeholder="Search channels..." value="">
-        </form>
-      </div>
-      <div class="header-actions">
-        <a href="${origin}/favorites" class="pill-btn" title="My Favorites">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </a>
-        <a href="${origin}/plans" class="pill-btn" title="Subscription Plans">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-        </a>
-        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
-          <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-          <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
-        <a href="${origin}/account" class="account-btn" title="My Account">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </a>
-        <div id="translate"></div>
-      </div>
-    </div>
-  </header>
+  ${pageHeader}
 
   <section class="hero">
     <h1>Find & Watch Free Live TV</h1>
@@ -268,58 +180,7 @@ export function generateHomePage(options = {}) {
     </div>
   </section>
 
-  <footer class="page-footer">
-    <div class="footer-content">
-      <p class="footer-copyright">&copy; ${new Date().getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
-      
-      <!-- FAQ常见问题区块 -->
-      <div class="footer-faq">
-        <h3 class="footer-faq-title">Frequently Asked Questions</h3>
-        <div class="faq-grid">
-          <details class="faq-card">
-            <summary>How can I watch IPTV for free?</summary>
-            <div class="faq-answer">Browse our directory, select a channel, and start watching instantly. No registration required.</div>
-          </details>
-          <details class="faq-card">
-            <summary>What devices are supported?</summary>
-            <div class="faq-answer">Smart TVs, Roku, Firestick, Apple TV, computers, smartphones & tablets.</div>
-          </details>
-          <details class="faq-card">
-            <summary>Is using IPTV legal?</summary>
-            <div class="faq-answer">We index public links. Users must comply with local laws in their region.</div>
-          </details>
-          <details class="faq-card">
-            <summary>Why isn't a channel playing?</summary>
-            <div class="faq-answer">Try refreshing, different player, or check your internet connection.</div>
-          </details>
-          <details class="faq-card">
-            <summary>What are the subscription plans?</summary>
-            <div class="faq-answer">Free with ads, Premium removes ads & offers HD/4K quality.</div>
-          </details>
-          <details class="faq-card">
-            <summary>How often are channels updated?</summary>
-            <div class="faq-answer">Daily updates - dead links removed & new channels added regularly.</div>
-          </details>
-        </div>
-      </div>
-      
-      <div class="footer-links">
-        <a href="${origin}/tutorial">How to Watch on TV Devices</a>
-        <a href="${origin}/sitemap.xml">Sitemap</a>
-        <a href="${origin}/robots.txt">Robots</a>
-        <a href="${origin}/privacy-policy">Privacy Policy</a>
-        <a href="${origin}/terms">Terms of Service</a>
-        <a href="mailto:support@iptv-search.com">Contact Us</a>
-      </div>
-      <div class="footer-badges">
-        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
-          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
-        </a>
-        <span>This site is powered by Cloudflare for acceleration and security</span>
-      </div>
-      <div class="footer-disclaimer">This site does not host or provide any IPTV streams. All channels are sourced from publicly available M3U playlists. Channels may go offline at any time as their source streams change.</div>
-    </div>
-  </footer>
+  ${pageFooter}
 
   <!-- JSON-LD structured data will be injected here -->
   <script id="json-ld" type="application/ld+json"></script>
