@@ -96,32 +96,15 @@ export function generateCategoryPage(options = {}) {
   
   <style>
     :root {
-      /* 背景层次 */
       --bg-primary: #0a0a0a;
       --bg-secondary: #141414;
       --bg-card: #1a1a1a;
       --bg-hover: #252525;
-      --bg-elevated: #222222;
-      
-      /* 文字层次 */
       --text-primary: #ffffff;
       --text-secondary: #a0a0a0;
       --text-muted: #666666;
-      
-      /* 主色调 - Netflix红 */
       --accent: #e50914;
-      --accent-hover: #f7262c;
-      
-      /* 辅助色系 - 情感多元化 */
-      --premium-gold: #fbbf24;
-      --success-green: #22c55e;
-      --trust-blue: #3b82f6;
-      --alert-orange: #f59e0b;
-      
-      /* 价格高亮 */
-      --price-glow: 0 0 20px rgba(229, 9, 20, 0.4);
-      
-      /* 边框与阴影 */
+      --accent-hover: #f6121d;
       --border: rgba(255,255,255,0.08);
       --border-hover: rgba(255,255,255,0.15);
       --shadow: 0 4px 20px rgba(0,0,0,0.5);
@@ -134,7 +117,6 @@ export function generateCategoryPage(options = {}) {
       --bg-secondary: #ffffff;
       --bg-card: #ffffff;
       --bg-hover: #f0f0f0;
-      --bg-elevated: #ffffff;
       --text-primary: #1a1a1a;
       --text-secondary: #666666;
       --text-muted: #999999;
@@ -575,18 +557,7 @@ export function generateCategoryPage(options = {}) {
       }
       
       if (selected.length > MAX_DOWNLOAD) {
-        // Marketing Psychology: FOMO + Value Proposition + Loss Aversion
-        const upgradeMessage = 'You selected <strong style="color:#e50914">' + selected.length + '</strong> channels<br><br>' +
-          '💔 Free users can download up to <strong>' + MAX_DOWNLOAD + '</strong> channels<br>' +
-          '🎁 <strong style="color:#34c759">Upgrade to Premium</strong> - download all 10,000+ channels at once<br><br>' +
-          '<span style="font-size:12px;color:#888;">👥 5,000+ users already upgraded - enjoy unlimited access</span>';
-        showToast({
-          type: 'info',
-          title: '🎁 Unlock All Channels - No More Limits',
-          message: upgradeMessage,
-          duration: 8000,
-          action: { text: 'Upgrade Now →', href: '${origin}/plans' }
-        });
+        showToastWarning('Selection exceeds limit', 'Free users can download up to ' + MAX_DOWNLOAD + ' channels at once. Subscribe to get the complete M3U playlist with all channels.', { text: 'View Plans', href: '${origin}/plans' });
         return;
       }
       
