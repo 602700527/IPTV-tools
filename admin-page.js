@@ -103,6 +103,16 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     .btn-copy:hover{background:#e8e8ed}
     .headers-cell{max-width:200px;padding:8px;font-size:11px;color:#86868b}
     .headers-tag{display:inline-block;padding:2px 6px;background:#f5f5f7;border-radius:4px;margin:2px;font-size:10px}
+    .ticket-type-badge{display:inline-block;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600;text-transform:uppercase}
+    .ticket-type-badge.payment{background:rgba(255,204,0,.15);color:#b8860b}
+    .ticket-type-badge.order{background:rgba(52,199,89,.15);color:#2e7d32}
+    .ticket-type-badge.technical{background:rgba(0,122,255,.15);color:#007aff}
+    .ticket-type-badge.other{background:rgba(142,142,147,.15);color:#6e6e73}
+    .ticket-status-badge{display:inline-block;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600}
+    .ticket-status-badge.pending{background:rgba(255,204,0,.15);color:#b8860b}
+    .ticket-status-badge.processing{background:rgba(0,122,255,.15);color:#007aff}
+    .ticket-status-badge.resolved{background:rgba(52,199,89,.15);color:#2e7d32}
+    .ticket-status-badge.closed{background:rgba(142,142,147,.15);color:#6e6e73}
     /* 自定义白色打钩复选框样式 */
     .custom-checkbox {
       appearance: none;
@@ -169,6 +179,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab" onclick="showTab('users')">账户管理</button>
       <button class="nav-tab" onclick="showTab('orders')">订单管理</button>
       <button class="nav-tab" onclick="showTab('mall')">商城管理</button>
+      <button class="nav-tab" onclick="showTab('tickets')">工单管理</button>
       <button class="nav-tab" onclick="showTab('security')">安全监控</button>
       <button class="nav-tab" onclick="showTab('ip-blacklist')">IP黑名单</button>
       <button class="nav-tab" onclick="showTab('domain-blacklist')">域名黑名单</button>
@@ -273,6 +284,45 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
         <table><thead><tr><th><input type="checkbox" id="selectAllCodes" class="custom-checkbox" onclick="toggleSelectAllCodes()"></th><th>卡密</th><th>状态</th><th>有效期(天)</th><th>最大IP数</th><th>激活时间</th><th>过期时间</th><th>备注</th><th>操作</th></tr></thead><tbody id="codesTable"></tbody></table>
         <div id="codePagination" class="pagination"></div>
+      </div>
+    </div>
+    <div id="tickets" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>Ticket List</h3>
+          <div style="display:flex;gap:16px;align-items:center;">
+            <select class="filter-select" id="ticketStatusFilter" onchange="loadTickets()">
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="resolved">Resolved</option>
+              <option value="closed">Closed</option>
+            </select>
+            <select class="filter-select" id="ticketTypeFilter" onchange="loadTickets()">
+              <option value="all">All Types</option>
+              <option value="payment">Payment</option>
+              <option value="order">Order</option>
+              <option value="technical">Technical</option>
+              <option value="other">Other</option>
+            </select>
+            <input type="text" class="search-box" id="ticketSearch" placeholder="Search by email or subject..." oninput="loadTickets()">
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User</th>
+              <th>Type</th>
+              <th>Subject</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="ticketsTable"></tbody>
+        </table>
+        <div id="noTickets" class="empty-state">No tickets found</div>
       </div>
     </div>
     <div id="security" class="tab-content">
@@ -1623,6 +1673,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         loadMallSettings();
         loadPlans();
         loadPaymentMethods();
+      }
+      else if (tabName === 'tickets') {
+        loadTickets();
       }
       else if (tabName === 'security') {
         loadSecurityConfig();
@@ -5258,6 +5311,83 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         console.error('Failed to toggle payment method:', error);
         showToast('操作失败', 'error');
       });
+    }
+
+    // ========== Ticket Management ==========
+    async function loadTickets() {
+      const status = document.getElementById('ticketStatusFilter').value;
+      const type = document.getElementById('ticketTypeFilter').value;
+      const search = document.getElementById('ticketSearch').value;
+      let url = API_BASE + '/tickets?';
+      if (status && status !== 'all') url += 'status=' + encodeURIComponent(status) + '&';
+      if (type && type !== 'all') url += 'type=' + encodeURIComponent(type) + '&';
+      if (search) url += 'search=' + encodeURIComponent(search) + '&';
+      const response = await fetch(url, { headers: { 'X-Admin-Key': adminKey } });
+      const data = await response.json();
+      if (data.success) renderTickets(data.tickets || []);
+    }
+
+    function renderTickets(tickets) {
+      const tbody = document.getElementById('ticketsTable');
+      const noTickets = document.getElementById('noTickets');
+      if (tickets.length === 0) { tbody.innerHTML = ''; noTickets.style.display = 'block'; return; }
+      noTickets.style.display = 'none';
+      const typeLabels = { payment: 'Payment', order: 'Order', technical: 'Technical', other: 'Other' };
+      const statusLabels = { pending: 'Pending', processing: 'Processing', resolved: 'Resolved', closed: 'Closed' };
+      tbody.innerHTML = tickets.map(t => '<tr style="border-bottom:1px solid #e5e5ea;"><td style="padding:12px;">' + t.id + '</td><td style="padding:12px;">' + escapeHtml(t.user_email) + '</td><td style="padding:12px;"><span class="ticket-type-badge ' + t.type + '">' + (typeLabels[t.type] || t.type) + '</span></td><td style="padding:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(t.subject) + '</td><td style="padding:12px;"><span class="ticket-status-badge ' + t.status + '">' + (statusLabels[t.status]) + '</span></td><td style="padding:12px;font-size:12px;color:#86868b;">' + new Date(t.created_at).toLocaleString() + '</td><td style="padding:12px;"><button class="btn" onclick="showTicketDetail(' + t.id + ')" style="padding:4px 12px;font-size:12px;">View</button></td></tr>').join('');
+    }
+
+    let currentTicketId = null;
+
+    async function showTicketDetail(ticketId) {
+      currentTicketId = ticketId;
+      showLoading();
+      try {
+        const response = await fetch(API_BASE + '/tickets/' + ticketId, { headers: { 'X-Admin-Key': adminKey } });
+        const data = await response.json();
+        if (data.success) { renderTicketModal(data); hideLoading(); }
+        else { showToast('Failed to load ticket', 'error'); hideLoading(); }
+      } catch (error) { console.error('Load ticket error:', error); showToast('Failed to load ticket', 'error'); hideLoading(); }
+    }
+
+    function renderTicketModal(data) {
+      const ticket = data.ticket;
+      const order = data.order;
+      const replies = data.replies || [];
+      const typeLabels = { payment: 'Payment', order: 'Order', technical: 'Technical', other: 'Other' };
+      const statusLabels = { pending: 'Pending', processing: 'Processing', resolved: 'Resolved', closed: 'Closed' };
+      const modal = document.createElement('div');
+      modal.id = 'ticketDetailModal';
+      modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;';
+      modal.innerHTML = '<div style="background:white;border-radius:12px;width:90%;max-width:700px;max-height:90vh;overflow-y:auto;padding:24px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><h3 style="margin:0;">Ticket #' + ticket.id + '</h3><button onclick="closeTicketModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#86868b;">x</button></div><div style="margin-bottom:16px;"><div style="display:flex;gap:12px;margin-bottom:12px;"><span class="ticket-type-badge ' + ticket.type + '">' + typeLabels[ticket.type] + '</span><span class="ticket-status-badge ' + ticket.status + '">' + statusLabels[ticket.status] + '</span></div><div style="font-size:14px;color:#86868b;"><div>User: ' + escapeHtml(ticket.user_email) + '</div><div>Order: #' + ticket.order_id + (order ? ' (¥' + order.amount + ', ' + order.duration_days + ' days)' : '') + '</div><div>Created: ' + new Date(ticket.created_at).toLocaleString() + '</div></div></div><div style="background:#f5f5f7;padding:16px;border-radius:8px;margin-bottom:20px;"><h4 style="margin:0 0 8px;font-size:14px;color:#86868b;">Subject</h4><p style="margin:0;font-size:16px;font-weight:600;">' + escapeHtml(ticket.subject) + '</p><h4 style="margin:16px 0 8px;font-size:14px;color:#86868b;">Description</h4><p style="margin:0;color:#1a1a1a;line-height:1.6;white-space:pre-wrap;">' + escapeHtml(ticket.description) + '</p></div><h4 style="margin:0 0 16px;font-size:14px;color:#86868b;text-transform:uppercase;">Replies</h4><div id="ticketReplies" style="max-height:300px;overflow-y:auto;margin-bottom:20px;">' + (replies.length === 0 ? '<p style="text-align:center;color:#86868b;padding:20px;">No replies yet</p>' : replies.map(r => '<div style="background:' + (r.is_admin ? '#e3f2fd' : '#f5f5f7') + ';border-radius:8px;padding:12px;margin-bottom:12px;' + (r.is_admin ? 'border-left:3px solid #0071e3;' : '') + '"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><strong style="color:' + (r.is_admin ? '#0071e3' : '#1a1a1a') + '">' + (r.is_admin ? 'Support' : escapeHtml(r.user_email || 'User')) + '</strong><span style="font-size:12px;color:#86868b;">' + new Date(r.created_at).toLocaleString() + '</span></div><p style="margin:0;color:#1a1a1a;line-height:1.5;">' + escapeHtml(r.content) + '</p></div>').join('')) + '</div>' + (ticket.status !== 'closed' ? '<div style="border-top:1px solid #e5e5ea;padding-top:20px;"><textarea id="adminReplyContent" placeholder="Type your reply..." style="width:100%;min-height:80px;padding:12px;border:1px solid #d2d2d7;border-radius:8px;margin-bottom:12px;font-size:14px;resize:vertical;"></textarea><div style="display:flex;gap:8px;justify-content:flex-end;"><button class="btn" onclick="resolveTicket()" style="background:#34c759;color:white;">Mark Resolved</button><button class="btn" onclick="closeTicketFromAdmin()" style="background:#86868b;color:white;">Close Ticket</button><button class="btn btn-primary" onclick="submitAdminReply()">Send Reply</button></div></div>' : '<p style="text-align:center;color:#86868b;padding:20px;border-top:1px solid #e5e5ea;">This ticket is closed</p>') + '</div></div>';
+      document.body.appendChild(modal);
+      modal.addEventListener('click', function(e) { if (e.target === modal) closeTicketModal(); });
+    }
+
+    function closeTicketModal() { var m = document.getElementById('ticketDetailModal'); if (m) m.remove(); currentTicketId = null; }
+
+    async function submitAdminReply() {
+      var content = document.getElementById('adminReplyContent').value.trim();
+      if (!content) { showToast('Please enter reply content', 'warning'); return; }
+      var response = await fetch(API_BASE + '/tickets/' + currentTicketId + '/reply', { method: 'POST', headers: { 'X-Admin-Key': adminKey, 'Content-Type': 'application/json' }, body: JSON.stringify({ content: content }) });
+      var data = await response.json();
+      if (data.success) { showToast('Reply sent successfully', 'success'); showTicketDetail(currentTicketId); }
+      else { showToast('Failed to send reply', 'error'); }
+    }
+
+    async function resolveTicket() {
+      var response = await fetch(API_BASE + '/tickets/' + currentTicketId + '/resolve', { method: 'POST', headers: { 'X-Admin-Key': adminKey } });
+      var data = await response.json();
+      if (data.success) { showToast('Ticket marked as resolved', 'success'); closeTicketModal(); loadTickets(); }
+      else { showToast('Failed to resolve ticket', 'error'); }
+    }
+
+    async function closeTicketFromAdmin() {
+      if (!confirm('Close this ticket?')) return;
+      var response = await fetch(API_BASE + '/tickets/' + currentTicketId + '/close', { method: 'POST', headers: { 'X-Admin-Key': adminKey } });
+      var data = await response.json();
+      if (data.success) { showToast('Ticket closed', 'success'); closeTicketModal(); loadTickets(); }
+      else { showToast('Failed to close ticket', 'error'); }
     }
   </script>
 </body>

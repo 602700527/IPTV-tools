@@ -1598,11 +1598,17 @@ export async function handleAdminRequest(request, env, ctx) {
           if (request.method === 'GET') {
             return await handleGetPaymentMethods(request, env);
           } else if (request.method === 'POST') {
-            return await handleUpdatePaymentMethod(request, env);
-          } else if (request.method === 'PUT' && pathParts[4]) {
-            // 切换支付方式状态
-            const id = parseInt(pathParts[4]);
-            return await handleTogglePaymentMethod(request, env, ctx, id);
+            return await handleCreatePaymentMethod(request, env);
+          } else if (request.method === 'PUT') {
+            // 更新支付方式配置（没有 pathParts[4] 时）或切换状态（有 pathParts[4] 时）
+            if (pathParts[4]) {
+              // 切换支付方式状态: /admin/mall/payment-methods/{id}
+              const id = parseInt(pathParts[4]);
+              return await handleTogglePaymentMethod(request, env, ctx, id);
+            } else {
+              // 更新支付方式配置: /admin/mall/payment-methods
+              return await handleUpdatePaymentMethod(request, env);
+            }
           } else if (request.method === 'DELETE' && pathParts[4]) {
             // 删除支付方式（从URL查询参数中获取id）
             const id = pathParts[4];
@@ -2125,6 +2131,10 @@ export async function handleAdminRequest(request, env, ctx) {
         }
         break;
 
+      case 'tickets':
+        // 工单管理
+        return await handleAdminTickets(request, env, ctx);
+
       default:
         return new Response('Invalid admin action', { status: 400 });
     }
@@ -2408,6 +2418,287 @@ export async function handleTogglePaymentMethod(request, env, ctx, id) {
       headers: { 'Content-Type': 'application/json' }
     });
   }
+}
+
+/**
+ * Ticket management routes
+ * /admin/tickets - List tickets
+ * /admin/tickets/:id - Ticket details
+ * /admin/tickets/:id/reply - Admin reply
+ * /admin/tickets/:id/resolve - Mark as resolved
+ * /admin/tickets/:id/close - Close ticket
+ */
+export async function handleAdminTickets(request, env, ctx) {
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/');
+  const ticketId = pathParts[3]; // /admin/tickets/:id 中的 :id
+  const subAction = pathParts[4]; // /admin/tickets/:id/:action 中的 action
+
+  try {
+    const db = getDB();
+
+    // 列表 GET /admin/tickets
+    if (request.method === 'GET' && !ticketId) {
+      const status = url.searchParams.get('status');
+      const type = url.searchParams.get('type');
+      const search = url.searchParams.get('search');
+
+      let query = `
+        SELECT t.*, u.email as user_email
+        FROM tickets t
+        LEFT JOIN users u ON t.user_id = u.id
+        WHERE 1=1
+      `;
+      const bindings = [];
+
+      if (status && status !== 'all') {
+        query += ' AND t.status = ?';
+        bindings.push(status);
+      }
+
+      if (type && type !== 'all') {
+        query += ' AND t.type = ?';
+        bindings.push(type);
+      }
+
+      if (search) {
+        query += ' AND (u.email LIKE ? OR t.subject LIKE ?)';
+        bindings.push(`%${search}%`, `%${search}%`);
+      }
+
+      query += ' ORDER BY t.created_at DESC';
+
+      console.log('[Admin Tickets] Executing query:', query);
+      console.log('[Admin Tickets] Bindings:', bindings);
+      
+      const tickets = await db.prepare(query).bind(...bindings).all();
+      console.log('[Admin Tickets] Query result:', tickets);
+
+      return new Response(JSON.stringify({
+        success: true,
+        tickets: tickets.results || []
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 详情 GET /admin/tickets/:id
+    if (request.method === 'GET' && ticketId && !subAction) {
+      const ticket = await db.prepare(`
+        SELECT t.*, u.email as user_email
+        FROM tickets t
+        JOIN users u ON t.user_id = u.id
+        WHERE t.id = ?
+      `).bind(ticketId).first();
+
+      if (!ticket) {
+        return new Response(JSON.stringify({ success: false, error: 'Ticket not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      // 获取订单信息
+      const order = await db.prepare(`
+        SELECT * FROM user_orders WHERE order_id = ?
+      `).bind(ticket.order_id).first();
+
+      // 获取回复
+      const replies = await db.prepare(`
+        SELECT r.*, u.email as user_email
+        FROM ticket_replies r
+        LEFT JOIN users u ON r.user_id = u.id
+        WHERE r.ticket_id = ?
+        ORDER BY r.created_at ASC
+      `).bind(ticketId).all();
+
+      return new Response(JSON.stringify({
+        success: true,
+        ticket: ticket,
+        order: order,
+        replies: replies.results || []
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 回复 POST /admin/tickets/:id/reply
+    if (request.method === 'POST' && subAction === 'reply') {
+      const { content } = await request.json();
+
+      if (!content || !content.trim()) {
+        return new Response(JSON.stringify({ success: false, error: 'Content is required' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      const ticket = await db.prepare('SELECT * FROM tickets WHERE id = ?').bind(ticketId).first();
+
+      if (!ticket) {
+        return new Response(JSON.stringify({ success: false, error: 'Ticket not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      // 添加管理员回复
+      await db.prepare(`
+        INSERT INTO ticket_replies (ticket_id, user_id, is_admin, content)
+        VALUES (?, NULL, 1, ?)
+      `).bind(ticketId, content.trim()).run();
+
+      // 更新工单状态为 processing
+      await db.prepare(`
+        UPDATE tickets SET status = 'processing', updated_at = datetime('now') WHERE id = ?
+      `).bind(ticketId).run();
+
+      // 发送邮件通知用户
+      try {
+        const { sendEmail } = await import('../utils/email.js');
+        const emailHtml = generateUserNotificationHtml('reply', ticket.subject);
+        await sendEmail(ticket.user_email, `工单回复通知 - ${ticket.subject}`, emailHtml, env);
+      } catch (emailError) {
+        console.error('[Admin Ticket] Failed to send user notification email:', emailError);
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        message: 'Reply added successfully'
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 标记为已解决 POST /admin/tickets/:id/resolve
+    if (request.method === 'POST' && subAction === 'resolve') {
+      const ticket = await db.prepare('SELECT * FROM tickets WHERE id = ?').bind(ticketId).first();
+
+      if (!ticket) {
+        return new Response(JSON.stringify({ success: false, error: 'Ticket not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      await db.prepare(`
+        UPDATE tickets SET status = 'resolved', resolved_at = datetime('now'), updated_at = datetime('now') WHERE id = ?
+      `).bind(ticketId).run();
+
+      // 发送邮件通知用户
+      try {
+        const { sendEmail } = await import('../utils/email.js');
+        const emailHtml = generateUserNotificationHtml('resolved', ticket.subject);
+        await sendEmail(ticket.user_email, `工单已解决 - ${ticket.subject}`, emailHtml, env);
+      } catch (emailError) {
+        console.error('[Admin Ticket] Failed to send user notification email:', emailError);
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        message: 'Ticket resolved successfully'
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 关闭工单 POST /admin/tickets/:id/close
+    if (request.method === 'POST' && subAction === 'close') {
+      const ticket = await db.prepare('SELECT * FROM tickets WHERE id = ?').bind(ticketId).first();
+
+      if (!ticket) {
+        return new Response(JSON.stringify({ success: false, error: 'Ticket not found' }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      await db.prepare(`
+        UPDATE tickets SET status = 'closed', updated_at = datetime('now') WHERE id = ?
+      `).bind(ticketId).run();
+
+      // 发送邮件通知用户
+      try {
+        const { sendEmail } = await import('../utils/email.js');
+        const emailHtml = generateUserNotificationHtml('closed', ticket.subject);
+        await sendEmail(ticket.user_email, `工单已关闭 - ${ticket.subject}`, emailHtml, env);
+      } catch (emailError) {
+        console.error('[Admin Ticket] Failed to send user notification email:', emailError);
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        message: 'Ticket closed successfully'
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    return new Response(JSON.stringify({ success: false, error: 'Invalid action' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('[Admin Tickets] Error:', error);
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * 生成用户通知邮件 HTML (Admin用)
+ */
+function generateUserNotificationHtml(action, ticketSubject) {
+  const actionLabels = {
+    reply: '工单回复通知',
+    resolved: '工单已解决',
+    closed: '工单已关闭'
+  };
+
+  const actionMessages = {
+    reply: '管理员已回复您的工单，请查看。',
+    resolved: '您的工单已标记为已解决。',
+    closed: '您的工单已被关闭。'
+  };
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${actionLabels[action]}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f7; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <div style="background: linear-gradient(135deg, #e50914 0%, #b81d24 100%); padding: 30px; text-align: center;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 24px;">📺 TV Live Service</h1>
+      <p style="color: rgba(255,255,255,0.8); margin: 10px 0 0; font-size: 14px;">${actionLabels[action]}</p>
+    </div>
+    
+    <div style="padding: 40px 30px;">
+      <h2 style="color: #1a1a1a; font-size: 20px; margin: 0 0 20px;">${ticketSubject}</h2>
+      
+      <p style="color: #666666; font-size: 16px; line-height: 1.6; margin: 0 0 30px;">
+        ${actionMessages[action]}
+      </p>
+      
+      <p style="color: #999; font-size: 12px; margin-top: 30px; text-align: center;">
+        请登录您的账户查看详情
+      </p>
+    </div>
+    
+    <div style="background-color: #f5f5f7; padding: 20px; text-align: center; border-top: 1px solid #e5e5e5;">
+      <p style="color: #999999; font-size: 12px; margin: 0;">
+        此邮件由系统自动发送，请勿回复。如有疑问，请联系客服。
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
 }
 
 

@@ -53,6 +53,13 @@ import {
   handleGetMallSettings,
   handleUpdateMallSettings
 } from './handlers/mall-api.js';
+import {
+  handleGetTickets,
+  handleCreateTicket,
+  handleGetTicket,
+  handleReplyTicket,
+  handleCloseTicket
+} from './handlers/ticket-api.js';
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { ACCOUNT_HTML } from './account-page.js';
@@ -544,7 +551,11 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       // 搜索结果页 - 使用新的 HTML 壳 + API 方案
       const query = url.searchParams.get('q') || '';
       const { generateSearchPage } = await import('./pages/search-page.js');
-      const html = generateSearchPage({ origin: url.origin, query });
+      const html = generateSearchPage({ 
+        origin: url.origin, 
+        query,
+        header: PAGE_HEADER
+      });
 
       return new Response(html, {
         headers: {
@@ -797,6 +808,23 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         });
       }
       return new Response('Method Not Allowed', { status: 405 });
+    } else if (path.startsWith('/api/tickets')) {
+      // User Ticket API
+      if (path === '/api/tickets' && request.method === 'GET') {
+        return await handleGetTickets(request, env);
+      } else if (path === '/api/tickets' && request.method === 'POST') {
+        return await handleCreateTicket(request, env);
+      } else if (path.match(/^\/api\/tickets\/\d+$/) && request.method === 'GET') {
+        const ticketId = path.split('/')[3];
+        return await handleGetTicket(request, env, ticketId);
+      } else if (path.match(/^\/api\/tickets\/\d+\/reply$/) && request.method === 'POST') {
+        const ticketId = path.split('/')[3];
+        return await handleReplyTicket(request, env, ticketId);
+      } else if (path.match(/^\/api\/tickets\/\d+\/close$/) && request.method === 'POST') {
+        const ticketId = path.split('/')[3];
+        return await handleCloseTicket(request, env, ticketId);
+      }
+      return new Response('Not Found', { status: 404 });
     } else if (path === '/plans' || path === '/plans/' || path === '/plans/index' || path === '/plans/index.html') {
       // 订阅计划页面 - 检查商城设置
       if (await isMallEnabled()) {

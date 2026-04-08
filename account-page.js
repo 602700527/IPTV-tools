@@ -154,6 +154,65 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
       .container{padding:25px 15px}
       .account-header{margin-bottom:20px}
     }
+    
+    /* Ticket styles */
+    .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .section-header h3{font-size:18px;font-weight:600;color:var(--text-primary)}
+    .btn-accent{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--accent) 0%,#ff3b30 100%);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+    .btn-accent:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(229,9,20,.3)}
+    .ticket-card{background:var(--bg-card);border-radius:12px;padding:20px;margin-bottom:12px;border:1px solid var(--border-light);cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+    .ticket-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--accent);opacity:0;transition:opacity .2s}
+    .ticket-card:hover{background:var(--bg-hover);transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.1)}
+    .ticket-card:hover::before{opacity:1}
+    .ticket-card.payment::before{background:#ffcc00}
+    .ticket-card.order::before{background:#34c759}
+    .ticket-card.technical::before{background:#007aff}
+    .ticket-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:10px}
+    .ticket-type{font-size:11px;font-weight:600;text-transform:uppercase;padding:5px 10px;border-radius:6px;background:rgba(229,9,20,.15);color:var(--accent)}
+    .ticket-type.payment{background:rgba(255,204,0,.15);color:#ffcc00}
+    .ticket-type.order{background:rgba(52,199,89,.15);color:#34c759}
+    .ticket-type.technical{background:rgba(0,122,255,.15);color:#007aff}
+    .ticket-status{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;flex-shrink:0}
+    .ticket-status.pending{background:rgba(255,204,0,.15);color:#ffcc00}
+    .ticket-status.processing{background:rgba(0,122,255,.15);color:#007aff}
+    .ticket-status.resolved{background:rgba(52,199,89,.15);color:#34c759}
+    .ticket-status.closed{background:rgba(142,142,147,.15);color:#8e8e93}
+    .ticket-subject{color:var(--text-primary);font-size:15px;font-weight:600;margin-bottom:10px;line-height:1.4}
+    .ticket-meta{color:var(--text-secondary);font-size:12px;display:flex;gap:16px;flex-wrap:wrap}
+    .ticket-meta svg{width:12px;height:12px;vertical-align:-2px;margin-right:4px}
+    .ticket-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);z-index:3000;align-items:center;justify-content:center;padding:20px}
+    .ticket-modal.show{display:flex}
+    .ticket-modal-content{background:var(--bg-secondary);border-radius:20px;padding:30px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;border:1px solid var(--border);animation:modalSlideIn .3s cubic-bezier(0.4,0,0.2,1)}
+    .ticket-modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+    .ticket-modal-header h3{margin:0;font-size:20px;font-weight:600;color:var(--text-primary)}
+    .ticket-modal-close{width:36px;height:36px;border-radius:50%;background:var(--bg-hover);border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:all .2s}
+    .ticket-modal-close:hover{background:var(--bg-card);color:var(--text-primary)}
+    .form-group{margin-bottom:20px}
+    .form-group label{display:block;margin-bottom:8px;font-weight:600;font-size:13px;color:var(--text-secondary)}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg-primary);color:var(--text-primary);transition:border-color .2s,box-shadow .2s}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(229,9,20,.1)}
+    .form-group textarea{min-height:120px;resize:vertical}
+    .btn{padding:12px 24px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s}
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-primary:hover{background:var(--accent-hover);transform:translateY(-1px)}
+    .btn-secondary{background:var(--bg-hover);color:var(--text-primary);border:1px solid var(--border)}
+    .btn-secondary:hover{background:var(--bg-card)}
+    .btn-danger{background:rgba(255,59,48,.15);color:#ff3b30;border:1px solid #ff3b30}
+    .btn-danger:hover{background:#ff3b30;color:#fff}
+    .ticket-reply{background:var(--bg-card);border-radius:12px;padding:16px;margin-bottom:12px;border-left:3px solid var(--accent)}
+    .ticket-reply.admin{border-left-color:#007aff}
+    .ticket-reply-header{display:flex;justify-content:space-between;margin-bottom:8px}
+    .ticket-reply-author{font-size:13px;font-weight:600;color:var(--text-primary)}
+    .ticket-reply.admin .ticket-reply-author{color:#007aff}
+    .ticket-reply-time{font-size:11px;color:var(--text-muted)}
+    .ticket-reply-content{color:var(--text-secondary);font-size:14px;line-height:1.5}
+    .ticket-reply-form{margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
+    .ticket-reply-form textarea{margin-bottom:12px}
+    .reply-list{max-height:400px;overflow-y:auto;margin-bottom:20px}
+    .empty-tickets{text-align:center;padding:50px 20px}
+    .empty-tickets-icon{width:64px;height:64px;margin:0 auto 16px;opacity:.4}
+    .empty-tickets h4{font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:8px}
+    .empty-tickets p{font-size:13px;color:var(--text-muted);margin-bottom:20px}
   </style>
 </head>
 <body>
@@ -170,6 +229,7 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="switchTab('info')" data-i18n="accountInfo">Account Info</button>
       <button class="nav-tab" onclick="switchTab('orders')" data-i18n="orderHistory">Order History</button>
+      <button class="nav-tab" onclick="switchTab('tickets')" data-i18n="myTickets">My Tickets</button>
     </div>
     
     <div id="infoTab" class="tab-content active">
@@ -184,6 +244,20 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
     <div id="ordersTab" class="tab-content">
       <div id="ordersList"></div>
       <div id="ordersLoading" class="loading">
+        <div class="spinner"></div>
+      </div>
+    </div>
+    
+    <div id="ticketsTab" class="tab-content">
+      <div class="section-header">
+        <h3 data-i18n="ticketList">Ticket List</h3>
+        <button class="btn-accent" onclick="showCreateTicketModal()" data-i18n="createTicket">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Create Ticket
+        </button>
+      </div>
+      <div id="ticketsList"></div>
+      <div id="ticketsLoading" class="loading">
         <div class="spinner"></div>
       </div>
     </div>
@@ -208,9 +282,66 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
          <p class="modal-tip-highlight">You can view order details in your account page after closing</p>
        </div>
      </div>
-   </div>
-   
-   <script>
+    </div>
+    
+    <!-- Create Ticket Modal -->
+    <div id="createTicketModal" class="ticket-modal">
+      <div class="ticket-modal-content">
+        <div class="ticket-modal-header">
+          <h3 data-i18n="createNewTicket">Create New Ticket</h3>
+          <button class="ticket-modal-close" onclick="closeCreateTicketModal()">×</button>
+        </div>
+        <form id="createTicketForm">
+          <div class="form-group">
+            <label data-i18n="selectOrder">Select Order</label>
+            <select id="ticketOrderId" required>
+              <option value="" data-i18n="selectOrderPlaceholder">-- Select an order --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label data-i18n="ticketType">Ticket Type</label>
+            <select id="ticketType" required>
+              <option value="payment" data-i18n="typePayment">Payment Issue</option>
+              <option value="order" data-i18n="typeOrder">Order Inquiry</option>
+              <option value="technical" data-i18n="typeTechnical">Technical Support</option>
+              <option value="other" data-i18n="typeOther">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label data-i18n="ticketSubject">Subject</label>
+            <input type="text" id="ticketSubject" required maxlength="200" placeholder="Enter ticket subject">
+          </div>
+          <div class="form-group">
+            <label data-i18n="ticketDescription">Description</label>
+            <textarea id="ticketDescription" required placeholder="Describe your issue in detail"></textarea>
+          </div>
+          <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button type="button" class="btn btn-secondary" onclick="closeCreateTicketModal()" data-i18n="cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary" data-i18n="submitTicket">Submit Ticket</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Ticket Detail Modal -->
+    <div id="ticketDetailModal" class="ticket-modal">
+      <div class="ticket-modal-content">
+        <div class="ticket-modal-header">
+          <h3 id="ticketDetailTitle">Ticket Details</h3>
+          <button class="ticket-modal-close" onclick="closeTicketDetailModal()">×</button>
+        </div>
+        <div id="ticketDetailContent"></div>
+        <div class="ticket-reply-form" id="ticketReplyForm">
+          <textarea id="replyContent" placeholder="Enter your reply..." style="width:100%;min-height:80px;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-primary);color:var(--text-primary);margin-bottom:12px;font-size:14px;"></textarea>
+          <div style="display:flex;gap:12px;justify-content:flex-end;">
+            <button type="button" class="btn btn-danger" onclick="closeTicketAction()" data-i18n="closeTicket">Close Ticket</button>
+            <button type="button" class="btn btn-primary" onclick="submitTicketReply()" data-i18n="sendReply">Send Reply</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
     const API_BASE = '/api/auth';
 
     // 智能判断浏览器语言
@@ -311,6 +442,8 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
         loadUserInfo();
       } else if (tab === 'orders') {
         loadOrderHistory();
+      } else if (tab === 'tickets') {
+        loadTickets();
       }
     }
     
@@ -455,6 +588,285 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
         showToast(t('networkError'), 'error');
       } finally {
         loadingDiv.classList.remove('active');
+      }
+    }
+    
+    async function loadTickets() {
+      const ticketsListDiv = document.getElementById('ticketsList');
+      const loadingDiv = document.getElementById('ticketsLoading');
+      
+      ticketsListDiv.innerHTML = '';
+      loadingDiv.classList.add('active');
+      
+      try {
+        const response = await fetch('/api/tickets', {
+          headers: {
+            'Authorization': 'Bearer ' + getToken()
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          const tickets = data.tickets || [];
+          
+          if (tickets.length === 0) {
+ticketsListDiv.innerHTML = \`
+              <div class="empty-tickets">
+                <svg class="empty-tickets-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                </svg>
+                <h4>No tickets yet</h4>
+                <p>If you have any questions about your orders, feel free to contact us</p>
+                <button class="btn-accent" onclick="showCreateTicketModal()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Create Your First Ticket
+                </button>
+              </div>
+            \`;
+          } else {
+            ticketsListDiv.innerHTML = tickets.map(ticket => {
+              const createdDate = new Date(ticket.created_at);
+              const typeLabels = { payment: 'Payment', order: 'Order', technical: 'Technical', other: 'Other' };
+              return \`
+                <div class="ticket-card \${ticket.type}" onclick="showTicketDetail(\${ticket.id})">
+                  <div class="ticket-header">
+                    <span class="ticket-type \${ticket.type}">\${typeLabels[ticket.type] || ticket.type}</span>
+                    <span class="ticket-status \${ticket.status}">\${ticket.status}</span>
+                  </div>
+                  <div class="ticket-subject">\${ticket.subject}</div>
+                  <div class="ticket-meta">
+                    <span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                      Order #\${ticket.order_id}
+                    </span>
+                    <span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/>
+                      </svg>
+                      \${createdDate.toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              \`;
+            }).join('');
+          }
+        } else {
+          showToast(data.error || 'Failed to load tickets', 'error');
+        }
+      } catch (error) {
+        console.error('Load tickets error:', error);
+        showToast('Network error', 'error');
+      } finally {
+        loadingDiv.classList.remove('active');
+      }
+    }
+    
+    async function showCreateTicketModal() {
+      document.getElementById('createTicketModal').classList.add('show');
+      
+      // Load orders for dropdown
+      try {
+        const response = await fetch('/api/auth/orders', {
+          headers: {
+            'Authorization': 'Bearer ' + getToken()
+          }
+        });
+        const data = await response.json();
+        
+        if (data.success && data.orders) {
+          const select = document.getElementById('ticketOrderId');
+          select.innerHTML = '<option value="">-- Select an order --</option>';
+          
+          data.orders.filter(o => o.status === 'completed').forEach(order => {
+            const date = new Date(order.created_at).toLocaleDateString();
+            select.innerHTML += \`<option value="\${order.order_id}">#\${order.order_id} - \${order.duration_days || '-'} days - \${order.amount ? '¥' + order.amount.toFixed(2) : '-'} (\${date})</option>\`;
+          });
+        }
+      } catch (error) {
+        console.error('Load orders error:', error);
+      }
+    }
+    
+    function closeCreateTicketModal() {
+      document.getElementById('createTicketModal').classList.remove('show');
+      document.getElementById('createTicketForm').reset();
+    }
+    
+    document.getElementById('createTicketForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const order_id = document.getElementById('ticketOrderId').value;
+      const type = document.getElementById('ticketType').value;
+      const subject = document.getElementById('ticketSubject').value;
+      const description = document.getElementById('ticketDescription').value;
+      
+      try {
+        const response = await fetch('/api/tickets', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + getToken(),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ order_id, type, subject, description })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showToast('Ticket created successfully', 'success');
+          closeCreateTicketModal();
+          loadTickets();
+        } else {
+          showToast(data.error || 'Failed to create ticket', 'error');
+        }
+      } catch (error) {
+        console.error('Create ticket error:', error);
+        showToast('Network error', 'error');
+      }
+    });
+    
+    let currentTicketId = null;
+    
+    async function showTicketDetail(ticketId) {
+      currentTicketId = ticketId;
+      document.getElementById('ticketDetailModal').classList.add('show');
+      
+      try {
+        const response = await fetch('/api/tickets/' + ticketId, {
+          headers: {
+            'Authorization': 'Bearer ' + getToken()
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          const ticket = data.ticket;
+          const replies = data.replies || [];
+          const typeLabels = { payment: 'Payment', order: 'Order', technical: 'Technical', other: 'Other' };
+          const statusLabels = { pending: 'Pending', processing: 'Processing', resolved: 'Resolved', closed: 'Closed' };
+          const createdDate = new Date(ticket.created_at).toLocaleString();
+          
+          document.getElementById('ticketDetailTitle').textContent = ticket.subject;
+          
+          let html = \`
+            <div style="margin-bottom:20px;">
+              <div style="display:flex;gap:12px;margin-bottom:12px;">
+                <span class="ticket-type \${ticket.type}">\${typeLabels[ticket.type]}</span>
+                <span class="ticket-status \${ticket.status}">\${statusLabels[ticket.status]}</span>
+              </div>
+              <div style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">
+                <span>Order: #\${ticket.order_id}</span> · <span>Created: \${createdDate}</span>
+              </div>
+              <div style="background:var(--bg-card);padding:16px;border-radius:8px;margin-bottom:20px;">
+                <p style="color:var(--text-primary);margin:0;line-height:1.6;">\${ticket.description}</p>
+              </div>
+            </div>
+            <h4 style="margin-bottom:16px;color:var(--text-secondary);font-size:14px;text-transform:uppercase;">Replies</h4>
+            <div class="reply-list">
+          \`;
+          
+          if (replies.length === 0) {
+            html += '<p style="color:var(--text-muted);text-align:center;padding:20px;">No replies yet</p>';
+          } else {
+            replies.forEach(reply => {
+              const replyDate = new Date(reply.created_at).toLocaleString();
+              const author = reply.is_admin ? 'Support' : 'You';
+              html += \`
+                <div class="ticket-reply \${reply.is_admin ? 'admin' : ''}">
+                  <div class="ticket-reply-header">
+                    <span class="ticket-reply-author">\${author}</span>
+                    <span class="ticket-reply-time">\${replyDate}</span>
+                  </div>
+                  <div class="ticket-reply-content">\${reply.content}</div>
+                </div>
+              \`;
+            });
+          }
+          
+          html += '</div>';
+          document.getElementById('ticketDetailContent').innerHTML = html;
+          
+          // Show/hide reply form based on ticket status
+          document.getElementById('ticketReplyForm').style.display = ticket.status === 'closed' ? 'none' : 'block';
+        } else {
+          showToast(data.error || 'Failed to load ticket', 'error');
+          closeTicketDetailModal();
+        }
+      } catch (error) {
+        console.error('Load ticket error:', error);
+        showToast('Network error', 'error');
+        closeTicketDetailModal();
+      }
+    }
+    
+    function closeTicketDetailModal() {
+      document.getElementById('ticketDetailModal').classList.remove('show');
+      currentTicketId = null;
+    }
+    
+    async function submitTicketReply() {
+      if (!currentTicketId) return;
+      
+      const content = document.getElementById('replyContent').value.trim();
+      if (!content) {
+        showToast('Please enter reply content', 'warning');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/tickets/' + currentTicketId + '/reply', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + getToken(),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ content })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showToast('Reply sent successfully', 'success');
+          document.getElementById('replyContent').value = '';
+          showTicketDetail(currentTicketId);
+        } else {
+          showToast(data.error || 'Failed to send reply', 'error');
+        }
+      } catch (error) {
+        console.error('Submit reply error:', error);
+        showToast('Network error', 'error');
+      }
+    }
+    
+    async function closeTicketAction() {
+      if (!currentTicketId) return;
+      
+      if (!confirm('Are you sure you want to close this ticket?')) return;
+      
+      try {
+        const response = await fetch('/api/tickets/' + currentTicketId + '/close', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + getToken()
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showToast('Ticket closed successfully', 'success');
+          closeTicketDetailModal();
+          loadTickets();
+        } else {
+          showToast(data.error || 'Failed to close ticket', 'error');
+        }
+      } catch (error) {
+        console.error('Close ticket error:', error);
+        showToast('Network error', 'error');
       }
     }
     

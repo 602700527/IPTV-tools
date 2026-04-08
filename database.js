@@ -871,6 +871,65 @@ export async function createTables(env) {
     console.error('Database: Failed to create ip_play_links table:', e);
   }
 
+  // 创建工单表
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS tickets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        order_id TEXT NOT NULL,
+        type TEXT NOT NULL,
+        subject TEXT NOT NULL,
+        description TEXT NOT NULL,
+        status TEXT DEFAULT 'pending',
+        priority TEXT DEFAULT 'normal',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        resolved_at DATETIME
+      )
+    `).run();
+    console.log('Database: tickets table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create tickets table:', e);
+  }
+
+  // 创建工单索引
+  try {
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_tickets_user_id ON tickets(user_id)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_tickets_order_id ON tickets(order_id)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_tickets_created_at ON tickets(created_at DESC)').run();
+    console.log('Database: tickets indexes created or already exist');
+  } catch (e) {
+    console.error('Database: Failed to create tickets indexes:', e);
+  }
+
+  // 创建工单回复表
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS ticket_replies (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ticket_id INTEGER NOT NULL,
+        user_id INTEGER,
+        is_admin BOOLEAN DEFAULT 0,
+        content TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    console.log('Database: ticket_replies table created or already exists');
+  } catch (e) {
+    console.error('Database: Failed to create ticket_replies table:', e);
+  }
+
+  // 创建工单回复索引
+  try {
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_ticket_replies_ticket_id ON ticket_replies(ticket_id)').run();
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_ticket_replies_created_at ON ticket_replies(created_at ASC)').run();
+    console.log('Database: ticket_replies indexes created or already exist');
+  } catch (e) {
+    console.error('Database: Failed to create ticket_replies indexes:', e);
+  }
+
   console.log('Tables created successfully');
   tablesCreated = true;  // 标记表已创建，避免重复执行
 }
