@@ -20,6 +20,11 @@ export const PAGE_HEADER = `
         </div>
         <div class="logo-text">IPTV<span>Search</span></div>
       </a>
+      <div class="search-box" style="flex: 1; max-width: 400px; margin: 0 1rem;">
+        <form action="/search" method="get" style="display: flex;">
+          <input type="text" name="q" placeholder="Search channels..." aria-label="Search channels" style="flex: 1; padding: 0.5rem 1rem 0.5rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: border-color var(--transition);">
+        </form>
+      </div>
       <div class="header-actions">
         <a href="/favorites" class="pill-btn" title="My Favorites">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
@@ -102,6 +107,12 @@ export const PAGE_HEADER = `
     .logo-icon svg { width: 36px; height: 36px; }
     .logo-text span { color: var(--accent); }
     .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .search-box { position: relative; }
+    .search-box input { width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: border-color var(--transition); }
+    .search-box input:focus { border-color: var(--accent); }
+    .search-box input::placeholder { color: var(--text-muted); }
+    .search-box form { display: flex; }
+    .search-box::before { content: '🔍'; position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; pointer-events: none; }
     .pill-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
     .pill-btn:hover { color: var(--accent); }
     .account-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
@@ -122,6 +133,9 @@ export const PAGE_HEADER = `
       .logo { flex-shrink: 0; }
       .logo-icon svg { width: 32px; height: 32px; }
       .logo-text { display: none; }
+      .search-box { width: 100%; order: 3; margin-top: 0.5rem; flex: none; max-width: none; }
+      .search-box input { padding: 0.5rem 1rem 0.5rem 2.5rem; font-size: 0.9rem; }
+      .search-box::before { font-size: 0.9rem; left: 0.8rem; }
       .header-actions { gap: 0.25rem; flex-shrink: 0; }
       .header-actions .pill-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
       .header-actions .pill-btn span { display: none; }

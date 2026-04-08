@@ -23,6 +23,20 @@ export function generateChannelPage(options = {}) {
     return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
   }
 
+  // Slugify function - must match the one in worker.js for consistent URLs
+  function slugify(str) {
+    if (!str) return '';
+    return str
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  // Build category slug for breadcrumb
+  const categorySlug = slugify(channel.group || '');
+
   // Build logo HTML
   const logoHtml = channel.logo 
     ? '<img src="' + escapeHtml(channel.logo) + '" alt="' + escapeHtml(channel.name) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';this.nextElementSibling.textContent=this.alt.charAt(0)">' +
@@ -67,7 +81,7 @@ export function generateChannelPage(options = {}) {
     '</div>' +
     '<div class="info-row">' +
       '<span class="info-label">Category</span>' +
-      '<span class="info-value"><a href="' + origin + '/category/' + encodeURIComponent(channel.group || '') + '" style="color: var(--accent)">' + escapeHtml(channel.group || 'Other') + '</a></span>' +
+      '<span class="info-value"><a href="' + origin + '/category/' + encodeURIComponent(categorySlug) + '" style="color: var(--accent)">' + escapeHtml(channel.group || 'Other') + '</a></span>' +
     '</div>' +
     '<div class="info-row">' +
       '<span class="info-label">Country/Region</span>' +
@@ -109,8 +123,8 @@ export function generateChannelPage(options = {}) {
     "description": "Watch " + channel.name + " live streaming for free on IPTV Search. " + channel.group + " category.",
     "thumbnailUrl": channel.logo || null,
     "image": channel.logo || null,
-    "contentUrl": origin + "/play/" + linkId + "/" + hash,
-    "embedUrl": origin + "/play/" + linkId + "/" + hash,
+    "contentUrl": channel.playUrl || origin + "/play/" + hash,
+    "embedUrl": channel.playUrl || origin + "/play/" + hash,
     "genre": channel.group || "TV Channel",
     "publisher": {
       "@type": "Organization",
@@ -121,7 +135,7 @@ export function generateChannelPage(options = {}) {
       "@type": "BreadcrumbList",
       "itemListElement": [
         {"@type": "ListItem", "position": 1, "name": "Home", "item": origin + "/"},
-        {"@type": "ListItem", "position": 2, "name": channel.group || "Channels", "item": origin + "/category/" + encodeURIComponent(channel.group || "")},
+        {"@type": "ListItem", "position": 2, "name": channel.group || "Channels", "item": origin + "/category/" + encodeURIComponent(categorySlug)},
         {"@type": "ListItem", "position": 3, "name": channel.name, "item": origin + "/channel/" + hash}
       ]
     }
@@ -149,7 +163,7 @@ export function generateChannelPage(options = {}) {
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "${origin}/" },
-      { "@type": "ListItem", "position": 2, "name": "${escapeJs(channel.group || 'Other')}", "item": "${origin}/category/${encodeURIComponent(channel.group || '')}" },
+      { "@type": "ListItem", "position": 2, "name": "${escapeJs(channel.group || 'Other')}", "item": "${origin}/category/${encodeURIComponent(categorySlug)}" },
       { "@type": "ListItem", "position": 3, "name": "${escapeJs(channel.name)}" }
     ]
   }
@@ -442,7 +456,7 @@ export function generateChannelPage(options = {}) {
       <span class="breadcrumb-text">Home</span>
     </a>
     <span class="breadcrumb-sep">›</span>
-    <a href="${origin}/category/${encodeURIComponent(channel.group || '')}" class="breadcrumb-cat">${escapeHtml(channel.group || 'Other')}</a>
+    <a href="${origin}/category/${encodeURIComponent(categorySlug)}" class="breadcrumb-cat">${escapeHtml(channel.group || 'Other')}</a>
     <span class="breadcrumb-sep">›</span>
     <span class="breadcrumb-current">${escapeHtml(channel.name)}</span>
   </nav>
