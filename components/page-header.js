@@ -44,6 +44,12 @@ export const PAGE_HEADER = `
     </div>
   </header>
 
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137" crossorigin="anonymous"></script>
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2205598928191137" data-ad-slot="9663554756" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+
   <script>
     (function() {
       const saved = localStorage.getItem('theme');
