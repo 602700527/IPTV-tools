@@ -141,6 +141,8 @@ export const PAGE_HEADER = `
       .header-actions .pill-btn span { display: none; }
       .theme-toggle { width: 32px; height: 32px; background: transparent; border: none; padding: 0; flex-shrink: 0; }
       .account-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
+      #translateSelectLanguage { min-width: 50px; padding: 0.5rem 1rem 0.5rem 0.5rem; font-size: 0.75rem; }
+      #translate::after { right: 0.4rem; border-top: 4px solid var(--text-secondary); }
     }
   </style>
 
