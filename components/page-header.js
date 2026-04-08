@@ -21,8 +21,13 @@ export const PAGE_HEADER = `
         <div class="logo-text">IPTV<span>Search</span></div>
       </a>
       <div class="search-box" style="flex: 1; max-width: 400px; margin: 0 1rem;">
-        <form action="/search" method="get" style="display: flex;">
-          <input type="text" name="q" placeholder="Search channels..." aria-label="Search channels" style="flex: 1; padding: 0.5rem 1rem 0.5rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: border-color var(--transition);">
+        <form action="/search" method="get" style="display: flex; gap: 0;">
+          <input type="text" name="q" placeholder="Search channels..." aria-label="Search channels" style="flex: 1; padding: 0.5rem 1rem 0.5rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px 0 0 20px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: border-color var(--transition); border-right: none;">
+          <button type="submit" class="search-btn" aria-label="Search" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 0 20px 20px 0; padding: 0 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color: var(--text-secondary);">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+          </button>
         </form>
       </div>
       <div class="header-actions">
@@ -118,7 +123,7 @@ export const PAGE_HEADER = `
     .search-box input:focus { border-color: var(--accent); }
     .search-box input::placeholder { color: var(--text-muted); }
     .search-box form { display: flex; }
-    .search-box::before { content: '🔍'; position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; pointer-events: none; }
+    .search-box::before { display: none; }
     .pill-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
     .pill-btn:hover { color: var(--accent); }
     .account-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
