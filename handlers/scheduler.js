@@ -1,6 +1,6 @@
 // 定时任务处理器：自动同步已启用的数据源和刷新缓存
 import { getDB, fetchAndParseM3U, fetchAndParseM3UOnly, initDB, getSyncFilterConfig } from '../database.js';
-import { cacheChannelsToKV } from '../utils/channel-cache.js';
+import { cacheChannelsToKV, generateAndCacheSitemap } from '../utils/channel-cache.js';
 import { flushCacheToDB } from '../utils/cache.js';
 
 // 并发控制锁
@@ -221,6 +221,15 @@ async function syncAllSources(db, env) {
       const cacheResult = await cacheChannelsToKV(env);
       if (cacheResult.success) {
         console.log(`[Scheduler] Cached ${cacheResult.cachedCount} channels to KV`);
+        
+        // 生成sitemap并缓存
+        console.log('[Scheduler] Generating and caching sitemap...');
+        const sitemapResult = await generateAndCacheSitemap(env);
+        if (sitemapResult.success) {
+          console.log('[Scheduler] Sitemap cached to KV');
+        } else {
+          console.error('[Scheduler] Failed to cache sitemap:', sitemapResult.error);
+        }
       } else {
         console.error('[Scheduler] Failed to cache channels:', cacheResult.error);
       }
@@ -499,6 +508,15 @@ export async function manualSyncAll(env, filter = null) {
       const cacheResult = await cacheChannelsToKV(env);
       if (cacheResult.success) {
         console.log(`[Scheduler] Cached ${cacheResult.cachedCount} channels to KV`);
+        
+        // 生成sitemap并缓存
+        console.log('[Scheduler] Generating and caching sitemap...');
+        const sitemapResult = await generateAndCacheSitemap(env);
+        if (sitemapResult.success) {
+          console.log('[Scheduler] Sitemap cached to KV');
+        } else {
+          console.error('[Scheduler] Failed to cache sitemap:', sitemapResult.error);
+        }
       } else {
         console.error('[Scheduler] Failed to cache channels:', cacheResult.error);
       }

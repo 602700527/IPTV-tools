@@ -4,6 +4,7 @@ import { getDB } from '../database.js';
 const CHANNELS_CACHE_KEY = 'channels_cache';
 const GROUPS_CACHE_KEY = 'groups_cache';
 const CACHE_VERSION_KEY = 'channels_cache_version';
+const SITEMAP_CACHE_KEY = 'sitemap_xml';
 
 /**
  * 将所有频道数据缓存到 KV
@@ -350,5 +351,142 @@ export async function getCacheStatus(env) {
       channelsCached: false,
       groupsCached: false
     };
+  }
+}
+
+/**
+ * 生成sitemap XML并缓存到KV
+ * 在数据源同步后调用
+ * @param {Object} env - Cloudflare Workers 环境
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function generateAndCacheSitemap(env) {
+  try {
+    const db = getDB();
+    const baseUrl = env.APP_URL || 'https://iptv-search.com';
+    const today = new Date().toISOString().split('T')[0];
+    
+    let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+    
+    // 静态页面
+    const staticPages = [
+      { loc: '/', priority: '1.0', changefreq: 'daily' },
+      { loc: '/favorites', priority: '0.8', changefreq: 'weekly' },
+      { loc: '/plans', priority: '0.8', changefreq: 'weekly' },
+      { loc: '/account', priority: '0.6', changefreq: 'monthly' },
+      { loc: '/tutorial', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/privacy-policy', priority: '0.5', changefreq: 'yearly' },
+      { loc: '/terms', priority: '0.5', changefreq: 'yearly' },
+      { loc: '/usa-iptv', priority: '0.8', changefreq: 'weekly' },
+      { loc: '/uk-iptv-plans', priority: '0.8', changefreq: 'weekly' },
+      { loc: '/android-iptv-app', priority: '0.8', changefreq: 'weekly' },
+      { loc: '/free-iptv-app-review', priority: '0.8', changefreq: 'weekly' }
+    ];
+    
+    staticPages.forEach(page => {
+      sitemap += '  <url>\n';
+      sitemap += `    <loc>${baseUrl}${page.loc}</loc>\n`;
+      sitemap += `    <lastmod>${today}</lastmod>\n`;
+      sitemap += `    <changefreq>${page.changefreq}</changefreq>\n`;
+      sitemap += `    <priority>${page.priority}</priority>\n`;
+      sitemap += '  </url>\n';
+    });
+    
+    // 获取所有分类
+    const categoriesResult = await db.prepare(`
+      SELECT DISTINCT group_title as category, COUNT(*) as count 
+      FROM channels 
+      WHERE is_active = 1 AND group_title IS NOT NULL AND group_title != ''
+      GROUP BY group_title 
+      ORDER BY count DESC
+    `).all();
+    
+    const categories = categoriesResult.results || [];
+    
+    categories.forEach(cat => {
+      sitemap += '  <url>\n';
+      sitemap += `    <loc>${baseUrl}/category/${encodeURIComponent(cat.category)}</loc>\n`;
+      sitemap += `    <lastmod>${today}</lastmod>\n`;
+      sitemap += '    <changefreq>daily</changefreq>\n';
+      sitemap += '    <priority>0.8</priority>\n';
+      sitemap += '  </url>\n';
+    });
+    
+    // 获取频道：每个分类至少1个，最多5000
+    const channelsResult = await db.prepare(`
+      SELECT c.channel_hash as hash, c.channel_name as name, c.group_title 
+      FROM channels c
+      WHERE c.is_active = 1
+      ORDER BY c.group_title, c.id DESC
+    `).all();
+    
+    const channels = channelsResult.results || [];
+    
+    // 按分类组织，确保每个分类至少1个
+    const categorySeen = new Set();
+    const selectedChannels = [];
+    
+    for (const ch of channels) {
+      if (!categorySeen.has(ch.group_title)) {
+        selectedChannels.push(ch);
+        categorySeen.add(ch.group_title);
+        if (selectedChannels.length >= 5000) break;
+      }
+    }
+    
+    // 如果还没到5000，随机补充其他频道
+    if (selectedChannels.length < 5000) {
+      const otherChannels = channels.filter(ch => !selectedChannels.some(s => s.hash === ch.hash));
+      for (const ch of otherChannels) {
+        selectedChannels.push(ch);
+        if (selectedChannels.length >= 5000) break;
+      }
+    }
+    
+    selectedChannels.forEach(ch => {
+      sitemap += '  <url>\n';
+      sitemap += `    <loc>${baseUrl}/channel/${ch.hash}</loc>\n`;
+      sitemap += `    <lastmod>${today}</lastmod>\n`;
+      sitemap += '    <changefreq>weekly</changefreq>\n';
+      sitemap += '    <priority>0.7</priority>\n';
+      sitemap += '  </url>\n';
+    });
+    
+    sitemap += '</urlset>';
+    
+    // 缓存到KV，24小时
+    await env.KV.put(SITEMAP_CACHE_KEY, sitemap, {
+      expirationTtl: 24 * 60 * 60 // 24小时
+    });
+    
+    console.log(`[ChannelCache] Sitemap cached to KV (${sitemap.length} bytes)`);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('[ChannelCache] Failed to generate sitemap:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 从KV获取sitemap
+ * @param {Object} env - Cloudflare Workers 环境
+ * @returns {Promise<{sitemap: string|null, fromCache: boolean}>}
+ */
+export async function getSitemapFromCache(env) {
+  try {
+    const sitemap = await env.KV.get(SITEMAP_CACHE_KEY);
+    
+    if (sitemap) {
+      console.log('[ChannelCache] Sitemap read from KV cache');
+      return { sitemap, fromCache: true };
+    }
+    
+    console.log('[ChannelCache] Sitemap not found in KV');
+    return { sitemap: null, fromCache: false };
+  } catch (error) {
+    console.error('[ChannelCache] Failed to get sitemap from KV:', error);
+    return { sitemap: null, fromCache: false };
   }
 }
