@@ -83,10 +83,6 @@ export function generateChannelPage(options = {}) {
       '<span class="info-label">Category</span>' +
       '<span class="info-value"><a href="' + origin + '/category/' + encodeURIComponent(categorySlug) + '" style="color: var(--accent)">' + escapeHtml(channel.group || 'Other') + '</a></span>' +
     '</div>' +
-    '<div class="info-row">' +
-      '<span class="info-label">Country/Region</span>' +
-      '<span class="info-value">China</span>' +
-    '</div>' +
     
     '<div class="info-row">' +
       '<span class="info-label">Last Updated</span>' +
