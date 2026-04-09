@@ -1,3 +1,8 @@
 node_modules/
 .wrangler/
 *.sqlite
+.static-output/
+static-output/
+dist/
+build/
+.cache/
