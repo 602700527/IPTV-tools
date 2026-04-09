@@ -914,13 +914,15 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         const db = getDB();
         
         // 获取所有分类
-        const categories = await db.prepare(`
-          SELECT DISTINCT channel_group as category, COUNT(*) as count 
+        const categoriesResult = await db.prepare(`
+          SELECT DISTINCT group_title as category, COUNT(*) as count 
           FROM channels 
-          WHERE is_active = 1 AND channel_group IS NOT NULL AND channel_group != ''
-          GROUP BY channel_group 
+          WHERE is_active = 1 AND group_title IS NOT NULL AND group_title != ''
+          GROUP BY group_title 
           ORDER BY count DESC
         `).all();
+        
+        const categories = categoriesResult.results || [];
         
         categories.forEach(cat => {
           sitemap += '  <url>\n';
@@ -933,21 +935,23 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         
         // 获取频道：每个分类至少1个，随机抽取总共不超5000
         // 首先获取每个分类的第一个频道（保证覆盖）
-        const channels = await db.prepare(`
-          SELECT c.hash, c.name, c.channel_group 
+        const channelsResult = await db.prepare(`
+          SELECT c.channel_hash as hash, c.channel_name as name, c.group_title 
           FROM channels c
           WHERE c.is_active = 1
-          ORDER BY c.channel_group, c.view_count DESC
+          ORDER BY c.group_title, c.id DESC
         `).all();
+        
+        const channels = channelsResult.results || [];
         
         // 按分类组织，用Set去重，确保每个分类至少1个
         const categorySeen = new Set();
         const selectedChannels = [];
         
         for (const ch of channels) {
-          if (!categorySeen.has(ch.channel_group)) {
+          if (!categorySeen.has(ch.group_title)) {
             selectedChannels.push(ch);
-            categorySeen.add(ch.channel_group);
+            categorySeen.add(ch.group_title);
             if (selectedChannels.length >= 5000) break;
           }
         }
