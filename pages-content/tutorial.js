@@ -1,6 +1,6 @@
 // 静态页面内容模块
-export const pageTitle = '使用教程 - TV Live Service';
-export const pageDescription = '了解如何在各种IPTV播放器中添加订阅地址。支持的播放器包括VLC、IPTV Smarters、Kodi等。';
+export const pageTitle = 'Smart TV IPTV 安装教程 - 三星/ LG/ Android TV IPTV安装指南';
+export const pageDescription = '详细图文教程教你如何在三星、LG、TCL、索尼等智能电视上安装IPTV应用。支持Android TV和Google TV。立即安装！';
 
 export const styles = `
   *{margin:0;padding:0;box-sizing:border-box}

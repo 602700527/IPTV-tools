@@ -167,6 +167,22 @@ export function generateHomePage(options = {}) {
 
     .loading { text-align: center; padding: 4rem; color: var(--text-secondary); }
 
+    /* Hot Topics Module */
+    .hot-topics { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    .hot-topics-header { text-align: center; margin-bottom: 1.5rem; }
+    .hot-topics-header h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--text-primary); }
+    .hot-topics-header p { color: var(--text-secondary); font-size: 0.9rem; }
+    .hot-topics-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+    .topic-card {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 1.25rem 1rem; background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; text-decoration: none; transition: all 0.25s ease; cursor: pointer;
+    }
+    .topic-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(229, 9, 20, 0.15); }
+    .topic-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .topic-title { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; }
+    .topic-desc { font-size: 0.75rem; color: var(--text-muted); }
+
     @media (max-width: 768px) {
       .header { padding: 0.5rem 0.75rem; }
       .header-inner { flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; }
@@ -190,6 +206,16 @@ export function generateHomePage(options = {}) {
       .category-card { padding: 1rem 0.75rem; }
       .category-icon { width: 32px; height: 32px; }
       .category-name { font-size: 0.8rem; }
+      .hot-topics { padding: 1.5rem 1rem; }
+      .hot-topics-header h2 { font-size: 1.25rem; }
+      .hot-topics-grid { grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+      .topic-card { padding: 1rem 0.5rem; }
+      .topic-icon { font-size: 1.5rem; }
+      .topic-title { font-size: 0.85rem; }
+      .topic-desc { font-size: 0.7rem; }
+    }
+    @media (max-width: 480px) {
+      .hot-topics-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -212,6 +238,40 @@ export function generateHomePage(options = {}) {
         <div class="hero-stat-value">4K</div>
         <div class="hero-stat-label">HD Quality</div>
       </div>
+    </div>
+  </section>
+
+  <section class="hot-topics">
+    <div class="hot-topics-header">
+      <h2>Popular Topics</h2>
+      <p>Explore curated content by category</p>
+    </div>
+    <div class="hot-topics-grid">
+      <a href="/usa-iptv" class="topic-card">
+        <span class="topic-icon">🇺🇸</span>
+        <span class="topic-title">USA IPTV</span>
+        <span class="topic-desc">US Live TV</span>
+      </a>
+      <a href="/uk-iptv-plans" class="topic-card">
+        <span class="topic-icon">🇬🇧</span>
+        <span class="topic-title">UK IPTV</span>
+        <span class="topic-desc">British Channels</span>
+      </a>
+      <a href="/tutorial" class="topic-card">
+        <span class="topic-icon">📺</span>
+        <span class="topic-title">Smart TV</span>
+        <span class="topic-desc">Setup Guide</span>
+      </a>
+      <a href="/android-iptv-app" class="topic-card">
+        <span class="topic-icon">🤖</span>
+        <span class="topic-title">Android</span>
+        <span class="topic-desc">IPTV Apps</span>
+      </a>
+      <a href="/free-iptv-app-review" class="topic-card">
+        <span class="topic-icon">🎬</span>
+        <span class="topic-title">Free IPTV</span>
+        <span class="topic-desc">App Reviews</span>
+      </a>
     </div>
   </section>
 

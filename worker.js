@@ -75,6 +75,10 @@ import { pageTitle as termsTitle, pageDescription as termsDesc, styles as termsS
 import { pageTitle as tutorialTitle, pageDescription as tutorialDesc, styles as tutorialStyles, content as tutorialContent } from './pages-content/tutorial.js';
 import { pageTitle as loginTitle, pageDescription as loginDesc, styles as loginStyles, content as loginContent } from './pages-content/login.js';
 import { pageTitle as forgotTitle, pageDescription as forgotDesc, styles as forgotStyles, content as forgotContent } from './pages-content/forgot-password.js';
+import { pageTitle as usaIptvTitle, pageDescription as usaIptvDesc, styles as usaIptvStyles, content as usaIptvContent } from './pages-content/usa-iptv.js';
+import { pageTitle as ukIptvTitle, pageDescription as ukIptvDesc, styles as ukIptvStyles, content as ukIptvContent } from './pages-content/uk-iptv-plans.js';
+import { pageTitle as androidIptvTitle, pageDescription as androidIptvDesc, styles as androidIptvStyles, content as androidIptvContent } from './pages-content/android-iptv-app.js';
+import { pageTitle as freeIptvTitle, pageDescription as freeIptvDesc, styles as freeIptvStyles, content as freeIptvContent } from './pages-content/free-iptv-app-review.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 import { LOGO_SVG, FAVICON_SVG, OG_IMAGE_SVG, APPLE_TOUCH_ICON_SVG, ICON_192_SVG, FAVICON_ICO_SVG } from './assets.js';
@@ -897,7 +901,11 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         { loc: '/account', priority: '0.6', changefreq: 'monthly' },
         { loc: '/tutorial', priority: '0.7', changefreq: 'monthly' },
         { loc: '/privacy-policy', priority: '0.5', changefreq: 'yearly' },
-        { loc: '/terms', priority: '0.5', changefreq: 'yearly' }
+        { loc: '/terms', priority: '0.5', changefreq: 'yearly' },
+        { loc: '/usa-iptv', priority: '0.8', changefreq: 'weekly' },
+        { loc: '/uk-iptv-plans', priority: '0.8', changefreq: 'weekly' },
+        { loc: '/android-iptv-app', priority: '0.8', changefreq: 'weekly' },
+        { loc: '/free-iptv-app-review', priority: '0.8', changefreq: 'weekly' }
       ];
       
       staticPages.forEach(page => {
@@ -1005,6 +1013,26 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/terms') {
       // 服务条款 - 使用静态页面
       return new Response(generateStaticPage(termsTitle, termsDesc, termsStyles, termsContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/usa-iptv') {
+      // USA IPTV 落地页
+      return new Response(generateStaticPage(usaIptvTitle, usaIptvDesc, usaIptvStyles, usaIptvContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/uk-iptv-plans') {
+      // UK IPTV 落地页
+      return new Response(generateStaticPage(ukIptvTitle, ukIptvDesc, ukIptvStyles, ukIptvContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/android-iptv-app') {
+      // Android IPTV App 推荐页
+      return new Response(generateStaticPage(androidIptvTitle, androidIptvDesc, androidIptvStyles, androidIptvContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/free-iptv-app-review') {
+      // 免费 IPTV App 评测页
+      return new Response(generateStaticPage(freeIptvTitle, freeIptvDesc, freeIptvStyles, freeIptvContent), {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     } else if (path.startsWith('/api/freesub')) {

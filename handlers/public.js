@@ -24,16 +24,16 @@ async function generateETag(content) {
  * @returns {number} 缓存时间（秒）
  */
 function determineCacheTime(search, group, fromCache) {
-  // 有搜索或分组过滤的请求：缓存5分钟
+  // 有搜索或分组过滤的请求：缓存1小时（减少API调用）
   if (search || group) {
-    return 300; // 5分钟
+    return 3600; // 60分钟
   }
   // 从KV缓存的默认请求：缓存12小时
   if (fromCache) {
     return 43200; // 12小时
   }
-  // 从数据库查询的请求：缓存1分钟（数据可能不是最新的）
-  return 60; // 1分钟
+  // 从数据库查询的请求：缓存5分钟
+  return 300; // 5分钟
 }
 
 // 公开公告API
