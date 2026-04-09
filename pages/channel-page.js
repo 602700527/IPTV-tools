@@ -147,7 +147,7 @@ export function generateChannelPage(options = {}) {
   <link rel="canonical" href="${origin}/channel/${hash}">
   <meta property="og:url" content="${origin}/channel/${hash}">
   <meta property="og:title" content="${escapeHtml(channel.name)} - Watch Live">
-  <meta property="og:description" content="Watch ${escapeHtml(channel.name)} live streaming for free">
+  <meta property="og:description" content="Watch ${escapeHtml(channel.name)} live on IPTV Search Engine. Free, no signup required.">
   ${channel.logo ? '<meta property="og:image" content="' + escapeHtml(channel.logo) + '">' : ''}
   <meta property="og:type" content="video.other">
   

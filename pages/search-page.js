@@ -10,8 +10,7 @@ export function generateSearchPage(options = {}) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${query ? `Search: ${query}` : 'Search Channels'} | IPTV Search</title>
-  <meta name="robots" content="noindex, follow">
-  <meta name="description" content="Search results for ${query} - Find live TV channels on IPTV Search">
+  <meta name="description" content="Find ${query} live TV channels on IPTV Search Engine. Free IPTV streaming - no signup required.">
   
   <script>
     (function() {

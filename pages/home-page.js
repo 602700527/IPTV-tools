@@ -13,11 +13,11 @@ export function generateHomePage(options = {}) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IPTV Search - Free Live TV Channel Directory</title>
-  <meta name="description" content="Discover 10,000+ free live TV channels. Search by category, country, or genre. Start watching instantly - no signup required!">
+  <title>Free IPTV Search Engine - 8000+ Live TV Channel Directory & Search</title>
+  <meta name="description" content="Discover 8000+ free live TV channels. Search by category, country, or genre. Start watching instantly - no signup required!">
   <link rel="canonical" href="${origin}/">
-  <meta property="og:title" content="IPTV Search - Free Live TV Channel Directory">
-  <meta property="og:description" content="Discover 10,000+ free live TV channels. Search by category, country, or genre.">
+  <meta property="og:title" content="Free IPTV Search Engine - 8000+ Live TV Channel Directory">
+  <meta property="og:description" content="Discover 8000+ free live TV channels. Search by category, country, or genre.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${origin}/">
   <meta property="og:image" content="${origin}/og-image.png">
@@ -306,8 +306,7 @@ export function generateHomePage(options = {}) {
           "publisher": {
             "@type": "Organization",
             "name": "IPTV Search",
-            "url": origin,
-            "sameAs": ["https://twitter.com/iptvsearch"]
+            "url": origin
           },
           "mainEntity": {
             "@type": "FAQPage",
@@ -315,7 +314,7 @@ export function generateHomePage(options = {}) {
             "mainEntity": [
               {"@type": "Question", "name": "How can I watch IPTV channels for free?", "acceptedAnswer": {"@type": "Answer", "text": "IPTV Search provides free access to watch live TV channels. Simply browse our directory, select a channel, and start watching. No registration or subscription required for basic access."}},
               {"@type": "Question", "name": "What devices support IPTV streaming?", "acceptedAnswer": {"@type": "Answer", "text": "Our IPTV streams work on most devices including Smart TVs (Samsung, LG, Sony), streaming devices (Roku, Firestick, Apple TV), computers, smartphones, and tablets. Use VLC player or any IPTV-compatible app."}},
-              {"@type": "Question", "name": "How many channels are available?", "acceptedAnswer": {"@type": "Answer", "text": "We offer over 10,000 live TV channels from around the world, covering news, sports, entertainment, movies, and more. New channels are added regularly."}},
+              {"@type": "Question", "name": "How many channels are available?", "acceptedAnswer": {"@type": "Answer", "text": "We offer over 8000+ live TV channels from around the world, covering news, sports, entertainment, movies, and more. New channels are added regularly."}},
               {"@type": "Question", "name": "Is IPTV legal?", "acceptedAnswer": {"@type": "Answer", "text": "IPTV Search only indexes publicly available streaming links. We do not host or produce any content. Users are responsible for ensuring compliance with their local laws and the content provider's terms of service."}},
               {"@type": "Question", "name": "What is the subscription plans?", "acceptedAnswer": {"@type": "Answer", "text": "We offer free basic access with ads. Premium subscription removes ads, provides HD/4K quality, and allows simultaneous connections. Visit our /plans page for current pricing."}},
               {"@type": "Question", "name": "Why is my channel not playing?", "acceptedAnswer": {"@type": "Answer", "text": "If a channel won't play, try: 1) Refresh the page, 2) Use a different player, 3) Check your internet connection, 4) Try a different channel. Some links may be temporary."}},

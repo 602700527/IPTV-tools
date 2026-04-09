@@ -885,6 +885,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/sitemap.xml') {
       // 动态生成 sitemap.xml
       const baseUrl = url.origin;
+      const today = new Date().toISOString().split('T')[0];
       let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n';
       sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
       
@@ -902,12 +903,13 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       staticPages.forEach(page => {
         sitemap += '  <url>\n';
         sitemap += `    <loc>${baseUrl}${page.loc}</loc>\n`;
+        sitemap += `    <lastmod>${today}</lastmod>\n`;
         sitemap += `    <changefreq>${page.changefreq}</changefreq>\n`;
         sitemap += `    <priority>${page.priority}</priority>\n`;
         sitemap += '  </url>\n';
       });
       
-      // 从数据库获取全部分类和频道（频道限制1000但覆盖所有分类）
+      // 从数据库获取全部分类和频道（频道限制5000但覆盖所有分类）
       try {
         const db = getDB();
         
@@ -923,12 +925,13 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         categories.forEach(cat => {
           sitemap += '  <url>\n';
           sitemap += `    <loc>${baseUrl}/category/${encodeURIComponent(cat.category)}</loc>\n`;
+          sitemap += `    <lastmod>${today}</lastmod>\n`;
           sitemap += '    <changefreq>daily</changefreq>\n';
           sitemap += '    <priority>0.8</priority>\n';
           sitemap += '  </url>\n';
         });
         
-        // 获取频道：每个分类至少1个，随机抽取总共不超1000
+        // 获取频道：每个分类至少1个，随机抽取总共不超5000
         // 首先获取每个分类的第一个频道（保证覆盖）
         const channels = await db.prepare(`
           SELECT c.hash, c.name, c.channel_group 
@@ -945,22 +948,23 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           if (!categorySeen.has(ch.channel_group)) {
             selectedChannels.push(ch);
             categorySeen.add(ch.channel_group);
-            if (selectedChannels.length >= 1000) break;
+            if (selectedChannels.length >= 5000) break;
           }
         }
         
-        // 如果还没到1000，随机补充其他频道
-        if (selectedChannels.length < 1000) {
+        // 如果还没到5000，随机补充其他频道
+        if (selectedChannels.length < 5000) {
           const otherChannels = channels.filter(ch => !selectedChannels.some(s => s.hash === ch.hash));
           for (const ch of otherChannels) {
             selectedChannels.push(ch);
-            if (selectedChannels.length >= 1000) break;
+            if (selectedChannels.length >= 5000) break;
           }
         }
         
         selectedChannels.forEach(ch => {
           sitemap += '  <url>\n';
           sitemap += `    <loc>${baseUrl}/channel/${ch.hash}</loc>\n`;
+          sitemap += `    <lastmod>${today}</lastmod>\n`;
           sitemap += '    <changefreq>weekly</changefreq>\n';
           sitemap += '    <priority>0.7</priority>\n';
           sitemap += '  </url>\n';
