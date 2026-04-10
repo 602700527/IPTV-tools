@@ -14,7 +14,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .section{margin-bottom:3rem}
 .section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem;padding-bottom:0.75rem;border-bottom:1px solid rgba(255,255,255,0.1)}
 .channel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
-.channel-item{background:#141414;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:1rem;text-align:center}
+.channel-item{background:#141414;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:1rem;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.channel-item:hover{border-color:#e50914}
 .channel-item .name{font-size:0.95rem;color:#fff}
 .benefit-list{max-width:800px;margin:0 auto}
 .benefit-item{display:flex;gap:1rem;padding:1.5rem;background:#141414;border-radius:12px;margin-bottom:1rem}
@@ -125,7 +126,7 @@ export const content = `
     const container = document.getElementById('channelList');
     if (data.success && data.channels && data.channels.length > 0) {
       container.innerHTML = data.channels.map(ch => 
-        '<div class="channel-item"><span class="name">' + ch.channel_name + '</span></div>'
+        '<a href="/channel/' + ch.channel_hash + '" class="channel-item"><span class="name">' + ch.channel_name + '</span></a>'
       ).join('');
     } else {
       container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;padding:2rem;grid-column:1/-1">No channels available</p>';
