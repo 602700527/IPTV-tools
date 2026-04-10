@@ -10,39 +10,105 @@ function generateCode() {
   return code;
 }
 
-// 生成随机卡密
-export async function generateActivationCode(env, durationDays, maxIPs, userId, isTestMode = false, baseUrl = '') {
-  const code = generateCode();
+/**
+ * 计算叠加后的过期时间
+ * @param {Date|null} existingExpiry - 现有订阅过期时间
+ * @param {number} newDurationDays - 新购买时长（天数，-1表示永久）
+ * @returns {Date|null} 新的过期时间
+ */
+function calculateStackedExpiry(existingExpiry, newDurationDays) {
   const now = new Date();
-
-  // 计算过期时间
-  let expiredAt = null;
-  // 永久卡密（duration_days = -1）不设置过期时间
-  if (durationDays !== -1) {
-    expiredAt = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
+  
+  // 永久卡密不计算过期时间
+  if (newDurationDays === -1) {
+    return null; // 永久有效
   }
+  
+  // 如果没有现有过期时间，或者已过期，从当前时间计算
+  const baseDate = existingExpiry && new Date(existingExpiry) > now 
+    ? new Date(existingExpiry) 
+    : now;
+  
+  // 叠加新时长
+  return new Date(baseDate.getTime() + newDurationDays * 24 * 60 * 60 * 1000);
+}
+
+/**
+ * 获取用户最新的有效订阅code
+ * @returns {Promise<string|null>} 有效订阅的code，如果没有则返回null
+ */
+async function getUserActiveCode(userId, db) {
+  const now = new Date().toISOString();
+  
+  // 查询用户最新的有效订阅（未过期的）
+  const result = await db.prepare(`
+    SELECT c.code, c.expired_at, c.duration_days
+    FROM user_orders o
+    JOIN codes c ON o.code = c.code
+    WHERE o.user_id = ?
+      AND o.status = 'completed'
+      AND (c.expired_at IS NULL OR c.expired_at > ?)
+    ORDER BY o.created_at DESC
+    LIMIT 1
+  `).bind(userId, now).first();
+  
+  return result || null;
+}
+
+// 生成随机卡密（支持叠加购买）
+export async function generateActivationCode(env, durationDays, maxIPs, userId, isTestMode = false, baseUrl = '') {
+  const now = new Date();
+  let code;
+  let expiredAt;
+  let isStacked = false;
 
   try {
-    // 生成卡密，状态为 active（已激活），激活时间为当天
-    await env.DB.prepare(`
-      INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, remark)
-      VALUES (?, 'active', ?, ?, ?, ?, ?)
-    `).bind(code, durationDays, now.toISOString(), expiredAt ? expiredAt.toISOString() : null, maxIPs, isTestMode ? `Test purchase by user ${userId}` : `User ${userId} purchase`).run();
-
-    // 获取生成的卡密ID
-    const generatedCode = await env.DB.prepare('SELECT code FROM codes WHERE code = ?').bind(code).first();
+    // 检查是否有现有的有效订阅
+    const existingCode = await getUserActiveCode(userId, env.DB);
+    
+    if (existingCode) {
+      // 叠加购买：延长现有code的过期时间
+      code = existingCode.code;
+      expiredAt = calculateStackedExpiry(existingCode.expired_at, durationDays);
+      isStacked = true;
+      
+      // 更新现有code的过期时间
+      await env.DB.prepare(`
+        UPDATE codes 
+        SET expired_at = ?, duration_days = ?
+        WHERE code = ?
+      `).bind(expiredAt ? expiredAt.toISOString() : null, durationDays, code).run();
+      
+      console.log('[Subscription] Stacked code:', code, 'for user:', userId, 'new duration:', durationDays, 'new expiry:', expiredAt);
+    } else {
+      // 新购买：创建新code
+      code = generateCode();
+      
+      // 计算过期时间
+      // 永久卡密（duration_days = -1）不设置过期时间
+      if (durationDays !== -1) {
+        expiredAt = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
+      }
+      
+      // 生成卡密，状态为 active（已激活），激活时间为当天
+      await env.DB.prepare(`
+        INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, remark)
+        VALUES (?, 'active', ?, ?, ?, ?, ?)
+      `).bind(code, durationDays, now.toISOString(), expiredAt ? expiredAt.toISOString() : null, maxIPs, isTestMode ? `Test purchase by user ${userId}` : `User ${userId} purchase`).run();
+      
+      console.log('[Subscription] Code generated:', code, 'for user:', userId, 'duration:', durationDays, 'max_ips:', maxIPs);
+    }
 
     // 生成订阅地址
     const subUrl = `${baseUrl}/sub/${code}.m3u`;
-
-    console.log('[Subscription] Code generated:', code, 'for user:', userId, 'duration:', durationDays, 'max_ips:', maxIPs);
 
     return {
       success: true,
       code: code,
       subUrl: subUrl,
       expiredAt: expiredAt ? expiredAt.toISOString() : null,
-      activatedAt: now.toISOString()
+      activatedAt: now.toISOString(),
+      stacked: isStacked
     };
   } catch (error) {
     console.error('[Subscription] Failed to generate code:', error);

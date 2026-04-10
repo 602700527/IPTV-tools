@@ -809,9 +809,9 @@ export async function handleGetOrderHistory(request, env, ctx) {
       });
     }
 
-    // 查询订单历史，关联codes表获取IP限制
+    // 查询订单历史，关联codes表获取IP限制和过期时间
     const ordersResult = await db.prepare(`
-      SELECT o.*, c.max_ips
+      SELECT o.*, c.max_ips, c.expired_at, c.duration_days as code_duration_days
       FROM user_orders o
       LEFT JOIN codes c ON o.code = c.code
       WHERE o.user_id = ?
@@ -1021,11 +1021,25 @@ export async function handleGetMemberStatus(request, env, ctx) {
   try {
     const db = getDB();
 
-    // 从 Cookie 获取 token
-    const cookieHeader = request.headers.get('Cookie') || '';
-    const tokenMatch = cookieHeader.match(/auth_token=([^;]+)/);
+    // 支持两种认证方式：Cookie 或 Authorization 头
+    let token = null;
+    
+    // 1. 尝试从 Authorization 头获取（Bearer token）
+    const authHeader = request.headers.get('Authorization') || '';
+    if (authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+    
+    // 2. 如果没有，尝试从 Cookie 获取
+    if (!token) {
+      const cookieHeader = request.headers.get('Cookie') || '';
+      const tokenMatch = cookieHeader.match(/auth_token=([^;]+)/);
+      if (tokenMatch) {
+        token = tokenMatch[1];
+      }
+    }
 
-    if (!tokenMatch) {
+    if (!token) {
       return new Response(JSON.stringify({
         success: true,
         isMember: false,
@@ -1034,8 +1048,6 @@ export async function handleGetMemberStatus(request, env, ctx) {
         headers: { 'Content-Type': 'application/json' }
       });
     }
-
-    const token = tokenMatch[1];
 
     // 验证会话并获取用户 ID
     const session = await db.prepare(`

@@ -213,6 +213,242 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
     .empty-tickets-icon{width:64px;height:64px;margin:0 auto 16px;opacity:.4}
     .empty-tickets h4{font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:8px}
     .empty-tickets p{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+    
+    /* VIP会员状态卡片样式 */
+    .vip-status-card {
+      background: linear-gradient(135deg, rgba(255,215,0,0.08) 0%, rgba(255,180,0,0.04) 100%);
+      border: 1px solid rgba(255,215,0,0.25);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .vip-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .vip-icon-wrapper {
+      width: 56px;
+      height: 56px;
+      background: rgba(255,215,0,0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid rgba(255,215,0,0.4);
+    }
+    .vip-icon {
+      font-size: 28px;
+    }
+    /* 段位颜色 - 青铜 */
+    .vip-icon-wrapper.tier-bronze {
+      background: rgba(205,127,50,0.15);
+      border-color: rgba(205,127,50,0.5);
+    }
+    .vip-icon-wrapper.tier-bronze .vip-icon {
+      filter: sepia(1) saturate(3) hue-rotate(-10deg) brightness(1.2);
+    }
+    /* 段位颜色 - 白银 */
+    .vip-icon-wrapper.tier-silver {
+      background: rgba(192,192,192,0.15);
+      border-color: rgba(192,192,192,0.5);
+    }
+    .vip-icon-wrapper.tier-silver .vip-icon {
+      filter: grayscale(100%) brightness(1.5);
+    }
+    /* 段位颜色 - 黄金 */
+    .vip-icon-wrapper.tier-gold {
+      background: rgba(255,215,0,0.15);
+      border-color: rgba(255,215,0,0.5);
+    }
+    .vip-icon-wrapper.tier-gold .vip-icon {
+      filter: none;
+    }
+    /* 段位颜色 - 翡翠 */
+    .vip-icon-wrapper.tier-emerald {
+      background: rgba(80,200,120,0.15);
+      border-color: rgba(80,200,120,0.5);
+    }
+    .vip-icon-wrapper.tier-emerald .vip-icon {
+      filter: hue-rotate(80deg) saturate(1.5) brightness(1.1);
+    }
+    /* 段位颜色 - 皇冠（彩虹） */
+    .vip-icon-wrapper.tier-crown {
+      background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,105,180,0.15), rgba(138,43,226,0.15));
+      border-color: rgba(255,215,0,0.6);
+    }
+    .vip-icon-wrapper.tier-crown .vip-icon {
+      filter: hue-rotate(300deg) saturate(1.8) brightness(1.15);
+    }
+    .vip-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .vip-tier {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .vip-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .vip-badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(52,199,89,0.2);
+      color: #34c759;
+      letter-spacing: 0.5px;
+    }
+    .vip-badge.expired {
+      background: rgba(255,59,48,0.2);
+      color: #ff3b30;
+    }
+    .vip-subscription {
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .sub-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .sub-item:last-child {
+      border-bottom: none;
+    }
+    .sub-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .sub-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .code-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 280px;
+    }
+    .code-text {
+      font-family: monospace;
+      font-size: 12px;
+      background: rgba(255,255,255,0.05);
+      padding: 6px 10px;
+      border-radius: 6px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 180px;
+    }
+    .copy-btn {
+      padding: 6px 12px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .copy-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    .vip-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .vip-perks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: rgba(0,0,0,0.15);
+      border-radius: 10px;
+    }
+    .perk-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+    }
+    .perk-icon {
+      color: #34c759;
+      font-weight: 700;
+    }
+    .btn-renew {
+      flex: 1;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, var(--accent) 0%, #b81d24 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-renew:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(229,9,20,0.3);
+    }
+    .btn-plans {
+      flex: 1;
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.1);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-plans:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    @media (max-width: 480px) {
+      .vip-header {
+        flex-wrap: wrap;
+      }
+      .vip-info {
+        flex: 1 1 calc(100% - 72px);
+      }
+      .vip-badge {
+        order: -1;
+        margin-bottom: 8px;
+      }
+      .code-row {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+      }
+      .code-text {
+        max-width: 140px;
+      }
+      .vip-actions {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body>
@@ -223,6 +459,42 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
       <h1 data-i18n="userCenter">👤 Account Center</h1>
       <div class="header-actions">
         <button class="logout-btn" onclick="logout()" data-i18n="logout">Logout</button>
+      </div>
+    </div>
+    
+    <!-- VIP会员状态卡片 -->
+    <div id="vipStatusCard" class="vip-status-card" style="display: none;">
+      <div class="vip-header">
+        <div class="vip-icon-wrapper">
+          <span class="vip-icon">👑</span>
+        </div>
+        <div class="vip-info">
+          <span class="vip-tier" id="vipTierName">至尊会员</span>
+          <span class="vip-subtitle" id="vipSubType">年度订阅</span>
+        </div>
+        <div class="vip-badge" id="vipBadge">ACTIVE</div>
+      </div>
+      <div class="vip-subscription">
+        <div class="sub-item">
+          <span class="sub-label">订阅地址</span>
+          <div class="sub-value code-row">
+            <span class="code-text" id="vipCode">-</span>
+            <button class="copy-btn" onclick="copyVipCode()">复制</button>
+          </div>
+        </div>
+        <div class="sub-item">
+          <span class="sub-label">到期时间</span>
+          <span class="sub-value" id="vipExpiry">-</span>
+        </div>
+      </div>
+      <div class="vip-perks">
+        <div class="perk-item"><span class="perk-icon">✓</span> 无广告打扰</div>
+        <div class="perk-item"><span class="perk-icon">✓</span> 无限畅享全部频道</div>
+        <div class="perk-item"><span class="perk-icon">✓</span> 优先客服响应</div>
+      </div>
+      <div class="vip-actions">
+        <button class="btn-renew" onclick="window.location.href='/plans'">续费会员</button>
+        <button class="btn-plans" onclick="window.location.href='/plans'">查看套餐</button>
       </div>
     </div>
     
@@ -498,6 +770,137 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
       } finally {
         loadingDiv.classList.remove('active');
       }
+    }
+    
+    // VIP会员状态加载
+    async function loadVipStatus() {
+      const vipCard = document.getElementById('vipStatusCard');
+      
+      try {
+        const response = await fetch(API_BASE + '/orders', {
+          headers: {
+            'Authorization': 'Bearer ' + getToken()
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success && data.orders && data.orders.length > 0) {
+          // 找到最新的已完成的订单
+          const completedOrders = data.orders.filter(order => order.status === 'completed');
+          if (completedOrders.length === 0) {
+            vipCard.style.display = 'none';
+            return;
+          }
+          
+          // 按创建时间倒序，找到最新的订阅
+          const latestOrder = completedOrders.sort((a, b) => 
+            new Date(b.created_at) - new Date(a.created_at)
+          )[0];
+          
+          // 检查是否过期 - 使用 codes 表的 expired_at
+          const now = new Date();
+          const codeExpiredAt = latestOrder.expired_at;
+          const isExpired = codeExpiredAt && new Date(codeExpiredAt) < now;
+          const isPermanent = latestOrder.code_duration_days === -1 || latestOrder.code_duration_days === null;
+          
+          // 计算剩余天数来判断会员等级（基于实际的过期时间，而非单次购买时长）
+          let remainingDays = -1; // 默认永久
+          if (!isPermanent && codeExpiredAt) {
+            const expiryDate = new Date(codeExpiredAt);
+            if (expiryDate > now) {
+              remainingDays = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+            }
+          }
+          
+          // 根据剩余天数判断会员等级（段位制）
+          // 青铜 ≤ 30天，白银 31-90天，黄金 91-180天，翡翠 181-365天，皇冠 > 365天或永久
+          let tierClass = 'tier-gold';
+          let tierName = '黄金会员';
+          let subTypeName = '剩余约' + remainingDays + '天';
+          
+          if (isPermanent || remainingDays === -1) {
+            tierClass = 'tier-crown';
+            tierName = '皇冠会员';
+            subTypeName = '永久有效';
+          } else if (remainingDays > 365) {
+            tierClass = 'tier-crown';
+            tierName = '皇冠会员';
+            subTypeName = '剩余约' + remainingDays + '天';
+          } else if (remainingDays > 180) {
+            tierClass = 'tier-emerald';
+            tierName = '翡翠会员';
+            subTypeName = '剩余约' + remainingDays + '天';
+          } else if (remainingDays > 90) {
+            tierClass = 'tier-gold';
+            tierName = '黄金会员';
+            subTypeName = '剩余约' + remainingDays + '天';
+          } else if (remainingDays > 30) {
+            tierClass = 'tier-silver';
+            tierName = '白银会员';
+            subTypeName = '剩余约' + remainingDays + '天';
+          } else if (remainingDays > 0) {
+            tierClass = 'tier-bronze';
+            tierName = '青铜会员';
+            subTypeName = '剩余约' + remainingDays + '天';
+          } else {
+            tierClass = 'tier-bronze';
+            tierName = '青铜会员';
+            subTypeName = '已过期';
+          }
+          
+          // 设置皇冠颜色
+          const iconWrapper = vipCard.querySelector('.vip-icon-wrapper');
+          iconWrapper.className = 'vip-icon-wrapper ' + tierClass;
+          
+          // 设置文本
+          document.getElementById('vipTierName').textContent = tierName;
+          document.getElementById('vipSubType').textContent = subTypeName;
+          
+          // 设置订阅代码
+          const baseUrl = window.location.origin;
+          const codeText = baseUrl + '/sub/' + latestOrder.code + '.m3u';
+          document.getElementById('vipCode').textContent = codeText;
+          document.getElementById('vipCode').dataset.code = latestOrder.code;
+          
+          // 设置到期时间和状态
+          const vipBadge = document.getElementById('vipBadge');
+          let expiryText = '永久有效';
+          
+          if (isExpired) {
+            expiryText = codeExpiredAt ? new Date(codeExpiredAt).toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US') : '已过期';
+            vipBadge.textContent = '已过期';
+            vipBadge.classList.add('expired');
+          } else if (isPermanent) {
+            expiryText = '永久有效';
+            vipBadge.textContent = '永久';
+            vipBadge.classList.remove('expired');
+          } else {
+            expiryText = codeExpiredAt ? new Date(codeExpiredAt).toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US') : '永久有效';
+            vipBadge.textContent = 'ACTIVE';
+            vipBadge.classList.remove('expired');
+          }
+          document.getElementById('vipExpiry').textContent = expiryText;
+          
+          // 显示卡片
+          vipCard.style.display = 'block';
+        } else {
+          vipCard.style.display = 'none';
+        }
+      } catch (error) {
+        console.error('加载VIP状态失败:', error);
+        vipCard.style.display = 'none';
+      }
+    }
+    
+    // 复制VIP订阅地址
+    function copyVipCode() {
+      const codeText = document.getElementById('vipCode').textContent;
+      navigator.clipboard.writeText(codeText).then(() => {
+        showToast(currentLang === 'zh-CN' ? '订阅地址已复制！' : 'Subscription URL copied!', 'success');
+      }).catch(err => {
+        console.error('Copy failed:', err);
+      });
     }
     
     async function loadOrderHistory() {
@@ -1015,6 +1418,7 @@ ticketsListDiv.innerHTML = \`
     // 初始化
     document.addEventListener('DOMContentLoaded', () => {
       loadUserInfo();
+      loadVipStatus(); // 加载VIP会员状态
       checkPaymentStatus(); // 检查支付状态 URL 参数
     });
   </script>

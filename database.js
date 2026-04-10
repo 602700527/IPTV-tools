@@ -1229,8 +1229,8 @@ export async function updateSystemConfig(config) {
   }
 
   if (config.member_ad_free_enabled !== undefined) {
-    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
-      .bind(config.member_ad_free_enabled.toString(), 'member_ad_free_enabled')
+    await db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)')
+      .bind('member_ad_free_enabled', config.member_ad_free_enabled.toString())
       .run();
   }
 }

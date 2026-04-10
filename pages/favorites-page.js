@@ -235,7 +235,8 @@ export function generateFavoritesPage(options = {}) {
 
   <script>
     const FAVORITES_KEY = 'favorites';
-    const MAX_DOWNLOAD = 100;
+    const MAX_FREE_DOWNLOAD = 100;
+    const BATCH_SIZE = 50;
 
     function escapeHtml(str) { if (!str) return ''; return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
 
@@ -322,8 +323,8 @@ export function generateFavoritesPage(options = {}) {
       document.getElementById('selectedCount').textContent = count;
       
       const limitSpan = document.getElementById('downloadLimit');
-      if (count > MAX_DOWNLOAD) {
-        limitSpan.textContent = ' (' + (count - MAX_DOWNLOAD) + ' over limit)';
+      if (count > MAX_FREE_DOWNLOAD) {
+        limitSpan.textContent = ' (' + (count - MAX_FREE_DOWNLOAD) + ' over limit)';
         limitSpan.style.color = 'var(--accent)';
       } else {
         limitSpan.textContent = '';
@@ -364,6 +365,55 @@ export function generateFavoritesPage(options = {}) {
       renderFavorites();
     }
 
+    // Check if user is a member
+    async function checkMemberStatus() {
+      try {
+        // 从 localStorage 获取 token（账户系统使用 localStorage 存储）
+        const token = localStorage.getItem('auth_token');
+        const headers = {};
+        if (token) {
+          headers['Authorization'] = 'Bearer ' + token;
+        }
+        const response = await fetch('${origin}/api/member/status', { headers });
+        const data = await response.json();
+        return data.isMember === true;
+      } catch (e) {
+        console.error('Failed to check member status:', e);
+        return false;
+      }
+    }
+
+    // Process channels in batches to prevent UI freezing
+    async function processChannelsInBatches(channels, processFn, batchSize) {
+      const results = [];
+      const totalBatches = Math.ceil(channels.length / batchSize);
+      
+      for (let i = 0; i < channels.length; i += batchSize) {
+        const batch = channels.slice(i, i + batchSize);
+        const batchIndex = Math.floor(i / batchSize) + 1;
+        
+        // Update progress
+        updateDownloadProgress(batchIndex, totalBatches);
+        
+        // Process this batch
+        const batchResults = await Promise.all(batch.map(processFn));
+        results.push(...batchResults);
+        
+        // Yield to main thread between batches to prevent freezing
+        if (i + batchSize < channels.length) {
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      }
+      return results;
+    }
+
+    function updateDownloadProgress(current, total) {
+      const progressEl = document.getElementById('downloadProgress');
+      if (progressEl) {
+        progressEl.textContent = 'Processing ' + current + '/' + total + ' batches...';
+      }
+    }
+
     async function downloadSelectedM3U() {
       const selected = getSelectedChannels();
       if (selected.length === 0) {
@@ -371,10 +421,13 @@ export function generateFavoritesPage(options = {}) {
         return;
       }
       
-      if (selected.length > MAX_DOWNLOAD) {
+      // Check member status first
+      const isMember = await checkMemberStatus();
+      
+      if (!isMember && selected.length > MAX_FREE_DOWNLOAD) {
         // Marketing Psychology: FOMO + Value Proposition + Loss Aversion
         const upgradeMessage = 'You selected <strong style="color:#e50914">' + selected.length + '</strong> channels<br><br>' +
-          '💔 Free users can download up to <strong>' + MAX_DOWNLOAD + '</strong> channels<br>' +
+          '💔 Free users can download up to <strong>' + MAX_FREE_DOWNLOAD + '</strong> channels<br>' +
           '🎁 <strong style="color:#34c759">Upgrade to Premium</strong> - download all 10,000+ channels at once<br><br>' +
           '<span style="font-size:12px;color:#888;">👥 5,000+ users already upgraded - enjoy unlimited access</span>';
         showToast({
@@ -396,16 +449,38 @@ export function generateFavoritesPage(options = {}) {
       try {
         let m3u = '#EXTM3U\\n';
         
-        // Fetch play links for each channel
-        for (const ch of selected) {
+        // Process function for each channel
+        const processChannel = async (ch) => {
           const response = await fetch('${origin}/api/play/link?hash=' + encodeURIComponent(ch.hash));
           const data = await response.json();
-          
           let playUrl = data.play_link || ('${origin}/play/error/' + ch.hash);
-          
           const logo = ch.logo ? ' tvg-logo="' + ch.logo + '"' : '';
-          m3u += '#EXTINF:-1' + logo + ' group-title="' + ch.group + '",' + ch.name + '\\n';
-          m3u += playUrl + '\\n';
+          return '#EXTINF:-1' + logo + ' group-title="' + ch.group + '",' + ch.name + '\\n' + playUrl + '\\n';
+        };
+        
+        // Use batch processing for members (no limit), direct for free users (under limit)
+        if (isMember && selected.length > BATCH_SIZE) {
+          // Add progress element if not exists
+          let progressEl = document.getElementById('downloadProgress');
+          if (!progressEl) {
+            const progressSpan = document.createElement('span');
+            progressSpan.id = 'downloadProgress';
+            progressSpan.style.cssText = 'margin-left: 10px; font-size: 0.85rem; color: var(--text-muted);';
+            btn.parentNode.appendChild(progressSpan);
+          }
+          
+          // Process in batches with progress updates
+          const lines = await processChannelsInBatches(selected, processChannel, BATCH_SIZE);
+          m3u += lines.join('');
+          
+          // Remove progress element
+          const progEl = document.getElementById('downloadProgress');
+          if (progEl) progEl.remove();
+        } else {
+          // Direct processing for small batches or non-members
+          for (const ch of selected) {
+            m3u += await processChannel(ch);
+          }
         }
         
         const blob = new Blob([m3u], { type: 'audio/x-mpegurl' });

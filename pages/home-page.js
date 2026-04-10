@@ -248,12 +248,12 @@ export function generateHomePage(options = {}) {
     </div>
     <div class="hot-topics-grid">
       <a href="/usa-iptv" class="topic-card">
-        <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20"/><path d="M6 4v16"/><path d="M2 12h8"/><path d="M2 16h8"/><path d="M10 4v8"/></svg></span>
+        <span class="topic-icon">🇺🇸</span>
         <span class="topic-title">USA IPTV</span>
         <span class="topic-desc">US Live TV</span>
       </a>
       <a href="/uk-iptv-plans" class="topic-card">
-        <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 12h20"/><path d="M12 4v16"/><path d="M4 4l16 16"/><path d="M20 4L4 20"/></svg></span>
+        <span class="topic-icon">🇬🇧</span>
         <span class="topic-title">UK IPTV</span>
         <span class="topic-desc">British Channels</span>
       </a>
