@@ -26,7 +26,7 @@ export const PAGE_FOOTER = `
           </details>
           <details class="faq-card">
             <summary>What are the subscription plans?</summary>
-            <div class="faq-answer">Free with ads, Premium removes ads & offers HD/4K quality.</div>
+            <div class="faq-answer">Premium subscription includes ad-free viewing with access to channels up to 4K quality (where available).</div>
           </details>
           <details class="faq-card">
             <summary>How often are channels updated?</summary>

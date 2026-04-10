@@ -625,25 +625,25 @@ export const PLANS_HTML = `<!DOCTYPE html>
               <svg viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
               </svg>
-              <span data-i18n="vipFeature4">1080P/4K 画质</span>
+              <span data-i18n="vipFeature4">Channels up to 4K quality (where available)</span>
             </li>
             <li class="enabled">
               <svg viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
               </svg>
-              <span data-i18n="vipFeature5">无广告</span>
+              <span data-i18n="vipFeature5">Ad-free subscription links</span>
             </li>
             <li class="enabled">
               <svg viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
               </svg>
-              <span data-i18n="vipFeature6">无需签到</span>
+              <span data-i18n="vipFeature6">Auto-updates pushed to your player - no site login needed</span>
             </li>
             <li class="enabled">
               <svg viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
               </svg>
-              <span data-i18n="vipFeature7">支持多IP、多设备同时观看</span>
+              <span data-i18n="vipFeature7">Multi-IP & multi-device support</span>
             </li>
           </ul>
 
@@ -676,6 +676,12 @@ export const PLANS_HTML = `<!DOCTYPE html>
           <div class="faq-question" data-i18n="faq4">VIP 订阅支持哪些播放器？</div>
           <div class="faq-answer">
             <div class="faq-answer-content" data-i18n="faq4Answer">VIP 订阅支持主流 IPTV 播放器（如 APTV、Televizo、IPTV Smarters、TiviMate、KODI）、Web 播放器和专用 App，覆盖各种设备平台。</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question" data-i18n="faq5">Do I need to visit your site to get channel updates?</div>
+          <div class="faq-answer">
+            <div class="faq-answer-content" data-i18n="faq5Answer">No! Once subscribed, updates are pushed directly to your player - no need to visit our site or log in. New channels are added automatically. Just make sure your player has "auto-update playlist" or "auto-refresh subscription" enabled.</div>
           </div>
         </div>
       </div>

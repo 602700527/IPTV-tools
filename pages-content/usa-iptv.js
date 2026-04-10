@@ -101,7 +101,8 @@ export const content = `
 
     <div class="cta-section">
       <h2>Start Watching USA IPTV</h2>
-      <p>Subscribe now for access to 8000+ global live TV channels</p>
+      <p>Subscribe for access to 8000+ live TV channels</p>
+      <p style="margin-top:0.5rem;font-size:0.95rem;opacity:0.9;">Updates pushed to your player - no site login needed. Ensure your player has "auto-update playlist" enabled.</p>
       <a href="/plans" class="cta-btn">View Plans →</a>
     </div>
   </div>
