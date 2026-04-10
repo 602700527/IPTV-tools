@@ -1015,6 +1015,9 @@ export async function handleAdminRequest(request, env, ctx) {
           if (data.enable_ip_play !== undefined) {
             config.enable_ip_play = data.enable_ip_play;
           }
+          if (data.member_ad_free_enabled !== undefined) {
+            config.member_ad_free_enabled = data.member_ad_free_enabled;
+          }
           if (data.rotate_encryption_key === true) {
             // 自动轮换密钥
             const newKey = generateRandomEncryptionKey();

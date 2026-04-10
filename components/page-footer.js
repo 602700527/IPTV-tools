@@ -1,5 +1,8 @@
 // 通用网页页脚组件
+import { FLOATING_SIDEBAR_STYLES, FLOATING_SIDEBAR_HTML, FLOATING_SIDEBAR_SCRIPTS } from './floating-sidebar.js';
+
 export const PAGE_FOOTER = `
+  ${FLOATING_SIDEBAR_HTML}
   <footer class="page-footer">
     <div class="footer-content">
   <p class="footer-copyright">&copy; 2026 IPTV Search. Free IPTV Channel Directory & Search Tool</p>
@@ -26,7 +29,7 @@ export const PAGE_FOOTER = `
           </details>
           <details class="faq-card">
             <summary>What are the subscription plans?</summary>
-            <div class="faq-answer">Free plan: check in once every 7 days to keep active. Premium: ad-free viewing with channels up to 4K quality (where available).</div>
+            <div class="faq-answer">Free plan: check in once every 7 days to keep active. Premium: ad-free viewing experience on website with channels up to 4K quality (where available).</div>
           </details>
           <details class="faq-card">
             <summary>How often are channels updated?</summary>
@@ -60,7 +63,28 @@ export const PAGE_FOOTER = `
     </div>
   </footer>
 
-  <script>(function(s){s.dataset.zone='10621634',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+  <div id="footer-ad-container" data-hide-for-member="true">
+    <script>(function(s){s.dataset.zone='10621634',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+  </div>
+
+  <script>
+    // 页脚广告显示控制 - 根据会员状态决定是否加载
+    (async function() {
+      try {
+        const response = await fetch('/api/member/status');
+        const data = await response.json();
+        if (data.isMember && data.adFreeEnabled) {
+          // 会员且功能启用，隐藏页脚广告
+          var footerAdContainer = document.getElementById('footer-ad-container');
+          if (footerAdContainer) {
+            footerAdContainer.style.display = 'none';
+          }
+        }
+      } catch (e) {
+        // 忽略错误，显示广告
+      }
+    })();
+  </script>
 
   <style>
     .page-footer {
@@ -243,6 +267,9 @@ export const PAGE_FOOTER = `
       }
     }
   </style>
+  <style>
+    ${FLOATING_SIDEBAR_STYLES}
+  </style>
   <!-- Translate.js 自动翻译 -->
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
   <script>
@@ -268,5 +295,8 @@ export const PAGE_FOOTER = `
         t.changeLanguage(lang);
       }
     }
+  </script>
+  <script>
+    ${FLOATING_SIDEBAR_SCRIPTS}
   </script>
 `;

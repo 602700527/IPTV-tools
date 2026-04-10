@@ -1,8 +1,10 @@
 // Search Page - HTML shell that loads data via API
+import { PAGE_FOOTER } from '../components/page-footer.js';
 
 export function generateSearchPage(options = {}) {
-  const { origin = 'https://iptv-search.com', query = '', header = '' } = options;
+  const { origin = 'https://iptv-search.com', query = '', header = '', footer = '' } = options;
   const pageHeader = header || `<header class="header">...</header>`;
+  const pageFooter = footer || `<footer class="page-footer">...</footer>`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -169,26 +171,7 @@ export function generateSearchPage(options = {}) {
     </div>
   </main>
 
-  <footer class="page-footer">
-    <div class="footer-content">
-      <p class="footer-copyright">&copy; ${new Date().getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
-      <div class="footer-links">
-        <a href="${origin}/tutorial">How to Watch on TV Devices</a>
-        <a href="${origin}/sitemap.xml">Sitemap</a>
-        <a href="${origin}/robots.txt">Robots</a>
-        <a href="${origin}/privacy-policy">Privacy Policy</a>
-        <a href="${origin}/terms">Terms of Service</a>
-        <a href="mailto:support@iptv-search.com">Contact Us</a>
-      </div>
-      <div class="footer-badges">
-        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
-          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
-        </a>
-        <span>This site is powered by Cloudflare for acceleration and security</span>
-      </div>
-      <div class="footer-disclaimer">This site does not host or provide any IPTV streams. All channels are sourced from publicly available M3U playlists. Channels may go offline at any time as their source streams change.</div>
-    </div>
-  </footer>
+  ${pageFooter}
 
   <script id="json-ld" type="application/ld+json"></script>
 

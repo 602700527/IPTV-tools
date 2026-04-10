@@ -1,4 +1,5 @@
 // Channel Detail Page - Server-side rendered matching template exactly
+import { PAGE_HEADER } from '../components/page-header.js';
 import { PAGE_FOOTER } from '../components/page-footer.js';
 
 export function generateChannelPage(options = {}) {
@@ -6,7 +7,8 @@ export function generateChannelPage(options = {}) {
     origin = 'https://iptv-search.com', 
     hash = '',
     channel = null,
-    relatedChannels = []
+    relatedChannels = [],
+    header = PAGE_HEADER
   } = options;
 
   if (!channel) {
@@ -393,48 +395,7 @@ export function generateChannelPage(options = {}) {
   </style>
 </head>
 <body>
-  <header class="header">
-    <div class="header-inner">
-      <a href="${origin}/" class="logo">
-        <div class="logo-icon">
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="tvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:1" />
-              </linearGradient>
-            </defs>
-            <rect x="0" y="0" width="36" height="36" rx="6" fill="url(#tvGradient)" />
-            <rect x="4" y="8" width="28" height="18" rx="2" fill="#0a0a0a" />
-            <path d="M14 12 L24 17 L14 22 Z" fill="#fff" />
-            <rect x="10" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
-            <rect x="20" y="28" width="6" height="3" rx="1" fill="#0a0a0a" />
-          </svg>
-        </div>
-        <div class="logo-text">IPTV<span>Search</span></div>
-      </a>
-      <div class="search-box">
-        <form action="${origin}/search" method="get">
-          <input type="text" name="q" placeholder="Search channels..." value="">
-        </form>
-      </div>
-      <div class="header-actions">
-        <a href="${origin}/favorites" class="pill-btn" title="My Favorites">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </a>
-        <a href="${origin}/plans" class="pill-btn" title="Subscription Plans">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-        </a>
-        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-        </button>
-        <a href="${origin}/account" class="account-btn" title="My Account">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </a>
-        <div id="translate"></div>
-      </div>
-    </div>
-  </header>
+  ${header}
 
   <nav class="breadcrumb">
     <a href="${origin}/">

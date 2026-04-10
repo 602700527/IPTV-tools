@@ -862,6 +862,39 @@ export async function verifySession(token, db) {
 }
 
 /**
+ * 检查用户是否为会员（拥有有效订阅）
+ * @param {number} userId - 用户ID
+ * @param {object} db - 数据库实例
+ * @returns {Promise<boolean>} 是否为有效会员
+ */
+export async function checkMemberStatus(userId, db) {
+  try {
+    // 检查用户是否验证了邮箱
+    const user = await db.prepare('SELECT is_verified FROM users WHERE id = ?').bind(userId).first();
+    if (!user || !user.is_verified) {
+      return false;
+    }
+
+    // 检查用户是否有有效的订阅订单（状态为completed且关联的卡密未过期）
+    const now = new Date().toISOString();
+    const result = await db.prepare(`
+      SELECT o.id
+      FROM user_orders o
+      JOIN codes c ON o.code = c.code
+      WHERE o.user_id = ?
+        AND o.status = 'completed'
+        AND c.expired_at > ?
+      LIMIT 1
+    `).bind(userId, now).first();
+
+    return !!result;
+  } catch (error) {
+    console.error('[checkMemberStatus] Error:', error);
+    return false;
+  }
+}
+
+/**
  * Google OAuth 初始化
  */
 export async function handleGoogleOAuthInit(request, env, ctx) {
@@ -978,5 +1011,72 @@ export async function handleGoogleOAuthCallback(request, env, ctx) {
     console.error('Google OAuth Error:', error);
     console.error('Error details:', error.message, error.stack);
     return new Response(JSON.stringify({ success: false, error: error.message || 'OAuth callback processing failed' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+  }
+}
+
+/**
+ * 获取会员状态（用于前端判断是否显示广告）
+ */
+export async function handleGetMemberStatus(request, env, ctx) {
+  try {
+    const db = getDB();
+
+    // 从 Cookie 获取 token
+    const cookieHeader = request.headers.get('Cookie') || '';
+    const tokenMatch = cookieHeader.match(/auth_token=([^;]+)/);
+
+    if (!tokenMatch) {
+      return new Response(JSON.stringify({
+        success: true,
+        isMember: false,
+        adFreeEnabled: false
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const token = tokenMatch[1];
+
+    // 验证会话并获取用户 ID
+    const session = await db.prepare(`
+      SELECT s.user_id
+      FROM user_sessions s
+      WHERE s.token = ? AND s.expires_at > datetime('now')
+    `).bind(token).first();
+
+    if (!session) {
+      return new Response(JSON.stringify({
+        success: true,
+        isMember: false,
+        adFreeEnabled: false
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 检查会员状态
+    const isMember = await checkMemberStatus(session.user_id, db);
+
+    // 获取系统配置检查功能开关
+    const systemConfig = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('member_ad_free_enabled').first();
+    const adFreeEnabled = systemConfig && systemConfig.value === 'true';
+
+    return new Response(JSON.stringify({
+      success: true,
+      isMember: isMember,
+      adFreeEnabled: adFreeEnabled
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('[handleGetMemberStatus] Error:', error);
+    return new Response(JSON.stringify({
+      success: true,
+      isMember: false,
+      adFreeEnabled: false
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }

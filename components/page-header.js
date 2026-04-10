@@ -49,10 +49,31 @@ export const PAGE_HEADER = `
     </div>
   </header>
 
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137" crossorigin="anonymous"></script>
-  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2205598928191137" data-ad-slot="9663554756" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <div id="ad-container" data-hide-for-member="true">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137" crossorigin="anonymous"></script>
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2205598928191137" data-ad-slot="9663554756" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+
   <script>
-    (adsbygoogle = window.adsbygoogle || []).push({});
+    // 广告显示控制 - 根据会员状态决定是否显示广告
+    (async function() {
+      try {
+        const response = await fetch('/api/member/status');
+        const data = await response.json();
+        if (data.isMember && data.adFreeEnabled) {
+          // 会员且功能启用，隐藏广告
+          var adContainer = document.getElementById('ad-container');
+          if (adContainer) {
+            adContainer.style.display = 'none';
+          }
+        }
+      } catch (e) {
+        // 忽略错误，显示广告
+      }
+    })();
   </script>
 
   <script>

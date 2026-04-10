@@ -1109,6 +1109,16 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               <p style="margin-top:8px;color:#86868b;font-size:12px;">关闭后，用户将无法使用直连播放功能</p>
             </div>
           </div>
+          <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e5e5ea;">
+            <h4 style="margin-bottom:16px;color:#000;font-size:16px;">👤 会员设置</h4>
+            <div style="margin-bottom:16px;">
+              <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+                <input type="checkbox" id="enableMemberAdFree" checked style="margin-right:12px;">
+                <span style="font-size:14px;">启用会员网站免广告</span>
+              </label>
+              <p style="margin-top:8px;color:#86868b;font-size:12px;">启用后，会员用户访问网站时将隐藏页面广告</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -3728,6 +3738,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           document.getElementById('enableAntiDebug').checked = data.config.enable_anti_debug !== undefined ? data.config.enable_anti_debug : false;
           document.getElementById('disableConsoleLogs').checked = data.config.disable_console_logs !== undefined ? data.config.disable_console_logs : false;
           document.getElementById('enableIpPlay').checked = data.config.enable_ip_play !== undefined ? data.config.enable_ip_play : true;
+          document.getElementById('enableMemberAdFree').checked = data.config.member_ad_free_enabled !== undefined ? data.config.member_ad_free_enabled : true;
         } else {
           showToast('加载配置失败', 'error');
         }
@@ -3752,7 +3763,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           url_encryption_key: document.getElementById('urlEncryptionKey').value.trim(),
           enable_anti_debug: document.getElementById('enableAntiDebug').checked,
           disable_console_logs: document.getElementById('disableConsoleLogs').checked,
-          enable_ip_play: document.getElementById('enableIpPlay').checked
+          enable_ip_play: document.getElementById('enableIpPlay').checked,
+          member_ad_free_enabled: document.getElementById('enableMemberAdFree').checked
         };
 
         // 验证配置值

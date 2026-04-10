@@ -33,7 +33,8 @@ import {
   handleForgotPassword,
   handleResetPassword,
   handleGoogleOAuthInit,
-  handleGoogleOAuthCallback
+  handleGoogleOAuthCallback,
+  handleGetMemberStatus
 } from './handlers/auth.js';
 
 import { handleGoogleAuthDebug } from './handlers/google-auth-debug.js';
@@ -559,7 +560,8 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       const html = generateSearchPage({ 
         origin: url.origin, 
         query,
-        header: PAGE_HEADER
+        header: PAGE_HEADER,
+        footer: PAGE_FOOTER
       });
 
       return new Response(html, {
@@ -676,6 +678,9 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/auth/orders') {
       // 获取订单历史
       return await handleGetOrderHistory(request, env, ctx);
+    } else if (path === '/api/member/status') {
+      // 获取会员状态（用于前端广告显示控制）
+      return await handleGetMemberStatus(request, env, ctx);
     } else if (path === '/api/auth/google/init') {
       // Google OAuth 初始化
       return await handleGoogleOAuthInit(request, env, ctx);

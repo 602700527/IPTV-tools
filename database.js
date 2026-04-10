@@ -1050,8 +1050,8 @@ export async function updateHomepageDisplayConfig(config) {
 // 获取系统安全配置
 export async function getSystemConfig() {
   const db = getDB();
-  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-    .bind('enable_ref_check', 'ref_whitelist', 'enable_play_token', 'play_token_expire_seconds', 'homepage_display_config', 'enable_ip_bind', 'enable_burn_after_read', 'enable_url_encryption', 'url_encryption_key', 'enable_anti_debug', 'disable_console_logs', 'enable_ip_play')
+  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    .bind('enable_ref_check', 'ref_whitelist', 'enable_play_token', 'play_token_expire_seconds', 'homepage_display_config', 'enable_ip_bind', 'enable_burn_after_read', 'enable_url_encryption', 'url_encryption_key', 'enable_anti_debug', 'disable_console_logs', 'enable_ip_play', 'member_ad_free_enabled')
     .all();
 
   const config = {
@@ -1066,7 +1066,8 @@ export async function getSystemConfig() {
     url_encryption_key: '',
     enable_anti_debug: false,
     disable_console_logs: false,
-    enable_ip_play: true
+    enable_ip_play: true,
+    member_ad_free_enabled: false
   };
 
   settings.results?.forEach(row => {
@@ -1098,6 +1099,8 @@ export async function getSystemConfig() {
       config.disable_console_logs = row.value === 'true';
     } else if (row.key === 'enable_ip_play') {
       config.enable_ip_play = row.value === 'true';
+    } else if (row.key === 'member_ad_free_enabled') {
+      config.member_ad_free_enabled = row.value === 'true';
     }
   });
 
@@ -1222,6 +1225,12 @@ export async function updateSystemConfig(config) {
   if (config.enable_ip_play !== undefined) {
     await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
       .bind(config.enable_ip_play.toString(), 'enable_ip_play')
+      .run();
+  }
+
+  if (config.member_ad_free_enabled !== undefined) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(config.member_ad_free_enabled.toString(), 'member_ad_free_enabled')
       .run();
   }
 }
