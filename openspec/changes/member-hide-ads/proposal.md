@@ -1,6 +1,6 @@
 ## Why
 
-Members who have registered and have active subscriptions should enjoy an ad-free experience on the website. Currently, ads are displayed on public pages (homepage, category pages) to all visitors. Adding a member-only ad-free tier incentivizes user registration and subscription purchases.
+Members who have registered and have active subscriptions should enjoy an **ad-free website experience**. Currently, ads are displayed on public pages (homepage, category pages) to all visitors. This feature adds a compelling selling point: **VIP members can browse the site without seeing any ads**, incentivizing user registration and subscription purchases.
 
 ## What Changes
 
@@ -17,8 +17,15 @@ Members who have registered and have active subscriptions should enjoy an ad-fre
 
 ## Impact
 
-- **components/page-header.js**: Google AdSense 广告（第 52-56 行），通过 `data-hide-for-member` 属性控制
-- **components/page-footer.js**: 第三方广告追踪脚本 `nap5k.com`（第 63 行），通过 `data-hide-for-member` 属性控制
-- **handlers/auth.js**: 需要添加会员状态检测函数 `checkMemberStatus(userId)`
-- **worker.js**: 在页面渲染时调用会员状态检测，注入 `window.IS_MEMBER` 变量
-- **database.js**: 无需修改表结构，使用现有 `settings` 表添加配置开关
+**广告注入点（需隐藏）：**
+- `components/page-header.js` 第 52-56 行：Google AdSense (`adsbygoogle`)
+- `components/page-footer.js` 第 63 行：第三方广告 (`nap5k.com/tag.min.js`)
+
+**功能实现：**
+- `handlers/auth.js`: 添加会员状态检测函数 `checkMemberStatus(userId)`
+- `worker.js`: 页面渲染时调用检测，注入 `window.IS_MEMBER`
+- `database.js`: 无需修改表结构，使用现有 `settings` 表添加配置开关
+
+**营销卖点更新：**
+- `plans-page.js`: VIP 计划功能列表添加"网站免广告"
+- `components/page-footer.js`: FAQ 添加会员网站免广告说明
