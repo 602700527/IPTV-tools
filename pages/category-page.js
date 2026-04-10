@@ -1,4 +1,5 @@
 // Category Page - HTML shell with server-side rendered content
+import { PAGE_FOOTER } from '../components/page-footer.js';
 
 export function generateCategoryPage(options = {}) {
   const { 
@@ -219,17 +220,6 @@ export function generateCategoryPage(options = {}) {
     .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .page-footer { background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 2.5rem 1.25rem; margin-top: 3rem; }
-    .footer-content { max-width: 1000px; margin: 0 auto; text-align: center; }
-    .footer-copyright { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.25rem; }
-    .footer-links { display: flex; justify-content: center; align-items: center; gap: 1.25rem; flex-wrap: wrap; margin-top: 1rem; font-size: 0.75rem; }
-    .footer-links a { color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
-    .footer-links a:hover { color: var(--text-primary); }
-    .footer-badges { display: flex; align-items: center; justify-content: center; gap: 0.625rem; margin-top: 1.25rem; }
-    .footer-badges img { height: 12px; width: auto; opacity: 0.8; transition: opacity var(--transition); }
-    .footer-badges img:hover { opacity: 1; }
-    .footer-badges span { font-size: 0.75rem; color: var(--text-secondary); }
-    .footer-disclaimer { margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; max-width: 600px; margin-left: auto; margin-right: auto; }
     .loading { text-align: center; padding: 4rem; color: var(--text-secondary); }
 
     @media (max-width: 768px) {
@@ -398,26 +388,7 @@ export function generateCategoryPage(options = {}) {
     </div>
   </main>
 
-  <footer class="page-footer">
-    <div class="footer-content">
-      <p class="footer-copyright">&copy; ${new Date().getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
-      <div class="footer-links">
-        <a href="${origin}/tutorial">How to Watch on TV Devices</a>
-        <a href="${origin}/sitemap.xml">Sitemap</a>
-        <a href="${origin}/robots.txt">Robots</a>
-        <a href="${origin}/privacy-policy">Privacy Policy</a>
-        <a href="${origin}/terms">Terms of Service</a>
-        <a href="mailto:support@iptv-search.com">Contact Us</a>
-      </div>
-      <div class="footer-badges">
-        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
-          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
-        </a>
-        <span>This site is powered by Cloudflare for acceleration and security</span>
-      </div>
-      <div class="footer-disclaimer">This site does not host or provide any IPTV streams. All channels are sourced from publicly available M3U playlists. Channels may go offline at any time as their source streams change.</div>
-    </div>
-  </footer>
+  ${PAGE_FOOTER}
 
   ${jsonLd ? '<script id="json-ld" type="application/ld+json">' + JSON.stringify(jsonLd) + '</script>' : ''}
 

@@ -48,7 +48,3 @@ GOOGLE_CLIENT_SECRET = "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"
 [triggers]
 crons = ["0 3 * * *", "0 9 * * *", "0 21 * * *"]  # 3:00同步数据源，9:00/21:00刷新缓存
 
-# R2 Bucket for static files (channel descriptions)
-[[r2_buckets]]
-binding = "R2_BUCKET"
-bucket_name = "iptv-static-files"

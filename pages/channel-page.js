@@ -1,4 +1,5 @@
 // Channel Detail Page - Server-side rendered matching template exactly
+import { PAGE_FOOTER } from '../components/page-footer.js';
 
 export function generateChannelPage(options = {}) {
   const { 
@@ -321,19 +322,6 @@ export function generateChannelPage(options = {}) {
     .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; padding: 1rem 2rem; border-radius: var(--radius); font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 1000; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* Footer */
-    .page-footer { background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 2.5rem 1.25rem; margin-top: 3rem; }
-    .footer-content { max-width: 1000px; margin: 0 auto; text-align: center; }
-    .footer-copyright { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.25rem; }
-    .footer-links { display: flex; justify-content: center; align-items: center; gap: 1.25rem; flex-wrap: wrap; margin-top: 1rem; font-size: 0.75rem; }
-    .footer-links a { color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
-    .footer-links a:hover { color: var(--text-primary); }
-    .footer-badges { display: flex; align-items: center; justify-content: center; gap: 0.625rem; margin-top: 1.25rem; }
-    .footer-badges img { height: 12px; width: auto; opacity: 0.8; transition: opacity var(--transition); }
-    .footer-badges img:hover { opacity: 1; }
-    .footer-badges span { font-size: 0.75rem; color: var(--text-secondary); }
-    .footer-disclaimer { margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; max-width: 600px; margin-left: auto; margin-right: auto; }
-
     /* Responsive */
     @media (max-width: 768px) {
       .header { padding: 0.5rem 0.75rem; }
@@ -555,49 +543,7 @@ export function generateChannelPage(options = {}) {
 
   <div class="toast" id="toast">Copied to clipboard!</div>
 
-  <footer class="page-footer">
-    <div class="footer-content">
-      <p class="footer-copyright">&copy; ${new Date().getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
-      
-      <div class="footer-links">
-        <a href="${origin}/tutorial">How to Watch on TV Devices</a>
-        <a href="${origin}/sitemap.xml">Sitemap</a>
-        <a href="${origin}/robots.txt">Robots</a>
-        <a href="${origin}/privacy-policy">Privacy Policy</a>
-        <a href="${origin}/terms">Terms of Service</a>
-        <a href="mailto:support@iptv-search.com">Contact Us</a>
-      </div>
-      
-      <div class="footer-badges">
-        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
-          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
-        </a>
-        <span>This site is powered by Cloudflare for acceleration and security</span>
-      </div>
-      
-      <div class="footer-disclaimer">
-        All streaming links on this site are sourced from the public internet. This site does not produce or store any content. For copyright or content issues, please contact the actual content provider.
-      </div>
-    </div>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
-  <script>
-    function initTranslate() {
-      if (typeof translate !== 'undefined' && translate.language) {
-        translate.selectLanguageTag.show = true;
-        translate.selectLanguageTag.documentId = 'translate';
-        translate.language.setLocal('english');
-        translate.service.use('client.edge');
-        translate.listener.start();
-        translate.setAutoDiscriminateLocalLanguage();
-        translate.execute();
-      } else {
-        setTimeout(initTranslate, 100);
-      }
-    }
-    initTranslate();
-  </script>
+  ${PAGE_FOOTER}
   <script>
     function escapeHtml(str) {
       if (!str) return '';

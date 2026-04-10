@@ -2,7 +2,7 @@
 export const PAGE_FOOTER = `
   <footer class="page-footer">
     <div class="footer-content">
-  <p class="footer-copyright">&copy; ${new Date().getFullYear()} IPTV Search. Free IPTV Channel Directory & Search Tool</p>
+  <p class="footer-copyright">&copy; 2026 IPTV Search. Free IPTV Channel Directory & Search Tool</p>
       
       <!-- FAQ常见问题区块 -->
       <div class="footer-faq">

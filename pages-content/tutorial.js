@@ -130,17 +130,17 @@ export const content = `
   <div class="container">
     <div class="tabs-container">
       <div class="tabs-nav">
-        <button class="tab-btn active" onclick="switchTab('ios')">📱 iOS Apple</button>
-        <button class="tab-btn" onclick="switchTab('android')">🤖 Android</button>
-        <button class="tab-btn" onclick="switchTab('tv')">📺 智能电视</button>
-        <button class="tab-btn" onclick="switchTab('desktop')">💻 电脑播放器</button>
-        <button class="tab-btn" onclick="switchTab('other')">🎮 其他设备</button>
+        <button class="tab-btn active" onclick="switchTab('ios')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> iOS Apple</button>
+        <button class="tab-btn" onclick="switchTab('android')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Android</button>
+        <button class="tab-btn" onclick="switchTab('tv')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 17 12"/></svg> 智能电视</button>
+        <button class="tab-btn" onclick="switchTab('desktop')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> 电脑播放器</button>
+        <button class="tab-btn" onclick="switchTab('other')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="13" r="1"/><circle cx="17" cy="15" r="1"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> 其他设备</button>
       </div>
 
       <div id="tab-ios" class="tab-content active">
         <div class="tutorial-section">
           <div class="section-header">
-            <div class="section-icon">📱</div>
+            <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
             <div class="section-title">
               <h2>APTV (Apple TV)</h2>
               <p>最流行的Apple TV播放器</p>
@@ -157,7 +157,7 @@ export const content = `
               <div class="step-content">
                 <p>在 Apple TV 上打开 App Store，搜索"APTV"并安装。</p>
                 <div class="tip-box">
-                  <h4>💡 提示</h4>
+                  <h4><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg> 提示</h4>
                   <p>也可以在 iPhone 上下载后 AirPlay 到 Apple TV</p>
                 </div>
               </div>
@@ -216,7 +216,7 @@ export const content = `
                   </div>
                 </div>
                 <div class="tip-box">
-                  <h4>💡 获取订阅地址</h4>
+                  <h4><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg> 获取订阅地址</h4>
                   <p>登录后在用户中心或激活页面获取订阅地址</p>
                 </div>
               </div>
@@ -226,7 +226,7 @@ export const content = `
 
         <div class="tutorial-section">
           <div class="section-header">
-            <div class="section-icon">🎨</div>
+            <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z"/></svg></div>
             <div class="section-title">
               <h2>iPlayTV</h2>
               <p>支持多种格式的播放器</p>
@@ -262,7 +262,7 @@ export const content = `
       <div id="tab-android" class="tab-content">
         <div class="tutorial-section">
           <div class="section-header">
-            <div class="section-icon">🤖</div>
+            <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
             <div class="section-title">
               <h2>Televizo</h2>
               <p>Android 强播放器</p>
@@ -333,7 +333,7 @@ export const content = `
 
         <div class="tutorial-section">
           <div class="section-header">
-            <div class="section-icon">📺</div>
+            <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 17 12"/></svg></div>
             <div class="section-title">
               <h2>IPTV Smarters Pro</h2>
               <p>功能强大的播放器</p>
@@ -380,7 +380,7 @@ export const content = `
       <div id="tab-tv" class="tab-content">
         <div class="tutorial-section">
           <div class="section-header">
-            <div class="section-icon">📺</div>
+            <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 17 12"/></svg></div>
             <div class="section-title">
               <h2>TiviMate Premium</h2>
               <p>Android TV 播放器推荐</p>
@@ -428,7 +428,7 @@ export const content = `
 
         <div class="tutorial-section">
           <div class="section-header">
-            <div class="section-icon">🎬</div>
+            <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg></div>
             <div class="section-title">
               <h2>Kodi</h2>
               <p>开源媒体中心</p>
@@ -475,7 +475,7 @@ export const content = `
       <div id="tab-desktop" class="tab-content">
         <div class="tutorial-section">
           <div class="section-header">
-            <div class="section-icon">💻</div>
+            <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
             <div class="section-title">
               <h2>VLC Media Player</h2>
               <p>跨平台媒体播放器</p>
@@ -511,7 +511,7 @@ export const content = `
       <div id="tab-other" class="tab-content">
         <div class="tutorial-section">
           <div class="section-header">
-            <div class="section-icon">🎮</div>
+            <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="13" r="1"/><circle cx="17" cy="15" r="1"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
             <div class="section-title">
               <h2>更多播放器</h2>
               <p>支持更多设备</p>
@@ -520,28 +520,28 @@ export const content = `
 
           <div class="device-grid">
             <div class="device-card">
-              <div class="device-icon">🐧</div>
+              <div class="device-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
               <div class="device-name">IPTVX</div>
               <div class="device-desc">Android 高端播放器</div>
               <span class="device-tag">推荐</span>
             </div>
 
             <div class="device-card">
-              <div class="device-icon">📱</div>
+              <div class="device-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
               <div class="device-name">GSE IPTV</div>
               <div class="device-desc">Android 轻量级播放器</div>
               <span class="device-tag">免费</span>
             </div>
 
             <div class="device-card">
-              <div class="device-icon">🌐</div>
+              <div class="device-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
               <div class="device-name">OTT Navigator</div>
               <div class="device-desc">功能丰富的播放器</div>
               <span class="device-tag">免费</span>
             </div>
 
             <div class="device-card">
-              <div class="device-icon">📺</div>
+              <div class="device-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 17 12"/></svg></div>
               <div class="device-name">XCIPTV</div>
               <div class="device-desc">现代界面设计</div>
             </div>
@@ -550,7 +550,7 @@ export const content = `
 
         <div class="tutorial-section">
           <div class="section-header">
-            <div class="section-icon">📋</div>
+            <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div>
             <div class="section-title">
               <h2>通用配置步骤</h2>
               <p>适用于大多数播放器</p>

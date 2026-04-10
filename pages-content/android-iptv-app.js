@@ -1,6 +1,6 @@
 // Android IPTV App Landing Page
-export const pageTitle = 'Android IPTV App 推荐 - 最佳IPTV播放器For Android手机/平板';
-export const pageDescription = '2024年最佳Android IPTV应用推荐。涵盖Televizo、IPTV Smarters Pro、TiviMate等。兼容Android手机，平板、Android TV。立即下载！';
+export const pageTitle = 'Best Android IPTV Apps 2024 - Top IPTV Players for Android Phone/Tablet';
+export const pageDescription = 'Discover the best Android IPTV apps in 2024. Featuring Televizo, IPTV Smarters Pro, TiviMate and more. Compatible with Android phones, tablets, and Android TV.';
 
 export const styles = `
 *{margin:0;padding:0;box-sizing:border-box}
@@ -51,131 +51,131 @@ export const content = `
 <div class="main-content">
   <div class="container">
     <div class="page-header">
-      <h1>🤖 Android IPTV App 推荐</h1>
-      <p>2024年最佳Android IPTV应用精选，涵盖Televizo、IPTV Smarters Pro、TiviMate等</p>
+      <h1><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.5rem"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Best Android IPTV Apps</h1>
+      <p>Top IPTV players for Android in 2024 - Televizo, IPTV Smarters Pro, TiviMate and more</p>
     </div>
 
     <div class="section">
-      <h2 class="section-title">🏆 热门应用推荐</h2>
+      <h2 class="section-title"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.25rem"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Top Picks</h2>
       <div class="app-grid">
         <div class="app-card">
           <div class="app-header">
-            <span class="app-icon">📺</span>
+            <span class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 17 12"/></svg></span>
             <div class="app-info">
               <h3>Televizo</h3>
               <span class="rating">⭐ 4.8/5</span>
             </div>
           </div>
-          <p class="app-desc">Android平台最受欢迎的IPTV播放器之一，界面美观，功能丰富，支持EPG电子节目单。</p>
+          <p class="app-desc">One of the most popular IPTV players on Android with beautiful UI and rich features, including EPG support.</p>
           <ul class="app-features">
-            <li>支持M3U/XSPF播放列表</li>
-            <li>EPG电子节目单</li>
-            <li>支持外链字幕</li>
-            <li>画中画模式</li>
+            <li>M3U/XSPF playlist support</li>
+            <li>EPG Electronic Program Guide</li>
+            <li>External subtitle support</li>
+            <li>Picture-in-picture mode</li>
           </ul>
           <div class="pros-cons">
-            <div class="pros"><h4>优点</h4><ul style="list-style:none;padding:0"><li>界面精美</li><li>播放流畅</li><li>EPG准确</li></ul></div>
-            <div class="cons"><h4>缺点</h4><ul style="list-style:none;padding:0"><li>付费应用</li><li>无免费版</li></ul></div>
+            <div class="pros"><h4>Pros</h4><ul style="list-style:none;padding:0"><li>Beautiful interface</li><li>Smooth playback</li><li>Accurate EPG</li></ul></div>
+            <div class="cons"><h4>Cons</h4><ul style="list-style:none;padding:0"><li>Paid app</li><li>No free version</li></ul></div>
           </div>
-          <a href="https://play.google.com/store/apps/details?id=com.levist7.televizo" class="download-btn" target="_blank">Google Play 下载</a>
+          <a href="https://play.google.com/store/apps/details?id=com.levist7.televizo" class="download-btn" target="_blank">Google Play Download</a>
         </div>
 
         <div class="app-card">
           <div class="app-header">
-            <span class="app-icon">📱</span>
+            <span class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
             <div class="app-info">
               <h3>IPTV Smarters Pro</h3>
               <span class="rating">⭐ 4.6/5</span>
             </div>
           </div>
-          <p class="app-desc">全球下载量最高的IPTV应用之一，兼容性强，支持多种订阅格式。</p>
+          <p class="app-desc">One of the most downloaded IPTV apps globally with excellent compatibility and multi-subscription support.</p>
           <ul class="app-features">
-            <li>多订阅管理</li>
-            <li>远程播放列表</li>
-            <li>录像功能</li>
-            <li>多语言支持</li>
+            <li>Multiple subscription management</li>
+            <li>Remote playlist support</li>
+            <li>Recording functionality</li>
+            <li>Multi-language support</li>
           </ul>
           <div class="pros-cons">
-            <div class="pros"><h4>优点</h4><ul style="list-style:none;padding:0"><li>免费使用</li><li>功能全面</li><li>用户基数大</li></ul></div>
-            <div class="cons"><h4>缺点</h4><ul style="list-style:none;padding:0"><li>广告较多</li><li>界面较老旧</li></ul></div>
+            <div class="pros"><h4>Pros</h4><ul style="list-style:none;padding:0"><li>Free to use</li><li>Full featured</li><li>Large user base</li></ul></div>
+            <div class="cons"><h4>Cons</h4><ul style="list-style:none;padding:0"><li>Some ads</li><li>Older interface</li></ul></div>
           </div>
-          <a href="https://play.google.com/store/apps/details?id=com.nst.iptvsmarterspro" class="download-btn" target="_blank">Google Play 下载</a>
+          <a href="https://play.google.com/store/apps/details?id=com.nst.iptvsmarterspro" class="download-btn" target="_blank">Google Play Download</a>
         </div>
 
         <div class="app-card">
           <div class="app-header">
-            <span class="app-icon">📺</span>
+            <span class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 17 12"/></svg></span>
             <div class="app-info">
               <h3>TiviMate Premium</h3>
               <span class="rating">⭐ 4.7/5</span>
             </div>
           </div>
-          <p class="app-desc">专为Android TV打造，界面针对大屏优化，支持频道分组和收藏。</p>
+          <p class="app-desc">Designed for Android TV with an optimized interface for big screens, channel grouping and favorites.</p>
           <ul class="app-features">
-            <li>大屏优化UI</li>
-            <li>频道分组</li>
-            <li>收藏管理</li>
-            <li>开机自启</li>
+            <li>Big screen optimized UI</li>
+            <li>Channel grouping</li>
+            <li>Favorites management</li>
+            <li>Auto-start on boot</li>
           </ul>
           <div class="pros-cons">
-            <div class="pros"><h4>优点</h4><ul style="list-style:none;padding:0"><li>TV端优化好</li><li>播放稳定</li><li>遥控器友好</li></ul></div>
-            <div class="cons"><h4>缺点</h4><ul style="list-style:none;padding:0"><li>仅支持TV端</li><li>需要付费</li></ul></div>
+            <div class="pros"><h4>Pros</h4><ul style="list-style:none;padding:0"><li>TV optimized</li><li>Stable playback</li><li>Remote friendly</li></ul></div>
+            <div class="cons"><h4>Cons</h4><ul style="list-style:none;padding:0"><li>TV only</li><li>Paid app</li></ul></div>
           </div>
-          <a href="https://play.google.com/store/apps/details?id=ar.tvplayer.tvplayer" class="download-btn" target="_blank">Google Play 下载</a>
+          <a href="https://play.google.com/store/apps/details?id=ar.tvplayer.tvplayer" class="download-btn" target="_blank">Google Play Download</a>
         </div>
 
         <div class="app-card">
           <div class="app-header">
-            <span class="app-icon">🎮</span>
+            <span class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span>
             <div class="app-info">
               <h3>GSE IPTV</h3>
               <span class="rating">⭐ 4.5/5</span>
             </div>
           </div>
-          <p class="app-desc">开源免费的IPTV播放器，支持本地/远程M3U，界面简洁。</p>
+          <p class="app-desc">Open-source, free IPTV player with local/remote M3U support and a clean, simple interface.</p>
           <ul class="app-features">
-            <li>完全免费</li>
-            <li>开源无广告</li>
-            <li>本地/远程列表</li>
-            <li>后台播放</li>
+            <li>Completely free</li>
+            <li>Open source, no ads</li>
+            <li>Local/remote lists</li>
+            <li>Background playback</li>
           </ul>
           <div class="pros-cons">
-            <div class="pros"><h4>优点</h4><ul style="list-style:none;padding:0"><li>完全免费</li><li>无广告</li><li>轻量级</li></ul></div>
-            <div class="cons"><h4>缺点</h4><ul style="list-style:none;padding:0"><li>界面朴素</li><li>EPG支持弱</li></ul></div>
+            <div class="pros"><h4>Pros</h4><ul style="list-style:none;padding:0"><li>100% free</li><li>No ads</li><li>Lightweight</li></ul></div>
+            <div class="cons"><h4>Cons</h4><ul style="list-style:none;padding:0"><li>Simple UI</li><li>Weak EPG support</li></ul></div>
           </div>
-          <a href="https://play.google.com/store/apps/details?id=com.gseta.iptv" class="download-btn" target="_blank">Google Play 下载</a>
+          <a href="https://play.google.com/store/apps/details?id=com.gseta.iptv" class="download-btn" target="_blank">Google Play Download</a>
         </div>
       </div>
     </div>
 
     <div class="section">
-      <h2 class="section-title">📊 应用对比</h2>
+      <h2 class="section-title"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.25rem"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> App Comparison</h2>
       <table class="comparison-table">
         <thead>
-          <tr><th>应用</th><th>价格</th><th>EPG</th><th>录像</th><th>推荐度</th></tr>
+          <tr><th>App</th><th>Price</th><th>EPG</th><th>Recording</th><th>Rating</th></tr>
         </thead>
         <tbody>
-          <tr><td>Televizo</td><td>付费</td><td>✓</td><td>✓</td><td>⭐⭐⭐⭐⭐</td></tr>
-          <tr><td>IPTV Smarters Pro</td><td>免费</td><td>✓</td><td>✓</td><td>⭐⭐⭐⭐</td></tr>
-          <tr><td>TiviMate</td><td>付费</td><td>✓</td><td>✗</td><td>⭐⭐⭐⭐⭐</td></tr>
-          <tr><td>GSE IPTV</td><td>免费</td><td>✗</td><td>✗</td><td>⭐⭐⭐</td></tr>
+          <tr><td>Televizo</td><td>Paid</td><td>✓</td><td>✓</td><td>⭐⭐⭐⭐⭐</td></tr>
+          <tr><td>IPTV Smarters Pro</td><td>Free</td><td>✓</td><td>✓</td><td>⭐⭐⭐⭐</td></tr>
+          <tr><td>TiviMate</td><td>Paid</td><td>✓</td><td>✗</td><td>⭐⭐⭐⭐⭐</td></tr>
+          <tr><td>GSE IPTV</td><td>Free</td><td>✗</td><td>✗</td><td>⭐⭐⭐</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="section">
-      <h2 class="section-title">❓ 常见问题</h2>
+      <h2 class="section-title"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.25rem"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> FAQ</h2>
       <div style="background:#141414;border-radius:12px;padding:1.5rem;margin-bottom:1rem">
-        <h3 style="margin-bottom:0.5rem">这些App安全吗？</h3>
-        <p style="color:rgba(255,255,255,0.7)">推荐的应用均来自Google Play官方商店，经过安全审核，可以放心使用。</p>
+        <h3 style="margin-bottom:0.5rem">Are these apps safe?</h3>
+        <p style="color:rgba(255,255,255,0.7)">All recommended apps are from Google Play official store and have been verified for safety.</p>
       </div>
       <div style="background:#141414;border-radius:12px;padding:1.5rem;margin-bottom:1rem">
-        <h3 style="margin-bottom:0.5rem">需要订阅才能使用吗？</h3>
-        <p style="color:rgba(255,255,255,0.7)">App本身免费，但需要订阅我们的IPTV服务才能观看直播频道。</p>
+        <h3 style="margin-bottom:0.5rem">Do I need a subscription to use these apps?</h3>
+        <p style="color:rgba(255,255,255,0.7)">The apps themselves are free, but you need our IPTV subscription to watch live channels.</p>
       </div>
       <div style="background:#141414;border-radius:12px;padding:1.5rem">
-        <h3 style="margin-bottom:0.5rem">手机和电视都能用吗？</h3>
-        <p style="color:rgba(255,255,255,0.7)">是的，这些App均支持Android手机、平板和Android TV设备。</p>
+        <h3 style="margin-bottom:0.5rem">Can I use them on phone and TV?</h3>
+        <p style="color:rgba(255,255,255,0.7)">Yes, these apps support Android phones, tablets, and Android TV devices.</p>
       </div>
     </div>
   </div>

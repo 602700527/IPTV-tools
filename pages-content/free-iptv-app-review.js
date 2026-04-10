@@ -1,6 +1,6 @@
 // Free IPTV App Review Landing Page
-export const pageTitle = '免费IPTV App 评测 - 最佳免费IPTV播放器推荐2024';
-export const pageDescription = '免费IPTV应用全面评测。涵盖Kodi、VLC、GSE IPTV等免费IPTV播放器。功能对比、优缺点分析、下载链接。免费观看直播电视！';
+export const pageTitle = 'Best Free IPTV Apps 2024 - Top Free IPTV Players Reviewed';
+export const pageDescription = 'Comprehensive review of free IPTV apps. Featuring Kodi, VLC, GSE IPTV and more. Feature comparison, pros & cons analysis, and download links. Watch live TV for free!';
 
 export const styles = `
 *{margin:0;padding:0;box-sizing:border-box}
@@ -61,95 +61,95 @@ export const content = `
 <div class="main-content">
   <div class="container">
     <div class="page-header">
-      <h1>🎬 免费IPTV App 评测</h1>
-      <p>2024年最佳免费IPTV播放器精选，功能对比、优缺点分析</p>
+      <h1><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.5rem"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> Best Free IPTV Apps</h1>
+      <p>Top free IPTV players reviewed - feature comparison, pros & cons</p>
     </div>
 
     <div class="section">
-      <h2 class="section-title">🏆 免费应用推荐</h2>
+      <h2 class="section-title"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.25rem"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Our Top Picks</h2>
       <div class="app-list">
         <div class="app-item">
           <div class="app-header">
-            <span class="app-icon">📺</span>
+            <span class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 17 12"/></svg></span>
             <div>
-              <div class="app-name">VLC Media Player<span class="app-badge">最推荐</span></div>
+              <div class="app-name">VLC Media Player<span class="app-badge">Top Pick</span></div>
             </div>
           </div>
-          <p class="app-desc">最流行的开源媒体播放器，支持几乎所有视频格式，包括IPTV流的M3U播放列表。完全免费，无广告。</p>
+          <p class="app-desc">The most popular open-source media player supporting virtually all video formats including IPTV M3U playlists. Completely free with no ads.</p>
           <div class="app-meta">
             <span>⭐ 4.7</span>
             <span>📱 Android/iOS/PC/Mac</span>
-            <span>💾 开源免费</span>
+            <span>💾 Free & Open Source</span>
           </div>
           <div class="feature-tags">
-            <span class="tag highlight">M3U支持</span>
-            <span class="tag">多平台</span>
-            <span class="tag">无广告</span>
-            <span class="tag">开源</span>
+            <span class="tag highlight">M3U Support</span>
+            <span class="tag">Cross-platform</span>
+            <span class="tag">No Ads</span>
+            <span class="tag">Open Source</span>
           </div>
-          <a href="https://www.videolan.org/vlc/" class="download-link" target="_blank">免费下载</a>
+          <a href="https://www.videolan.org/vlc/" class="download-link" target="_blank">Free Download</a>
         </div>
 
         <div class="app-item">
           <div class="app-header">
-            <span class="app-icon">🎮</span>
+            <span class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
             <div>
-              <div class="app-name">Kodi<span class="app-badge">功能最强</span></div>
+              <div class="app-name">Kodi<span class="app-badge">Most Powerful</span></div>
             </div>
           </div>
-          <p class="app-desc">开源媒体中心，功能极其强大。通过PVR IPTV Simple Client插件可完美支持IPTV。</p>
+          <p class="app-desc">Open-source media center with extremely powerful features. Perfect IPTV support via PVR IPTV Simple Client addon.</p>
           <div class="app-meta">
             <span>⭐ 4.5</span>
-            <span>📱 全平台</span>
-            <span>💾 开源免费</span>
+            <span>📱 All Platforms</span>
+            <span>💾 Free & Open Source</span>
           </div>
           <div class="feature-tags">
-            <span class="tag highlight">PVR插件</span>
-            <span class="tag">EPG支持</span>
-            <span class="tag">录像功能</span>
-            <span class="tag">皮肤主题</span>
+            <span class="tag highlight">PVR Plugin</span>
+            <span class="tag">EPG Support</span>
+            <span class="tag">Recording</span>
+            <span class="tag">Skins & Themes</span>
           </div>
-          <a href="https://kodi.tv/download" class="download-link" target="_blank">免费下载</a>
+          <a href="https://kodi.tv/download" class="download-link" target="_blank">Free Download</a>
         </div>
 
         <div class="app-item">
           <div class="app-header">
-            <span class="app-icon">🌐</span>
+            <span class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
             <div>
-              <div class="app-name">GSE IPTV<span class="app-badge">轻量推荐</span></div>
+              <div class="app-name">GSE IPTV<span class="app-badge">Lightweight</span></div>
             </div>
           </div>
-          <p class="app-desc">专为IPTV设计的轻量级播放器，界面简洁，支持本地和远程M3U播放列表，完全免费无广告。</p>
+          <p class="app-desc">Lightweight IPTV player designed specifically for IPTV with a clean interface, supporting local and remote M3U playlists, completely ad-free.</p>
           <div class="app-meta">
             <span>⭐ 4.3</span>
             <span>📱 Android</span>
-            <span>💾 永久免费</span>
+            <span>💾 Always Free</span>
           </div>
           <div class="feature-tags">
-            <span class="tag highlight">轻量级</span>
-            <span class="tag">无广告</span>
-            <span class="tag">简单易用</span>
+            <span class="tag highlight">Lightweight</span>
+            <span class="tag">No Ads</span>
+            <span class="tag">Easy to Use</span>
           </div>
           <a href="https://play.google.com/store/apps/details?id=com.gseta.iptv" class="download-link" target="_blank">Google Play</a>
         </div>
 
         <div class="app-item">
           <div class="app-header">
-            <span class="app-icon">🍎</span>
+            <span class="app-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
             <div>
-              <div class="app-name">IPTV Smarters<span class="app-badge">老牌经典</span></div>
+              <div class="app-name">IPTV Smarters<span class="app-badge">Classic</span></div>
             </div>
           </div>
-          <p class="app-desc">经典IPTV播放应用，支持多订阅管理、远程播放列表和录像功能。免费版有广告。</p>
+          <p class="app-desc">A classic IPTV player with multi-subscription management, remote playlist support and recording. Free version has ads.</p>
           <div class="app-meta">
             <span>⭐ 4.2</span>
             <span>📱 Android/iOS</span>
-            <span>💾 免费有广告</span>
+            <span>💾 Free with Ads</span>
           </div>
           <div class="feature-tags">
-            <span class="tag highlight">多订阅</span>
-            <span class="tag">录像</span>
-            <span class="tag">用户基数大</span>
+            <span class="tag highlight">Multi-subscription</span>
+            <span class="tag">Recording</span>
+            <span class="tag">Large User Base</span>
           </div>
           <a href="https://play.google.com/store/apps/details?id=com.ipptv.ipv6" class="download-link" target="_blank">Google Play</a>
         </div>
@@ -157,11 +157,11 @@ export const content = `
     </div>
 
     <div class="section">
-      <h2 class="section-title">📊 功能对比表</h2>
+      <h2 class="section-title"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.25rem"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Feature Comparison</h2>
       <div class="compare-section">
         <table class="compare-table">
           <thead>
-            <tr><th>应用</th><th>免费</th><th>无广告</th><th>EPG</th><th>M3U</th><th>录像</th><th>多设备</th></tr>
+            <tr><th>App</th><th>Free</th><th>No Ads</th><th>EPG</th><th>M3U</th><th>Recording</th><th>Multi-device</th></tr>
           </thead>
           <tbody>
             <tr><td>VLC</td><td class="compare-yes">✓</td><td class="compare-yes">✓</td><td class="compare-no">✗</td><td class="compare-yes">✓</td><td class="compare-no">✗</td><td class="compare-yes">✓</td></tr>
@@ -174,21 +174,21 @@ export const content = `
     </div>
 
     <div class="section">
-      <h2 class="section-title">💡 使用技巧</h2>
+      <h2 class="section-title"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.25rem"><path d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg> Tips</h2>
       <div class="tip-box">
-        <h4>🎯 如何用VLC观看IPTV</h4>
-        <p>1. 复制订阅地址 → 2. 打开VLC → 3. 点击"媒体" → "打开网络串流" → 4. 粘贴订阅地址 → 5. 开始播放</p>
+        <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.25rem"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> How to Watch IPTV with VLC</h4>
+        <p>1. Copy subscription URL → 2. Open VLC → 3. Click "Media" → "Open Network Stream" → 4. Paste subscription URL → 5. Play</p>
       </div>
       <div class="warning-box">
-        <h4>⚠️ 注意</h4>
-        <p>免费应用可能存在稳定性问题。建议选择我们推荐的付费订阅服务以获得更稳定的高清播放体验。</p>
+        <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.25rem"><path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg> Note</h4>
+        <p>Free apps may have stability issues. Consider upgrading to a paid subscription for better HD streaming experience.</p>
       </div>
     </div>
 
     <div class="section" style="text-align:center;padding:2rem 0">
-      <h2 style="font-size:1.5rem;margin-bottom:1rem">想要更好的观看体验？</h2>
-      <p style="color:rgba(255,255,255,0.7);margin-bottom:1.5rem">升级到付费订阅，去除广告，享受高清画质和稳定播放</p>
-      <a href="/plans" style="display:inline-block;background:#e50914;color:#fff;padding:14px 32px;border-radius:8px;font-weight:600;text-decoration:none">查看套餐 →</a>
+      <h2 style="font-size:1.5rem;margin-bottom:1rem">Want Better Viewing Experience?</h2>
+      <p style="color:rgba(255,255,255,0.7);margin-bottom:1.5rem">Upgrade to paid subscription for ad-free, HD quality and stable streaming</p>
+      <a href="/plans" style="display:inline-block;background:#e50914;color:#fff;padding:14px 32px;border-radius:8px;font-weight:600;text-decoration:none">View Plans →</a>
     </div>
   </div>
 </div>
