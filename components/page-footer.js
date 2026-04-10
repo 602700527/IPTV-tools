@@ -26,7 +26,7 @@ export const PAGE_FOOTER = `
           </details>
           <details class="faq-card">
             <summary>What are the subscription plans?</summary>
-            <div class="faq-answer">Premium subscription includes ad-free viewing with access to channels up to 4K quality (where available).</div>
+            <div class="faq-answer">Free plan: check in once every 7 days to keep active. Premium: ad-free viewing with channels up to 4K quality (where available).</div>
           </details>
           <details class="faq-card">
             <summary>How often are channels updated?</summary>

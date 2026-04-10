@@ -657,7 +657,7 @@ export const PLANS_HTML = `<!DOCTYPE html>
         <div class="faq-item">
           <div class="faq-question" data-i18n="faq1">免费计划需要付费吗？</div>
           <div class="faq-answer">
-            <div class="faq-answer-content" data-i18n="faq1Answer">免费计划完全免费，您只需要每天签到即可保持订阅有效。签到简单快速，只需几秒钟即可完成。</div>
+            <div class="faq-answer-content" data-i18n="faq1Answer">Free plan is completely free. Simply check in once every 7 days before expiration to keep your subscription active. Quick and easy.</div>
           </div>
         </div>
         <div class="faq-item">
