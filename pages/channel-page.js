@@ -574,23 +574,57 @@ export function generateChannelPage(options = {}) {
         .then(response => response.json())
         .then(data => {
           if (data.success && data.play_link) {
-            navigator.clipboard.writeText(data.play_link).then(() => {
-              showToast('Play link copied! Please use a player like VLC for playback.', 'success');
-            }).catch(() => {
-              showToast('Failed to copy link');
-            });
+            // 优先使用 Modern Clipboard API
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(data.play_link).then(() => {
+                showToast('Link copied! Open in your IPTV player.');
+              }).catch(() => {
+                // Clipboard API 失败，使用降级方案
+                fallbackCopy(data.play_link);
+              });
+            } else {
+              // 降级方案：旧版浏览器
+              fallbackCopy(data.play_link);
+            }
           } else {
-            showToast('Failed to get play link');
+            showToast('Channel unavailable - please try again later');
           }
         })
         .catch(error => {
           console.error('copyPlayLink error:', error);
-          showToast('Channel unavailable');
+          showToast('Network error - please check your connection');
         })
         .finally(() => {
           btn.innerHTML = originalContent;
           btn.disabled = false;
         });
+    }
+
+    // 降级复制方案（兼容旧版浏览器和非安全上下文）
+    function fallbackCopy(text) {
+      // 方案1：创建临时 input
+      const tempInput = document.createElement('input');
+      tempInput.style.position = 'fixed';
+      tempInput.style.opacity = '0';
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      
+      let success = false;
+      try {
+        success = document.execCommand('copy');
+      } catch (err) {
+        console.error('fallbackCopy failed:', err);
+      }
+      
+      document.body.removeChild(tempInput);
+      
+      if (success) {
+        showToast('Link copied! Open in your IPTV player.');
+      } else {
+        // 最终降级：显示链接让用户手动复制
+        showToast('Copy failed. Link: ' + text.substring(0, 50) + '...');
+      }
     }
 
     function shareChannel() {
