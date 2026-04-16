@@ -59,23 +59,26 @@ cfworker2/
 ## Code Style Guidelines
 
 ### Formatting
+
 - **2 spaces** indentation, no tabs
 - **No trailing semicolons**
 - **Single quotes** for strings, template literals for interpolation
-- **Line length**: ~100 chars max
+- **Line length**: \~100 chars max
 - **Blank lines**: Single blank line between logical sections
 
 ### Naming Conventions
-| Type | Convention | Example |
-|------|------------|---------|
-| Variables/functions | camelCase | `getUserInfo()`, `adminKey` |
-| Constants | SCREAMING_SNAKE_CASE | `CACHE_TTL`, `MAX_FAILED_ATTEMPTS` |
-| Classes | PascalCase | `UserAccount` |
-| URLs/headers | kebab-case | `/api/auth/login`, `X-Admin-Key` |
-| Database tables | snake_case | `user_orders`, `play_counts` |
-| File names | kebab-case | `ip-blacklist.js`, `channel-cache.js` |
+
+| Type                | Convention             | Example                               |
+| ------------------- | ---------------------- | ------------------------------------- |
+| Variables/functions | camelCase              | `getUserInfo()`, `adminKey`           |
+| Constants           | SCREAMING\_SNAKE\_CASE | `CACHE_TTL`, `MAX_FAILED_ATTEMPTS`    |
+| Classes             | PascalCase             | `UserAccount`                         |
+| URLs/headers        | kebab-case             | `/api/auth/login`, `X-Admin-Key`      |
+| Database tables     | snake\_case            | `user_orders`, `play_counts`          |
+| File names          | kebab-case             | `ip-blacklist.js`, `channel-cache.js` |
 
 ### Import Patterns
+
 ```javascript
 // Named imports for clarity (preferred)
 import { getDB, createTables } from './database.js';
@@ -93,6 +96,7 @@ import Worker from './worker.js';
 ```
 
 ### HTML/Template Escaping
+
 ```javascript
 // Admin-page.js uses inline escapeHtml (defined in file):
 function escapeHtml(text) {
@@ -112,6 +116,7 @@ function escapeAttr(str) {
 ```
 
 ### Response Format
+
 ```javascript
 // JSON success response
 return new Response(JSON.stringify({ success: true, data: result }), {
@@ -131,6 +136,7 @@ return new Response(htmlContent, {
 ```
 
 ### Database Operations
+
 ```javascript
 // Always use prepared statements with parameterized queries
 const result = await db.prepare('SELECT * FROM users WHERE email = ?').bind(email).first();
@@ -150,6 +156,7 @@ try {
 ```
 
 ### Error Handling
+
 ```javascript
 try {
   const result = await db.prepare('SELECT...').bind(...).first();
@@ -164,6 +171,7 @@ try {
 ```
 
 ### Security
+
 - Admin key validation: `request.headers.get('X-Admin-Key') !== env.ADMIN_KEY`
 - Always use parameterized queries (prevents SQL injection)
 - Never expose internal errors to clients
@@ -171,23 +179,24 @@ try {
 - Use `ctx.waitUntil()` for async cleanup tasks
 
 ### Async/Await
+
 - Use `await` for all database and async operations
 - Use `Promise.all()` for parallel independent operations
 - Use `ctx.waitUntil()` for non-blocking background tasks
 
 ## Key Files Reference
 
-| File | Purpose |
-|------|---------|
-| `worker.js` | Router, request dispatch, main entry |
-| `database.js` | Schema, migrations, M3U parser, security config |
-| `handlers/admin.js` | Admin CRUD operations |
-| `handlers/public.js` | Public APIs, channel lists, play links |
-| `handlers/live.js` | Playback URL generation with caching |
-| `handlers/sub.js` | M3U subscription generation |
-| `handlers/seo-handler.js` | SEO static HTML (homepage, category, sitemap) |
-| `wrangler.toml` | Workers config, KV namespaces, D1 bindings |
-| `playwright.config.js` | Test configuration (baseURL: http://localhost:8787) |
+| File                      | Purpose                                               |
+| ------------------------- | ----------------------------------------------------- |
+| `worker.js`               | Router, request dispatch, main entry                  |
+| `database.js`             | Schema, migrations, M3U parser, security config       |
+| `handlers/admin.js`       | Admin CRUD operations                                 |
+| `handlers/public.js`      | Public APIs, channel lists, play links                |
+| `handlers/live.js`        | Playback URL generation with caching                  |
+| `handlers/sub.js`         | M3U subscription generation                           |
+| `handlers/seo-handler.js` | SEO static HTML (homepage, category, sitemap)         |
+| `wrangler.toml`           | Workers config, KV namespaces, D1 bindings            |
+| `playwright.config.js`    | Test configuration (baseURL: <http://localhost:8787>) |
 
 ## Environment Variables (wrangler.toml)
 
@@ -200,20 +209,20 @@ DB = "tv-service-db"        # D1 binding name
 
 ## Database Schema (Key Tables)
 
-| Table | Key Columns |
-|-------|-------------|
-| `sources` | `id`, `name`, `url`, `parse_mode`, `is_active`, `last_updated` |
-| `channels` | `id`, `source_id`, `channel_name`, `play_url`, `channel_hash`, `headers`, `is_active` |
-| `codes` | `code`, `status`, `duration_days`, `expired_at`, `max_ips`, `banned_until` |
-| `users` | `id`, `email`, `password_hash`, `is_verified` |
-| `user_orders` | `id`, `user_id`, `order_id`, `code`, `duration_days` |
-| `free_subscriptions` | `sub_id`, `ip`, `fingerprint`, `expired_at` |
+| Table                | Key Columns                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------- |
+| `sources`            | `id`, `name`, `url`, `parse_mode`, `is_active`, `last_updated`                        |
+| `channels`           | `id`, `source_id`, `channel_name`, `play_url`, `channel_hash`, `headers`, `is_active` |
+| `codes`              | `code`, `status`, `duration_days`, `expired_at`, `max_ips`, `banned_until`            |
+| `users`              | `id`, `email`, `password_hash`, `is_verified`                                         |
+| `user_orders`        | `id`, `user_id`, `order_id`, `code`, `duration_days`                                  |
+| `free_subscriptions` | `sub_id`, `ip`, `fingerprint`, `expired_at`                                           |
 
 **Important indexes**: `idx_channel_hash` on channels, `idx_code_status` on codes
 
 ## Testing Notes
 
-- Playwright config: `playwright.config.js` (baseURL: http://localhost:8787)
+- Playwright config: `playwright.config.js` (baseURL: <http://localhost:8787>)
 - Tests run against local dev server (`npm run dev`)
 - Manual API testing via curl (requires wrangler dev running)
 - Integration testing only - no unit test framework
@@ -222,9 +231,20 @@ DB = "tv-service-db"        # D1 binding name
 ## M3U Parsing
 
 The parser supports multiple M3U formats:
+
 - Standard: `#EXTINF:-1 group-title="央视" tvg-logo="..." ,CCTV-1`
 - With headers: `#EXTINF:-1 http-user-agent="..." referer="..." ,Name`
 - VLC options: `#EXTVLCOPT:http-user-agent=Mozilla/5.0`
 - Global headers in `#EXTM3U` line
 
 Channel hash is SHA-256 of play URL, first 8 characters.
+
+<br />
+
+## 开发准则
+
+- 先想清楚再动手 — 不假设、不隐藏困惑，遇到不确定先问
+- 简单性优先 — 能50行解决就不用200行，不加没被要求的功能
+- 精准修改 — 只改该改的，不顺手重构
+- 目标驱动 — 把"修好它"翻译成"写测试→让测试通过"
+
