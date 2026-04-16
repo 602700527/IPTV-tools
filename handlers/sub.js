@@ -3,6 +3,7 @@ import { getDB, isDomainBlacklisted, getDomainBlacklist } from '../database.js';
 import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
 import { getIPAccessCount, checkAndAddSubscriptionIP, getSubscriptionIPCacheStatus } from '../utils/cache.js';
 import { getAllChannels } from '../utils/channel-cache.js';
+import { getCurrentToken } from '../utils/token-manager.js';
 
 export async function handleSubRequest(request, env, ctx) {
   const url = new URL(request.url);
@@ -100,6 +101,14 @@ export async function handleSubRequest(request, env, ctx) {
   // 3.4 生成M3U内容（性能优化版）
   const host = url.origin;
 
+  // 获取当前 token 用于 M3U 播放地址
+  const token = await getCurrentToken(env);
+  if (!token) {
+    return new Response('#EXTM3U\n#EXTINF:-1 ,当前正在维护，请稍后再试\nhttp://example.com/stream.m3u8', {
+      headers: { 'Content-Type': 'application/vnd.apple.mpegurl' }
+    });
+  }
+
   // 加载域名黑名单（缓存到内存中）
   let domainBlacklist = [];
   try {
@@ -173,7 +182,7 @@ export async function handleSubRequest(request, env, ctx) {
       playUrl = channel.play_url;
     } else {
       // 否则使用代理播放地址
-      playUrl = `${host}/live/${code}/${channel.channel_hash}`;
+      playUrl = `${host}/live/vip/${token}/${channel.channel_hash}`;
     }
 
     m3uLines.push(playUrl);

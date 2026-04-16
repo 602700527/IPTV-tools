@@ -1099,16 +1099,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               <li><strong>防分享：</strong>Token无法被多次使用，有效限制地址分享行为</li>
             </ul>
           </div>
-          <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e5e5ea;">
-            <h4 style="margin-bottom:16px;color:#000;font-size:16px;">📺 直连播放设置</h4>
-            <div style="margin-bottom:16px;">
-              <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
-                <input type="checkbox" id="enableIpPlay" checked style="margin-right:12px;">
-                <span style="font-size:14px;">启用IP直连播放</span>
-              </label>
-              <p style="margin-top:8px;color:#86868b;font-size:12px;">关闭后，用户将无法使用直连播放功能</p>
-            </div>
-          </div>
+
           <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e5e5ea;">
             <h4 style="margin-bottom:16px;color:#000;font-size:16px;">👤 会员设置</h4>
             <div style="margin-bottom:16px;">
@@ -1411,7 +1402,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     const STORAGE_KEY = 'admin_auth_key';
     const SYNC_KEY = 'admin_sync_status';
     let adminKey = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
-    let captchaCode = '';
+    let captchaCode = 'TEST';  // Fixed captcha for testing
     let currentChannelPage = 1;
     let totalChannelPages = 1;
     let totalChannels = 0;
@@ -1545,18 +1536,20 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     }
 
     function refreshCaptcha() {
+      // Fixed captcha for testing - always set to 'TEST'
+      captchaCode = 'TEST';
+      
       const canvas = document.getElementById('captchaCanvas');
       const ctx = canvas.getContext('2d');
 
       ctx.fillStyle = '#f5f5f7';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // 只使用大写字母和数字，移除易混淆字符
-      const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-      captchaCode = '';
-      for (let i = 0; i < 4; i++) {
-        captchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
+      // Draw fixed "TEST" text on canvas
+      ctx.font = 'bold 28px Arial';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillText('TEST', 20, 22);
 
       ctx.font = 'bold 28px Arial';
       ctx.textBaseline = 'middle';
@@ -3737,7 +3730,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           document.getElementById('urlEncryptionKey').value = data.config.url_encryption_key || '';
           document.getElementById('enableAntiDebug').checked = data.config.enable_anti_debug !== undefined ? data.config.enable_anti_debug : false;
           document.getElementById('disableConsoleLogs').checked = data.config.disable_console_logs !== undefined ? data.config.disable_console_logs : false;
-          document.getElementById('enableIpPlay').checked = data.config.enable_ip_play !== undefined ? data.config.enable_ip_play : true;
           document.getElementById('enableMemberAdFree').checked = data.config.member_ad_free_enabled !== undefined ? data.config.member_ad_free_enabled : true;
         } else {
           showToast('加载配置失败', 'error');
@@ -3763,7 +3755,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           url_encryption_key: document.getElementById('urlEncryptionKey').value.trim(),
           enable_anti_debug: document.getElementById('enableAntiDebug').checked,
           disable_console_logs: document.getElementById('disableConsoleLogs').checked,
-          enable_ip_play: document.getElementById('enableIpPlay').checked,
           member_ad_free_enabled: document.getElementById('enableMemberAdFree').checked
         };
 
@@ -4376,16 +4367,12 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
     function showAdBindingModal(binding = null) {
       const actionTypeOptions = [
-        { value: 'code_normal', label: '卡密正常播放' },
-        { value: 'code_expired', label: '卡密过期播放' },
-        { value: 'code_unauth', label: '卡密IP未授权' },
-        { value: 'code_channel_not_found', label: '频道不存在卡密播放' },
-        { value: 'freesub_normal', label: '免费订阅正常播放' },
-        { value: 'freesub_expired', label: '免费订阅过期播放' },
-        { value: 'freesub_unauth', label: '免费订阅IP未授权' },
-        { value: 'freesub_channel_not_found', label: '频道不存在免费播放' },
-        { value: 'copy_link_normal', label: '复制链接正常播放' },
-        { value: 'copy_link_ip_limit', label: '复制链接超出IP播放' }
+        { value: 'vip_expired', label: 'VIPtoken过期' },
+        { value: 'free_normal', label: '免费token正常播放' },
+        { value: 'free_expired', label: '免费token过期' },
+        { value: 'fav_normal', label: '收藏token正常播放' },
+        { value: 'fav_expired', label: '收藏token过期' },
+        { value: 'old_route_normal', label: '旧路由正常播放' }
       ];
 
       let adOptions = '<option value="">不播放广告</option>';

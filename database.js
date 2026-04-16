@@ -225,6 +225,10 @@ export async function createTables(env) {
     'disable_console_logs': 'false',
     // IP直连播放配置
     'enable_ip_play': 'true',
+    // M3U缓存TTL配置
+    'm3u_ttl_hours': '72',
+    // 每日IP播放限制配置
+    'play_limit_per_ip': '100',
     // 同步过滤规则配置（JSON格式）
     'sync_filter_config': '{}'
   };
@@ -252,22 +256,6 @@ export async function createTables(env) {
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_play_logs_code ON play_logs(code)').run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_play_logs_code_date ON play_logs(code, created_date)').run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_play_logs_code_hash_date ON play_logs(code, channel_hash, created_date)').run();
-
-  // 创建播放计数表（每个频道每天只有1条记录）
-  await db.prepare(`
-    CREATE TABLE IF NOT EXISTS play_counts (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      code TEXT NOT NULL,
-      channel_hash TEXT NOT NULL,
-      play_count INTEGER DEFAULT 0,
-      created_date DATE DEFAULT (DATE('now')),
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(code, channel_hash, created_date)
-    )
-  `).run();
-
-  // 创建播放计数索引
-  await db.prepare('CREATE INDEX IF NOT EXISTS idx_play_counts_unique ON play_counts(code, channel_hash, created_date)').run();
 
   // 创建IP访问记录表
   await db.prepare(`
@@ -849,28 +837,6 @@ export async function createTables(env) {
     console.error('Database: Failed to create domain_blacklist table:', e);
   }
 
-  // 创建IP直连播放链接表
-  try {
-    await db.prepare(`
-      CREATE TABLE IF NOT EXISTS ip_play_links (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        link_id TEXT NOT NULL UNIQUE,
-        creator_ip TEXT NOT NULL,
-        channel_hash TEXT NOT NULL,
-        used_ips TEXT DEFAULT '[]',
-        used_count INTEGER DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        last_used_at DATETIME
-      )
-    `).run();
-    await db.prepare('CREATE INDEX IF NOT EXISTS idx_ip_play_links_link_id ON ip_play_links(link_id)').run();
-    await db.prepare('CREATE INDEX IF NOT EXISTS idx_ip_play_links_creator_ip ON ip_play_links(creator_ip)').run();
-    await db.prepare('CREATE INDEX IF NOT EXISTS idx_ip_play_links_channel_hash ON ip_play_links(channel_hash)').run();
-    console.log('Database: ip_play_links table created or already exists');
-  } catch (e) {
-    console.error('Database: Failed to create ip_play_links table:', e);
-  }
-
   // 创建工单表
   try {
     await db.prepare(`
@@ -1050,8 +1016,8 @@ export async function updateHomepageDisplayConfig(config) {
 // 获取系统安全配置
 export async function getSystemConfig() {
   const db = getDB();
-  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-    .bind('enable_ref_check', 'ref_whitelist', 'enable_play_token', 'play_token_expire_seconds', 'homepage_display_config', 'enable_ip_bind', 'enable_burn_after_read', 'enable_url_encryption', 'url_encryption_key', 'enable_anti_debug', 'disable_console_logs', 'enable_ip_play', 'member_ad_free_enabled')
+  const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    .bind('enable_ref_check', 'ref_whitelist', 'enable_play_token', 'play_token_expire_seconds', 'homepage_display_config', 'enable_ip_bind', 'enable_burn_after_read', 'enable_url_encryption', 'url_encryption_key', 'enable_anti_debug', 'disable_console_logs', 'enable_ip_play', 'member_ad_free_enabled', 'm3u_ttl_hours', 'play_limit_per_ip')
     .all();
 
   const config = {
@@ -1067,7 +1033,9 @@ export async function getSystemConfig() {
     enable_anti_debug: false,
     disable_console_logs: false,
     enable_ip_play: true,
-    member_ad_free_enabled: false
+    member_ad_free_enabled: false,
+    m3u_ttl_hours: 72,
+    play_limit_per_ip: 100
   };
 
   settings.results?.forEach(row => {
@@ -1101,6 +1069,10 @@ export async function getSystemConfig() {
       config.enable_ip_play = row.value === 'true';
     } else if (row.key === 'member_ad_free_enabled') {
       config.member_ad_free_enabled = row.value === 'true';
+    } else if (row.key === 'm3u_ttl_hours') {
+      config.m3u_ttl_hours = parseInt(row.value) || 72;
+    } else if (row.key === 'play_limit_per_ip') {
+      config.play_limit_per_ip = parseInt(row.value) || 100;
     }
   });
 
@@ -1231,6 +1203,18 @@ export async function updateSystemConfig(config) {
   if (config.member_ad_free_enabled !== undefined) {
     await db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)')
       .bind('member_ad_free_enabled', config.member_ad_free_enabled.toString())
+      .run();
+  }
+
+  if (config.m3u_ttl_hours !== undefined) {
+    await db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)')
+      .bind('m3u_ttl_hours', config.m3u_ttl_hours.toString())
+      .run();
+  }
+
+  if (config.play_limit_per_ip !== undefined) {
+    await db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)')
+      .bind('play_limit_per_ip', config.play_limit_per_ip.toString())
       .run();
   }
 }
@@ -2739,177 +2723,5 @@ export function extractDomainFromUrl(url) {
   }
 }
 
-// ========== IP直连播放链接管理 ==========
 
-const MAX_IP_PLAY_IPS = 3;  // 每个链接最多允许的IP数
-
-/**
- * 生成唯一的link_id
- */
-function generateLinkId() {
-  const timestamp = Date.now().toString(36);
-  const randomPart = Math.random().toString(36).substring(2, 10);
-  return `${timestamp}${randomPart}`;
-}
-
-/**
- * 创建IP直连播放链接
- * @param {string} creatorIp - 创建者IP
- * @param {string} channelHash - 频道hash
- * @returns {Promise<{success: boolean, link_id?: string, play_url?: string, error?: string}>}
- */
-export async function createIPPlayLink(creatorIp, channelHash) {
-  const db = getDB();
-  
-  try {
-    // 生成唯一的link_id
-    const linkId = generateLinkId();
-    
-    // 插入记录
-    await db.prepare(`
-      INSERT INTO ip_play_links (link_id, creator_ip, channel_hash, used_ips, used_count)
-      VALUES (?, ?, ?, '[]', 0)
-    `).bind(linkId, creatorIp, channelHash).run();
-    
-    // 构建播放链接
-    const playUrl = `/play/${linkId}/${channelHash}`;
-    
-    return {
-      success: true,
-      link_id: linkId,
-      play_url: playUrl
-    };
-  } catch (e) {
-    console.error('[IPPlayLink] Failed to create link:', e);
-    return {
-      success: false,
-      error: e.message
-    };
-  }
-}
-
-/**
- * 获取IP直连播放链接信息
- * @param {string} linkId - 链接ID
- * @returns {Promise<Object|null>}
- */
-export async function getIPPlayLink(linkId) {
-  const db = getDB();
-  
-  try {
-    const link = await db.prepare(`
-      SELECT * FROM ip_play_links WHERE link_id = ?
-    `).bind(linkId).first();
-    
-    return link;
-  } catch (e) {
-    console.error('[IPPlayLink] Failed to get link:', e);
-    return null;
-  }
-}
-
-/**
- * 验证并使用IP直连播放链接
- * @param {string} linkId - 链接ID
- * @param {string} channelHash - 频道hash
- * @param {string} clientIp - 客户端IP
- * @returns {Promise<{success: boolean, play_url?: string, error?: string, used_count?: number}>}
- */
-export async function verifyAndUseIPPlayLink(linkId, channelHash, clientIp) {
-  const db = getDB();
-  
-  try {
-    // 获取链接信息
-    const link = await getIPPlayLink(linkId);
-    
-    if (!link) {
-      return { success: false, error: 'Link not found' };
-    }
-    
-    // 验证频道hash
-    if (link.channel_hash !== channelHash) {
-      return { success: false, error: 'Invalid channel' };
-    }
-    
-    // 解析已使用的IP列表
-    let usedIps = [];
-    try {
-      usedIps = JSON.parse(link.used_ips || '[]');
-    } catch (e) {
-      usedIps = [];
-    }
-    
-    // 检查IP是否已使用
-    if (!usedIps.includes(clientIp)) {
-      // 新IP，检查是否已达到上限
-      if (link.used_count >= MAX_IP_PLAY_IPS) {
-        return {
-          success: false,
-          error: 'Maximum IP limit reached (3 IPs)',
-          used_count: link.used_count
-        };
-      }
-      
-      // 添加新IP
-      usedIps.push(clientIp);
-      
-      // 更新记录
-      await db.prepare(`
-        UPDATE ip_play_links
-        SET used_ips = ?, used_count = ?, last_used_at = CURRENT_TIMESTAMP
-        WHERE link_id = ?
-      `).bind(JSON.stringify(usedIps), link.used_count + 1, linkId).run();
-    } else {
-      // 已使用的IP，只更新时间戳
-      await db.prepare(`
-        UPDATE ip_play_links
-        SET last_used_at = CURRENT_TIMESTAMP
-        WHERE link_id = ?
-      `).bind(linkId).run();
-    }
-    
-    // 获取频道信息
-    const channel = await db.prepare(`
-      SELECT c.*, s.is_active as source_active
-      FROM channels c
-      INNER JOIN sources s ON c.source_id = s.id
-      WHERE c.channel_hash = ? AND c.is_active = 1 AND s.is_active = 1
-    `).bind(channelHash).first();
-    
-    if (!channel) {
-      return { success: false, error: 'Channel not found or inactive' };
-    }
-    
-    return {
-      success: true,
-      play_url: channel.play_url,
-      used_count: usedIps.length
-    };
-  } catch (e) {
-    console.error('[IPPlayLink] Failed to verify link:', e);
-    return { success: false, error: e.message };
-  }
-}
-
-/**
- * 获取IP直连播放链接的当前使用情况
- * @param {string} linkId - 链接ID
- * @returns {Promise<{used_ips: string[], used_count: number}>}
- */
-export async function getIPPlayLinkUsage(linkId) {
-  const link = await getIPPlayLink(linkId);
-  
-  if (!link) {
-    return { used_ips: [], used_count: 0 };
-  }
-  
-  try {
-    return {
-      used_ips: JSON.parse(link.used_ips || '[]'),
-      used_count: link.used_count
-    };
-  } catch (e) {
-    return { used_ips: [], used_count: link.used_count };
-  }
-}
 

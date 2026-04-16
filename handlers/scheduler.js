@@ -1,7 +1,7 @@
 // 定时任务处理器：自动同步已启用的数据源和刷新缓存
 import { getDB, fetchAndParseM3U, fetchAndParseM3UOnly, initDB, getSyncFilterConfig } from '../database.js';
 import { cacheChannelsToKV, generateAndCacheSitemap } from '../utils/channel-cache.js';
-import { flushCacheToDB } from '../utils/cache.js';
+import { generateTokenAndAddresses } from '../utils/token-manager.js';
 
 // 并发控制锁
 let syncInProgress = false;
@@ -230,6 +230,15 @@ async function syncAllSources(db, env) {
         } else {
           console.error('[Scheduler] Failed to cache sitemap:', sitemapResult.error);
         }
+
+        // After caching channels to KV, generate new token and play addresses
+        console.log('[Scheduler] Generating new token and play addresses...');
+        try {
+          const tokenResult = await generateTokenAndAddresses(env);
+          console.log(`[Scheduler] Token generated: ${tokenResult}`);
+        } catch (tokenError) {
+          console.error('[Scheduler] Failed to generate token:', tokenError);
+        }
       } else {
         console.error('[Scheduler] Failed to cache channels:', cacheResult.error);
       }
@@ -332,18 +341,8 @@ async function cleanupOldRecords(db) {
       console.log(`[Scheduler] Cleaned up ${deleteResult.meta.changes} expired play_logs records`);
     }
 
-    // 清理旧的 play_counts 记录（7天前）
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    const deleteCountsResult = await db.prepare(`
-      DELETE FROM play_counts
-      WHERE created_date < ?
-    `).bind(sevenDaysAgo).run();
-
-    if (deleteCountsResult.meta?.changes > 0) {
-      console.log(`[Scheduler] Cleaned up ${deleteCountsResult.meta.changes} old play_counts records`);
-    }
-
     // 清理旧的 ip_access_logs 记录（7天前）
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     const deleteIpResult = await db.prepare(`
       DELETE FROM ip_access_logs
       WHERE created_date < ?
@@ -516,6 +515,15 @@ export async function manualSyncAll(env, filter = null) {
           console.log('[Scheduler] Sitemap cached to KV');
         } else {
           console.error('[Scheduler] Failed to cache sitemap:', sitemapResult.error);
+        }
+
+        // After caching channels to KV, generate new token and play addresses
+        console.log('[Scheduler] Generating new token and play addresses...');
+        try {
+          const tokenResult = await generateTokenAndAddresses(env);
+          console.log(`[Scheduler] Token generated: ${tokenResult}`);
+        } catch (tokenError) {
+          console.error('[Scheduler] Failed to generate token:', tokenError);
         }
       } else {
         console.error('[Scheduler] Failed to cache channels:', cacheResult.error);

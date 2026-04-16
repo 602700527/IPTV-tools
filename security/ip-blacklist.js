@@ -1,7 +1,7 @@
 // IP黑名单安全系统
 // 防止撞库攻击：监控订阅地址访问频率，超出限制永久封禁
 import { getIPBlacklistConfig } from '../database.js';
-import { incrementIPAccess, getIPAccessCount, getIPTotalAccess, flushCacheToDB, ipAccessCache } from '../utils/cache.js';
+import { incrementIPAccess, getIPAccessCount, getIPTotalAccess, ipAccessCache } from '../utils/cache.js';
 
 /**
  * 获取客户端真实IP
@@ -68,9 +68,6 @@ export async function checkIPRateLimit(env, ctx, ip, path) {
 
   // 2. 获取或创建访问记录（使用缓存）
   const today = new Date().toISOString().split('T')[0];
-
-  // 尝试刷新缓存（10分钟间隔）
-  await flushCacheToDB(env, ctx);
 
   // 从缓存获取计数
   let pathRequests = getIPAccessCount(ip, path, today);

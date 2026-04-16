@@ -1,8 +1,9 @@
 // 免费订阅API处理器
 import { createFreeSubscription, getClientIP, validateFreeSubscriptionWithFingerprint } from './freesub.js';
 import { performCheckIn, getCheckInHistory, getCheckInStats } from './checkin.js';
-import { getDB, getActiveChannels, generateM3UContent, verifyFreeSubPlayToken, getDomainBlacklist } from '../database.js';
+import { getDB, getActiveChannels, verifyFreeSubPlayToken, getDomainBlacklist } from '../database.js';
 import { getAllChannels } from '../utils/channel-cache.js';
+import { getCurrentToken } from '../utils/token-manager.js';
 
 /**
  * 处理免费订阅API请求
@@ -200,9 +201,70 @@ async function handleFreeSubM3U(subId, request, env) {
     console.error('[FreeSub M3U] Failed to load domain blacklist:', e);
   }
 
-  // 生成M3U内容（移除令牌，直接使用subId和IP验证，支持域名黑名单透传）
-  const baseUrl = `${url.protocol}//${url.host}/api`;
-  const m3uContent = generateM3UContent(channels, subId, true, baseUrl, domainBlacklist);
+  // 生成M3U内容（使用token-based URL格式 /live/free/{token}/{hash}）
+  const token = await getCurrentToken(env);
+  if (!token) {
+    return new Response('#EXTM3U\n#EXTINF:-1 ,当前正在维护，请稍后再试\nhttp://example.com/stream.m3u8', {
+      headers: { 'Content-Type': 'application/vnd.apple.mpegurl' }
+    });
+  }
+
+  const host = url.protocol + '//' + url.host;
+  const m3uLines = ['#EXTM3U'];
+
+  for (const channel of channels) {
+    const infoParts = ['#EXTINF:-1'];
+    if (channel.group_title) infoParts.push(`group-title="${channel.group_title}"`);
+    if (channel.logo) infoParts.push(`tvg-logo="${channel.logo}"`);
+
+    // 添加请求头信息
+    if (channel.headers && channel.headers !== '{}') {
+      try {
+        const headers = JSON.parse(channel.headers);
+        if (headers['User-Agent']) {
+          const ua = headers['User-Agent'].replace(/"/g, '\\"');
+          infoParts.push(`http-user-agent="${ua}"`);
+        }
+        if (headers['Referer']) {
+          const referer = headers['Referer'].replace(/"/g, '\\"');
+          infoParts.push(`http-header="Referer: ${referer}"`);
+          infoParts.push(`referer="${referer}"`);
+        }
+      } catch (e) {
+        // headers 解析失败，忽略
+      }
+    }
+
+    infoParts.push(',' + channel.channel_name);
+    m3uLines.push(infoParts.join(' '));
+
+    // 检查频道URL是否在域名黑名单中
+    let playUrl = `${host}/live/free/${token}/${channel.channel_hash}`;
+    if (channel.play_url) {
+      try {
+        const urlObj = new URL(channel.play_url);
+        const hostname = urlObj.hostname;
+        let isBlacklisted = domainBlacklist.includes(hostname);
+        if (!isBlacklisted) {
+          for (const blacklistDomain of domainBlacklist) {
+            if (blacklistDomain.startsWith('*.') && hostname.endsWith(blacklistDomain.substring(2))) {
+              isBlacklisted = true;
+              break;
+            }
+          }
+        }
+        if (isBlacklisted) {
+          playUrl = channel.play_url;
+        }
+      } catch (e) {
+        console.error('[FreeSub M3U] Error parsing channel URL:', e);
+      }
+    }
+
+    m3uLines.push(playUrl);
+  }
+
+  const m3uContent = m3uLines.join('\n');
 
   return new Response(m3uContent, {
     headers: {

@@ -12,6 +12,7 @@ import { manualSyncAll } from './scheduler.js';
 import { getBlacklistedIPs, unbanIP, getIPAccessStats, banIP } from '../security/ip-blacklist.js';
 import { getBannedCodesFromCache, removeBannedCodeFromCache, syncBannedCodesToCache } from '../security/code-ban-cache.js';
 import { cacheChannelsToKV, clearChannelCache, getCacheStatus } from '../utils/channel-cache.js';
+import { getAllTokens, generateTokenAndAddresses, invalidateToken, extendToken } from '../utils/token-manager.js';
 
 export async function handleAdminRequest(request, env, ctx) {
   const url = new URL(request.url);
@@ -1801,14 +1802,13 @@ export async function handleAdminRequest(request, env, ctx) {
           `).all();
 
           const actionTypeLabels = {
-            'code_normal': '卡密正常播放',
-            'code_expired': '卡密过期播放',
-            'code_unauth': '卡密IP未授权',
-            'code_channel_not_found': '频道不存在卡密播放',
-            'freesub_normal': '免费订阅正常播放',
-            'freesub_expired': '免费订阅过期播放',
-            'freesub_unauth': '免费订阅IP未授权',
-            'freesub_channel_not_found': '频道不存在免费播放'
+            'vip_expired': 'VIP Token过期',
+            'play_normal': '统一正常播放',
+            'free_normal': '免费订阅正常播放',
+            'free_expired': '免费订阅Token过期',
+            'fav_normal': '收藏正常播放',
+            'fav_expired': '收藏Token过期',
+            'old_route_normal': '旧路由访问'
           };
 
           const formattedBindings = (bindings.results || []).map(b => ({
@@ -2137,6 +2137,77 @@ export async function handleAdminRequest(request, env, ctx) {
       case 'tickets':
         // 工单管理
         return await handleAdminTickets(request, env, ctx);
+
+      case 'tokens':
+        // Token管理
+        const tokenSubAction = pathParts[3];
+
+        if (request.method === 'GET' && !tokenSubAction) {
+          // 获取所有有效token
+          const tokens = await getAllTokens(env);
+          return new Response(JSON.stringify({
+            success: true,
+            tokens
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'POST' && tokenSubAction === 'refresh') {
+          // 手动生成新token和播放地址
+          const ttlHours = parseInt(url.searchParams.get('ttl')) || 72;
+          try {
+            const token = await generateTokenAndAddresses(env, { ttlHours });
+            return new Response(JSON.stringify({
+              success: true,
+              token
+            }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } catch (error) {
+            return new Response(JSON.stringify({
+              success: false,
+              error: error.message
+            }), {
+              status: 500,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+        } else if (request.method === 'POST' && pathParts[4] === 'invalidate') {
+          // 使token失效
+          const tokenToInvalidate = pathParts[3];
+          try {
+            await invalidateToken(tokenToInvalidate, env);
+            return new Response(JSON.stringify({ success: true }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } catch (error) {
+            return new Response(JSON.stringify({
+              success: false,
+              error: error.message
+            }), {
+              status: 500,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+        } else if (request.method === 'POST' && pathParts[4] === 'extend') {
+          // 延长token有效期
+          const tokenToExtend = pathParts[3];
+          const additionalHours = parseInt(url.searchParams.get('hours')) || 72;
+          try {
+            const success = await extendToken(tokenToExtend, additionalHours, env);
+            return new Response(JSON.stringify({ success }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } catch (error) {
+            return new Response(JSON.stringify({
+              success: false,
+              error: error.message
+            }), {
+              status: 500,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+        }
+        break;
 
       default:
         return new Response('Invalid admin action', { status: 400 });
