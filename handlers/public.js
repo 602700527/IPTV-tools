@@ -1,5 +1,5 @@
 // 公开播放列表API - 无需卡密
-import { getDB, getHomepageDisplayConfig, getSystemConfig, generatePlayToken, verifyPlayToken, verifyFreeSubPlayToken, verifyReferer, encryptWithAES, getBoundAdByAction, generateAdM3U8 } from '../database.js';
+import { getDB, getHomepageDisplayConfig, getSystemConfig, getBoundAdByAction, generateAdM3U8 } from '../database.js';
 import { getCurrentToken, validateToken } from '../utils/token-manager.js';
 import { getAllChannels, getAllGroups, getChannelByHash } from '../utils/channel-cache.js';
 
@@ -1006,46 +1006,6 @@ export async function handlePublicPlay(request, env, ctx) {
       });
     }
 
-    // Token验证（如果启用）- 优先验证token
-    if (systemConfig.enable_play_token && !freeSubId) {
-      if (!tokenParam) {
-        // 如果没有token，返回需要token的响应，前端应该重新请求获取token
-        return new Response(JSON.stringify({
-          success: false,
-          error: 'Token required',
-          requireToken: true
-        }), {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-
-      const isValid = await verifyPlayToken(tokenParam, env.SECRET_KEY || 'default-secret-key', env, request, db);
-      if (!isValid) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: 'Invalid or expired token'
-        }), {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-    }
-
-    // Ref验证（在token验证之后）
-    if (systemConfig.enable_ref_check) {
-      const referer = request.headers.get('Referer');
-      if (!verifyReferer(referer, systemConfig.ref_whitelist)) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: 'Invalid referer'
-        }), {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-    }
-
     // 查询频道信息（优先从 KV 缓存）
     const channel = await getChannelByHash(env, hash);
 
@@ -1068,44 +1028,18 @@ export async function handlePublicPlay(request, env, ctx) {
       }
     }
 
-    // 判断是否需要加密
-    const enableEncryption = systemConfig.enable_url_encryption && systemConfig.url_encryption_key;
-
     // 返回播放URL和headers配置
-    if (enableEncryption) {
-      // AES-GCM 加密播放URL（使用系统配置的密钥）
-      const encryptionKey = systemConfig.url_encryption_key;
-      const encryptedUrl = await encryptWithAES(channel.play_url, encryptionKey);
-
-      return new Response(JSON.stringify({
-        success: true,
-        play_url: encryptedUrl, // AES-GCM 加密的数据
-        headers: headersObj,
-        channel_name: channel.channel_name,
-        encoded: true, // 标识数据已加密
-        encryption: 'aes-gcm' // 标识加密方式
-      }), {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
-        }
-      });
-    } else {
-      // 不加密，直接返回原始URL
-      return new Response(JSON.stringify({
-        success: true,
-        play_url: channel.play_url, // 原始URL
-        headers: headersObj,
-        channel_name: channel.channel_name,
-        encoded: false, // 标识数据未加密
-        encryption: 'none' // 标识未加密
-      }), {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
-        }
-      });
-    }
+    return new Response(JSON.stringify({
+      success: true,
+      play_url: channel.play_url,
+      headers: headersObj,
+      channel_name: channel.channel_name
+    }), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+      }
+    });
 
   } catch (error) {
     console.error('获取播放地址失败:', error);
@@ -1113,133 +1047,235 @@ export async function handlePublicPlay(request, env, ctx) {
   }
 }
 
-// 获取播放token
-export async function handleGetPlayToken(request, env, ctx) {
-  const url = new URL(request.url);
-  const hash = url.searchParams.get('hash');
 
-  if (!hash) {
-    return new Response('Missing channel hash', { status: 400 });
-  }
-
-  try {
-    // 获取客户端真实IP（考虑CF代理）
-    const clientIp = request.headers.get('CF-Connecting-IP') ||
-                    request.headers.get('X-Forwarded-For')?.split(',')[0] ||
-                    'unknown';
-
-    // 检查 Cloudflare Cache API 缓存
-    const cacheKey = `token:${hash}:${clientIp}`;
-    const cache = caches.default;
-    const cachedResponse = await cache.match(new Request(url.toString()));
-
-    if (cachedResponse) {
-      console.log('[GetPlayToken] Cache hit for hash:', hash);
-      return cachedResponse;
-    }
-
-    const db = getDB();
-
-    // 获取系统配置
-    const systemConfig = await getSystemConfig();
-
-    // Ref验证（如果启用）
-    if (systemConfig.enable_ref_check) {
-      const referer = request.headers.get('Referer');
-      if (!verifyReferer(referer, systemConfig.ref_whitelist)) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: 'Invalid referer'
-        }), {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-    }
-
-    // 验证频道是否存在
-    const channel = await db.prepare(`
-      SELECT channel_name
-      FROM channels
-      WHERE channel_hash = ? AND is_active = 1
-    `).bind(hash).first();
-
-    if (!channel) {
-      return new Response('Channel not found', { status: 404 });
-    }
-
-    // 生成带IP绑定的token（将IP哈希后存入nonce，服务器验证时对比）
-    const token = await generatePlayToken(hash, clientIp, env.SECRET_KEY || 'default-secret-key');
-
-    const response = new Response(JSON.stringify({
-      success: true,
-      token: token,
-      expire_seconds: systemConfig.play_token_expire_seconds
-    }), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=30'  // 缓存30秒
-      }
-    });
-
-    // 缓存响应（在后台异步执行）
-    ctx.waitUntil(cache.put(new Request(url.toString()), response.clone()));
-
-    return response;
-
-  } catch (error) {
-    console.error('生成token失败:', error);
-    return new Response('Internal Server Error', { status: 500 });
-  }
-}
 
 // 视频流代理处理
 
 /**
- * Handle favorites M3U download (logged-in users)
- * GET /fav/{token}.m3u
+ * 验证用户会话（从 Cookie 或 Authorization 头）
+ * @returns {Promise<{userId: number, isVIP: boolean} | null>}
  */
-export async function handleFavoritesM3U(request, env, ctx) {
-  const url = new URL(request.url);
-  const pathParts = url.pathname.split('/');
-  const filename = pathParts[pathParts.length - 1]; // {token}.m3u
-  const token = filename.replace('.m3u', '');
+async function verifyUserSession(request, db) {
+  try {
+    // 支持两种认证方式：Cookie 或 Authorization 头
+    let token = null;
+    
+    // 1. 尝试从 Authorization 头获取（Bearer token）
+    const authHeader = request.headers.get('Authorization') || '';
+    if (authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+    
+    // 2. 如果没有，尝试从 Cookie 获取
+    if (!token) {
+      const cookieHeader = request.headers.get('Cookie') || '';
+      const tokenMatch = cookieHeader.match(/auth_token=([^;]+)/);
+      if (tokenMatch) {
+        token = tokenMatch[1];
+      }
+    }
 
-  // 验证 token 是否有效
-  const tokenMeta = await validateToken(token, env);
-  if (!tokenMeta) {
-    return new Response('#EXTM3U\n#EXTINF:-1 ,Token无效或已过期\nhttp://example.com/stream.m3u8', {
-      status: 403,
-      headers: { 'Content-Type': 'application/vnd.apple.mpegurl' }
-    });
+    if (!token) {
+      return null;
+    }
+
+    // 验证会话
+    const session = await db.prepare(`
+      SELECT s.user_id
+      FROM user_sessions s
+      WHERE s.token = ? AND s.expires_at > datetime('now')
+    `).bind(token).first();
+
+    if (!session) {
+      return null;
+    }
+
+    // 检查会员状态
+    const isMember = await checkMemberStatus(session.user_id, db);
+
+    return {
+      userId: session.user_id,
+      isVIP: isMember
+    };
+  } catch (error) {
+    console.error('[verifyUserSession] Error:', error);
+    return null;
   }
+}
 
-  const db = getDB();
+/**
+ * 检查用户是否为会员
+ */
+async function checkMemberStatus(userId, db) {
+  try {
+    const user = await db.prepare('SELECT is_verified FROM users WHERE id = ?').bind(userId).first();
+    if (!user || !user.is_verified) {
+      return false;
+    }
 
-  // TODO: 获取当前登录用户的 favorites（需要集成用户认证）
-  // 目前返回空收藏列表占位
-  const favoriteChannels = [];
-  const isVIP = false;
+    const now = new Date().toISOString();
+    const result = await db.prepare(`
+      SELECT o.id
+      FROM user_orders o
+      JOIN codes c ON o.code = c.code
+      WHERE o.user_id = ?
+        AND o.status = 'completed'
+        AND c.expired_at > ?
+      LIMIT 1
+    `).bind(userId, now).first();
 
-  const prefix = isVIP ? 'vip' : 'fav';
-  const host = url.protocol + '//' + url.host;
+    return !!result;
+  } catch (error) {
+    console.error('[checkMemberStatus] Error:', error);
+    return false;
+  }
+}
 
-  const m3uLines = ['#EXTM3U'];
-  for (const channel of favoriteChannels) {
+/**
+ * 生成 M3U 内容
+ * @param {Array} channels - 频道列表
+ * @param {string} token - 播放 token
+ * @param {string} prefix - 前缀 (vip/free/fav)
+ * @param {string} host - 主机地址
+ * @returns {string} M3U 内容
+ */
+function generateM3UContent(channels, token, prefix, host) {
+  const lines = ['#EXTM3U'];
+  for (const channel of channels) {
     const infoParts = ['#EXTINF:-1'];
     if (channel.group_title) infoParts.push(`group-title="${channel.group_title}"`);
     if (channel.logo) infoParts.push(`tvg-logo="${channel.logo}"`);
     infoParts.push(',' + channel.channel_name);
-    m3uLines.push(infoParts.join(' '));
-    m3uLines.push(`${host}/live/${prefix}/${token}/${channel.channel_hash}`);
+    lines.push(infoParts.join(' '));
+    lines.push(`${host}/live/${prefix}/${token}/${channel.channel_hash}`);
+  }
+  return lines.join('\n');
+}
+
+/**
+ * Handle favorites M3U download
+ * POST /api/favorites/m3u
+ * Body: { favorites: [{ hash, name, logo, group }] }
+ */
+export async function handleFavoritesM3U(request, env, ctx) {
+  const url = new URL(request.url);
+  const db = getDB();
+
+  // 1. 验证用户登录（可选）
+  const userSession = await verifyUserSession(request, db);
+  const isVIP = userSession?.isVIP || false;
+
+  // 2. 获取当前 token
+  const token = await getCurrentToken(env);
+
+  // 3. 如果 token 为 null，返回错误 M3U
+  if (!token) {
+    return new Response('#EXTM3U\n#EXTINF:-1 ,当前正在维护，请稍后再试', {
+      headers: {
+        'Content-Type': 'application/vnd.apple.mpegurl',
+        'Cache-Control': 'public, max-age=60'
+      }
+    });
   }
 
-  const m3uContent = m3uLines.join('\n');
+  // 4. 获取收藏频道列表（从请求体）
+  let favoriteChannels = [];
+  try {
+    const body = await request.json();
+    if (body.favorites && Array.isArray(body.favorites)) {
+      favoriteChannels = body.favorites.map(f => ({
+        channel_hash: f.hash,
+        channel_name: f.name,
+        logo: f.logo || '',
+        group_title: f.group || ''
+      }));
+    }
+  } catch (e) {
+    console.error('[handleFavoritesM3U] Failed to parse body:', e);
+  }
+
+  // 5. 非 VIP 限制 100 个
+  const MAX_FREE_CHANNELS = 100;
+  if (!isVIP && favoriteChannels.length > MAX_FREE_CHANNELS) {
+    favoriteChannels = favoriteChannels.slice(0, MAX_FREE_CHANNELS);
+  }
+
+  // 6. VIP 会员用 vip 前缀（无广告），非会员用 fav 前缀（有广告）
+  const prefix = isVIP ? 'vip' : 'fav';
+  const host = url.protocol + '//' + url.host;
+
+  const m3uContent = generateM3UContent(favoriteChannels, token, prefix, host);
 
   return new Response(m3uContent, {
     headers: {
       'Content-Type': 'application/vnd.apple.mpegurl; charset=utf-8',
-      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Content-Disposition': 'attachment; filename="favorites.m3u"',
+      'Cache-Control': 'private, max-age=300'
+    }
+  });
+}
+
+/**
+ * Handle channels M3U download (for category pages and public downloads)
+ * POST /api/channels/m3u
+ * Body: { channels: [{ hash, name, logo, group }] } (可选，不传则下载全部)
+ */
+export async function handleChannelsM3U(request, env, ctx) {
+  const url = new URL(request.url);
+  const db = getDB();
+
+  // 1. 验证用户登录（可选，不强制）
+  const userSession = await verifyUserSession(request, db);
+  const isVIP = userSession?.isVIP || false;
+
+  // 2. 获取当前 token
+  const token = await getCurrentToken(env);
+
+  // 3. 如果 token 为 null，返回错误 M3U
+  if (!token) {
+    return new Response('#EXTM3U\n#EXTINF:-1 ,当前正在维护，请稍后再试', {
+      headers: {
+        'Content-Type': 'application/vnd.apple.mpegurl',
+        'Cache-Control': 'public, max-age=60'
+      }
+    });
+  }
+
+  let channels = [];
+  
+  // 4. 尝试从请求体获取频道列表
+  try {
+    const body = await request.json();
+    if (body.channels && Array.isArray(body.channels)) {
+      // 使用前端传来的频道列表
+      channels = body.channels.map(ch => ({
+        channel_hash: ch.hash,
+        channel_name: ch.name,
+        logo: ch.logo || '',
+        group_title: ch.group || ''
+      }));
+    }
+  } catch (e) {
+    // 请求体解析失败或为空，使用空列表（将返回空 M3U）
+    console.log('[handleChannelsM3U] No channels in request body');
+  }
+
+  // 5. 非会员限制 100 个
+  const MAX_FREE_CHANNELS = 100;
+  if (!isVIP && channels.length > MAX_FREE_CHANNELS) {
+    channels = channels.slice(0, MAX_FREE_CHANNELS);
+  }
+
+  // 6. VIP 会员用 vip 前缀（无广告），非会员用 fav 前缀（有广告）
+  const prefix = isVIP ? 'vip' : 'fav';
+  const host = url.protocol + '//' + url.host;
+
+  const m3uContent = generateM3UContent(channels, token, prefix, host);
+
+  return new Response(m3uContent, {
+    headers: {
+      'Content-Type': 'application/vnd.apple.mpegurl; charset=utf-8',
+      'Content-Disposition': 'attachment; filename="channels.m3u"',
       'Cache-Control': 'private, max-age=300'
     }
   });

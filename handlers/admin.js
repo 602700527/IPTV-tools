@@ -1,5 +1,5 @@
 // 管理后台API处理器
-import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, generateEncryptionKey, getSyncFilterConfig, updateSyncFilterConfig, getDomainBlacklist, addDomainToBlacklist, removeDomainFromBlacklist, addMultipleDomainsToBlacklist } from '../database.js';
+import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, getSyncFilterConfig, updateSyncFilterConfig, getDomainBlacklist, addDomainToBlacklist, removeDomainFromBlacklist, addMultipleDomainsToBlacklist } from '../database.js';
 import {
   handleGetPaymentMethods,
   handleUpdatePaymentMethod,
@@ -983,47 +983,11 @@ export async function handleAdminRequest(request, env, ctx) {
           const data = await request.json();
 
           const config = {};
-          if (data.enable_ref_check !== undefined) {
-            config.enable_ref_check = data.enable_ref_check;
-          }
-          if (data.ref_whitelist !== undefined) {
-            config.ref_whitelist = data.ref_whitelist;
-          }
-          if (data.enable_play_token !== undefined) {
-            config.enable_play_token = data.enable_play_token;
-          }
-          if (data.play_token_expire_seconds !== undefined && data.play_token_expire_seconds > 0) {
-            config.play_token_expire_seconds = parseInt(data.play_token_expire_seconds);
-          }
-          if (data.enable_ip_bind !== undefined) {
-            config.enable_ip_bind = data.enable_ip_bind;
-          }
-          if (data.enable_burn_after_read !== undefined) {
-            config.enable_burn_after_read = data.enable_burn_after_read;
-          }
-          if (data.enable_url_encryption !== undefined) {
-            config.enable_url_encryption = data.enable_url_encryption;
-          }
-          if (data.url_encryption_key !== undefined) {
-            config.url_encryption_key = data.url_encryption_key;
-          }
-          if (data.enable_anti_debug !== undefined) {
-            config.enable_anti_debug = data.enable_anti_debug;
-          }
-          if (data.disable_console_logs !== undefined) {
-            config.disable_console_logs = data.disable_console_logs;
-          }
           if (data.enable_ip_play !== undefined) {
             config.enable_ip_play = data.enable_ip_play;
           }
           if (data.member_ad_free_enabled !== undefined) {
             config.member_ad_free_enabled = data.member_ad_free_enabled;
-          }
-          if (data.rotate_encryption_key === true) {
-            // 自动轮换密钥
-            const newKey = generateRandomEncryptionKey();
-            config.url_encryption_key = newKey;
-            config.rotate_encryption_key = true; // 标记为密钥轮换
           }
 
           await updateSystemConfig(config);
@@ -2342,16 +2306,6 @@ function escapeCsvField(field) {
     return '"' + str.replace(/"/g, '""') + '"';
   }
   return str;
-}
-
-// 生成随机加密密钥
-function generateRandomEncryptionKey(length = 32) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let key = '';
-  for (let i = 0; i < length; i++) {
-    key += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return key;
 }
 
 /**

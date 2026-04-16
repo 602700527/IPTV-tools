@@ -5,7 +5,7 @@ import { handleSubRequest } from './handlers/sub.js';
 import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
 import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } from './handlers/scheduler.js';
 import { handleUserActivate } from './handlers/user.js';
-import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handleGetPlayToken, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings } from './handlers/public.js';
+import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings, handleFavoritesM3U, handleChannelsM3U } from './handlers/public.js';
 import { handleFreeSubAPI } from './handlers/freesub-api.js';
 import { handleGetPlans } from './handlers/plans-api.js';
 
@@ -615,9 +615,6 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/debug') {
       // 调试接口 - 查看频道headers信息
       return await handleChannelDebug(request, env, ctx);
-    } else if (path === '/api/token') {
-      // 获取播放token API
-      return await handleGetPlayToken(request, env, ctx);
     } else if (path.startsWith('/api/play/')) {
       // 公开播放API（无需卡密）
       return await handlePublicPlay(request, env, ctx);
@@ -873,12 +870,18 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       return new Response(htmlWithConfig, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
-    } else if (path.startsWith('/live/')) {
-      // 播放请求处理: /live/{code}/{hash}
+    } else if (path.startsWith('/play/')) {
+      // IP直连播放请求处理: /play/{link_id}/{hash}
+      return await handleIPPlayRequest(request, env, ctx);
+    } else if (path.startsWith('/play/')) {
+      // 播放请求处理: /play/{token}/{hash}
       return await handleLiveRequest(request, env, ctx);
     } else if (path.startsWith('/sub/') && path.endsWith('.m3u')) {
       // 订阅请求处理: /sub/{code}.m3u
       return await handleSubRequest(request, env, ctx);
+    } else if (path === '/favorites.m3u' || path === '/favorites') {
+      // 收藏M3U下载（无需验证）
+      return await handleFavoritesM3U(env);
     } else if (path.startsWith('/admin/')) {
       // 管理后台API处理
       return await handleAdminRequest(request, env, ctx);

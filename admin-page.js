@@ -975,133 +975,11 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       </div>
       <div class="card">
         <div class="toolbar">
-          <h3>系统安全设置</h3>
+          <h3>会员设置</h3>
           <button class="btn btn-primary" onclick="saveSystemConfig()">保存配置</button>
         </div>
         <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
-          <p style="color:#86868b;margin-bottom:12px;">
-            配置系统的安全策略，包括Referer验证和播放Token验证。
-          </p>
-          <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius:4px;">
-            <strong style="color:#e65100;">注意：</strong>
-            <ul style="margin:8px 0 0 20px;color:#666;">
-              <li>Referer验证：启用后，只有来自允许域名的请求才能获取播放地址</li>
-              <li>Token验证：启用后，播放地址需要通过Token验证，Token有效期可自定义</li>
-              <li><strong>新增功能：</strong>Token绑定IP地址+阅后即焚，防止重放攻击和代理盗用</li>
-              <li>建议同时启用两项功能以提高安全性</li>
-              <li>修改配置后，需要刷新首页才能生效</li>
-            </ul>
-          </div>
-        </div>
-
-        <div style="margin-bottom:24px;">
-          <h4 style="margin-bottom:12px;font-weight:600;">Referer验证</h4>
-          <div style="margin-bottom:16px;">
-            <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
-              <input type="checkbox" id="enableRefCheck" style="margin-right:12px;">
-              <span style="font-size:14px;">启用Referer验证</span>
-            </label>
-          </div>
-          <div class="form-group">
-            <label>允许的域名（逗号分隔，例如：example.com,*.example.com）</label>
-            <input type="text" id="refWhitelist" placeholder="例如：yourdomain.com,*.yourdomain.com,*" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;">
-            <p style="margin-top:8px;color:#86868b;font-size:12px;">使用 * 表示允许所有域名（不建议）</p>
-          </div>
-        </div>
-
-        <div style="margin-bottom:24px;">
-          <h4 style="margin-bottom:12px;font-weight:600;">Token验证（防代理/防重放）</h4>
-          <div style="margin-bottom:16px;">
-            <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
-              <input type="checkbox" id="enablePlayToken" style="margin-right:12px;">
-              <span style="font-size:14px;">启用播放Token验证</span>
-            </label>
-          </div>
-          <div class="form-group">
-            <label>Token有效期（秒）</label>
-            <input type="number" id="playTokenExpireSeconds" placeholder="例如：3600" min="60" max="86400" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;">
-            <p style="margin-top:8px;color:#86868b;font-size:12px;">建议值：3600（1小时）或 1800（30分钟）</p>
-          </div>
-          <div style="margin-bottom:16px;">
-            <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
-              <input type="checkbox" id="enableIPBind" style="margin-right:12px;">
-              <span style="font-size:14px;">启用IP绑定</span>
-            </label>
-            <p style="margin-top:8px;color:#86868b;font-size:12px;">Token与获取时的客户端IP绑定，即使泄露也无法在其他IP上使用</p>
-          </div>
-          <div style="margin-bottom:16px;">
-            <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
-              <input type="checkbox" id="enableBurnAfterRead" style="margin-right:12px;">
-              <span style="font-size:14px;">启用阅后即焚</span>
-            </label>
-            <p style="margin-top:8px;color:#86868b;font-size:12px;">Token使用一次后立即失效，防止重放攻击</p>
-          </div>
-          <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e5e5ea;">
-            <h4 style="margin-bottom:16px;color:#000;font-size:16px;">🔐 URL 加密配置</h4>
-            <div style="margin-bottom:16px;">
-              <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
-                <input type="checkbox" id="enableURLEncryption" style="margin-right:12px;">
-                <span style="font-size:14px;">启用 URL 加密</span>
-              </label>
-              <p style="margin-top:8px;color:#86868b;font-size:12px;">对播放地址进行 AES-GCM 加密，防止直接分享和抓取</p>
-            </div>
-            <div style="margin-bottom:16px;">
-              <label>加密密钥</label>
-              <div style="display:flex;gap:8px;">
-                <input type="text" id="urlEncryptionKey" placeholder="留空自动生成或输入自定义密钥" style="flex:1;padding:10px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;monospace;">
-                <button type="button" class="btn" onclick="rotateEncryptionKey()" title="轮换密钥">🔄 轮换</button>
-              </div>
-              <p style="margin-top:8px;color:#86868b;font-size:12px;">建议长度至少 16 个字符，仅支持字母和数字</p>
-            </div>
-            <div style="background:#fff3cd;border-left:4px solid #ffc107;padding:12px;border-radius:4px;margin-top:12px;">
-              <strong style="color:#856404;">⚠️ 加密注意事项：</strong>
-              <ul style="margin:8px 0 0 20px;color:#856404;font-size:13px;line-height:1.6;">
-                <li><strong>密钥安全：</strong>轮换密钥后，旧的播放地址将失效，用户需重新获取</li>
-                <li><strong>自动轮换：</strong>建议定期轮换密钥（如每月一次）以增强安全性</li>
-                <li><strong>前端同步：</strong>轮换密钥后，前端页面需要重新加载才能获取新密钥</li>
-                <li><strong>兼容性：</strong>启用加密后，播放器需要支持解密（Hls.js 已支持）</li>
-              </ul>
-            </div>
-          </div>
-          <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e5e5ea;">
-            <h4 style="margin-bottom:16px;color:#000;font-size:16px;">🛡️ 调试防护</h4>
-            <div style="margin-bottom:16px;">
-              <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
-                <input type="checkbox" id="enableAntiDebug" style="margin-right:12px;">
-                <span style="font-size:14px;">启用调试防护</span>
-              </label>
-              <p style="margin-top:8px;color:#86868b;font-size:12px;">禁用开发者工具，阻止右键菜单、F12、Ctrl+Shift+I 等快捷键，防止代码分析</p>
-            </div>
-            <div style="margin-bottom:16px;">
-              <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
-                <input type="checkbox" id="disableConsoleLogs" style="margin-right:12px;">
-                <span style="font-size:14px;">禁用控制台日志输出</span>
-              </label>
-              <p style="margin-top:8px;color:#86868b;font-size:12px;">移除所有 console.log、console.error 等输出，防止通过控制台查看调试信息</p>
-            </div>
-            <div style="background:#ffebee;border-left:4px solid #f44336;padding:12px;border-radius:4px;margin-top:12px;">
-              <strong style="color:#c62828;">⚠️ 防护说明：</strong>
-              <ul style="margin:8px 0 0 20px;color:#c62828;font-size:13px;line-height:1.6;">
-                <li><strong>右键禁用：</strong>禁用页面右键菜单</li>
-                <li><strong>快捷键拦截：</strong>阻止 F12、Ctrl+Shift+I、Ctrl+U 等开发者快捷键</li>
-                <li><strong>调试器检测：</strong>检测开发者工具打开并清空页面</li>
-                <li><strong>禁用日志：</strong>完全移除控制台输出，提高代码分析难度</li>
-                <li><strong>限制：</strong>只能提高破解难度，无法完全阻止</li>
-              </ul>
-            </div>
-          </div>
-          <div style="background:#e8f5e9;border-left:4px solid #2e7d32;padding:12px;border-radius:4px;margin-top:12px;">
-            <strong style="color:#1b5e20;">🔒 Token安全特性说明：</strong>
-            <ul style="margin:8px 0 0 20px;color:#1b5e20;font-size:13px;line-height:1.6;">
-              <li><strong>IP绑定：</strong>Token与获取时的客户端IP绑定，即使泄露也无法在其他IP上使用</li>
-              <li><strong>阅后即焚：</strong>Token使用一次后立即失效，防止重放攻击</li>
-              <li><strong>防代理：</strong>即使有人通过PHP代理你的页面，IP不匹配也会被拒绝</li>
-              <li><strong>防分享：</strong>Token无法被多次使用，有效限制地址分享行为</li>
-            </ul>
-          </div>
-
-          <div style="margin-top:24px;padding-top:20px;border-top:1px solid #e5e5ea;">
-            <h4 style="margin-bottom:16px;color:#000;font-size:16px;">👤 会员设置</h4>
+          <div style="margin-bottom:24px;">
             <div style="margin-bottom:16px;">
               <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
                 <input type="checkbox" id="enableMemberAdFree" checked style="margin-right:12px;">
@@ -3720,16 +3598,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         const data = await apiRequest('/system-config', { showLoading: false });
 
         if (data.success && data.config) {
-          document.getElementById('enableRefCheck').checked = data.config.enable_ref_check || false;
-          document.getElementById('refWhitelist').value = data.config.ref_whitelist || '';
-          document.getElementById('enablePlayToken').checked = data.config.enable_play_token !== undefined ? data.config.enable_play_token : true;
-          document.getElementById('playTokenExpireSeconds').value = data.config.play_token_expire_seconds || 3600;
-          document.getElementById('enableIPBind').checked = data.config.enable_ip_bind !== undefined ? data.config.enable_ip_bind : true;
-          document.getElementById('enableBurnAfterRead').checked = data.config.enable_burn_after_read !== undefined ? data.config.enable_burn_after_read : true;
-          document.getElementById('enableURLEncryption').checked = data.config.enable_url_encryption !== undefined ? data.config.enable_url_encryption : false;
-          document.getElementById('urlEncryptionKey').value = data.config.url_encryption_key || '';
-          document.getElementById('enableAntiDebug').checked = data.config.enable_anti_debug !== undefined ? data.config.enable_anti_debug : false;
-          document.getElementById('disableConsoleLogs').checked = data.config.disable_console_logs !== undefined ? data.config.disable_console_logs : false;
           document.getElementById('enableMemberAdFree').checked = data.config.member_ad_free_enabled !== undefined ? data.config.member_ad_free_enabled : true;
         } else {
           showToast('加载配置失败', 'error');
@@ -3745,39 +3613,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       try {
         showLoading();
         const config = {
-          enable_ref_check: document.getElementById('enableRefCheck').checked,
-          ref_whitelist: document.getElementById('refWhitelist').value.trim(),
-          enable_play_token: document.getElementById('enablePlayToken').checked,
-          play_token_expire_seconds: parseInt(document.getElementById('playTokenExpireSeconds').value),
-          enable_ip_bind: document.getElementById('enableIPBind').checked,
-          enable_burn_after_read: document.getElementById('enableBurnAfterRead').checked,
-          enable_url_encryption: document.getElementById('enableURLEncryption').checked,
-          url_encryption_key: document.getElementById('urlEncryptionKey').value.trim(),
-          enable_anti_debug: document.getElementById('enableAntiDebug').checked,
-          disable_console_logs: document.getElementById('disableConsoleLogs').checked,
           member_ad_free_enabled: document.getElementById('enableMemberAdFree').checked
         };
-
-        // 验证配置值
-        if (config.play_token_expire_seconds < 60 || config.play_token_expire_seconds > 86400) {
-          showToast('Token有效期必须在60-86400秒之间', 'error');
-          hideLoading();
-          return;
-        }
-
-        // 验证加密密钥
-        if (config.enable_url_encryption && config.url_encryption_key.length > 0) {
-          if (config.url_encryption_key.length < 8) {
-            showToast('加密密钥长度不能少于 8 个字符', 'error');
-            hideLoading();
-            return;
-          }
-          if (!/^[A-Za-z0-9]+$/.test(config.url_encryption_key)) {
-            showToast('加密密钥只能包含字母和数字', 'error');
-            hideLoading();
-            return;
-          }
-        }
 
         const result = await apiRequest('/system-config', {
           method: 'POST',
@@ -3912,38 +3749,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         const template = announcementTemplates[templateKey];
         document.getElementById('announcementTitleInput').value = template.title;
         document.getElementById('announcementContentInput').value = template.content;
-      }
-    }
-
-    // 轮换加密密钥
-    async function rotateEncryptionKey() {
-      if (!confirm('确定要轮换加密密钥吗？\\n\\n⚠️ 注意：\\n- 轮换后，旧的播放地址将失效\\n- 用户需要重新获取播放地址\\n- 前端页面需要刷新才能获取新密钥')) {
-        return;
-      }
-
-      try {
-        showLoading();
-        const config = {
-          rotate_encryption_key: true
-        };
-
-        const result = await apiRequest('/system-config', {
-          method: 'POST',
-          body: JSON.stringify(config),
-          showLoading: false
-        });
-
-        if (result.success) {
-          showToast('加密密钥已轮换', 'success');
-          // 重新加载配置以显示新密钥
-          await loadSystemConfig();
-        } else {
-          showToast('轮换密钥失败: ' + (result.error || '未知错误'), 'error');
-        }
-      } catch (error) {
-        showToast('轮换密钥失败: ' + error.error, 'error');
-      } finally {
-        hideLoading();
       }
     }
 
