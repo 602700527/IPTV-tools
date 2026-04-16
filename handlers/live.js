@@ -19,12 +19,12 @@ export async function handleLiveRequest(request, env, ctx) {
     }
 
     // 判断是新格式还是旧格式
-    // 新格式: /live/{prefix}/{token}/{hash} (4段)
-    // 旧格式: /live/{code}/{hash} (3段)
-    if (pathParts.length === 4) {
+    // 新格式: /live/{prefix}/{token}/{hash} (5段，如 /live/free/token/hash)
+    // 旧格式: /live/{code}/{hash} (4段，如 /live/code/hash)
+    if (pathParts.length === 5) {
       // 新格式: /live/{prefix}/{token}/{hash}
       return await handleNewLiveRequest(request, env, ctx, pathParts, fullBaseUrl);
-    } else if (pathParts.length === 3) {
+    } else if (pathParts.length === 4) {
       // 旧格式: /live/{code}/{hash} - 兼容处理
       return await handleLegacyLiveRequest(request, env, ctx, pathParts, fullBaseUrl);
     } else {
@@ -37,7 +37,7 @@ export async function handleLiveRequest(request, env, ctx) {
 }
 
 /**
- * 处理新的 4 段路径格式: /live/{prefix}/{token}/{hash}
+ * 处理新的 5 段路径格式: /live/{prefix}/{token}/{hash}
  * prefix: vip (无广告), free (有广告), fav (有广告)
  */
 async function handleNewLiveRequest(request, env, ctx, pathParts, fullBaseUrl) {
@@ -157,7 +157,7 @@ async function handleNewLiveRequest(request, env, ctx, pathParts, fullBaseUrl) {
 }
 
 /**
- * 处理旧的 3 段路径格式: /live/{code}/{hash}
+ * 处理旧的 4 段路径格式: /live/{code}/{hash}
  * 旧格式只支持广告，不支持播放
  */
 async function handleLegacyLiveRequest(request, env, ctx, pathParts, fullBaseUrl) {
