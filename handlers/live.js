@@ -123,8 +123,8 @@ async function handleNewLiveRequest(request, env, ctx, pathParts, fullBaseUrl) {
     return response;
   }
 
-  // 6. 非黑名单，检查播放次数限制
-  if (!checkPlayCount(clientIP, today)) {
+  // 6. 非黑名单，检查播放次数限制（每 IP 每频道每天 50 次）
+  if (!checkPlayCount(clientIP, hash, today)) {
     // 超限，触发对应 prefix 的广告
     const adAction = `${prefix}_expired`;
     const adBinding = await getBoundAdByAction(adAction, clientIP);
@@ -138,7 +138,7 @@ async function handleNewLiveRequest(request, env, ctx, pathParts, fullBaseUrl) {
   }
 
   // 7. 增加播放计数
-  incrementPlayCount(clientIP, today);
+  incrementPlayCount(clientIP, hash, today);
 
   // 8. VIP 用户无广告，直接重定向
   if (prefix === 'vip') {

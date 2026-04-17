@@ -6,11 +6,16 @@ const tokenCache = new Map();
 const TOKEN_CACHE_TTL = 60 * 1000; // 60 秒
 
 // 播放次数内存缓存（防止同一 IP 频繁访问）
-const playCountCache = new Map(); // key: `${ip}:${date}`, value: count
-let PLAY_LIMIT = 100; // 每个 IP 每日限制（可配置）
+// key: `${ip}:${hash}:${date}`, value: count
+const playCountCache = new Map();
+let PLAY_LIMIT = 50; // 每个 IP 每个频道每日限制
+
+// 播放地址映射内存缓存（避免每次播放都读 KV）
+const playAddressMapCache = new Map(); // key: token, value: { map: object, expires_at: number }
+const PLAY_ADDR_MAP_CACHE_TTL = 60 * 1000; // 60 秒
 
 // 导出缓存和配置
-export { tokenCache, playCountCache, PLAY_LIMIT };
+export { tokenCache, playCountCache, PLAY_LIMIT, playAddressMapCache };
 
 /**
  * 设置每日播放次数限制
@@ -226,15 +231,41 @@ export async function validateToken(token, env) {
 
 /**
  * 获取播放地址映射表（所有播放地址的大 JSON）
+ * 先查内存缓存，未命中查 KV
  * @param {string} token
  * @param {object} env - 环境变量
  * @returns {Promise<object|null>} hash -> play_url 的映射，或 null
  */
 export async function getPlayAddressMap(token, env) {
   const key = `play_addr_map:${token}`;
-  console.log('[Token] getPlayAddressMap querying:', key);
+  
+  // 1. 先查内存缓存
+  const cached = playAddressMapCache.get(token);
+  if (cached && cached.expires_at > Date.now()) {
+    console.log('[Token] getPlayAddressMap: cache hit for token:', token.substring(0, 8) + '...');
+    return cached.map;
+  }
+  
+  // 2. 缓存未命中或已过期，查 KV
+  console.log('[Token] getPlayAddressMap: cache miss, querying KV:', key);
   try {
     const data = await env.KV.get(key, { type: 'json' });
+    
+    // 3. 存入内存缓存（带过期时间）
+    if (data) {
+      const expiresAt = Date.now() + PLAY_ADDR_MAP_CACHE_TTL;
+      playAddressMapCache.set(token, { map: data, expires_at: expiresAt });
+      
+      // 设置定时清理
+      setTimeout(() => {
+        const entry = playAddressMapCache.get(token);
+        if (entry && entry.expires_at === expiresAt) {
+          playAddressMapCache.delete(token);
+          console.log('[Token] getPlayAddressMap: cache expired for token:', token.substring(0, 8) + '...');
+        }
+      }, PLAY_ADDR_MAP_CACHE_TTL);
+    }
+    
     return data || null;
   } catch (e) {
     console.error('[Token] getPlayAddressMap error:', e);
@@ -270,6 +301,7 @@ export async function invalidateToken(token, env) {
 
   // 从内存缓存中移除
   tokenCache.delete(token);
+  playAddressMapCache.delete(token);
 
   console.log(`[Token] Invalidated token: ${token}`);
 }
@@ -324,34 +356,37 @@ export function setupDailyCleanup() {
 
 /**
  * 检查播放次数是否超限
- * @param {string} ip 
+ * @param {string} ip
+ * @param {string} hash - 频道 hash
  * @param {string} date - YYYY-MM-DD 格式
  * @returns {boolean} true 表示未超限可以播放
  */
-export function checkPlayCount(ip, date) {
-  const playKey = `${ip}:${date}`;
+export function checkPlayCount(ip, hash, date) {
+  const playKey = `${ip}:${hash}:${date}`;
   const currentCount = playCountCache.get(playKey) || 0;
   return currentCount < PLAY_LIMIT;
 }
 
 /**
  * 增加播放次数
- * @param {string} ip 
+ * @param {string} ip
+ * @param {string} hash - 频道 hash
  * @param {string} date - YYYY-MM-DD 格式
  */
-export function incrementPlayCount(ip, date) {
-  const playKey = `${ip}:${date}`;
+export function incrementPlayCount(ip, hash, date) {
+  const playKey = `${ip}:${hash}:${date}`;
   const currentCount = playCountCache.get(playKey) || 0;
   playCountCache.set(playKey, currentCount + 1);
 }
 
 /**
  * 获取当前播放次数
- * @param {string} ip 
+ * @param {string} ip
+ * @param {string} hash - 频道 hash
  * @param {string} date - YYYY-MM-DD 格式
  * @returns {number}
  */
-export function getPlayCount(ip, date) {
-  const playKey = `${ip}:${date}`;
+export function getPlayCount(ip, hash, date) {
+  const playKey = `${ip}:${hash}:${date}`;
   return playCountCache.get(playKey) || 0;
 }
