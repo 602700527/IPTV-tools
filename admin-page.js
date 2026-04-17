@@ -990,6 +990,23 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           </div>
         </div>
       </div>
+      <div class="card">
+        <div class="toolbar">
+          <h3>Token 管理</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="showRefreshTokenModal()">生成新 Token</button>
+            <button class="btn" onclick="loadTokens()">刷新列表</button>
+          </div>
+        </div>
+        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            Token 用于 M3U 播放地址缓存。每个 Token 有效期 72 小时（可配置），包含所有频道的播放地址映射。
+          </p>
+          <div id="tokenListInfo" style="padding:12px;background:white;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;">
+            <div style="color:#86868b;">加载中...</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <div id="loadingOverlay" class="loading-overlay">
@@ -1580,6 +1597,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         loadSystemConfig();
         loadAnnouncement(); // 加载公告
         loadCacheStatus(); // 加载缓存状态
+        loadTokens(); // 加载 Token 列表
       }
     }
 
@@ -3849,6 +3867,157 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       } finally {
         hideLoading();
       }
+    }
+
+    // ========== Token 管理 ==========
+    async function loadTokens() {
+      try {
+        const statusDiv = document.getElementById('tokenListInfo');
+        statusDiv.innerHTML = '<div style="color:#86868b;">加载中...</div>';
+
+        const data = await apiRequest('/tokens', { showLoading: false });
+
+        if (data.success && data.tokens) {
+          if (data.tokens.length === 0) {
+            statusDiv.innerHTML = '<div style="color:#86868b;">暂无有效 Token</div>';
+            return;
+          }
+
+          const now = new Date();
+          let html = '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+          html += '<thead><tr style="background:#f5f5f7;"><th style="padding:8px;text-align:left;">Token</th><th style="padding:8px;text-align:left;">创建时间</th><th style="padding:8px;text-align:left;">过期时间</th><th style="padding:8px;text-align:left;">状态</th><th style="padding:8px;text-align:center;">操作</th></tr></thead>';
+          html += '<tbody>';
+
+          data.tokens.forEach(token => {
+            const expiresAt = new Date(token.expires_at);
+            const isExpired = expiresAt < now;
+            const timeLeft = isExpired ? '已过期' : formatTimeLeft(expiresAt - now);
+
+            html += '<tr style="border-bottom:1px solid #f5f5f7;">';
+            html += '<td style="padding:8px;"><code style="font-size:12px;background:#f5f5f7;padding:2px 6px;border-radius:4px;">' + escapeHtml(token.token.substring(0, 16)) + '...</code></td>';
+            html += '<td style="padding:8px;">' + new Date(token.created_at).toLocaleString('zh-CN') + '</td>';
+            html += '<td style="padding:8px;">' + expiresAt.toLocaleString('zh-CN') + '</td>';
+            html += '<td style="padding:8px;"><span class="badge ' + (isExpired ? 'badge-danger' : 'badge-success') + '">' + timeLeft + '</span></td>';
+            html += '<td style="padding:8px;text-align:center;">';
+            html += '<button class="btn btn-sm" data-action="extend" data-token="' + escapeHtml(token.token) + '">延长</button>';
+            html += '<button class="btn btn-sm btn-danger" data-action="invalidate" data-token="' + escapeHtml(token.token) + '">失效</button>';
+            html += '</td></tr>';
+          });
+
+          html += '</tbody></table>';
+          statusDiv.innerHTML = html;
+          
+          statusDiv.addEventListener('click', function(e) {
+            const btn = e.target.closest('button[data-action]');
+            if (!btn) return;
+            const action = btn.dataset.action;
+            const token = btn.dataset.token;
+            if (action === 'extend') {
+              showExtendTokenModal(token);
+            } else if (action === 'invalidate') {
+              invalidateToken(token);
+            }
+          });
+        } else {
+          statusDiv.innerHTML = '<div style="color:#86868b;">加载 Token 列表失败</div>';
+        }
+      } catch (error) {
+        console.error('加载 Token 列表失败:', error);
+        const statusDiv = document.getElementById('tokenListInfo');
+        statusDiv.innerHTML = '<div style="color:#ff3b30;">加载 Token 列表失败: ' + (error.error || '未知错误') + '</div>';
+      }
+    }
+
+    function formatTimeLeft(ms) {
+      if (ms <= 0) return '已过期';
+      const hours = Math.floor(ms / (1000 * 60 * 60));
+      if (hours < 24) return hours + ' 小时';
+      const days = Math.floor(hours / 24);
+      return days + ' 天 ' + (hours % 24) + ' 小时';
+    }
+
+    async function refreshToken(ttlHours = 72) {
+      try {
+        const result = await apiRequest('/tokens/refresh?ttl=' + ttlHours, {
+          method: 'POST',
+          showLoading: true
+        });
+
+        if (result.success) {
+          showToast('Token 生成成功: ' + result.token.substring(0, 16) + '...', 'success');
+          await loadTokens();
+        } else {
+          showToast('Token 生成失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        showToast('Token 生成失败: ' + (error.error || '未知错误'), 'error');
+      }
+    }
+
+    async function invalidateToken(token) {
+      if (!confirm('确定要让 Token 失效吗？此操作将删除该 Token 及其所有播放地址映射，用户将无法通过该 Token 播放。')) {
+        return;
+      }
+
+      try {
+        const result = await apiRequest('/tokens/' + token + '/invalidate', {
+          method: 'POST',
+          showLoading: true
+        });
+
+        if (result.success) {
+          showToast('Token 已失效', 'success');
+          await loadTokens();
+        } else {
+          showToast('Token 失效失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        showToast('Token 失效失败: ' + (error.error || '未知错误'), 'error');
+      }
+    }
+
+    async function extendToken(token, hours) {
+      try {
+        const result = await apiRequest('/tokens/' + token + '/extend?hours=' + hours, {
+          method: 'POST',
+          showLoading: true
+        });
+
+        if (result.success) {
+          showToast('Token 有效期已延长 ' + hours + ' 小时', 'success');
+          await loadTokens();
+        } else {
+          showToast('Token 延长失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (error) {
+        showToast('Token 延长失败: ' + (error.error || '未知错误'), 'error');
+      }
+    }
+
+    function showRefreshTokenModal() {
+      const ttl = prompt('请输入 Token 有效期（小时）：', '72');
+      if (!ttl) return;
+
+      const ttlHours = parseInt(ttl);
+      if (isNaN(ttlHours) || ttlHours <= 0) {
+        showToast('请输入有效的数字', 'error');
+        return;
+      }
+
+      refreshToken(ttlHours);
+    }
+
+    function showExtendTokenModal(token) {
+      const hours = prompt('请输入要延长的小时数：', '72');
+      if (!hours) return;
+
+      const hoursNum = parseInt(hours);
+      if (isNaN(hoursNum) || hoursNum <= 0) {
+        showToast('请输入有效的数字', 'error');
+        return;
+      }
+
+      extendToken(token, hoursNum);
     }
 
     // ========== 广告TS文件管理 ==========
