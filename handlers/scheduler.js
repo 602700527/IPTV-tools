@@ -3,9 +3,86 @@ import { getDB, fetchAndParseM3U, fetchAndParseM3UOnly, initDB, getSyncFilterCon
 import { cacheChannelsToKV, generateAndCacheSitemap } from '../utils/channel-cache.js';
 import { generateTokenAndAddresses } from '../utils/token-manager.js';
 
-// 并发控制锁
-let syncInProgress = false;
-let cacheRefreshInProgress = false;
+// KV 分布式锁配置
+const LOCK_TTL_SECONDS = 7200; // 锁自动过期时间 2小时
+const CACHE_LOCK_TTL_SECONDS = 600; // 缓存刷新锁过期时间 10分钟
+
+// KV 锁键名
+const LOCK_KEY_SYNC = 'lock:sync';
+const LOCK_KEY_CACHE_REFRESH = 'lock:cache_refresh';
+
+/**
+ * 获取 KV 分布式锁
+ * @param {object} env - Cloudflare Workers env
+ * @param {string} lockKey - 锁键名
+ * @param {number} ttlSeconds - 锁过期秒数
+ * @returns {Promise<boolean>} 是否成功获取锁
+ */
+async function acquireKVLock(env, lockKey, ttlSeconds) {
+  try {
+    // 尝试获取锁（只在前一个值不存在时设置）
+    const existing = await env.KV.get(lockKey);
+    if (existing === '1') {
+      return false; // 锁已被占用
+    }
+    // 使用 put 设置锁，带有过期时间防止死锁
+    await env.KV.put(lockKey, '1', { expirationTtl: ttlSeconds });
+    return true;
+  } catch (error) {
+    console.error(`[Lock] Failed to acquire lock ${lockKey}:`, error);
+    return false;
+  }
+}
+
+/**
+ * 释放 KV 分布式锁
+ * @param {object} env - Cloudflare Workers env
+ * @param {string} lockKey - 锁键名
+ */
+async function releaseKVLock(env, lockKey) {
+  try {
+    await env.KV.delete(lockKey);
+  } catch (error) {
+    console.error(`[Lock] Failed to release lock ${lockKey}:`, error);
+  }
+}
+
+/**
+ * 睡眠函数
+ * @param {number} ms - 毫秒数
+ */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * 等待同步锁释放（指数退避重试）
+ * @param {object} env - Cloudflare Workers env
+ * @param {number} maxRetries - 最大重试次数
+ * @param {number} baseDelayMs - 基础延迟毫秒数
+ * @returns {Promise<boolean>} 是否等到锁释放
+ */
+async function waitForSyncLockRelease(env, maxRetries = 5, baseDelayMs = 60000) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const lockValue = await env.KV.get(LOCK_KEY_SYNC);
+    if (lockValue !== '1') {
+      // 锁已释放
+      return true;
+    }
+
+    if (attempt < maxRetries - 1) {
+      // 还有重试次数，指数退避等待
+      const delayMs = baseDelayMs * Math.pow(2, attempt);
+      console.log(`[Scheduler] Sync lock detected, waiting ${delayMs / 1000}s before retry ${attempt + 1}/${maxRetries}`);
+      await sleep(delayMs);
+    } else {
+      // 最后一次重试也失败了
+      console.log(`[Scheduler] Sync still in progress after ${maxRetries} retries, giving up`);
+      return false;
+    }
+  }
+  return false;
+}
 
 // 导出内部函数供测试使用
 export { syncAllSources, refreshCache };
@@ -29,35 +106,46 @@ export async function handleScheduledEvent(event, env, ctx) {
 
     // 每天3:00执行数据源同步（在缓存刷新之前）
     if (hour === 3 && minute === 0) {
-      if (syncInProgress) {
-        console.log('[Scheduler] Data source sync already in progress, skipping');
+      // 尝试获取 KV 分布式锁
+      if (!await acquireKVLock(env, LOCK_KEY_SYNC, LOCK_TTL_SECONDS)) {
+        console.log('[Scheduler] Sync lock is held by another instance, skipping this run');
         return;
       }
 
-      syncInProgress = true;
-      console.log('[Scheduler] Starting data source sync');
+      console.log('[Scheduler] Starting data source sync (KV lock acquired)');
 
       try {
         await syncAllSources(db, env);
         // 数据源同步完成后，清理过期90天的免费订阅
         await cleanupExpiredFreeSubscriptions(db);
       } finally {
-        syncInProgress = false;
+        await releaseKVLock(env, LOCK_KEY_SYNC);
+        console.log('[Scheduler] Sync lock released');
       }
     } else if ((hour === 9 || hour === 21) && minute === 0) {
-      // 每天9:00, 15:00, 21:00刷新缓存（确保数据源同步完成）
-      if (cacheRefreshInProgress) {
-        console.log('[Scheduler] Cache refresh already in progress, skipping');
+      // 每天9:00, 21:00刷新缓存
+      // 先等待同步锁释放（指数退避重试）
+      console.log('[Scheduler] Checking if sync lock is held...');
+      const canProceed = await waitForSyncLockRelease(env, 5, 60000);
+
+      if (!canProceed) {
+        console.log('[Scheduler] Sync still in progress after retries, skipping cache refresh');
         return;
       }
 
-      cacheRefreshInProgress = true;
-      console.log('[Scheduler] Starting cache refresh');
+      // 尝试获取缓存刷新的 KV 锁
+      if (!await acquireKVLock(env, LOCK_KEY_CACHE_REFRESH, CACHE_LOCK_TTL_SECONDS)) {
+        console.log('[Scheduler] Cache refresh lock is held by another instance, skipping');
+        return;
+      }
+
+      console.log('[Scheduler] Starting cache refresh (cache refresh lock acquired)');
 
       try {
         await refreshCache(db, env);
       } finally {
-        cacheRefreshInProgress = false;
+        await releaseKVLock(env, LOCK_KEY_CACHE_REFRESH);
+        console.log('[Scheduler] Cache refresh lock released');
       }
     } else {
       console.log(`[Scheduler] No task scheduled for this time (${hour}:${minute})`);
@@ -65,8 +153,9 @@ export async function handleScheduledEvent(event, env, ctx) {
 
   } catch (error) {
     console.error('[Scheduler] Error in scheduled event:', error);
-    syncInProgress = false;
-    cacheRefreshInProgress = false;
+    // 确保锁被释放
+    await releaseKVLock(env, LOCK_KEY_SYNC);
+    await releaseKVLock(env, LOCK_KEY_CACHE_REFRESH);
   }
 }
 
@@ -380,9 +469,15 @@ async function cleanupOldRecords(db) {
 
 // 手动同步所有数据源（供管理员手动触发）
 export async function manualSyncAll(env, filter = null) {
-  try {
-    console.log('[Scheduler] Manual sync started');
+  // 尝试获取 KV 分布式锁
+  if (!await acquireKVLock(env, LOCK_KEY_SYNC, LOCK_TTL_SECONDS)) {
+    console.log('[Scheduler] Manual sync skipped: sync lock is held by another instance');
+    return { success: false, error: '同步任务正在进行中，请稍后再试' };
+  }
 
+  console.log('[Scheduler] Manual sync started (KV lock acquired)');
+
+  try {
     const db = await initDB(env);
     if (!db) {
       console.error('[Scheduler] Failed to initialize database');
@@ -507,7 +602,7 @@ export async function manualSyncAll(env, filter = null) {
       const cacheResult = await cacheChannelsToKV(env);
       if (cacheResult.success) {
         console.log(`[Scheduler] Cached ${cacheResult.cachedCount} channels to KV`);
-        
+
         // 生成sitemap并缓存
         console.log('[Scheduler] Generating and caching sitemap...');
         const sitemapResult = await generateAndCacheSitemap(env);
@@ -540,6 +635,9 @@ export async function manualSyncAll(env, filter = null) {
   } catch (error) {
     console.error('[Scheduler] Error in manualSyncAll:', error);
     return { success: false, error: error.message };
+  } finally {
+    await releaseKVLock(env, LOCK_KEY_SYNC);
+    console.log('[Scheduler] Manual sync lock released');
   }
 }
 
