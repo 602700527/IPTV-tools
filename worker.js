@@ -5,7 +5,7 @@ import { handleSubRequest } from './handlers/sub.js';
 import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
 import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } from './handlers/scheduler.js';
 import { handleUserActivate } from './handlers/user.js';
-import { handlePublicChannels, handlePublicPlay, handleChannelDebug, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings, handleFavoritesM3U, handleChannelsM3U } from './handlers/public.js';
+import { handlePublicPlay, handleChannelDebug, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings, handleFavoritesM3U, handleChannelsM3U } from './handlers/public.js';
 import { handleFreeSubAPI } from './handlers/freesub-api.js';
 import { handleGetPlans } from './handlers/plans-api.js';
 
@@ -587,10 +587,6 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       // 分类页数据 API: /api/category/{slug}
       const { handleApiCategory } = await import('./handlers/api/category.js');
       return await handleApiCategory(request, env, ctx);
-    } else if (path.startsWith('/api/channel/')) {
-      // 频道详情 API: /api/channel/{hash}
-      const { handleApiChannel } = await import('./handlers/api/channel.js');
-      return await handleApiChannel(request, env, ctx);
     } else if (path === '/api/config') {
       // 公开配置API - 获取前端需要的配置（如加密密钥）
       return await handlePublicConfig(request, env, ctx);
@@ -609,9 +605,6 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/admin/mall/payment-methods') {
       // 管理员支付方式管理 API（在 admin.js 处理）
       return await handleAdminRequest(request, env, ctx);
-    } else if (path === '/api/channels') {
-      // 公开频道列表API（无需卡密）
-      return await handlePublicChannels(request, env, ctx);
     } else if (path === '/api/debug') {
       // 调试接口 - 查看频道headers信息
       return await handleChannelDebug(request, env, ctx);

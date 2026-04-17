@@ -445,17 +445,6 @@ export async function handlePublicChannels(request, env, ctx) {
     const pageSize = parseInt(url.searchParams.get('page_size') || '50', 10);
     const action = url.searchParams.get('action') || '';
 
-    // 随机推荐接口
-    if (action === 'random') {
-      const count = parseInt(url.searchParams.get('count') || '30', 10);
-      return await handleRandomChannels(env, count);
-    }
-
-    // 分类分组接口 - 返回按分类名分组的频道数据
-    if (action === 'grouped') {
-      return await handleGroupedChannels(env);
-    }
-
     const db = getDB();
 
     // 获取首页展示配置
