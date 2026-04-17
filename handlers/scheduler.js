@@ -85,7 +85,7 @@ async function waitForSyncLockRelease(env, maxRetries = 5, baseDelayMs = 60000) 
 }
 
 // 导出内部函数供测试使用
-export { syncAllSources, refreshCache };
+export { syncAllSources, refreshCache, generateAndCacheSitemap };
 
 export async function handleScheduledEvent(event, env, ctx) {
   try {
@@ -115,7 +115,8 @@ export async function handleScheduledEvent(event, env, ctx) {
       console.log('[Scheduler] Starting data source sync (KV lock acquired)');
 
       try {
-        await syncAllSources(db, env);
+        // 传递 ctx 用于异步操作
+        await syncAllSources(db, env, ctx);
         // 数据源同步完成后，清理过期90天的免费订阅
         await cleanupExpiredFreeSubscriptions(db);
       } finally {
@@ -160,7 +161,7 @@ export async function handleScheduledEvent(event, env, ctx) {
 }
 
 // 同步所有数据源（每天3:00执行）
-async function syncAllSources(db, env) {
+async function syncAllSources(db, env, ctx = null) {
   try {
     // 获取同步过滤规则配置
     let filter = null;
@@ -310,23 +311,41 @@ async function syncAllSources(db, env) {
       const cacheResult = await cacheChannelsToKV(env);
       if (cacheResult.success) {
         console.log(`[Scheduler] Cached ${cacheResult.cachedCount} channels to KV`);
-        
-        // 生成sitemap并缓存
-        console.log('[Scheduler] Generating and caching sitemap...');
-        const sitemapResult = await generateAndCacheSitemap(env);
-        if (sitemapResult.success) {
-          console.log('[Scheduler] Sitemap cached to KV');
-        } else {
-          console.error('[Scheduler] Failed to cache sitemap:', sitemapResult.error);
-        }
 
-        // After caching channels to KV, generate new token and play addresses
-        console.log('[Scheduler] Generating new token and play addresses...');
-        try {
+        // 异步执行 sitemap 和 token 生成（不阻塞主流程）
+        // 使用 ctx.waitUntil 确保在后台完成
+        if (ctx) {
+          console.log('[Scheduler] Scheduling async sitemap and token generation...');
+          ctx.waitUntil(async () => {
+            try {
+              console.log('[Scheduler] [ASYNC] Generating and caching sitemap...');
+              const sitemapResult = await generateAndCacheSitemap(env);
+              if (sitemapResult.success) {
+                console.log('[Scheduler] [ASYNC] Sitemap cached to KV');
+              } else {
+                console.error('[Scheduler] [ASYNC] Failed to cache sitemap:', sitemapResult.error);
+              }
+
+              console.log('[Scheduler] [ASYNC] Generating new token and play addresses...');
+              const tokenResult = await generateTokenAndAddresses(env);
+              console.log(`[Scheduler] [ASYNC] Token generated: ${tokenResult}`);
+            } catch (asyncError) {
+              console.error('[Scheduler] [ASYNC] Error in async operations:', asyncError);
+            }
+          });
+        } else {
+          // 降级：同步执行（ctx 不可用时）
+          console.log('[Scheduler] Generating and caching sitemap...');
+          const sitemapResult = await generateAndCacheSitemap(env);
+          if (sitemapResult.success) {
+            console.log('[Scheduler] Sitemap cached to KV');
+          } else {
+            console.error('[Scheduler] Failed to cache sitemap:', sitemapResult.error);
+          }
+
+          console.log('[Scheduler] Generating new token and play addresses...');
           const tokenResult = await generateTokenAndAddresses(env);
           console.log(`[Scheduler] Token generated: ${tokenResult}`);
-        } catch (tokenError) {
-          console.error('[Scheduler] Failed to generate token:', tokenError);
         }
       } else {
         console.error('[Scheduler] Failed to cache channels:', cacheResult.error);

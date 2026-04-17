@@ -8,6 +8,7 @@ import { handleUserActivate } from './handlers/user.js';
 import { handlePublicPlay, handleChannelDebug, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings, handleFavoritesM3U, handleChannelsM3U } from './handlers/public.js';
 import { handleFreeSubAPI } from './handlers/freesub-api.js';
 import { handleGetPlans } from './handlers/plans-api.js';
+import { generateAndCacheSitemap } from './utils/channel-cache.js';
 
 // 内联 404 页面生成函数
 async function generate404Page(request, env) {
@@ -1294,8 +1295,105 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       } catch (e) {
         console.error('Sitemap: KV cache read failed:', e);
       }
-      
-      // KV没有缓存，返回静态基础sitemap（静态页面永远不变）
+
+      // KV没有缓存，尝试从数据库直接生成完整的 sitemap
+      console.log('Sitemap: KV cache miss, generating from database...');
+      try {
+        const db = await initDB(env);
+        const baseUrl = url.origin || 'https://iptv-search.com';
+        const today = new Date().toISOString().split('T')[0];
+
+        let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n';
+        sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
+        // 静态页面
+        const staticPages = [
+          { loc: '/', priority: '1.0', changefreq: 'daily' },
+          { loc: '/favorites', priority: '0.8', changefreq: 'weekly' },
+          { loc: '/plans', priority: '0.8', changefreq: 'weekly' },
+          { loc: '/account', priority: '0.6', changefreq: 'monthly' },
+          { loc: '/tutorial', priority: '0.7', changefreq: 'monthly' },
+          { loc: '/privacy-policy', priority: '0.5', changefreq: 'yearly' },
+          { loc: '/terms', priority: '0.5', changefreq: 'yearly' },
+          { loc: '/usa-iptv', priority: '0.8', changefreq: 'weekly' },
+          { loc: '/uk-iptv-plans', priority: '0.8', changefreq: 'weekly' },
+          { loc: '/android-iptv-app', priority: '0.8', changefreq: 'weekly' },
+          { loc: '/free-iptv-app-review', priority: '0.8', changefreq: 'weekly' }
+        ];
+
+        staticPages.forEach(page => {
+          sitemap += '  <url>\n';
+          sitemap += `    <loc>${baseUrl}${page.loc}</loc>\n`;
+          sitemap += `    <lastmod>${today}</lastmod>\n`;
+          sitemap += `    <changefreq>${page.changefreq}</changefreq>\n`;
+          sitemap += `    <priority>${page.priority}</priority>\n`;
+          sitemap += '  </url>\n';
+        });
+
+        // 获取所有分类
+        const categoriesResult = await db.prepare(`
+          SELECT DISTINCT group_title as category
+          FROM channels
+          WHERE is_active = 1 AND group_title IS NOT NULL AND group_title != ''
+          ORDER BY group_title
+        `).all();
+
+        const categories = categoriesResult.results || [];
+
+        categories.forEach(cat => {
+          sitemap += '  <url>\n';
+          sitemap += `    <loc>${baseUrl}/category/${encodeURIComponent(cat.category)}</loc>\n`;
+          sitemap += `    <lastmod>${today}</lastmod>\n`;
+          sitemap += '    <changefreq>daily</changefreq>\n';
+          sitemap += '    <priority>0.8</priority>\n';
+          sitemap += '  </url>\n';
+        });
+
+        // 获取频道（限制 5000 个避免超限）
+        const channelsResult = await db.prepare(`
+          SELECT channel_hash as hash, channel_name as name, group_title
+          FROM channels
+          WHERE is_active = 1
+          ORDER BY group_title, id DESC
+          LIMIT 5000
+        `).all();
+
+        const channels = channelsResult.results || [];
+
+        channels.forEach(ch => {
+          sitemap += '  <url>\n';
+          sitemap += `    <loc>${baseUrl}/channel/${ch.hash}</loc>\n`;
+          sitemap += `    <lastmod>${today}</lastmod>\n`;
+          sitemap += '    <changefreq>weekly</changefreq>\n';
+          sitemap += '    <priority>0.7</priority>\n';
+          sitemap += '  </url>\n';
+        });
+
+        sitemap += '</urlset>';
+
+        console.log(`Sitemap: Generated ${categories.length} categories and ${channels.length} channels from DB`);
+
+        // 尝试异步缓存到 KV（不阻塞响应）
+        ctx.waitUntil((async () => {
+          try {
+            await generateAndCacheSitemap(env);
+            console.log('Sitemap: Async KV caching completed');
+          } catch (e) {
+            console.error('Sitemap: Async KV caching failed:', e);
+          }
+        })());
+
+        return new Response(sitemap, {
+          headers: {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Cache-Control': 'public, max-age=3600' // 缓存1小时
+          }
+        });
+      } catch (e) {
+        console.error('Sitemap: Database fallback failed:', e);
+      }
+
+      // 最终降级：返回最基础的静态 sitemap
       const baseUrl = url.origin;
       const today = new Date().toISOString().split('T')[0];
       const staticSitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -1312,8 +1410,8 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
   <url><loc>${baseUrl}/android-iptv-app</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>${baseUrl}/free-iptv-app-review</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>`;
-      
-      console.log('Sitemap: KV cache miss, returning static fallback');
+
+      console.log('Sitemap: All fallbacks failed, returning minimal static sitemap');
       return new Response(staticSitemap, {
         headers: {
           'Content-Type': 'application/xml; charset=utf-8',
