@@ -3,6 +3,73 @@ import { getDB, getHomepageDisplayConfig, getSystemConfig, getBoundAdByAction, g
 import { getCurrentToken, validateToken } from '../utils/token-manager.js';
 import { getAllChannels, getAllGroups, getChannelByHash } from '../utils/channel-cache.js';
 
+// API 频率限制（基于指纹 + 认证标识组合）
+const apiRateCache = new Map(); // key: `${identifier}:${date}:${hour}`, value: count
+const API_RATE_LIMIT = 100; // 每个标识每小时最多 100 次
+
+/**
+ * 获取 API 频率限制的标识符
+ * @param {string} fingerprint - 浏览器指纹
+ * @param {string} authToken - 认证 token（可选）
+ * @param {string} ip - 客户端 IP
+ * @returns {string} 组合标识符
+ */
+function getApiRateIdentifier(fingerprint, authToken, ip) {
+  if (authToken) {
+    // 已登录用户：用指纹 + auth_token 组合
+    return `${fingerprint}:auth:${authToken}`;
+  }
+  // 未登录用户：用指纹 + IP 组合
+  return `${fingerprint}:ip:${ip}`;
+}
+
+/**
+ * 检查 API 频率限制
+ * @param {string} identifier - 组合标识符
+ * @returns {boolean} true 表示未超限
+ */
+function checkApiRateLimit(identifier) {
+  // 懒清理过期记录
+  cleanExpiredApiCache();
+
+  const now = new Date();
+  const date = now.toISOString().split('T')[0];
+  const hour = now.getHours();
+  const key = `${identifier}:${date}:${hour}`;
+  const current = apiRateCache.get(key) || 0;
+  return current < API_RATE_LIMIT;
+}
+
+/**
+ * 增加 API 调用计数
+ * @param {string} identifier - 组合标识符
+ */
+function incrementApiCount(identifier) {
+  const now = new Date();
+  const date = now.toISOString().split('T')[0];
+  const hour = now.getHours();
+  const key = `${identifier}:${date}:${hour}`;
+  const current = apiRateCache.get(key) || 0;
+  apiRateCache.set(key, current + 1);
+}
+
+/**
+ * 懒清理过期的 API 限制记录（每次调用时清理）
+ */
+function cleanExpiredApiCache() {
+  const now = new Date();
+  const currentHour = now.getHours();
+  const currentDate = now.toISOString().split('T')[0];
+
+  for (const key of apiRateCache.keys()) {
+    const [, date, hour] = key.split(':');
+    // 清理超过 2 小时的记录
+    if (date < currentDate || (date === currentDate && parseInt(hour) < currentHour - 2)) {
+      apiRateCache.delete(key);
+    }
+  }
+}
+
 /**
  * 生成ETag（基于内容SHA256哈希）
  * @param {string} content - 要计算哈希的内容
@@ -863,6 +930,38 @@ export async function handlePublicPlay(request, env, ctx) {
       });
     }
 
+    // 获取浏览器指纹
+    const fingerprint = request.headers.get('X-Fingerprint') ||
+                        url.searchParams.get('fp') ||
+                        'unknown';
+
+    // 获取客户端 IP
+    const clientIP = request.headers.get('CF-Connecting-IP') ||
+                     request.headers.get('X-Forwarded-For')?.split(',')[0].trim() ||
+                     request.headers.get('X-Real-IP') ||
+                     'unknown';
+
+    // 验证用户是否登录（可选）- 获取 auth token
+    const db = getDB();
+    const userSession = await verifyUserSession(request, db);
+    const authToken = userSession?.auth_token || null;
+    const isVIP = userSession?.isVIP || false;
+
+    // 计算组合标识符
+    const identifier = getApiRateIdentifier(fingerprint, authToken, clientIP);
+
+    // API 频率限制检查（组合标识符每小时 100 次）
+    if (!checkApiRateLimit(identifier)) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Rate limit exceeded. Please try again later.'
+      }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    incrementApiCount(identifier);
+
     // 获取当前 token
     const token = await getCurrentToken(env);
     if (!token) {
@@ -871,11 +970,6 @@ export async function handlePublicPlay(request, env, ctx) {
         headers: { 'Content-Type': 'application/json' }
       });
     }
-
-    // 验证用户是否登录（可选）
-    const db = getDB();
-    const userSession = await verifyUserSession(request, db);
-    const isVIP = userSession?.isVIP || false;
 
     // VIP 用 vip 前缀（无广告），非会员用 fav 前缀（有广告）
     const prefix = isVIP ? 'vip' : 'fav';
@@ -1251,6 +1345,26 @@ export async function handleFavoritesM3U(request, env, ctx) {
 export async function handleChannelsM3U(request, env, ctx) {
   const url = new URL(request.url);
   const db = getDB();
+
+  // 获取指纹
+  const fingerprint = request.headers.get('X-Fingerprint') || 'unknown';
+  const clientIP = request.headers.get('CF-Connecting-IP') ||
+                   request.headers.get('X-Forwarded-For')?.split(',')[0].trim() ||
+                   request.headers.get('X-Real-IP') ||
+                   'unknown';
+  const authToken = request.headers.get('Authorization')?.replace('Bearer ', '') || null;
+
+  // 频率限制检查
+  const identifier = getApiRateIdentifier(fingerprint, authToken, clientIP);
+  if (!checkApiRateLimit(identifier)) {
+    return new Response('#EXTM3U\n#EXTINF:-1 ,Rate limit exceeded. Please try again later.', {
+      headers: {
+        'Content-Type': 'application/vnd.apple.mpegurl',
+        'Cache-Control': 'public, max-age=60'
+      }
+    });
+  }
+  incrementApiCount(identifier);
 
   // 1. 验证用户登录（可选，不强制）
   const userSession = await verifyUserSession(request, db);

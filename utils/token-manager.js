@@ -3,7 +3,6 @@
 
 // Token 验证内存缓存（不消耗 KV 配额）
 const tokenCache = new Map();
-const TOKEN_CACHE_TTL = 60 * 1000; // 60 秒
 
 // 播放次数内存缓存（防止同一 IP 频繁访问）
 // key: `${ip}:${hash}:${date}`, value: count
@@ -224,7 +223,6 @@ export async function validateToken(token, env) {
 
   // 4. 存入内存缓存
   tokenCache.set(token, meta);
-  setTimeout(() => tokenCache.delete(token), TOKEN_CACHE_TTL);
 
   return meta;
 }
@@ -238,34 +236,25 @@ export async function validateToken(token, env) {
  */
 export async function getPlayAddressMap(token, env) {
   const key = `play_addr_map:${token}`;
-  
+
   // 1. 先查内存缓存
   const cached = playAddressMapCache.get(token);
   if (cached && cached.expires_at > Date.now()) {
     console.log('[Token] getPlayAddressMap: cache hit for token:', token.substring(0, 8) + '...');
     return cached.map;
   }
-  
+
   // 2. 缓存未命中或已过期，查 KV
   console.log('[Token] getPlayAddressMap: cache miss, querying KV:', key);
   try {
     const data = await env.KV.get(key, { type: 'json' });
-    
+
     // 3. 存入内存缓存（带过期时间）
     if (data) {
       const expiresAt = Date.now() + PLAY_ADDR_MAP_CACHE_TTL;
       playAddressMapCache.set(token, { map: data, expires_at: expiresAt });
-      
-      // 设置定时清理
-      setTimeout(() => {
-        const entry = playAddressMapCache.get(token);
-        if (entry && entry.expires_at === expiresAt) {
-          playAddressMapCache.delete(token);
-          console.log('[Token] getPlayAddressMap: cache expired for token:', token.substring(0, 8) + '...');
-        }
-      }, PLAY_ADDR_MAP_CACHE_TTL);
     }
-    
+
     return data || null;
   } catch (e) {
     console.error('[Token] getPlayAddressMap error:', e);
@@ -336,22 +325,11 @@ export async function extendToken(token, additionalHours, env) {
 
 /**
  * 每天 0:00 清空播放次数缓存
- * 应该在 Worker 启动时调用一次
+ * 留空，已改为懒清理模式
  */
 export function setupDailyCleanup() {
-  const now = new Date();
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
-  const msUntilMidnight = tomorrow.getTime() - now.getTime();
-
-  setTimeout(() => {
-    playCountCache.clear();
-    console.log('[Cache] Play count cache cleared at midnight');
-    setupDailyCleanup(); // 重新设置下一次清理
-  }, msUntilMidnight);
-
-  console.log(`[Cache] Scheduled play count cache cleanup in ${Math.round(msUntilMidnight / 1000 / 60)} minutes`);
+  // 已改为懒清理模式，每天 0 点不会自动清空
+  // 下次请求时会自动清理 2 天前的记录
 }
 
 /**
@@ -368,12 +346,32 @@ export function checkPlayCount(ip, hash, date) {
 }
 
 /**
+ * 懒清理过期的播放次数记录
+ */
+function cleanExpiredPlayCountCache() {
+  const today = new Date().toISOString().split('T')[0];
+  const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+  for (const key of playCountCache.keys()) {
+    const parts = key.split(':');
+    const recordDate = parts[parts.length - 1];
+    // 清理 2 天前的记录
+    if (recordDate < twoDaysAgo) {
+      playCountCache.delete(key);
+    }
+  }
+}
+
+/**
  * 增加播放次数
  * @param {string} ip
  * @param {string} hash - 频道 hash
  * @param {string} date - YYYY-MM-DD 格式
  */
 export function incrementPlayCount(ip, hash, date) {
+  // 懒清理过期记录
+  cleanExpiredPlayCountCache();
+
   const playKey = `${ip}:${hash}:${date}`;
   const currentCount = playCountCache.get(playKey) || 0;
   playCountCache.set(playKey, currentCount + 1);

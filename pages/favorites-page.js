@@ -233,10 +233,22 @@ export function generateFavoritesPage(options = {}) {
   @media (max-width: 480px) { .toast-container { top: auto; bottom: 24px; left: 16px; right: 16px; } .toast { min-width: auto; width: 100%; } }
   </style>
 
+  <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+
   <script>
     const FAVORITES_KEY = 'favorites';
     const MAX_FREE_DOWNLOAD = 100;
     const BATCH_SIZE = 50;
+
+    // Fingerprint promise (lazy initialization)
+    let fpPromise = null;
+
+    function getFingerprint() {
+      if (!fpPromise) {
+        fpPromise = FingerprintJS.load().then(fp => fp.get()).then(result => result.visitorId);
+      }
+      return fpPromise;
+    }
 
     function escapeHtml(str) { if (!str) return ''; return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
 
@@ -420,10 +432,10 @@ export function generateFavoritesPage(options = {}) {
         showToastWarning('No channels selected', 'Please select at least one channel to download.');
         return;
       }
-      
+
       // Check member status first
       const isMember = await checkMemberStatus();
-      
+
       if (!isMember && selected.length > MAX_FREE_DOWNLOAD) {
         // Marketing Psychology: FOMO + Value Proposition + Loss Aversion
         const upgradeMessage = 'You selected <strong style="color:#e50914">' + selected.length + '</strong> channels<br><br>' +
@@ -439,61 +451,52 @@ export function generateFavoritesPage(options = {}) {
         });
         return;
       }
-      
+
       // Show loading state
       const btn = document.querySelector('[onclick="downloadSelectedM3U()"]');
       const originalText = btn.innerHTML;
       btn.innerHTML = '<span class="spinner"></span> Generating...';
       btn.disabled = true;
-      
+
       try {
-        let m3u = '#EXTM3U\\n';
-        
-        // Process function for each channel
-        const processChannel = async (ch) => {
-          const token = localStorage.getItem('auth_token');
-          const headers = {};
-          if (token) {
-            headers['Authorization'] = 'Bearer ' + token;
-          }
-          const response = await fetch('${origin}/api/play/link?hash=' + encodeURIComponent(ch.hash), { headers });
-          const data = await response.json();
-          let playUrl = data.play_link || ('${origin}/play/error/' + ch.hash);
-          const logo = ch.logo ? ' tvg-logo="' + ch.logo + '"' : '';
-          return '#EXTINF:-1' + logo + ' group-title="' + ch.group + '",' + ch.name + '\\n' + playUrl + '\\n';
+        // 获取指纹
+        const fingerprint = await getFingerprint();
+
+        // 获取 auth token（如果用户已登录）
+        const authToken = localStorage.getItem('auth_token');
+        const headers = {
+          'Content-Type': 'application/json',
+          'X-Fingerprint': fingerprint
         };
-        
-        // Use batch processing for members (no limit), direct for free users (under limit)
-        if (isMember && selected.length > BATCH_SIZE) {
-          // Add progress element if not exists
-          let progressEl = document.getElementById('downloadProgress');
-          if (!progressEl) {
-            const progressSpan = document.createElement('span');
-            progressSpan.id = 'downloadProgress';
-            progressSpan.style.cssText = 'margin-left: 10px; font-size: 0.85rem; color: var(--text-muted);';
-            btn.parentNode.appendChild(progressSpan);
-          }
-          
-          // Process in batches with progress updates
-          const lines = await processChannelsInBatches(selected, processChannel, BATCH_SIZE);
-          m3u += lines.join('');
-          
-          // Remove progress element
-          const progEl = document.getElementById('downloadProgress');
-          if (progEl) progEl.remove();
-        } else {
-          // Direct processing for small batches or non-members
-          for (const ch of selected) {
-            m3u += await processChannel(ch);
-          }
+        if (authToken) {
+          headers['Authorization'] = 'Bearer ' + authToken;
         }
-        
-        const blob = new Blob([m3u], { type: 'audio/x-mpegurl' });
+
+        // 发送一次性请求，服务端生成完整 M3U（不暴露真实 token）
+        const response = await fetch('${origin}/api/channels/m3u', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            channels: selected.map(ch => ({
+              hash: ch.hash,
+              name: ch.name,
+              logo: ch.logo || '',
+              group: ch.group
+            }))
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to generate M3U');
+        }
+
+        // 直接下载返回的 M3U 文件
+        const blob = await response.blob();
+        const now = new Date();
+        const timeStr = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + '_' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0') + String(now.getSeconds()).padStart(2, '0');
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        const now = new Date();
-        const timeStr = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + '_' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0') + String(now.getSeconds()).padStart(2, '0');
         a.download = 'favorites_' + timeStr + '.m3u';
         document.body.appendChild(a);
         a.click();

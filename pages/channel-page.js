@@ -166,17 +166,28 @@ export function generateChannelPage(options = {}) {
       { "@type": "ListItem", "position": 3, "name": "${escapeJs(channel.name)}" }
     ]
   }
-  </script>
-   
-  <script>
+   </script>
+
+   <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+
+   <script>
     (function() {
       const saved = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const theme = saved || (prefersDark ? 'dark' : 'light');
       document.documentElement.setAttribute('data-theme', theme);
     })();
+
+    // 初始化 fingerprintJS
+    let fpPromise = null;
+    function getFingerprint() {
+      if (!fpPromise) {
+        fpPromise = FingerprintJS.load().then(fp => fp.get()).then(result => result.visitorId);
+      }
+      return fpPromise;
+    }
   </script>
-   
+
   <style>
     :root {
       --bg-primary: #0a0a0a;
@@ -525,46 +536,50 @@ export function generateChannelPage(options = {}) {
       }, 500);
     }
 
-    function copyPlayLink() {
+    async function copyPlayLink() {
       const btn = document.querySelector('[onclick="copyPlayLink()"]');
       const originalContent = btn.innerHTML;
       btn.innerHTML = '<span class="spinner"></span>';
       btn.disabled = true;
 
-      const token = localStorage.getItem('auth_token');
-      const headers = {};
-      if (token) {
-        headers['Authorization'] = 'Bearer ' + token;
-      }
+      try {
+        // 获取指纹
+        const fingerprint = await getFingerprint();
 
-      fetch('${origin}/api/play/link?hash=' + encodeURIComponent(CURRENT_CHANNEL_HASH), { headers })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success && data.play_link) {
-            // 优先使用 Modern Clipboard API
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-              navigator.clipboard.writeText(data.play_link).then(() => {
-                showToast('Link copied! Open in your IPTV player.');
-              }).catch(() => {
-                // Clipboard API 失败，使用降级方案
-                fallbackCopy(data.play_link);
-              });
-            } else {
-              // 降级方案：旧版浏览器
+        const token = localStorage.getItem('auth_token');
+        const headers = {
+          'X-Fingerprint': fingerprint
+        };
+        if (token) {
+          headers['Authorization'] = 'Bearer ' + token;
+        }
+
+        const response = await fetch('${origin}/api/play/link?hash=' + encodeURIComponent(CURRENT_CHANNEL_HASH), { headers });
+        const data = await response.json();
+
+        if (data.success && data.play_link) {
+          // 优先使用 Modern Clipboard API
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(data.play_link).then(() => {
+              showToast('Link copied! Open in your IPTV player.');
+            }).catch(() => {
+              // Clipboard API 失败，使用降级方案
               fallbackCopy(data.play_link);
-            }
+            });
           } else {
-            showToast('Channel unavailable - please try again later');
+            // 降级方案：旧版浏览器
+            fallbackCopy(data.play_link);
           }
-        })
-        .catch(error => {
-          console.error('copyPlayLink error:', error);
-          showToast('Network error - please check your connection');
-        })
-        .finally(() => {
-          btn.innerHTML = originalContent;
-          btn.disabled = false;
-        });
+        } else {
+          showToast(data.error || 'Channel unavailable - please try again later');
+        }
+      } catch (error) {
+        console.error('copyPlayLink error:', error);
+        showToast('Network error - please check your connection');
+      } finally {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+      }
     }
 
     // 降级复制方案（兼容旧版浏览器和非安全上下文）
