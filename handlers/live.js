@@ -64,7 +64,10 @@ async function handleNewLiveRequest(request, env, ctx, pathParts, fullBaseUrl) {
   }
 
   // 2. 验证 token
+  console.log('[Live] Validating token:', token, 'hash:', hash);
   const tokenMeta = await validateToken(token, env);
+  console.log('[Live] Token validation result:', tokenMeta ? 'valid' : 'invalid');
+  
   if (!tokenMeta) {
     // Token 无效或过期，触发对应 prefix 的过期广告
     const adAction = `${prefix}_expired`;
@@ -81,6 +84,7 @@ async function handleNewLiveRequest(request, env, ctx, pathParts, fullBaseUrl) {
   // 3. 获取频道信息
   // 优先从 KV 获取播放地址，黑名单域名从 channels_cache 获取原始地址
   let playUrl = await getPlayAddress(token, hash, env);
+  console.log('[Live] getPlayAddress result:', playUrl ? 'found' : 'not found', 'token:', token, 'hash:', hash);
   let channel = null;
 
   if (!playUrl) {

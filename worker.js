@@ -873,8 +873,8 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path.startsWith('/play/')) {
       // IP直连播放请求处理: /play/{link_id}/{hash}
       return await handleIPPlayRequest(request, env, ctx);
-    } else if (path.startsWith('/play/')) {
-      // 播放请求处理: /play/{token}/{hash}
+    } else if (path.startsWith('/live/')) {
+      // 播放请求处理: /live/{prefix}/{token}/{hash}
       return await handleLiveRequest(request, env, ctx);
     } else if (path.startsWith('/sub/') && path.endsWith('.m3u')) {
       // 订阅请求处理: /sub/{code}.m3u

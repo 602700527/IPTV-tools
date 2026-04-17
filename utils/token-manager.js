@@ -41,29 +41,37 @@ export function generateRandomToken(length = 32) {
  * @returns {Promise<string|null>}
  */
 export async function getCurrentToken(env) {
-  // 1. 获取当前有效的 token
+  // 1. 获取所有有效的 token
   const list = await env.KV.list({ prefix: 'play_token:' });
+  const validTokens = [];
 
   for (const item of list.keys) {
     const token = item.name.replace('play_token:', '');
     const meta = await env.KV.get(item.name);
     if (meta) {
-      const { expires_at } = JSON.parse(meta);
-      if (new Date(expires_at) > new Date()) {
-        return token;
+      const data = JSON.parse(meta);
+      if (new Date(data.expires_at) > new Date()) {
+        validTokens.push({
+          token,
+          created_at: data.created_at
+        });
       }
     }
   }
 
-  // 2. 没有有效 token，触发定时任务生成
+  // 2. 按创建时间排序，返回最新的
+  if (validTokens.length > 0) {
+    validTokens.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    return validTokens[0].token;
+  }
+
+  // 3. 没有有效 token，触发定时任务生成
   console.log('[Token] No valid token found, triggering generation');
   try {
     await generateTokenAndAddresses(env);
-    // 重新获取
     return await getCurrentToken(env);
   } catch (error) {
     console.error('[Token] Failed to generate token:', error);
-    // 3. 生成失败：返回 null
     return null;
   }
 }
@@ -199,12 +207,16 @@ export async function generateTokenAndAddresses(env, options = {}) {
 export async function validateToken(token, env) {
   // 1. 先查内存缓存
   const cached = tokenCache.get(token);
+  console.log('[Token] validateToken: checking cache for', token, 'cached:', cached ? 'yes' : 'no');
   if (cached && cached.expires_at && new Date(cached.expires_at) > new Date()) {
     return cached;
   }
 
   // 2. 缓存未命中，查 KV
-  const tokenData = await env.KV.get(`play_token:${token}`);
+  const key = `play_token:${token}`;
+  console.log('[Token] validateToken: querying KV key:', key);
+  const tokenData = await env.KV.get(key);
+  console.log('[Token] validateToken: KV result:', tokenData ? 'found' : 'not found');
   if (!tokenData) return null;
 
   const meta = JSON.parse(tokenData);
@@ -229,7 +241,9 @@ export async function validateToken(token, env) {
  * @returns {Promise<string|null>}
  */
 export async function getPlayAddress(token, hash, env) {
-  return await env.KV.get(`play_addr:${token}:${hash}`);
+  const key = `play_addr:${token}:${hash}`;
+  console.log('[Token] getPlayAddress querying:', key);
+  return await env.KV.get(key);
 }
 
 /**
