@@ -155,9 +155,8 @@ export async function generateTokenAndAddresses(env, options = {}) {
     console.log('[Token] No domain blacklist found');
   }
 
-  // 5. 批量写入播放地址映射（每批 25 个，KV 限制）
-  const BATCH_SIZE = 25;
-  const addressesToCache = [];
+  // 5. 构建播放地址映射表（单个大 JSON）
+  const addressMap = {};
 
   for (const channel of channelList) {
     // 检查域名是否在黑名单中
@@ -177,23 +176,15 @@ export async function generateTokenAndAddresses(env, options = {}) {
       continue;
     }
 
-    addressesToCache.push({
-      key: `play_addr:${token}:${channel.channel_hash}`,
-      value: channel.play_url
-    });
+    addressMap[channel.channel_hash] = channel.play_url;
   }
 
-  // 分批写入
-  for (let i = 0; i < addressesToCache.length; i += BATCH_SIZE) {
-    const batch = addressesToCache.slice(i, i + BATCH_SIZE);
-    const operations = batch.map(({ key, value }) =>
-      env.KV.put(key, value, { expirationTtl: ttlHours * 3600 })
-    );
-    await Promise.all(operations);
-    console.log(`[Token] Written batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(addressesToCache.length / BATCH_SIZE)}`);
-  }
+  // 6. 一次性写入整个播放地址映射表（只需 1 次 KV 写入）
+  await env.KV.put(`play_addr_map:${token}`, JSON.stringify(addressMap), {
+    expirationTtl: ttlHours * 3600
+  });
 
-  console.log(`[Token] Generated ${token}, ${addressesToCache.length} addresses cached`);
+  console.log(`[Token] Generated ${token}, ${Object.keys(addressMap).length} addresses cached in single KV key`);
   return token;
 }
 
@@ -234,21 +225,39 @@ export async function validateToken(token, env) {
 }
 
 /**
+ * 获取播放地址映射表（所有播放地址的大 JSON）
+ * @param {string} token
+ * @param {object} env - 环境变量
+ * @returns {Promise<object|null>} hash -> play_url 的映射，或 null
+ */
+export async function getPlayAddressMap(token, env) {
+  const key = `play_addr_map:${token}`;
+  console.log('[Token] getPlayAddressMap querying:', key);
+  try {
+    const data = await env.KV.get(key, { type: 'json' });
+    return data || null;
+  } catch (e) {
+    console.error('[Token] getPlayAddressMap error:', e);
+    return null;
+  }
+}
+
+/**
  * 获取播放地址
- * @param {string} token 
+ * @param {string} token
  * @param {string} hash - 频道 hash
  * @param {object} env - 环境变量
  * @returns {Promise<string|null>}
  */
 export async function getPlayAddress(token, hash, env) {
-  const key = `play_addr:${token}:${hash}`;
-  console.log('[Token] getPlayAddress querying:', key);
-  return await env.KV.get(key);
+  const map = await getPlayAddressMap(token, env);
+  if (!map) return null;
+  return map[hash] || null;
 }
 
 /**
  * 删除 token 及关联的所有播放地址
- * @param {string} token 
+ * @param {string} token
  * @param {object} env - 环境变量
  * @returns {Promise<void>}
  */
@@ -256,11 +265,8 @@ export async function invalidateToken(token, env) {
   // 删除 token 元数据
   await env.KV.delete(`play_token:${token}`);
 
-  // 列出并删除所有关联的播放地址
-  const list = await env.KV.list({ prefix: `play_addr:${token}:` });
-  for (const item of list.keys) {
-    await env.KV.delete(item.name);
-  }
+  // 删除播放地址映射表（单个大 JSON）
+  await env.KV.delete(`play_addr_map:${token}`);
 
   // 从内存缓存中移除
   tokenCache.delete(token);
