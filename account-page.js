@@ -27,426 +27,1536 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
   <meta name="twitter:description" content="管理您的TV Live Service账户，查看订阅状态、订单历史和账户设置。">
   <meta name="twitter:image" content="https://iptv-search.com/og-homepage.png">
   <style>
+    /* ========================================
+       CINEMA DARK - 深邃影院风格
+       灵感来源：Netflix/Disney+ 流媒体质感
+       ======================================== */
+    
     :root {
-      --bg-primary: #0a0a0a;
-      --bg-secondary: #141414;
-      --bg-card: rgba(255,255,255,0.03);
-      --bg-hover: rgba(255,255,255,0.05);
+      /* 深色沉浸式背景 */
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-tertiary: #1a1a2e;
+      
+      /* 玻璃拟态 */
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-hover: rgba(255, 255, 255, 0.06);
+      
+      /* 文本 */
       --text-primary: #ffffff;
-      --text-secondary: rgba(255,255,255,0.6);
-      --text-muted: rgba(255,255,255,0.4);
-      --border: rgba(255,255,255,0.1);
-      --border-light: rgba(255,255,255,0.08);
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --text-muted: rgba(255, 255, 255, 0.4);
+      
+      /* 霓虹强调色渐变 */
       --accent: #e50914;
-      --accent-hover: #f7262c;
+      --accent-glow: rgba(229, 9, 20, 0.4);
+      --neon-cyan: #00d4ff;
+      --neon-magenta: #e50914;
+      --gradient-neon: linear-gradient(135deg, #e50914 0%, #00d4ff 100%);
+      --gradient-glow: linear-gradient(135deg, rgba(229,9,20,0.3) 0%, rgba(0,212,255,0.3) 100%);
+      
+      /* 状态色 */
       --success: #34c759;
       --warning: #ffcc00;
       --error: #ff3b30;
+      
+      /* VIP段位色 */
+      --tier-bronze: #cd7f32;
+      --tier-silver: #c0c0c0;
+      --tier-gold: #ffd700;
+      --tier-emerald: #50c878;
+      --tier-crown: linear-gradient(135deg, #ffd700, #ff69b4, #8a2be2);
     }
 
     [data-theme="light"] {
-      --bg-primary: #f5f5f5;
+      --bg-primary: #f0f2f5;
       --bg-secondary: #ffffff;
-      --bg-card: rgba(0,0,0,0.03);
-      --bg-hover: rgba(0,0,0,0.05);
-      --text-primary: #1a1a1a;
+      --bg-tertiary: #e8eaed;
+      --glass-bg: rgba(0, 0, 0, 0.02);
+      --glass-border: rgba(0, 0, 0, 0.08);
+      --glass-hover: rgba(0, 0, 0, 0.04);
+      --text-primary: #1a1a1f;
       --text-secondary: #666666;
       --text-muted: #999999;
-      --border: rgba(0,0,0,0.1);
-      --border-light: rgba(0,0,0,0.05);
     }
 
-    *{margin:0;padding:0;box-sizing:border-box}
-    html{scroll-padding-top:70px}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg-primary);min-height:100vh;display:flex;flex-direction:column;color:var(--text-primary);transition:background .2s,color .2s}
-    .main-content{flex:1;width:100%;margin-top:90px;padding:20px 15px 0}
-    .container{background:var(--bg-secondary);backdrop-filter:blur(20px);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.15);padding:40px 30px 30px;max-width:600px;width:100%;margin:0 auto;position:relative;border:1px solid var(--border)}
-    .account-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;gap:10px}
-    .account-header h1{font-size:24px;font-weight:700;color:var(--text-primary);flex:1}
-    .header-actions{display:flex;align-items:center;gap:10px}
-    .logout-btn{background:rgba(229,9,20,.2);color:var(--accent);border:1px solid var(--accent);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;-webkit-tap-highlight-color:transparent;white-space:nowrap}
-    .logout-btn:hover{background:var(--accent);color:#fff}
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    .nav-tabs{display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:15px}
+    html { scroll-padding-top: 80px; }
 
-    .nav-tab{background:transparent;color:var(--text-secondary);border:none;padding:12px 20px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;transition:all .2s;-webkit-tap-highlight-color:transparent}
-    .nav-tab:hover{color:var(--text-primary);background:var(--bg-hover)}
-    .nav-tab.active{color:#fff;background:var(--accent)}
-    
-    .tab-content{display:none}
-    .tab-content.active{display:block}
-    
-    .info-card{background:var(--bg-card);border-radius:12px;padding:20px;margin-bottom:15px;border:1px solid var(--border-light)}
-    .info-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
-    .info-item:last-child{border-bottom:none}
-    .info-label{color:var(--text-secondary);font-size:14px}
-    .info-value{color:var(--text-primary);font-weight:500;font-size:14px}
-    
-    .order-card{background:var(--bg-card);border-radius:12px;padding:20px;margin-bottom:15px;border:1px solid var(--border-light)}
-    .order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
-    .order-id{color:var(--accent);font-size:13px;font-weight:600}
-    .order-date{color:var(--text-secondary);font-size:12px}
-    .order-details{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .order-detail-item{padding:8px 0}
-    .order-detail-label{color:var(--text-secondary);font-size:12px;margin-bottom:4px}
-    .order-detail-value{color:var(--text-primary);font-size:13px;font-weight:500}
-    .order-status{display:inline-block;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600}
-    .order-status.completed{background:rgba(52,199,89,.2);color:#34c759}
-    .order-status.pending{background:rgba(255,204,0,.2);color:#ffcc00}
-    .order-status.cancelled{background:rgba(255,59,48,.2);color:#ff3b30}
-    
-    .empty-state{text-align:center;padding:40px 20px;color:var(--text-muted)}
-    .empty-state svg{width:60px;height:60px;margin-bottom:15px;opacity:.5}
-    .empty-state p{font-size:14px}
-    
-    .loading{display:none;text-align:center;padding:40px}
-    .loading.active{display:block}
-    .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    
-    .toast-container{position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:3001;display:flex;flex-direction:column;gap:10px;padding:0 20px;max-width:600px;width:100%;pointer-events:none}
-    .toast{background:var(--bg-secondary);backdrop-filter:blur(20px);border-radius:10px;padding:14px 18px;border:1px solid var(--border);box-shadow:0 8px 24px rgba(0,0,0,.15);pointer-events:auto;animation:slideIn .3s ease}
-    @keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-    .toast.success{border-color:var(--success)}
-    .toast.success .toast-icon{color:var(--success)}
-    .toast.error{border-color:var(--error)}
-    .toast.error .toast-icon{color:var(--error)}
-    .toast.warning{border-color:var(--warning)}
-    .toast.warning .toast-icon{color:var(--warning)}
-    .toast-content{display:flex;align-items:center;gap:10px}
-    .toast-icon{font-size:18px}
-    .toast-message{color:var(--text-primary);font-size:14px;font-weight:500}
-    
-    /* 支付成功模态框样式 */
-    .success-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);z-index:3000;align-items:center;justify-content:center;padding:20px}
-    .success-modal.show{display:flex}
-    .success-content{background:var(--bg-secondary);border-radius:24px;padding:40px;max-width:480px;width:100%;text-align:center;border:1px solid rgba(229,9,20,0.2);box-shadow:0 25px 80px rgba(0,0,0,0.3);animation:modalSlideIn 0.3s cubic-bezier(0.4,0,0.2,1)}
-    @keyframes modalSlideIn{from{opacity:0;transform:scale(0.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
-    .success-icon{font-size:64px;margin-bottom:20px}
-    .success-title{font-size:24px;font-weight:700;color:var(--text-primary);margin:0 0 10px 0}
-    .success-message{color:var(--text-secondary);font-size:14px;margin-bottom:25px}
-    .code-display{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;color:var(--text-primary);font-size:13px;word-break:break-all;font-family:monospace}
-    .copy-button{background:linear-gradient(135deg,var(--accent) 0%,#ff3b30 100%);color:#fff;border:none;padding:14px 28px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s;width:100%;margin-bottom:15px}
-    .copy-button:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(229,9,20,0.4)}
-    .close-button{background:var(--bg-hover);color:var(--text-secondary);border:1px solid var(--border);padding:14px 28px;border-radius:12px;font-size:14px;cursor:pointer;transition:all 0.3s}
-    .close-button:hover{background:var(--bg-card)}
-    .modal-tips{margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
-    .modal-tip{color:var(--text-secondary);font-size:13px;line-height:1.6;margin-bottom:8px}
-    .modal-tip:last-child{margin-bottom:0}
-    .modal-tip-highlight{color:var(--text-muted);font-size:12px;margin-top:12px}
-    .modal-close{position:absolute;top:20px;right:20px;width:32px;height:32px;border-radius:50%;background:var(--bg-hover);border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:20px;line-height:1}
-    .modal-close:hover{background:var(--bg-card);color:var(--text-primary)}
-    
-    @media (max-width:768px){
-      html{scroll-padding-top:60px}
-      .main-content{margin-top:80px;padding:15px 10px 0}
-      .container{padding:30px 20px;border-radius:12px}
-      .account-header h1{font-size:20px}
-      .nav-tabs{flex-wrap:wrap;gap:8px;padding-bottom:10px}
-      .nav-tab{padding:10px 16px;font-size:13px}
-      .info-card,.order-card{padding:16px}
-      .order-details{grid-template-columns:1fr}
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: var(--text-primary);
+      transition: background 0.3s, color 0.3s;
+      overflow-x: hidden;
     }
 
-    @media (max-width:480px){
-      html{scroll-padding-top:50px}
-      .main-content{margin-top:70px;padding:10px 10px 0}
-      .container{padding:25px 15px}
-      .account-header{margin-bottom:20px}
+    /* 深邃背景纹理 */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(ellipse at 20% 0%, rgba(229, 9, 20, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(0, 212, 255, 0.06) 0%, transparent 50%),
+        linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-tertiary) 100%);
+      pointer-events: none;
+      z-index: -1;
     }
+
+    /* 网格纹理叠加 */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.5;
+    }
+
+    /* 主内容区 */
+    .main-content {
+      flex: 1;
+      width: 100%;
+      margin-top: 80px;
+      padding: 24px 16px 60px;
+    }
+
+    /* 玻璃拟态容器 */
+    .container {
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* 页面头部 */
+    .account-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      gap: 16px;
+      animation: fadeInDown 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .account-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--text-primary) 0%, rgba(255,255,255,0.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logout-btn {
+      position: relative;
+      background: rgba(229, 9, 20, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(229, 9, 20, 0.3);
+      padding: 10px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .logout-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(229, 9, 20, 0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .logout-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .logout-btn:hover::before {
+      left: 100%;
+    }
+
+    /* ========================================
+       VIP 会员状态卡片 - 电影海报风格
+       ======================================== */
     
-    /* Ticket styles */
-    .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-    .section-header h3{font-size:18px;font-weight:600;color:var(--text-primary)}
-    .btn-accent{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--accent) 0%,#ff3b30 100%);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
-    .btn-accent:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(229,9,20,.3)}
-    .ticket-card{background:var(--bg-card);border-radius:12px;padding:20px;margin-bottom:12px;border:1px solid var(--border-light);cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-    .ticket-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--accent);opacity:0;transition:opacity .2s}
-    .ticket-card:hover{background:var(--bg-hover);transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.1)}
-    .ticket-card:hover::before{opacity:1}
-    .ticket-card.payment::before{background:#ffcc00}
-    .ticket-card.order::before{background:#34c759}
-    .ticket-card.technical::before{background:#007aff}
-    .ticket-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:10px}
-    .ticket-type{font-size:11px;font-weight:600;text-transform:uppercase;padding:5px 10px;border-radius:6px;background:rgba(229,9,20,.15);color:var(--accent)}
-    .ticket-type.payment{background:rgba(255,204,0,.15);color:#ffcc00}
-    .ticket-type.order{background:rgba(52,199,89,.15);color:#34c759}
-    .ticket-type.technical{background:rgba(0,122,255,.15);color:#007aff}
-    .ticket-status{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;flex-shrink:0}
-    .ticket-status.pending{background:rgba(255,204,0,.15);color:#ffcc00}
-    .ticket-status.processing{background:rgba(0,122,255,.15);color:#007aff}
-    .ticket-status.resolved{background:rgba(52,199,89,.15);color:#34c759}
-    .ticket-status.closed{background:rgba(142,142,147,.15);color:#8e8e93}
-    .ticket-subject{color:var(--text-primary);font-size:15px;font-weight:600;margin-bottom:10px;line-height:1.4}
-    .ticket-meta{color:var(--text-secondary);font-size:12px;display:flex;gap:16px;flex-wrap:wrap}
-    .ticket-meta svg{width:12px;height:12px;vertical-align:-2px;margin-right:4px}
-    .ticket-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);z-index:3000;align-items:center;justify-content:center;padding:20px}
-    .ticket-modal.show{display:flex}
-    .ticket-modal-content{background:var(--bg-secondary);border-radius:20px;padding:30px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;border:1px solid var(--border);animation:modalSlideIn .3s cubic-bezier(0.4,0,0.2,1)}
-    .ticket-modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
-    .ticket-modal-header h3{margin:0;font-size:20px;font-weight:600;color:var(--text-primary)}
-    .ticket-modal-close{width:36px;height:36px;border-radius:50%;background:var(--bg-hover);border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:all .2s}
-    .ticket-modal-close:hover{background:var(--bg-card);color:var(--text-primary)}
-    .form-group{margin-bottom:20px}
-    .form-group label{display:block;margin-bottom:8px;font-weight:600;font-size:13px;color:var(--text-secondary)}
-    .form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:var(--bg-primary);color:var(--text-primary);transition:border-color .2s,box-shadow .2s}
-    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(229,9,20,.1)}
-    .form-group textarea{min-height:120px;resize:vertical}
-    .btn{padding:12px 24px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s}
-    .btn-primary{background:var(--accent);color:#fff}
-    .btn-primary:hover{background:var(--accent-hover);transform:translateY(-1px)}
-    .btn-secondary{background:var(--bg-hover);color:var(--text-primary);border:1px solid var(--border)}
-    .btn-secondary:hover{background:var(--bg-card)}
-    .btn-danger{background:rgba(255,59,48,.15);color:#ff3b30;border:1px solid #ff3b30}
-    .btn-danger:hover{background:#ff3b30;color:#fff}
-    .ticket-reply{background:var(--bg-card);border-radius:12px;padding:16px;margin-bottom:12px;border-left:3px solid var(--accent)}
-    .ticket-reply.admin{border-left-color:#007aff}
-    .ticket-reply-header{display:flex;justify-content:space-between;margin-bottom:8px}
-    .ticket-reply-author{font-size:13px;font-weight:600;color:var(--text-primary)}
-    .ticket-reply.admin .ticket-reply-author{color:#007aff}
-    .ticket-reply-time{font-size:11px;color:var(--text-muted)}
-    .ticket-reply-content{color:var(--text-secondary);font-size:14px;line-height:1.5}
-    .ticket-reply-form{margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
-    .ticket-reply-form textarea{margin-bottom:12px}
-    .reply-list{max-height:400px;overflow-y:auto;margin-bottom:20px}
-    .empty-tickets{text-align:center;padding:50px 20px}
-    .empty-tickets-icon{width:64px;height:64px;margin:0 auto 16px;opacity:.4}
-    .empty-tickets h4{font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:8px}
-    .empty-tickets p{font-size:13px;color:var(--text-muted);margin-bottom:20px}
-    
-    /* VIP会员状态卡片样式 */
     .vip-status-card {
-      background: linear-gradient(135deg, rgba(255,215,0,0.08) 0%, rgba(255,180,0,0.04) 100%);
-      border: 1px solid rgba(255,215,0,0.25);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 20px;
+      position: relative;
+      background: linear-gradient(145deg, rgba(20, 20, 30, 0.9) 0%, rgba(10, 10, 15, 0.95) 100%);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 24px;
+      padding: 0;
+      margin-bottom: 28px;
+      border: 1px solid var(--glass-border);
+      overflow: hidden;
+      animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+      transition: transform 0.3s, box-shadow 0.3s;
     }
+
+    .vip-status-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.4),
+        0 0 40px rgba(229, 9, 20, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    /* VIP卡片顶部装饰条 */
+    .vip-card-glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-neon);
+      opacity: 0.8;
+    }
+
+    .vip-card-content {
+      padding: 28px 28px 24px;
+    }
+
     .vip-header {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 20px;
+      gap: 20px;
+      margin-bottom: 24px;
     }
+
     .vip-icon-wrapper {
-      width: 56px;
-      height: 56px;
-      background: rgba(255,215,0,0.1);
-      border-radius: 50%;
+      position: relative;
+      width: 72px;
+      height: 72px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 2px solid rgba(255,215,0,0.4);
+      border-radius: 50%;
+      transition: all 0.3s;
     }
+
+    .vip-icon-wrapper::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--accent), var(--neon-cyan), var(--accent));
+      animation: rotate 4s linear infinite;
+      opacity: 0.6;
+    }
+
+    .vip-icon-wrapper::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #1a1a2e, #0a0a0f);
+    }
+
     .vip-icon {
-      font-size: 28px;
+      position: relative;
+      z-index: 1;
+      font-size: 32px;
+      filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
     }
-    /* 段位颜色 - 青铜 */
-    .vip-icon-wrapper.tier-bronze {
-      background: rgba(205,127,50,0.15);
-      border-color: rgba(205,127,50,0.5);
+
+    /* 段位颜色 */
+    .vip-icon-wrapper.tier-bronze::before { background: conic-gradient(from 0deg, #cd7f32, #8b4513, #cd7f32); }
+    .vip-icon-wrapper.tier-silver::before { background: conic-gradient(from 0deg, #c0c0c0, #808080, #c0c0c0); }
+    .vip-icon-wrapper.tier-gold::before { background: conic-gradient(from 0deg, #ffd700, #ffaa00, #ffd700); }
+    .vip-icon-wrapper.tier-emerald::before { background: conic-gradient(from 0deg, #50c878, #228b22, #50c878); }
+    .vip-icon-wrapper.tier-crown::before { background: conic-gradient(from 0deg, #ffd700, #ff69b4, #8a2be2, #ffd700); animation: rotate 3s linear infinite; }
+
+    @keyframes rotate {
+      to { transform: rotate(360deg); }
     }
-    .vip-icon-wrapper.tier-bronze .vip-icon {
-      filter: sepia(1) saturate(3) hue-rotate(-10deg) brightness(1.2);
-    }
-    /* 段位颜色 - 白银 */
-    .vip-icon-wrapper.tier-silver {
-      background: rgba(192,192,192,0.15);
-      border-color: rgba(192,192,192,0.5);
-    }
-    .vip-icon-wrapper.tier-silver .vip-icon {
-      filter: grayscale(100%) brightness(1.5);
-    }
-    /* 段位颜色 - 黄金 */
-    .vip-icon-wrapper.tier-gold {
-      background: rgba(255,215,0,0.15);
-      border-color: rgba(255,215,0,0.5);
-    }
-    .vip-icon-wrapper.tier-gold .vip-icon {
-      filter: none;
-    }
-    /* 段位颜色 - 翡翠 */
-    .vip-icon-wrapper.tier-emerald {
-      background: rgba(80,200,120,0.15);
-      border-color: rgba(80,200,120,0.5);
-    }
-    .vip-icon-wrapper.tier-emerald .vip-icon {
-      filter: hue-rotate(80deg) saturate(1.5) brightness(1.1);
-    }
-    /* 段位颜色 - 皇冠（彩虹） */
-    .vip-icon-wrapper.tier-crown {
-      background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,105,180,0.15), rgba(138,43,226,0.15));
-      border-color: rgba(255,215,0,0.6);
-    }
-    .vip-icon-wrapper.tier-crown .vip-icon {
-      filter: hue-rotate(300deg) saturate(1.8) brightness(1.15);
-    }
+
     .vip-info {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
     }
+
     .vip-tier {
-      font-size: 20px;
-      font-weight: 700;
+      font-size: 26px;
+      font-weight: 800;
       color: var(--text-primary);
+      letter-spacing: -0.5px;
     }
+
     .vip-subtitle {
-      font-size: 13px;
+      font-size: 14px;
       color: var(--text-secondary);
     }
+
     .vip-badge {
-      padding: 6px 14px;
+      padding: 8px 16px;
       border-radius: 20px;
       font-size: 11px;
       font-weight: 700;
-      background: rgba(52,199,89,0.2);
-      color: #34c759;
-      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, rgba(52, 199, 89, 0.2), rgba(52, 199, 89, 0.1));
+      color: var(--success);
+      border: 1px solid rgba(52, 199, 89, 0.3);
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
+
     .vip-badge.expired {
-      background: rgba(255,59,48,0.2);
-      color: #ff3b30;
+      background: linear-gradient(135deg, rgba(255, 59, 48, 0.2), rgba(255, 59, 48, 0.1));
+      color: var(--error);
+      border-color: rgba(255, 59, 48, 0.3);
     }
+
+    /* 订阅信息区 */
     .vip-subscription {
-      background: rgba(0,0,0,0.2);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
+
     .sub-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
-    .sub-item:last-child {
-      border-bottom: none;
-    }
+
+    .sub-item:last-child { border-bottom: none; }
+
     .sub-label {
-      font-size: 13px;
+      font-size: 14px;
       color: var(--text-secondary);
     }
+
     .sub-value {
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 15px;
+      font-weight: 600;
       color: var(--text-primary);
     }
+
     .code-row {
       display: flex;
       align-items: center;
-      gap: 8px;
-      max-width: 280px;
+      gap: 10px;
     }
+
     .code-text {
-      font-family: monospace;
+      font-family: 'SF Mono', 'Fira Code', monospace;
       font-size: 12px;
-      background: rgba(255,255,255,0.05);
-      padding: 6px 10px;
-      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 8px 14px;
+      border-radius: 8px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      max-width: 180px;
+      max-width: 200px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
+
     .copy-btn {
-      padding: 6px 12px;
-      background: var(--accent);
-      color: white;
+      padding: 8px 14px;
+      background: var(--gradient-neon);
+      color: #fff;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
       flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
     }
+
+    .copy-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.4s, height 0.4s;
+    }
+
     .copy-btn:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px var(--accent-glow);
     }
-    .vip-actions {
-      display: flex;
-      gap: 12px;
+
+    .copy-btn:active::before {
+      width: 200px;
+      height: 200px;
     }
+
+    /* 特权列表 */
     .vip-perks {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-bottom: 16px;
-      padding: 12px;
-      background: rgba(0,0,0,0.15);
-      border-radius: 10px;
+      margin-bottom: 20px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
+
     .perk-item {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 12px;
+      gap: 8px;
+      font-size: 13px;
       color: var(--text-secondary);
-      padding: 4px 10px;
-      background: rgba(255,255,255,0.05);
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.04);
       border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.2s;
     }
+
+    .perk-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-1px);
+    }
+
     .perk-icon {
-      color: #34c759;
+      color: var(--neon-cyan);
       font-weight: 700;
+      font-size: 14px;
     }
+
+    /* 操作按钮 */
+    .vip-actions {
+      display: flex;
+      gap: 12px;
+    }
+
     .btn-renew {
       flex: 1;
-      padding: 12px 20px;
-      background: linear-gradient(135deg, var(--accent) 0%, #b81d24 100%);
-      color: white;
+      padding: 14px 24px;
+      background: var(--gradient-neon);
+      color: #fff;
       border: none;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
     }
+
+    .btn-renew::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
     .btn-renew:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(229,9,20,0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px var(--accent-glow);
     }
+
+    .btn-renew:hover::before {
+      left: 100%;
+    }
+
     .btn-plans {
       flex: 1;
-      padding: 12px 20px;
-      background: rgba(255,255,255,0.1);
+      padding: 14px 24px;
+      background: rgba(255, 255, 255, 0.06);
       color: var(--text-primary);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-plans:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* ========================================
+       导航标签页 - 霓虹胶囊风格
+       ======================================== */
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      padding: 6px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+    }
+
+    .nav-tab {
+      flex: 1;
+      background: transparent;
+      color: var(--text-secondary);
+      border: none;
+      padding: 14px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-tab::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 3px;
+      background: var(--gradient-neon);
+      border-radius: 3px 3px 0 0;
+      transform: translateX(-50%);
+      transition: width 0.3s;
+    }
+
+    .nav-tab:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-tab.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(229, 9, 20, 0.3), rgba(0, 212, 255, 0.2));
+      box-shadow: 0 0 20px rgba(229, 9, 20, 0.2);
+    }
+
+    .nav-tab.active::before {
+      width: 40px;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* ========================================
+       玻璃拟态信息卡片
+       ======================================== */
+
+    .info-card {
+      background: linear-gradient(145deg, var(--glass-bg), rgba(0, 0, 0, 0.2));
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 16px;
+      border: 1px solid var(--glass-border);
+      animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .info-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      transition: background 0.2s;
+    }
+
+    .info-item:last-child {
+      border-bottom: none;
+    }
+
+    .info-item:hover {
+      background: rgba(255, 255, 255, 0.02);
+      margin: 0 -12px;
+      padding: 16px 12px;
+      border-radius: 8px;
+    }
+
+    .info-label {
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .info-value {
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* ========================================
+       订单卡片
+       ======================================== */
+
+    .order-card {
+      background: linear-gradient(145deg, var(--glass-bg), rgba(0, 0, 0, 0.2));
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 16px;
+      border: 1px solid var(--glass-border);
+      animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .order-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--gradient-neon);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .order-card:hover {
+      transform: translateY(-4px) translateX(4px);
+      box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.3),
+        0 0 30px rgba(229, 9, 20, 0.1);
+    }
+
+    .order-card:hover::before {
+      opacity: 1;
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .order-id {
+      font-size: 14px;
+      font-weight: 700;
+      background: var(--gradient-neon);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .order-date {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .order-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .order-detail-item {
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .order-detail-label {
+      color: var(--text-muted);
+      font-size: 11px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .order-detail-value {
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .order-status {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .order-status.completed {
+      background: linear-gradient(135deg, rgba(52, 199, 89, 0.2), rgba(52, 199, 89, 0.1));
+      color: var(--success);
+      border: 1px solid rgba(52, 199, 89, 0.3);
+    }
+
+    .order-status.pending {
+      background: linear-gradient(135deg, rgba(255, 204, 0, 0.2), rgba(255, 204, 0, 0.1));
+      color: var(--warning);
+      border: 1px solid rgba(255, 204, 0, 0.3);
+    }
+
+    .order-status.cancelled {
+      background: linear-gradient(135deg, rgba(255, 59, 48, 0.2), rgba(255, 59, 48, 0.1));
+      color: var(--error);
+      border: 1px solid rgba(255, 59, 48, 0.3);
+    }
+
+    /* ========================================
+       工单卡片
+       ======================================== */
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.35s both;
+    }
+
+    .section-header h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .btn-accent {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gradient-neon);
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-accent:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px var(--accent-glow);
+    }
+
+    .ticket-card {
+      background: linear-gradient(145deg, var(--glass-bg), rgba(0, 0, 0, 0.2));
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 12px;
+      border: 1px solid var(--glass-border);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+
+    .ticket-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      transition: opacity 0.3s;
+    }
+
+    .ticket-card.payment::before { background: var(--warning); }
+    .ticket-card.order::before { background: var(--success); }
+    .ticket-card.technical::before { background: var(--neon-cyan); }
+    .ticket-card.other::before { background: var(--text-muted); }
+
+    .ticket-card:hover {
+      transform: translateY(-3px) translateX(4px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      background: var(--glass-hover);
+    }
+
+    .ticket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      gap: 12px;
+    }
+
+    .ticket-type {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .ticket-type.payment {
+      background: linear-gradient(135deg, rgba(255, 204, 0, 0.2), rgba(255, 204, 0, 0.1));
+      color: var(--warning);
+    }
+
+    .ticket-type.order {
+      background: linear-gradient(135deg, rgba(52, 199, 89, 0.2), rgba(52, 199, 89, 0.1));
+      color: var(--success);
+    }
+
+    .ticket-type.technical {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.1));
+      color: var(--neon-cyan);
+    }
+
+    .ticket-type.other {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+    }
+
+    .ticket-status {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .ticket-status.pending {
+      background: rgba(255, 204, 0, 0.2);
+      color: var(--warning);
+    }
+
+    .ticket-status.processing {
+      background: rgba(0, 122, 255, 0.2);
+      color: #007aff;
+    }
+
+    .ticket-status.resolved {
+      background: rgba(52, 199, 89, 0.2);
+      color: var(--success);
+    }
+
+    .ticket-status.closed {
+      background: rgba(142, 142, 147, 0.2);
+      color: #8e8e93;
+    }
+
+    .ticket-subject {
+      color: var(--text-primary);
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .ticket-meta {
+      color: var(--text-muted);
+      font-size: 12px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .ticket-meta svg {
+      width: 12px;
+      height: 12px;
+      vertical-align: -2px;
+      margin-right: 4px;
+    }
+
+    /* ========================================
+       模态框
+       ======================================== */
+
+    .success-modal,
+    .ticket-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 3000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .success-modal.show,
+    .ticket-modal.show {
+      display: flex;
+    }
+
+    .success-content,
+    .ticket-modal-content {
+      background: linear-gradient(145deg, #1a1a2e, #0a0a0f);
+      border-radius: 28px;
+      padding: 40px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      border: 1px solid var(--glass-border);
+      box-shadow: 
+        0 30px 100px rgba(0, 0, 0, 0.5),
+        0 0 60px rgba(229, 9, 20, 0.15);
+      animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .success-icon {
+      font-size: 72px;
+      margin-bottom: 24px;
+      animation: bounceIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .success-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin: 0 0 12px 0;
+    }
+
+    .success-message {
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-bottom: 28px;
+    }
+
+    .code-display {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 24px;
+      color: var(--text-primary);
+      font-size: 13px;
+      word-break: break-all;
+      font-family: 'SF Mono', monospace;
+      text-align: left;
+    }
+
+    .copy-button {
+      background: var(--gradient-neon);
+      color: #fff;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .copy-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px var(--accent-glow);
+    }
+
+    .modal-tips {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .modal-tip {
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .modal-tip-highlight {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-top: 16px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
       transition: all 0.2s;
     }
-    .btn-plans:hover {
-      background: rgba(255,255,255,0.15);
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      transform: rotate(90deg);
     }
-    
+
+    /* ========================================
+       表单样式
+       ======================================== */
+
+    .ticket-modal-content {
+      max-width: 560px;
+      text-align: left;
+      padding: 32px;
+    }
+
+    .ticket-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .ticket-modal-header h3 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .ticket-modal-close {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      transition: all 0.2s;
+    }
+
+    .ticket-modal-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      font-size: 15px;
+      background: rgba(0, 0, 0, 0.3);
+      color: var(--text-primary);
+      transition: all 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.15);
+    }
+
+    .form-group textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: var(--gradient-neon);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px var(--accent-glow);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+      border: 1px solid var(--glass-border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-danger {
+      background: rgba(255, 59, 48, 0.15);
+      color: var(--error);
+      border: 1px solid rgba(255, 59, 48, 0.3);
+    }
+
+    .btn-danger:hover {
+      background: var(--error);
+      color: #fff;
+    }
+
+    .ticket-reply {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 12px;
+      border-left: 4px solid var(--accent);
+    }
+
+    .ticket-reply.admin {
+      border-left-color: var(--neon-cyan);
+    }
+
+    .ticket-reply-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .ticket-reply-author {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .ticket-reply.admin .ticket-reply-author {
+      color: var(--neon-cyan);
+    }
+
+    .ticket-reply-time {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .ticket-reply-content {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .ticket-reply-form {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .ticket-reply-form textarea {
+      margin-bottom: 14px;
+    }
+
+    .reply-list {
+      max-height: 350px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      padding-right: 8px;
+    }
+
+    .reply-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .reply-list::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+    }
+
+    .reply-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+
+    /* ========================================
+       空状态 & 加载状态
+       ======================================== */
+
+    .empty-state,
+    .empty-tickets {
+      text-align: center;
+      padding: 60px 24px;
+    }
+
+    .empty-state svg,
+    .empty-tickets svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      opacity: 0.3;
+    }
+
+    .empty-state p,
+    .empty-tickets p {
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .empty-tickets h4 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    .empty-tickets p {
+      margin-bottom: 24px;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 60px;
+    }
+
+    .loading.active {
+      display: block;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--glass-border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ========================================
+       Toast 通知
+       ======================================== */
+
+    .toast-container {
+      position: fixed;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 4000;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 0 20px;
+      max-width: 420px;
+      width: 100%;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: linear-gradient(145deg, #1a1a2e, #0a0a0f);
+      backdrop-filter: blur(20px);
+      border-radius: 14px;
+      padding: 16px 20px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      pointer-events: auto;
+      animation: toastSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes toastSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .toast.success {
+      border-color: rgba(52, 199, 89, 0.4);
+    }
+
+    .toast.success .toast-icon {
+      color: var(--success);
+    }
+
+    .toast.error {
+      border-color: rgba(255, 59, 48, 0.4);
+    }
+
+    .toast.error .toast-icon {
+      color: var(--error);
+    }
+
+    .toast.warning {
+      border-color: rgba(255, 204, 0, 0.4);
+    }
+
+    .toast.warning .toast-icon {
+      color: var(--warning);
+    }
+
+    .toast-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toast-icon {
+      font-size: 20px;
+    }
+
+    .toast-message {
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    /* ========================================
+       动画关键帧
+       ======================================== */
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ========================================
+       响应式设计
+       ======================================== */
+
+    @media (max-width: 768px) {
+      html { scroll-padding-top: 70px; }
+      
+      .main-content {
+        margin-top: 70px;
+        padding: 16px 12px 40px;
+      }
+
+      .account-header h1 {
+        font-size: 22px;
+      }
+
+      .logout-btn {
+        padding: 8px 14px;
+        font-size: 12px;
+      }
+
+      .vip-card-content {
+        padding: 20px;
+      }
+
+      .vip-header {
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+
+      .vip-icon-wrapper {
+        width: 60px;
+        height: 60px;
+      }
+
+      .vip-icon {
+        font-size: 26px;
+      }
+
+      .vip-tier {
+        font-size: 22px;
+      }
+
+      .nav-tabs {
+        gap: 4px;
+        padding: 4px;
+      }
+
+      .nav-tab {
+        padding: 12px 10px;
+        font-size: 12px;
+      }
+
+      .info-card,
+      .order-card {
+        padding: 18px;
+        border-radius: 16px;
+      }
+
+      .order-details {
+        grid-template-columns: 1fr;
+      }
+
+      .vip-actions {
+        flex-direction: column;
+      }
+
+      .success-content {
+        padding: 28px;
+      }
+
+      .ticket-modal-content {
+        padding: 24px;
+      }
+    }
+
     @media (max-width: 480px) {
+      .account-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
       .vip-header {
         flex-wrap: wrap;
       }
+
       .vip-info {
-        flex: 1 1 calc(100% - 72px);
+        flex: 1 1 calc(100% - 80px);
       }
+
       .vip-badge {
         order: -1;
         margin-bottom: 8px;
       }
+
       .code-row {
         flex-direction: column;
         align-items: flex-end;
-        gap: 4px;
+        gap: 6px;
       }
+
       .code-text {
-        max-width: 140px;
+        max-width: 160px;
       }
-      .vip-actions {
+
+      .section-header {
         flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .btn-accent {
+        width: 100%;
+        justify-content: center;
       }
     }
   </style>
@@ -455,86 +1565,101 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
   ${PAGE_HEADER}
   <div class="main-content">
     <div class="container">
-    <div class="account-header">
-      <h1 data-i18n="userCenter">👤 Account Center</h1>
-      <div class="header-actions">
-        <button class="logout-btn" onclick="logout()" data-i18n="logout">Logout</button>
-      </div>
-    </div>
-    
-    <!-- VIP会员状态卡片 -->
-    <div id="vipStatusCard" class="vip-status-card" style="display: none;">
-      <div class="vip-header">
-        <div class="vip-icon-wrapper">
-          <span class="vip-icon">👑</span>
+      <!-- 页面头部 -->
+      <div class="account-header">
+        <h1 data-i18n="userCenter">👤 Account Center</h1>
+        <div class="header-actions">
+          <button class="logout-btn" onclick="logout()" data-i18n="logout">Logout</button>
         </div>
-        <div class="vip-info">
-          <span class="vip-tier" id="vipTierName">至尊会员</span>
-          <span class="vip-subtitle" id="vipSubType">年度订阅</span>
-        </div>
-        <div class="vip-badge" id="vipBadge">ACTIVE</div>
       </div>
-      <div class="vip-subscription">
-        <div class="sub-item">
-          <span class="sub-label">订阅地址</span>
-          <div class="sub-value code-row">
-            <span class="code-text" id="vipCode">-</span>
-            <button class="copy-btn" onclick="copyVipCode()">复制</button>
+      
+      <!-- VIP会员状态卡片 - 电影海报风格 -->
+      <div id="vipStatusCard" class="vip-status-card" style="display: none;">
+        <div class="vip-card-glow"></div>
+        <div class="vip-card-content">
+          <div class="vip-header">
+            <div class="vip-icon-wrapper">
+              <span class="vip-icon">👑</span>
+            </div>
+            <div class="vip-info">
+              <span class="vip-tier" id="vipTierName">至尊会员</span>
+              <span class="vip-subtitle" id="vipSubType">年度订阅</span>
+            </div>
+            <div class="vip-badge" id="vipBadge">ACTIVE</div>
+          </div>
+          <div class="vip-subscription">
+            <div class="sub-item">
+              <span class="sub-label">订阅地址</span>
+              <div class="sub-value code-row">
+                <span class="code-text" id="vipCode">-</span>
+                <button class="copy-btn" onclick="copyVipCode()">复制</button>
+              </div>
+            </div>
+            <div class="sub-item">
+              <span class="sub-label">到期时间</span>
+              <span class="sub-value" id="vipExpiry">-</span>
+            </div>
+          </div>
+          <div class="vip-perks">
+            <div class="perk-item"><span class="perk-icon">✓</span> 无广告打扰</div>
+            <div class="perk-item"><span class="perk-icon">✓</span> 无限畅享全部频道</div>
+            <div class="perk-item"><span class="perk-icon">✓</span> 优先客服响应</div>
+          </div>
+          <div class="vip-actions">
+            <button class="btn-renew" onclick="window.location.href='/plans'">续费会员</button>
+            <button class="btn-plans" onclick="window.location.href='/plans'">查看套餐</button>
           </div>
         </div>
-        <div class="sub-item">
-          <span class="sub-label">到期时间</span>
-          <span class="sub-value" id="vipExpiry">-</span>
-        </div>
       </div>
-      <div class="vip-perks">
-        <div class="perk-item"><span class="perk-icon">✓</span> 无广告打扰</div>
-        <div class="perk-item"><span class="perk-icon">✓</span> 无限畅享全部频道</div>
-        <div class="perk-item"><span class="perk-icon">✓</span> 优先客服响应</div>
-      </div>
-      <div class="vip-actions">
-        <button class="btn-renew" onclick="window.location.href='/plans'">续费会员</button>
-        <button class="btn-plans" onclick="window.location.href='/plans'">查看套餐</button>
-      </div>
-    </div>
-    
-    <div class="nav-tabs">
-      <button class="nav-tab active" onclick="switchTab('info')" data-i18n="accountInfo">Account Info</button>
-      <button class="nav-tab" onclick="switchTab('orders')" data-i18n="orderHistory">Order History</button>
-      <button class="nav-tab" onclick="switchTab('tickets')" data-i18n="myTickets">My Tickets</button>
-    </div>
-    
-    <div id="infoTab" class="tab-content active">
-      <div id="userInfo" class="info-card">
-        <!-- 用户信息将在这里显示 -->
-      </div>
-      <div id="infoLoading" class="loading">
-        <div class="spinner"></div>
-      </div>
-    </div>
-    
-    <div id="ordersTab" class="tab-content">
-      <div id="ordersList"></div>
-      <div id="ordersLoading" class="loading">
-        <div class="spinner"></div>
-      </div>
-    </div>
-    
-    <div id="ticketsTab" class="tab-content">
-      <div class="section-header">
-        <h3 data-i18n="ticketList">Ticket List</h3>
-        <button class="btn-accent" onclick="showCreateTicketModal()" data-i18n="createTicket">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Create Ticket
+      
+      <!-- 导航标签页 -->
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('info')" data-i18n="accountInfo">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px; vertical-align: -2px;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+          Account Info
+        </button>
+        <button class="nav-tab" onclick="switchTab('orders')" data-i18n="orderHistory">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px; vertical-align: -2px;"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          Order History
+        </button>
+        <button class="nav-tab" onclick="switchTab('tickets')" data-i18n="myTickets">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px; vertical-align: -2px;"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+          My Tickets
         </button>
       </div>
-      <div id="ticketsList"></div>
-      <div id="ticketsLoading" class="loading">
-        <div class="spinner"></div>
+      
+      <!-- 账户信息标签页 -->
+      <div id="infoTab" class="tab-content active">
+        <div id="userInfo" class="info-card"></div>
+        <div id="infoLoading" class="loading">
+          <div class="spinner"></div>
+        </div>
+      </div>
+      
+      <!-- 订单历史标签页 -->
+      <div id="ordersTab" class="tab-content">
+        <div id="ordersList"></div>
+        <div id="ordersLoading" class="loading">
+          <div class="spinner"></div>
+        </div>
+      </div>
+      
+      <!-- 工单标签页 -->
+      <div id="ticketsTab" class="tab-content">
+        <div class="section-header">
+          <h3 data-i18n="ticketList">Support Tickets</h3>
+          <button class="btn-accent" onclick="showCreateTicketModal()" data-i18n="createTicket">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Ticket
+          </button>
+        </div>
+        <div id="ticketsList"></div>
+        <div id="ticketsLoading" class="loading">
+          <div class="spinner"></div>
+        </div>
       </div>
     </div>
   </div>
-    </div>
 
    <div class="toast-container" id="toastContainer"></div>
 
@@ -546,72 +1671,72 @@ export const ACCOUNT_HTML = `<!DOCTYPE html>
        <button class="modal-close" onclick="closeSuccessModal()">×</button>
        <div class="success-icon">🎉</div>
        <h2 class="success-title" data-i18n="paymentSuccess">Payment Successful!</h2>
-       <p class="success-message" data-i18n="subUrlGenerated">Your subscription URL has been generated</p>
-       <div class="code-display" id="generatedCode" style="font-size: 14px; word-break: break-all;">-</div>
-       <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">Copy URL</button>
+       <p class="success-message" data-i18n="subUrlGenerated">Your subscription URL is ready</p>
+       <div class="code-display" id="generatedCode">-</div>
+       <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">Copy Subscription URL</button>
        <div class="modal-tips">
-         <p class="modal-tip">You can add this URL directly to your player</p>
-         <p class="modal-tip-highlight">You can view order details in your account page after closing</p>
+         <p class="modal-tip">Add this URL directly to your IPTV player</p>
+         <p class="modal-tip-highlight">View order details in your account after closing</p>
        </div>
      </div>
-    </div>
-    
-    <!-- Create Ticket Modal -->
-    <div id="createTicketModal" class="ticket-modal">
-      <div class="ticket-modal-content">
-        <div class="ticket-modal-header">
-          <h3 data-i18n="createNewTicket">Create New Ticket</h3>
-          <button class="ticket-modal-close" onclick="closeCreateTicketModal()">×</button>
-        </div>
-        <form id="createTicketForm">
-          <div class="form-group">
-            <label data-i18n="selectOrder">Select Order</label>
-            <select id="ticketOrderId" required>
-              <option value="" data-i18n="selectOrderPlaceholder">-- Select an order --</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label data-i18n="ticketType">Ticket Type</label>
-            <select id="ticketType" required>
-              <option value="payment" data-i18n="typePayment">Payment Issue</option>
-              <option value="order" data-i18n="typeOrder">Order Inquiry</option>
-              <option value="technical" data-i18n="typeTechnical">Technical Support</option>
-              <option value="other" data-i18n="typeOther">Other</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label data-i18n="ticketSubject">Subject</label>
-            <input type="text" id="ticketSubject" required maxlength="200" placeholder="Enter ticket subject">
-          </div>
-          <div class="form-group">
-            <label data-i18n="ticketDescription">Description</label>
-            <textarea id="ticketDescription" required placeholder="Describe your issue in detail"></textarea>
-          </div>
-          <div style="display: flex; gap: 12px; justify-content: flex-end;">
-            <button type="button" class="btn btn-secondary" onclick="closeCreateTicketModal()" data-i18n="cancel">Cancel</button>
-            <button type="submit" class="btn btn-primary" data-i18n="submitTicket">Submit Ticket</button>
-          </div>
-        </form>
-      </div>
-    </div>
-    
-    <!-- Ticket Detail Modal -->
-    <div id="ticketDetailModal" class="ticket-modal">
-      <div class="ticket-modal-content">
-        <div class="ticket-modal-header">
-          <h3 id="ticketDetailTitle">Ticket Details</h3>
-          <button class="ticket-modal-close" onclick="closeTicketDetailModal()">×</button>
-        </div>
-        <div id="ticketDetailContent"></div>
-        <div class="ticket-reply-form" id="ticketReplyForm">
-          <textarea id="replyContent" placeholder="Enter your reply..." style="width:100%;min-height:80px;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-primary);color:var(--text-primary);margin-bottom:12px;font-size:14px;"></textarea>
-          <div style="display:flex;gap:12px;justify-content:flex-end;">
-            <button type="button" class="btn btn-danger" onclick="closeTicketAction()" data-i18n="closeTicket">Close Ticket</button>
-            <button type="button" class="btn btn-primary" onclick="submitTicketReply()" data-i18n="sendReply">Send Reply</button>
-          </div>
-        </div>
-      </div>
-    </div>
+   </div>
+   
+   <!-- Create Ticket Modal -->
+   <div id="createTicketModal" class="ticket-modal">
+     <div class="ticket-modal-content">
+       <div class="ticket-modal-header">
+         <h3 data-i18n="createNewTicket">Create New Ticket</h3>
+         <button class="ticket-modal-close" onclick="closeCreateTicketModal()">×</button>
+       </div>
+       <form id="createTicketForm">
+         <div class="form-group">
+           <label data-i18n="selectOrder">Select Order</label>
+           <select id="ticketOrderId" required>
+             <option value="" data-i18n="selectOrderPlaceholder">-- Select an order --</option>
+           </select>
+         </div>
+         <div class="form-group">
+           <label data-i18n="ticketType">Ticket Type</label>
+           <select id="ticketType" required>
+             <option value="payment" data-i18n="typePayment">Payment Issue</option>
+             <option value="order" data-i18n="typeOrder">Order Inquiry</option>
+             <option value="technical" data-i18n="typeTechnical">Technical Support</option>
+             <option value="other" data-i18n="typeOther">Other</option>
+           </select>
+         </div>
+         <div class="form-group">
+           <label data-i18n="ticketSubject">Subject</label>
+           <input type="text" id="ticketSubject" required maxlength="200" placeholder="Brief description of your issue">
+         </div>
+         <div class="form-group">
+           <label data-i18n="ticketDescription">Description</label>
+           <textarea id="ticketDescription" required placeholder="Please describe your issue in detail..."></textarea>
+         </div>
+         <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+           <button type="button" class="btn btn-secondary" onclick="closeCreateTicketModal()" data-i18n="cancel">Cancel</button>
+           <button type="submit" class="btn btn-primary" data-i18n="submitTicket">Submit Ticket</button>
+         </div>
+       </form>
+     </div>
+   </div>
+   
+   <!-- Ticket Detail Modal -->
+   <div id="ticketDetailModal" class="ticket-modal">
+     <div class="ticket-modal-content">
+       <div class="ticket-modal-header">
+         <h3 id="ticketDetailTitle">Ticket Details</h3>
+         <button class="ticket-modal-close" onclick="closeTicketDetailModal()">×</button>
+       </div>
+       <div id="ticketDetailContent"></div>
+       <div class="ticket-reply-form" id="ticketReplyForm">
+         <textarea id="replyContent" placeholder="Type your reply here..."></textarea>
+         <div style="display: flex; gap: 12px; justify-content: flex-end;">
+           <button type="button" class="btn btn-danger" onclick="closeTicketAction()" data-i18n="closeTicket">Close Ticket</button>
+           <button type="button" class="btn btn-primary" onclick="submitTicketReply()" data-i18n="sendReply">Send Reply</button>
+         </div>
+       </div>
+     </div>
+   </div>
     
     <script>
     const API_BASE = '/api/auth';
