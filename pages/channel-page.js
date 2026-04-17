@@ -531,7 +531,13 @@ export function generateChannelPage(options = {}) {
       btn.innerHTML = '<span class="spinner"></span>';
       btn.disabled = true;
 
-      fetch('${origin}/api/play/link?hash=' + encodeURIComponent(CURRENT_CHANNEL_HASH))
+      const token = localStorage.getItem('auth_token');
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = 'Bearer ' + token;
+      }
+
+      fetch('${origin}/api/play/link?hash=' + encodeURIComponent(CURRENT_CHANNEL_HASH), { headers })
         .then(response => response.json())
         .then(data => {
           if (data.success && data.play_link) {

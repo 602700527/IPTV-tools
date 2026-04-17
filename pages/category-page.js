@@ -559,7 +559,12 @@ export function generateCategoryPage(options = {}) {
         
         // Process function for each channel
         const processChannel = async (ch) => {
-          const response = await fetch(origin + '/api/play/link?hash=' + encodeURIComponent(ch.hash));
+          const token = localStorage.getItem('auth_token');
+          const headers = {};
+          if (token) {
+            headers['Authorization'] = 'Bearer ' + token;
+          }
+          const response = await fetch(origin + '/api/play/link?hash=' + encodeURIComponent(ch.hash), { headers });
           const data = await response.json();
           let playUrl = data.play_link || (origin + '/play/error/' + ch.hash);
           const logo = ch.logo ? ' tvg-logo="' + ch.logo + '"' : '';

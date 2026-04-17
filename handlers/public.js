@@ -858,12 +858,51 @@ export async function handlePublicChannels(request, env, ctx) {
 export async function handlePublicPlay(request, env, ctx) {
   const url = new URL(request.url);
   const pathParts = url.pathname.split('/');
-  const hash = pathParts[3]; // /play/{hash}
-  const tokenParam = url.searchParams.get('token'); // 获取token参数
-  const fullBaseUrl = `${url.protocol}//${url.host}`; // 获取完整的 base URL
+  const action = pathParts[3] || ''; // /play/{action} 或 /play/{hash}
+  const fullBaseUrl = `${url.protocol}//${url.host}`;
 
   // 带Range头的请求不检查缓存，避免VLC的Range请求问题
   const hasRangeHeader = request.headers.has('Range');
+
+  // 处理 /api/play/link?hash=xxx - 返回播放链接
+  if (action === 'link') {
+    const hash = url.searchParams.get('hash');
+    if (!hash) {
+      return new Response(JSON.stringify({ success: false, error: 'Missing hash parameter' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 获取当前 token
+    const token = await getCurrentToken(env);
+    if (!token) {
+      return new Response(JSON.stringify({ success: false, error: 'Token not available' }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 验证用户是否登录（可选）
+    const db = getDB();
+    const userSession = await verifyUserSession(request, db);
+    const isVIP = userSession?.isVIP || false;
+
+    // VIP 用 vip 前缀（无广告），非会员用 fav 前缀（有广告）
+    const prefix = isVIP ? 'vip' : 'fav';
+
+    // 返回 token 格式的播放链接
+    const playLink = `${fullBaseUrl}/live/${prefix}/${token}/${hash}`;
+    return new Response(JSON.stringify({
+      success: true,
+      play_link: playLink
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  // 原有的 /play/{hash} 处理逻辑
+  const hash = action;
 
   if (!hash) {
     return new Response('Missing channel hash', { status: 400 });
