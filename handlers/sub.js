@@ -212,7 +212,18 @@ function sortChannels(channels) {
   return channels.sort((a, b) => {
     const groupA = a.group_title || '';
     const groupB = b.group_title || '';
-    // 先按分组名排序
+    
+    // 判断分组是否为中文（包含中文字符）
+    const isChineseGroup = (str) => /[\u4e00-\u9fa5]/.test(str);
+    const groupAIsChinese = isChineseGroup(groupA);
+    const groupBIsChinese = isChineseGroup(groupB);
+    
+    // 中文分组优先排在前面
+    if (groupAIsChinese !== groupBIsChinese) {
+      return groupAIsChinese ? -1 : 1;
+    }
+    
+    // 先按分组名排序（中文按拼音顺序）
     if (groupA !== groupB) {
       return groupA.localeCompare(groupB, 'zh-CN', { numeric: true });
     }
