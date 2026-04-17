@@ -289,34 +289,6 @@ export async function createTables(env) {
   // 创建已使用token索引
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_used_tokens_token ON used_tokens(token)').run();
 
-  // 创建公告表
-  await db.prepare(`
-    CREATE TABLE IF NOT EXISTS announcements (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT NOT NULL,
-      content TEXT NOT NULL,
-      enabled BOOLEAN DEFAULT 1,
-      display_frequency TEXT DEFAULT 'once',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `).run();
-
-  // 迁移：添加 display_frequency 字段（如果不存在）
-  try {
-    await db.prepare('ALTER TABLE announcements ADD COLUMN display_frequency TEXT DEFAULT \'once\'').run();
-    console.log('Migrated announcements table: added display_frequency column');
-  } catch (e) {
-    // 字段已存在，忽略错误
-    if (!e.message.includes('duplicate column name')) {
-      console.error('Migration error:', e);
-    }
-  }
-
-  // 创建公告索引
-  await db.prepare('CREATE INDEX IF NOT EXISTS idx_announcements_enabled ON announcements(enabled)').run();
-  await db.prepare('CREATE INDEX IF NOT EXISTS idx_announcements_updated ON announcements(updated_at DESC)').run();
-
   // 创建订阅IP记录表（记录卡密的订阅IP，用于验证播放请求）
   try {
     await db.prepare(`

@@ -183,7 +183,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab" onclick="showTab('security')">安全监控</button>
       <button class="nav-tab" onclick="showTab('ip-blacklist')">IP黑名单</button>
       <button class="nav-tab" onclick="showTab('domain-blacklist')">域名黑名单</button>
-      <button class="nav-tab" onclick="showTab('homepage-display')">首页展示</button>
       <button class="nav-tab" onclick="showTab('ad-management')">广告管理</button>
       <button class="nav-tab" onclick="showTab('system-settings')">系统设置</button>
     </div>
@@ -593,74 +592,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
       </div>
     </div>
-    <div id="homepage-display" class="tab-content">
-      <div class="card">
-        <div class="toolbar">
-          <h3>首页展示配置</h3>
-          <button class="btn btn-primary" onclick="saveHomepageDisplayConfig()">保存配置</button>
-        </div>
-        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
-          <p style="color:#86868b;margin-bottom:12px;">
-            配置首页展示哪些数据源、分类、host或请求头。留空表示展示全部数据。
-          </p>
-          <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius:4px;">
-            <strong style="color:#e65100;">注意：</strong>
-            <ul style="margin:8px 0 0 20px;color:#666;">
-              <li>数据源、分类、host、请求头四个条件是"或(OR)"关系，只要满足任一条件就会展示</li>
-              <li>例如：选择了数据源1和分类A，那么数据源1的所有频道和分类A的所有频道都会展示</li>
-              <li>"只显示有请求头"：只展示配置了 User-Agent、Referer 等请求头的频道</li>
-              <li>"只显示无请求头"：只展示未配置请求头的频道</li>
-              <li>域名部分会自动显示系统识别的域名，也支持手动输入域名</li>
-              <li>手动添加的域名可以点击"删除"按钮移除</li>
-              <li>清空所有选项后会展示所有频道数据</li>
-            </ul>
-          </div>
-        </div>
-
-        <div style="margin-bottom:24px;">
-          <h4 style="margin-bottom:12px;font-weight:600;">数据源</h4>
-          <div id="sourceCheckboxes" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
-            <div style="color:#86868b;">加载中...</div>
-          </div>
-        </div>
-
-        <div style="margin-bottom:24px;">
-          <h4 style="margin-bottom:12px;font-weight:600;">分类</h4>
-          <div id="groupCheckboxes" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
-            <div style="color:#86868b;">加载中...</div>
-          </div>
-        </div>
-
-        <div style="margin-bottom:24px;">
-          <h4 style="margin-bottom:12px;font-weight:600;">Host（域名）</h4>
-          <div style="margin-bottom:12px;display:flex;gap:8px;">
-            <input type="text" id="manualHostInput" placeholder="输入域名，例如：example.com" style="flex:1;padding:8px 12px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;">
-            <button class="btn btn-primary" onclick="addManualHost()">添加域名</button>
-          </div>
-          <div id="hostCheckboxes" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
-            <div style="color:#86868b;">加载中...</div>
-          </div>
-        </div>
-
-        <div style="margin-bottom:24px;">
-          <h4 style="margin-bottom:12px;font-weight:600;">是否含有请求头</h4>
-          <div style="display:flex;gap:16px;align-items:center;">
-            <label style="display:flex;align-items:center;padding:10px 20px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
-              <input type="radio" name="hasHeaders" value="null" checked onchange="updateHomepageConfig('hasHeaders', null)" style="margin-right:8px;">
-              <span style="font-size:14px;">全部</span>
-            </label>
-            <label style="display:flex;align-items:center;padding:10px 20px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
-              <input type="radio" name="hasHeaders" value="true" onchange="updateHomepageConfig('hasHeaders', true)" style="margin-right:8px;">
-              <span style="font-size:14px;">只显示有请求头</span>
-            </label>
-            <label style="display:flex;align-items:center;padding:10px 20px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
-              <input type="radio" name="hasHeaders" value="false" onchange="updateHomepageConfig('hasHeaders', false)" style="margin-right:8px;">
-              <span style="font-size:14px;">只显示无请求头</span>
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
     <div id="ad-management" class="tab-content">
       <div class="card">
         <div class="toolbar">
@@ -899,62 +830,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       </div>
     </div>
     <div id="system-settings" class="tab-content">
-      <div class="card">
-        <div class="toolbar">
-          <h3>公告管理</h3>
-          <div style="display:flex;gap:8px;">
-            <button class="btn btn-primary" onclick="saveAnnouncement()">保存公告</button>
-            <button class="btn" onclick="loadAnnouncement()">刷新公告</button>
-          </div>
-        </div>
-        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
-          <p style="color:#86868b;margin-bottom:12px;">
-            发布系统公告，公告将显示在首页顶部。支持选择预设模板快速编辑。
-          </p>
-
-          <div class="form-group" style="margin-bottom:16px;">
-            <label>公告状态</label>
-            <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
-              <input type="checkbox" id="announcementEnabled" checked style="margin-right:12px;">
-              <span style="font-size:14px;">启用公告</span>
-            </label>
-          </div>
-
-          <div class="form-group" style="margin-bottom:16px;">
-            <label>弹出频率</label>
-            <select class="filter-select" id="announcementFrequency" style="width:100%;">
-              <option value="once">仅一次（关闭后不再显示）</option>
-              <option value="daily">每天一次</option>
-              <option value="weekly">每周一次</option>
-              <option value="always">每次都显示</option>
-            </select>
-            <p style="margin-top:8px;color:#86868b;font-size:12px;">选择公告的显示频率。设置为"仅一次"时，用户关闭后不会再看到该公告。</p>
-          </div>
-
-          <div class="form-group" style="margin-bottom:16px;">
-            <label>快速模板</label>
-            <select class="filter-select" id="announcementTemplate" onchange="applyAnnouncementTemplate()" style="width:100%;">
-              <option value="">-- 选择模板 --</option>
-              <option value="update">系统更新通知</option>
-              <option value="maintenance">维护通知</option>
-              <option value="feature">新功能上线</option>
-              <option value="notice">重要提示</option>
-              <option value="custom">自定义内容</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>公告标题</label>
-            <input type="text" id="announcementTitleInput" placeholder="输入公告标题" style="width:100%;">
-          </div>
-
-          <div class="form-group">
-            <label>公告内容（支持HTML）</label>
-            <textarea id="announcementContentInput" rows="6" placeholder="输入公告内容" style="font-family:monospace;font-size:13px;"></textarea>
-            <p style="margin-top:8px;color:#86868b;font-size:12px;">支持HTML标签，如 &lt;p&gt;、&lt;br&gt;、&lt;strong&gt; 等</p>
-          </div>
-        </div>
-      </div>
       <div class="card">
         <div class="toolbar">
           <h3>缓存管理</h3>
@@ -1588,14 +1463,12 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       else if (tabName === 'domain-blacklist') {
         loadDomainBlacklist();
       }
-      else if (tabName === 'homepage-display') loadHomepageDisplayConfig();
       else if (tabName === 'ad-management') {
         loadAdTsFiles();
         loadAdBindings();
       }
       else if (tabName === 'system-settings') {
         loadSystemConfig();
-        loadAnnouncement(); // 加载公告
         loadCacheStatus(); // 加载缓存状态
         loadTokens(); // 加载 Token 列表
       }
