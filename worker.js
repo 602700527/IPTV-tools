@@ -14,7 +14,405 @@ async function generate404Page(request, env) {
   const url = new URL(request.url);
   const origin = url.protocol + '//' + url.host;
   const backUrl = origin + '/';
-  const html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>404 - Page Not Found | IPTV Search</title>\n  <style>\n    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0a0a0a; color: #fff; text-align: center; padding: 4rem 2rem; margin: 0; }\n    h1 { font-size: 6rem; margin-bottom: 1rem; color: #e50914; }\n    h2 { font-size: 1.5rem; margin-bottom: 1rem; }\n    p { color: #a0a0a0; max-width: 400px; margin: 0 auto 2rem; }\n    a { display: inline-block; padding: 0.75rem 2rem; background: #e50914; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; }\n    a:hover { background: #f6121d; }\n  </style>\n</head>\n<body>\n  <h1>404</h1>\n  <h2>Page Not Found</h2>\n  <p>The page you\'re looking for doesn\'t exist or has been moved.</p>\n  <a href="' + backUrl + '">Back to Home</a>\n</body>\n</html>';
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Lost Signal | IPTV Search</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-dark: #0a0a0f;
+      --bg-card: #12121a;
+      --accent: #e50914;
+      --accent-glow: rgba(229, 9, 20, 0.4);
+      --text-primary: #ffffff;
+      --text-secondary: #8a8a9a;
+      --gradient-red: linear-gradient(135deg, #e50914 0%, #b3070f 100%);
+    }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated background grid */
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        linear-gradient(rgba(229, 9, 20, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(229, 9, 20, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    /* Floating TV icons */
+    .floating-icons {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .tv-icon {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0.1;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .tv-icon:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+    .tv-icon:nth-child(2) { top: 20%; right: 15%; animation-delay: -5s; font-size: 1.5rem; }
+    .tv-icon:nth-child(3) { bottom: 30%; left: 20%; animation-delay: -10s; font-size: 2.5rem; }
+    .tv-icon:nth-child(4) { bottom: 15%; right: 10%; animation-delay: -15s; }
+    .tv-icon:nth-child(5) { top: 50%; left: 5%; animation-delay: -7s; font-size: 1.8rem; }
+    .tv-icon:nth-child(6) { top: 70%; right: 25%; animation-delay: -12s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-20px) rotate(5deg); }
+      50% { transform: translateY(0) rotate(0deg); }
+      75% { transform: translateY(20px) rotate(-5deg); }
+    }
+
+    /* Main content */
+    .container {
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+      z-index: 10;
+      max-width: 700px;
+    }
+
+    /* Glitch 404 text */
+    .error-code {
+      font-size: clamp(8rem, 20vw, 14rem);
+      font-weight: 900;
+      line-height: 1;
+      background: var(--gradient-red);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      animation: glitch 3s ease-in-out infinite;
+      text-shadow: 0 0 80px var(--accent-glow);
+    }
+
+    .error-code::before,
+    .error-code::after {
+      content: '404';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--gradient-red);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .error-code::before {
+      animation: glitch-1 2s ease-in-out infinite;
+      clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+    }
+
+    .error-code::after {
+      animation: glitch-2 2s ease-in-out infinite;
+      clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+    }
+
+    @keyframes glitch {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(2px, -2px); }
+      60% { transform: translate(-2px, -2px); }
+      80% { transform: translate(2px, 2px); }
+    }
+
+    @keyframes glitch-1 {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(4px, -2px); }
+      40% { transform: translate(-4px, 2px); }
+      60% { transform: translate(4px, 2px); }
+      80% { transform: translate(-4px, -2px); }
+    }
+
+    @keyframes glitch-2 {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-4px, 2px); }
+      40% { transform: translate(4px, -2px); }
+      60% { transform: translate(-4px, -2px); }
+      80% { transform: translate(4px, 2px); }
+    }
+
+    /* Headline */
+    .headline {
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 700;
+      margin: 1.5rem 0 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .headline-accent {
+      color: var(--accent);
+    }
+
+    /* Subtext */
+    .subtext {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 480px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .stat-icon {
+      width: 20px;
+      height: 20px;
+      opacity: 0.7;
+    }
+
+    .stat-number {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* CTA buttons */
+    .cta-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9rem 1.8rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--gradient-red);
+      color: white;
+      box-shadow: 0 4px 30px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 40px rgba(229, 9, 20, 0.5);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Quick links */
+    .quick-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .quick-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .quick-link:hover {
+      color: var(--accent);
+    }
+
+    .quick-link::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    /* Signal lost animation */
+    .signal-lost {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .signal-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.95); }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .stats-bar { gap: 1rem; }
+      .stat-item { font-size: 0.8rem; }
+      .cta-group { flex-direction: column; align-items: center; }
+      .btn { width: 100%; max-width: 280px; justify-content: center; }
+      .quick-links { flex-direction: column; align-items: center; gap: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <div class="floating-icons">
+    <div class="tv-icon">📺</div>
+    <div class="tv-icon">📺</div>
+    <div class="tv-icon">📺</div>
+    <div class="tv-icon">📺</div>
+    <div class="tv-icon">📺</div>
+    <div class="tv-icon">📺</div>
+  </div>
+
+  <div class="container">
+    <div class="signal-lost">
+      <svg class="signal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M5.64 5.64a9 9 0 0 1 12.72 0" stroke="#e50914" opacity="0.3"/>
+        <path d="M2.93 2.93a14 14 0 0 1 18.14 0" stroke="#e50914" opacity="0.2"/>
+        <path d="M8.5 8.5l7 7" stroke="#e50914" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="2" fill="#e50914"/>
+        <path d="M2 2l20 20" stroke="#e50914" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="error-code">404</div>
+
+    <h1 class="headline">Oops! <span class="headline-accent">Signal Lost</span></h1>
+
+    <p class="subtext">
+      This channel seems to have gone dark. But don't worry — we've got plenty more to keep you entertained. Let's get you back to watching!
+    </p>
+
+    <div class="stats-bar">
+      <div class="stat-item">
+        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="15" rx="2"/>
+          <polyline points="17 2 12 7 7 2"/>
+        </svg>
+        <span class="stat-number">10,000+</span> Channels
+      </div>
+      <div class="stat-item">
+        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 6v6l4 2"/>
+        </svg>
+        <span class="stat-number">24/7</span> Live TV
+      </div>
+      <div class="stat-item">
+        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        <span class="stat-number">5,000+</span> Happy Users
+      </div>
+    </div>
+
+    <div class="cta-group">
+      <a href="${backUrl}" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Back to Home
+      </a>
+      <a href="${origin}/favorites" class="btn btn-secondary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+        </svg>
+        My Favorites
+      </a>
+      <a href="${origin}/plans" class="btn btn-secondary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+        View Plans
+      </a>
+    </div>
+
+    <div class="quick-links">
+      <a href="${origin}/" class="quick-link">Browse All Channels</a>
+      <a href="${origin}/category/cctv" class="quick-link">CCTV Channels</a>
+      <a href="${origin}/category/sports" class="quick-link">Sports</a>
+      <a href="${origin}/category/news" class="quick-link">News</a>
+    </div>
+  </div>
+</body>
+</html>`;
   return new Response(html, {
     status: 404,
     headers: { 'Content-Type': 'text/html; charset=utf-8' }
