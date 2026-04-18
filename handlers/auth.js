@@ -875,7 +875,7 @@ export async function checkMemberStatus(userId, db) {
       return false;
     }
 
-    // 检查用户是否有有效的订阅订单（状态为completed且关联的卡密未过期）
+    // 检查用户是否有有效的订阅订单（状态为completed且关联的卡密未过期或永久）
     const now = new Date().toISOString();
     const result = await db.prepare(`
       SELECT o.id
@@ -883,7 +883,7 @@ export async function checkMemberStatus(userId, db) {
       JOIN codes c ON o.code = c.code
       WHERE o.user_id = ?
         AND o.status = 'completed'
-        AND c.expired_at > ?
+        AND (c.expired_at IS NULL OR c.expired_at > ?)
       LIMIT 1
     `).bind(userId, now).first();
 
