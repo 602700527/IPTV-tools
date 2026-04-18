@@ -51,26 +51,26 @@ export const content = `
           <h3>🇬🇧 UK</h3>
           <p>BBC, ITV, Sky News</p>
         </a>
-        <a href="/category/French" class="country-card">
-          <h3>🇫🇷 French</h3>
+        <div class="country-card">
+          <h3>🇫🇷 France</h3>
           <p>TF1, France 24</p>
-        </a>
-        <a href="/category/German" class="country-card">
-          <h3>🇩🇪 German</h3>
+        </div>
+        <div class="country-card">
+          <h3>🇩🇪 Germany</h3>
           <p>ARD, ZDF, RTL</p>
-        </a>
-        <a href="/category/Italian" class="country-card">
-          <h3>🇮🇹 Italian</h3>
+        </div>
+        <div class="country-card">
+          <h3>🇮🇹 Italy</h3>
           <p>RAI, Mediaset</p>
-        </a>
-        <a href="/category/Spanish" class="country-card">
-          <h3>🇪🇸 Spanish</h3>
+        </div>
+        <div class="country-card">
+          <h3>🇪🇸 Spain</h3>
           <p>TVE, Telecinco</p>
-        </a>
-        <a href="/category/Portuguese" class="country-card">
-          <h3>🇵🇹 Portuguese</h3>
+        </div>
+        <div class="country-card">
+          <h3>🇵🇹 Portugal</h3>
           <p>RTP, SIC</p>
-        </a>
+        </div>
       </div>
     </div>
 
@@ -95,7 +95,7 @@ export const content = `
     <div class="cta-section">
       <h2>Start Watching European TV Now</h2>
       <p>Get instant access to all European IPTV channels for free</p>
-      <a href="/free-iptv-trial" class="cta-btn">Free IPTV Trial</a>
+      <a href="/freesub" class="cta-btn">Free IPTV Trial</a>
     </div>
   </div>
 </div>

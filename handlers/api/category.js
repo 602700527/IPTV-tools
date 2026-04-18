@@ -57,12 +57,12 @@ export async function handleApiCategory(request, env) {
     // Filter channels by this group
     const categoryChannels = channels.filter(ch => ch.group_title === matchedGroup);
 
-    // Build JSON-LD ItemList
+    // Build JSON-LD ItemList (using slug for SEO-friendly URLs)
     const itemListElement = categoryChannels.map((ch, index) => ({
       '@type': 'ListItem',
       'position': index + 1,
       'name': ch.channel_name,
-      'url': `${env.APP_URL || 'https://iptv-search.com'}/channel/${ch.channel_hash}`,
+      'url': `${env.APP_URL || 'https://iptv-search.com'}/channel/${slugify(ch.channel_name)}`,
       'image': ch.logo || null,
       'description': ch.group_title || 'Other'
     }));
@@ -78,6 +78,7 @@ export async function handleApiCategory(request, env) {
         channelCount: categoryChannels.length,
         channels: categoryChannels.map(ch => ({
           name: ch.channel_name,
+          slug: slugify(ch.channel_name),
           hash: ch.channel_hash,
           group: ch.group_title,
           logo: ch.logo

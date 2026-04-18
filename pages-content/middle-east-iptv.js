@@ -49,22 +49,22 @@ export const content = `
     <div class="section">
       <h2 class="section-title">Popular Arabic Countries</h2>
       <div class="country-grid">
-        <a href="/category/Arabic" class="country-card">
+        <div class="country-card">
           <h3>🇸🇦 Arabic</h3>
           <p>MBC, beIN, OSN</p>
-        </a>
-        <a href="/category/Africa" class="country-card">
-          <h3>🇪🇬 Africa</h3>
+        </div>
+        <div class="country-card">
+          <h3>🇪🇬 Egypt</h3>
           <p>Nile TV, Canal+, OSN</p>
-        </a>
-        <a href="/category/Turkish" class="country-card">
-          <h3>🇹🇷 Turkish</h3>
+        </div>
+        <div class="country-card">
+          <h3>🇹🇷 Turkey</h3>
           <p>Digiturk, beIN Türkiye</p>
-        </a>
-        <a href="/category/Iranian" class="country-card">
-          <h3>🇮🇷 Iranian</h3>
+        </div>
+        <div class="country-card">
+          <h3>🇮🇷 Iran</h3>
           <p>Persian TV, MBC Persia</p>
-        </a>
+        </div>
       </div>
     </div>
 
@@ -89,7 +89,7 @@ export const content = `
     <div class="cta-section">
       <h2>Start Watching Now</h2>
       <p>Get instant access to all Middle East IPTV channels for free</p>
-      <a href="/free-iptv-trial" class="cta-btn">Free IPTV Trial</a>
+      <a href="/freesub" class="cta-btn">Free IPTV Trial</a>
     </div>
   </div>
 </div>

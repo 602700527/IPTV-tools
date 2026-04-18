@@ -408,6 +408,42 @@ export const FREE_SUB_HTML = `
       to { transform: rotate(360deg); }
     }
 
+    /* VIP升级提示 */
+    .vip-hint-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 20px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .vip-hint-bar a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .vip-hint-bar a:hover {
+      color: var(--accent-hover);
+    }
+
+    @media (max-width: 768px) {
+      .vip-hint-bar {
+        flex-direction: column;
+        gap: 6px;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+        font-size: 13px;
+      }
+    }
+
     
 
     @media (max-width: 768px) {
@@ -558,6 +594,12 @@ export const FREE_SUB_HTML = `
             <div class="status-label" data-i18n="channelCountLabel">Channels</div>
           </div>
         </div>
+      </div>
+
+      <!-- VIP升级提示 -->
+      <div class="vip-hint-bar">
+        <span>No ads · Full channel access</span>
+        <a href="/plans">Go VIP →</a>
       </div>
 
       <div class="card checkin-section">

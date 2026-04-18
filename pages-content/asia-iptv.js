@@ -47,30 +47,30 @@ export const content = `
     <div class="section">
       <h2 class="section-title">Popular Asian Countries</h2>
       <div class="country-grid">
-        <a href="/category/Chinese" class="country-card">
-          <h3>🇨🇳 Chinese</h3>
+        <div class="country-card">
+          <h3>🇨🇳 China</h3>
           <p>CCTV, Phoenix TV</p>
-        </a>
-        <a href="/category/Japanese" class="country-card">
-          <h3>🇯🇵 Japanese</h3>
+        </div>
+        <div class="country-card">
+          <h3>🇯🇵 Japan</h3>
           <p>NHK, TV Asahi</p>
-        </a>
-        <a href="/category/Korean" class="country-card">
-          <h3>🇰🇷 Korean</h3>
+        </div>
+        <div class="country-card">
+          <h3>🇰🇷 Korea</h3>
           <p>KBS, MBC, SBS</p>
-        </a>
-        <a href="/category/Indian" class="country-card">
-          <h3>🇮🇳 Indian</h3>
+        </div>
+        <div class="country-card">
+          <h3>🇮🇳 India</h3>
           <p>Star TV, Zee TV</p>
-        </a>
-        <a href="/category/Filipino" class="country-card">
-          <h3>🇵🇭 Filipino</h3>
+        </div>
+        <div class="country-card">
+          <h3>🇵🇭 Philippines</h3>
           <p>GMA, ABS-CBN</p>
-        </a>
-        <a href="/category/Vietnamese" class="country-card">
-          <h3>🇻🇳 Vietnamese</h3>
+        </div>
+        <div class="country-card">
+          <h3>🇻🇳 Vietnam</h3>
           <p>VTV, HTV</p>
-        </a>
+        </div>
       </div>
     </div>
 
@@ -95,7 +95,7 @@ export const content = `
     <div class="cta-section">
       <h2>Start Watching Asian TV Now</h2>
       <p>Get instant access to all Asian IPTV channels for free</p>
-      <a href="/free-iptv-trial" class="cta-btn">Free IPTV Trial</a>
+      <a href="/freesub" class="cta-btn">Free IPTV Trial</a>
     </div>
   </div>
 </div>

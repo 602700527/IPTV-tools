@@ -1030,9 +1030,9 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/debug') {
       // 调试接口 - 查看频道headers信息
       return await handleChannelDebug(request, env, ctx);
-    } else if (path === '/api/channels/m3u') {
-      // M3U 文件生成 API（服务端生成，不暴露 token）
-      return await handleChannelsM3U(request, env, ctx);
+      } else if (path === '/api/channels/m3u') {
+        // M3U 文件生成 API（服务端生成，不暴露 token）
+        return await handleChannelsM3U(request, env, ctx);
     } else if (path.startsWith('/api/play/')) {
       // 公开播放API（无需卡密）
       return await handlePublicPlay(request, env, ctx);

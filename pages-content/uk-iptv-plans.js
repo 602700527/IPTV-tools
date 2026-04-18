@@ -120,21 +120,26 @@ export const content = `
   </div>
 </div>
 <script>
-(async function() {
-  try {
-    const res = await fetch('/api/channels?group=United%20Kingdom&page_size=50');
-    const data = await res.json();
-    const container = document.getElementById('channelList');
-    if (data.success && data.channels && data.channels.length > 0) {
-      container.innerHTML = data.channels.map(ch => 
-        '<a href="/channel/' + ch.channel_hash + '" class="channel-item"><span class="name">' + ch.channel_name + '</span></a>'
-      ).join('');
-    } else {
-      container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;padding:2rem;grid-column:1/-1">No channels available</p>';
-    }
-  } catch(e) {
-    document.getElementById('channelList').innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;padding:2rem;grid-column:1/-1">Failed to load</p>';
-  }
+(function() {
+  fetch('/api/category/United-Kingdom')
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      var container = document.getElementById('channelList');
+      var channels = data.data && data.data.channels ? data.data.channels : [];
+      if (channels.length > 0) {
+        // 随机打乱并取前50个
+        channels.sort(function() { return Math.random() - 0.5; });
+        channels = channels.slice(0, 50);
+        container.innerHTML = channels.map(function(ch) {
+          return '<a href="/channel/' + ch.slug + '" class="channel-item"><span class="name">' + ch.name + '</span></a>';
+        }).join('');
+      } else {
+        container.innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;padding:2rem;grid-column:1/-1">No channels available</p>';
+      }
+    })
+    .catch(function() {
+      document.getElementById('channelList').innerHTML = '<p style="color:rgba(255,255,255,0.5);text-align:center;padding:2rem;grid-column:1/-1">Failed to load</p>';
+    });
 })();
 </script>
 `;

@@ -47,14 +47,14 @@ export const content = `
     <div class="section">
       <h2 class="section-title">Popular Oceania Countries</h2>
       <div class="country-grid">
-        <a href="/category/Australian" class="country-card">
-          <h3>🇦🇺 Australian</h3>
+        <div class="country-card">
+          <h3>🇦🇺 Australia</h3>
           <p>ABC, SBS, Nine, Seven</p>
-        </a>
-        <a href="/category/NewZealand" class="country-card">
+        </div>
+        <div class="country-card">
           <h3>🇳🇿 New Zealand</h3>
           <p>TVNZ, Sky Sport</p>
-        </a>
+        </div>
       </div>
     </div>
 
@@ -79,7 +79,7 @@ export const content = `
     <div class="cta-section">
       <h2>Start Watching Oceania TV Now</h2>
       <p>Get instant access to all Oceania IPTV channels for free</p>
-      <a href="/free-iptv-trial" class="cta-btn">Free IPTV Trial</a>
+      <a href="/freesub" class="cta-btn">Free IPTV Trial</a>
     </div>
   </div>
 </div>

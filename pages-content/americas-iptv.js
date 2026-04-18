@@ -51,22 +51,22 @@ export const content = `
           <h3>🇺🇸 USA</h3>
           <p>CNN, ESPN, HBO</p>
         </a>
-        <a href="/category/Canadian" class="country-card">
+        <div class="country-card">
           <h3>🇨🇦 Canada</h3>
           <p>CBC, TSN, CTV</p>
-        </a>
-        <a href="/category/Brazilian" class="country-card">
-          <h3>🇧🇷 Brazilian</h3>
+        </div>
+        <div class="country-card">
+          <h3>🇧🇷 Brazil</h3>
           <p>Globo, Record</p>
-        </a>
-        <a href="/category/Mexican" class="country-card">
-          <h3>🇲🇽 Mexican</h3>
+        </div>
+        <div class="country-card">
+          <h3>🇲🇽 Mexico</h3>
           <p>Televisa, TV Azteca</p>
-        </a>
-        <a href="/category/LatinAmerican" class="country-card">
-          <h3>🌎 Latin</h3>
+        </div>
+        <div class="country-card">
+          <h3>🌎 Latin America</h3>
           <p>Univision, Telemundo</p>
-        </a>
+        </div>
       </div>
     </div>
 
@@ -91,7 +91,7 @@ export const content = `
     <div class="cta-section">
       <h2>Start Watching American TV Now</h2>
       <p>Get instant access to all Americas IPTV channels for free</p>
-      <a href="/free-iptv-trial" class="cta-btn">Free IPTV Trial</a>
+      <a href="/freesub" class="cta-btn">Free IPTV Trial</a>
     </div>
   </div>
 </div>
