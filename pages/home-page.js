@@ -185,6 +185,22 @@ export function generateHomePage(options = {}) {
     .topic-title { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; }
     .topic-desc { font-size: 0.75rem; color: var(--text-muted); }
 
+    /* Regional Topics Section */
+    .regional-topics { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    .regional-topics-header { text-align: center; margin-bottom: 1.5rem; }
+    .regional-topics-header h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--text-primary); }
+    .regional-topics-header p { color: var(--text-secondary); font-size: 0.9rem; }
+    .regional-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+    .regional-card {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 1.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; text-decoration: none; transition: all 0.25s ease; cursor: pointer;
+    }
+    .regional-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(229, 9, 20, 0.15); }
+    .regional-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .regional-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; }
+    .regional-desc { font-size: 0.8rem; color: var(--text-muted); text-align: center; }
+
     @media (max-width: 768px) {
       .header { padding: 0.5rem 0.75rem; }
       .header-inner { flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; }
@@ -215,9 +231,21 @@ export function generateHomePage(options = {}) {
       .topic-icon { font-size: 1.5rem; }
       .topic-title { font-size: 0.85rem; }
       .topic-desc { font-size: 0.7rem; }
+      .regional-topics { padding: 1.5rem 1rem; }
+      .regional-topics-header h2 { font-size: 1.25rem; }
+      .regional-grid { grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+      .regional-card { padding: 1rem 0.5rem; }
+      .regional-icon { font-size: 2rem; }
+      .regional-title { font-size: 0.9rem; }
+      .regional-desc { font-size: 0.7rem; }
     }
     @media (max-width: 480px) {
       .hot-topics-grid { grid-template-columns: repeat(2, 1fr); }
+      .regional-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+      .regional-card { padding: 0.75rem 0.5rem; }
+      .regional-icon { font-size: 1.75rem; }
+      .regional-title { font-size: 0.85rem; }
+      .regional-desc { font-size: 0.65rem; }
     }
   </style>
 </head>
@@ -273,6 +301,40 @@ export function generateHomePage(options = {}) {
         <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg></span>
         <span class="topic-title">Free IPTV</span>
         <span class="topic-desc">App Reviews</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="regional-topics">
+    <div class="regional-topics-header">
+      <h2>Explore by Region</h2>
+      <p>Free IPTV channels from around the world</p>
+    </div>
+    <div class="regional-grid">
+      <a href="/americas-iptv" class="regional-card">
+        <span class="regional-icon">🌎</span>
+        <span class="regional-title">Americas</span>
+        <span class="regional-desc">USA, Canada, Brazil</span>
+      </a>
+      <a href="/europe-iptv" class="regional-card">
+        <span class="regional-icon">🌍</span>
+        <span class="regional-title">Europe</span>
+        <span class="regional-desc">UK, France, Germany</span>
+      </a>
+      <a href="/asia-iptv" class="regional-card">
+        <span class="regional-icon">🌏</span>
+        <span class="regional-title">Asia</span>
+        <span class="regional-desc">China, Japan, Korea</span>
+      </a>
+      <a href="/middle-east-iptv" class="regional-card">
+        <span class="regional-icon">🌍</span>
+        <span class="regional-title">Middle East</span>
+        <span class="regional-desc">Arabic, Turkish</span>
+      </a>
+      <a href="/oceania-iptv" class="regional-card">
+        <span class="regional-icon">🌏</span>
+        <span class="regional-title">Oceania</span>
+        <span class="regional-desc">Australia, NZ</span>
       </a>
     </div>
   </section>

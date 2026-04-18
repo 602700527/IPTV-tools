@@ -1,7 +1,7 @@
 // IPTV Subscription Landing Page
-const year = new Date().getFullYear();
-export const pageTitle = `Best IPTV Providers ${year} - Compare Top IPTV Services & Subscriptions`;
-export const pageDescription = `Compare the best IPTV providers in ${year}. Find reliable IPTV services with 8000+ channels, HD quality, and affordable subscriptions. Trusted IPTV providers reviewed.`;
+// Note: Year is hardcoded to avoid Cloudflare Workers edge runtime Date issues
+export const pageTitle = 'Best IPTV Providers 2026 - Compare Top IPTV Services & Subscriptions';
+export const pageDescription = 'Compare the best IPTV providers in 2026. Find reliable IPTV services with 8000+ channels, HD quality, and affordable subscriptions. Trusted IPTV providers reviewed.';
 
 export const styles = `
 *{margin:0;padding:0;box-sizing:border-box}

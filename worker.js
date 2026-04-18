@@ -478,6 +478,11 @@ import { pageTitle as usaIptvTitle, pageDescription as usaIptvDesc, styles as us
 import { pageTitle as ukIptvTitle, pageDescription as ukIptvDesc, styles as ukIptvStyles, content as ukIptvContent } from './pages-content/uk-iptv-plans.js';
 import { pageTitle as androidIptvTitle, pageDescription as androidIptvDesc, styles as androidIptvStyles, content as androidIptvContent } from './pages-content/android-iptv-app.js';
 import { pageTitle as freeIptvTitle, pageDescription as freeIptvDesc, styles as freeIptvStyles, content as freeIptvContent } from './pages-content/free-iptv-app-review.js';
+import { pageTitle as middleEastIptvTitle, pageDescription as middleEastIptvDesc, styles as middleEastIptvStyles, content as middleEastIptvContent } from './pages-content/middle-east-iptv.js';
+import { pageTitle as asiaIptvTitle, pageDescription as asiaIptvDesc, styles as asiaIptvStyles, content as asiaIptvContent } from './pages-content/asia-iptv.js';
+import { pageTitle as europeIptvTitle, pageDescription as europeIptvDesc, styles as europeIptvStyles, content as europeIptvContent } from './pages-content/europe-iptv.js';
+import { pageTitle as americasIptvTitle, pageDescription as americasIptvDesc, styles as americasIptvStyles, content as americasIptvContent } from './pages-content/americas-iptv.js';
+import { pageTitle as oceaniaIptvTitle, pageDescription as oceaniaIptvDesc, styles as oceaniaIptvStyles, content as oceaniaIptvContent } from './pages-content/oceania-iptv.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 import { getSitemapFromCache } from './utils/channel-cache.js';
@@ -1336,7 +1341,12 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           { loc: '/usa-iptv', priority: '0.8', changefreq: 'weekly' },
           { loc: '/uk-iptv-plans', priority: '0.8', changefreq: 'weekly' },
           { loc: '/android-iptv-app', priority: '0.8', changefreq: 'weekly' },
-          { loc: '/free-iptv-app-review', priority: '0.8', changefreq: 'weekly' }
+          { loc: '/free-iptv-app-review', priority: '0.8', changefreq: 'weekly' },
+          { loc: '/middle-east-iptv', priority: '0.8', changefreq: 'weekly' },
+          { loc: '/asia-iptv', priority: '0.8', changefreq: 'weekly' },
+          { loc: '/europe-iptv', priority: '0.8', changefreq: 'weekly' },
+          { loc: '/americas-iptv', priority: '0.8', changefreq: 'weekly' },
+          { loc: '/oceania-iptv', priority: '0.8', changefreq: 'weekly' }
         ];
 
         staticPages.forEach(page => {
@@ -1481,6 +1491,31 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/free-iptv-app-review') {
       // 免费 IPTV App 评测页
       return new Response(generateStaticPage(freeIptvTitle, freeIptvDesc, freeIptvStyles, freeIptvContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/middle-east-iptv') {
+      // Middle East IPTV 落地页
+      return new Response(generateStaticPage(middleEastIptvTitle, middleEastIptvDesc, middleEastIptvStyles, middleEastIptvContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/asia-iptv') {
+      // Asia IPTV 落地页
+      return new Response(generateStaticPage(asiaIptvTitle, asiaIptvDesc, asiaIptvStyles, asiaIptvContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/europe-iptv') {
+      // Europe IPTV 落地页
+      return new Response(generateStaticPage(europeIptvTitle, europeIptvDesc, europeIptvStyles, europeIptvContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/americas-iptv') {
+      // Americas IPTV 落地页
+      return new Response(generateStaticPage(americasIptvTitle, americasIptvDesc, americasIptvStyles, americasIptvContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/oceania-iptv') {
+      // Oceania IPTV 落地页
+      return new Response(generateStaticPage(oceaniaIptvTitle, oceaniaIptvDesc, oceaniaIptvStyles, oceaniaIptvContent), {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     } else if (path.startsWith('/api/freesub')) {

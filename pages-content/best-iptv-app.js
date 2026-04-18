@@ -1,7 +1,7 @@
 // Best IPTV App Landing Page
-const year = new Date().getFullYear();
-export const pageTitle = `Best IPTV Apps & M3U8 Players ${year} - Top IPTV Players for Streaming`;
-export const pageDescription = `Discover the best IPTV apps and M3U8 players in ${year}. Compare top-rated IPTV Smarters, Perfect Player, GSE IPTV and more. Compatible with Smart TV, Android, iOS devices.`;
+// Note: Year is hardcoded to avoid Cloudflare Workers edge runtime Date issues
+export const pageTitle = 'Best IPTV Apps & M3U8 Players 2026 - Top IPTV Players for Streaming';
+export const pageDescription = 'Discover the best IPTV apps and M3U8 players in 2026. Compare top-rated IPTV Smarters, Perfect Player, GSE IPTV and more. Compatible with Smart TV, Android, iOS devices.';
 
 export const styles = `
 *{margin:0;padding:0;box-sizing:border-box}

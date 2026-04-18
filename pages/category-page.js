@@ -93,11 +93,11 @@ export function generateCategoryPage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(category)} Channels | IPTV Search</title>
-  <meta name="description" content="Explore ${escapeHtml(category)} live TV channels on our free IPTV Search Engine. Browse by country, genre - no signup required.">
+  <title>${escapeHtml(category)} IPTV Free - Live ${escapeHtml(category)} TV Channels Streaming</title>
+  <meta name="description" content="Watch free ${escapeHtml(category)} IPTV channels online. ${escapeHtml(category)} live TV streaming with no signup required. Compatible with IPTV Smarters, VLC, and all major players.">
   <link rel="canonical" href="${origin}/category/${encodeURIComponent(slug)}">
-  <meta property="og:title" content="${escapeHtml(category)} Channels | IPTV Search">
-  <meta property="og:description" content="Explore ${escapeHtml(category)} live TV channels on our free IPTV Search Engine.">
+  <meta property="og:title" content="${escapeHtml(category)} IPTV Free - Live ${escapeHtml(category)} TV Channels">
+  <meta property="og:description" content="Watch free ${escapeHtml(category)} IPTV channels online. Live ${escapeHtml(category)} TV streaming with no signup required.">
    <meta property="og:type" content="website">
    <meta property="og:url" content="${origin}/category/${encodeURIComponent(slug)}">
 
