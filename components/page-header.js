@@ -1,5 +1,14 @@
 // 通用网页头部组件（完整版）
 export const PAGE_HEADER = `
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MB15P52H01"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MB15P52H01');
+  </script>
+
   <header class="header">
     <div class="header-inner">
       <a href="/" class="logo">
