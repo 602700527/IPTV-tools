@@ -10,8 +10,8 @@ export const FREE_SUB_HTML = `
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title data-i18n-title="pageTitle">Free IPTV Trial - Get Instant Access to Live TV Streaming</title>
-  <meta name="description" content="Start your free IPTV trial today. Get instant access to 8000+ live TV channels with no registration required. Compatible with IPTV Smarters, VLC, and all major IPTV players.">
+  <title data-i18n-title="pageTitle">Free IPTV Trial - 8000+ Free Live TV Streaming Channels</title>
+  <meta name="description" content="Start your free IPTV trial today. Get instant access to 8000+ live TV streaming channels with no registration required. Watch free IPTV on IPTV Smarters, VLC, and all major players.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://iptv-search.com/free-iptv-trial">
   <link rel="alternate" hreflang="zh-CN" href="https://iptv-search.com/freesub">
@@ -525,8 +525,8 @@ export const FREE_SUB_HTML = `
         <div class="notice-content">
           <span class="notice-icon">⚠️</span>
           <div class="notice-text">
-            <strong data-i18n="noticeLabel">Note:</strong>
-            <span data-i18n="noticeText">Subscription URL is bound to your IP and browser, please do not share with others</span>
+            <strong data-i18n="noticeLabel">Important:</strong>
+            <span data-i18n="noticeText">Your free IPTV subscription URL is bound to your IP and browser fingerprint. Please do not share with others to avoid losing access.</span>
           </div>
         </div>
       </div>

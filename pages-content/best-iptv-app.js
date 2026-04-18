@@ -1,6 +1,7 @@
 // Best IPTV App Landing Page
-export const pageTitle = 'Best IPTV Apps 2024 - Top-Rated IPTV Players for Streaming';
-export const pageDescription = 'Discover the best IPTV apps of 2024. Compare top-rated IPTV players like IPTV Smarters, Perfect Player, and more. Find the perfect app for your device.';
+const year = new Date().getFullYear();
+export const pageTitle = `Best IPTV Apps & M3U8 Players ${year} - Top IPTV Players for Streaming`;
+export const pageDescription = `Discover the best IPTV apps and M3U8 players in ${year}. Compare top-rated IPTV Smarters, Perfect Player, GSE IPTV and more. Compatible with Smart TV, Android, iOS devices.`;
 
 export const styles = `
 *{margin:0;padding:0;box-sizing:border-box}

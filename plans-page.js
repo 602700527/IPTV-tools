@@ -3,13 +3,15 @@ import { PAGE_HEADER } from './components/page-header.js';
 import { PAGE_FOOTER } from './components/page-footer.js';
 import { HEAD_SCRIPTS } from './components/head-scripts.js';
 
+const year = new Date().getFullYear();
+
 export const PLANS_HTML = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title data-i18n-title="pageTitle">Cheap IPTV Service 2024 - Affordable Live TV Streaming Plans</title>
+  <title data-i18n-title="pageTitle">Cheap IPTV Service ${year} - Affordable Live TV Streaming Plans</title>
   <meta name="description" content="Looking for cheap IPTV? Get budget-friendly IPTV plans with 8000+ live channels starting from $9.99/month. No hidden fees, cancel anytime. Best value IPTV service.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://iptv-search.com/plans">

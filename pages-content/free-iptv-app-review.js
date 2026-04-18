@@ -1,6 +1,7 @@
 // Free IPTV App Review Landing Page
-export const pageTitle = 'Best Free IPTV Apps 2024 - Top Free IPTV Players Reviewed';
-export const pageDescription = 'Comprehensive review of free IPTV apps. Featuring Kodi, VLC, GSE IPTV and more. Feature comparison, pros & cons analysis, and download links. Watch live TV for free!';
+const year = new Date().getFullYear();
+export const pageTitle = `Best Free IPTV Apps ${year} - Top Free IPTV Players Reviewed`;
+export const pageDescription = `Comprehensive review of free IPTV apps in ${year}. Featuring Kodi, VLC, GSE IPTV and more. Feature comparison, pros & cons analysis, and download links. Watch live TV for free!`;
 
 export const styles = `
 *{margin:0;padding:0;box-sizing:border-box}

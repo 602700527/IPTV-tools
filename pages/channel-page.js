@@ -150,12 +150,12 @@ export function generateChannelPage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(channel.name)} | IPTV Search</title>
-  <meta name="description" content="Watch ${escapeHtml(channel.name)} live. Free IPTV streaming. No registration required.">
+  <title>${escapeHtml(channel.name)} - ${escapeHtml(channel.group || 'Live TV')} IPTV Link & Streaming</title>
+  <meta name="description" content="Watch ${escapeHtml(channel.name)} live with free IPTV link. ${escapeHtml(channel.group)} channel streaming. No signup required. Compatible with IPTV Smarters, VLC, M3U players.">
   <link rel="canonical" href="${origin}/channel/${channelSlug}">
   <meta property="og:url" content="${origin}/channel/${channelSlug}">
-  <meta property="og:title" content="${escapeHtml(channel.name)} - Watch Live">
-  <meta property="og:description" content="Watch ${escapeHtml(channel.name)} live on IPTV Search Engine. Free, no signup required.">
+  <meta property="og:title" content="${escapeHtml(channel.name)} - ${escapeHtml(channel.group || 'Live TV')} IPTV Link">
+  <meta property="og:description" content="Watch ${escapeHtml(channel.name)} live. Free IPTV streaming with instant M3U link access. No registration required.">
   ${channel.logo ? '<meta property="og:image" content="' + escapeHtml(channel.logo) + '">' : ''}
   <meta property="og:type" content="video.other">
 

@@ -10,15 +10,15 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title data-i18n-title="pageTitle">Subscription - TV Live Service</title>
-  <meta name="description" content="Subscribe to TV Live Service for unlimited access to live TV channels. Choose a plan that fits your needs.">
-  <meta name="robots" content="noindex, follow">
+  <title data-i18n-title="pageTitle">IPTV M3U Links - Get Your M3U Playlist & IPTV Subscription</title>
+  <meta name="description" content="Get instant IPTV M3U links with your subscription. Access 8000+ live TV streaming channels. Download M3U playlist compatible with all IPTV players. No registration required.">
+  <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://iptv-search.com/subscription">
   <link rel="alternate" hreflang="en" href="https://iptv-search.com/subscription">
   <link rel="alternate" hreflang="zh-CN" href="https://iptv-search.com/subscription?lang=zh-CN">
   <link rel="alternate" hreflang="x-default" href="https://iptv-search.com/subscription">
-  <meta property="og:title" content="Subscription - TV Live Service">
-  <meta property="og:description" content="Subscribe to TV Live Service for unlimited access to live TV channels. Choose a plan that fits your needs.">
+  <meta property="og:title" content="IPTV M3U Links - Get Your M3U Playlist & IPTV Subscription">
+  <meta property="og:description" content="Get instant IPTV M3U links. Access 8000+ live TV channels. Download M3U playlist for IPTV Smarters, VLC, and more.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com/subscription">
   <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
