@@ -1,6 +1,6 @@
 // Android IPTV App Landing Page
-export const pageTitle = 'Best Android IPTV Apps 2024 - Top IPTV Players for Android Phone/Tablet';
-export const pageDescription = 'Discover the best Android IPTV apps in 2024. Featuring Televizo, IPTV Smarters Pro, TiviMate and more. Compatible with Android phones, tablets, and Android TV.';
+export const pageTitle = 'Best IPTV Apps for Android & Smart TV 2024 - Top IPTV Players';
+export const pageDescription = 'Discover the best IPTV apps for Android phones, tablets, and Smart TV in 2024. Featuring IPTV Smarters Pro, TiviMate, Televizo and more. Works on Samsung, LG, Sony Smart TVs.';
 
 export const styles = `
 *{margin:0;padding:0;box-sizing:border-box}
