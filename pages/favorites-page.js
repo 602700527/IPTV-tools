@@ -1,6 +1,7 @@
 // Favorites Page - Client-side rendered from localStorage
 import { PAGE_HEADER } from '../components/page-header.js';
 import { PAGE_FOOTER } from '../components/page-footer.js';
+import { HEAD_SCRIPTS } from '../components/head-scripts.js';
 
 export function generateFavoritesPage(options = {}) {
   const { origin = 'https://iptv-search.com', header = PAGE_HEADER } = options;
@@ -8,12 +9,13 @@ export function generateFavoritesPage(options = {}) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
+  ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Favorites | IPTV Search</title>
   <meta name="description" content="Your favorite IPTV channels">
   <link rel="canonical" href="${origin}/favorites">
-  
+
   <script>
     (function() {
       const saved = localStorage.getItem('theme');

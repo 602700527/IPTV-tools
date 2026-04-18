@@ -1,6 +1,7 @@
 // Channel Detail Page - Server-side rendered matching template exactly
 import { PAGE_HEADER } from '../components/page-header.js';
 import { PAGE_FOOTER } from '../components/page-footer.js';
+import { HEAD_SCRIPTS } from '../components/head-scripts.js';
 
 export function generateChannelPage(options = {}) {
   const { 
@@ -146,6 +147,7 @@ export function generateChannelPage(options = {}) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
+  ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(channel.name)} | IPTV Search</title>
@@ -156,9 +158,9 @@ export function generateChannelPage(options = {}) {
   <meta property="og:description" content="Watch ${escapeHtml(channel.name)} live on IPTV Search Engine. Free, no signup required.">
   ${channel.logo ? '<meta property="og:image" content="' + escapeHtml(channel.logo) + '">' : ''}
   <meta property="og:type" content="video.other">
-  
+
   <script type="application/ld+json">${JSON.stringify(jsonLd1)}</script>
-  
+
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",

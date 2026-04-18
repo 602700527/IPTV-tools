@@ -1,5 +1,6 @@
 // Home Page - HTML shell that loads data via API
 // This page is rendered on the client side via JavaScript
+import { HEAD_SCRIPTS } from '../components/head-scripts.js';
 
 export function generateHomePage(options = {}) {
   const { origin = 'https://iptv-search.com', header = '', footer = '' } = options;
@@ -11,6 +12,7 @@ export function generateHomePage(options = {}) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
+  ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Free IPTV Search Engine - 8000+ Live TV Channel Directory & Search</title>
@@ -21,7 +23,7 @@ export function generateHomePage(options = {}) {
   <meta property="og:type" content="website">
   <meta property="og:url" content="${origin}/">
   <meta property="og:image" content="${origin}/og-image.png">
-  
+
   <script>
     (function() {
       const saved = localStorage.getItem('theme');

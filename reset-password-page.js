@@ -1,7 +1,10 @@
+import { HEAD_SCRIPTS } from './components/head-scripts.js';
+
 export const RESET_PASSWORD_HTML = `
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reset Password - IPTV Live</title>

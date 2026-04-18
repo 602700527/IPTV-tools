@@ -1,6 +1,7 @@
 // Category Page - HTML shell with server-side rendered content
 import { PAGE_HEADER } from '../components/page-header.js';
 import { PAGE_FOOTER } from '../components/page-footer.js';
+import { HEAD_SCRIPTS } from '../components/head-scripts.js';
 
 export function generateCategoryPage(options = {}) {
   const {
@@ -89,6 +90,7 @@ export function generateCategoryPage(options = {}) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
+  ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(category)} Channels | IPTV Search</title>

@@ -1,11 +1,13 @@
 // 免费订阅页面HTML
 import { PAGE_HEADER } from './components/page-header.js';
 import { PAGE_FOOTER } from './components/page-footer.js';
+import { HEAD_SCRIPTS } from './components/head-scripts.js';
 
 export const FREE_SUB_HTML = `
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title data-i18n-title="pageTitle">免费订阅 - TV Live Service</title>

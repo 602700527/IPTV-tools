@@ -1,5 +1,6 @@
 // Search Page - HTML shell that loads data via API
 import { PAGE_FOOTER } from '../components/page-footer.js';
+import { HEAD_SCRIPTS } from '../components/head-scripts.js';
 
 export function generateSearchPage(options = {}) {
   const { origin = 'https://iptv-search.com', query = '', header = '', footer = '' } = options;
@@ -9,11 +10,12 @@ export function generateSearchPage(options = {}) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
+  ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${query ? `Search: ${query}` : 'Search Channels'} | IPTV Search</title>
   <meta name="description" content="Find ${query} live TV channels on IPTV Search Engine. Free IPTV streaming - no signup required.">
-  
+
   <script>
     (function() {
       const saved = localStorage.getItem('theme');
