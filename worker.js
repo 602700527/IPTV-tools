@@ -874,67 +874,85 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         }
       });
     } else if (path.startsWith('/channel/')) {
-      // 频道详情页: /channel/{hash}
-      const hashMatch = path.match(/^\/channel\/([a-zA-Z0-9]+)$/);
-      if (hashMatch) {
-        const hash = hashMatch[1];
-        const staticResponse = await serveStaticFile(`/channel/${hash}.html`, env);
-        if (staticResponse) {
-          return staticResponse;
-        }
-        
-        // 动态生成频道详情页 - 服务端预渲染
-        const { generateChannelPage } = await import('./pages/channel-page.js');
-        const db = await initDB(env);
-        
-        // 获取所有频道（用于同分类推荐）
-        const allChannelsResult = await db.prepare(`
-          SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active, c.source_id, s.name as source_name
-          FROM channels c
-          INNER JOIN sources s ON c.source_id = s.id
-          WHERE c.is_active = 1 AND s.is_active = 1
-        `).all();
-        
-        const allChannels = allChannelsResult.results || [];
-        
-        // 获取当前频道
-        const channel = allChannels.find(ch => ch.channel_hash === hash);
-        
-        if (!channel) {
-          return await generate404Page(request, env);
-        }
-        
-        // 获取同分类的其他频道（用于侧边栏推荐）
-        const relatedChannels = allChannels
-          .filter(ch => ch.group_title === channel.group_title && ch.channel_hash !== hash)
-          .slice(0, 10)
-          .map(ch => ({
-            name: ch.channel_name,
-            hash: ch.channel_hash,
-            logo: ch.logo,
-            group: ch.group_title
-          }));
-        
-        const html = generateChannelPage({ 
-          origin: url.origin, 
-          hash: hash,
-          channel: {
-            id: channel.id,
-            name: channel.channel_name,
-            group: channel.group_title,
-            logo: channel.logo,
-            playUrl: channel.play_url,
-            sourceName: channel.source_name
-          },
-          relatedChannels: relatedChannels
-        });
-        return new Response(html, {
-          headers: {
-            'Content-Type': 'text/html; charset=utf-8',
-            'Cache-Control': 'public, max-age=600'
-          }
-        });
+      // 频道详情页: /channel/{slug}
+      // Slug 格式: cctv-1-hd 或 cctv-1-hd-1 (重复名称用数字区分)
+      const slugInUrl = path.replace('/channel/', '');
+
+      const staticResponse = await serveStaticFile(`/channel/${slugInUrl}.html`, env);
+      if (staticResponse) {
+        return staticResponse;
       }
+
+      // 动态生成频道详情页 - 服务端预渲染
+      const { generateChannelPage } = await import('./pages/channel-page.js');
+      const db = await initDB(env);
+
+      // 获取所有频道（用于同分类推荐和 slug 匹配）
+      const allChannelsResult = await db.prepare(`
+        SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active, c.source_id, s.name as source_name
+        FROM channels c
+        INNER JOIN sources s ON c.source_id = s.id
+        WHERE c.is_active = 1 AND s.is_active = 1
+      `).all();
+
+      const allChannels = allChannelsResult.results || [];
+
+      // Slugify 函数（与前端一致）
+      const slugify = (str) => {
+        if (!str) return '';
+        return str.trim().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+      };
+
+      // 通过 slug 查找频道
+      let channel = allChannels.find(ch => slugify(ch.channel_name) === slugInUrl);
+
+      // 如果没找到，尝试带数字后缀的格式（如 cctv-1-hd-1）
+      if (!channel) {
+        const baseSlugMatch = slugInUrl.match(/^(.+)-(\d+)$/);
+        if (baseSlugMatch) {
+          const baseSlug = baseSlugMatch[1];
+          const suffix = parseInt(baseSlugMatch[2]);
+          const candidates = allChannels.filter(ch => slugify(ch.channel_name) === baseSlug);
+          if (candidates.length >= suffix && suffix > 0) {
+            channel = candidates[suffix - 1];
+          }
+        }
+      }
+
+      if (!channel) {
+        return await generate404Page(request, env);
+      }
+
+      // 获取同分类的其他频道（用于侧边栏推荐）
+      const relatedChannels = allChannels
+        .filter(ch => ch.group_title === channel.group_title && ch.channel_hash !== channel.channel_hash)
+        .slice(0, 10)
+        .map(ch => ({
+          name: ch.channel_name,
+          hash: ch.channel_hash,
+          logo: ch.logo,
+          group: ch.group_title
+        }));
+
+      const html = generateChannelPage({
+        origin: url.origin,
+        hash: channel.channel_hash,
+        channel: {
+          id: channel.id,
+          name: channel.channel_name,
+          group: channel.group_title,
+          logo: channel.logo,
+          playUrl: channel.play_url,
+          sourceName: channel.source_name
+        },
+        relatedChannels: relatedChannels
+      });
+      return new Response(html, {
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'public, max-age=600'
+        }
+      });
     } else if (path === '/login') {
       // 登录页 - 使用静态页面系统
       return new Response(generateStaticPage(loginTitle, loginDesc, loginStyles, loginContent), {
@@ -1360,9 +1378,16 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
 
         const channels = channelsResult.results || [];
 
+        // Slugify function for SEO-friendly URLs
+        const slugify = (str) => {
+          if (!str) return '';
+          return str.trim().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+        };
+
         channels.forEach(ch => {
+          const channelSlug = slugify(ch.name || '');
           sitemap += '  <url>\n';
-          sitemap += `    <loc>${baseUrl}/channel/${ch.hash}</loc>\n`;
+          sitemap += `    <loc>${baseUrl}/channel/${channelSlug}</loc>\n`;
           sitemap += `    <lastmod>${today}</lastmod>\n`;
           sitemap += '    <changefreq>weekly</changefreq>\n';
           sitemap += '    <priority>0.7</priority>\n';

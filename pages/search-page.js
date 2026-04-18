@@ -181,6 +181,17 @@ export function generateSearchPage(options = {}) {
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
+    // Slugify function for SEO-friendly URLs
+    function slugify(str) {
+      if (!str) return '';
+      return str.trim().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    // Build SEO-friendly channel URL (pure slug, no hash)
+    function buildChannelUrl(name) {
+      return '/channel/' + slugify(name);
+    }
+
     // Theme toggle with icon update
     function updateThemeIcons(isDark) {
       const sun = document.querySelector('.sun-icon');
@@ -235,7 +246,8 @@ export function generateSearchPage(options = {}) {
         if (results.length > 0) {
           resultsContainer.innerHTML = '<div class="channel-grid">' + results.map(ch => {
             const logoHtml = ch.logo ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '">' : '<div class="placeholder">📺</div>';
-            return '<a href="' + origin + '/channel/' + ch.hash + '" class="channel-card">' +
+            const channelUrl = buildChannelUrl(ch.name);
+            return '<a href="' + origin + channelUrl + '" class="channel-card">' +
               '<div class="channel-poster">' + logoHtml + '</div>' +
               '<div class="channel-info">' +
                 '<div class="channel-name">' + escapeHtml(ch.name) + '</div>' +
@@ -253,7 +265,7 @@ export function generateSearchPage(options = {}) {
               "@type": "ListItem",
               "position": i + 1,
               "name": ch.name,
-              "url": origin + "/channel/" + ch.hash
+              "url": origin + buildChannelUrl(ch.name)
             }))
           };
           document.getElementById('json-ld').textContent = JSON.stringify(jsonLd);

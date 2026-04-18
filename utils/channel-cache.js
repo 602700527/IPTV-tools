@@ -7,6 +7,19 @@ const CACHE_VERSION_KEY = 'channels_cache_version';
 const SITEMAP_CACHE_KEY = 'sitemap_xml';
 
 /**
+ * Slugify function for SEO-friendly URLs
+ */
+function slugify(str) {
+  if (!str) return '';
+  return str
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/**
  * 将所有频道数据缓存到 KV
  * @param {Object} env - Cloudflare Workers 环境
  * @returns {Promise<{success: boolean, channels: number, groups: number}>}
@@ -445,8 +458,9 @@ export async function generateAndCacheSitemap(env) {
     }
     
     selectedChannels.forEach(ch => {
+      const channelSlug = slugify(ch.name || '');
       sitemap += '  <url>\n';
-      sitemap += `    <loc>${baseUrl}/channel/${ch.hash}</loc>\n`;
+      sitemap += `    <loc>${baseUrl}/channel/${channelSlug}</loc>\n`;
       sitemap += `    <lastmod>${today}</lastmod>\n`;
       sitemap += '    <changefreq>weekly</changefreq>\n';
       sitemap += '    <priority>0.7</priority>\n';

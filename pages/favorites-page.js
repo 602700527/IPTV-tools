@@ -252,6 +252,17 @@ export function generateFavoritesPage(options = {}) {
 
     function escapeHtml(str) { if (!str) return ''; return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
 
+    // Slugify function for SEO-friendly URLs
+    function slugify(str) {
+      if (!str) return '';
+      return str.trim().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    // Build SEO-friendly channel URL (pure slug, no hash)
+    function buildChannelUrl(name) {
+      return '/channel/' + slugify(name);
+    }
+
     // Toast functions
     function showToast(options) { const { title = '', message = '', type = 'info', duration = 4000, action = null } = options; const container = document.getElementById('toastContainer'); const toast = document.createElement('div'); toast.className = 'toast toast-' + type; const icons = { success: '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>', error: '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>', warning: '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', info: '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>' }; let actionHtml = ''; if (action) { actionHtml = '<div class="toast-action"><a href="' + action.href + '">' + action.text + '</a></div>'; } toast.innerHTML = '<div class="toast-icon-wrap">' + icons[type] + '</div><div class="toast-content">' + (title ? '<div class="toast-title">' + title + '</div>' : '') + (message ? '<div class="toast-message">' + message + '</div>' : '') + actionHtml + '</div><button class="toast-close" onclick="this.parentElement.remove()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'; container.appendChild(toast); if (duration > 0) { setTimeout(() => { toast.classList.add('toast-exit'); setTimeout(() => toast.remove(), 300); }, duration); } return toast; }
     function showToastSuccess(message, title = 'Success') { return showToast({ type: 'success', title, message }); }
@@ -287,16 +298,17 @@ export function generateFavoritesPage(options = {}) {
         const name = escapeHtml(ch.name);
         const logo = escapeHtml(ch.logo || '');
         const group = escapeHtml(ch.group || '');
-        const logoHtml = ch.logo 
+        const logoHtml = ch.logo
           ? \`<img src="\${logo}" alt="\${name}" class="ch-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
             <div class="ch-logo-placeholder" style="display:none">📺</div>\`
           : '<div class="ch-logo-placeholder">📺</div>';
+        const channelUrl = buildChannelUrl(ch.name);
         return \`<div class="channel-row" data-hash="\${hash}" data-name="\${name}" data-logo="\${logo}" data-group="\${group}">
           <label class="channel-checkbox">
             <input type="checkbox" onchange="updateSelectedCount()">
             <span class="checkmark"></span>
           </label>
-          <a href="${origin}/channel/\${ch.hash}" class="channel-link">
+          <a href="${origin}\${channelUrl}" class="channel-link">
             <div class="ch-logo">\${logoHtml}</div>
             <div class="ch-info">
               <div class="ch-name">\${name}</div>

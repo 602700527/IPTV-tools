@@ -40,6 +40,13 @@ export function generateChannelPage(options = {}) {
   // Build category slug for breadcrumb
   const categorySlug = slugify(channel.group || '');
 
+  // Build channel slug for SEO-friendly URLs (pure slug, no hash)
+  function buildChannelSlug(name) {
+    return slugify(name);
+  }
+
+  const channelSlug = buildChannelSlug(channel.name);
+
   // Build logo HTML
   const logoHtml = channel.logo 
     ? '<img src="' + escapeHtml(channel.logo) + '" alt="' + escapeHtml(channel.name) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';this.nextElementSibling.textContent=this.alt.charAt(0)">' +
@@ -99,7 +106,7 @@ export function generateChannelPage(options = {}) {
           ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '" onerror="this.style.display=\'none\'">' +
             '<div class="placeholder" style="display:none">📺</div>'
           : '<div class="placeholder">📺</div>';
-        return '<div class="related-card" onclick="location.href=\'' + origin + '/channel/' + ch.hash + '\'">' +
+        return '<div class="related-card" onclick="location.href=\'' + origin + '/channel/' + buildChannelSlug(ch.name) + '\'">' +
           chLogo +
           '<div class="related-card-info">' +
             '<div class="related-card-name">' + escapeHtml(ch.name) + '</div>' +
@@ -131,7 +138,7 @@ export function generateChannelPage(options = {}) {
       "itemListElement": [
         {"@type": "ListItem", "position": 1, "name": "Home", "item": origin + "/"},
         {"@type": "ListItem", "position": 2, "name": channel.group || "Channels", "item": origin + "/category/" + encodeURIComponent(categorySlug)},
-        {"@type": "ListItem", "position": 3, "name": channel.name, "item": origin + "/channel/" + hash}
+        {"@type": "ListItem", "position": 3, "name": channel.name, "item": origin + "/channel/" + channelSlug}
       ]
     }
   };
@@ -143,8 +150,8 @@ export function generateChannelPage(options = {}) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(channel.name)} | IPTV Search</title>
   <meta name="description" content="Watch ${escapeHtml(channel.name)} live. Free IPTV streaming. No registration required.">
-  <link rel="canonical" href="${origin}/channel/${hash}">
-  <meta property="og:url" content="${origin}/channel/${hash}">
+  <link rel="canonical" href="${origin}/channel/${channelSlug}">
+  <meta property="og:url" content="${origin}/channel/${channelSlug}">
   <meta property="og:title" content="${escapeHtml(channel.name)} - Watch Live">
   <meta property="og:description" content="Watch ${escapeHtml(channel.name)} live on IPTV Search Engine. Free, no signup required.">
   ${channel.logo ? '<meta property="og:image" content="' + escapeHtml(channel.logo) + '">' : ''}

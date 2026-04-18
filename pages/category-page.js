@@ -3,14 +3,25 @@ import { PAGE_HEADER } from '../components/page-header.js';
 import { PAGE_FOOTER } from '../components/page-footer.js';
 
 export function generateCategoryPage(options = {}) {
-  const { 
-    origin = 'https://iptv-search.com', 
-    slug = '', 
+  const {
+    origin = 'https://iptv-search.com',
+    slug = '',
     category = '',
     categories = [],  // Pre-rendered categories array
     channels = [],     // Pre-rendered channels array for current category
     header = PAGE_HEADER
   } = options;
+
+  // Slugify function for SEO-friendly URLs
+  function slugify(str) {
+    if (!str) return '';
+    return str.trim().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+  }
+
+  // Build SEO-friendly channel URL (pure slug, no hash)
+  function buildChannelUrl(name) {
+    return '/channel/' + slugify(name);
+  }
 
   // Build category list HTML
   const categoryListHtml = categories.length > 0 ? categories.map(cat => {
@@ -32,7 +43,7 @@ export function generateCategoryPage(options = {}) {
           '<input type="checkbox" onchange="updateSelectedCount()">' +
           '<span class="checkmark"></span>' +
         '</label>' +
-        '<a href="' + origin + '/channel/' + ch.hash + '" class="channel-link">' +
+        '<a href="' + origin + buildChannelUrl(ch.name) + '" class="channel-link">' +
           '<div class="ch-logo">' + logoHtml + '</div>' +
           '<div class="ch-info">' +
             '<div class="ch-name">' + escapeHtml(ch.name) + '</div>' +
@@ -71,7 +82,7 @@ export function generateCategoryPage(options = {}) {
       "@type": "ListItem",
       "position": i + 1,
       "name": ch.name,
-      "url": origin + "/channel/" + ch.hash
+      "url": origin + buildChannelUrl(ch.name)
     }))
   } : null;
 
