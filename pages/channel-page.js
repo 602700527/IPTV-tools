@@ -49,12 +49,8 @@ export function generateChannelPage(options = {}) {
   // Build channel meta badge
   const sourceDisplay = channel.sourceName || 'Unknown';
   
-  // Build stats - category and updated
+  // Build stats - updated only (category is shown in subtitle)
   const statsHtml = 
-    '<div class="stat">' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>' +
-      '<span>' + escapeHtml(channel.group || 'Other') + '</span>' +
-    '</div>' +
     '<div class="stat">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>' +
       '<span>Updated daily</span>' +
@@ -431,7 +427,7 @@ export function generateChannelPage(options = {}) {
     
         </div>
         <h1 class="channel-title">${escapeHtml(channel.name)}</h1>
-        <p class="channel-subtitle">China Central Television - ${escapeHtml(channel.group || 'General Channel')}</p>
+        <p class="channel-subtitle">${escapeHtml(channel.group || 'General Channel')}</p>
         
         <div class="channel-stats">
           ${statsHtml}
