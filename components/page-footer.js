@@ -72,26 +72,31 @@ export const PAGE_FOOTER = `
     </div>
   </footer>
 
-  <div id="footer-ad-container" data-hide-for-member="true">
-    <script>(function(s){s.dataset.zone='10621634',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-  </div>
+  <div id="footer-ad-container"></div>
 
   <script>
-    // 页脚广告显示控制 - 根据会员状态决定是否加载
-    (async function() {
-      try {
-        const response = await fetch('/api/member/status');
-        const data = await response.json();
-        if (data.isMember && data.adFreeEnabled) {
-          // 会员且功能启用，隐藏页脚广告
-          var footerAdContainer = document.getElementById('footer-ad-container');
-          if (footerAdContainer) {
-            footerAdContainer.style.display = 'none';
+    // 页脚广告延迟加载：先检查会员状态，是会员则不加载广告
+    (function() {
+      var footerAdContainer = document.getElementById('footer-ad-container');
+      if (!footerAdContainer) return;
+
+      fetch('/api/member/status')
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+          if (data.isMember && data.adFreeEnabled) {
+            return;
           }
-        }
-      } catch (e) {
-        // 忽略错误，显示广告
-      }
+          var script = document.createElement('script');
+          script.src = 'https://nap5k.com/tag.min.js';
+          script.dataset.zone = '10621634';
+          footerAdContainer.appendChild(script);
+        })
+        .catch(function() {
+          var script = document.createElement('script');
+          script.src = 'https://nap5k.com/tag.min.js';
+          script.dataset.zone = '10621634';
+          footerAdContainer.appendChild(script);
+        });
     })();
   </script>
 

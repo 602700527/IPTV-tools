@@ -49,30 +49,46 @@ export const PAGE_HEADER = `
     </div>
   </header>
 
-  <div id="ad-container" data-hide-for-member="true">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137" crossorigin="anonymous"></script>
-    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2205598928191137" data-ad-slot="9663554756" data-ad-format="auto" data-full-width-responsive="true"></ins>
-    <script>
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
-  </div>
+  <div id="ad-container"></div>
 
   <script>
-    // 广告显示控制 - 根据会员状态决定是否显示广告
-    (async function() {
-      try {
-        const response = await fetch('/api/member/status');
-        const data = await response.json();
-        if (data.isMember && data.adFreeEnabled) {
-          // 会员且功能启用，隐藏广告
-          var adContainer = document.getElementById('ad-container');
-          if (adContainer) {
-            adContainer.style.display = 'none';
-          }
-        }
-      } catch (e) {
-        // 忽略错误，显示广告
+    // 广告延迟加载：先检查会员状态，是会员则不加载广告
+    (function() {
+      var adContainer = document.getElementById('ad-container');
+      if (!adContainer) return;
+
+      function loadAd() {
+        var ins = document.createElement('ins');
+        ins.className = 'adsbygoogle';
+        ins.style.cssText = 'display:block';
+        ins.dataset.adClient = 'ca-pub-2205598928191137';
+        ins.dataset.adSlot = '9663554756';
+        ins.dataset.adFormat = 'auto';
+        ins.dataset.fullWidthResponsive = 'true';
+        adContainer.appendChild(ins);
+
+        var script1 = document.createElement('script');
+        script1.async = true;
+        script1.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137';
+        script1.crossOrigin = 'anonymous';
+        adContainer.appendChild(script1);
+
+        var script2 = document.createElement('script');
+        script2.text = '(adsbygoogle = window.adsbygoogle || []).push({});';
+        adContainer.appendChild(script2);
       }
+
+      fetch('/api/member/status')
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+          if (data.isMember && data.adFreeEnabled) {
+            return;
+          }
+          loadAd();
+        })
+        .catch(function() {
+          loadAd();
+        });
     })();
   </script>
 
