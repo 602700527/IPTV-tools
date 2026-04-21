@@ -123,6 +123,13 @@ export function generateSearchPage(options = {}) {
     }
     .empty-state .category-tag:hover { background: var(--bg-hover); color: var(--accent); border-color: var(--accent); }
 
+    .search-tips { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 1.5rem; font-size: 0.85rem; }
+    .search-tips h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary); }
+    .search-tips ul { list-style: none; color: var(--text-secondary); }
+    .search-tips li { margin-bottom: 0.25rem; padding-left: 1.5rem; position: relative; }
+    .search-tips li::before { content: '💡'; position: absolute; left: 0; }
+    .search-tips code { background: var(--bg-secondary); padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.8rem; color: var(--accent); }
+
     .page-footer { background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 2.5rem 1.25rem; margin-top: 3rem; }
     .footer-content { max-width: 1000px; margin: 0 auto; text-align: center; }
     .footer-copyright { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.25rem; }
@@ -191,6 +198,15 @@ export function generateSearchPage(options = {}) {
     <div class="search-results-header">
       <h1>🔍 Search Results</h1>
       <p id="resultText">Loading...</p>
+    </div>
+
+    <div id="searchTips" class="search-tips" style="display: none;">
+      <h3>✨ Smart Search Tips</h3>
+      <ul>
+        <li>Search in <code>Pinyin</code> like <code>YANGZI</code> for 央视 Yangtze River</li>
+        <li>Use synonyms like <code>CCTV</code> or <code>Phoenix</code></li>
+        <li>Try both Chinese and English names</li>
+      </ul>
     </div>
 
     <div id="resultsContainer">
@@ -286,6 +302,9 @@ export function generateSearchPage(options = {}) {
             '</a>';
           }).join('') + '</div>';
 
+          // Hide tips if we have results
+          document.getElementById('searchTips').style.display = 'none';
+
           // Inject JSON-LD
           const jsonLd = {
             "@context": "https://schema.org",
@@ -300,6 +319,9 @@ export function generateSearchPage(options = {}) {
           };
           document.getElementById('json-ld').textContent = JSON.stringify(jsonLd);
         } else {
+          // Show search tips when no results
+          document.getElementById('searchTips').style.display = 'block';
+          
           // Use suggested categories from API (randomly selected from available groups)
           const suggestedCategories = data.data?.suggestedCategories || [];
           let categoryLinks;

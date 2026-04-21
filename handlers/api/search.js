@@ -1,5 +1,11 @@
 // Search API - GET /api/search?q=xxx
 import { getAllChannels, getAllGroups } from '../../utils/channel-cache.js';
+import { 
+  expandQuery, 
+  toPinyinInitials, 
+  enhancedChannelMatch,
+  smartSort 
+} from '../../utils/search-utils.js';
 
 function slugify(str) {
   if (!str) return '';
@@ -34,14 +40,37 @@ export async function handleApiSearch(request, env) {
       getAllChannels(env),
       getAllGroups(env)
     ]);
-    const queryLower = query.toLowerCase();
 
-    // Filter channels matching query
-    const results = channels.filter(ch => {
-      const name = (ch.channel_name || '').toLowerCase();
-      const group = (ch.group_title || '').toLowerCase();
-      return name.includes(queryLower) || group.includes(queryLower);
-    }).slice(0, 100); // Limit to 100 results
+    // 扩展搜索词（支持同义词）
+    const expandedTerms = expandQuery(query);
+    const queryPinyin = toPinyinInitials(query).toLowerCase();
+    
+    // 如果拼音和原始查询不同，也加入拼音搜索
+    if (queryPinyin && queryPinyin !== query.toLowerCase()) {
+      if (!expandedTerms.includes(queryPinyin)) {
+        expandedTerms.push(queryPinyin);
+      }
+    }
+
+    // 增强搜索匹配
+    const matchedChannels = [];
+    
+    for (const ch of channels) {
+      const matchResult = enhancedChannelMatch(ch, expandedTerms);
+      if (matchResult.matches) {
+        matchedChannels.push({
+          channel: ch,
+          score: matchResult.score,
+          matchType: matchResult.matchType
+        });
+      }
+    }
+
+    // 智能排序
+    matchedChannels.sort((a, b) => smartSort(a.channel, b.channel, a.score, b.score));
+    
+    // 取前100个结果
+    const results = matchedChannels.slice(0, 100).map(m => m.channel);
 
     // Build JSON-LD ItemList
     const itemListElement = results.map((ch, index) => ({
