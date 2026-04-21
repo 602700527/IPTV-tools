@@ -135,6 +135,31 @@ export function generateSearchPage(options = {}) {
     .footer-badges span { font-size: 0.75rem; color: var(--text-secondary); }
     .footer-disclaimer { margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; max-width: 600px; margin-left: auto; margin-right: auto; }
     .loading { text-align: center; padding: 4rem; color: var(--text-secondary); }
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .skeleton-loader {
+      background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius);
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .channel-grid.loading-state {
+      opacity: 0.6;
+      pointer-events: none;
+    }
 
     @media (max-width: 768px) {
       .header { padding: 0.5rem 0.75rem; }
@@ -169,7 +194,10 @@ export function generateSearchPage(options = {}) {
     </div>
 
     <div id="resultsContainer">
-      <div class="loading">Searching channels...</div>
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <div>Searching channels...</div>
+      </div>
     </div>
   </main>
 
@@ -272,13 +300,20 @@ export function generateSearchPage(options = {}) {
           };
           document.getElementById('json-ld').textContent = JSON.stringify(jsonLd);
         } else {
-          const categoryLinks = [
-            { name: '央视', slug: '央视' },
-            { name: '体育', slug: '体育' },
-            { name: '电影', slug: '电影' },
-            { name: '综艺', slug: '综艺' },
-            { name: '儿童', slug: '儿童' }
-          ].map(c => '<a href="' + origin + '/category/' + encodeURIComponent(c.slug) + '" class="category-tag">' + c.name + '</a>').join('');
+          // Use suggested categories from API (randomly selected from available groups)
+          const suggestedCategories = data.data?.suggestedCategories || [];
+          let categoryLinks;
+          
+          if (suggestedCategories.length > 0) {
+            categoryLinks = suggestedCategories.map(c => '<a href="' + origin + '/category/' + encodeURIComponent(c.slug) + '" class="category-tag">' + escapeHtml(c.name) + '</a>').join('');
+          } else {
+            // Fallback to hardcoded categories only if API returns none (e.g., no groups available)
+            categoryLinks = [
+              { name: '央视', slug: '央视' },
+              { name: '体育', slug: '体育' },
+              { name: '电影', slug: '电影' }
+            ].map(c => '<a href="' + origin + '/category/' + encodeURIComponent(c.slug) + '" class="category-tag">' + c.name + '</a>').join('');
+          }
           
           resultsContainer.innerHTML = 
             '<div class="empty-state">' +

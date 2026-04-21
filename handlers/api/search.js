@@ -1,5 +1,14 @@
 // Search API - GET /api/search?q=xxx
-import { getAllChannels } from '../../utils/channel-cache.js';
+import { getAllChannels, getAllGroups } from '../../utils/channel-cache.js';
+
+function slugify(str) {
+  if (!str) return '';
+  return str.trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 /**
  * Handle /api/search
@@ -20,8 +29,11 @@ export async function handleApiSearch(request, env) {
       });
     }
 
-    // Get all channels from KV cache
-    const { channels } = await getAllChannels(env);
+    // Get all channels and groups from KV cache
+    const [{ channels }, { groups }] = await Promise.all([
+      getAllChannels(env),
+      getAllGroups(env)
+    ]);
     const queryLower = query.toLowerCase();
 
     // Filter channels matching query
@@ -36,10 +48,21 @@ export async function handleApiSearch(request, env) {
       '@type': 'ListItem',
       'position': index + 1,
       'name': ch.channel_name,
-      'url': `${env.APP_URL || 'https://iptv-search.com'}/channel/${ch.channel_hash}`,
+      'url': `${env.APP_URL || 'https://iptv-search.com'}/channel/${slugify(ch.channel_name)}`,
       'image': ch.logo || null,
       'description': ch.group_title || 'Other'
     }));
+
+    // If no results, suggest random categories from available groups
+    let suggestedCategories = [];
+    if (results.length === 0 && groups.length > 0) {
+      // Shuffle groups and pick up to 5
+      const shuffled = [...groups].sort(() => Math.random() - 0.5);
+      suggestedCategories = shuffled.slice(0, 5).map(group => ({
+        name: group,
+        slug: slugify(group)
+      }));
+    }
 
     const response = {
       '@context': 'https://schema.org',
@@ -54,7 +77,8 @@ export async function handleApiSearch(request, env) {
           hash: ch.channel_hash,
           group: ch.group_title,
           logo: ch.logo
-        }))
+        })),
+        suggestedCategories: suggestedCategories
       }
     };
 
