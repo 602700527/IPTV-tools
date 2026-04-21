@@ -881,7 +881,11 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path.startsWith('/channel/')) {
       // 频道详情页: /channel/{slug}
       // Slug 格式: cctv-1-hd 或 cctv-1-hd-1 (重复名称用数字区分)
-      const slugInUrl = path.replace('/channel/', '');
+      let slugInUrl = path.replace('/channel/', '');
+      try {
+        slugInUrl = decodeURIComponent(slugInUrl);
+      } catch (e) {
+      }
 
       const staticResponse = await serveStaticFile(`/channel/${slugInUrl}.html`, env);
       if (staticResponse) {

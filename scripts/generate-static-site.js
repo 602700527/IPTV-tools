@@ -235,6 +235,7 @@ async function generateChannels() {
     let successCount = 0;
     let failCount = 0;
     let processed = 0;
+    const usedSlugs = new Map();
 
     // 分批查询和生成
     while (processed < total) {
@@ -261,7 +262,22 @@ async function generateChannels() {
             channelHash: channel.channel_hash
           });
 
-          const filePath = join(options.outputDir, 'channel', `${channel.channel_hash}.html`);
+          // 使用 slug 而不是 channel_hash 命名文件
+          let channelSlug = slugify(channel.channel_name);
+          if (!channelSlug) {
+            channelSlug = channel.channel_hash;
+          }
+
+          // 处理重名频道：添加数字后缀
+          if (usedSlugs.has(channelSlug)) {
+            const count = usedSlugs.get(channelSlug) + 1;
+            usedSlugs.set(channelSlug, count);
+            channelSlug = `${channelSlug}-${count}`;
+          } else {
+            usedSlugs.set(channelSlug, 1);
+          }
+
+          const filePath = join(options.outputDir, 'channel', `${channelSlug}.html`);
           await writeHtmlFile(filePath, html);
           successCount++;
         } catch (err) {
