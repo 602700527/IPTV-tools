@@ -123,7 +123,27 @@ const SYNONYM_MAP = {
   '戏曲': ['opera', '戏剧', '曲艺'],
   '港台': ['hongkong', 'taiwan', 'hk', 'tw'],
   '高清': ['HD', 'hd', '高清频道'],
-  '标清': ['SD', 'sd', '标清频道']
+  '标清': ['SD', 'sd', '标清频道'],
+  'Japan': ['日本', 'Japanese', '日剧', '日漫', '日综', 'RB', '日本偶像'],
+  '日本': ['Japan', 'Japanese', '日剧', '日漫', '日综', 'RB', '日本偶像'],
+  'USA': ['美国', 'America', 'American', 'US', '美剧', '美综', '美国偶像'],
+  '美国': ['USA', 'America', 'American', 'US', '美剧', '美综', '美国偶像'],
+  'Korea': ['韩国', 'Korean', '韩剧', '韩综', '韩娱', 'HB', '韩国偶像', '韩流'],
+  '韩国': ['Korea', 'Korean', '韩剧', '韩综', '韩娱', 'HB', '韩国偶像', '韩流'],
+  'UK': ['英国', 'Britain', 'British', 'England', '英剧', '英综'],
+  '英国': ['UK', 'Britain', 'British', 'England', '英剧', '英综'],
+  'Hong Kong': ['香港', 'HK', 'hongkong', '港剧', '港片'],
+  '香港': ['Hong Kong', 'HK', 'hongkong', '港剧', '港片'],
+  'Taiwan': ['台湾', 'TW', 'taiwan', '台剧', '台片'],
+  '台湾': ['Taiwan', 'TW', 'taiwan', '台剧', '台片'],
+  '法国': ['France', 'French', '法剧', '法综'],
+  'France': ['法国', 'French', '法剧', '法综'],
+  '德国': ['Germany', 'German', '德剧', '德综'],
+  'Germany': ['德国', 'German', '德剧', '德综'],
+  '西班牙': ['Spain', 'Spanish', '西剧', '西综'],
+  'Spain': ['西班牙', 'Spanish', '西剧', '西综'],
+  '意大利': ['Italy', 'Italian', '意剧', '意综'],
+  'Italy': ['意大利', 'Italian', '意剧', '意综']
 };
 
 /**
