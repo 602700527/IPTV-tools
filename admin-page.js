@@ -103,6 +103,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     .btn-copy:hover{background:#e8e8ed}
     .headers-cell{max-width:200px;padding:8px;font-size:11px;color:#86868b}
     .headers-tag{display:inline-block;padding:2px 6px;background:#f5f5f7;border-radius:4px;margin:2px;font-size:10px}
+    .type-badge{display:inline-block;padding:2px 6px;background:#e3f2fd;color:#1976d2;border-radius:4px;margin:2px;font-size:10px}
     .ticket-type-badge{display:inline-block;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600;text-transform:uppercase}
     .ticket-type-badge.payment{background:rgba(255,204,0,.15);color:#b8860b}
     .ticket-type-badge.order{background:rgba(52,199,89,.15);color:#2e7d32}
@@ -246,8 +247,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     </div>
     <div id="channels" class="tab-content">
       <div class="card">
-        <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="onSourceFilterChange()"><option value="">全部源</option></select><select class="filter-select" id="channelGroupFilter" onchange="resetChannelPage()"><option value="">全部分组</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="resetChannelPage()"><select class="filter-select" id="channelPageSize" onchange="resetChannelPage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="30" selected>30条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select><button class="btn btn-danger" onclick="clearChannels()">清空数据</button></div></div>
-        <table><thead><tr><th>频道名称</th><th>分组</th><th>直播源</th><th>播放地址</th><th>请求头</th><th>状态</th><th>操作</th></tr></thead><tbody id="channelsTable"></tbody></table>
+        <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="onSourceFilterChange()"><option value="">全部源</option></select><select class="filter-select" id="channelGroupFilter" onchange="resetChannelPage()"><option value="">全部分组</option></select><select class="filter-select" id="channelTypeFilter" onchange="resetChannelPage()"><option value="">全部类型</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="resetChannelPage()"><select class="filter-select" id="channelPageSize" onchange="resetChannelPage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="30" selected>30条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select><button class="btn btn-danger" onclick="clearChannels()">清空数据</button><button class="btn btn-primary" onclick="showBatchTypeModal()">批量设置类型</button></div></div>
+        <table><thead><tr><th><input type="checkbox" id="channelSelectAll" onchange="toggleSelectAllChannels()"></th><th>频道名称</th><th>分组</th><th>直播源</th><th>类型</th><th>播放地址</th><th>请求头</th><th>状态</th><th>操作</th></tr></thead><tbody id="channelsTable"></tbody></table>
         <div id="channelPagination" class="pagination"></div>
       </div>
     </div>
@@ -882,6 +883,20 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           </div>
         </div>
       </div>
+      <div class="card">
+        <div class="toolbar">
+          <h3>频道类型映射配置</h3>
+          <button class="btn btn-primary" onclick="saveTypeMappingConfig()">保存配置</button>
+        </div>
+        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+          <p style="color:#86868b;margin-bottom:12px;">
+            配置频道类型推断规则。关键词用于从频道名称自动推断类型，支持多值（如 movie,animation）。
+          </p>
+          <div id="typeMappingConfig" style="padding:12px;background:white;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;">
+            <div style="color:#86868b;">加载中...</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <div id="loadingOverlay" class="loading-overlay">
@@ -964,6 +979,23 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </label>
       </div>
       <div class="modal-footer"><button class="btn" onclick="closeImportCodeModal()">取消</button><button class="btn btn-primary" onclick="importCodesFromCSV()">开始导入</button></div>
+    </div>
+  </div>
+  <div id="channelEditModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>编辑频道</h3><button class="close-btn" onclick="closeChannelEditModal()">&times;</button></div>
+      <input type="hidden" id="editChannelId" value="">
+      <div class="form-group"><label>频道名称</label><input type="text" id="editChannelName" disabled></div>
+      <div class="form-group"><label>类型</label><input type="text" id="editChannelType" placeholder="多个类型用逗号分隔，如: movie,animation"></div>
+      <div class="modal-footer"><button class="btn" onclick="closeChannelEditModal()">取消</button><button class="btn btn-primary" onclick="saveChannelEdit()">保存</button></div>
+    </div>
+  </div>
+  <div id="batchTypeModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>批量设置类型</h3><button class="close-btn" onclick="closeBatchTypeModal()">&times;</button></div>
+      <div class="form-group"><label>选中的频道</label><div id="batchTypeChannelCount" style="padding:8px;background:#f5f5f7;border-radius:4px;font-size:14px;"></div></div>
+      <div class="form-group"><label>类型</label><input type="text" id="batchChannelType" placeholder="多个类型用逗号分隔，如: movie,animation"></div>
+      <div class="modal-footer"><button class="btn" onclick="closeBatchTypeModal()">取消</button><button class="btn btn-primary" onclick="saveBatchType()">保存</button></div>
     </div>
   </div>
   <div id="planModal" class="modal">
@@ -1471,6 +1503,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         loadSystemConfig();
         loadCacheStatus(); // 加载缓存状态
         loadTokens(); // 加载 Token 列表
+        loadTypeMappingConfig(); // 加载类型映射配置
       }
     }
 
@@ -1534,6 +1567,16 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           groupFilter.innerHTML = '<option value="">全部分组</option>' + groups.map(g => \`<option value="\${escapeHtml(g)}">\${escapeHtml(g)}</option>\`).join('');
         } catch (e) {
           console.error('加载分组失败:', e);
+        }
+
+        // 加载type配置并填充type下拉框
+        try {
+          const typeConfig = await apiRequest('/type-config', { showLoading: false });
+          const typeFilter = document.getElementById('channelTypeFilter');
+          const types = typeConfig.config?.type_mapping ? Object.keys(typeConfig.config.type_mapping) : [];
+          typeFilter.innerHTML = '<option value="">全部类型</option>' + types.map(t => \`<option value="\${escapeHtml(t)}">\${escapeHtml(t)}</option>\`).join('');
+        } catch (e) {
+          console.error('加载类型配置失败:', e);
         }
       } catch (error) {
         console.error('加载源失败:', error);
@@ -1903,6 +1946,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         let url = '/channels';
         const sourceId = document.getElementById('channelSourceFilter').value;
         const groupTitle = document.getElementById('channelGroupFilter').value;
+        const channelType = document.getElementById('channelTypeFilter').value;
         const search = document.getElementById('channelSearch').value.trim();
         const pageSize = Math.min(parseInt(document.getElementById('channelPageSize').value) || 100, 100);
         const params = new URLSearchParams({
@@ -1911,6 +1955,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         });
         if (sourceId) params.append('source_id', sourceId);
         if (groupTitle) params.append('group_title', groupTitle);
+        if (channelType) params.append('type', channelType);
         if (search) params.append('search', search);
         url += '?' + params.toString();
         const data = await apiRequest(url, { showLoading: false });
@@ -1920,16 +1965,18 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         totalChannels = pagination.total || 0;
         const tbody = document.getElementById('channelsTable');
         if (channels.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="7" class="empty-state">暂无频道</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="9" class="empty-state">暂无频道</td></tr>';
         } else {
           tbody.innerHTML = channels.map(channel => \`
             <tr>
+              <td><input type="checkbox" class="channel-checkbox" value="\${channel.id}" \${selectedChannelIds.includes(channel.id) ? 'checked' : ''}></td>
               <td>
                 \${channel.logo ? \`<img src="\${escapeHtml(channel.logo)}" style="width:24px;height:24px;margin-right:8px;vertical-align:middle;">\` : ''}
                 \${escapeHtml(channel.channel_name)}
               </td>
               <td>\${escapeHtml(channel.group_title || '-')}</td>
               <td>\${escapeHtml(channel.source_name || '-')}</td>
+              <td>\${formatChannelType(channel.type)}</td>
               <td class="play-url-cell">
                 <span class="play-url" title="\${escapeHtml(channel.play_url)}">\${escapeHtml(channel.play_url)}</span>
                 <button class="btn btn-sm btn-copy" onclick="copyToClipboard('\${escapeHtml(channel.play_url)}')" title="复制地址">复制</button>
@@ -1944,6 +1991,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               </td>
               <td>
                 <div class="action-buttons">
+                  <button class="btn btn-sm" onclick="showChannelEditModal(\${JSON.stringify(channel).replace(/"/g, '&quot;')})">编辑</button>
                   <button class="btn btn-sm \${channel.is_active ? 'btn-danger' : 'btn-success'}"
                     onclick="toggleChannel(\${channel.id}, \${!channel.is_active})">
                     \${channel.is_active ? '禁用' : '启用'}
@@ -2028,8 +2076,108 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       container.innerHTML = html;
     }
 
+    let selectedChannelIds = [];
+
+    function toggleSelectAllChannels() {
+      const selectAll = document.getElementById('channelSelectAll');
+      const checkboxes = document.querySelectorAll('.channel-checkbox');
+      if (selectAll.checked) {
+        selectedChannelIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+        checkboxes.forEach(cb => cb.checked = true);
+      } else {
+        selectedChannelIds = [];
+        checkboxes.forEach(cb => cb.checked = false);
+      }
+    }
+
+    function showBatchTypeModal() {
+      const checkboxes = document.querySelectorAll('.channel-checkbox:checked');
+      selectedChannelIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+      if (selectedChannelIds.length === 0) {
+        showToast('请先选择要设置的频道', 'error');
+        return;
+      }
+      document.getElementById('batchTypeChannelCount').textContent = '已选中 ' + selectedChannelIds.length + ' 个频道';
+      document.getElementById('batchChannelType').value = '';
+      document.getElementById('batchTypeModal').classList.add('active');
+    }
+
+    function closeBatchTypeModal() {
+      document.getElementById('batchTypeModal').classList.remove('active');
+    }
+
+    async function saveBatchType() {
+      const type = document.getElementById('batchChannelType').value.trim();
+      if (!type) {
+        showToast('请输入类型', 'error');
+        return;
+      }
+      try {
+        const result = await apiRequest('/channels-batch-type', {
+          method: 'PUT',
+          body: JSON.stringify({ ids: selectedChannelIds, type })
+        });
+        if (result.success) {
+          showToast('批量设置成功', 'success');
+          closeBatchTypeModal();
+          selectedChannelIds = [];
+          loadChannels();
+        } else {
+          showToast(result.error || '设置失败', 'error');
+        }
+      } catch (error) {
+        showToast('设置失败: ' + error.error, 'error');
+      }
+    }
+
     async function toggleChannel(id, isActive) {
-      showToast('功能开发中', 'error');
+      try {
+        const result = await apiRequest('/channels/' + id, {
+          method: 'PUT',
+          body: JSON.stringify({ is_active: isActive })
+        });
+        if (result.success) {
+          showToast(result.message || '操作成功', 'success');
+          loadChannels();
+        } else {
+          showToast(result.error || '操作失败', 'error');
+        }
+      } catch (error) {
+        showToast('操作失败: ' + error.error, 'error');
+      }
+    }
+
+    function showChannelEditModal(channel) {
+      document.getElementById('editChannelId').value = channel.id;
+      document.getElementById('editChannelName').value = channel.channel_name;
+      document.getElementById('editChannelType').value = channel.type || '';
+      document.getElementById('channelEditModal').classList.add('active');
+    }
+
+    function closeChannelEditModal() {
+      document.getElementById('channelEditModal').classList.remove('active');
+      document.getElementById('editChannelId').value = '';
+    }
+
+    async function saveChannelEdit() {
+      const id = document.getElementById('editChannelId').value;
+      const type = document.getElementById('editChannelType').value.trim();
+      if (!id) return;
+      try {
+        const result = await apiRequest('/channels/' + id, {
+          method: 'PUT',
+          body: JSON.stringify({ type })
+        });
+        if (result.success) {
+          showToast('更新成功', 'success');
+          closeChannelEditModal();
+          loadChannels();
+        } else {
+          showToast(result.error || '更新失败', 'error');
+        }
+      } catch (error) {
+        showToast('更新失败: ' + error.error, 'error');
+      }
     }
 
     async function clearChannels() {
@@ -2881,6 +3029,15 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       } catch (e) {
         return headersStr;
       }
+    }
+
+    function formatChannelType(typeStr) {
+      if (!typeStr) return '-';
+      return typeStr.split(',').map(t => {
+        const trimmed = t.trim();
+        const label = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+        return \`<span class="type-badge">\${escapeHtml(label)}</span>\`;
+      }).join('');
     }
 
     function escapeHtml(text) {
@@ -3741,6 +3898,52 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         hideLoading();
       }
     }
+
+    // Channel Type Mapping Config
+function loadTypeMappingConfig() {
+  var div = document.getElementById('typeMappingConfig');
+  var h = '<div style="margin-bottom:12px;color:#666;font-size:13px;">Format: type:keyword1,keyword2 (one per line)</div>';
+  h += '<textarea id="typeMappingEditor" rows="12" style="width:100%;font-family:monospace;font-size:13px;padding:8px;border:1px solid #d2d2d7;border-radius:6px;resize:vertical;"></textarea>';
+  h += '<button class="btn btn-primary" style="margin-top:12px;" onclick="loadTypeMappingData()">Load</button>';
+  div.innerHTML = h;
+  loadTypeMappingData();
+}
+window.loadTypeMappingData = async function() {
+  var ta = document.getElementById('typeMappingEditor');
+  var r = await apiRequest('/type-config', { showLoading: false });
+  var map = r.config && r.config.type_mapping ? r.config.type_mapping : {};
+  var out = [];
+  for (var k in map) {
+    if (map.hasOwnProperty(k)) {
+      var v = map[k];
+      var kw = v.keywords ? v.keywords.join(',') : '';
+      out.push(k + ':' + kw);
+    }
+  }
+  ta.value = out.join(String.fromCharCode(10));
+};
+async function saveTypeMappingConfig() {
+  var ed = document.getElementById('typeMappingEditor');
+  if (!ed) { return; }
+  var rows = ed.value.split(String.fromCharCode(10));
+  var cfg = {};
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i].trim();
+    if (!row) { continue; }
+    var pos = row.indexOf(':');
+    if (pos <= 0) { continue; }
+    var tk = row.substring(0, pos).trim();
+    var ks = row.substring(pos + 1).trim();
+    var kwlist = ks ? ks.split(',') : [];
+    cfg[tk] = kwlist;
+  }
+  var res = await apiRequest('/type-config', { method: 'PUT', body: JSON.stringify(cfg) });
+  if (res.success) {
+    showToast('Saved', 'success');
+  } else {
+    showToast('Failed', 'error');
+  }
+}
 
     // ========== Token 管理 ==========
     async function loadTokens() {
@@ -5235,6 +5438,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       if (data.success) { showToast('Ticket closed', 'success'); closeTicketModal(); loadTickets(); }
       else { showToast('Failed to close ticket', 'error'); }
     }
-  </script>
+  <\/script>
 </body>
 </html>`;

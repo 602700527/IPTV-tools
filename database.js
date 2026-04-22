@@ -158,6 +158,26 @@ export async function createTables(env) {
     CREATE INDEX IF NOT EXISTS idx_sources_is_active ON sources(is_active)
   `).run();
 
+  // 迁移：添加 channels.type 字段（如果不存在）
+  try {
+    const channelTableInfo = await db.prepare('PRAGMA table_info(channels)').all();
+    const channelColumns = channelTableInfo.results || [];
+    const hasTypeColumn = channelColumns.some(col => col.name === 'type');
+
+    if (!hasTypeColumn) {
+      await db.prepare('ALTER TABLE channels ADD COLUMN type TEXT DEFAULT \'\'').run();
+      console.log('Database: Migrated channels table - added type column');
+    }
+
+    // 创建 type 索引（优化按类型筛选查询）
+    await db.prepare('CREATE INDEX IF NOT EXISTS idx_channels_type ON channels(type)').run();
+    console.log('Database: channels type index created or already exists');
+  } catch (e) {
+    if (!e.message.includes('duplicate column name')) {
+      console.error('Database: Failed to migrate channels type column:', e);
+    }
+  }
+
   // 创建卡密表
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS codes (
@@ -217,7 +237,29 @@ export async function createTables(env) {
     // 每日IP播放限制配置
     'play_limit_per_ip': '100',
     // 同步过滤规则配置（JSON格式）
-    'sync_filter_config': '{}'
+    'sync_filter_config': '{}',
+    // 频道类型映射配置（JSON格式）：M3U tvg-type 到标准 type 的映射
+    'type_mapping_config': JSON.stringify({
+      'cinema': 'movie',
+      'films': 'movie',
+      'film': 'movie',
+      'anim': 'animation',
+      'animation': 'animation',
+      'cartoon': 'animation',
+      'entertainment': 'entertainment',
+      'sports': 'sports',
+      'sport': 'sports',
+      'news': 'news',
+      'kids': 'kids',
+      'children': 'kids',
+      'doc': 'documentary',
+      'documentary': 'documentary',
+      'edu': 'education',
+      'education': 'education',
+      'drama': 'drama',
+      'theater': 'drama',
+      'music': 'music'
+    })
   };
 
   for (const [key, value] of Object.entries(defaultSettings)) {
@@ -1059,6 +1101,62 @@ export async function updateSyncFilterConfig(config) {
   }
 }
 
+// 获取频道类型映射配置
+export async function getTypeMappingConfig() {
+  const db = getDB();
+  const result = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('type_mapping_config').first();
+
+  if (!result) {
+    // 返回默认映射配置
+    return {
+      'cinema': 'movie',
+      'films': 'movie',
+      'film': 'movie',
+      'anim': 'animation',
+      'animation': 'animation',
+      'cartoon': 'animation',
+      'entertainment': 'entertainment',
+      'sports': 'sports',
+      'sport': 'sports',
+      'news': 'news',
+      'kids': 'kids',
+      'children': 'kids',
+      'doc': 'documentary',
+      'documentary': 'documentary',
+      'edu': 'education',
+      'education': 'education',
+      'drama': 'drama',
+      'theater': 'drama',
+      'music': 'music'
+    };
+  }
+
+  try {
+    return JSON.parse(result.value);
+  } catch (e) {
+    console.error('Failed to parse type_mapping_config:', e);
+    return {};
+  }
+}
+
+// 更新频道类型映射配置
+export async function updateTypeMappingConfig(config) {
+  const db = getDB();
+  const configJson = JSON.stringify(config);
+
+  const existing = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('type_mapping_config').first();
+
+  if (existing) {
+    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
+      .bind(configJson, 'type_mapping_config')
+      .run();
+  } else {
+    await db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)')
+      .bind('type_mapping_config', configJson)
+      .run();
+  }
+}
+
 // 更新系统配置
 export async function updateSystemConfig(config) {
   const db = getDB();
@@ -1280,6 +1378,12 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
       currentChannel.logo = logoMatch[1];
     }
 
+    // 提取 tvg-type（频道类型）
+    const typeMatch = extinfLine.match(/tvg-type\s*=\s*"([^"]+)"/i);
+    if (typeMatch) {
+      currentChannel.tvg_type = typeMatch[1];
+    }
+
     // 提取 EXTINF 行内的 http-user-agent、ua、user_agent
     const uaMatch = extinfLine.match(/http-user-agent\s*=\s*"([^"]+)"/i);
     if (uaMatch) {
@@ -1427,6 +1531,48 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
       }
     }
 
+    // ========== Type 推断逻辑 ==========
+    // 优先级: 1. tvg-type 映射  2. channel_name 关键词推断  3. 空
+    const inferredTypes = new Set();
+
+    // 1. 如果有 tvg-type，尝试映射到标准 type
+    if (currentChannel.tvg_type && filter.typeMappingConfig) {
+      const mappedType = filter.typeMappingConfig[currentChannel.tvg_type.toLowerCase()];
+      if (mappedType) {
+        inferredTypes.add(mappedType);
+      } else {
+        // 如果映射表中没有，保留原始值（允许多值）
+        inferredTypes.add(currentChannel.tvg_type.toLowerCase());
+      }
+    } else if (currentChannel.tvg_type) {
+      // 如果没有映射配置但有 tvg-type，保留原始值
+      inferredTypes.add(currentChannel.tvg_type.toLowerCase());
+    }
+
+    // 2. 从 channel_name 关键词推断（使用内置规则）
+    const channelName = currentChannel.channel_name || '';
+    const CHANNEL_TYPE_KEYWORDS = [
+      { keywords: ['电影', '影院', '放影', '影城'], type: 'movie' },
+      { keywords: ['动画', '动漫', '卡通', '少儿动画'], type: 'animation' },
+      { keywords: ['综艺'], type: 'entertainment' },
+      { keywords: ['体育', '足球', '篮球', '网球', '羽毛球', '乒乓球', '排球', '高尔夫', '赛车', '赛事'], type: 'sports' },
+      { keywords: ['新闻', '资讯', '时事'], type: 'news' },
+      { keywords: ['少儿', '儿童', '幼儿', '宝宝'], type: 'kids' },
+      { keywords: ['纪录', '探索', '人文', '自然'], type: 'documentary' },
+      { keywords: ['教育', '课堂', '讲堂', '公开课', '大学'], type: 'education' },
+      { keywords: ['戏曲', '戏剧', '京剧', '梨园', '粤剧', '越剧', '黄梅戏'], type: 'drama' },
+      { keywords: ['音乐', 'MV', '演唱会', '歌剧院', '古典音乐'], type: 'music' },
+    ];
+
+    for (const rule of CHANNEL_TYPE_KEYWORDS) {
+      if (rule.keywords.some(kw => channelName.includes(kw))) {
+        inferredTypes.add(rule.type);
+      }
+    }
+
+    // 3. 合并多值 type（去重）
+    currentChannel.type = Array.from(inferredTypes).join(',');
+
     // 生成channel_hash (SHA-256)
     const encoder = new TextEncoder();
     const data = encoder.encode(urlLine);
@@ -1489,12 +1635,13 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
         const batch = channels.slice(i, i + BATCH_SIZE);
         const statements = batch.map(channel =>
           db.prepare(`
-            INSERT INTO channels (source_id, channel_name, group_title, logo, play_url, headers, channel_hash, is_active)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO channels (source_id, channel_name, group_title, type, logo, play_url, headers, channel_hash, is_active)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
           `).bind(
             channel.source_id,
             channel.channel_name,
             channel.group_title || '',
+            channel.type || '',
             channel.logo || '',
             channel.play_url,
             channel.headers,
@@ -1618,6 +1765,12 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
       currentChannel.tvg_chno = tvgChnoMatch[1];
     }
 
+    // 提取 tvg-type（频道类型）
+    const tvgTypeMatch = extinfLine.match(/tvg-type\s*=\s*"([^"]+)"/i);
+    if (tvgTypeMatch) {
+      currentChannel.tvg_type = tvgTypeMatch[1];
+    }
+
     // 提取 http-user-agent、ua、user_agent
     const uaMatch = extinfLine.match(/http-user-agent\s*=\s*"([^"]+)"/i);
     if (uaMatch) {
@@ -1739,6 +1892,46 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
         }
       }
     }
+
+    // ========== Type 推断逻辑 ==========
+    // 优先级: 1. tvg-type 映射  2. channel_name 关键词推断  3. 空
+    const inferredTypes = new Set();
+
+    // 1. 如果有 tvg-type，尝试映射到标准 type
+    if (currentChannel.tvg_type && filter.typeMappingConfig) {
+      const mappedType = filter.typeMappingConfig[currentChannel.tvg_type.toLowerCase()];
+      if (mappedType) {
+        inferredTypes.add(mappedType);
+      } else {
+        inferredTypes.add(currentChannel.tvg_type.toLowerCase());
+      }
+    } else if (currentChannel.tvg_type) {
+      inferredTypes.add(currentChannel.tvg_type.toLowerCase());
+    }
+
+    // 2. 从 channel_name 关键词推断
+    const channelName = currentChannel.channel_name || '';
+    const CHANNEL_TYPE_KEYWORDS = [
+      { keywords: ['电影', '影院', '放影', '影城'], type: 'movie' },
+      { keywords: ['动画', '动漫', '卡通', '少儿动画'], type: 'animation' },
+      { keywords: ['综艺'], type: 'entertainment' },
+      { keywords: ['体育', '足球', '篮球', '网球', '羽毛球', '乒乓球', '排球', '高尔夫', '赛车', '赛事'], type: 'sports' },
+      { keywords: ['新闻', '资讯', '时事'], type: 'news' },
+      { keywords: ['少儿', '儿童', '幼儿', '宝宝'], type: 'kids' },
+      { keywords: ['纪录', '探索', '人文', '自然'], type: 'documentary' },
+      { keywords: ['教育', '课堂', '讲堂', '公开课', '大学'], type: 'education' },
+      { keywords: ['戏曲', '戏剧', '京剧', '梨园', '粤剧', '越剧', '黄梅戏'], type: 'drama' },
+      { keywords: ['音乐', 'MV', '演唱会', '歌剧院', '古典音乐'], type: 'music' },
+    ];
+
+    for (const rule of CHANNEL_TYPE_KEYWORDS) {
+      if (rule.keywords.some(kw => channelName.includes(kw))) {
+        inferredTypes.add(rule.type);
+      }
+    }
+
+    // 3. 合并多值 type
+    currentChannel.type = Array.from(inferredTypes).join(',');
 
     // 生成channel_hash
     const encoder = new TextEncoder();
@@ -2187,6 +2380,9 @@ export function generateM3UContent(channels, subId, isFreeSub = false, baseUrl =
     }
     if (channel.group_title) {
       extinf += ` group-title="${channel.group_title}"`;
+    }
+    if (channel.type) {
+      extinf += ` tvg-type="${channel.type}"`;
     }
     extinf += `,${channel.channel_name}\n`;
 

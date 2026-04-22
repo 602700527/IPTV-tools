@@ -1,5 +1,5 @@
 // 定时任务处理器：自动同步已启用的数据源和刷新缓存
-import { getDB, fetchAndParseM3U, fetchAndParseM3UOnly, initDB, getSyncFilterConfig } from '../database.js';
+import { getDB, fetchAndParseM3U, fetchAndParseM3UOnly, initDB, getSyncFilterConfig, getTypeMappingConfig } from '../database.js';
 import { cacheChannelsToKV, generateAndCacheSitemap } from '../utils/channel-cache.js';
 import { generateTokenAndAddresses } from '../utils/token-manager.js';
 
@@ -170,7 +170,16 @@ async function syncAllSources(db, env, ctx = null) {
       console.log('[Scheduler] Loaded sync filter config:', filter);
     } catch (error) {
       console.error('[Scheduler] Failed to load sync filter config:', error);
-      filter = null;
+      filter = {};
+    }
+
+    // 获取类型映射配置
+    try {
+      const typeMappingConfig = await getTypeMappingConfig();
+      filter.typeMappingConfig = typeMappingConfig;
+      console.log('[Scheduler] Loaded type mapping config:', typeMappingConfig);
+    } catch (error) {
+      console.error('[Scheduler] Failed to load type mapping config:', error);
     }
 
     // 获取所有启用的数据源
@@ -369,12 +378,13 @@ async function writeChannelsToDB(db, channels, adBindings, sourceId) {
   // 使用批量插入提高性能
   const channelStatements = channels.map(channel =>
     db.prepare(`
-      INSERT INTO channels (source_id, channel_name, group_title, logo, play_url, headers, channel_hash, is_active)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO channels (source_id, channel_name, group_title, type, logo, play_url, headers, channel_hash, is_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       sourceId,
       channel.channel_name || '',
       channel.group_title || '',
+      channel.type || '',
       channel.logo || '',
       channel.url || '',
       channel.headers || '{}',
@@ -501,6 +511,20 @@ export async function manualSyncAll(env, filter = null) {
     if (!db) {
       console.error('[Scheduler] Failed to initialize database');
       return { success: false, error: 'Database initialization failed' };
+    }
+
+    // 如果没有传入 filter，加载默认配置
+    if (!filter) {
+      filter = {};
+    }
+
+    // 加载类型映射配置
+    try {
+      const typeMappingConfig = await getTypeMappingConfig();
+      filter.typeMappingConfig = typeMappingConfig;
+      console.log('[Scheduler] Loaded type mapping config');
+    } catch (error) {
+      console.error('[Scheduler] Failed to load type mapping config:', error);
     }
 
     // 获取所有启用的数据源

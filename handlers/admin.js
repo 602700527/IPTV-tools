@@ -1,5 +1,5 @@
 // 管理后台API处理器
-import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, getSyncFilterConfig, updateSyncFilterConfig, getDomainBlacklist, addDomainToBlacklist, removeDomainFromBlacklist, addMultipleDomainsToBlacklist } from '../database.js';
+import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, getSyncFilterConfig, updateSyncFilterConfig, getTypeMappingConfig, updateTypeMappingConfig, getDomainBlacklist, addDomainToBlacklist, removeDomainFromBlacklist, addMultipleDomainsToBlacklist } from '../database.js';
 import {
   handleGetPaymentMethods,
   handleUpdatePaymentMethod,
@@ -665,6 +665,7 @@ export async function handleAdminRequest(request, env, ctx) {
         const action = url.searchParams.get('action');
         const sourceIdFilter = url.searchParams.get('source_id');
         const groupTitleFilter = url.searchParams.get('group_title');
+        const typeFilter = url.searchParams.get('type');
         const page = parseInt(url.searchParams.get('page')) || 1;
         const pageSize = parseInt(url.searchParams.get('page_size')) || 100;
         const search = url.searchParams.get('search') || '';
@@ -729,6 +730,12 @@ export async function handleAdminRequest(request, env, ctx) {
           params.push(groupTitleFilter);
         }
 
+        if (typeFilter) {
+          whereConditions.push("(c.type LIKE ? OR c.type LIKE ? OR c.type LIKE ? OR c.type = ?)");
+          const typePattern = '%' + typeFilter + '%';
+          params.push(typePattern, typeFilter + ',%', '%,' + typeFilter + ',%', typeFilter);
+        }
+
         if (search) {
           whereConditions.push('(c.channel_name LIKE ? OR c.group_title LIKE ?)');
           const searchPattern = `%${search}%`;
@@ -755,6 +762,7 @@ export async function handleAdminRequest(request, env, ctx) {
           source_id: channel.source_id,
           channel_name: channel.channel_name,
           group_title: channel.group_title,
+          type: channel.type || '',
           logo: channel.logo,
           play_url: channel.play_url,
           headers: channel.headers,
@@ -851,6 +859,130 @@ export async function handleAdminRequest(request, env, ctx) {
         }), {
           headers: { 'Content-Type': 'application/json' }
         });
+
+      case 'channel':
+        // 单独处理频道更新
+        const channelId = pathParts[3];
+        if (channelId && request.method === 'PUT') {
+          const data = await request.json();
+          const db = getDB();
+
+          // 构建更新字段
+          const updateFields = [];
+          const updateParams = [];
+
+          if (data.channel_name !== undefined) {
+            updateFields.push('channel_name = ?');
+            updateParams.push(data.channel_name);
+          }
+          if (data.group_title !== undefined) {
+            updateFields.push('group_title = ?');
+            updateParams.push(data.group_title);
+          }
+          if (data.type !== undefined) {
+            updateFields.push('type = ?');
+            updateParams.push(data.type || '');
+          }
+          if (data.logo !== undefined) {
+            updateFields.push('logo = ?');
+            updateParams.push(data.logo || '');
+          }
+          if (data.play_url !== undefined) {
+            updateFields.push('play_url = ?');
+            updateParams.push(data.play_url);
+          }
+          if (data.headers !== undefined) {
+            updateFields.push('headers = ?');
+            updateParams.push(typeof data.headers === 'string' ? data.headers : JSON.stringify(data.headers || {}));
+          }
+          if (data.is_active !== undefined) {
+            updateFields.push('is_active = ?');
+            updateParams.push(data.is_active ? 1 : 0);
+          }
+
+          if (updateFields.length === 0) {
+            return new Response(JSON.stringify({ success: false, error: 'No fields to update' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+
+          updateParams.push(channelId);
+
+          await db.prepare(`UPDATE channels SET ${updateFields.join(', ')} WHERE id = ?`).bind(...updateParams).run();
+
+          return new Response(JSON.stringify({ success: true }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        break;
+
+      case 'channels-batch-type':
+        // 批量更新频道类型
+        if (request.method === 'PUT') {
+          const data = await request.json();
+          const { ids, type } = data;
+
+          if (!Array.isArray(ids) || ids.length === 0) {
+            return new Response(JSON.stringify({ success: false, error: 'Invalid ids array' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+
+          const db = getDB();
+          let updated = 0;
+
+          for (const id of ids) {
+            if (!id) continue;
+            const result = await db.prepare('UPDATE channels SET type = ? WHERE id = ?').bind(type || '', id).run();
+            if (result.meta.changes > 0) {
+              updated++;
+            }
+          }
+
+          return new Response(JSON.stringify({
+            success: true,
+            updated,
+            message: `Updated ${updated} channels`
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        break;
+
+      case 'type-config':
+        // 类型映射配置管理
+        if (request.method === 'GET') {
+          const config = await getTypeMappingConfig();
+          return new Response(JSON.stringify({
+            success: true,
+            config
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'PUT') {
+          const data = await request.json();
+
+          // 验证配置格式（应该是 key-value 对象）
+          if (typeof data !== 'object' || Array.isArray(data)) {
+            return new Response(JSON.stringify({ success: false, error: 'Invalid config format' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+
+          await updateTypeMappingConfig(data);
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: 'Type mapping config updated',
+            config: data
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        break;
 
       case 'ip-blacklist-config':
         // IP黑名单配置管理
