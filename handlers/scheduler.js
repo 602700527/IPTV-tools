@@ -2,6 +2,7 @@
 import { getDB, fetchAndParseM3U, fetchAndParseM3UOnly, initDB, getSyncFilterConfig, getTypeMappingConfig } from '../database.js';
 import { cacheChannelsToKV, generateAndCacheSitemap } from '../utils/channel-cache.js';
 import { generateTokenAndAddresses } from '../utils/token-manager.js';
+import { classifyEmptyTypeChannels } from './ai-classify.js';
 
 // KV 分布式锁配置
 const LOCK_TTL_SECONDS = 7200; // 锁自动过期时间 2小时
@@ -321,6 +322,20 @@ async function syncAllSources(db, env, ctx = null) {
       if (cacheResult.success) {
         console.log(`[Scheduler] Cached ${cacheResult.cachedCount} channels to KV`);
 
+        // 第四步：AI 分类空类型频道（异步，不阻塞主流程）
+        if (ctx) {
+          console.log('[Scheduler] Scheduling async AI channel classification...');
+          ctx.waitUntil(async () => {
+            try {
+              console.log('[Scheduler] [ASYNC] Starting AI channel classification...');
+              const classifyResult = await classifyEmptyTypeChannels(env);
+              console.log(`[Scheduler] [ASYNC] AI classified ${classifyResult.classified} channels`);
+            } catch (asyncError) {
+              console.error('[Scheduler] [ASYNC] AI classification failed:', asyncError);
+            }
+          });
+        }
+
         // 异步执行 sitemap 和 token 生成（不阻塞主流程）
         // 使用 ctx.waitUntil 确保在后台完成
         if (ctx) {
@@ -355,6 +370,11 @@ async function syncAllSources(db, env, ctx = null) {
           console.log('[Scheduler] Generating new token and play addresses...');
           const tokenResult = await generateTokenAndAddresses(env);
           console.log(`[Scheduler] Token generated: ${tokenResult}`);
+
+          // 同步执行 AI 分类（降级路径）
+          console.log('[Scheduler] Running AI channel classification...');
+          const classifyResult = await classifyEmptyTypeChannels(env);
+          console.log(`[Scheduler] AI classified ${classifyResult.classified} channels`);
         }
       } else {
         console.error('[Scheduler] Failed to cache channels:', cacheResult.error);

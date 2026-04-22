@@ -8,6 +8,7 @@ import {
   handleUpdateMallSettings
 } from './mall-api.js';
 import { handleGetXunhuPayOrders } from './xunhupay-api.js';
+import { handleClassifyChannelsAI } from './ai-classify.js';
 import { manualSyncAll } from './scheduler.js';
 import { getBlacklistedIPs, unbanIP, getIPAccessStats, banIP } from '../security/ip-blacklist.js';
 import { getBannedCodesFromCache, removeBannedCodeFromCache, syncBannedCodesToCache } from '../security/code-ban-cache.js';
@@ -239,11 +240,25 @@ export async function handleAdminRequest(request, env, ctx) {
           }
         }
 
+        // 如果filter为空，使用空对象
+        if (!filter) {
+          filter = {};
+        }
+
+        // 加载 typeMappingConfig
+        try {
+          const typeMappingConfig = await getTypeMappingConfig();
+          filter.typeMappingConfig = typeMappingConfig;
+          console.log('[Admin] Loaded typeMappingConfig:', typeMappingConfig);
+        } catch (e) {
+          console.error('[Admin] Failed to load typeMappingConfig:', e);
+        }
+
         // 先更新源的同步时间（使用 JavaScript 生成当前时间）
         const now = new Date().toISOString();
         await db.prepare(`UPDATE sources SET last_updated = ? WHERE id = ?`).bind(now, sourceId).run();
 
-        // 获取并解析M3U内容（注意：fetchAndParseM3U也会更新时间，所以这里更新两次）
+        // 获取并解析M3U内容
         const result = await fetchAndParseM3U(source.url, sourceId, filter);
 
         // 添加删除统计信息
@@ -2238,6 +2253,9 @@ export async function handleAdminRequest(request, env, ctx) {
 
       default:
         return new Response('Invalid admin action', { status: 400 });
+      case 'classify-channels-ai':
+        // AI 批量分类空类型频道
+        return await handleClassifyChannelsAI(request, env);
     }
   } catch (error) {
     console.error('Admin API error:', error);

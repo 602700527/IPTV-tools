@@ -247,7 +247,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     </div>
     <div id="channels" class="tab-content">
       <div class="card">
-        <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="onSourceFilterChange()"><option value="">全部源</option></select><select class="filter-select" id="channelGroupFilter" onchange="resetChannelPage()"><option value="">全部分组</option></select><select class="filter-select" id="channelTypeFilter" onchange="resetChannelPage()"><option value="">全部类型</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="resetChannelPage()"><select class="filter-select" id="channelPageSize" onchange="resetChannelPage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="30" selected>30条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select><button class="btn btn-danger" onclick="clearChannels()">清空数据</button><button class="btn btn-primary" onclick="showBatchTypeModal()">批量设置类型</button></div></div>
+        <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="onSourceFilterChange()"><option value="">全部源</option></select><select class="filter-select" id="channelGroupFilter" onchange="resetChannelPage()"><option value="">全部分组</option></select><select class="filter-select" id="channelTypeFilter" onchange="resetChannelPage()"><option value="">全部类型</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="resetChannelPage()"><select class="filter-select" id="channelPageSize" onchange="resetChannelPage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="30" selected>30条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select><button class="btn btn-danger" onclick="clearChannels()">清空数据</button><button class="btn btn-primary" onclick="showBatchTypeModal()">批量设置类型</button><button class="btn btn-success" onclick="classifyChannelsWithAI()">AI 分类</button></div></div>
         <table><thead><tr><th><input type="checkbox" id="channelSelectAll" onchange="toggleSelectAllChannels()"></th><th>频道名称</th><th>分组</th><th>直播源</th><th>类型</th><th>播放地址</th><th>请求头</th><th>状态</th><th>操作</th></tr></thead><tbody id="channelsTable"></tbody></table>
         <div id="channelPagination" class="pagination"></div>
       </div>
@@ -896,7 +896,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <div style="color:#86868b;">加载中...</div>
           </div>
         </div>
-      </div>
     </div>
   </div>
   <div id="loadingOverlay" class="loading-overlay">
@@ -3944,6 +3943,33 @@ async function saveTypeMappingConfig() {
     showToast('Failed', 'error');
   }
 }
+
+    // ========== AI 频道分类 ==========
+    async function classifyChannelsWithAI() {
+      var btn = document.querySelector('button[onclick="classifyChannelsWithAI()"]');
+      if (!btn) return;
+      var originalText = btn.textContent;
+      btn.textContent = 'AI 分类中...';
+      btn.disabled = true;
+      showToast('AI 分类已启动，需几分钟完成...', 'info');
+      try {
+        var data = await apiRequest('/classify-channels-ai', {
+          method: 'POST',
+          body: JSON.stringify({ limit: 10000 }),
+          showLoading: false
+        });
+        if (data.success) {
+          showToast('AI 分类完成！共分类 ' + data.classified + ' 个频道', 'success');
+          loadChannels();
+        } else {
+          showToast('AI 分类失败: ' + (data.error || '未知错误'), 'error');
+        }
+      } catch (e) {
+        showToast('AI 分类失败: ' + e.message, 'error');
+      }
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
 
     // ========== Token 管理 ==========
     async function loadTokens() {

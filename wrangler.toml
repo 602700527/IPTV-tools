@@ -14,6 +14,10 @@ binding = "DB"
 database_name = "tv-service-db"
 database_id = "9c7c22f1-fa0e-48da-8874-19731483c550"
 
+# Workers AI
+[ai]
+binding = "AI"
+
 # 环境变量
 [vars]
 # 在生产环境中应该设置为安全值
