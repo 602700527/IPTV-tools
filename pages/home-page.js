@@ -15,11 +15,19 @@ export function generateHomePage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free IPTV Search Engine - 8000+ Live TV Channel Directory & Search</title>
-  <meta name="description" content="Discover 8000+ free live TV channels. Search by category, country, or genre. Start watching instantly - no signup required!">
+  <title>[iptvsearch] - Free IPTV Search Engine | 8000+ Live TV Channels M3U M3U8</title>
+  <meta name="description" content="Find any IPTV channel instantly. Search live sports, movies, news. Updated daily. No signup required. Compatible with IPTV Smarters Pro, VLC, GSE Smart IPTV, and all M3U M3U8 players.">
+  <meta name="keywords" content="iptv search, free IPTV search, IPTV search engine, search IPTV channels, find IPTV, best IPTV search, iptv link finder, M3U search, M3U8 search, live TV search, watch IPTV online, IPTV search free, IPTV M3U, IPTV M3U8, free IPTV, IPTV player">
+  <meta name="robots" content="index, follow">
   <link rel="canonical" href="${origin}/">
-  <meta property="og:title" content="Free IPTV Search Engine - 8000+ Live TV Channel Directory">
-  <meta property="og:description" content="Discover 8000+ free live TV channels. Search by category, country, or genre.">
+  <meta property="og:title" content="[iptvsearch] - Free IPTV Search Engine | 8000+ Live TV Channels">
+  <meta property="og:description" content="Find any IPTV channel instantly. Search live sports, movies, news. Updated daily. No signup required.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${origin}/">
+  <meta property="og:image" content="${origin}/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="iptvsearch - Free IPTV Search Engine | 8000+ Live TV Channels">
+  <meta name="twitter:description" content="Find any IPTV channel instantly. Search live sports, movies, news. Updated daily.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${origin}/">
   <meta property="og:image" content="${origin}/og-image.png">

@@ -150,14 +150,19 @@ export function generateChannelPage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(channel.name)} - ${escapeHtml(channel.group || 'Live TV')} IPTV Link & Streaming</title>
-  <meta name="description" content="Watch ${escapeHtml(channel.name)} live with free IPTV link. ${escapeHtml(channel.group)} channel streaming. No signup required. Compatible with IPTV Smarters, VLC, M3U players.">
+  <title>Watch ${escapeHtml(channel.name)} Online Free - ${escapeHtml(channel.group || 'Live TV')} IPTV M3U M3U8 Live Stream</title>
+  <meta name="description" content="Watch ${escapeHtml(channel.name)} live online for free. ${escapeHtml(channel.group)} IPTV streaming with instant M3U M3U8 download link. No signup required. Compatible with IPTV Smarters Pro, VLC, GSE Smart IPTV, and all players.">
+  <meta name="keywords" content="${escapeHtml(channel.name)} IPTV, watch ${escapeHtml(channel.name)} online, ${escapeHtml(channel.group)} live stream, ${escapeHtml(channel.name)} M3U, ${escapeHtml(channel.name)} M3U8, ${escapeHtml(channel.name)} free TV, ${escapeHtml(channel.name)} streaming, IPTV ${escapeHtml(channel.name)}">
+  <meta name="robots" content="index, follow">
   <link rel="canonical" href="${origin}/channel/${channelSlug}">
   <meta property="og:url" content="${origin}/channel/${channelSlug}">
-  <meta property="og:title" content="${escapeHtml(channel.name)} - ${escapeHtml(channel.group || 'Live TV')} IPTV Link">
-  <meta property="og:description" content="Watch ${escapeHtml(channel.name)} live. Free IPTV streaming with instant M3U link access. No registration required.">
+  <meta property="og:title" content="Watch ${escapeHtml(channel.name)} Online - Free ${escapeHtml(channel.group || 'TV')} IPTV M3U M3U8">
+  <meta property="og:description" content="Stream ${escapeHtml(channel.name)} live free. Instant M3U M3U8 link - works with all IPTV players. No registration needed.">
   ${channel.logo ? '<meta property="og:image" content="' + escapeHtml(channel.logo) + '">' : ''}
   <meta property="og:type" content="video.other">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Watch ${escapeHtml(channel.name)} Online Free - IPTV M3U M3U8">
+  <meta name="twitter:description" content="Stream ${escapeHtml(channel.name)} live free. M3U M3U8 link for all IPTV players.">
 
   <script type="application/ld+json">${JSON.stringify(jsonLd1)}</script>
 

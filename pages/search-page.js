@@ -13,8 +13,16 @@ export function generateSearchPage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${query ? `Search: ${query}` : 'Search Channels'} | IPTV Search</title>
-  <meta name="description" content="Find ${query} live TV channels on IPTV Search Engine. Free IPTV streaming - no signup required.">
+  <title>${query ? `Search ${escapeHtml(query)} IPTV Channels - Free ${escapeHtml(query)} M3U M3U8 Stream Online` : 'IPTV Channel Search - Free M3U M3U8 TV Channels'}</title>
+  <meta name="description" content="${query ? `Find free ${escapeHtml(query)} live TV channels online. Search results for ${escapeHtml(query)} - watch IPTV with M3U M3U8 links. No signup required. Compatible with IPTV Smarters Pro, VLC, GSE Smart IPTV, and all players.` : 'Search free IPTV live TV channels online. M3U M3U8 sources for VLC, IPTV Smarters - no signup required.'}">
+  <meta name="keywords" content="${query ? `${escapeHtml(query)} IPTV search, search ${escapeHtml(query)} TV channels, find ${escapeHtml(query)} M3U, ${escapeHtml(query)} M3U8, free ${escapeHtml(query)} IPTV, ${escapeHtml(query)} streaming, watch ${escapeHtml(query)} online, IPTV ${escapeHtml(query)} channels` : 'IPTV search, free IPTV search, M3U search, M3U8 search, TV channel search, live streaming search'}">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="${query ? `Search ${escapeHtml(query)} IPTV Channels - Free ${escapeHtml(query)} Stream` : 'IPTV Channel Search - Free TV Channels'}">
+  <meta property="og:description" content="${query ? `Stream free ${escapeHtml(query)} live TV channels. Instant M3U M3U8 links - works with all IPTV players. No registration.` : 'Find free IPTV channels online. Instant M3U M3U8 links for VLC and all IPTV players.'}">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="${query ? `Search ${escapeHtml(query)} IPTV Channels Free Online` : 'IPTV Channel Search - Free TV Streams'}">
+  <meta name="twitter:description" content="${query ? `Stream free ${escapeHtml(query)} live TV. M3U M3U8 links for all IPTV players.` : 'Find and watch free IPTV channels. M3U M3U8 links for VLC and more.'}">
 
   <script>
     (function() {
@@ -374,6 +382,16 @@ export function generateSearchPage(options = {}) {
 }
 
 // HTML escape helper for use in template
+function escapeHtml(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function escapeAttr(str) {
   if (!str) return '';
   return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#039;');

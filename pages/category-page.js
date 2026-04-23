@@ -93,11 +93,18 @@ export function generateCategoryPage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(category)} IPTV Free - Live ${escapeHtml(category)} TV Channels Streaming</title>
-  <meta name="description" content="Watch free ${escapeHtml(category)} IPTV channels online. ${escapeHtml(category)} live TV streaming with no signup required. Compatible with IPTV Smarters, VLC, and all major players.">
+  <title>Watch ${escapeHtml(category)} IPTV Channels - Free Live Stream Online in ${escapeHtml(category)}</title>
+  <meta name="description" content="Watch free ${escapeHtml(category)} IPTV channels live online. ${escapeHtml(category)} TV streaming - no signup required. Compatible with IPTV Smarters Pro, VLC, GSE Smart IPTV, and all M3U M3U8 players.">
+  <meta name="keywords" content="${escapeHtml(category)} IPTV, watch ${escapeHtml(category)} TV, ${escapeHtml(category)} live stream, free ${escapeHtml(category)} IPTV, ${escapeHtml(category)} M3U, ${escapeHtml(category)} M3U8, ${escapeHtml(category)} online TV, ${escapeHtml(category)} streaming channels">
+  <meta name="robots" content="index, follow">
   <link rel="canonical" href="${origin}/category/${encodeURIComponent(slug)}">
-  <meta property="og:title" content="${escapeHtml(category)} IPTV Free - Live ${escapeHtml(category)} TV Channels">
-  <meta property="og:description" content="Watch free ${escapeHtml(category)} IPTV channels online. Live ${escapeHtml(category)} TV streaming with no signup required.">
+  <meta property="og:title" content="Watch ${escapeHtml(category)} IPTV Channels - Free ${escapeHtml(category)} Live Stream">
+  <meta property="og:description" content="Stream free ${escapeHtml(category)} IPTV channels online. No signup required. Works with IPTV Smarters, VLC, GSE, and all M3U players.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${origin}/category/${encodeURIComponent(slug)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Watch ${escapeHtml(category)} IPTV Channels Free Online">
+  <meta name="twitter:description" content="Stream free ${escapeHtml(category)} live TV channels. No signup, no fees. Compatible with all IPTV players.">
    <meta property="og:type" content="website">
    <meta property="og:url" content="${origin}/category/${encodeURIComponent(slug)}">
 
