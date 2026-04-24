@@ -878,6 +878,96 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           'Cache-Control': 'public, max-age=60'
         }
       });
+    }
+
+    // 类型页路由：/type/{slug} (AI分类类型)
+    const typeMatch = path.match(/^\/type\/([^\/]+)$/);
+    if (typeMatch) {
+      const typeSlug = decodeURIComponent(typeMatch[1]);
+
+      // Type display names (English -> Chinese)
+      const typeNames = {
+        'movie': '电影', 'animation': '动画', 'entertainment': '综艺',
+        'sports': '体育', 'news': '新闻', 'kids': '少儿', 'documentary': '纪录',
+        'education': '教育', 'drama': '戏曲', 'music': '音乐', 'fashion': '时尚',
+        'game': '游戏', 'travel': '旅游', 'food': '美食', 'finance': '财经',
+        'tech': '科技', 'health': '健康', 'comprehensive': '综合'
+      };
+
+      // Direct mapping: slug (lowercase) -> type key
+      const typeSlugToKey = {};
+      Object.keys(typeNames).forEach(key => {
+        typeSlugToKey[key.toLowerCase()] = key;
+      });
+
+      // English display names
+      const categoryNames = {
+        'movie': 'Movies', 'animation': 'Animation', 'entertainment': 'Entertainment',
+        'sports': 'Sports', 'news': 'News', 'kids': 'Kids', 'documentary': 'Documentary',
+        'education': 'Education', 'drama': 'Drama', 'music': 'Music', 'fashion': 'Fashion',
+        'game': 'Game', 'travel': 'Travel', 'food': 'Food', 'finance': 'Finance',
+        'tech': 'Tech', 'health': 'Health', 'comprehensive': 'Comprehensive'
+      };
+
+      const typeKey = typeSlugToKey[typeSlug];
+      if (!typeKey) {
+        return await generate404Page(request, env);
+      }
+
+      const db = await initDB(env);
+
+      // 获取所有频道（包含type字段）
+      const allChannelsResult = await db.prepare(`
+        SELECT c.id, c.channel_name, c.group_title, c.type, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active, c.source_id, s.name as source_name
+        FROM channels c
+        INNER JOIN sources s ON c.source_id = s.id
+        WHERE c.is_active = 1 AND s.is_active = 1
+      `).all();
+
+      const allChannels = allChannelsResult.results || [];
+
+      // 获取所有类型并计算每个类型的频道数量
+      const typeCounts = {};
+      allChannels.forEach(ch => {
+        const t = ch.type || 'unknown';
+        typeCounts[t] = (typeCounts[t] || 0) + 1;
+      });
+
+      // 构建类型列表（用于侧边栏）
+      const typeCategories = Object.keys(typeCounts).map(t => {
+        return {
+          name: categoryNames[t] || t,
+          slug: t.toLowerCase(),
+          count: typeCounts[t] || 0,
+          type: t
+        };
+      }).sort((a, b) => b.count - a.count);
+
+      // 获取当前类型的频道
+      const typeChannels = allChannels
+        .filter(ch => ch.type === typeKey)
+        .map(ch => ({
+          name: ch.channel_name,
+          hash: ch.channel_hash,
+          logo: ch.logo,
+          group: ch.group_title,
+          type: ch.type
+        }));
+
+      const { generateCategoryPage } = await import('./pages/category-page.js');
+      const html = generateCategoryPage({
+        origin: url.origin,
+        category: categoryNames[typeKey] || typeKey,
+        slug: typeSlug,
+        categories: typeCategories,
+        channels: typeChannels
+      });
+      return new Response(html, {
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'public, max-age=60'
+        }
+      });
     } else if (path.startsWith('/channel/')) {
       // 频道详情页: /channel/{slug}
       // Slug 格式: cctv-1-hd 或 cctv-1-hd-1 (重复名称用数字区分)
@@ -1013,6 +1103,10 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       // 分类页数据 API: /api/category/{slug}
       const { handleApiCategory } = await import('./handlers/api/category.js');
       return await handleApiCategory(request, env, ctx);
+    } else if (path.startsWith('/api/type/')) {
+      // 类型页数据 API: /api/type/{slug} (AI分类类型)
+      const { handleApiType } = await import('./handlers/api/type.js');
+      return await handleApiType(request, env, ctx);
     } else if (path === '/api/config') {
       // 公开配置API - 获取前端需要的配置（如加密密钥）
       return await handlePublicConfig(request, env, ctx);

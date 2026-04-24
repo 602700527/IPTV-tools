@@ -694,7 +694,6 @@ export function generateCategoryPage(options = {}) {
   function showToastWarning(message, title = 'Warning', action = null) { return showToast({ type: 'warning', title, message, action }); }
   function showToastInfo(message, title = '', action = null) { return showToast({ type: 'info', title, message, action }); }
   </script>
-  ${PAGE_FOOTER}
 </body>
 </html>`;
 }

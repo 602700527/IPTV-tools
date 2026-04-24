@@ -1572,7 +1572,22 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         try {
           const typeConfig = await apiRequest('/type-config', { showLoading: false });
           const typeFilter = document.getElementById('channelTypeFilter');
-          const types = typeConfig.config?.type_mapping ? Object.keys(typeConfig.config.type_mapping) : [];
+          let types = [];
+          
+          // 优先从 type_mapping 配置获取类型列表
+          if (typeConfig.config?.type_mapping) {
+            types = Object.keys(typeConfig.config.type_mapping);
+          }
+          
+          // 如果 type_mapping 为空，使用内置的默认类型列表
+          if (types.length === 0) {
+            types = [
+              'movie', 'animation', 'entertainment', 'sports', 'news',
+              'kids', 'documentary', 'education', 'drama', 'music',
+              'fashion', 'game', 'travel', 'food', 'finance', 'tech', 'health'
+            ];
+          }
+          
           typeFilter.innerHTML = '<option value="">全部类型</option>' + types.map(t => \`<option value="\${escapeHtml(t)}">\${escapeHtml(t)}</option>\`).join('');
         } catch (e) {
           console.error('加载类型配置失败:', e);
@@ -3898,49 +3913,48 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       }
     }
 
-    // Channel Type Mapping Config
+    // Channel Type Mapping Config (频道名 -> 类型 映射)
 function loadTypeMappingConfig() {
   var div = document.getElementById('typeMappingConfig');
-  var h = '<div style="margin-bottom:12px;color:#666;font-size:13px;">Format: type:keyword1,keyword2 (one per line)</div>';
+  var h = '<div style="margin-bottom:12px;color:#666;font-size:13px;">格式：频道名:类型（每行一个），例如：CCTV-1:news</div>';
   h += '<textarea id="typeMappingEditor" rows="12" style="width:100%;font-family:monospace;font-size:13px;padding:8px;border:1px solid #d2d2d7;border-radius:6px;resize:vertical;"></textarea>';
-  h += '<button class="btn btn-primary" style="margin-top:12px;" onclick="loadTypeMappingData()">Load</button>';
+  h += '<div style="margin-top:8px;display:flex;gap:8px;">';
+  h += '<button class="btn btn-primary" onclick="loadTypeMappingData()">刷新</button>';
+  h += '<button class="btn btn-success" onclick="saveTypeMappingConfig()">保存</button>';
+  h += '</div>';
   div.innerHTML = h;
   loadTypeMappingData();
 }
 window.loadTypeMappingData = async function() {
   var ta = document.getElementById('typeMappingEditor');
+  if (!ta) return;
   var r = await apiRequest('/type-config', { showLoading: false });
-  var map = r.config && r.config.type_mapping ? r.config.type_mapping : {};
-  var out = [];
-  for (var k in map) {
-    if (map.hasOwnProperty(k)) {
-      var v = map[k];
-      var kw = v.keywords ? v.keywords.join(',') : '';
-      out.push(k + ':' + kw);
-    }
-  }
+  // r.config 是数组 [{channel_name, type}, ...]
+  var list = r.config || [];
+  var out = list.map(function(m) { return m.channel_name + ':' + m.type; });
   ta.value = out.join(String.fromCharCode(10));
 };
 async function saveTypeMappingConfig() {
   var ed = document.getElementById('typeMappingEditor');
   if (!ed) { return; }
   var rows = ed.value.split(String.fromCharCode(10));
-  var cfg = {};
+  var mappings = [];
   for (var i = 0; i < rows.length; i++) {
     var row = rows[i].trim();
     if (!row) { continue; }
     var pos = row.indexOf(':');
     if (pos <= 0) { continue; }
-    var tk = row.substring(0, pos).trim();
-    var ks = row.substring(pos + 1).trim();
-    var kwlist = ks ? ks.split(',') : [];
-    cfg[tk] = kwlist;
+    var chName = row.substring(0, pos).trim();
+    var type = row.substring(pos + 1).trim();
+    if (chName && type) {
+      mappings.push({ channel_name: chName, type: type });
+    }
   }
-  var res = await apiRequest('/type-config', { method: 'PUT', body: JSON.stringify(cfg) });
+  var res = await apiRequest('/type-config', { method: 'PUT', body: JSON.stringify(mappings) });
   if (res.success) {
-    showToast('Saved', 'success');
+    showToast('保存成功，共 ' + mappings.length + ' 条映射', 'success');
   } else {
-    showToast('Failed', 'error');
+    showToast('保存失败', 'error');
   }
 }
 
@@ -3951,24 +3965,40 @@ async function saveTypeMappingConfig() {
       var originalText = btn.textContent;
       btn.textContent = 'AI 分类中...';
       btn.disabled = true;
-      showToast('AI 分类已启动，需几分钟完成...', 'info');
+
+      // 使用同步状态指示器显示进度
+      setSyncStatus('classifying');
+      document.getElementById('syncText').textContent = 'AI 分类启动中...';
+
       try {
-        var data = await apiRequest('/classify-channels-ai', {
+        // 先发送请求获取初始信息
+        const initResponse = await fetch(API_BASE + '/classify-channels-ai', {
           method: 'POST',
-          body: JSON.stringify({ limit: 10000 }),
-          showLoading: false
+          headers: {
+            'X-Admin-Key': adminKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ limit: 10000 })
         });
-        if (data.success) {
-          showToast('AI 分类完成！共分类 ' + data.classified + ' 个频道', 'success');
-          loadChannels();
-        } else {
-          showToast('AI 分类失败: ' + (data.error || '未知错误'), 'error');
+
+        const initData = await initResponse.json();
+
+        if (!initData.success) {
+          throw new Error(initData.error || 'AI 分类请求失败');
         }
+
+        // 显示完成消息（因为AI处理很快，实际是同步完成的）
+        document.getElementById('syncText').textContent = 'AI 分类完成！';
+        showToast('AI 分类完成！共分类 ' + initData.classified + ' 个频道', 'success');
+        loadChannels();
+
       } catch (e) {
         showToast('AI 分类失败: ' + e.message, 'error');
+      } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+        clearSyncStatus();
       }
-      btn.textContent = originalText;
-      btn.disabled = false;
     }
 
     // ========== Token 管理 ==========

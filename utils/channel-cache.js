@@ -274,6 +274,74 @@ export async function getAllChannels(env) {
 }
 
 /**
+ * 获取所有类型（优先从 KV）
+ * @param {Object} env - Cloudflare Workers 环境
+ * @returns {Promise<{types: Array, fromCache: boolean}>}
+ */
+export async function getAllTypes(env) {
+  const TYPES_CACHE_KEY = 'types_cache';
+
+  try {
+    // 尝试从 KV 获取
+    let cacheData = null;
+    if (env && env.KV) {
+      try {
+        cacheData = await env.KV.get(TYPES_CACHE_KEY, { type: 'json' });
+      } catch (kvError) {
+        console.warn('[ChannelCache] KV get failed for types, falling back to DB:', kvError.message);
+      }
+    }
+
+    if (cacheData && cacheData.types) {
+      return {
+        types: cacheData.types,
+        fromCache: true
+      };
+    }
+
+    // KV 中没有，从数据库查询
+    const db = getDB();
+    const result = await db.prepare(`
+      SELECT DISTINCT c.type
+      FROM channels c
+      INNER JOIN sources s ON c.source_id = s.id
+      WHERE c.type IS NOT NULL
+        AND c.type != ''
+        AND c.is_active = 1
+        AND s.is_active = 1
+      ORDER BY c.type
+    `).all();
+
+    const types = (result.results || []).map(r => r.type);
+
+    // 缓存到 KV
+    if (env && env.KV && types.length > 0) {
+      try {
+        await env.KV.put(TYPES_CACHE_KEY, JSON.stringify({
+          types,
+          cached_at: new Date().toISOString()
+        }), {
+          expirationTtl: 24 * 60 * 60 // 24 小时
+        });
+      } catch (kvError) {
+        console.warn('[ChannelCache] KV put failed for types:', kvError.message);
+      }
+    }
+
+    return {
+      types,
+      fromCache: false
+    };
+  } catch (error) {
+    console.error('[ChannelCache] Failed to get all types:', error);
+    return {
+      types: [],
+      fromCache: false
+    };
+  }
+}
+
+/**
  * 获取所有分组（优先从 KV）
  * @param {Object} env - Cloudflare Workers 环境
  * @returns {Promise<{groups: Array, fromCache: boolean}>}

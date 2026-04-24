@@ -178,6 +178,31 @@ export async function createTables(env) {
     }
   }
 
+  // 创建频道名-类型映射表（用于同步后恢复类型）
+  await db.prepare(`
+    CREATE TABLE IF NOT EXISTS channel_type_mapping (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      channel_name TEXT UNIQUE,
+      type TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+
+  // 创建频道名索引（加速查询）
+  await db.prepare(`
+    CREATE INDEX IF NOT EXISTS idx_channel_type_mapping_name ON channel_type_mapping(channel_name)
+  `).run();
+
+  // 清理旧的无用 type_mapping_config（旧的关键词规则格式，已迁移到 channel_type_mapping）
+  try {
+    await db.prepare('DELETE FROM settings WHERE key = ?').bind('type_mapping_config').run();
+    console.log('Database: Cleaned up old type_mapping_config from settings');
+  } catch (e) {
+    // ignore
+  }
+  console.log('Database: channel_type_mapping table created');
+
   // 创建卡密表
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS codes (
@@ -1101,59 +1126,28 @@ export async function updateSyncFilterConfig(config) {
   }
 }
 
-// 获取频道类型映射配置
+// 获取频道类型映射配置（从 channel_type_mapping 表）
 export async function getTypeMappingConfig() {
   const db = getDB();
-  const result = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('type_mapping_config').first();
-
-  if (!result) {
-    // 返回默认映射配置
-    return {
-      'cinema': 'movie',
-      'films': 'movie',
-      'film': 'movie',
-      'anim': 'animation',
-      'animation': 'animation',
-      'cartoon': 'animation',
-      'entertainment': 'entertainment',
-      'sports': 'sports',
-      'sport': 'sports',
-      'news': 'news',
-      'kids': 'kids',
-      'children': 'kids',
-      'doc': 'documentary',
-      'documentary': 'documentary',
-      'edu': 'education',
-      'education': 'education',
-      'drama': 'drama',
-      'theater': 'drama',
-      'music': 'music'
-    };
-  }
-
-  try {
-    return JSON.parse(result.value);
-  } catch (e) {
-    console.error('Failed to parse type_mapping_config:', e);
-    return {};
-  }
+  const result = await db.prepare('SELECT channel_name, type FROM channel_type_mapping ORDER BY channel_name').all();
+  return result.results || [];
 }
 
-// 更新频道类型映射配置
-export async function updateTypeMappingConfig(config) {
+// 更新频道类型映射配置（写入 channel_type_mapping 表）
+// newMappings: [{channel_name: 'CCTV-1', type: 'news'}, ...]
+export async function updateTypeMappingConfig(newMappings) {
   const db = getDB();
-  const configJson = JSON.stringify(config);
 
-  const existing = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('type_mapping_config').first();
+  // 先清空旧数据
+  await db.prepare('DELETE FROM channel_type_mapping').run();
 
-  if (existing) {
-    await db.prepare('UPDATE settings SET value = ? WHERE key = ?')
-      .bind(configJson, 'type_mapping_config')
-      .run();
-  } else {
-    await db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)')
-      .bind('type_mapping_config', configJson)
-      .run();
+  // 批量插入新数据
+  if (newMappings && newMappings.length > 0) {
+    const statements = newMappings.map(m =>
+      db.prepare('INSERT INTO channel_type_mapping (channel_name, type) VALUES (?, ?)')
+        .bind(m.channel_name, m.type)
+    );
+    await db.batch(statements);
   }
 }
 
@@ -1606,6 +1600,20 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
     channels.push(currentChannel);
   }
 
+  // 加载频道类型映射（用于同步时回填type）
+  const typeMap = new Map();
+  try {
+    const mappingRows = await db.prepare('SELECT channel_name, type FROM channel_type_mapping').all();
+    if (mappingRows.results) {
+      for (const row of mappingRows.results) {
+        typeMap.set(row.channel_name, row.type);
+      }
+    }
+    console.log(`[Sync] Loaded ${typeMap.size} channel type mappings`);
+  } catch (e) {
+    console.warn('[Sync] Failed to load channel type mapping:', e.message);
+  }
+
   // 批量插入频道，使用 batch 减少API调用
   console.log(`[Sync] Starting batch insert for ${channels.length} channels`);
 
@@ -1633,22 +1641,24 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
     try {
       for (let i = 0; i < channels.length; i += BATCH_SIZE) {
         const batch = channels.slice(i, i + BATCH_SIZE);
-        const statements = batch.map(channel =>
-          db.prepare(`
+        const statements = batch.map(channel => {
+          // 优先用映射表的type，其次用M3U解析出的type
+          const type = typeMap.has(channel.channel_name) ? typeMap.get(channel.channel_name) : (channel.type || '');
+          return db.prepare(`
             INSERT INTO channels (source_id, channel_name, group_title, type, logo, play_url, headers, channel_hash, is_active)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
           `).bind(
             channel.source_id,
             channel.channel_name,
             channel.group_title || '',
-            channel.type || '',
+            type,
             channel.logo || '',
             channel.play_url,
             channel.headers,
             channel.channel_hash,
             1  // is_active 使用数字1
-          )
-        );
+          );
+        });
 
         try {
           await db.batch(statements);

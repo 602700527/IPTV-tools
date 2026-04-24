@@ -164,9 +164,31 @@ export function generateHomePage(options = {}) {
     }
 
     .category-showcase { max-width: 1400px; margin: 0 auto; padding: 3rem 2rem; }
-    .showcase-header { text-align: center; margin-bottom: 2.5rem; }
+    .showcase-header { text-align: center; margin-bottom: 2rem; }
     .showcase-header h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
     .showcase-header p { color: var(--text-secondary); font-size: 1rem; }
+
+    /* View Mode Toggle */
+    .view-toggle { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 2rem; }
+    .view-toggle-btn { padding: 0.75rem 1.5rem; border: 2px solid var(--border); background: var(--bg-card); color: var(--text-secondary); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem; position: relative; }
+    .view-toggle-btn:first-child { border-radius: 50px 0 0 50px; border-right-width: 1px; }
+    .view-toggle-btn:last-child { border-radius: 0 50px 50px 0; border-left-width: 1px; }
+    .view-toggle-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 20px rgba(229, 9, 20, 0.4); }
+    .view-toggle-btn:not(.active):hover { background: var(--bg-hover); border-color: var(--accent); color: var(--text-primary); }
+    .view-toggle-btn svg { width: 18px; height: 18px; }
+
+    /* Type categories have colored accents */
+    .type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+    .type-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.75rem 1.25rem; background: var(--bg-card); border: 2px solid var(--border); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; cursor: pointer; position: relative; overflow: hidden; }
+    .type-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--type-color, var(--accent)); opacity: 0.8; transition: opacity 0.3s; }
+    .type-card:hover { border-color: var(--type-color, var(--accent)); transform: translateY(-6px) scale(1.02); box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 20px var(--type-color, rgba(229,9,20,0.2)); }
+    .type-card:hover::before { opacity: 1; }
+    .type-icon { width: 48px; height: 48px; margin-bottom: 0.75rem; color: var(--type-color, var(--accent)); transition: transform 0.3s; }
+    .type-card:hover .type-icon { transform: scale(1.15); }
+    .type-icon svg { width: 100%; height: 100%; }
+    .type-name { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem; text-align: center; }
+    .type-count { font-size: 0.8rem; color: var(--text-muted); background: var(--bg-hover); padding: 0.25rem 0.75rem; border-radius: 20px; }
+
     .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
     .category-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; text-decoration: none; transition: all 0.25s ease; cursor: pointer; position: relative; overflow: hidden; }
     .category-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(229, 9, 20, 0.15); }
@@ -352,8 +374,27 @@ export function generateHomePage(options = {}) {
       <h2>Browse by Category</h2>
       <p>Discover thousands of free live TV channels across all categories - CCTV, Sports, Movies, News and more</p>
     </div>
-    <div class="category-grid" id="categoryGrid">
+
+    <!-- View Mode Toggle -->
+    <div class="view-toggle">
+      <button class="view-toggle-btn active" data-view="region" onclick="switchView('region')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        By Region
+      </button>
+      <button class="view-toggle-btn" data-view="type" onclick="switchView('type')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        By Type
+      </button>
+    </div>
+
+    <!-- Region-based Categories (default view) -->
+    <div class="category-grid" id="regionGrid">
       <div class="loading">Loading categories...</div>
+    </div>
+
+    <!-- Type-based Categories (hidden by default) -->
+    <div class="type-grid" id="typeGrid" style="display: none;">
+      <div class="loading">Loading types...</div>
     </div>
   </section>
 
@@ -390,6 +431,81 @@ export function generateHomePage(options = {}) {
       updateThemeIcons(next === 'dark');
     });
 
+    // Store home data globally for view switching
+    let homeData = null;
+    let currentView = 'region';
+
+    // Switch between region and type view
+    function switchView(view) {
+      currentView = view;
+      const regionGrid = document.getElementById('regionGrid');
+      const typeGrid = document.getElementById('typeGrid');
+      const toggleBtns = document.querySelectorAll('.view-toggle-btn');
+
+      toggleBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === view);
+      });
+
+      if (view === 'region') {
+        regionGrid.style.display = '';
+        typeGrid.style.display = 'none';
+      } else {
+        regionGrid.style.display = 'none';
+        typeGrid.style.display = '';
+        // Render type grid if not already rendered
+        if (typeGrid.innerHTML.includes('loading') && homeData) {
+          renderTypeCategories(homeData);
+        }
+      }
+    }
+
+    // Render region-based categories
+    function renderRegionCategories(data) {
+      const regionGrid = document.getElementById('regionGrid');
+      const categories = data.data?.regionCategories || [];
+
+      if (categories.length > 0) {
+        const origin = homeData._origin;
+        regionGrid.innerHTML = categories.map(cat => {
+          const slug = encodeURIComponent(cat.slug);
+          const icon = cat.icon;
+          const name = cat.name;
+          const count = cat.count;
+          return '<a href="' + origin + '/category/' + slug + '" class="category-card">' +
+            '<div class="category-icon">' + icon + '</div>' +
+            '<div class="category-name">' + name + '</div>' +
+            '<div class="category-count">' + count + ' channels</div>' +
+          '</a>';
+        }).join('');
+      } else {
+        regionGrid.innerHTML = '<p>No categories found</p>';
+      }
+    }
+
+    // Render type-based categories
+    function renderTypeCategories(data) {
+      const typeGrid = document.getElementById('typeGrid');
+      const types = data.data?.typeCategories || [];
+
+      if (types.length > 0) {
+        const origin = data._origin;
+        typeGrid.innerHTML = types.map(t => {
+          const slug = encodeURIComponent(t.slug);
+          const icon = t.icon;
+          const name = t.name;
+          const count = t.count;
+          const color = t.color || '#e50914';
+          return '<a href="' + origin + '/type/' + slug + '" class="type-card" style="--type-color: ' + color + ';">' +
+            '<div class="type-icon">' + icon + '</div>' +
+            '<div class="type-name">' + name + '</div>' +
+            '<div class="type-count">' + count + ' channels</div>' +
+          '</a>';
+        }).join('');
+      } else {
+        typeGrid.innerHTML = '<p>No types found</p>';
+      }
+    }
+
     // Load home data from API
     async function loadHomeData() {
       try {
@@ -397,31 +513,18 @@ export function generateHomePage(options = {}) {
         const response = await fetch(origin + '/api/home');
         const data = await response.json();
 
+        // Attach origin for URL generation
+        data._origin = origin;
+        homeData = data;
+
         // Update stats
-        document.getElementById('totalChannels').textContent = 
+        document.getElementById('totalChannels').textContent =
           (data.data?.totalChannels >= 10000 ? '10,000+' : (data.data?.totalChannels || 0).toLocaleString());
-        document.getElementById('totalGroups').textContent = 
+        document.getElementById('totalGroups').textContent =
           (data.data?.totalGroups >= 100 ? '100+' : data.data?.totalGroups || 0);
 
-        // Render categories
-        const categoryGrid = document.getElementById('categoryGrid');
-        const categories = data.data?.categories || [];
-
-        if (categories.length > 0) {
-          categoryGrid.innerHTML = categories.map(cat => {
-            const slug = encodeURIComponent(cat.slug);
-            const icon = cat.icon;
-            const name = cat.name;
-            const count = cat.count;
-            return '<a href="' + origin + '/category/' + slug + '" class="category-card">' +
-              '<div class="category-icon">' + icon + '</div>' +
-              '<div class="category-name">' + name + '</div>' +
-              '<div class="category-count">' + count + ' channels</div>' +
-            '</a>';
-          }).join('');
-        } else {
-          categoryGrid.innerHTML = '<p>No categories found</p>';
-        }
+        // Render region categories (default view)
+        renderRegionCategories(data);
 
         // Inject JSON-LD
         const jsonLd = {

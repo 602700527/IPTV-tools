@@ -264,6 +264,9 @@ async function syncAllSources(db, env, ctx = null) {
       console.log(`[Scheduler] Only ${successSources.length} source(s) will be updated`);
     }
 
+    // 加载频道类型映射（用于同步时回填type）
+    const typeMap = await loadChannelTypeMapping(db);
+
     // 只更新成功获取数据的源
     for (const result of successSources) {
       const sourceId = result.source_id;
@@ -284,9 +287,9 @@ async function syncAllSources(db, env, ctx = null) {
         await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(sourceId).run();
         totalDeleted += oldChannelCount;
 
-        // 写入新频道数据（直接使用暂存的数据）
+        // 写入新频道数据（直接使用暂存的数据，带type回填）
         console.log(`[Scheduler] Writing new channels for source ${sourceId}`);
-        await writeChannelsToDB(db, newData.channels, newData.adBindings, sourceId);
+        await writeChannelsToDB(db, newData.channels, newData.adBindings, sourceId, typeMap);
         totalAdded += newData.channelCount;
 
         // 更新源的同步时间
@@ -389,29 +392,48 @@ async function syncAllSources(db, env, ctx = null) {
   }
 }
 
+// 加载频道类型映射表到内存
+async function loadChannelTypeMapping(db) {
+  const mapping = new Map();
+  try {
+    const rows = await db.prepare('SELECT channel_name, type FROM channel_type_mapping').all();
+    if (rows.results) {
+      for (const row of rows.results) {
+        mapping.set(row.channel_name, row.type);
+      }
+    }
+    console.log(`[Scheduler] Loaded ${mapping.size} channel type mappings`);
+  } catch (e) {
+    console.warn('[Scheduler] Failed to load channel type mapping:', e.message);
+  }
+  return mapping;
+}
+
 // 写入频道数据到数据库
-async function writeChannelsToDB(db, channels, adBindings, sourceId) {
+async function writeChannelsToDB(db, channels, adBindings, sourceId, typeMap = null) {
   if (!channels || channels.length === 0) {
     return;
   }
 
   // 使用批量插入提高性能
-  const channelStatements = channels.map(channel =>
-    db.prepare(`
+  const channelStatements = channels.map(channel => {
+    // 优先用映射表的type，其次用channel自带的type
+    const type = (typeMap && typeMap.has(channel.channel_name)) ? typeMap.get(channel.channel_name) : (channel.type || '');
+    return db.prepare(`
       INSERT INTO channels (source_id, channel_name, group_title, type, logo, play_url, headers, channel_hash, is_active)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       sourceId,
       channel.channel_name || '',
       channel.group_title || '',
-      channel.type || '',
+      type,
       channel.logo || '',
       channel.url || '',
       channel.headers || '{}',
       channel.hash || '',
       1  // is_active = 1
-    )
-  );
+    );
+  });
 
   if (channelStatements.length > 0) {
     await db.batch(channelStatements);
@@ -613,7 +635,10 @@ export async function manualSyncAll(env, filter = null) {
       }
     }
 
-    // 第二步：只更新成功获取数据的源
+    // 第二步：加载频道类型映射（用于同步时回填type）
+    const typeMap = await loadChannelTypeMapping(db);
+
+    // 只更新成功获取数据的源
     for (const result of results) {
       if (!result.success) continue;
 
@@ -634,9 +659,9 @@ export async function manualSyncAll(env, filter = null) {
         console.log(`[Scheduler] Deleting old channels for source ${sourceId}`);
         await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(sourceId).run();
 
-        // 写入新频道数据（直接使用暂存的数据）
+        // 写入新频道数据（直接使用暂存的数据，带type回填）
         console.log(`[Scheduler] Writing new channels for source ${sourceId}`);
-        await writeChannelsToDB(db, newData.channels, newData.adBindings, sourceId);
+        await writeChannelsToDB(db, newData.channels, newData.adBindings, sourceId, typeMap);
 
         // 更新源的同步时间
         const now = new Date().toISOString();

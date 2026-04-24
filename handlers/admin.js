@@ -748,7 +748,9 @@ export async function handleAdminRequest(request, env, ctx) {
         if (typeFilter) {
           whereConditions.push("(c.type LIKE ? OR c.type LIKE ? OR c.type LIKE ? OR c.type = ?)");
           const typePattern = '%' + typeFilter + '%';
-          params.push(typePattern, typeFilter + ',%', '%,' + typeFilter + ',%', typeFilter);
+          const typePatternStart = typeFilter + ',%';
+          const typePatternEnd = '%,' + typeFilter + ',%';
+          params.push(typePattern, typePatternStart, typePatternEnd, typeFilter);
         }
 
         if (search) {
@@ -2251,11 +2253,12 @@ export async function handleAdminRequest(request, env, ctx) {
         }
         break;
 
-      default:
-        return new Response('Invalid admin action', { status: 400 });
       case 'classify-channels-ai':
         // AI 批量分类空类型频道
         return await handleClassifyChannelsAI(request, env);
+
+      default:
+        return new Response('Invalid admin action', { status: 400 });
     }
   } catch (error) {
     console.error('Admin API error:', error);
