@@ -81,7 +81,7 @@ export async function getCurrentToken(env) {
 }
 
 /**
- * 获取所有未过期的 token
+ * 获取所有未过期的 token（按创建时间排序，最多返回20个）
  * @param {object} env - 环境变量
  * @returns {Promise<Array<{token: string, created_at: string, expires_at: string}>>}
  */
@@ -104,7 +104,9 @@ export async function getAllTokens(env) {
     }
   }
 
-  return tokens;
+  // 按创建时间倒序，只返回最近的 20 个
+  tokens.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  return tokens.slice(0, 20);
 }
 
 /**
