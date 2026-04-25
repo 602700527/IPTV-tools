@@ -1095,7 +1095,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
 
       // 获取所有频道（用于同分类推荐和 slug 匹配）
       const allChannelsResult = await db.prepare(`
-        SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active, c.source_id, s.name as source_name
+        SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active, c.source_id, c.description, s.name as source_name
         FROM channels c
         INNER JOIN sources s ON c.source_id = s.id
         WHERE c.is_active = 1 AND s.is_active = 1
@@ -1163,7 +1163,8 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           group: channel.group_title,
           logo: channel.logo,
           playUrl: channel.play_url,
-          sourceName: channel.source_name
+          sourceName: channel.source_name,
+          description: channel.description || ''
         },
         relatedChannels: relatedChannels
       });

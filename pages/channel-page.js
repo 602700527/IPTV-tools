@@ -81,6 +81,9 @@ export function generateChannelPage(options = {}) {
     '</button>';
 
   // Build info card rows
+  const description = channel.description || '';
+  const hasDescription = description && description.trim().length > 0;
+  
   const infoRowsHtml =
     '<div class="info-row">' +
       '<span class="info-label">Channel Name</span>' +
@@ -90,7 +93,12 @@ export function generateChannelPage(options = {}) {
       '<span class="info-label">Category</span>' +
       '<span class="info-value"><a href="' + origin + '/category/' + encodeURIComponent(categorySlug) + '" style="color: var(--accent)">' + escapeHtml(channel.group || 'Other') + '</a></span>' +
     '</div>' +
-    
+    (hasDescription 
+      ? '<div class="info-row description-row">' +
+          '<span class="info-label">Description</span>' +
+          '<span class="info-value description-value">' + escapeHtml(description) + '</span>' +
+        '</div>'
+      : '') +
     '<div class="info-row">' +
       '<span class="info-label">Last Updated</span>' +
       '<span class="info-value">' + new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + '</span>' +
@@ -309,6 +317,8 @@ export function generateChannelPage(options = {}) {
     .info-row:last-child { border-bottom: none; }
     .info-label { color: var(--text-muted); font-size: 0.9rem; }
     .info-value { font-weight: 500; font-size: 0.9rem; }
+    .description-row { flex-direction: column; gap: 0.5rem; }
+    .description-value { font-weight: 400; color: var(--text-secondary); line-height: 1.6; font-size: 0.85rem; }
 
     /* How to Watch */
     .how-to-watch { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; }

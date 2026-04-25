@@ -181,7 +181,7 @@ Bad examples (TOO GENERIC - DO NOT USE):
 Return JSON format:
 {"1": {"type": "sports", "description": "Your unique, specific description here..."}, "2": {"type": "news", "description": "..."}, ...}`;
 
-const BATCH_SIZE = 200; // 每批处理数量
+const BATCH_SIZE = 50; // 每批处理数量
 
 /**
  * 构建分类 prompt
@@ -191,19 +191,105 @@ function buildClassificationPrompt(channels) {
     return `${i + 1}. ${ch.channel_name}${ch.group_title ? ' [region: ' + ch.group_title + ']' : ''}`;
   }).join('\n');
   
-  return `Classify the following IPTV channels and generate unique, specific descriptions for each one.
+  return `Classify IPTV channels. Return ONLY valid JSON.
 
 ${channelList}
 
-Return ONLY pure JSON without markdown. Each channel needs a distinctive description based on your knowledge.
-
-Return format: {"1": {"type": "sports", "description": "Specific description with content examples, audience, region..."}, "2": {"type": "movie", "description": "..."}, ...}
+Return this exact format (notice the outer braces):
+{"1": {"type": "news", "description": "Short desc"}, "2": {"type": "movie", "description": "Short desc"}}
 
 Rules:
-- Combine channel name AND region for classification
-- type must be one of: movie, animation, entertainment, sports, news, kids, documentary, education, drama, music, fashion, game, travel, food, finance, tech, health, comprehensive
-- Use "comprehensive" if you cannot determine the type
-- description: BE SPECIFIC - include content examples, target audience, region, unique features (50-200 chars)`;
+- type: movie, animation, entertainment, sports, news, kids, documentary, education, drama, music, fashion, game, travel, food, finance, tech, health, comprehensive
+- description: max 100 chars, be brief`;
+}
+
+/**
+ * 尝试解析部分截断的 JSON
+ */
+function tryParsePartialJson(jsonStr) {
+  try {
+    // 如果 JSON 看起来像被转义的字符串，先尝试解转义
+    let processedStr = jsonStr;
+    if (jsonStr.startsWith('"') && jsonStr.endsWith('"')) {
+      try {
+        processedStr = JSON.parse(jsonStr);
+        console.log('[AI-Classify] JSON was escaped string, unescaped to:', processedStr.substring(0, 200));
+      } catch (e) {
+        // 继续使用原始字符串
+      }
+    }
+    
+    // 方法1：尝试直接解析（完整JSON）
+    try {
+      const parsed = JSON.parse(processedStr);
+      const keys = Object.keys(parsed);
+      if (keys.length > 0 && keys.every(k => !isNaN(parseInt(k)))) {
+        console.log('[AI-Classify] Direct parse succeeded with', keys.length, 'entries');
+        return parsed;
+      }
+    } catch (e) {
+      // 继续尝试其他方法
+    }
+    
+    // 方法2：处理 AI 返回的畸形格式 {"1": {...}, {"2": {...}, ...}
+    // 需要找到所有 {"N": {...}} 模式并组合成正确的对象
+    const malformedPattern = /\{\s*"(\d+)"\s*:\s*\{[\s\S]*?\}(?=\s*,?\s*\{|\s*$)/g;
+    const matches = [...processedStr.matchAll(malformedPattern)];
+    const result = {};
+    let matchCount = 0;
+    
+    for (const match of matches) {
+      try {
+        // 提取完整的对象字符串
+        let objStr = match[0];
+        // 确保对象闭合
+        if (!objStr.endsWith('}')) {
+          // 找到对应的闭合括号
+          const openCount = (objStr.match(/\{/g) || []).length;
+          const closeCount = (objStr.match(/\}/g) || []).length;
+          if (openCount > closeCount) {
+            // 尝试补全
+            const neededCloses = openCount - closeCount;
+            objStr = objStr + '}'.repeat(neededCloses);
+          }
+        }
+        const obj = JSON.parse(objStr);
+        const key = Object.keys(obj)[0];
+        result[key] = obj[key];
+        matchCount++;
+      } catch (e) {
+        // 忽略无效匹配
+      }
+    }
+    
+    if (matchCount > 0) {
+      console.log('[AI-Classify] Extracted', matchCount, 'entries from malformed JSON');
+      return result;
+    }
+    
+    // 方法3：逐个提取 {...} 对象
+    const simpleRegex = /\{\s*"(\d+)"\s*:\s*\{[^}]*\}[^}]*\}/g;
+    const simpleMatches = [...processedStr.matchAll(simpleRegex)];
+    for (const match of simpleMatches) {
+      try {
+        const obj = JSON.parse(match[0]);
+        const key = Object.keys(obj)[0];
+        result[key] = obj[key];
+      } catch (e) {
+        // 忽略
+      }
+    }
+    
+    if (Object.keys(result).length > 0) {
+      console.log('[AI-Classify] Extracted', Object.keys(result).length, 'entries using simple regex');
+      return result;
+    }
+    
+    return null;
+  } catch (e) {
+    console.warn('[AI-Classify] tryParsePartialJson failed:', e.message);
+    return null;
+  }
 }
 
 /**
@@ -219,16 +305,34 @@ function parseAIResponse(response, channels) {
     jsonStr = jsonStr.replace(/```\s*/gi, '');
     jsonStr = jsonStr.trim();
 
-    // 如果 JSON 在大括号内，确保提取完整
-    const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      jsonStr = jsonMatch[0];
+    // 尝试找到有效的 JSON
+    let validJson = null;
+    
+    // 方法1：直接解析（如果完整的话）
+    try {
+      validJson = JSON.parse(jsonStr);
+    } catch (e1) {
+      // 方法2：尝试提取 {...} 部分
+      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const potentialJson = jsonMatch[0];
+        try {
+          validJson = JSON.parse(potentialJson);
+        } catch (e2) {
+          // 方法3：尝试修复截断的 JSON（找到最后一个完整的对象）
+          validJson = tryParsePartialJson(jsonStr);
+        }
+      }
     }
 
-    console.log('[AI-Classify] Parsing JSON:', jsonStr.substring(0, 200), '...');
+    if (!validJson) {
+      console.warn('[AI-Classify] Could not parse AI response as JSON, using keyword fallback');
+      return result;
+    }
 
-    const parsed = JSON.parse(jsonStr);
-    for (const [key, value] of Object.entries(parsed)) {
+    console.log('[AI-Classify] Parsing JSON with', Object.keys(validJson).length, 'entries');
+
+    for (const [key, value] of Object.entries(validJson)) {
       // 期望 key 是 1-based 顺序索引（如 "1", "2", "3"...）
       const idx = parseInt(key) - 1;
       // 严格检查：idx 必须在 [0, channels.length) 范围内
@@ -293,13 +397,34 @@ async function callMiniMaxAPI(prompt) {
     const data = await response.json();
     console.log('[MiniMax] Response data keys:', Object.keys(data || {}));
 
-// MiniMax 返回格式
+    // 检查 base_resp 错误（只有非0状态码才是错误）
+    if (data.base_resp && data.base_resp.status_code !== 0) {
+      console.error('[MiniMax] API error:', data.base_resp);
+    }
+
+    // 调试：打印 choices 结构
+    if (data.choices) {
+      console.log('[MiniMax] Choices[0] finish_reason:', data.choices[0]?.finish_reason);
+      console.log('[MiniMax] Content length:', data.choices[0]?.message?.content?.length);
+      console.log('[MiniMax] Content preview:', data.choices[0]?.message?.content?.substring(0, 300));
+    }
+
+    // MiniMax 返回格式
     let content = '';
     const msg = data.choices?.[0]?.message;
 
     // 优先取 content
     if (msg?.content) {
       content = msg.content;
+      // 如果 content 是转义的 JSON 字符串（以 " 开头），先解析它
+      if (content.startsWith('"') && content.endsWith('"')) {
+        try {
+          content = JSON.parse(content);
+          console.log('[MiniMax] Content was escaped JSON string, unescaped');
+        } catch (e) {
+          // 继续使用原始 content
+        }
+      }
     }
     // 如果 content 为空但有 reasoning_content，用它
     else if (msg?.reasoning_content) {
@@ -612,7 +737,7 @@ function classifyByKeyword(channelName, groupTitle) {
 /**
  * 处理手动分类请求（从 admin API）
  */
-export async function handleClassifyChannelsAI(request, env) {
+export async function handleClassifyChannelsAI(request, env, ctx) {
   // 检查是否支持 SSE（通过 Accept 头判断）
   const acceptHeader = request.headers.get('Accept') || '';
   const wantsSSE = acceptHeader.includes('text/event-stream');
@@ -644,51 +769,55 @@ export async function handleClassifyChannelsAI(request, env) {
         'Connection': 'keep-alive'
       }
     });
-  } else if (body.async) {
-    // 异步版本：立即返回202，后台处理
-    const limit = parseInt(body.limit) || 5000;
-    
-    // 立即返回202 Accepted
-    ctx.waitUntil((async () => {
-      try {
-        console.log('[AI-Classify] Async job started, processing in background...');
-        const result = await classifyEmptyTypeChannels(env, limit);
-        console.log('[AI-Classify] Async job completed:', result);
-      } catch (e) {
-        console.error('[AI-Classify] Async job failed:', e);
-      }
-    })());
-    
-    return new Response(JSON.stringify({
-      success: true,
-      message: 'AI 分类已在后台启动，处理完成后将显示通知'
-    }), {
-      status: 202,
-      headers: { 'Content-Type': 'application/json' }
-    });
   } else {
-    // 普通版本：一次性返回
-    try {
-      const body = await request.json();
+    // 非 SSE 版本：先解析 body
+    const body = await request.json();
+    
+    if (body.async) {
+      // 异步版本：立即返回202，后台处理
       const limit = parseInt(body.limit) || 5000;
       
-      const result = await classifyEmptyTypeChannels(env, limit);
+      // 立即返回202 Accepted
+      ctx.waitUntil((async () => {
+        try {
+          console.log('[AI-Classify] Async job started, processing in background...');
+          const result = await classifyEmptyTypeChannels(env, limit);
+          console.log('[AI-Classify] Async job completed:', result);
+        } catch (e) {
+          console.error('[AI-Classify] Async job failed:', e);
+        }
+      })());
       
       return new Response(JSON.stringify({
         success: true,
-        ...result
+        message: 'AI 分类已在后台启动，处理完成后将显示通知'
       }), {
+        status: 202,
         headers: { 'Content-Type': 'application/json' }
       });
-    } catch (e) {
-      console.error('[AI-Classify] Error:', e);
-      return new Response(JSON.stringify({
-        success: false,
-        error: e.message
-      }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
+    } else {
+      // 普通版本：一次性返回
+      try {
+        const limit = parseInt(body.limit) || 5000;
+        
+        const result = await classifyEmptyTypeChannels(env, limit);
+        
+        return new Response(JSON.stringify({
+          success: true,
+          ...result
+        }), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (e) {
+        console.error('[AI-Classify] Error:', e);
+        return new Response(JSON.stringify({
+          success: false,
+          error: e.message
+        }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
     }
   }
 }

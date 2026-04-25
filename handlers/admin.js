@@ -2302,7 +2302,7 @@ export async function handleAdminRequest(request, env, ctx) {
 
       case 'classify-channels-ai':
         // AI 批量分类空类型频道
-        return await handleClassifyChannelsAI(request, env);
+        return await handleClassifyChannelsAI(request, env, ctx);
 
       default:
         return new Response('Invalid admin action', { status: 400 });
