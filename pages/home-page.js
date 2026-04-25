@@ -2,12 +2,55 @@
 // This page is rendered on the client side via JavaScript
 import { HEAD_SCRIPTS } from '../components/head-scripts.js';
 
+// HTML 转义函数
+function escapeHtml(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 export function generateHomePage(options = {}) {
-  const { origin = 'https://iptv-search.com', header = '', footer = '' } = options;
+  const {
+    origin = 'https://iptv-search.com',
+    header = '',
+    footer = '',
+    regionCategories = [],
+    typeCategories = [],
+    totalChannels = 0,
+    totalGroups = 0
+  } = options;
 
   // 如果传入了header和footer，直接使用；否则使用内嵌的
   const pageHeader = header || `<header class="header">...</header>`;
   const pageFooter = footer || `<footer class="page-footer">...</footer>`;
+
+  // Pre-render region categories HTML (SSR)
+  const regionGridHtml = regionCategories.length > 0
+    ? regionCategories.map(cat => {
+        const slug = encodeURIComponent(cat.slug);
+        return '<a href="' + origin + '/category/' + slug + '" class="category-card">' +
+          '<div class="category-icon">' + (cat.icon || '') + '</div>' +
+          '<div class="category-name">' + escapeHtml(cat.name) + '</div>' +
+          '<div class="category-count">' + cat.count + ' channels</div>' +
+        '</a>';
+      }).join('')
+    : '<p>No categories found</p>';
+
+  // Pre-render type categories HTML (SSR)
+  const typeGridHtml = typeCategories.length > 0
+    ? typeCategories.map(t => {
+        const slug = encodeURIComponent(t.slug);
+        return '<a href="' + origin + '/type/' + slug + '" class="type-card">' +
+          '<div class="type-icon">' + (t.icon || '') + '</div>' +
+          '<div class="type-name">' + escapeHtml(t.name) + '</div>' +
+          '<div class="type-count">' + t.count + ' channels</div>' +
+        '</a>';
+      }).join('')
+    : '<p>No types found</p>';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -177,17 +220,15 @@ export function generateHomePage(options = {}) {
     .view-toggle-btn:not(.active):hover { background: var(--bg-hover); border-color: var(--accent); color: var(--text-primary); }
     .view-toggle-btn svg { width: 18px; height: 18px; }
 
-    /* Type categories have colored accents */
-    .type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
-    .type-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.75rem 1.25rem; background: var(--bg-card); border: 2px solid var(--border); border-radius: 16px; text-decoration: none; transition: all 0.3s ease; cursor: pointer; position: relative; overflow: hidden; }
-    .type-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--type-color, var(--accent)); opacity: 0.8; transition: opacity 0.3s; }
-    .type-card:hover { border-color: var(--type-color, var(--accent)); transform: translateY(-6px) scale(1.02); box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 20px var(--type-color, rgba(229,9,20,0.2)); }
-    .type-card:hover::before { opacity: 1; }
-    .type-icon { width: 48px; height: 48px; margin-bottom: 0.75rem; color: var(--type-color, var(--accent)); transition: transform 0.3s; }
-    .type-card:hover .type-icon { transform: scale(1.15); }
+    /* Type categories - align with region categories */
+    .type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+    .type-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; text-decoration: none; transition: all 0.25s ease; cursor: pointer; position: relative; overflow: hidden; }
+    .type-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(229, 9, 20, 0.15); }
+    .type-icon { width: 40px; height: 40px; margin-bottom: 0.75rem; color: var(--accent); transition: transform 0.25s; }
+    .type-card:hover .type-icon { transform: scale(1.1); }
     .type-icon svg { width: 100%; height: 100%; }
-    .type-name { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem; text-align: center; }
-    .type-count { font-size: 0.8rem; color: var(--text-muted); background: var(--bg-hover); padding: 0.25rem 0.75rem; border-radius: 20px; }
+    .type-name { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; text-align: center; }
+    .type-count { font-size: 0.75rem; color: var(--text-muted); }
 
     .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
     .category-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; text-decoration: none; transition: all 0.25s ease; cursor: pointer; position: relative; overflow: hidden; }
@@ -287,11 +328,11 @@ export function generateHomePage(options = {}) {
     <p>Overseas Chinese' no.1 Choice | Works with VLC, APTV, Smarters & all platforms</p>
     <div class="hero-stats">
       <div class="hero-stat">
-        <div class="hero-stat-value" id="totalChannels">--</div>
+        <div class="hero-stat-value" id="totalChannels">${totalChannels >= 10000 ? '10,000+' : totalChannels.toLocaleString()}</div>
         <div class="hero-stat-label">Channels</div>
       </div>
       <div class="hero-stat">
-        <div class="hero-stat-value" id="totalGroups">--</div>
+        <div class="hero-stat-value" id="totalGroups">${totalGroups >= 100 ? '100+' : totalGroups}</div>
         <div class="hero-stat-label">Categories</div>
       </div>
       <div class="hero-stat">
@@ -389,12 +430,12 @@ export function generateHomePage(options = {}) {
 
     <!-- Region-based Categories (default view) -->
     <div class="category-grid" id="regionGrid">
-      <div class="loading">Loading categories...</div>
+      ${regionGridHtml}
     </div>
 
     <!-- Type-based Categories (hidden by default) -->
     <div class="type-grid" id="typeGrid" style="display: none;">
-      <div class="loading">Loading types...</div>
+      ${typeGridHtml}
     </div>
   </section>
 
@@ -459,50 +500,43 @@ export function generateHomePage(options = {}) {
       }
     }
 
-    // Render region-based categories
+    // Render region-based categories (skip if SSR already populated)
     function renderRegionCategories(data) {
       const regionGrid = document.getElementById('regionGrid');
-      const categories = data.data?.regionCategories || [];
-
-      if (categories.length > 0) {
-        const origin = homeData._origin;
-        regionGrid.innerHTML = categories.map(cat => {
-          const slug = encodeURIComponent(cat.slug);
-          const icon = cat.icon;
-          const name = cat.name;
-          const count = cat.count;
-          return '<a href="' + origin + '/category/' + slug + '" class="category-card">' +
-            '<div class="category-icon">' + icon + '</div>' +
-            '<div class="category-name">' + name + '</div>' +
-            '<div class="category-count">' + count + ' channels</div>' +
-          '</a>';
-        }).join('');
-      } else {
-        regionGrid.innerHTML = '<p>No categories found</p>';
+      // Already rendered by SSR, only update if empty
+      if (regionGrid.querySelector('p')) {
+        const categories = data.data?.regionCategories || [];
+        if (categories.length > 0) {
+          const origin = homeData._origin;
+          regionGrid.innerHTML = categories.map(cat => {
+            const slug = encodeURIComponent(cat.slug);
+            return '<a href="' + origin + '/category/' + slug + '" class="category-card">' +
+              '<div class="category-icon">' + (cat.icon || '') + '</div>' +
+              '<div class="category-name">' + cat.name + '</div>' +
+              '<div class="category-count">' + cat.count + ' channels</div>' +
+            '</a>';
+          }).join('');
+        }
       }
     }
 
-    // Render type-based categories
+    // Render type-based categories (skip if SSR already populated)
     function renderTypeCategories(data) {
       const typeGrid = document.getElementById('typeGrid');
-      const types = data.data?.typeCategories || [];
-
-      if (types.length > 0) {
-        const origin = data._origin;
-        typeGrid.innerHTML = types.map(t => {
-          const slug = encodeURIComponent(t.slug);
-          const icon = t.icon;
-          const name = t.name;
-          const count = t.count;
-          const color = t.color || '#e50914';
-          return '<a href="' + origin + '/type/' + slug + '" class="type-card" style="--type-color: ' + color + ';">' +
-            '<div class="type-icon">' + icon + '</div>' +
-            '<div class="type-name">' + name + '</div>' +
-            '<div class="type-count">' + count + ' channels</div>' +
-          '</a>';
-        }).join('');
-      } else {
-        typeGrid.innerHTML = '<p>No types found</p>';
+      // Already rendered by SSR, only update if empty
+      if (typeGrid.querySelector('p')) {
+        const types = data.data?.typeCategories || [];
+        if (types.length > 0) {
+          const origin = data._origin;
+          typeGrid.innerHTML = types.map(t => {
+            const slug = encodeURIComponent(t.slug);
+            return '<a href="' + origin + '/type/' + slug + '" class="type-card">' +
+              '<div class="type-icon">' + (t.icon || '') + '</div>' +
+              '<div class="type-name">' + t.name + '</div>' +
+              '<div class="type-count">' + t.count + ' channels</div>' +
+            '</a>';
+          }).join('');
+        }
       }
     }
 

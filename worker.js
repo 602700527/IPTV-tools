@@ -10,6 +10,17 @@ import { handleFreeSubAPI } from './handlers/freesub-api.js';
 import { handleGetPlans } from './handlers/plans-api.js';
 import { generateAndCacheSitemap } from './utils/channel-cache.js';
 
+// 辅助函数：将字符串转换为 URL 友好的 slug
+function slugify(text) {
+  if (!text) return '';
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s\u4e00-\u9fa5-]/g, '') // 保留中文、字母、数字、下划线、连字符
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 // 内联 404 页面生成函数
 async function generate404Page(request, env) {
   const url = new URL(request.url);
@@ -756,12 +767,91 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         return staticResponse;
       }
       
-      // 使用新的 HTML 壳 + API 方案
+      // 首页预计算分类数据（用于 SSR）
+      const db = await initDB(env);
+      const allChannelsResult = await db.prepare(`
+        SELECT c.id, c.channel_name, c.group_title, c.type, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active, c.source_id, s.name as source_name
+        FROM channels c
+        INNER JOIN sources s ON c.source_id = s.id
+        WHERE c.is_active = 1 AND s.is_active = 1
+      `).all();
+      const allChannels = allChannelsResult.results || [];
+
+      // Region categories
+      const groupCounts = {};
+      allChannels.forEach(ch => {
+        const group = ch.group_title || 'Other';
+        groupCounts[group] = (groupCounts[group] || 0) + 1;
+      });
+      const groupsResult = await db.prepare(`
+        SELECT DISTINCT c.group_title
+        FROM channels c
+        INNER JOIN sources s ON c.source_id = s.id
+        WHERE c.group_title IS NOT NULL AND c.group_title != ''
+          AND c.is_active = 1 AND s.is_active = 1
+        ORDER BY c.group_title
+      `).all();
+      const groups = (groupsResult.results || []).map(r => r.group_title);
+
+      const categorySVGs = {
+        'cctv': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 19h10M12 19v-3"/></svg>',
+        'other': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 19h10M12 19v-3"/></svg>'
+      };
+      const regionCategories = groups.map(g => {
+        const catSlug = slugify(g);
+        return {
+          name: g,
+          slug: catSlug,
+          count: groupCounts[g] || 0,
+          icon: categorySVGs[catSlug.toLowerCase()] || categorySVGs['other']
+        };
+      });
+
+      // Type categories
+      const typeNamesEn = {
+        'movie': 'Movies', 'animation': 'Animation', 'entertainment': 'Entertainment',
+        'sports': 'Sports', 'news': 'News', 'kids': 'Kids', 'documentary': 'Documentary',
+        'education': 'Education', 'drama': 'Drama', 'music': 'Music', 'fashion': 'Fashion',
+        'game': 'Game', 'travel': 'Travel', 'food': 'Food', 'finance': 'Finance',
+        'tech': 'Tech', 'health': 'Health', 'comprehensive': 'Comprehensive'
+      };
+      const typeCounts = {};
+      allChannels.forEach(ch => {
+        if (!ch.type) {
+          typeCounts['comprehensive'] = (typeCounts['comprehensive'] || 0) + 1;
+          return;
+        }
+        // 拆分逗号分隔的多类型，分别计数
+        const types = ch.type.split(',').map(t => t.trim());
+        types.forEach(t => {
+          if (t) {
+            typeCounts[t] = (typeCounts[t] || 0) + 1;
+          }
+        });
+      });
+      // 过滤掉 unknown 类型
+      const typeCategories = Object.keys(typeCounts)
+        .filter(t => t !== 'unknown')
+        .map(t => {
+          return {
+            name: typeNamesEn[t] || t,
+            type: t,
+            slug: t.toLowerCase(),
+            count: typeCounts[t] || 0,
+            icon: categorySVGs['other']
+          };
+        }).sort((a, b) => b.count - a.count);
+
+      // 使用新的 HTML 壳 + 预渲染分类
       const { generateHomePage } = await import('./pages/home-page.js');
-      const html = generateHomePage({ 
+      const html = generateHomePage({
         origin: url.origin,
         header: PAGE_HEADER,
-        footer: PAGE_FOOTER
+        footer: PAGE_FOOTER,
+        regionCategories,
+        typeCategories,
+        totalChannels: allChannels.length,
+        totalGroups: groups.length
       });
       
       return new Response(html, {
@@ -926,26 +1016,41 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
 
       const allChannels = allChannelsResult.results || [];
 
-      // 获取所有类型并计算每个类型的频道数量
+      // 获取所有类型并计算每个类型的频道数量（支持逗号分隔的多类型）
       const typeCounts = {};
       allChannels.forEach(ch => {
-        const t = ch.type || 'unknown';
-        typeCounts[t] = (typeCounts[t] || 0) + 1;
+        if (!ch.type) {
+          // 空类型归类为综合
+          typeCounts['comprehensive'] = (typeCounts['comprehensive'] || 0) + 1;
+          return;
+        }
+        // 拆分逗号分隔的多类型，分别计数
+        const types = ch.type.split(',').map(t => t.trim());
+        types.forEach(t => {
+          if (t) {
+            typeCounts[t] = (typeCounts[t] || 0) + 1;
+          }
+        });
       });
 
       // 构建类型列表（用于侧边栏）
       const typeCategories = Object.keys(typeCounts).map(t => {
-        return {
-          name: categoryNames[t] || t,
-          slug: t.toLowerCase(),
-          count: typeCounts[t] || 0,
-          type: t
-        };
-      }).sort((a, b) => b.count - a.count);
+          return {
+            name: categoryNames[t] || t,
+            slug: t.toLowerCase(),
+            count: typeCounts[t] || 0,
+            type: t
+          };
+        }).sort((a, b) => b.count - a.count);
 
-      // 获取当前类型的频道
+      // 获取当前类型的频道（支持逗号分隔的多类型）
       const typeChannels = allChannels
-        .filter(ch => ch.type === typeKey)
+        .filter(ch => {
+          if (!ch.type) return false;
+          // 支持逗号分隔的多类型，如 "sports,news" 也能匹配 "sports"
+          const types = ch.type.split(',').map(t => t.trim());
+          return types.includes(typeKey);
+        })
         .map(ch => ({
           name: ch.channel_name,
           hash: ch.channel_hash,
