@@ -785,7 +785,8 @@ export async function handleAdminRequest(request, env, ctx) {
           headers: channel.headers,
           channel_hash: channel.channel_hash,
           is_active: channel.is_active,
-          source_name: channel.source_name
+          source_name: channel.source_name,
+          description: channel.description || ''
         }));
 
         // 在应用层进行分组内排序（英文 -> 数字 -> 中文）
@@ -981,9 +982,9 @@ export async function handleAdminRequest(request, env, ctx) {
         } else if (request.method === 'PUT') {
           const data = await request.json();
 
-          // 验证配置格式（应该是 key-value 对象）
-          if (typeof data !== 'object' || Array.isArray(data)) {
-            return new Response(JSON.stringify({ success: false, error: 'Invalid config format' }), {
+          // 验证配置格式（应该是数组 [{channel_name, type}, ...]）
+          if (!Array.isArray(data)) {
+            return new Response(JSON.stringify({ success: false, error: 'Invalid config format: expected array' }), {
               status: 400,
               headers: { 'Content-Type': 'application/json' }
             });

@@ -24,33 +24,48 @@ const CHANNEL_TYPES = [
   'finance',     // 财经、股票
   'tech',        // 科技
   'health',      // 健康、医疗
+  'comprehensive', // 综合（无法确定类型时使用）
 ];
 
 // 系统提示词
-const SYSTEM_PROMPT = `你是一个专业的IPTV电视频道分类助手。请根据频道名称和分组信息，将其分类到以下最合适的类型中：
+const SYSTEM_PROMPT = `You are a professional IPTV TV channel classification assistant. You MUST classify channels by combining BOTH the channel name AND the group-title (region/location) together for accurate classification.
 
-类型定义：
-- movie: 电影、影院、放映
-- animation: 动画、动漫、卡通、少儿动画
-- entertainment: 综艺、娱乐、选秀、竞猜
-- sports: 体育、足球、篮球、网球、羽毛球、排球、高尔夫、赛车、赛事
-- news: 新闻、资讯、时事
-- kids: 少儿、儿童、幼儿、宝宝
-- documentary: 纪录片、探索、人文、自然
-- education: 教育、课堂、讲堂、公开课、大学
-- drama: 戏曲、戏剧、京剧、梨园、粤剧、越剧、黄梅戏
-- music: 音乐、MV、演唱会、歌剧院、古典音乐
-- fashion: 时尚、美妆、购物
-- game: 游戏、电竞
-- travel: 旅游、地理、风光
-- food: 美食、烹饪、食堂
-- finance: 财经、股票、金融
-- tech: 科技、数码
-- health: 健康、医疗
+Important classification rules:
+1. ALWAYS consider BOTH channel name AND group-title together
+2. group-title like "央视", "北京", "上海", "广东" indicates the region/location - combine with channel name for better classification
+3. If a channel's type cannot be determined with confidence, use "comprehensive"
+4. ALWAYS provide rich, informative descriptions (100-200 characters) that include:
+   - Target audience or viewer demographic
+   - Main content categories or programming focus
+   - Broadcast platform or coverage area if inferable
+   - Unique characteristics or positioning
 
-如果无法确定分类，返回 "unknown"。
+Type definitions:
+- movie: movies, cinema, theater
+- animation: animation, anime, cartoon, kids animation
+- entertainment: variety shows, entertainment, talent shows, game shows
+- sports: sports, football/soccer, basketball, tennis, badminton, volleyball, golf, racing, competitions
+- news: news, current affairs, information
+- kids: children, kids, toddlers, babies
+- documentary: documentaries, exploration, humanities, nature
+- education: education, lectures, open courses, university
+- drama: traditional opera, drama, Peking opera, Cantonese opera, Yue opera
+- music: music, MV, concerts, opera houses, classical music
+- fashion: fashion, beauty, shopping
+- game: gaming, e-sports
+- travel: travel, geography, scenery
+- food: food, cooking, cuisine
+- finance: finance, stocks, economy, investment
+- tech: technology, digital
+- health: health, medical
 
-请以JSON格式返回，格式：{"channel_name": "type"}`;
+Return JSON format with classification AND rich English description:
+{"1": {"type": "sports", "description": "Sports channel targeting football fans in Asia-Pacific, covering Premier League, La Liga, Champions League, NBA, and major tennis tournaments with multilingual commentary options"}, "2": {"type": "news", "description": "24-hour news channel providing comprehensive current affairs coverage, political analysis, and in-depth reporting for Chinese-speaking audiences worldwide"}, ...}
+
+Key requirements:
+- type must be one of the 17 types above (use "comprehensive" if uncertain)
+- description must be in English, rich and informative (100-200 characters)
+- Combine channel name + group-title for accurate classification`;
 
 const BATCH_SIZE = 200; // 每批处理数量
 
@@ -58,17 +73,23 @@ const BATCH_SIZE = 200; // 每批处理数量
  * 构建分类 prompt
  */
 function buildClassificationPrompt(channels) {
-  const channelList = channels.map((ch, i) => `${i + 1}. ${ch.channel_name}${ch.group_title ? ' [' + ch.group_title + ']' : ''}`).join('\n');
-  return `请分类以下IPTV频道（每行一个）：
+  const channelList = channels.map((ch, i) => `${i + 1}. ${ch.channel_name}${ch.group_title ? ' [region: ' + ch.group_title + ']' : ''}`).join('\n');
+  return `Classify the following IPTV channels. Return ONLY pure JSON without markdown:
 
 ${channelList}
 
-重要：JSON中的key必须是列表中的行号（从1开始），即：
-- 第1行频道对应 key "1"
-- 第2行频道对应 key "2"
-- 以此类推
+Important: The JSON key must be the line number (starting from 1), e.g., "1", "2", "3"...
+Return format: {"1": {"type": "sports", "description": "Rich description 100-200 chars including target audience, content focus, coverage area..."}, "2": {"type": "movie", "description": "Movie channel for..."}, ...}
 
-只返回纯JSON，不要markdown代码块，格式：{"1": "movie", "2": "animation", "3": "news", ...}`;
+Rules:
+- Combine channel name AND group-title (region) for accurate type classification AND rich description
+- type must be one of: movie, animation, entertainment, sports, news, kids, documentary, education, drama, music, fashion, game, travel, food, finance, tech, health, comprehensive
+- Use "comprehensive" if you cannot determine the type with confidence
+- description must be in English, rich and informative (100-200 characters), including:
+  - Target audience or viewer demographic
+  - Main content categories or programming focus
+  - Broadcast coverage area if inferable from region name
+  - Unique characteristics or channel positioning`;
 }
 
 /**
@@ -101,12 +122,23 @@ function parseAIResponse(response, channels) {
         console.warn(`[AI-Classify] Skipping invalid key "${key}" (expected 1-${channels.length}, got ${key})`);
         continue;
       }
-      let type = value.toLowerCase().trim();
+
+      // 支持两种格式：{"1": "type"} 或 {"1": {"type": "type", "description": "..."}}
+      let type, description;
+      if (typeof value === 'object' && value !== null) {
+        type = (value.type || 'comprehensive').toLowerCase().trim();
+        description = (value.description || '').toString().trim();
+      } else {
+        type = value.toLowerCase().trim();
+        description = '';
+      }
+
       // 验证类型是否有效
       if (!CHANNEL_TYPES.includes(type)) {
-        type = 'unknown';
+        type = 'comprehensive';
       }
-      result[channels[idx].id] = type;
+
+      result[channels[idx].id] = { type, description };
     }
   } catch (e) {
     console.error('[AI-Classify] Failed to parse AI response:', e.message);
@@ -252,22 +284,23 @@ export async function classifyEmptyTypeChannels(env, limit = 5000, controller = 
       try {
         const updateStatements = [];
         const mappingStatements = [];
-        for (const [idx, type] of Object.entries(batchResults)) {
-          const channelIdx = parseInt(idx) - 1;
-          const channel = batch[channelIdx];
+        for (const [idStr, item] of Object.entries(batchResults)) {
+          const channelId = parseInt(idStr);
+          // 直接通过ID查找channel（batchResults的key就是数据库ID）
+          const channel = batch.find(ch => ch.id === channelId);
           if (!channel) {
-            console.warn(`[AI-Classify] Batch ${batchNum}: skipped invalid index ${idx}`);
+            console.warn(`[AI-Classify] Batch ${batchNum}: channel id ${channelId} not found in batch`);
             continue;
           }
-          const channelId = parseInt(idx);
+          const { type, description } = item;
           updateStatements.push(
-            db.prepare('UPDATE channels SET type = ? WHERE id = ?').bind(type, channelId)
+            db.prepare('UPDATE channels SET type = ?, description = ? WHERE id = ?').bind(type, description, channelId)
           );
           mappingStatements.push(
             db.prepare(`
-              INSERT OR REPLACE INTO channel_type_mapping (channel_name, type, updated_at)
-              VALUES (?, ?, CURRENT_TIMESTAMP)
-            `).bind(channel.channel_name, type)
+              INSERT OR REPLACE INTO channel_type_mapping (channel_name, group_title, type, description, updated_at)
+              VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+            `).bind(channel.channel_name, channel.group_title || '', type, description)
           );
         }
         if (updateStatements.length > 0) {
@@ -280,8 +313,8 @@ export async function classifyEmptyTypeChannels(env, limit = 5000, controller = 
       }
 
       // 合并结果
-      for (const [id, type] of Object.entries(batchResults)) {
-        results[id] = type;
+      for (const [id, item] of Object.entries(batchResults)) {
+        results[id] = item;
         classified++;
       }
 
@@ -292,17 +325,17 @@ export async function classifyEmptyTypeChannels(env, limit = 5000, controller = 
       // AI 失败时使用关键词备用分类
       console.log(`[AI-Classify] Falling back to keyword classification for batch ${batchNum}`);
       for (const channel of batch) {
-        const type = classifyByKeyword(channel.channel_name, channel.group_title);
-        results[channel.id] = type;
+        const { type, description } = classifyByKeyword(channel.channel_name, channel.group_title);
+        results[channel.id] = { type, description };
         classified++;
 
         // 关键词分类也立即写库
         try {
-          await db.prepare('UPDATE channels SET type = ? WHERE id = ?').bind(type, channel.id).run();
+          await db.prepare('UPDATE channels SET type = ?, description = ? WHERE id = ?').bind(type, description, channel.id).run();
           await db.prepare(`
-            INSERT OR REPLACE INTO channel_type_mapping (channel_name, type, updated_at)
-            VALUES (?, ?, CURRENT_TIMESTAMP)
-          `).bind(channel.channel_name, type).run();
+            INSERT OR REPLACE INTO channel_type_mapping (channel_name, group_title, type, description, updated_at)
+            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+          `).bind(channel.channel_name, channel.group_title || '', type, description).run();
         } catch (e2) {
           console.error(`[AI-Classify] Keyword fallback DB write failed for channel ${channel.id}:`, e2.message);
         }
@@ -324,9 +357,10 @@ export async function classifyEmptyTypeChannels(env, limit = 5000, controller = 
   // 批量更新数据库
   if (Object.keys(results).length > 0) {
     try {
-      const updateStatements = Object.entries(results).map(([id, type]) =>
-        db.prepare('UPDATE channels SET type = ? WHERE id = ?').bind(type, parseInt(id))
-      );
+      const updateStatements = Object.entries(results).map(([id, item]) => {
+        const { type, description } = item;
+        return db.prepare('UPDATE channels SET type = ?, description = ? WHERE id = ?').bind(type, description, parseInt(id));
+      });
       await db.batch(updateStatements);
       console.log(`[AI-Classify] Updated ${Object.keys(results).length} channels in database`);
     } catch (e) {
@@ -344,46 +378,120 @@ export async function classifyEmptyTypeChannels(env, limit = 5000, controller = 
 
 /**
  * 基于关键词的简单分类（备用方案）
+ * 生成较丰富的描述信息
  */
 function classifyByKeyword(channelName, groupTitle) {
   const text = (channelName + ' ' + (groupTitle || '')).toLowerCase();
+  const region = groupTitle || '';
+  const name = channelName || '';
 
   // movie - 电影
-  if (/电影|影院|放映|影视/.test(text)) return 'movie';
-  // animation - 动画
-  if (/动画|动漫|卡通|少儿动画/.test(text)) return 'animation';
-  // entertainment - 综艺
-  if (/综艺|娱乐|选秀|竞猜|晚会|春晚|节目/.test(text)) return 'entertainment';
-  // sports - 体育
-  if (/体育|足球|篮球|网球|羽毛球|排球|高尔夫|赛车|赛事|欧冠|世界杯|英超|意甲|德甲|西甲|NBA|CBA|中超/.test(text)) return 'sports';
-  // news - 新闻
-  if (/新闻|资讯|时事|直播|突发事件/.test(text)) return 'news';
-  // kids - 少儿
-  if (/少儿|儿童|幼儿|宝宝|动漫|童年/.test(text)) return 'kids';
-  // documentary - 纪录片
-  if (/纪录|探索|人文|自然|地理|传奇|发现/.test(text)) return 'documentary';
-  // education - 教育
-  if (/教育|课堂|讲堂|公开课|大学|学校|培训|空中课堂/.test(text)) return 'education';
-  // drama - 戏曲
-  if (/戏曲|戏剧|京剧|梨园|粤剧|越剧|黄梅戏|秦腔|豫剧|曲艺|相声|小品/.test(text)) return 'drama';
-  // music - 音乐
-  if (/音乐|歌|演唱会|MV|古典|交响|民乐|摇滚/.test(text)) return 'music';
-  // fashion - 时尚
-  if (/时尚|美妆|购物|潮流|服装/.test(text)) return 'fashion';
-  // game - 游戏
-  if (/游戏|电竞|魔兽|英雄联盟|LOL|DOTA/.test(text)) return 'game';
-  // travel - 旅游
-  if (/旅游|地理|风光|美景|探索|旅行/.test(text)) return 'travel';
-  // food - 美食
-  if (/美食|烹饪|食堂|健康|养生/.test(text)) return 'food';
-  // finance - 财经
-  if (/财经|股票|金融|经济|投资|商业/.test(text)) return 'finance';
-  // tech - 科技
-  if (/科技|数码|手机|电脑|互联网/.test(text)) return 'tech';
-  // health - 健康
-  if (/健康|医疗|医药|保健|医学/.test(text)) return 'health';
+  if (/电影|影院|放映|影视/.test(text)) return {
+    type: 'movie',
+    description: `Movie channel offering Chinese and international films, theatrical releases, and cinema highlights for movie enthusiasts${region ? ' in ' + region : ''}`
+  };
 
-  return 'unknown';
+  // animation - 动画
+  if (/动画|动漫|卡通|少儿动画/.test(text)) return {
+    type: 'animation',
+    description: `Animation and anime channel featuring Japanese anime, Chinese cartoons, and international animated content for children and teens${region ? ' in ' + region : ''}`
+  };
+
+  // entertainment - 综艺
+  if (/综艺|娱乐|选秀|竞猜|晚会|春晚|节目/.test(text)) return {
+    type: 'entertainment',
+    description: `Entertainment variety show channel with talent competitions, game shows, talk shows, and celebrity performances${region ? ' broadcasting to ' + region + ' audiences' : ''}`
+  };
+
+  // sports - 体育
+  if (/体育|足球|篮球|网球|羽毛球|排球|高尔夫|赛车|赛事|欧冠|世界杯|英超|意甲|德甲|西甲|NBA|CBA|中超/.test(text)) return {
+    type: 'sports',
+    description: `Comprehensive sports channel covering football leagues, basketball tournaments, tennis events, motorsports, and major international competitions${region ? ' with focus on ' + region + ' sports coverage' : ''}`
+  };
+
+  // news - 新闻
+  if (/新闻|资讯|时事|直播|突发事件/.test(text)) return {
+    type: 'news',
+    description: `24-hour news channel providing current affairs coverage, political analysis, breaking news, and in-depth reporting${region ? ' for audiences in ' + region : ''}`
+  };
+
+  // kids - 少儿
+  if (/少儿|儿童|幼儿|宝宝|动漫|童年/.test(text)) return {
+    type: 'kids',
+    description: `Children's programming channel with animated series, educational shows, and entertaining content for toddlers to teenagers${region ? ' in ' + region : ''}`
+  };
+
+  // documentary - 纪录片
+  if (/纪录|探索|人文|自然|地理|传奇|发现/.test(text)) return {
+    type: 'documentary',
+    description: `Documentary channel exploring history, nature, science, culture, and society with in-depth investigative programming${region ? ' with ' + region + ' regional content' : ''}`
+  };
+
+  // education - 教育
+  if (/教育|课堂|讲堂|公开课|大学|学校|培训|空中课堂/.test(text)) return {
+    type: 'education',
+    description: `Educational channel offering lectures, online courses, academic content, and professional training programs${region ? ' from ' + region + ' institutions' : ''}`
+  };
+
+  // drama - 戏曲
+  if (/戏曲|戏剧|京剧|梨园|粤剧|越剧|黄梅戏|秦腔|豫剧|曲艺|相声|小品/.test(text)) return {
+    type: 'drama',
+    description: `Traditional opera and drama channel showcasing Peking opera, Cantonese opera, Yue opera, and classical Chinese theatrical performances${region ? ' with ' + region + ' regional varieties' : ''}`
+  };
+
+  // music - 音乐
+  if (/音乐|歌|演唱会|MV|古典|交响|民乐|摇滚/.test(text)) return {
+    type: 'music',
+    description: `Music channel featuring pop concerts, classical performances, music videos, and live shows for music lovers${region ? ' with ' + region + ' music programming' : ''}`
+  };
+
+  // fashion - 时尚
+  if (/时尚|美妆|购物|潮流|服装/.test(text)) return {
+    type: 'fashion',
+    description: `Fashion and lifestyle channel covering runway shows, beauty trends, shopping guides, and celebrity style${region ? ' with ' + region + ' fashion focus' : ''}`
+  };
+
+  // game - 游戏
+  if (/游戏|电竞|魔兽|英雄联盟|LOL|DOTA/.test(text)) return {
+    type: 'game',
+    description: `Gaming and e-sports channel featuring competitive gaming tournaments, game reviews, and live streaming of major e-sports events${region ? ' with ' + region + ' gaming community' : ''}`
+  };
+
+  // travel - 旅游
+  if (/旅游|地理|风光|美景|探索|旅行/.test(text)) return {
+    type: 'travel',
+    description: `Travel channel showcasing destinations, scenic locations, cultural exploration, and travel guides${region ? ' featuring ' + region + ' travel content' : ''}`
+  };
+
+  // food - 美食
+  if (/美食|烹饪|食堂|健康|养生/.test(text)) return {
+    type: 'food',
+    description: `Food and cooking channel with culinary shows, recipe tutorials, restaurant reviews, and healthy living tips${region ? ' with ' + region + ' cuisine focus' : ''}`
+  };
+
+  // finance - 财经
+  if (/财经|股票|金融|经济|投资|商业/.test(text)) return {
+    type: 'finance',
+    description: `Financial channel covering stock markets, economic news, investment insights, and business analysis${region ? ' with ' + region + ' market coverage' : ''}`
+  };
+
+  // tech - 科技
+  if (/科技|数码|手机|电脑|互联网/.test(text)) return {
+    type: 'tech',
+    description: `Technology channel featuring gadgets, digital innovations, tech news, and coverage of the latest consumer electronics${region ? ' with ' + region + ' tech scene' : ''}`
+  };
+
+  // health - 健康
+  if (/健康|医疗|医药|保健|医学/.test(text)) return {
+    type: 'health',
+    description: `Health and medical channel offering wellness advice, medical information, healthy lifestyle tips, and healthcare guidance${region ? ' with ' + region + ' health services' : ''}`
+  };
+
+  // 默认返回comprehensive
+  return {
+    type: 'comprehensive',
+    description: `General entertainment channel offering diverse programming including news, dramas, variety shows, and movies${region ? ' for ' + region + ' audiences' : ''}`
+  };
 }
 
 /**

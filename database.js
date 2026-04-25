@@ -178,20 +178,61 @@ export async function createTables(env) {
     }
   }
 
-  // 创建频道名-类型映射表（用于同步后恢复类型）
+  // 迁移：添加 channels.description 字段（如果不存在）
+  try {
+    const channelColumns = (await db.prepare('PRAGMA table_info(channels)').all()).results || [];
+    const hasDescriptionColumn = channelColumns.some(col => col.name === 'description');
+
+    if (!hasDescriptionColumn) {
+      await db.prepare('ALTER TABLE channels ADD COLUMN description TEXT DEFAULT \'\'').run();
+      console.log('Database: Migrated channels table - added description column');
+    }
+  } catch (e) {
+    if (!e.message.includes('duplicate column name')) {
+      console.error('Database: Failed to migrate channels description column:', e);
+    }
+  }
+
+  // 创建频道名-类型映射表（用于同步后恢复类型和描述）
+  // 使用 channel_name + group_title 组合唯一键，因为同一频道名在不同地区可能有不同分类
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS channel_type_mapping (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      channel_name TEXT UNIQUE,
+      channel_name TEXT NOT NULL,
+      group_title TEXT DEFAULT '',
       type TEXT NOT NULL,
+      description TEXT DEFAULT '',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(channel_name, group_title)
     )
   `).run();
 
-  // 创建频道名索引（加速查询）
+  // 迁移：为已存在的 channel_type_mapping 表添加新字段
+  try {
+    // 检查表结构
+    const tableInfo = await db.prepare('PRAGMA table_info(channel_type_mapping)').all();
+    const columns = tableInfo.results || [];
+    const columnNames = columns.map(c => c.name);
+
+    // 添加 group_title 字段（如果不存在）
+    if (!columnNames.includes('group_title')) {
+      await db.prepare('ALTER TABLE channel_type_mapping ADD COLUMN group_title TEXT DEFAULT \'\'').run();
+      console.log('Database: Migrated channel_type_mapping - added group_title column');
+    }
+
+    // 添加 description 字段（如果不存在）
+    if (!columnNames.includes('description')) {
+      await db.prepare('ALTER TABLE channel_type_mapping ADD COLUMN description TEXT DEFAULT \'\'').run();
+      console.log('Database: Migrated channel_type_mapping - added description column');
+    }
+  } catch (e) {
+    console.log('Database: channel_type_mapping migration skipped (columns may already exist)');
+  }
+
+  // 创建频道名+分组组合索引（加速查询）
   await db.prepare(`
-    CREATE INDEX IF NOT EXISTS idx_channel_type_mapping_name ON channel_type_mapping(channel_name)
+    CREATE INDEX IF NOT EXISTS idx_channel_type_mapping_name_group ON channel_type_mapping(channel_name, group_title)
   `).run();
 
   // 清理旧的无用 type_mapping_config（旧的关键词规则格式，已迁移到 channel_type_mapping）
@@ -201,7 +242,7 @@ export async function createTables(env) {
   } catch (e) {
     // ignore
   }
-  console.log('Database: channel_type_mapping table created');
+  console.log('Database: channel_type_mapping table created with group_title and description');
 
   // 创建卡密表
   await db.prepare(`
@@ -1129,12 +1170,12 @@ export async function updateSyncFilterConfig(config) {
 // 获取频道类型映射配置（从 channel_type_mapping 表）
 export async function getTypeMappingConfig() {
   const db = getDB();
-  const result = await db.prepare('SELECT channel_name, type FROM channel_type_mapping ORDER BY channel_name').all();
+  const result = await db.prepare('SELECT channel_name, group_title, type, description FROM channel_type_mapping ORDER BY channel_name, group_title').all();
   return result.results || [];
 }
 
 // 更新频道类型映射配置（写入 channel_type_mapping 表）
-// newMappings: [{channel_name: 'CCTV-1', type: 'news'}, ...]
+// newMappings: [{channel_name: 'CCTV-1', group_title: '央视', type: 'news', description: '...'}, ...]
 export async function updateTypeMappingConfig(newMappings) {
   const db = getDB();
 
@@ -1144,8 +1185,8 @@ export async function updateTypeMappingConfig(newMappings) {
   // 批量插入新数据
   if (newMappings && newMappings.length > 0) {
     const statements = newMappings.map(m =>
-      db.prepare('INSERT INTO channel_type_mapping (channel_name, type) VALUES (?, ?)')
-        .bind(m.channel_name, m.type)
+      db.prepare('INSERT INTO channel_type_mapping (channel_name, group_title, type, description) VALUES (?, ?, ?, ?)')
+        .bind(m.channel_name || '', m.group_title || '', m.type || '', m.description || '')
     );
     await db.batch(statements);
   }
@@ -1600,16 +1641,23 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
     channels.push(currentChannel);
   }
 
-  // 加载频道类型映射（用于同步时回填type）
-  const typeMap = new Map();
+  // 加载频道类型映射（用于同步时回填type和description）
+  // 使用 channel_name + group_title 组合键
+  const typeMap = new Map(); // key: channel_name, value: {type, description}
+  const typeMapWithGroup = new Map(); // key: channel_name + '|' + group_title, value: {type, description}
   try {
-    const mappingRows = await db.prepare('SELECT channel_name, type FROM channel_type_mapping').all();
+    const mappingRows = await db.prepare('SELECT channel_name, group_title, type, description FROM channel_type_mapping').all();
     if (mappingRows.results) {
       for (const row of mappingRows.results) {
-        typeMap.set(row.channel_name, row.type);
+        const key = row.channel_name + '|' + (row.group_title || '');
+        typeMapWithGroup.set(key, { type: row.type, description: row.description || '' });
+        // 同时按 channel_name 存储，用于没有 group_title 精确匹配的情况
+        if (!typeMap.has(row.channel_name)) {
+          typeMap.set(row.channel_name, { type: row.type, description: row.description || '' });
+        }
       }
     }
-    console.log(`[Sync] Loaded ${typeMap.size} channel type mappings`);
+    console.log(`[Sync] Loaded ${typeMapWithGroup.size} channel type mappings (with group)`);
   } catch (e) {
     console.warn('[Sync] Failed to load channel type mapping:', e.message);
   }
@@ -1642,16 +1690,31 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
       for (let i = 0; i < channels.length; i += BATCH_SIZE) {
         const batch = channels.slice(i, i + BATCH_SIZE);
         const statements = batch.map(channel => {
-          // 优先用映射表的type，其次用M3U解析出的type
-          const type = typeMap.has(channel.channel_name) ? typeMap.get(channel.channel_name) : (channel.type || '');
+          // 优先用映射表的type和description（精确匹配 channel_name + group_title）
+          // 其次用仅 channel_name 的映射，最后用M3U解析出的type
+          const compositeKey = channel.channel_name + '|' + (channel.group_title || '');
+          let type = channel.type || '';
+          let description = '';
+
+          if (typeMapWithGroup.has(compositeKey)) {
+            const mapped = typeMapWithGroup.get(compositeKey);
+            type = mapped.type;
+            description = mapped.description;
+          } else if (typeMap.has(channel.channel_name)) {
+            const mapped = typeMap.get(channel.channel_name);
+            type = mapped.type || type;
+            description = mapped.description || '';
+          }
+
           return db.prepare(`
-            INSERT INTO channels (source_id, channel_name, group_title, type, logo, play_url, headers, channel_hash, is_active)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO channels (source_id, channel_name, group_title, type, description, logo, play_url, headers, channel_hash, is_active)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `).bind(
             channel.source_id,
             channel.channel_name,
             channel.group_title || '',
             type,
+            description,
             channel.logo || '',
             channel.play_url,
             channel.headers,

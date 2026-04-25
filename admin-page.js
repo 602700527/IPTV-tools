@@ -248,7 +248,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     <div id="channels" class="tab-content">
       <div class="card">
         <div class="toolbar"><h3>频道列表</h3><div><select class="filter-select" id="channelSourceFilter" onchange="onSourceFilterChange()"><option value="">全部源</option></select><select class="filter-select" id="channelGroupFilter" onchange="resetChannelPage()"><option value="">全部分组</option></select><select class="filter-select" id="channelTypeFilter" onchange="resetChannelPage()"><option value="">全部类型</option></select><input type="text" class="search-box" id="channelSearch" placeholder="搜索频道..." oninput="resetChannelPage()"><select class="filter-select" id="channelPageSize" onchange="resetChannelPage()"><option value="10">10条/页</option><option value="20">20条/页</option><option value="30" selected>30条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select><button class="btn btn-danger" onclick="clearChannels()">清空数据</button><button class="btn btn-primary" onclick="showBatchTypeModal()">批量设置类型</button><button class="btn btn-success" onclick="classifyChannelsWithAI()">AI 分类</button></div></div>
-        <table><thead><tr><th><input type="checkbox" id="channelSelectAll" onchange="toggleSelectAllChannels()"></th><th>频道名称</th><th>分组</th><th>直播源</th><th>类型</th><th>播放地址</th><th>请求头</th><th>状态</th><th>操作</th></tr></thead><tbody id="channelsTable"></tbody></table>
+        <table><thead><tr><th><input type="checkbox" id="channelSelectAll" onchange="toggleSelectAllChannels()"></th><th>频道名称</th><th>分组</th><th>直播源</th><th>类型</th><th>播放地址</th><th>请求头</th><th>状态</th><th>描述</th><th>操作</th></tr></thead><tbody id="channelsTable"></tbody></table>
         <div id="channelPagination" class="pagination"></div>
       </div>
     </div>
@@ -1979,7 +1979,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         totalChannels = pagination.total || 0;
         const tbody = document.getElementById('channelsTable');
         if (channels.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="9" class="empty-state">暂无频道</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="10" class="empty-state">暂无频道</td></tr>';
         } else {
           tbody.innerHTML = channels.map(channel => \`
             <tr>
@@ -2002,6 +2002,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
                 <span class="badge \${channel.is_active ? 'badge-success' : 'badge-danger'}">
                   \${channel.is_active ? '启用' : '禁用'}
                 </span>
+              </td>
+              <td title="\${escapeHtml(channel.description || '')}" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                \${escapeHtml(channel.description || '-')}
               </td>
               <td>
                 <div class="action-buttons">
@@ -3913,50 +3916,61 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       }
     }
 
-    // Channel Type Mapping Config (频道名 -> 类型 映射)
-function loadTypeMappingConfig() {
-  var div = document.getElementById('typeMappingConfig');
-  var h = '<div style="margin-bottom:12px;color:#666;font-size:13px;">格式：频道名:类型（每行一个），例如：CCTV-1:news</div>';
-  h += '<textarea id="typeMappingEditor" rows="12" style="width:100%;font-family:monospace;font-size:13px;padding:8px;border:1px solid #d2d2d7;border-radius:6px;resize:vertical;"></textarea>';
-  h += '<div style="margin-top:8px;display:flex;gap:8px;">';
-  h += '<button class="btn btn-primary" onclick="loadTypeMappingData()">刷新</button>';
-  h += '<button class="btn btn-success" onclick="saveTypeMappingConfig()">保存</button>';
-  h += '</div>';
-  div.innerHTML = h;
-  loadTypeMappingData();
-}
-window.loadTypeMappingData = async function() {
-  var ta = document.getElementById('typeMappingEditor');
-  if (!ta) return;
-  var r = await apiRequest('/type-config', { showLoading: false });
-  // r.config 是数组 [{channel_name, type}, ...]
-  var list = r.config || [];
-  var out = list.map(function(m) { return m.channel_name + ':' + m.type; });
-  ta.value = out.join(String.fromCharCode(10));
-};
-async function saveTypeMappingConfig() {
-  var ed = document.getElementById('typeMappingEditor');
-  if (!ed) { return; }
-  var rows = ed.value.split(String.fromCharCode(10));
-  var mappings = [];
-  for (var i = 0; i < rows.length; i++) {
-    var row = rows[i].trim();
-    if (!row) { continue; }
-    var pos = row.indexOf(':');
-    if (pos <= 0) { continue; }
-    var chName = row.substring(0, pos).trim();
-    var type = row.substring(pos + 1).trim();
-    if (chName && type) {
-      mappings.push({ channel_name: chName, type: type });
+    // Channel Type Mapping Config (频道名:地区:类型:简介 映射)
+    function loadTypeMappingConfig() {
+      var div = document.getElementById('typeMappingConfig');
+      var h = '<div style="margin-bottom:12px;color:#666;font-size:13px;">格式：频道名:地区:类型:简介（每行一个），例如：CCTV-1:央视:news:24-hour news channel for Chinese audiences</div>';
+      h += '<div style="margin-bottom:8px;color:#86868b;font-size:12px;">说明：同步数据源后，系统会根据频道名+地区匹配映射，自动恢复类型和简介。支持通配符地区（留空表示匹配所有地区）</div>';
+      h += '<textarea id="typeMappingEditor" rows="15" style="width:100%;font-family:monospace;font-size:13px;padding:8px;border:1px solid #d2d2d7;border-radius:6px;resize:vertical;"></textarea>';
+      h += '<div style="margin-top:8px;display:flex;gap:8px;">';
+      h += '<button class="btn btn-primary" onclick="loadTypeMappingData()">刷新</button>';
+      h += '<button class="btn btn-success" onclick="saveTypeMappingConfig()">保存</button>';
+      h += '</div>';
+      h += '<div style="margin-top:12px;padding:12px;background:#f5f5f7;border-radius:6px;font-size:12px;color:#666;">';
+      h += '<strong>类型说明：</strong>movie, animation, entertainment, sports, news, kids, documentary, education, drama, music, fashion, game, travel, food, finance, tech, health, comprehensive';
+      h += '</div>';
+      div.innerHTML = h;
+      loadTypeMappingData();
     }
-  }
-  var res = await apiRequest('/type-config', { method: 'PUT', body: JSON.stringify(mappings) });
-  if (res.success) {
-    showToast('保存成功，共 ' + mappings.length + ' 条映射', 'success');
-  } else {
-    showToast('保存失败', 'error');
-  }
-}
+    window.loadTypeMappingData = async function() {
+      var ta = document.getElementById('typeMappingEditor');
+      if (!ta) return;
+      var r = await apiRequest('/type-config', { showLoading: false });
+      // r.config 是数组 [{channel_name, group_title, type, description}, ...]
+      var list = r.config || [];
+      var out = list.map(function(m) {
+        var group = m.group_title || '';
+        var desc = m.description || '';
+        return m.channel_name + ':' + group + ':' + m.type + ':' + desc;
+      });
+      ta.value = out.join(String.fromCharCode(10));
+    };
+    async function saveTypeMappingConfig() {
+      var ed = document.getElementById('typeMappingEditor');
+      if (!ed) { return; }
+      var rows = ed.value.split(String.fromCharCode(10));
+      var mappings = [];
+      for (var i = 0; i < rows.length; i++) {
+        var row = rows[i].trim();
+        if (!row) { continue; }
+        // 格式: channel_name:group_title:type:description
+        var parts = row.split(':');
+        if (parts.length < 3) { continue; }
+        var chName = parts[0].trim();
+        var groupTitle = parts[1].trim();
+        var type = parts[2].trim();
+        var description = parts.length > 3 ? parts.slice(3).join(':').trim() : '';
+        if (chName && type) {
+          mappings.push({ channel_name: chName, group_title: groupTitle, type: type, description: description });
+        }
+      }
+      var res = await apiRequest('/type-config', { method: 'PUT', body: JSON.stringify(mappings) });
+      if (res.success) {
+        showToast('保存成功，共 ' + mappings.length + ' 条映射', 'success');
+      } else {
+        showToast('保存失败', 'error');
+      }
+    }
 
     // ========== AI 频道分类 ==========
     async function classifyChannelsWithAI() {
