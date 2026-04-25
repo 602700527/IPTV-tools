@@ -1419,6 +1419,12 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
       currentChannel.tvg_type = typeMatch[1];
     }
 
+    // 提取 tvg-desc（频道描述）- 这是真正的频道简介
+    const descMatch = extinfLine.match(/tvg-desc\s*=\s*"([^"]+)"/i);
+    if (descMatch) {
+      currentChannel.description = descMatch[1];
+    }
+
     // 提取 EXTINF 行内的 http-user-agent、ua、user_agent
     const uaMatch = extinfLine.match(/http-user-agent\s*=\s*"([^"]+)"/i);
     if (uaMatch) {
@@ -1690,20 +1696,21 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
       for (let i = 0; i < channels.length; i += BATCH_SIZE) {
         const batch = channels.slice(i, i + BATCH_SIZE);
         const statements = batch.map(channel => {
+          // 优先级：映射表 > M3U tvg-desc > 空
           // 优先用映射表的type和description（精确匹配 channel_name + group_title）
-          // 其次用仅 channel_name 的映射，最后用M3U解析出的type
+          // 其次用仅 channel_name 的映射，最后用M3U解析出的type和description
           const compositeKey = channel.channel_name + '|' + (channel.group_title || '');
           let type = channel.type || '';
-          let description = '';
+          let description = channel.description || '';  // 来自M3U的tvg-desc
 
           if (typeMapWithGroup.has(compositeKey)) {
             const mapped = typeMapWithGroup.get(compositeKey);
             type = mapped.type;
-            description = mapped.description;
+            description = mapped.description;  // 覆盖为映射表的描述
           } else if (typeMap.has(channel.channel_name)) {
             const mapped = typeMap.get(channel.channel_name);
             type = mapped.type || type;
-            description = mapped.description || '';
+            description = mapped.description || description;  // 映射表描述优先，其次用M3U的
           }
 
           return db.prepare(`

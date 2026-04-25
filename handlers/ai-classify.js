@@ -27,6 +27,92 @@ const CHANNEL_TYPES = [
   'comprehensive', // 综合（无法确定类型时使用）
 ];
 
+/**
+ * 从 Wikipedia 获取频道的真实描述
+ * @param {string} channelName - 频道名称
+ * @param {string} groupTitle - 频道分组/地区
+ * @returns {Promise<string>} Wikipedia 描述，如果没找到则返回空字符串
+ */
+async function fetchWikipediaDescription(channelName, groupTitle) {
+  try {
+    // 构建搜索关键词：优先使用 "Channel Name" 格式，其次用 "Name (TV channel)"
+    const searchTerms = [
+      channelName,
+      channelName + ' (TV channel)',
+      channelName + ' television channel',
+      groupTitle ? groupTitle + ' ' + channelName : null,
+      channelName + ' ' + groupTitle,
+    ].filter(Boolean);
+
+    for (const term of searchTerms) {
+      try {
+        // 使用 Wikipedia OpenSearch API
+        const searchUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(term)}&limit=1&format=json&origin=*`;
+        const response = await fetch(searchUrl);
+        
+        if (!response.ok) continue;
+        
+        const data = await response.json();
+        // OpenSearch 返回格式: [query, [titles], [descriptions], [urls]]
+        const descriptions = data[2];
+        const titles = data[1];
+        
+        if (descriptions && descriptions.length > 0 && descriptions[0]) {
+          const desc = descriptions[0].trim();
+          // 过滤掉过于通用的描述
+          if (desc.length > 20 && !desc.includes('may refer to')) {
+            console.log(`[Wikipedia] Found description for "${term}": ${desc.substring(0, 100)}...`);
+            return desc;
+          }
+        }
+      } catch (e) {
+        // 继续尝试下一个搜索词
+        console.log(`[Wikipedia] Search failed for "${term}": ${e.message}`);
+      }
+    }
+    
+    console.log(`[Wikipedia] No description found for "${channelName}"`);
+    return '';
+  } catch (e) {
+    console.error('[Wikipedia] Error:', e.message);
+    return '';
+  }
+}
+
+/**
+ * 批量获取 Wikipedia 描述
+ * @param {Array} channels - 频道列表
+ * @returns {Promise<Map>} channelId -> description
+ */
+async function batchFetchWikipediaDescriptions(channels) {
+  const descriptionMap = new Map();
+  
+  // 每批处理 10 个并发请求
+  const CONCURRENCY = 10;
+  
+  for (let i = 0; i < channels.length; i += CONCURRENCY) {
+    const batch = channels.slice(i, i + CONCURRENCY);
+    const promises = batch.map(ch => 
+      fetchWikipediaDescription(ch.channel_name, ch.group_title)
+        .then(desc => ({ id: ch.id, description: desc }))
+    );
+    
+    const results = await Promise.all(promises);
+    for (const { id, description } of results) {
+      if (description) {
+        descriptionMap.set(id, description);
+      }
+    }
+    
+    // 避免请求过快
+    if (i + CONCURRENCY < channels.length) {
+      await new Promise(r => setTimeout(r, 100));
+    }
+  }
+  
+  return descriptionMap;
+}
+
 // 系统提示词
 const SYSTEM_PROMPT = `You are a professional IPTV TV channel classification assistant. You MUST classify channels by combining BOTH the channel name AND the group-title (region/location) together for accurate classification.
 
@@ -70,26 +156,28 @@ Key requirements:
 const BATCH_SIZE = 200; // 每批处理数量
 
 /**
- * 构建分类 prompt
+ * 构建分类 prompt（包含 Wikipedia 真实描述）
  */
-function buildClassificationPrompt(channels) {
-  const channelList = channels.map((ch, i) => `${i + 1}. ${ch.channel_name}${ch.group_title ? ' [region: ' + ch.group_title + ']' : ''}`).join('\n');
+function buildClassificationPrompt(channels, wikipediaDescriptions) {
+  const channelList = channels.map((ch, i) => {
+    const wikiDesc = wikipediaDescriptions.get(ch.id);
+    const wikiInfo = wikiDesc ? ` [Wikipedia: ${wikiDesc}]` : '';
+    return `${i + 1}. ${ch.channel_name}${ch.group_title ? ' [region: ' + ch.group_title + ']' : ''}${wikiInfo}`;
+  }).join('\n');
+  
   return `Classify the following IPTV channels. Return ONLY pure JSON without markdown:
 
 ${channelList}
 
 Important: The JSON key must be the line number (starting from 1), e.g., "1", "2", "3"...
-Return format: {"1": {"type": "sports", "description": "Rich description 100-200 chars including target audience, content focus, coverage area..."}, "2": {"type": "movie", "description": "Movie channel for..."}, ...}
+Return format: {"1": {"type": "sports", "description": "Description from Wikipedia or your knowledge..."}, "2": {"type": "movie", "description": "..."}, ...}
 
 Rules:
-- Combine channel name AND group-title (region) for accurate type classification AND rich description
+- Combine channel name AND group-title (region) for accurate type classification
+- If Wikipedia description is provided, use it as the primary source for the description field
 - type must be one of: movie, animation, entertainment, sports, news, kids, documentary, education, drama, music, fashion, game, travel, food, finance, tech, health, comprehensive
 - Use "comprehensive" if you cannot determine the type with confidence
-- description must be in English, rich and informative (100-200 characters), including:
-  - Target audience or viewer demographic
-  - Main content categories or programming focus
-  - Broadcast coverage area if inferable from region name
-  - Unique characteristics or channel positioning`;
+- description should be based on the Wikipedia content if available, otherwise use your knowledge (50-150 characters)`;
 }
 
 /**
@@ -275,10 +363,45 @@ export async function classifyEmptyTypeChannels(env, limit = 5000, controller = 
     console.log(`[AI-Classify] Processing batch ${batchNum}/${totalBatches} (${batch.length} channels)`);
 
     try {
-      const prompt = buildClassificationPrompt(batch);
+      // 先查询 Wikipedia 获取真实描述
+      if (controller) {
+        const wikiMsg = JSON.stringify({ 
+          type: 'progress',
+          batch: batchNum,
+          totalBatches,
+          processed,
+          total: totalChannels,
+          message: `查询 Wikipedia... ${processed}/${totalChannels}`
+        });
+        controller.enqueue('data: ' + wikiMsg + '\n\n');
+      }
+      console.log(`[AI-Classify] Fetching Wikipedia descriptions for batch ${batchNum}...`);
+      const wikiDescriptions = await batchFetchWikipediaDescriptions(batch);
+      console.log(`[AI-Classify] Got ${wikiDescriptions.size} Wikipedia descriptions for batch ${batchNum}`);
+
+      const prompt = buildClassificationPrompt(batch, wikiDescriptions);
 
       const responseText = await callMiniMaxAPI(prompt);
       const batchResults = parseAIResponse(responseText, batch);
+
+      // 合并 Wikipedia 真实描述：如果 AI 返回的描述太短或像是通用模板，使用 Wikipedia 描述
+      for (const [idStr, item] of Object.entries(batchResults)) {
+        const channelId = parseInt(idStr);
+        const wikiDesc = wikiDescriptions.get(channelId);
+        
+        if (wikiDesc) {
+          const aiDesc = item.description || '';
+          // 如果 AI 描述太短（<30字符）或者是通用模板，使用 Wikipedia 描述
+          const isGenericAI = aiDesc.length < 30 || 
+            aiDesc.includes('comprehensive') || 
+            aiDesc.includes('targeting') && aiDesc.includes('audience');
+          
+          if (isGenericAI || aiDesc.length < wikiDesc.length * 0.5) {
+            item.description = wikiDesc;
+            console.log(`[AI-Classify] Using Wikipedia description for channel ${channelId}: ${wikiDesc.substring(0, 80)}...`);
+          }
+        }
+      }
 
       // 立即写回数据库（每批完成后）
       try {
@@ -322,10 +445,24 @@ export async function classifyEmptyTypeChannels(env, limit = 5000, controller = 
 
     } catch (e) {
       console.error(`[AI-Classify] Batch ${batchNum} failed:`, e.message);
-      // AI 失败时使用关键词备用分类
-      console.log(`[AI-Classify] Falling back to keyword classification for batch ${batchNum}`);
+      // AI 失败时：优先使用 Wikipedia 描述，其次用关键词分类
+      console.log(`[AI-Classify] Falling back to Wikipedia + keyword classification for batch ${batchNum}`);
       for (const channel of batch) {
-        const { type, description } = classifyByKeyword(channel.channel_name, channel.group_title);
+        // 先尝试 Wikipedia
+        const wikiDesc = await fetchWikipediaDescription(channel.channel_name, channel.group_title);
+        
+        let type, description;
+        if (wikiDesc) {
+          // 使用 Wikipedia 描述 + AI 推断类型（从描述判断）
+          description = wikiDesc;
+          type = classifyByKeyword(channel.channel_name, channel.group_title).type;
+        } else {
+          // 没有 Wikipedia 描述，使用关键词分类
+          const keywordResult = classifyByKeyword(channel.channel_name, channel.group_title);
+          type = keywordResult.type;
+          description = keywordResult.description;
+        }
+        
         results[channel.id] = { type, description };
         classified++;
 
