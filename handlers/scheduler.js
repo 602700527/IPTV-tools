@@ -700,14 +700,7 @@ export async function manualSyncAll(env, filter = null) {
           console.error('[Scheduler] Failed to cache sitemap:', sitemapResult.error);
         }
 
-        // After caching channels to KV, generate new token and play addresses
-        console.log('[Scheduler] Generating new token and play addresses...');
-        try {
-          const tokenResult = await generateTokenAndAddresses(env);
-          console.log(`[Scheduler] Token generated: ${tokenResult}`);
-        } catch (tokenError) {
-          console.error('[Scheduler] Failed to generate token:', tokenError);
-        }
+
       } else {
         console.error('[Scheduler] Failed to cache channels:', cacheResult.error);
       }
@@ -715,14 +708,24 @@ export async function manualSyncAll(env, filter = null) {
       console.log(`[Scheduler] Some sources failed (${failCount}), skipping KV cache refresh to maintain stability`);
     }
 
-    return {
+    const returnResult = {
       success: true,
       message: `同步完成: ${successCount}个源成功, ${failCount}个源失败`,
+      success_count: successCount,
+      fail_count: failCount,
       results
     };
+
+    // 保存同步结果到KV，供前端轮询获取
+    await env.KV.put('sync:last_result', JSON.stringify(returnResult), { expirationTtl: 3600 });
+
+    return returnResult;
   } catch (error) {
     console.error('[Scheduler] Error in manualSyncAll:', error);
-    return { success: false, error: error.message };
+    const returnResult = { success: false, error: error.message };
+    // 保存错误结果到KV
+    await env.KV.put('sync:last_result', JSON.stringify(returnResult), { expirationTtl: 3600 });
+    return returnResult;
   } finally {
     await releaseKVLock(env, LOCK_KEY_SYNC);
     console.log('[Scheduler] Manual sync lock released');

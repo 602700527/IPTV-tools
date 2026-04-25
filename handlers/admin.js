@@ -1,5 +1,5 @@
 // 管理后台API处理器
-import { getDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, getSyncFilterConfig, updateSyncFilterConfig, getTypeMappingConfig, updateTypeMappingConfig, getDomainBlacklist, addDomainToBlacklist, removeDomainFromBlacklist, addMultipleDomainsToBlacklist } from '../database.js';
+import { getDB, initDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, getSyncFilterConfig, updateSyncFilterConfig, getTypeMappingConfig, updateTypeMappingConfig, getDomainBlacklist, addDomainToBlacklist, removeDomainFromBlacklist, addMultipleDomainsToBlacklist } from '../database.js';
 import {
   handleGetPaymentMethods,
   handleUpdatePaymentMethod,
@@ -25,6 +25,9 @@ export async function handleAdminRequest(request, env, ctx) {
   if (adminKey !== env.ADMIN_KEY) {
     return new Response('Unauthorized', { status: 401 });
   }
+
+  // 初始化数据库
+  await initDB(env);
 
   try {
     switch (action) {
@@ -198,14 +201,53 @@ export async function handleAdminRequest(request, env, ctx) {
           });
         }
 
-        // 同步所有启用的源
-        if (syncSubAction === 'all' && request.method === 'POST') {
-          const filter = await request.json();
-          console.log('[Admin] Sync all with filter:', filter);
-          const result = await manualSyncAll(env, filter);
-          return new Response(JSON.stringify(result), {
+        // 获取同步状态
+        if (syncSubAction === 'status' && request.method === 'GET') {
+          const syncLock = await env.KV.get('lock:sync');
+          const syncResult = await env.KV.get('sync:last_result', { type: 'json' });
+
+          return new Response(JSON.stringify({
+            success: true,
+            sync_in_progress: syncLock === '1',
+            last_result: syncResult || null,
+            timestamp: new Date().toISOString()
+          }), {
             headers: { 'Content-Type': 'application/json' }
           });
+        }
+
+        // 同步所有启用的源
+        if (syncSubAction === 'all' && request.method === 'POST') {
+          const data = await request.json();
+          const asyncMode = data.async === true;
+          
+          console.log('[Admin] Sync all requested, async:', asyncMode);
+          
+          if (asyncMode) {
+            // 异步模式：立即返回，后台处理
+            ctx.waitUntil((async () => {
+              try {
+                const result = await manualSyncAll(env, data.filter || null);
+                console.log('[Admin] Async sync completed:', result);
+              } catch (e) {
+                console.error('[Admin] Async sync failed:', e);
+              }
+            })());
+            
+            return new Response(JSON.stringify({
+              success: true,
+              message: '同步已在后台启动'
+            }), {
+              status: 202,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } else {
+            // 同步模式：等待完成
+            const result = await manualSyncAll(env, data.filter || null);
+            return new Response(JSON.stringify(result), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
         }
 
         // 同步单个源
@@ -916,6 +958,10 @@ export async function handleAdminRequest(request, env, ctx) {
           if (data.is_active !== undefined) {
             updateFields.push('is_active = ?');
             updateParams.push(data.is_active ? 1 : 0);
+          }
+          if (data.description !== undefined) {
+            updateFields.push('description = ?');
+            updateParams.push(data.description || '');
           }
 
           if (updateFields.length === 0) {

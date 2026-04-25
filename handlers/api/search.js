@@ -103,6 +103,7 @@ export async function handleApiSearch(request, env) {
         totalResults: results.length,
         results: results.map(ch => ({
           name: ch.channel_name,
+          slug: slugify(ch.channel_name),  // 直接返回slug，避免前端二次处理
           hash: ch.channel_hash,
           group: ch.group_title,
           logo: ch.logo

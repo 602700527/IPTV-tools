@@ -2118,9 +2118,15 @@ export async function fetchAndParseM3U(sourceUrl, sourceId, filter = null) {
     }
     
     const fetchStartTime = Date.now();
-    const response = await fetch(sourceUrl);
+    let response;
+    try {
+      response = await fetch(sourceUrl);
+    } catch (fetchError) {
+      console.error(`[Sync] Fetch error: ${fetchError.message}`);
+      throw new Error(`Fetch failed: ${fetchError.message}`);
+    }
     const fetchEndTime = Date.now();
-    console.log(`[Sync] Fetch completed in ${fetchEndTime - fetchStartTime}ms`);
+    console.log(`[Sync] Fetch completed in ${fetchEndTime - fetchStartTime}ms, status: ${response.status}`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch M3U: ${response.status} ${response.statusText}`);
@@ -2153,7 +2159,8 @@ export async function fetchAndParseM3U(sourceUrl, sourceId, filter = null) {
   } catch (error) {
     console.error(`[Sync] Error fetching and parsing M3U: ${error.message}`);
     console.error(`[Sync] Stack:`, error.stack);
-    return { success: false, error: error.message };
+    const errorMsg = error.message || 'Unknown error';
+    return { success: false, error: errorMsg };
   }
 }
 

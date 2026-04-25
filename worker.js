@@ -760,6 +760,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     }
 
     // 路由处理
+    console.log('[Router] Processing path:', path);
     if (path === '/' || path === '') {
       // 首页 - 优先尝试使用静态文件
       const staticResponse = await serveStaticFile('/index.html', env);
@@ -915,9 +916,10 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         ORDER BY c.group_title
       `).all();
       
-      // 找到匹配的分类
-      const matchedGroup = (groupsResult.results || []).find(g => slugify(g.group_title) === slug);
-      
+      // 找到匹配的分类（大小写不敏感匹配）
+      const matchedGroup = (groupsResult.results || []).find(g => slugify(g.group_title).toLowerCase() === slug.toLowerCase());
+      console.log('[CategoryPage] Looking for slug:', slug, ', Available groups:', groupsResult.results?.map(g => ({name: g.group_title, slug: slugify(g.group_title)})));
+
       if (!matchedGroup) {
         return await generate404Page(request, env);
       }
@@ -1106,6 +1108,20 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         if (!str) return '';
         return str.trim().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
       };
+
+      // DEBUG: 打印 slug 匹配调试信息
+      console.log(`[Channel Page] Looking for slug: "${slugInUrl}"`);
+      const matchingChannels = allChannels.filter(ch => slugify(ch.channel_name) === slugInUrl);
+      if (matchingChannels.length > 0) {
+        console.log(`[Channel Page] Found ${matchingChannels.length} matching channel(s)`);
+      } else {
+        // 打印最接近的候选者（用于调试）
+        const candidates = allChannels
+          .map(ch => ({ name: ch.channel_name, slug: slugify(ch.channel_name) }))
+          .filter(c => c.slug.includes(slugInUrl.substring(0, Math.min(10, slugInUrl.length))))
+          .slice(0, 5);
+        console.log(`[Channel Page] No match found. Candidates:`, JSON.stringify(candidates));
+      }
 
       // 通过 slug 查找频道
       let channel = allChannels.find(ch => slugify(ch.channel_name) === slugInUrl);
@@ -1572,8 +1588,9 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         const categories = categoriesResult.results || [];
 
         categories.forEach(cat => {
+          const catSlug = slugify(cat.category);
           sitemap += '  <url>\n';
-          sitemap += `    <loc>${baseUrl}/category/${encodeURIComponent(cat.category)}</loc>\n`;
+          sitemap += `    <loc>${baseUrl}/category/${encodeURIComponent(catSlug)}</loc>\n`;
           sitemap += `    <lastmod>${today}</lastmod>\n`;
           sitemap += '    <changefreq>daily</changefreq>\n';
           sitemap += '    <priority>0.8</priority>\n';
@@ -1581,11 +1598,13 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         });
 
         // 获取频道（限制 5000 个避免超限）
+        // 与频道详情页保持一致，只包含启用源下的启用频道
         const channelsResult = await db.prepare(`
-          SELECT channel_hash as hash, channel_name as name, group_title
-          FROM channels
-          WHERE is_active = 1
-          ORDER BY group_title, id DESC
+          SELECT c.channel_hash as hash, c.channel_name as name, c.group_title
+          FROM channels c
+          INNER JOIN sources s ON c.source_id = s.id
+          WHERE c.is_active = 1 AND s.is_active = 1
+          ORDER BY c.group_title, c.id DESC
           LIMIT 5000
         `).all();
 

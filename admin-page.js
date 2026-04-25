@@ -68,6 +68,24 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     .form-row{display:flex;gap:16px}
     .form-row .form-group{flex:1}
     .modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:24px}
+    /* Channel Edit Modal Styles */
+    .modal-channel-edit{max-width:560px}
+    .channel-info-header{display:flex;align-items:center;gap:16px;padding:16px;background:linear-gradient(135deg,#f8f9fa 0%,#e9ecef 100%);border-radius:12px;margin-bottom:20px}
+    .channel-logo-preview{width:56px;height:56px;border-radius:8px;object-fit:cover;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .channel-name-preview{flex:1;min-width:0}
+    .channel-name{font-size:18px;font-weight:600;color:#1d1d1f;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .channel-group-preview{font-size:13px;color:#6c757d}
+    .channel-meta-row{display:flex;gap:16px;margin-bottom:20px}
+    .channel-meta-item{flex:1;padding:12px;background:#f8f9fa;border-radius:8px}
+    .meta-label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#86868b;margin-bottom:4px}
+    .meta-input{width:100%;padding:8px 10px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;background:#fff}
+    .meta-value{font-size:14px;color:#1d1d1f}
+    .channel-desc-group{position:relative;margin-bottom:16px}
+    .desc-label{display:flex;align-items:center;gap:6px;margin-bottom:8px;font-weight:500;font-size:14px;color:#1d1d1f}
+    .desc-icon{width:16px;height:16px;color:#86868b}
+    .desc-textarea{width:100%;padding:12px;border:1px solid #d2d2d7;border-radius:8px;font-size:14px;line-height:1.6;resize:vertical;min-height:100px;transition:border-color .2s,box-shadow .2s}
+    .desc-textarea:focus{outline:none;border-color:#0071e3;box-shadow:0 0 0 3px rgba(0,113,227,.15)}
+    .desc-counter{position:absolute;bottom:8px;right:12px;font-size:11px;color:#86868b;pointer-events:none}
     .search-box{padding:8px 12px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;width:200px}
     .filter-select{padding:8px 12px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px}
     .empty-state{text-align:center;padding:40px;color:#86868b}
@@ -981,11 +999,36 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     </div>
   </div>
   <div id="channelEditModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content modal-channel-edit">
       <div class="modal-header"><h3>编辑频道</h3><button class="close-btn" onclick="closeChannelEditModal()">&times;</button></div>
       <input type="hidden" id="editChannelId" value="">
-      <div class="form-group"><label>频道名称</label><input type="text" id="editChannelName" disabled></div>
-      <div class="form-group"><label>类型</label><input type="text" id="editChannelType" placeholder="多个类型用逗号分隔，如: movie,animation"></div>
+      <div class="channel-info-header">
+        <div class="channel-logo-preview" id="editChannelLogo"></div>
+        <div class="channel-name-preview">
+          <div class="channel-name" id="editChannelNameDisplay"></div>
+          <div class="channel-group-preview" id="editChannelGroupDisplay"></div>
+        </div>
+      </div>
+      <div class="channel-meta-row">
+        <div class="channel-meta-item">
+          <span class="meta-label">类型</span>
+          <input type="text" id="editChannelType" class="meta-input" placeholder="如: movie, animation">
+        </div>
+        <div class="channel-meta-item">
+          <span class="meta-label">来源</span>
+          <span class="meta-value" id="editChannelSource"></span>
+        </div>
+      </div>
+      <div class="form-group channel-desc-group">
+        <label class="desc-label">
+          <svg class="desc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h12"/>
+          </svg>
+          频道简介
+        </label>
+        <textarea id="editChannelDescription" class="desc-textarea" rows="4" placeholder="描述频道内容、特点或特色节目..."></textarea>
+        <div class="desc-counter"><span id="descCharCount">0</span> / 500</div>
+      </div>
       <div class="modal-footer"><button class="btn" onclick="closeChannelEditModal()">取消</button><button class="btn btn-primary" onclick="saveChannelEdit()">保存</button></div>
     </div>
   </div>
@@ -1683,55 +1726,107 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
     async function syncAllSources() {
       if (!confirm('确定要同步所有已启用的源吗？这将删除所有旧频道数据并重新获取。')) return;
-      showLoading();
-      showToast('开始同步所有源，这可能需要几分钟...', 'info');
+
+      // 获取过滤规则（支持逗号和换行符分隔）
+      const excludeGroups = document.getElementById('syncExcludeGroups').value
+        .split(new RegExp('[\\n,]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      const excludeUrls = document.getElementById('syncExcludeUrls').value
+        .split(new RegExp('[\\n,]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      const excludeNames = document.getElementById('syncExcludeNames').value
+        .split(new RegExp('[\\n,]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      const filter = {
+        excludeGroups,
+        excludeUrls,
+        excludeNames,
+        async: true  // 启用异步模式，不阻塞UI
+      };
+
+      console.log('Sync filter:', filter);
+
       try {
-        // 获取过滤规则（支持逗号和换行符分隔）
-        const excludeGroups = document.getElementById('syncExcludeGroups').value
-          .split(new RegExp('[\\n,]+'))
-          .map(s => s.trim())
-          .filter(s => s.length > 0);
-        const excludeUrls = document.getElementById('syncExcludeUrls').value
-          .split(new RegExp('[\\n,]+'))
-          .map(s => s.trim())
-          .filter(s => s.length > 0);
-        const excludeNames = document.getElementById('syncExcludeNames').value
-          .split(new RegExp('[\\n,]+'))
-          .map(s => s.trim())
-          .filter(s => s.length > 0);
-
-        const filter = {
-          excludeGroups,
-          excludeUrls,
-          excludeNames
-        };
-
-        console.log('Sync filter:', filter); // 调试日志
-
         const result = await apiRequest('/sync/all', {
           method: 'POST',
           body: JSON.stringify(filter)
         });
+
         if (result.success) {
-          const summary = \`同步完成：\${result.success_count}个成功，\${result.fail_count}个失败\`;
-          showToast(summary, result.fail_count > 0 ? 'error' : 'success');
-          // 显示详细结果
-          if (result.results && result.results.length > 0) {
-            const details = result.results.map(r => {
-              const status = r.success ? '✓' : '✗';
-              return \`\${status} \${r.source_name}: \${r.success ? r.new_channels + '个频道' : r.error}\`;
-            }).join('\\n');
-            alert(summary + '\\n\\n详细结果:\\n' + details);
-          }
-          loadSources();
+          showToast('同步已在后台启动，请稍后刷新页面查看结果', 'success');
+          // 启动轮询检查同步状态
+          pollSyncProgress();
         } else {
           showToast('同步失败: ' + result.error, 'error');
         }
       } catch (error) {
         showToast('同步失败: ' + error.error, 'error');
-      } finally {
-        hideLoading();
       }
+    }
+
+    async function pollSyncProgress() {
+      // 简单轮询，每5秒检查一次同步状态，最多检查30分钟
+      const maxChecks = 180;
+      let checkCount = 0;
+      let lastStatus = null;
+
+      const checkStatus = async () => {
+        checkCount++;
+        try {
+          const status = await apiRequest('/sync/status', { method: 'GET' });
+          
+          // 同步进行中
+          if (status && status.sync_in_progress === true) {
+            if (checkCount === 1) {
+              lastStatus = showToast('同步进行中...', 'info');
+            } else if (checkCount % 12 === 0) { // 每60秒提示一次
+              if (lastStatus) lastStatus.dismiss();
+              const waitMin = Math.floor(checkCount * 5 / 60);
+              lastStatus = showToast('同步进行中... (已等待' + waitMin + '分钟)', 'info');
+            }
+          }
+          
+          // 同步完成
+          if (status && status.sync_in_progress === false && status.last_result) {
+            if (lastStatus) lastStatus.dismiss();
+            const result = status.last_result;
+            if (result.success) {
+              const summary = '同步完成：' + (result.success_count || 0) + '个源成功，' + (result.fail_count || 0) + '个源失败';
+              showToast(summary, result.fail_count > 0 ? 'warning' : 'success');
+              // 显示详细结果
+              if (result.results && result.results.length > 0) {
+                const details = result.results.map(r => {
+                  const s = r.success ? 'V' : 'X';
+                  return s + ' ' + r.source_name + ': ' + (r.success ? r.new_channels + ' channels' : r.error);
+                }).join(' | ');
+                console.log('[Sync] Results:', details);
+              }
+              loadSources();
+            } else {
+              showToast('同步失败: ' + (result.error || '未知错误'), 'error');
+            }
+            return; // 停止轮询
+          }
+        } catch (e) {
+          console.error('[Sync] 轮询状态失败:', e);
+        }
+
+        if (checkCount < maxChecks) {
+          setTimeout(checkStatus, 5000);
+        } else {
+          if (lastStatus) lastStatus.dismiss();
+          showToast('同步超时，请手动刷新页面查看状态', 'warning');
+        }
+      };
+
+      // 立即显示提示
+      lastStatus = showToast('同步已在后台启动...', 'info');
+      // 等待3秒后开始第一次检查
+      setTimeout(checkStatus, 3000);
     }
 
 
@@ -2167,7 +2262,31 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     function showChannelEditModal(channel) {
       document.getElementById('editChannelId').value = channel.id;
       document.getElementById('editChannelName').value = channel.channel_name;
+      document.getElementById('editChannelNameDisplay').textContent = channel.channel_name;
+      document.getElementById('editChannelGroupDisplay').textContent = channel.group_title || '未分组';
       document.getElementById('editChannelType').value = channel.type || '';
+      document.getElementById('editChannelSource').textContent = channel.source_name || '-';
+      document.getElementById('editChannelDescription').value = channel.description || '';
+      document.getElementById('descCharCount').textContent = (channel.description || '').length;
+      
+      // Channel logo
+      const logoEl = document.getElementById('editChannelLogo');
+      if (channel.logo) {
+        logoEl.innerHTML = '<img src="' + escapeHtml(channel.logo) + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';
+      } else {
+        logoEl.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#e9ecef;border-radius:8px;font-size:24px;color:#adb5bd;">' + (channel.channel_name ? channel.channel_name.charAt(0) : '?') + '</div>';
+      }
+      
+      // Add description counter listener
+      const descInput = document.getElementById('editChannelDescription');
+      descInput.addEventListener('input', function() {
+        document.getElementById('descCharCount').textContent = this.value.length;
+        if (this.value.length > 500) {
+          this.value = this.value.substring(0, 500);
+          document.getElementById('descCharCount').textContent = 500;
+        }
+      });
+      
       document.getElementById('channelEditModal').classList.add('active');
     }
 
@@ -2179,11 +2298,12 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     async function saveChannelEdit() {
       const id = document.getElementById('editChannelId').value;
       const type = document.getElementById('editChannelType').value.trim();
+      const description = document.getElementById('editChannelDescription').value.trim();
       if (!id) return;
       try {
         const result = await apiRequest('/channels/' + id, {
           method: 'PUT',
-          body: JSON.stringify({ type })
+          body: JSON.stringify({ type, description })
         });
         if (result.success) {
           showToast('更新成功', 'success');
@@ -3977,22 +4097,22 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       var btn = document.querySelector('button[onclick="classifyChannelsWithAI()"]');
       if (!btn) return;
       var originalText = btn.textContent;
-      btn.textContent = 'AI 分类中...';
+      btn.textContent = 'AI 分类启动中...';
       btn.disabled = true;
 
       // 使用同步状态指示器显示进度
       setSyncStatus('classifying');
-      document.getElementById('syncText').textContent = 'AI 分类启动中...';
+      document.getElementById('syncText').textContent = 'AI 分类已启动，后台处理中...';
 
       try {
-        // 先发送请求获取初始信息
+        // 发送异步请求，立即返回
         const initResponse = await fetch(API_BASE + '/classify-channels-ai', {
           method: 'POST',
           headers: {
             'X-Admin-Key': adminKey,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ limit: 10000 })
+          body: JSON.stringify({ limit: 10000, async: true })
         });
 
         const initData = await initResponse.json();
@@ -4001,17 +4121,75 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           throw new Error(initData.error || 'AI 分类请求失败');
         }
 
-        // 显示完成消息（因为AI处理很快，实际是同步完成的）
-        document.getElementById('syncText').textContent = 'AI 分类完成！';
-        showToast('AI 分类完成！共分类 ' + initData.classified + ' 个频道', 'success');
-        loadChannels();
+        // 显示启动成功提示
+        showToast('AI 分类已在后台启动，处理完成后将显示通知', 'success');
+        document.getElementById('syncText').textContent = 'AI 分类已启动，后台处理中...';
+
+        // 启动轮询检查分类进度
+        pollAIClassificationProgress();
 
       } catch (e) {
-        showToast('AI 分类失败: ' + e.message, 'error');
-      } finally {
+        showToast('AI 分类启动失败: ' + e.message, 'error');
         btn.textContent = originalText;
         btn.disabled = false;
         clearSyncStatus();
+      }
+    }
+
+    // 轮询检查 AI 分类进度
+    async function pollAIClassificationProgress() {
+      const pollInterval = 5000; // 每5秒检查一次
+      const maxPolls = 120; // 最多轮询120次（约10分钟）
+      let pollCount = 0;
+
+      const poll = async () => {
+        if (pollCount >= maxPolls) {
+          showToast('AI 分类超时', 'error');
+          clearSyncStatus();
+          resetClassifyButton();
+          return;
+        }
+        pollCount++;
+
+        try {
+          // 检查还有多少未分类的频道
+          const response = await fetch(API_BASE + '/channels?type=&page=1&pageSize=1', {
+            headers: { 'X-Admin-Key': adminKey }
+          });
+          const data = await response.json();
+          
+          // 如果剩余未分类数量减少，说明正在处理
+          if (data.pagination && data.pagination.total !== undefined) {
+            const remaining = data.pagination.total;
+            if (remaining === 0) {
+              // 分类完成
+              showToast('AI 分类完成！所有频道已分类完毕', 'success');
+              document.getElementById('syncText').textContent = 'AI 分类完成！';
+              clearSyncStatus();
+              resetClassifyButton();
+              loadChannels();
+              return;
+            } else {
+              document.getElementById('syncText').textContent = 'AI 分类中... 剩余 ' + remaining + ' 个频道';
+            }
+          }
+        } catch (e) {
+          console.log('[pollAIClassificationProgress] Error:', e.message);
+        }
+
+        // 继续轮询
+        setTimeout(poll, pollInterval);
+      };
+
+      // 开始轮询
+      setTimeout(poll, pollInterval);
+    }
+
+    function resetClassifyButton() {
+      var btn = document.querySelector('button[onclick="classifyChannelsWithAI()"]');
+      if (btn) {
+        btn.textContent = 'AI 分类';
+        btn.disabled = false;
       }
     }
 

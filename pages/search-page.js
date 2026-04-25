@@ -300,7 +300,7 @@ export function generateSearchPage(options = {}) {
         if (results.length > 0) {
           resultsContainer.innerHTML = '<div class="channel-grid">' + results.map(ch => {
             const logoHtml = ch.logo ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '">' : '<div class="placeholder">📺</div>';
-            const channelUrl = buildChannelUrl(ch.name);
+            const channelUrl = '/channel/' + (ch.slug || slugify(ch.name));  // 使用API返回的slug
             return '<a href="' + origin + channelUrl + '" class="channel-card">' +
               '<div class="channel-poster">' + logoHtml + '</div>' +
               '<div class="channel-info">' +
@@ -322,7 +322,7 @@ export function generateSearchPage(options = {}) {
               "@type": "ListItem",
               "position": i + 1,
               "name": ch.name,
-              "url": origin + buildChannelUrl(ch.name)
+              "url": origin + '/channel/' + (ch.slug || slugify(ch.name))
             }))
           };
           document.getElementById('json-ld').textContent = JSON.stringify(jsonLd);
