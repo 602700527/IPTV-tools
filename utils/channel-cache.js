@@ -1,5 +1,6 @@
 // 频道 KV 缓存管理
 import { getDB } from '../database.js';
+import { toPinyinInitials } from './search-utils.js';
 
 const CHANNELS_CACHE_KEY = 'channels_cache';
 const GROUPS_CACHE_KEY = 'groups_cache';
@@ -67,17 +68,24 @@ export async function cacheChannelsToKV(env) {
     // 生成缓存版本号
     const version = Date.now();
 
+    // 预计算拼音字段，加速搜索匹配
+    const channelsWithPinyin = (channels.results || []).map(ch => ({
+      ...ch,
+      name_pinyin: toPinyinInitials(ch.channel_name || '').toLowerCase(),
+      group_pinyin: toPinyinInitials(ch.group_title || '').toLowerCase()
+    }));
+
     // 批量写入 KV
     const cacheData = {
       version,
-      channels: channels.results || [],
+      channels: channelsWithPinyin,
       groups,
       cached_at: new Date().toISOString()
     };
 
     // 一次性写入所有数据（批量写入）
     await env.KV.put(CHANNELS_CACHE_KEY, JSON.stringify(cacheData), {
-      expirationTtl: 24 * 60 * 60 // 24 小时
+      expirationTtl: 24 * 60 * 60 // 24 小时缓存
     });
 
     // 单独缓存分组列表

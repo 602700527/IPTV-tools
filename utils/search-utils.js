@@ -85,8 +85,7 @@ const PINYIN_MAP = {
   zheng: '正争筝睁蒸', zhi: '之支只汁知', zhong: '中忠终盅肿', zhou: '州舟轴肘咒',
   zhu: '朱竹主驻柱', zhua: '抓爪', zhuai: '拽', zhuan: '专砖转撰', zhuang: '妆庄',
   zhui: '追椎坠', zhun: '准', zhuo: '卓捉桌灼', zi: '仔孜咨资姿', zong: '宗棕踪纵',
-  zou: '走奏揍', zu: '足卒族组', zuan: '钻攥', zui: '最罪', zun: '尊遵', zuo: '作',
-  zang: '脏葬藏', cang: '藏', zeng: '增憎曾', sheng: '生声升', cheng: '成呈承城诚程'
+   zou: '走奏揍', zu: '足卒族组', zuan: '钻攥', zui: '最罪', zun: '尊遵', zuo: '作'
 };
 
 // 同义词/别名映射表
@@ -272,7 +271,7 @@ export function expandQuery(query) {
 }
 
 /**
- * 增强的频道搜索函数
+ * 增强的频道搜索函数（简化版：去掉拼音匹配，加速搜索）
  * @param {Object} channel - 频道对象
  * @param {string[]} searchTerms - 扩展后的搜索词列表
  * @returns {Object} - { matches: boolean, score: number, matchType: string }
@@ -284,15 +283,11 @@ export function enhancedChannelMatch(channel, searchTerms) {
   
   const name = (channel.channel_name || '').toLowerCase();
   const group = (channel.group_title || '').toLowerCase();
-  const namePinyin = toPinyinInitials(channel.channel_name || '').toLowerCase();
-  const groupPinyin = toPinyinInitials(channel.group_title || '').toLowerCase();
   
   let bestScore = 0;
   let matchType = null;
   
   for (const term of searchTerms) {
-    const termPinyin = toPinyinInitials(term).toLowerCase();
-    
     if (name.includes(term)) {
       if (term.length > bestScore) {
         bestScore = term.length;
@@ -300,26 +295,10 @@ export function enhancedChannelMatch(channel, searchTerms) {
       }
     }
     
-    if (namePinyin.includes(termPinyin) || (termPinyin && namePinyin.startsWith(termPinyin))) {
-      const score = termPinyin.length * 0.9;
-      if (score > bestScore) {
-        bestScore = score;
-        matchType = 'name_pinyin';
-      }
-    }
-    
     if (group.includes(term)) {
       if (term.length > bestScore) {
         bestScore = term.length;
         matchType = 'group_exact';
-      }
-    }
-    
-    if (groupPinyin.includes(termPinyin) || (termPinyin && groupPinyin.startsWith(termPinyin))) {
-      const score = termPinyin.length * 0.9;
-      if (score > bestScore) {
-        bestScore = score;
-        matchType = 'group_pinyin';
       }
     }
   }

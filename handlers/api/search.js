@@ -2,10 +2,12 @@
 import { getAllChannels, getAllGroups } from '../../utils/channel-cache.js';
 import { 
   expandQuery, 
-  toPinyinInitials, 
   enhancedChannelMatch,
   smartSort 
 } from '../../utils/search-utils.js';
+
+const SEARCH_CACHE_KEY = 'search_cache:';
+const SEARCH_CACHE_TTL = 300; // 5分钟缓存
 
 function slugify(str) {
   if (!str) return '';
@@ -16,9 +18,16 @@ function slugify(str) {
     .replace(/^-+|-+$/g, '');
 }
 
+// 计算搜索词的缓存key
+function getSearchCacheKey(query) {
+  const normalized = query.toLowerCase().trim();
+  return SEARCH_CACHE_KEY + normalized;
+}
+
 /**
  * Handle /api/search
  * Returns search results for the given query
+ * 使用搜索结果缓存，避免重复计算
  */
 export async function handleApiSearch(request, env) {
   try {
@@ -35,7 +44,24 @@ export async function handleApiSearch(request, env) {
       });
     }
 
-    // Get all channels and groups from KV cache
+    // 尝试从缓存获取搜索结果
+    const cacheKey = getSearchCacheKey(query);
+    try {
+      const cached = await env.KV.get(cacheKey, { type: 'json' });
+      if (cached) {
+        console.log('[API Search] Cache hit for query:', query);
+        return new Response(JSON.stringify(cached), {
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'public, max-age=300'
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('[API Search] Cache read failed:', e.message);
+    }
+
+    // 缓存未命中，执行搜索
     const [{ channels }, { groups }] = await Promise.all([
       getAllChannels(env),
       getAllGroups(env)
@@ -43,14 +69,6 @@ export async function handleApiSearch(request, env) {
 
     // 扩展搜索词（支持同义词）
     const expandedTerms = expandQuery(query);
-    const queryPinyin = toPinyinInitials(query).toLowerCase();
-    
-    // 如果拼音和原始查询不同，也加入拼音搜索
-    if (queryPinyin && queryPinyin !== query.toLowerCase()) {
-      if (!expandedTerms.includes(queryPinyin)) {
-        expandedTerms.push(queryPinyin);
-      }
-    }
 
     // 增强搜索匹配
     const matchedChannels = [];
@@ -85,7 +103,6 @@ export async function handleApiSearch(request, env) {
     // If no results, suggest random categories from available groups
     let suggestedCategories = [];
     if (results.length === 0 && groups.length > 0) {
-      // Shuffle groups and pick up to 5
       const shuffled = [...groups].sort(() => Math.random() - 0.5);
       suggestedCategories = shuffled.slice(0, 5).map(group => ({
         name: group,
@@ -103,7 +120,7 @@ export async function handleApiSearch(request, env) {
         totalResults: results.length,
         results: results.map(ch => ({
           name: ch.channel_name,
-          slug: slugify(ch.channel_name),  // 直接返回slug，避免前端二次处理
+          slug: slugify(ch.channel_name),
           hash: ch.channel_hash,
           group: ch.group_title,
           logo: ch.logo
@@ -111,6 +128,11 @@ export async function handleApiSearch(request, env) {
         suggestedCategories: suggestedCategories
       }
     };
+
+    // 缓存搜索结果（异步，不阻塞响应）
+    env.KV.put(cacheKey, JSON.stringify(response), { 
+      expirationTtl: SEARCH_CACHE_TTL 
+    }).catch(e => console.warn('[API Search] Cache write failed:', e.message));
 
     return new Response(JSON.stringify(response), {
       headers: {
