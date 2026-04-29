@@ -13,6 +13,9 @@ let PLAY_LIMIT = 50; // 每个 IP 每个频道每日限制
 const playAddressMapCache = new Map(); // key: token, value: { map: object, expires_at: number }
 const PLAY_ADDR_MAP_CACHE_TTL = 60 * 1000; // 60 秒
 
+// 当前活跃token的固定存储key（消除KV.list()调用）
+const CURRENT_TOKEN_KEY = 'current_active_token';
+
 // 导出缓存和配置
 export { tokenCache, playCountCache, PLAY_LIMIT, playAddressMapCache };
 
@@ -45,37 +48,27 @@ export function generateRandomToken(length = 32) {
  * @returns {Promise<string|null>}
  */
 export async function getCurrentToken(env) {
-  // 1. 获取所有有效的 token
-  const list = await env.KV.list({ prefix: 'play_token:' });
-  const validTokens = [];
-
-  for (const item of list.keys) {
-    const token = item.name.replace('play_token:', '');
-    const meta = await env.KV.get(item.name);
-    if (meta) {
-      const data = JSON.parse(meta);
-      if (new Date(data.expires_at) > new Date()) {
-        validTokens.push({
-          token,
-          created_at: data.created_at
-        });
-      }
-    }
-  }
-
-  // 2. 按创建时间排序，返回最新的
-  if (validTokens.length > 0) {
-    validTokens.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    return validTokens[0].token;
-  }
-
-  // 3. 没有有效 token，触发定时任务生成
-  console.log('[Token] No valid token found, triggering generation');
   try {
-    await generateTokenAndAddresses(env);
-    return await getCurrentToken(env);
+    // 1. 从固定key获取当前活跃token（无需KV.list()）
+    const tokenData = await env.KV.get(CURRENT_TOKEN_KEY);
+
+    if (tokenData) {
+      const meta = JSON.parse(tokenData);
+      // 检查是否过期
+      if (new Date(meta.expires_at) > new Date()) {
+        return meta.token;
+      }
+      // 已过期，触发生成新token
+      console.log('[Token] Current token expired, generating new one');
+    } else {
+      console.log('[Token] No current token found, generating new one');
+    }
+
+    // 2. 没有有效token，生成新的
+    const newToken = await generateTokenAndAddresses(env);
+    return newToken;
   } catch (error) {
-    console.error('[Token] Failed to generate token:', error);
+    console.error('[Token] Failed to get current token:', error);
     return null;
   }
 }
@@ -127,6 +120,13 @@ export async function generateTokenAndAddresses(env, options = {}) {
 
   // 2. 存入 token 元数据（72h TTL）
   await env.KV.put(`play_token:${token}`, JSON.stringify({
+    created_at: createdAt.toISOString(),
+    expires_at: expiresAt.toISOString()
+  }), { expirationTtl: ttlHours * 3600 });
+
+  // 3. 同时更新"当前活跃token"固定key（消除getCurrentToken的KV.list()调用）
+  await env.KV.put(CURRENT_TOKEN_KEY, JSON.stringify({
+    token,
     created_at: createdAt.toISOString(),
     expires_at: expiresAt.toISOString()
   }), { expirationTtl: ttlHours * 3600 });
