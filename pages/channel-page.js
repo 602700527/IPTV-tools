@@ -126,14 +126,23 @@ export function generateChannelPage(options = {}) {
       '</div></section>';
   }
 
+  // 占位图 SVG (方案E: 深灰背景 + 频道名大字居中)
+  const placeholderSvg = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+      <rect fill="#1a1a1a" width="640" height="360"/>
+      <text fill="#ffffff" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" dominant-baseline="central" x="320" y="180">${escapeHtml(channel.name)}</text>
+    </svg>`
+  );
+
   // JSON-LD for SEO
   const jsonLd1 = {
     "@context": "https://schema.org",
     "@type": "VideoObject",
     "name": channel.name + " - Live TV",
     "description": "Watch " + channel.name + " live streaming for free on IPTV Search. " + channel.group + " category.",
-    "thumbnailUrl": channel.logo || null,
-    "image": channel.logo || null,
+    "thumbnailUrl": channel.logo || placeholderSvg,
+    "image": channel.logo || placeholderSvg,
+    "uploadDate": "2024-04-10",
     "contentUrl": channel.playUrl || origin + "/play/" + hash,
     "embedUrl": channel.playUrl || origin + "/play/" + hash,
     "genre": channel.group || "TV Channel",

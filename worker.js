@@ -8,7 +8,7 @@ import { handleUserActivate } from './handlers/user.js';
 import { handlePublicPlay, handleChannelDebug, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings, handleFavoritesM3U, handleChannelsM3U } from './handlers/public.js';
 import { handleFreeSubAPI } from './handlers/freesub-api.js';
 import { handleGetPlans } from './handlers/plans-api.js';
-import { generateAndCacheSitemap } from './utils/channel-cache.js';
+import { generateAndCacheSitemap, getAllChannels, getAllGroups } from './utils/channel-cache.js';
 
 // 辅助函数：将字符串转换为 URL 友好的 slug
 function slugify(text) {
@@ -1539,12 +1539,17 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         console.error('Sitemap: KV cache read failed:', e);
       }
 
-      // KV没有缓存，尝试从数据库直接生成完整的 sitemap
-      console.log('Sitemap: KV cache miss, generating from database...');
+      // KV没有缓存，从 KV 频道缓存生成完整的 sitemap
+      console.log('Sitemap: KV cache miss, generating from channel cache...');
       try {
-        const db = await initDB(env);
         const baseUrl = url.origin || 'https://iptv-search.com';
         const today = new Date().toISOString().split('T')[0];
+
+        // 从 KV 缓存获取所有频道和分组
+        const channelsResult = await getAllChannels(env);
+        const groupsResult = await getAllGroups(env);
+        const allChannels = channelsResult.channels || [];
+        const allGroups = groupsResult.groups || [];
 
         let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n';
         sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
@@ -1578,47 +1583,20 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           sitemap += '  </url>\n';
         });
 
-        // 获取所有分类
-        const categoriesResult = await db.prepare(`
-          SELECT DISTINCT group_title as category
-          FROM channels
-          WHERE is_active = 1 AND group_title IS NOT NULL AND group_title != ''
-          ORDER BY group_title
-        `).all();
-
-        const categories = categoriesResult.results || [];
-
-        categories.forEach(cat => {
-          const catSlug = slugify(cat.category);
+        // 分类页面（使用 KV 缓存中的分组数据，已有 slug）
+        allGroups.forEach(group => {
           sitemap += '  <url>\n';
-          sitemap += `    <loc>${baseUrl}/category/${encodeURIComponent(catSlug)}</loc>\n`;
+          sitemap += `    <loc>${baseUrl}/category/${encodeURIComponent(group)}</loc>\n`;
           sitemap += `    <lastmod>${today}</lastmod>\n`;
           sitemap += '    <changefreq>daily</changefreq>\n';
           sitemap += '    <priority>0.8</priority>\n';
           sitemap += '  </url>\n';
         });
 
-        // 获取频道（限制 5000 个避免超限）
-        // 与频道详情页保持一致，只包含启用源下的启用频道
-        const channelsResult = await db.prepare(`
-          SELECT c.channel_hash as hash, c.channel_name as name, c.group_title
-          FROM channels c
-          INNER JOIN sources s ON c.source_id = s.id
-          WHERE c.is_active = 1 AND s.is_active = 1
-          ORDER BY c.group_title, c.id DESC
-          LIMIT 5000
-        `).all();
-
-        const channels = channelsResult.results || [];
-
-        // Slugify function for SEO-friendly URLs
-        const slugify = (str) => {
-          if (!str) return '';
-          return str.trim().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
-        };
-
-        channels.forEach(ch => {
-          const channelSlug = slugify(ch.name || '');
+        // 频道页面（限制 5000 个避免超限）
+        const channelsToInclude = allChannels.slice(0, 5000);
+        channelsToInclude.forEach(ch => {
+          const channelSlug = slugify(ch.channel_name || '');
           sitemap += '  <url>\n';
           sitemap += `    <loc>${baseUrl}/channel/${channelSlug}</loc>\n`;
           sitemap += `    <lastmod>${today}</lastmod>\n`;
@@ -1629,17 +1607,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
 
         sitemap += '</urlset>';
 
-        console.log(`Sitemap: Generated ${categories.length} categories and ${channels.length} channels from DB`);
-
-        // 尝试异步缓存到 KV（不阻塞响应）
-        ctx.waitUntil((async () => {
-          try {
-            await generateAndCacheSitemap(env);
-            console.log('Sitemap: Async KV caching completed');
-          } catch (e) {
-            console.error('Sitemap: Async KV caching failed:', e);
-          }
-        })());
+        console.log(`Sitemap: Generated ${allGroups.length} categories and ${channelsToInclude.length} channels from KV cache`);
 
         return new Response(sitemap, {
           headers: {
@@ -1648,7 +1616,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           }
         });
       } catch (e) {
-        console.error('Sitemap: Database fallback failed:', e);
+        console.error('Sitemap: KV channel cache fallback failed:', e);
       }
 
       // 最终降级：返回最基础的静态 sitemap
