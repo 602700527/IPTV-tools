@@ -230,6 +230,112 @@ export function generateCategoryPage(options = {}) {
     .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
     .btn-favorite-batch { min-width: 44px; }
     .btn-favorite-batch:hover svg { stroke: var(--accent); }
+    .btn-shuffle { min-width: 44px; }
+    .btn-shuffle:hover svg { stroke: var(--accent); }
+
+    /* Load more section */
+    .load-more-section { display: flex; justify-content: center; padding: 1.5rem 0; }
+    .btn-load-more { min-width: 200px; padding: 0.75rem 1.5rem; background: var(--bg-card); border: 1px solid var(--accent); color: var(--accent); }
+    .btn-load-more:hover { background: var(--accent); color: #fff; }
+
+    /* Free trial banner - 优化设计 */
+    .free-trial-banner {
+      position: relative;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+      border: 1px solid rgba(229, 9, 20, 0.3);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      overflow: hidden;
+    }
+    .free-trial-glow {
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(229, 9, 20, 0.15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .free-trial-inner {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .free-trial-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--accent) 0%, #ff3b30 100%);
+      border-radius: 12px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 20px rgba(229, 9, 20, 0.4);
+    }
+    .free-trial-icon svg { color: #fff; }
+    .free-trial-content { flex: 1; min-width: 0; }
+    .free-trial-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.25rem;
+      letter-spacing: -0.02em;
+    }
+    .free-trial-desc {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+    .free-trial-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--accent);
+      border: none;
+      border-radius: 25px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+    }
+    .free-trial-btn:hover {
+      background: #f6121d;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(229, 9, 20, 0.5);
+    }
+    .free-trial-btn svg { transition: transform 0.25s ease; }
+    .free-trial-btn:hover svg { transform: translateX(3px); }
+
+    @media (max-width: 480px) {
+      .free-trial-inner { flex-direction: column; text-align: center; }
+      .free-trial-btn { width: 100%; justify-content: center; }
+    }
+
+    /* Category FAQ - 长尾词模块 */
+    .category-faq { margin: 2rem 0; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .faq-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary); }
+    .faq-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .faq-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .faq-item summary {
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: '+'; font-size: 1.1rem; color: var(--accent); transition: transform 0.2s; }
+    .faq-item details[open] summary::after { transform: rotate(45deg); }
+    .faq-item .faq-answer { padding: 0 1rem 0.85rem; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
 
     /* Channel list */
     .channel-list { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -370,11 +476,78 @@ export function generateCategoryPage(options = {}) {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             <span class="btn-text">下载M3U</span>
           </button>
+          <button class="btn btn-shuffle" onclick="shuffleChannels()" title="换一批">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+            <span class="btn-text">换一批</span>
+          </button>
         </div>
         <span class="selected-count"><strong id="selectedCount">0</strong> 已选</span>
       </div>
       <div id="channelList">
         ${channelListHtml}
+      </div>
+
+      <!-- 更多频道按钮 -->
+      <div class="load-more-section">
+        <button class="btn btn-load-more" onclick="loadMoreChannels()" id="loadMoreBtn" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="6 9 12 15 18 9"/></svg>
+          更多频道
+        </button>
+      </div>
+
+      <!-- 免费试用引导 -->
+      <div class="free-trial-banner">
+        <div class="free-trial-glow"></div>
+        <div class="free-trial-inner">
+          <div class="free-trial-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <div class="free-trial-content">
+            <h3 class="free-trial-title">Start Watching Free</h3>
+            <p class="free-trial-desc">No registration needed · No credit card · Instant access</p>
+          </div>
+          <a href="/plans" class="free-trial-btn">
+            <span>Get Free Subscription</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- 长尾词问答模块 -->
+      <div class="category-faq">
+        <h2 class="faq-title">Frequently Asked Questions about ${escapeHtml(category)} IPTV</h2>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>How to watch ${escapeHtml(category)} IPTV channels for free?</summary>
+            <div class="faq-answer">Browse our ${escapeHtml(category)} channel list, select your favorite channels, and start streaming instantly. No signup required for basic access.</div>
+          </details>
+          <details class="faq-item">
+            <summary>What devices support ${escapeHtml(category)} IPTV streaming?</summary>
+            <div class="faq-answer">Our IPTV service works on Smart TVs, Roku, Amazon Firestick, Apple TV, Android devices, iOS, and any device that supports M3U playlists like VLC or IPTV Smarters Pro.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Is ${escapeHtml(category)} IPTV legal?</summary>
+            <div class="faq-answer">We only index publicly available channels. Users must ensure compliance with local laws and content licensing regulations in their region.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Why choose our ${escapeHtml(category)} IPTV service?</summary>
+            <div class="faq-answer">We provide daily updated channels, 99.9% uptime, 4K quality where available, and 24/7 customer support. Try our free plan to test the service.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Can I record ${escapeHtml(category)} IPTV streams?</summary>
+            <div class="faq-answer">While we don't provide recording features directly, most IPTV players like TiviMate support DVR functionality. Subscribe to our premium plan for ad-free experience.</div>
+          </details>
+          <details class="faq-item">
+            <summary>How often are ${escapeHtml(category)} channels updated?</summary>
+            <div class="faq-answer">We update our channel database daily, removing dead links and adding new channels to ensure you always have access to working streams.</div>
+          </details>
+        </div>
       </div>
     </div>
   </main>
@@ -477,6 +650,25 @@ export function generateCategoryPage(options = {}) {
       }
       
       localStorage.setItem('favorites', JSON.stringify(favorites));
+    }
+
+    // Shuffle channels (display random order)
+    function shuffleChannels() {
+      const channelList = document.getElementById('channelList');
+      const rows = Array.from(channelList.querySelectorAll('.channel-row'));
+      // Fisher-Yates shuffle
+      for (let i = rows.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [rows[i], rows[j]] = [rows[j], rows[i]];
+      }
+      rows.forEach(row => channelList.appendChild(row));
+    }
+
+    // Load more channels (show all)
+    function loadMoreChannels() {
+      const allRows = document.querySelectorAll('.channel-row');
+      allRows.forEach(row => row.style.display = '');
+      document.getElementById('loadMoreBtn').style.display = 'none';
     }
 
     // Add selected to favorites

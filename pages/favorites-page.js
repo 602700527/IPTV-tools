@@ -124,6 +124,8 @@ export function generateFavoritesPage(options = {}) {
     .btn svg { width: 16px; height: 16px; }
     .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
     .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-share { background: var(--trust-blue); border-color: var(--trust-blue); color: #fff; }
+    .btn-share:hover { background: #2563eb; border-color: #2563eb; }
 
     /* Channel list */
     .channel-list { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -199,6 +201,10 @@ export function generateFavoritesPage(options = {}) {
       <button class="btn btn-primary" onclick="downloadSelectedM3U()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download M3U
+      </button>
+      <button class="btn btn-share" onclick="shareFavorites()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Share
       </button>
       <span class="selected-count"><strong id="selectedCount">0</strong> selected <span id="downloadLimit" style="color: var(--text-muted); font-size: 0.8rem;"></span></span>
     </div>
@@ -552,6 +558,24 @@ export function generateFavoritesPage(options = {}) {
       localStorage.setItem('theme', next);
       updateThemeIcons(next === 'dark');
     });
+
+    // Share favorites
+    function shareFavorites() {
+      const favorites = getFavorites();
+      if (favorites.length === 0) {
+        showToastWarning('No favorites', 'Add some channels to favorites first!');
+        return;
+      }
+      const text = 'My IPTV Favorites: ' + favorites.map(function(f) { return f.name; }).join(', ');
+      const url = window.location.origin;  // Share homepage, not favorites page
+      if (navigator.share) {
+        navigator.share({ title: 'IPTV Search - Free Live TV Channels', text: text, url: url });
+      } else {
+        var copyText = text + ' ' + url;
+        navigator.clipboard.writeText(copyText);
+        showToastSuccess('Copied!', 'Link copied to clipboard');
+      }
+    }
 
     // Initialize
     renderFavorites();

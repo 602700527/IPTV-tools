@@ -58,12 +58,12 @@ export function generateHomePage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>[iptvsearch] - Free IPTV Search Engine | 8000+ Live TV Channels M3U M3U8</title>
-  <meta name="description" content="Find any IPTV channel instantly. Search live sports, movies, news. Updated daily. No signup required. Compatible with IPTV Smarters Pro, VLC, GSE Smart IPTV, and all M3U M3U8 players.">
-  <meta name="keywords" content="iptv search, free IPTV search, IPTV search engine, search IPTV channels, find IPTV, best IPTV search, iptv link finder, M3U search, M3U8 search, live TV search, watch IPTV online, IPTV search free, IPTV M3U, IPTV M3U8, free IPTV, IPTV player">
+  <title>iptvsearch - Free IPTV Search Engine | 8000+ Live TV Channels M3U M3U8</title>
+  <meta name="description" content="Find any IPTV channel instantly with iptvsearch. Search live sports, movies, news. Updated daily. No signup required. Compatible with IPTV Smarters Pro, VLC, GSE Smart IPTV, and all M3U M3U8 players.">
+  <meta name="keywords" content="iptv search, iptvsearch, free IPTV search, IPTV search engine, search IPTV channels, find IPTV, best IPTV search, iptv link finder, M3U search, M3U8 search, live TV search, watch IPTV online, IPTV search free, IPTV M3U, IPTV M3U8, free IPTV, IPTV player">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="${origin}/">
-  <meta property="og:title" content="[iptvsearch] - Free IPTV Search Engine | 8000+ Live TV Channels">
+  <meta property="og:title" content="iptvsearch - Free IPTV Search Engine | 8000+ Live TV Channels">
   <meta property="og:description" content="Find any IPTV channel instantly. Search live sports, movies, news. Updated daily. No signup required.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${origin}/">
@@ -604,7 +604,107 @@ export function generateHomePage(options = {}) {
     }
 
     loadHomeData();
+
+    // Favorites popup - show if user has favorites
+    (function() {
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      if (favorites.length > 0 && !sessionStorage.getItem('favoritesPopupShown')) {
+        setTimeout(() => showFavoritesPopup(favorites), 1500);
+        sessionStorage.setItem('favoritesPopupShown', 'true');
+      }
+    })();
+
+    function showFavoritesPopup(favorites) {
+      const modal = document.getElementById('favoritesPopup');
+      const list = document.getElementById('favoritesList');
+      if (!modal || !list) return;
+
+      list.innerHTML = favorites.slice(0, 5).map(fav => 
+        '<div class="fav-item">' +
+          '<span class="fav-name">' + fav.name + '</span>' +
+          '<span class="fav-group">' + fav.group + '</span>' +
+        '</div>'
+      ).join('') + (favorites.length > 5 ? '<div class="fav-more">+' + (favorites.length - 5) + ' more...</div>' : '');
+
+      modal.style.display = 'flex';
+    }
+
+    function closeFavoritesPopup() {
+      document.getElementById('favoritesPopup').style.display = 'none';
+    }
+
+    function shareFavorites() {
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      if (favorites.length === 0) {
+        alert('No favorites to share!');
+        return;
+      }
+      const text = 'My IPTV Favorites: ' + favorites.map(f => f.name).join(', ');
+      if (navigator.share) {
+        navigator.share({ title: 'My IPTV Favorites', text: text, url: window.location.origin + '/favorites' });
+      } else {
+        navigator.clipboard.writeText(text + '\n' + window.location.origin + '/favorites');
+        alert('Favorites copied to clipboard!');
+      }
+    }
   </script>
+
+  <!-- Favorites Popup Modal -->
+  <div id="favoritesPopup" class="favorites-popup" style="display:none;">
+    <div class="fav-popup-content">
+      <div class="fav-popup-header">
+        <h3>Welcome Back! 🎬</h3>
+        <p>Your favorite channels are ready</p>
+        <button class="fav-close" onclick="closeFavoritesPopup()">×</button>
+      </div>
+      <div class="fav-popup-list" id="favoritesList"></div>
+      <div class="fav-popup-actions">
+        <a href="/favorites" class="fav-btn fav-btn-primary">View All Favorites</a>
+        <button class="fav-btn fav-btn-secondary" onclick="shareFavorites()">Share</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .favorites-popup {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s;
+    }
+    .fav-popup-content {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .fav-popup-header { text-align: center; margin-bottom: 1rem; position: relative; }
+    .fav-popup-header h3 { font-size: 1.25rem; margin-bottom: 0.25rem; }
+    .fav-popup-header p { font-size: 0.9rem; color: var(--text-secondary); }
+    .fav-close { position: absolute; top: 0; right: 0; background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; }
+    .fav-popup-list { margin: 1rem 0; }
+    .fav-item { display: flex; justify-content: space-between; padding: 0.5rem; background: var(--bg-hover); border-radius: 8px; margin-bottom: 0.5rem; }
+    .fav-name { font-weight: 500; }
+    .fav-group { font-size: 0.8rem; color: var(--text-muted); }
+    .fav-more { text-align: center; font-size: 0.85rem; color: var(--text-muted); padding: 0.5rem; }
+    .fav-popup-actions { display: flex; gap: 0.75rem; }
+    .fav-btn { flex: 1; padding: 0.75rem; border-radius: 8px; font-size: 0.9rem; font-weight: 500; text-align: center; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+    .fav-btn-primary { background: var(--accent); color: #fff; border: none; }
+    .fav-btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text-primary); }
+    .fav-btn:hover { opacity: 0.9; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @media (max-width: 480px) {
+      .fav-popup-content { padding: 1rem; }
+      .fav-popup-actions { flex-direction: column; }
+    }
+  </style>
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
   <script>
     function initTranslate() {
