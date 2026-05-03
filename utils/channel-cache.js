@@ -6,6 +6,7 @@ const CHANNELS_CACHE_KEY = 'channels_cache';
 const GROUPS_CACHE_KEY = 'groups_cache';
 const CACHE_VERSION_KEY = 'channels_cache_version';
 const SITEMAP_CACHE_KEY = 'sitemap_xml';
+const CHANNEL_GROUPS_KEY = 'channel_groups';  // 按分组存储的频道
 
 /**
  * Slugify function for SEO-friendly URLs
@@ -99,6 +100,41 @@ export async function cacheChannelsToKV(env) {
 
     // 保存版本号
     await env.KV.put(CACHE_VERSION_KEY, version.toString(), {
+      expirationTtl: 24 * 60 * 60
+    });
+
+    // 按分组存储频道（加速搜索）
+    const groupedChannels = {};
+    for (const ch of channelsWithPinyin) {
+      const group = ch.group_title || 'Other';
+      if (!groupedChannels[group]) {
+        groupedChannels[group] = [];
+      }
+      groupedChannels[group].push(ch);
+    }
+
+    // 批量写入分组频道到 KV
+    const groupKeys = Object.keys(groupedChannels);
+    for (const group of groupKeys) {
+      await env.KV.put(`${CHANNEL_GROUPS_KEY}:${group}`, JSON.stringify({
+        version,
+        channels: groupedChannels[group],
+        cached_at: new Date().toISOString()
+      }), {
+        expirationTtl: 24 * 60 * 60
+      });
+    }
+
+    // 存储分组索引（group_name -> key mapping）
+    const groupIndex = {};
+    for (const group of groupKeys) {
+      groupIndex[group] = `${CHANNEL_GROUPS_KEY}:${group}`;
+    }
+    await env.KV.put(`${CHANNEL_GROUPS_KEY}_index`, JSON.stringify({
+      version,
+      groups: groupIndex,
+      cached_at: new Date().toISOString()
+    }), {
       expirationTtl: 24 * 60 * 60
     });
 
@@ -399,6 +435,50 @@ export async function getAllGroups(env) {
       groups: [],
       fromCache: false
     };
+  }
+}
+
+/**
+ * 按分组获取频道（加速搜索）
+ * @param {Object} env - Cloudflare Workers 环境
+ * @param {string} groupName - 分组名称
+ * @returns {Promise<{channels: Array, fromCache: boolean}>}
+ */
+export async function getChannelsByGroup(env, groupName) {
+  try {
+    const key = `${CHANNEL_GROUPS_KEY}:${groupName}`;
+    let cacheData = null;
+    if (env && env.KV) {
+      try {
+        cacheData = await env.KV.get(key, { type: 'json' });
+      } catch (kvError) {
+        console.warn('[ChannelCache] KV get failed for group:', kvError.message);
+      }
+    }
+
+    if (cacheData && cacheData.channels) {
+      return {
+        channels: cacheData.channels,
+        fromCache: true
+      };
+    }
+
+    // 如果分组缓存不存在，从主缓存获取并过滤
+    const mainCacheData = await getAllChannels(env);
+    if (mainCacheData.fromCache && mainCacheData.channels.length > 0) {
+      const filtered = mainCacheData.channels.filter(
+        ch => ch.group_title === groupName
+      );
+      return {
+        channels: filtered,
+        fromCache: true
+      };
+    }
+
+    return { channels: [], fromCache: false };
+  } catch (error) {
+    console.error('[ChannelCache] Failed to get channels by group:', error);
+    return { channels: [], fromCache: false };
   }
 }
 

@@ -1,9 +1,9 @@
 // Search API - GET /api/search?q=xxx
-import { getAllChannels, getAllGroups } from '../../utils/channel-cache.js';
-import { 
-  expandQuery, 
+import { getAllChannels, getAllGroups, getChannelsByGroup } from '../../utils/channel-cache.js';
+import {
+  expandQuery,
   enhancedChannelMatch,
-  smartSort 
+  smartSort
 } from '../../utils/search-utils.js';
 
 const SEARCH_CACHE_KEY = 'search_cache:';
@@ -62,18 +62,46 @@ export async function handleApiSearch(request, env) {
     }
 
     // 缓存未命中，执行搜索
-    const [{ channels }, { groups }] = await Promise.all([
-      getAllChannels(env),
+    const [{ groups }] = await Promise.all([
       getAllGroups(env)
     ]);
 
     // 扩展搜索词（支持同义词）
     const expandedTerms = expandQuery(query);
 
+    // 尝试按分组缩小搜索范围
+    let channelsToSearch = [];
+    let searchedByGroup = false;
+
+    // 使用扩展后的搜索词检查匹配到哪个分组
+    const matchedGroup = groups.find(g => {
+      const groupLower = g.toLowerCase();
+      return expandedTerms.some(term => groupLower.includes(term) || term.includes(groupLower));
+    });
+
+    if (matchedGroup) {
+      // 如果匹配到分组，只搜索该分组
+      const groupResult = await getChannelsByGroup(env, matchedGroup);
+      if (groupResult.fromCache && groupResult.channels.length > 0) {
+        channelsToSearch = groupResult.channels;
+        searchedByGroup = true;
+        console.log(`[API Search] Group-based search: "${matchedGroup}", channels: ${channelsToSearch.length}`);
+      } else {
+        // 分组缓存不存在，fallback 到全量
+        const allChannelsResult = await getAllChannels(env);
+        channelsToSearch = allChannelsResult.channels;
+        console.log(`[API Search] Group cache miss, falling back to full search`);
+      }
+    } else {
+      // 没有匹配到分组，直接返回空结果（数据不存在，无需搜索全量）
+      console.log(`[API Search] No group matched for query "${query}", returning empty results`);
+      channelsToSearch = [];
+    }
+
     // 增强搜索匹配
     const matchedChannels = [];
-    
-    for (const ch of channels) {
+
+    for (const ch of channelsToSearch) {
       const matchResult = enhancedChannelMatch(ch, expandedTerms);
       if (matchResult.matches) {
         matchedChannels.push({
