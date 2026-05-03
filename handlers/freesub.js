@@ -9,6 +9,22 @@ export function getClientIP(request) {
   return getIPFromBlacklist(request);
 }
 
+// 免费订阅总数上限
+const MAX_FREE_SUBSCRIPTIONS = 1000;
+
+/**
+ * 检查免费订阅数量是否达到上限
+ */
+async function isFreeSubscriptionLimitReached() {
+  const db = getDB();
+  // 统计未过期的免费订阅数量
+  const result = await db.prepare(`
+    SELECT COUNT(*) as count FROM free_subscriptions
+    WHERE expired_at > datetime('now')
+  `).first();
+  return result ? result.count >= MAX_FREE_SUBSCRIPTIONS : false;
+}
+
 /**
  * 创建免费订阅
  * @param {string} ip - 客户端IP
@@ -20,6 +36,12 @@ export function getClientIP(request) {
 export async function createFreeSubscription(ip, fingerprint, fingerprintComponents, env) {
   try {
     const db = getDB();
+
+    // 检查免费订阅总数是否达到上限
+    const limitReached = await isFreeSubscriptionLimitReached();
+    if (limitReached) {
+      throw new Error('FREE_SUBSCRIPTION_LIMIT_REACHED');
+    }
 
     // 生成唯一的订阅ID
     const subId = generateSubscriptionId();

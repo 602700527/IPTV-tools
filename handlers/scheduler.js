@@ -105,6 +105,27 @@ export async function handleScheduledEvent(event, env, ctx) {
     const hour = new Date().getHours();
     const minute = new Date().getMinutes();
 
+    // 每天4:00执行独立token生成任务（在同步任务之后）
+    if (hour === 4 && minute === 0) {
+      // 先等待同步锁释放
+      console.log('[Scheduler] [Token] Checking if sync lock is held...');
+      const canProceed = await waitForSyncLockRelease(env, 3, 30000);
+
+      if (!canProceed) {
+        console.log('[Scheduler] [Token] Sync still in progress, skipping token generation');
+        return;
+      }
+
+      console.log('[Scheduler] [Token] Starting independent token generation');
+      try {
+        const tokenResult = await generateTokenAndAddresses(env);
+        console.log(`[Scheduler] [Token] Token generated: ${tokenResult}`);
+      } catch (error) {
+        console.error('[Scheduler] [Token] Token generation failed:', error);
+      }
+      return;
+    }
+
     // 每天3:00执行数据源同步（在缓存刷新之前）
     if (hour === 3 && minute === 0) {
       // 尝试获取 KV 分布式锁
@@ -318,7 +339,7 @@ async function syncAllSources(db, env, ctx = null) {
     // 清理过期的记录
     await cleanupOldRecords(db);
 
-    // 第三步：只有在所有源都同步成功后，才缓存频道数据到KV
+// 第三步：只有在所有源都同步成功后，才缓存频道数据到KV
     if (finalFailCount === 0) {
       console.log('[Scheduler] All sources synced successfully, caching channels to KV...');
       const cacheResult = await cacheChannelsToKV(env);
@@ -337,44 +358,8 @@ async function syncAllSources(db, env, ctx = null) {
               console.error('[Scheduler] [ASYNC] AI classification failed:', asyncError);
             }
           });
-        }
-
-        // 异步执行 sitemap 和 token 生成（不阻塞主流程）
-        // 使用 ctx.waitUntil 确保在后台完成
-        if (ctx) {
-          console.log('[Scheduler] Scheduling async sitemap and token generation...');
-          ctx.waitUntil(async () => {
-            try {
-              console.log('[Scheduler] [ASYNC] Generating and caching sitemap...');
-              const sitemapResult = await generateAndCacheSitemap(env);
-              if (sitemapResult.success) {
-                console.log('[Scheduler] [ASYNC] Sitemap cached to KV');
-              } else {
-                console.error('[Scheduler] [ASYNC] Failed to cache sitemap:', sitemapResult.error);
-              }
-
-              console.log('[Scheduler] [ASYNC] Generating new token and play addresses...');
-              const tokenResult = await generateTokenAndAddresses(env);
-              console.log(`[Scheduler] [ASYNC] Token generated: ${tokenResult}`);
-            } catch (asyncError) {
-              console.error('[Scheduler] [ASYNC] Error in async operations:', asyncError);
-            }
-          });
         } else {
-          // 降级：同步执行（ctx 不可用时）
-          console.log('[Scheduler] Generating and caching sitemap...');
-          const sitemapResult = await generateAndCacheSitemap(env);
-          if (sitemapResult.success) {
-            console.log('[Scheduler] Sitemap cached to KV');
-          } else {
-            console.error('[Scheduler] Failed to cache sitemap:', sitemapResult.error);
-          }
-
-          console.log('[Scheduler] Generating new token and play addresses...');
-          const tokenResult = await generateTokenAndAddresses(env);
-          console.log(`[Scheduler] Token generated: ${tokenResult}`);
-
-          // 同步执行 AI 分类（降级路径）
+          // 降级：同步执行 AI 分类（ctx 不可用时）
           console.log('[Scheduler] Running AI channel classification...');
           const classifyResult = await classifyEmptyTypeChannels(env);
           console.log(`[Scheduler] AI classified ${classifyResult.classified} channels`);

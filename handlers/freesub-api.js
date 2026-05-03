@@ -36,8 +36,18 @@ export async function handleFreeSubAPI(request, env, ctx) {
         return jsonResponse({ error: 'Fingerprint is required' }, 400);
       }
 
-      const sub = await createFreeSubscription(ip, fingerprint, body.fingerprintComponents, env);
-      return jsonResponse({ success: true, subscription: sub });
+      try {
+        const sub = await createFreeSubscription(ip, fingerprint, body.fingerprintComponents, env);
+        return jsonResponse({ success: true, subscription: sub });
+      } catch (error) {
+        if (error.message === 'FREE_SUBSCRIPTION_LIMIT_REACHED') {
+          return jsonResponse({
+            success: false,
+            error: 'Free subscriptions are sold out. Please try again later~'
+          }, 403);
+        }
+        throw error;
+      }
     }
 
     if (path === '/api/freesub/checkin') {

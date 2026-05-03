@@ -587,18 +587,8 @@ export function generateChannelPage(options = {}) {
         const data = await response.json();
 
         if (data.success && data.play_link) {
-          // 优先使用 Modern Clipboard API
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(data.play_link).then(() => {
-              showToast('Link copied! Open in your IPTV player.');
-            }).catch(() => {
-              // Clipboard API 失败，使用降级方案
-              fallbackCopy(data.play_link);
-            });
-          } else {
-            // 降级方案：旧版浏览器
-            fallbackCopy(data.play_link);
-          }
+          // 尝试复制，如果失败使用降级方案
+          await copyToClipboardWithFallback(data.play_link);
         } else {
           showToast(data.error || 'Channel unavailable - please try again later');
         }
@@ -611,31 +601,76 @@ export function generateChannelPage(options = {}) {
       }
     }
 
+    // 统一的复制函数，同时尝试 Clipboard API 和降级方案
+    async function copyToClipboardWithFallback(text) {
+      // 优先尝试 Modern Clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast('Link copied! Open in your IPTV player.');
+          return;
+        } catch (err) {
+          // Permission denied 或其他错误，使用降级方案
+          console.log('Clipboard API failed, using fallback:', err);
+        }
+      }
+
+      // 降级方案
+      fallbackCopy(text);
+    }
+
     // 降级复制方案（兼容旧版浏览器和非安全上下文）
     function fallbackCopy(text) {
-      // 方案1：创建临时 input
-      const tempInput = document.createElement('input');
-      tempInput.style.position = 'fixed';
-      tempInput.style.opacity = '0';
-      tempInput.value = text;
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      
-      let success = false;
+      // 方案1：尝试现代 Selection API
       try {
-        success = document.execCommand('copy');
-      } catch (err) {
-        console.error('fallbackCopy failed:', err);
+        const selection = window.getSelection();
+        const textarea = document.createElement('textarea');
+        textarea.style.cssText = 'position:fixed;left:-9999px;top:-9999px;padding:0;margin:0;opacity:0;width:1px;height:1px;font-size:1px;';
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+
+        // 尝试选中并复制
+        const success = document.execCommand('copy');
+        document.body.removeChild(textarea);
+
+        if (success) {
+          showToast('Link copied! Open in your IPTV player.');
+          return;
+        }
+      } catch (e) {
+        console.log('Selection API failed:', e);
       }
-      
-      document.body.removeChild(tempInput);
-      
-      if (success) {
-        showToast('Link copied! Open in your IPTV player.');
-      } else {
-        // 最终降级：显示链接让用户手动复制
-        showToast('Copy failed. Link: ' + text.substring(0, 50) + '...');
+
+      // 方案2：直接在可见元素中选中文字
+      try {
+        const linkSpan = document.createElement('div');
+        linkSpan.style.cssText = 'position:fixed;left:-9999px;top:-9999px;visibility:hidden;white-space:nowrap;';
+        linkSpan.textContent = text;
+        document.body.appendChild(linkSpan);
+
+        const range = document.createRange();
+        range.selectNodeContents(linkSpan);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        const success = document.execCommand('copy');
+        selection.removeAllRanges();
+        document.body.removeChild(linkSpan);
+
+        if (success) {
+          showToast('Link copied! Open in your IPTV player.');
+          return;
+        }
+      } catch (e) {
+        console.log('Range API failed:', e);
       }
+
+      // 方案3：提示用户手动复制（最后一个选项）
+      const displayText = text.length > 80 ? text.substring(0, 80) + '...' : text;
+      showToast('Long-press link to copy: ' + displayText);
     }
 
     function shareChannel() {
