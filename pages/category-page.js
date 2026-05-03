@@ -34,12 +34,15 @@ export function generateCategoryPage(options = {}) {
 
   // Build channel list HTML (list view with checkboxes)
   let channelListHtml = '';
+  const INITIAL_BATCH = 50;
+  const BATCH_SIZE = 50;
   if (channels.length > 0) {
-    channelListHtml = '<div class="channel-list">' + channels.map(ch => {
+    channelListHtml = '<div class="channel-list" id="channelListContainer">' + channels.map((ch, idx) => {
       const logoHtml = ch.logo 
         ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '" class="ch-logo">' 
         : '<div class="ch-logo-placeholder">📺</div>';
-      return '<div class="channel-row" data-hash="' + escapeHtml(ch.hash) + '" data-name="' + escapeHtml(ch.name) + '" data-logo="' + escapeHtml(ch.logo || '') + '" data-group="' + escapeHtml(ch.group || category) + '">' +
+      const extraClass = idx >= INITIAL_BATCH ? ' channel-row-lazy' : '';
+      return '<div class="channel-row' + extraClass + '" data-hash="' + escapeHtml(ch.hash) + '" data-name="' + escapeHtml(ch.name) + '" data-logo="' + escapeHtml(ch.logo || '') + '" data-group="' + escapeHtml(ch.group || category) + '"' + (idx >= INITIAL_BATCH ? ' style="display:none"' : '') + '>' +
         '<label class="channel-checkbox">' +
           '<input type="checkbox" onchange="updateSelectedCount()">' +
           '<span class="checkmark"></span>' +
@@ -207,7 +210,18 @@ export function generateCategoryPage(options = {}) {
     .category-stats span { display: flex; align-items: center; gap: 0.3rem; }
 
     .page-layout { display: flex; max-width: 1400px; margin: 0 auto; padding: 0 2rem 2rem; gap: 2rem; }
-    .sidebar { width: 220px; flex-shrink: 0; }
+    .sidebar { 
+      width: 220px; 
+      flex-shrink: 0; 
+      max-height: calc(100vh - 180px); 
+      overflow-y: auto; 
+      position: sticky; 
+      top: 100px;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .sidebar::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
     .sidebar-title { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; padding-left: 0.5rem; }
     .category-list { display: flex; flex-direction: column; gap: 0.25rem; }
     .category-item { display: flex; align-items: center; padding: 0.6rem 0.75rem; border-radius: var(--radius); color: var(--text-secondary); font-size: 0.9rem; transition: all var(--transition); }
@@ -234,9 +248,24 @@ export function generateCategoryPage(options = {}) {
     .btn-shuffle:hover svg { stroke: var(--accent); }
 
     /* Load more section */
-    .load-more-section { display: flex; justify-content: center; padding: 1.5rem 0; }
-    .btn-load-more { min-width: 200px; padding: 0.75rem 1.5rem; background: var(--bg-card); border: 1px solid var(--accent); color: var(--accent); }
-    .btn-load-more:hover { background: var(--accent); color: #fff; }
+    .loading-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 1.5rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    .loading-indicator .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Free trial banner - 优化设计 */
     .free-trial-banner {
@@ -311,7 +340,19 @@ export function generateCategoryPage(options = {}) {
     .free-trial-btn svg { transition: transform 0.25s ease; }
     .free-trial-btn:hover svg { transform: translateX(3px); }
 
-    @media (max-width: 480px) {
+    @media (max-width: 768px) {
+      .sidebar { 
+        width: 100%; 
+        max-height: none; 
+        position: static; 
+        overflow-y: visible;
+      }
+      .page-layout { flex-direction: column; padding: 0 0.75rem 1.5rem; }
+      .batch-actions { gap: 0.25rem; }
+      .batch-actions .btn { padding: 0.4rem 0.5rem; font-size: 0.75rem; }
+      .batch-actions .btn svg { width: 14px; height: 14px; }
+      .batch-actions .btn .btn-text { display: none; }
+      .btn-shuffle, .btn-favorite-batch { min-width: 32px; }
       .free-trial-inner { flex-direction: column; text-align: center; }
       .free-trial-btn { width: 100%; justify-content: center; }
     }
@@ -483,16 +524,12 @@ export function generateCategoryPage(options = {}) {
         </div>
         <span class="selected-count"><strong id="selectedCount">0</strong> 已选</span>
       </div>
-      <div id="channelList">
+      <div id="channelList" data-has-more="true">
         ${channelListHtml}
       </div>
-
-      <!-- 更多频道按钮 -->
-      <div class="load-more-section">
-        <button class="btn btn-load-more" onclick="loadMoreChannels()" id="loadMoreBtn" style="display:none;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="6 9 12 15 18 9"/></svg>
-          更多频道
-        </button>
+      <div id="loadingIndicator" class="loading-indicator" style="display:none;">
+        <div class="spinner"></div>
+        <span>Loading more channels...</span>
       </div>
 
       <!-- 免费试用引导 -->
@@ -664,12 +701,45 @@ export function generateCategoryPage(options = {}) {
       rows.forEach(row => channelList.appendChild(row));
     }
 
-    // Load more channels (show all)
+    // Infinite scroll state
+    var lazyRows = document.querySelectorAll('.channel-row-lazy');
+    var loadedCount = 0;
+    var batchSize = 50;
+    var isLoading = false;
+
     function loadMoreChannels() {
-      const allRows = document.querySelectorAll('.channel-row');
-      allRows.forEach(row => row.style.display = '');
-      document.getElementById('loadMoreBtn').style.display = 'none';
+      if (isLoading) return;
+      isLoading = true;
+      document.getElementById('loadingIndicator').style.display = 'flex';
+      
+      setTimeout(function() {
+        var end = Math.min(loadedCount + batchSize, lazyRows.length);
+        for (var i = loadedCount; i < end; i++) {
+          lazyRows[i].style.display = '';
+        }
+        loadedCount = end;
+        document.getElementById('loadingIndicator').style.display = 'none';
+        isLoading = false;
+        
+        if (loadedCount >= lazyRows.length) {
+          document.getElementById('channelListContainer').removeAttribute('data-has-more');
+        }
+      }, 300);
     }
+
+    // Scroll event listener for infinite scroll
+    window.addEventListener('scroll', function() {
+      var hasMore = document.getElementById('channelListContainer') && document.getElementById('channelListContainer').getAttribute('data-has-more');
+      if (!hasMore || isLoading) return;
+      
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      var windowHeight = window.innerHeight;
+      var docHeight = document.documentElement.scrollHeight;
+      
+      if (scrollTop + windowHeight >= docHeight - 500) {
+        loadMoreChannels();
+      }
+    });
 
     // Add selected to favorites
     function addSelectedToFavorites() {
