@@ -1893,13 +1893,12 @@ export async function handleAdminRequest(request, env, ctx) {
           `).all();
 
           const actionTypeLabels = {
-            'vip_expired': 'VIP Token过期',
-            'play_normal': '统一正常播放',
-            'free_normal': '免费订阅正常播放',
-            'free_expired': '免费订阅Token过期',
-            'fav_normal': '收藏正常播放',
-            'fav_expired': '收藏Token过期',
-            'old_route_normal': '旧路由访问'
+            'vip_expired': 'VIP播放过期',
+            'vip_limit_exceeded': 'VIP播放超限',
+            'free_normal': '非VIP正常播放',
+            'free_expired': '非VIP播放过期',
+            'free_limit_exceeded': '非VIP播放超限',
+            'channel_not_found': '频道不存在'
           };
 
           const formattedBindings = (bindings.results || []).map(b => ({

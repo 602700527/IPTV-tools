@@ -4,32 +4,41 @@ export const pageDescription = 'Discover USA IPTV channels including CNN, ESPN, 
 
 export const styles = `
 *{margin:0;padding:0;box-sizing:border-box}
+:root{
+--accent:#e50914;
+--bg:#0a0a0a;
+--bg-card:#141414;
+--border:1px solid rgba(255,255,255,0.08);
+--text:#fff;
+--text-secondary:rgba(255,255,255,0.6);
+--radius:0
+}
 html{scroll-padding-top:70px}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0a0a0a;min-height:100vh;display:flex;flex-direction:column;color:#fff}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;color:var(--text)}
 .main-content{flex:1;width:100%;margin-top:70px;padding:20px 0}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .page-header{text-align:center;padding:3rem 0 2rem}
-.page-header h1{font-size:2.5rem;font-weight:800;margin-bottom:1rem;background:linear-gradient(135deg,#fff 0%,#999 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.page-header p{font-size:1.1rem;color:rgba(255,255,255,0.7);max-width:600px;margin:0 auto}
+.page-header h1{font-size:2.5rem;font-weight:800;margin-bottom:1rem;color:var(--text)}
+.page-header p{font-size:1.1rem;color:var(--text-secondary);max-width:600px;margin:0 auto}
 .section{margin-bottom:3rem}
-.section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem;padding-bottom:0.75rem;border-bottom:1px solid rgba(255,255,255,0.1)}
-.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
-.feature-card{background:#141414;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1.5rem}
-.feature-card h3{font-size:1.1rem;font-weight:600;margin-bottom:0.75rem;color:#e50914}
-.feature-card p{color:rgba(255,255,255,0.7);font-size:0.95rem;line-height:1.6}
-.channel-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
-.channel-item{background:#141414;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:1rem;display:flex;align-items:center;gap:0.75rem;text-decoration:none}
-.channel-item:hover{border-color:#e50914}
-.channel-item span{font-size:0.9rem;color:#fff}
+.section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem;padding-bottom:0.75rem;border-bottom:var(--border)}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0}
+.feature-card{background:transparent;border:var(--border);border-radius:var(--radius);padding:1.5rem}
+.feature-card h3{font-size:1.1rem;font-weight:600;margin-bottom:0.75rem;color:var(--accent)}
+.feature-card p{color:var(--text-secondary);font-size:0.95rem;line-height:1.6}
+.channel-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0}
+.channel-item{background:transparent;border:var(--border);border-radius:var(--radius);padding:1rem;display:flex;align-items:center;gap:0.75rem;text-decoration:none}
+.channel-item:hover{border-color:var(--accent)}
+.channel-item span{font-size:0.9rem;color:var(--text)}
 .faq-list{max-width:800px;margin:0 auto}
-.faq-item{background:#141414;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1.5rem;margin-bottom:1rem}
-.faq-item h3{font-size:1.1rem;font-weight:600;margin-bottom:0.75rem;color:#fff}
-.faq-item p{color:rgba(255,255,255,0.7);line-height:1.7}
-.cta-section{background:linear-gradient(135deg,#e50914 0%,#b81d24 100%);border-radius:16px;padding:3rem;text-align:center;margin:2rem 0}
+.faq-item{background:transparent;border:var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:0}
+.faq-item h3{font-size:1.1rem;font-weight:600;margin-bottom:0.75rem;color:var(--text)}
+.faq-item p{color:var(--text-secondary);line-height:1.7}
+.cta-section{background:transparent;border:var(--border);border-radius:var(--radius);padding:3rem;text-align:center;margin:2rem 0}
 .cta-section h2{font-size:1.75rem;font-weight:700;margin-bottom:1rem}
 .cta-section p{font-size:1.1rem;opacity:0.9;margin-bottom:1.5rem}
-.cta-btn{display:inline-block;background:#fff;color:#e50914;padding:14px 32px;border-radius:8px;font-weight:600;text-decoration:none;transition:transform 0.2s}
-.cta-btn:hover{transform:scale(1.05)}
+.cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:14px 32px;border-radius:var(--radius);font-weight:600;text-decoration:none;transition:transform 0.2s}
+.cta-btn:hover{transform:scale(1.02)}
 @media(max-width:768px){
 .main-content{margin-top:80px}
 .container{padding:0 16px}
@@ -37,6 +46,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .page-header h1{font-size:1.75rem}
 .feature-grid{grid-template-columns:1fr}
 .channel-list{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+.main-content{margin-top:70px}
+.container{padding:0 12px}
+.page-header{padding:1.5rem 0 1rem}
+.page-header h1{font-size:1.4rem}
+.page-header p{font-size:0.95rem}
+.feature-grid{grid-template-columns:1fr}
+.channel-list{grid-template-columns:1fr}
+.cta-section{padding:2rem 1rem}
+.cta-section h2{font-size:1.4rem}
 }
 `;
 

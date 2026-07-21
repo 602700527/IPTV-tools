@@ -8,6 +8,27 @@ const CACHE_VERSION_KEY = 'channels_cache_version';
 const SITEMAP_CACHE_KEY = 'sitemap_xml';
 const CHANNEL_GROUPS_KEY = 'channel_groups';  // 按分组存储的频道
 
+// ===== 内存缓存（避免每次搜索都读 KV / 回退 D1）=====
+// 数据源：同步定时任务写入 KV 后，同时写入内存
+// TTL：5 分钟，过期后重新从 KV 加载
+const CHANNELS_MEMORY_CACHE = new Map();
+const GROUPS_MEMORY_CACHE = new Map();
+const MEMORY_CACHE_TTL = 5 * 60 * 1000; // 5 分钟
+
+function isMemoryCacheValid(cache) {
+  const entry = cache.get('data');
+  return entry && (Date.now() - entry.timestamp < MEMORY_CACHE_TTL);
+}
+
+function getMemoryEntry(cache) {
+  const entry = cache.get('data');
+  return entry && isMemoryCacheValid(cache) ? entry.value : null;
+}
+
+function setMemoryEntry(cache, value) {
+  cache.set('data', { value, timestamp: Date.now() });
+}
+
 /**
  * Slugify function for SEO-friendly URLs
  */
@@ -140,6 +161,19 @@ export async function cacheChannelsToKV(env) {
 
     console.log(`[ChannelCache] Cached ${channels.results?.length || 0} channels and ${groups.length} groups to KV`);
 
+    // ===== 同时填充内存缓存（避免搜索时重复读 KV）=====
+    setMemoryEntry(CHANNELS_MEMORY_CACHE, {
+      channels: channelsWithPinyin,
+      groups,
+      version,
+      cached_at: new Date().toISOString()
+    });
+    setMemoryEntry(GROUPS_MEMORY_CACHE, {
+      groups,
+      version,
+      cached_at: new Date().toISOString()
+    });
+
     return {
       success: true,
       channels: channels.results?.length || 0,
@@ -261,13 +295,22 @@ export async function getChannelByHash(env, channelHash) {
 }
 
 /**
- * 获取所有频道（优先从 KV）
+ * 获取所有频道（优先从内存缓存 → KV → 数据库）
  * @param {Object} env - Cloudflare Workers 环境
  * @returns {Promise<{channels: Array, fromCache: boolean}>}
  */
 export async function getAllChannels(env) {
   try {
-    // 尝试从 KV 获取（检查 KV 是否可用）
+    // 1. 先检查内存缓存（避免 KV 读取和 D1 查询）
+    const memEntry = getMemoryEntry(CHANNELS_MEMORY_CACHE);
+    if (memEntry && memEntry.channels) {
+      return {
+        channels: memEntry.channels,
+        fromCache: true
+      };
+    }
+
+    // 2. 从 KV 获取
     let cacheData = null;
     if (env && env.KV) {
       try {
@@ -278,13 +321,15 @@ export async function getAllChannels(env) {
     }
 
     if (cacheData && cacheData.channels) {
+      // 写入内存缓存，避免下次再读 KV
+      setMemoryEntry(CHANNELS_MEMORY_CACHE, cacheData);
       return {
         channels: cacheData.channels,
         fromCache: true
       };
     }
 
-    // KV 中没有，从数据库查询
+    // 3. KV 中没有，最后才从数据库查询
     const db = getDB();
     const result = await db.prepare(`
       SELECT
@@ -307,8 +352,19 @@ export async function getAllChannels(env) {
         AND s.is_active = 1
     `).all();
 
+    const channels = result.results || [];
+    // 写入内存缓存（避免下次查 D1）
+    if (channels.length > 0) {
+      setMemoryEntry(CHANNELS_MEMORY_CACHE, {
+        channels,
+        groups: [],
+        version: Date.now(),
+        cached_at: new Date().toISOString()
+      });
+    }
+
     return {
-      channels: result.results || [],
+      channels,
       fromCache: false
     };
   } catch (error) {
@@ -389,13 +445,22 @@ export async function getAllTypes(env) {
 }
 
 /**
- * 获取所有分组（优先从 KV）
+ * 获取所有分组（优先从内存缓存 → KV → 数据库）
  * @param {Object} env - Cloudflare Workers 环境
  * @returns {Promise<{groups: Array, fromCache: boolean}>}
  */
 export async function getAllGroups(env) {
   try {
-    // 尝试从 KV 获取（检查 KV 是否可用）
+    // 1. 先检查内存缓存
+    const memEntry = getMemoryEntry(GROUPS_MEMORY_CACHE);
+    if (memEntry && memEntry.groups) {
+      return {
+        groups: memEntry.groups,
+        fromCache: true
+      };
+    }
+
+    // 2. 从 KV 获取
     let cacheData = null;
     if (env && env.KV) {
       try {
@@ -406,13 +471,14 @@ export async function getAllGroups(env) {
     }
 
     if (cacheData && cacheData.groups) {
+      setMemoryEntry(GROUPS_MEMORY_CACHE, cacheData);
       return {
         groups: cacheData.groups,
         fromCache: true
       };
     }
 
-    // KV 中没有，从数据库查询
+    // 3. KV 中没有，从数据库查询
     const db = getDB();
     const result = await db.prepare(`
       SELECT DISTINCT c.group_title
@@ -425,8 +491,18 @@ export async function getAllGroups(env) {
       ORDER BY c.group_title
     `).all();
 
+    const groups = (result.results || []).map(r => r.group_title);
+    // 写入内存缓存
+    if (groups.length > 0) {
+      setMemoryEntry(GROUPS_MEMORY_CACHE, {
+        groups,
+        version: Date.now(),
+        cached_at: new Date().toISOString()
+      });
+    }
+
     return {
-      groups: (result.results || []).map(r => r.group_title),
+      groups,
       fromCache: false
     };
   } catch (error) {
@@ -439,13 +515,26 @@ export async function getAllGroups(env) {
 }
 
 /**
- * 按分组获取频道（加速搜索）
+ * 按分组获取频道（优先从内存缓存 → KV）
  * @param {Object} env - Cloudflare Workers 环境
  * @param {string} groupName - 分组名称
  * @returns {Promise<{channels: Array, fromCache: boolean}>}
  */
 export async function getChannelsByGroup(env, groupName) {
   try {
+    // 1. 先从主内存缓存过滤（避免 KV 读取）
+    const memEntry = getMemoryEntry(CHANNELS_MEMORY_CACHE);
+    if (memEntry && memEntry.channels) {
+      const filtered = memEntry.channels.filter(ch => ch.group_title === groupName);
+      if (filtered.length > 0) {
+        return {
+          channels: filtered,
+          fromCache: true
+        };
+      }
+    }
+
+    // 2. 从 KV 获取分组缓存
     const key = `${CHANNEL_GROUPS_KEY}:${groupName}`;
     let cacheData = null;
     if (env && env.KV) {
@@ -463,7 +552,7 @@ export async function getChannelsByGroup(env, groupName) {
       };
     }
 
-    // 如果分组缓存不存在，从主缓存获取并过滤
+    // 3. 如果分组缓存不存在，从主缓存获取并过滤
     const mainCacheData = await getAllChannels(env);
     if (mainCacheData.fromCache && mainCacheData.channels.length > 0) {
       const filtered = mainCacheData.channels.filter(
@@ -483,7 +572,7 @@ export async function getChannelsByGroup(env, groupName) {
 }
 
 /**
- * 清空频道缓存
+ * 清空频道缓存（KV + 内存）
  * @param {Object} env - Cloudflare Workers 环境
  * @returns {Promise<boolean>}
  */
@@ -492,7 +581,10 @@ export async function clearChannelCache(env) {
     await env.KV.delete(CHANNELS_CACHE_KEY);
     await env.KV.delete(GROUPS_CACHE_KEY);
     await env.KV.delete(CACHE_VERSION_KEY);
-    console.log('[ChannelCache] Cache cleared');
+    // 同时清空内存缓存
+    CHANNELS_MEMORY_CACHE.clear();
+    GROUPS_MEMORY_CACHE.clear();
+    console.log('[ChannelCache] Cache cleared (KV + memory)');
     return true;
   } catch (error) {
     console.error('[ChannelCache] Failed to clear cache:', error);

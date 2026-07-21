@@ -4665,12 +4665,12 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
     function showAdBindingModal(binding = null) {
       const actionTypeOptions = [
-        { value: 'vip_expired', label: 'VIPtoken过期' },
-        { value: 'free_normal', label: '免费token正常播放' },
-        { value: 'free_expired', label: '免费token过期' },
-        { value: 'fav_normal', label: '收藏token正常播放' },
-        { value: 'fav_expired', label: '收藏token过期' },
-        { value: 'old_route_normal', label: '旧路由正常播放' }
+        { value: 'vip_expired', label: 'VIP播放过期' },
+        { value: 'vip_limit_exceeded', label: 'VIP播放超限' },
+        { value: 'free_normal', label: '非VIP正常播放' },
+        { value: 'free_expired', label: '非VIP播放过期' },
+        { value: 'free_limit_exceeded', label: '非VIP播放超限' },
+        { value: 'channel_not_found', label: '频道不存在' }
       ];
 
       let adOptions = '<option value="">不播放广告</option>';

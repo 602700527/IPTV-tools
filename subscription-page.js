@@ -1,8 +1,7 @@
-// 订阅支付页面HTML
+// 订阅购买页面HTML（完全对齐生产环境 - VIP Hero + Privileges + Pricing Wrapper 风格）
 import { PAGE_HEADER } from './components/page-header.js';
 import { PAGE_FOOTER } from './components/page-footer.js';
 import { HEAD_SCRIPTS } from './components/head-scripts.js';
-
 
 export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 <html lang="en">
@@ -10,483 +9,548 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title data-i18n-title="pageTitle">IPTV M3U Links - Get Your M3U Playlist & IPTV Subscription</title>
-  <meta name="description" content="Get instant IPTV M3U links with your subscription. Access 8000+ live TV streaming channels. Download M3U playlist compatible with all IPTV players. No registration required.">
+  <title>VIP Subscription - IPTV Search</title>
+  <meta name="description" content="Upgrade to VIP for unlimited access to 8000+ live TV channels. Ad-free viewing, multi-device support, and priority customer service.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://iptv-search.com/subscription">
   <link rel="alternate" hreflang="en" href="https://iptv-search.com/subscription">
-  <link rel="alternate" hreflang="zh-CN" href="https://iptv-search.com/subscription?lang=zh-CN">
   <link rel="alternate" hreflang="x-default" href="https://iptv-search.com/subscription">
-  <meta property="og:title" content="IPTV M3U Links - Get Your M3U Playlist & IPTV Subscription">
-  <meta property="og:description" content="Get instant IPTV M3U links. Access 8000+ live TV channels. Download M3U playlist for IPTV Smarters, VLC, and more.">
+  <meta property="og:title" content="VIP Subscription - IPTV Search">
+  <meta property="og:description" content="Upgrade to VIP for unlimited access to 8000+ live TV channels. Ad-free viewing, multi-device support, and priority customer service.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com/subscription">
   <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:site_name" content="TV Live Service">
+  <meta property="og:site_name" content="IPTV Search">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Subscription - TV Live Service">
-  <meta name="twitter:description" content="Subscribe to TV Live Service for unlimited access to live TV channels. Choose a plan that fits your needs.">
+  <meta name="twitter:title" content="VIP Subscription - IPTV Search">
+  <meta name="twitter:description" content="Upgrade to VIP for unlimited access to 8000+ live TV channels.">
   <meta name="twitter:image" content="https://iptv-search.com/og-homepage.png">
+
   <style>
-    :root {
-      --bg-primary: #0a0a0a;
-      --bg-secondary: #141414;
-      --bg-card: #1a1a1a;
-      --bg-hover: #252525;
-      --text-primary: #ffffff;
-      --text-secondary: rgba(255, 255, 255, 0.7);
-      --text-muted: rgba(255, 255, 255, 0.5);
-      --border: rgba(255, 255, 255, 0.1);
-      --accent: #e50914;
-      --accent-hover: #f7262c;
-      --gold: #fbbf24;
-      --success: #34c759;
-    }
-
-    [data-theme="light"] {
-      --bg-primary: #f5f5f5;
-      --bg-secondary: #ffffff;
-      --bg-card: #ffffff;
-      --bg-hover: #f0f0f0;
-      --text-primary: #1a1a1a;
-      --text-secondary: #666666;
-      --text-muted: #999999;
-      --border: rgba(0, 0, 0, 0.1);
-      --accent: #e50914;
-      --accent-hover: #f6121d;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: var(--bg-primary);
-      min-height: 100vh;
-      color: var(--text-primary);
-      transition: background 0.2s, color 0.2s;
-    }
+    /* ========== VIP Subscription Page - 极简线条风格 ========== */
 
     .container {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 0 20px;
     }
 
-    /* Page header section (title) - different from sticky nav header */
-    .page-header-section {
+    /* VIP Hero Section */
+    .vip-hero {
+      position: relative;
+      padding: 80px 0 60px;
       text-align: center;
-      margin-bottom: 40px;
-      padding-top: 20px;
+      overflow: hidden;
     }
 
-    .page-header-section h1 {
-      font-size: 28px;
+    .vip-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
       font-weight: 700;
-      margin-bottom: 10px;
-      color: var(--text-primary);
+      padding: 8px 20px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+      border-radius: 0;
     }
 
-    .page-header-section p {
+    .vip-badge svg {
+      width: 16px;
+      height: 16px;
+      fill: #fff;
+    }
+
+    .hero-title {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.05;
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-title .highlight {
+      color: var(--accent);
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
       color: var(--text-secondary);
-      font-size: 14px;
+      max-width: 560px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
     }
 
-    /* Hero Section - Marketing Psychology: Clear Value Proposition */
-    .sub-hero {
-      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 50%, rgba(229, 9, 20, 0.1) 100%);
-      border-radius: 20px;
-      padding: 40px;
-      margin-bottom: 40px;
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 64px;
+      flex-wrap: wrap;
+    }
+
+    .stat-item { text-align: center; }
+
+    .stat-value {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 900;
+      color: var(--accent);
+      display: block;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: 4px;
+    }
+
+    /* Privileges Section */
+    .privileges-section {
+      padding: 80px 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(229, 9, 20, 0.03) 50%, transparent 100%);
+    }
+
+    .section-header {
       text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+
+    .section-subtitle {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+    }
+
+    .privileges-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .privilege-card {
+      background: transparent;
+      border: var(--border);
+      border-radius: 0;
+      padding: 28px 24px;
+      text-align: center;
+      transition: border-color 0.3s, transform 0.3s;
       position: relative;
       overflow: hidden;
     }
 
-    .sub-hero::before {
+    .privilege-card::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: radial-gradient(circle at 30% 50%, rgba(229, 9, 20, 0.15) 0%, transparent 50%);
-      pointer-events: none;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent);
+      opacity: 0;
+      transition: opacity 0.3s;
     }
 
-    .sub-hero-badge {
-      display: inline-block;
-      background: linear-gradient(135deg, var(--gold) 0%, #f59e0b 100%);
-      color: #000;
-      font-weight: 700;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      margin-bottom: 16px;
+    .privilege-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-hover);
     }
 
-    .sub-hero-title {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: var(--text-primary);
-      margin-bottom: 12px;
-    }
+    .privilege-card:hover::before { opacity: 1; }
 
-    .sub-hero-subtitle {
-      font-size: 1.1rem;
-      color: var(--text-secondary);
-      margin-bottom: 24px;
-    }
-
-    .sub-hero-stats {
+    .privilege-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 16px;
+      background: transparent;
+      border: var(--border);
+      border-radius: 0;
       display: flex;
+      align-items: center;
       justify-content: center;
-      gap: 40px;
-      flex-wrap: wrap;
+      font-size: 24px;
     }
 
-    .sub-stat {
-      text-align: center;
+    .privilege-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-primary);
     }
 
-    .sub-stat-value {
-      display: block;
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: var(--accent);
-    }
-
-    .sub-stat-label {
+    .privilege-desc {
       font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Pricing Section */
+    .pricing-section { padding: 80px 0; }
+
+    .pricing-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 32px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .pricing-left {
+      background: transparent;
+      border: var(--border);
+      border-radius: 0;
+      padding: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pricing-header { margin-bottom: 28px; }
+
+    .pricing-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .pricing-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .selectors-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .selector-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .selector-bar {
+      display: flex;
+      background: transparent;
+      border: var(--border);
+      padding: 0;
+      gap: 0;
+    }
+
+    .select-option {
+      flex: 1;
+      padding: 14px 8px;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 0;
+      transition: background 0.2s, color 0.2s;
+      border-right: var(--border);
+    }
+
+    .select-option:last-child { border-right: none; }
+
+    .select-option:hover {
+      background: var(--bg-hover);
+    }
+
+    .select-option.selected {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .select-option .value {
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: inherit;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .select-option .label {
+      font-size: 0.7rem;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.5px;
     }
 
-    .plans-container {
-      background: var(--bg-secondary);
-      backdrop-filter: blur(20px);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      padding: 30px;
-      margin-bottom: 40px;
+    .select-option.selected .label {
+      color: rgba(255, 255, 255, 0.85);
     }
 
-    .selection-section {
-      margin-bottom: 30px;
+    .select-option .price-tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 6px;
     }
 
-    .selection-label {
-      color: var(--text-secondary);
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 15px;
+    .select-option.selected .price-tag { color: #fff; }
+
+    .select-option .original {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-decoration: line-through;
+      margin-top: 2px;
+    }
+
+    .select-option .countdown-timer {
       display: block;
+      font-size: 0.65rem;
+      color: var(--accent);
+      font-weight: 700;
+      margin-top: 4px;
+      letter-spacing: 0.5px;
     }
 
-    .option-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px;
-    }
+    .select-option.selected .countdown-timer { color: #fff; }
 
-    .option-card {
-      background: var(--bg-card);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-      position: relative;
-    }
-
-    .option-card:hover {
-      border-color: rgba(229, 9, 20, 0.5);
-      background: rgba(229, 9, 20, 0.05);
-    }
-
-    .option-card.selected {
-      border-color: var(--accent);
-      background: rgba(229, 9, 20, 0.15);
-      box-shadow: 0 0 20px rgba(229, 9, 20, 0.2);
-    }
-
-    .option-card.selected::after {
-      content: '✓';
+    .select-option .badge {
       position: absolute;
-      top: 8px;
+      top: -8px;
       right: 8px;
-      color: var(--accent);
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    .option-title {
-      font-size: 16px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.6rem;
       font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 8px;
+      padding: 2px 8px;
+      border-radius: 0;
     }
 
-    .option-subtitle {
-      font-size: 13px;
-      color: var(--text-secondary);
+    /* Pricing Right - Order Card */
+    .pricing-right {
+      position: sticky;
+      top: 100px;
+      height: fit-content;
     }
 
-    .option-price {
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--accent);
-      margin: 10px 0 5px;
+    .order-card {
+      background: transparent;
+      border: 1px solid rgba(229, 9, 20, 0.3);
+      border-radius: 0;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .option-discount {
-      display: inline-block;
-      background: linear-gradient(135deg, #ffcc00 0%, #ff9500 100%);
-      color: #1a1a1a;
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 10px;
-      font-weight: 700;
+    .order-header {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 20px;
     }
 
-    .payment-summary {
-      background: rgba(229, 9, 20, 0.1);
-      border: 2px solid var(--accent);
-      border-radius: 16px;
-      padding: 25px;
-      margin-bottom: 30px;
+    .order-summary {
+      background: transparent;
+      border: 1px solid rgba(229, 9, 20, 0.15);
+      border-radius: 0;
+      padding: 18px;
+      margin-bottom: 20px;
     }
 
     .summary-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
+      padding: 8px 0;
+      font-size: 0.9rem;
     }
 
-    .summary-row:last-child {
-      border-bottom: none;
+    .summary-row .label { color: var(--text-secondary); }
+    .summary-row .value { font-weight: 600; }
+    .summary-row.discount .value { color: var(--success); }
+
+    .summary-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
     }
 
-    .summary-label {
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
-
-    .summary-value {
-      color: var(--text-primary);
-      font-size: 16px;
-      font-weight: 600;
-    }
-
-    .total-row {
-      background: rgba(229, 9, 20, 0.2);
-      border-radius: 10px;
-      padding: 20px;
-      margin-top: 15px;
+    .summary-total {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding-top: 6px;
     }
 
-    .total-label {
-      color: var(--text-primary);
-      font-size: 18px;
+    .summary-total .label {
+      font-size: 1.05rem;
       font-weight: 700;
     }
 
-    .total-price {
-      font-size: 36px;
-      font-weight: 700;
+    .summary-total .price {
+      font-size: 1.8rem;
+      font-weight: 900;
       color: var(--accent);
     }
 
-    .ip-selector {
-      margin-bottom: 20px;
+    .payment-methods-section { margin-bottom: 16px; }
+
+    .payment-methods-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
     }
 
-    .ip-selector label {
-      display: block;
-      color: var(--text-secondary);
-      font-size: 14px;
-      margin-bottom: 8px;
-      font-weight: 500;
+    .payment-methods-grid {
+      display: flex;
+      gap: 8px;
     }
 
-    .ip-selector select {
-      width: 100%;
-      padding: 12px 16px;
-      background: var(--bg-card);
-      border: 2px solid var(--border);
-      border-radius: 10px;
-      color: var(--text-primary);
-      font-size: 16px;
-      cursor: pointer;
-      transition: border-color 0.2s;
-    }
-
-    .ip-selector select:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    .payment-section {
-      background: var(--bg-secondary);
-      backdrop-filter: blur(20px);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      padding: 40px 30px;
-      text-align: center;
+    .payment-method-option {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      min-height: 200px;
-    }
-
-    .payment-methods {
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-
-    .payment-method-tab {
-      background: var(--bg-card);
-      border: 2px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 24px;
+      gap: 6px;
+      padding: 10px 8px;
+      background: transparent;
+      border: var(--border);
+      border-radius: 0;
       cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      transition: border-color 0.2s, background 0.2s;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
     }
 
-    .payment-method-tab:hover {
-      border-color: rgba(229, 9, 20, 0.5);
-      background: rgba(229, 9, 20, 0.05);
-    }
-
-    .payment-method-tab.active {
+    .payment-method-option:hover {
       border-color: var(--accent);
-      background: rgba(229, 9, 20, 0.15);
     }
 
-    .payment-method-icon {
+    .payment-method-option.selected {
+      border-color: var(--accent);
+      background: rgba(229, 9, 20, 0.06);
+    }
+
+    .payment-method-option svg {
       width: 24px;
       height: 24px;
-      display: inline-block;
-      flex-shrink: 0;
     }
 
-    .payment-method-icon img {
-      width: 24px;
-      height: 24px;
-      object-fit: contain;
-      display: block;
+    .payment-method-option .method-text {
+      font-weight: 700;
+      font-size: 0.8rem;
     }
 
-    .payment-method-icon svg {
+    .cta-section { margin-top: 16px; }
+
+    .cta-button {
       width: 100%;
-      height: 100%;
-      display: block;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 0;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    .payment-method-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-primary);
+    .cta-button:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
     }
 
-    /* Trust badges */
+    /* Trust Badges */
     .trust-badges {
       display: flex;
       justify-content: center;
-      gap: 20px;
+      gap: 24px;
+      margin-top: 20px;
       flex-wrap: wrap;
-      margin-bottom: 20px;
-      padding: 15px;
-      background: var(--bg-card);
-      border-radius: 12px;
-      border: 1px solid var(--border);
+    }
+
+    .trust-badges-bottom {
+      padding: 16px 0;
+      border-top: var(--border);
+      margin-top: 24px;
+    }
+
+    .trust-badges-bottom .trust-badges {
+      margin-top: 0;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .trust-item {
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 13px;
+      font-size: 0.8rem;
       color: var(--text-secondary);
     }
 
-    .trust-icon {
-      font-size: 16px;
+    .trust-item svg {
+      width: 16px;
+      height: 16px;
+      fill: var(--success);
     }
 
-
-
-    .qrcode-container {
+    /* Loading Overlay */
+    .loading {
       display: none;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      margin: 0 auto;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 2500;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
     }
 
-    .qrcode-container.show {
-      display: block;
+    .loading.show { display: flex; }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
     }
 
-    .qrcode-image {
-      width: 200px;
-      height: 200px;
-      border: none;
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .qrcode-tip {
-      color: #333;
-      font-size: 14px;
-      margin-top: 15px;
-      text-align: center;
-    }
-
+    /* Success Modal */
     .success-modal {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.92);
       backdrop-filter: blur(10px);
-      z-index: 1000;
+      z-index: 3000;
       align-items: center;
       justify-content: center;
+      padding: 20px;
     }
 
-    .success-modal.show {
-      display: flex;
-    }
+    .success-modal.show { display: flex; }
 
     .success-content {
       background: var(--bg-secondary);
-      backdrop-filter: blur(20px);
-      border-radius: 20px;
+      border: 1px solid var(--accent);
+      border-radius: 0;
       padding: 40px;
-      max-width: 400px;
+      max-width: 420px;
       text-align: center;
-      border: 2px solid var(--success);
-      box-shadow: 0 20px 60px rgba(52, 199, 89, 0.3);
+      position: relative;
     }
 
     .success-icon {
@@ -495,299 +559,144 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .success-title {
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--text-primary);
+      font-size: 1.6rem;
+      font-weight: 800;
       margin-bottom: 10px;
     }
 
     .success-message {
       color: var(--text-secondary);
-      font-size: 14px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .purchase-details {
+      background: transparent;
+      border: var(--border);
+      border-radius: 0;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .purchase-detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: var(--border);
+    }
+
+    .purchase-detail-item:last-child { border-bottom: none; }
+
+    .purchase-detail-label {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    .purchase-detail-value {
+      font-weight: 600;
+      font-size: 0.85rem;
     }
 
     .code-display {
-      background: rgba(229, 9, 20, 0.1);
-      border: 2px solid var(--accent);
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 15px;
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 14px;
+      font-family: 'SF Mono', 'Courier New', monospace;
+      font-size: 0.85rem;
       word-break: break-all;
-      min-height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-primary);
+      margin-bottom: 16px;
+      color: var(--accent);
     }
 
     .copy-button {
       background: var(--accent);
-      color: white;
+      color: #fff;
       border: none;
-      padding: 12px 30px;
-      border-radius: 8px;
+      padding: 14px 32px;
+      border-radius: 0;
+      font-size: 1rem;
+      font-weight: 700;
       cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.2s;
-      -webkit-tap-highlight-color: transparent;
+      width: 100%;
+      transition: background 0.2s;
     }
 
-    .copy-button:hover {
-      background: var(--accent-hover);
+    .copy-button:hover { background: var(--accent-hover); }
+
+    .next-steps {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: var(--border);
     }
 
-    .close-button {
-      background: var(--bg-hover);
+    .next-steps-hint {
       color: var(--text-secondary);
-      border: 1px solid var(--border);
-      padding: 12px 30px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .close-button:hover {
-      background: var(--bg-card);
-    }
-
-    .copy-message {
-      padding: 12px 16px;
-      border-radius: 10px;
-      margin-top: 12px;
-      font-size: 14px;
-      text-align: center;
-      display: none;
-    }
-
-    .copy-message.success {
-      background: rgba(52, 199, 89, 0.15);
-      border: 1px solid rgba(52, 199, 89, 0.3);
-      color: var(--success);
-      display: block;
-    }
-
-    .copy-message.error {
-      background: rgba(255, 59, 48, 0.15);
-      border: 1px solid rgba(255, 59, 48, 0.3);
-      color: #ff3b30;
-      display: block;
-    }
-
-    .modal-tips {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
-    }
-
-    .modal-tip {
-      color: var(--text-secondary);
-      font-size: 13px;
-      line-height: 1.6;
+      font-size: 0.85rem;
       margin-bottom: 8px;
     }
 
-    .modal-tip:last-child {
-      margin-bottom: 0;
+    .next-steps-link {
+      color: var(--accent);
+      font-size: 0.9rem;
+      text-decoration: none;
+      font-weight: 600;
     }
 
-    .modal-tip-highlight {
-      color: var(--text-muted);
-      font-size: 12px;
-      margin-top: 12px;
-    }
+    .next-steps-link:hover { text-decoration: underline; }
 
     .modal-close {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: 16px;
+      right: 16px;
       width: 32px;
       height: 32px;
-      border-radius: 50%;
-      background: var(--bg-hover);
-      border: none;
+      border-radius: 0;
+      background: transparent;
+      border: var(--border);
       color: var(--text-secondary);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
       font-size: 20px;
-      line-height: 1;
+      transition: all 0.2s;
     }
 
     .modal-close:hover {
-      background: rgba(255, 255, 255, 0.2);
-      color: rgba(255, 255, 255, 0.9);
+      background: var(--bg-hover);
+      color: var(--text-primary);
     }
 
-    .loading {
-      display: none;
-      text-align: center;
-      padding: 40px;
-    }
-
-    .loading.show {
-      display: block;
-    }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid rgba(255, 255, 255, 0.1);
-      border-top-color: #e50914;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 15px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .error-message {
-      background: rgba(255, 59, 48, 0.15);
-      border: 1px solid rgba(255, 59, 48, 0.3);
-      border-radius: 10px;
-      padding: 15px;
-      margin: 20px auto;
-      max-width: 400px;
-      text-align: center;
-      color: #ff3b30;
-      font-size: 14px;
-    }
-
-    @media (max-width: 768px) {
-      .plans-container {
-        padding: 15px;
-      }
-
-      .option-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-      }
-
-      .option-card {
-        padding: 15px;
-      }
-
-      .option-title {
-        font-size: 14px;
-      }
-
-      .option-price {
-        font-size: 20px;
-      }
-
-      .payment-summary {
-        padding: 15px;
-      }
-
-      .summary-row {
-        padding: 10px 0;
-      }
-
-      .total-row {
-        padding: 15px;
-      }
-
-      .total-price {
-        font-size: 28px;
-      }
-
-      .container {
-        padding: 15px 10px;
-      }
-
-      .header h1 {
-        font-size: 24px;
-      }
-
-      .lang-switch {
-        top: 15px;
-        right: 15px;
-      }
-
-      .lang-btn {
-        padding: 6px 14px;
-        font-size: 12px;
-      }
-
-      .lang-switch {
-        top: 15px;
-        right: 15px;
-      }
-
-      .lang-btn {
-        padding: 6px 14px;
-        font-size: 12px;
-      }
-    }
-
-    body {
-    }
-
-    @media (max-width: 768px) {
-      body {
-      }
-    }
-
-    @media (max-width: 480px) {
-      body {
-      }
-    }
-
-    /* 支付弹窗样式 */
+    /* Payment Modal */
     .payment-modal {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(12px);
       z-index: 2000;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      overflow-y: auto;
     }
 
-    .payment-modal.show {
-      display: flex;
-    }
+    .payment-modal.show { display: flex; }
 
     .payment-content {
-      background: linear-gradient(135deg, #1e1e1e 0%, #0a0a0a 100%);
-      border-radius: 24px;
+      background: var(--bg-secondary);
+      border: var(--border);
+      border-radius: 0;
       padding: 0;
       max-width: 480px;
       width: 100%;
-      margin: auto;
-      border: 1px solid rgba(229, 9, 20, 0.2);
-      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
       animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     @keyframes modalSlideIn {
-      from {
-        opacity: 0;
-        transform: scale(0.95) translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-      }
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
     }
 
     .payment-header {
@@ -795,15 +704,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       justify-content: space-between;
       align-items: center;
       padding: 20px 24px;
-      background: linear-gradient(135deg, rgba(229, 9, 20, 0.1) 0%, rgba(184, 29, 36, 0.05) 100%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 24px 24px 0 0;
+      background: transparent;
+      border-bottom: var(--border);
     }
 
     .payment-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 800;
       margin: 0;
       display: flex;
       align-items: center;
@@ -814,430 +721,365 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       content: '';
       width: 4px;
       height: 18px;
-      background: linear-gradient(180deg, #e50914 0%, #ff3b30 100%);
-      border-radius: 2px;
+      background: var(--accent);
+      border-radius: 0;
     }
 
     .payment-close {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.6);
+      background: transparent;
+      border: var(--border);
+      color: var(--text-secondary);
       font-size: 20px;
       cursor: pointer;
       padding: 8px;
       width: 32px;
       height: 32px;
-      border-radius: 10px;
+      border-radius: 0;
       line-height: 1;
-      transition: all 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: all 0.2s;
     }
 
     .payment-close:hover {
-      background: rgba(229, 9, 20, 0.2);
-      color: #fff;
-      border-color: rgba(229, 9, 20, 0.3);
-      transform: rotate(90deg);
+      background: var(--bg-hover);
+      color: var(--text-primary);
     }
 
-    .payment-body {
-      padding: 24px;
-    }
-
-    .payment-info {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 16px 20px;
-      margin-bottom: 20px;
-    }
-
-    .payment-info-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .payment-info-item:last-child {
-      border-bottom: none;
-      padding-bottom: 6px;
-    }
-
-    .payment-info-item:first-child {
-      padding-top: 6px;
-    }
-
-    .payment-info-label {
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 12px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .payment-info-value {
-      color: #fff;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .payment-amount {
-      color: #e50914;
-      font-size: 20px;
-      font-weight: 800;
-      text-shadow: 0 0 20px rgba(229, 9, 20, 0.3);
-    }
+    .payment-body { padding: 24px; }
 
     .qrcode-section {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 24px;
+      background: transparent;
+      border: var(--border);
+      border-radius: 0;
+      padding: 20px;
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .qrcode-wrapper {
       background: #fff;
       padding: 12px;
-      border-radius: 16px;
+      border-radius: 0;
       display: inline-block;
-      margin-bottom: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      margin-bottom: 14px;
     }
 
     .modal-qrcode-image {
       width: 200px;
       height: 200px;
-      border: none;
       display: block;
     }
 
     .qrcode-tip {
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 13px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
       font-weight: 500;
-      margin: 0 0 12px 0;
+      margin: 0 0 10px 0;
+    }
+
+    .payment-method-indicator {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin: 0 0 10px 0;
     }
 
     .payment-status {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      color: #e50914;
-      font-size: 13px;
+      color: var(--accent);
+      font-size: 0.8rem;
       font-weight: 700;
-      padding: 8px 16px;
-      background: rgba(229, 9, 20, 0.1);
-      border-radius: 25px;
-      border: 1px solid rgba(229, 9, 20, 0.2);
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.3);
-      }
-      50% {
-        box-shadow: 0 0 0 8px rgba(229, 9, 20, 0);
-      }
+      padding: 6px 14px;
+      background: transparent;
+      border: 1px solid var(--accent);
+      border-radius: 0;
     }
 
     .payment-status::before {
       content: '';
       width: 8px;
       height: 8px;
-      background: #e50914;
+      background: var(--accent);
       border-radius: 50%;
       animation: statusBlink 1.5s ease-in-out infinite;
     }
 
     @keyframes statusBlink {
-      0%, 100% {
-        opacity: 1;
-      }
-      50% {
-        opacity: 0.3;
-      }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
     }
 
-    .payment-footer {
-      padding: 16px 24px 24px 24px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    .payment-info {
+      background: transparent;
+      border: var(--border);
+      border-radius: 0;
+      padding: 16px 20px;
+      margin-bottom: 18px;
     }
 
-    .payment-close-button {
-      width: 100%;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
-      color: rgba(255, 255, 255, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 16px;
-      border-radius: 12px;
-      font-size: 15px;
+    .payment-info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: var(--border);
+    }
+
+    .payment-info-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .payment-info-item:first-child { padding-top: 0; }
+
+    .payment-info-label {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
       font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
-    .payment-close-button:hover {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%);
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.25);
-      transform: translateY(-1px);
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    .payment-info-value {
+      font-size: 0.9rem;
+      font-weight: 600;
     }
 
-    .payment-close-button:active {
-      transform: translateY(0);
+    .payment-amount { color: var(--accent); font-size: 1.1rem; font-weight: 800; }
+
+    .payment-footer {
+      padding: 16px 24px 20px;
+      border-top: var(--border);
+    }
+
+    .payment-test-button {
+      width: 100%;
+      background: transparent;
+      color: #4CAF50;
+      border: 1px solid #4CAF50;
+      padding: 12px;
+      border-radius: 0;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .pricing-wrapper {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .pricing-right { position: static; }
+      .privileges-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
     }
 
     @media (max-width: 600px) {
-      .payment-content {
-        max-width: 95%;
-        border-radius: 20px;
-      }
-
-      .payment-body {
-        padding: 20px 18px;
-      }
-
-      .payment-header {
-        padding: 18px 20px;
-        border-radius: 20px 20px 0 0;
-      }
-
-      .payment-title {
-        font-size: 16px;
-      }
-
-      .payment-info {
-        padding: 16px;
-        margin-bottom: 18px;
-      }
-
-      .qrcode-section {
-        padding: 20px 18px;
-        margin-bottom: 18px;
-      }
-
-      .modal-qrcode-image {
-        width: 180px;
-        height: 180px;
-      }
-
-      .qrcode-wrapper {
-        padding: 10px;
-        margin-bottom: 12px;
-      }
-
-      .qrcode-tip {
-        font-size: 12px;
-        margin-bottom: 10px;
-      }
-
-      .payment-status {
-        font-size: 12px;
-        padding: 6px 14px;
-      }
-
-      .payment-footer {
-        padding: 12px 20px 20px 20px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .payment-content {
-        max-width: 98%;
-        border-radius: 16px;
-      }
-
-      .payment-header {
-        padding: 16px;
-      }
-
-      .payment-title {
-        font-size: 15px;
-      }
-
-      .payment-body {
-        padding: 18px 16px;
-      }
-
-      .payment-info {
-        padding: 14px;
-        margin-bottom: 16px;
-      }
-
-      .payment-info-label {
-        font-size: 11px;
-      }
-
-      .payment-info-value {
-        font-size: 13px;
-      }
-
-      .payment-amount {
-        font-size: 18px;
-      }
-
-      .qrcode-section {
-        padding: 18px 16px;
-        margin-bottom: 16px;
-      }
-
-      .modal-qrcode-image {
-        width: 160px;
-        height: 160px;
-      }
-
-      .qrcode-wrapper {
-        padding: 8px;
-        margin-bottom: 10px;
-      }
-
-      .qrcode-tip {
-        font-size: 11px;
-        margin-bottom: 8px;
-      }
-
-      .payment-status {
-        font-size: 11px;
-        padding: 6px 12px;
-      }
-
-      .payment-hint {
-        background: rgba(255, 204, 0, 0.1);
-        border: 1px solid rgba(255, 204, 0, 0.3);
-        border-radius: 8px;
-        padding: 8px 12px;
-        margin-top: 10px;
-        font-size: 11px;
-        color: #ffcc00;
-        line-height: 1.4;
-      }
-
-      .payment-footer {
-        padding: 10px 16px 18px 16px;
-      }
-    }
-
-    /* Light theme overrides */
-    [data-theme="light"] .success-content {
-      background: #ffffff;
-      border-color: var(--success);
-    }
-
-    [data-theme="light"] .close-button,
-    [data-theme="light"] .modal-close {
-      background: #f0f0f0;
-      color: #333;
-    }
-
-    [data-theme="light"] .trust-badges {
-      background: rgba(0, 0, 0, 0.03);
-      border-color: rgba(0, 0, 0, 0.08);
-    }
-
-    [data-theme="light"] .trust-badges span {
-      color: #333 !important;
+      .vip-hero { padding: 60px 0 40px; }
+      .stats-row { gap: 32px; }
+      .privileges-grid { grid-template-columns: 1fr; }
+      .privileges-section { padding: 60px 0; }
+      .pricing-section { padding: 60px 0; }
+      .pricing-left { padding: 24px; }
+      .order-card { padding: 20px; }
+      .select-option { padding: 10px 4px; }
+      .select-option .value { font-size: 0.9rem; }
+      .selector-bar { flex-wrap: wrap; }
     }
   </style>
-
 </head>
 <body>
   ${PAGE_HEADER}
 
-
-  <div class="container">
-    <!-- Hero Section -->
-    <section class="sub-hero">
-      <span class="sub-hero-badge">👑 Premium Access</span>
-      <h1 class="sub-hero-title">Unlock 8,000+ Live TV Channels</h1>
-      <p class="sub-hero-subtitle">One subscription. All devices. Forever upgraded.</p>
-      <div class="sub-hero-stats">
-        <div class="sub-stat">
-          <span class="sub-stat-value">8,000+</span>
-          <span class="sub-stat-label">Channels</span>
+  <main>
+    <!-- VIP Hero -->
+    <section class="vip-hero">
+      <div class="container">
+        <div class="vip-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          VIP Membership
         </div>
-        <div class="sub-stat">
-          <span class="sub-stat-value">150+</span>
-          <span class="sub-stat-label">Countries</span>
-        </div>
-        <div class="sub-stat">
-          <span class="sub-stat-value">99.9%</span>
-          <span class="sub-stat-label">Uptime</span>
+        <h1 class="hero-title">
+          Unlock the <span class="highlight">Ultimate</span><br>TV Experience
+        </h1>
+        <p class="hero-subtitle">
+          Join thousands of satisfied viewers enjoying premium entertainment with our exclusive VIP membership. No ads, unlimited access, cloud sync, and priority support.
+        </p>
+        <div class="stats-row">
+          <div class="stat-item">
+            <span class="stat-value">150+</span>
+            <span class="stat-label">Countries</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">99.9%</span>
+            <span class="stat-label">Uptime</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">24/7</span>
+            <span class="stat-label">Support</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <div id="plansContainer" class="plans-container">
-      <!-- 时长和IP选择器将通过JS动态生成 -->
-    </div>
-
-    <div class="payment-summary" id="paymentSummary">
-      <!-- 价格汇总将通过JS动态生成 -->
-    </div>
-
-    <div class="payment-section" id="paymentSection">
-      <div class="payment-methods">
-        <!-- 支付方式将通过 JS 动态加载 -->
+    <!-- Privileges Section -->
+    <section class="privileges-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">VIP Exclusive Privileges</h2>
+          <p class="section-subtitle">Everything you need for the ultimate viewing experience</p>
+        </div>
+        <div class="privileges-grid">
+          <div class="privilege-card">
+            <div class="privilege-icon">🚫</div>
+            <h3 class="privilege-title">Ad-Free Viewing</h3>
+            <p class="privilege-desc">Zero interruptions. Enjoy every moment without annoying ads or pop-ups.</p>
+          </div>
+          <div class="privilege-card">
+            <div class="privilege-icon">❤️</div>
+            <h3 class="privilege-title">Unlimited Favorites</h3>
+            <p class="privilege-desc">Save as many channels as you want. No limits, no restrictions.</p>
+          </div>
+          <div class="privilege-card">
+            <div class="privilege-icon">☁️</div>
+            <h3 class="privilege-title">Cloud Sync</h3>
+            <p class="privilege-desc">Your favorites automatically sync across all your devices instantly.</p>
+          </div>
+          <div class="privilege-card">
+            <div class="privilege-icon">📱</div>
+            <h3 class="privilege-title">Multi-Device</h3>
+            <p class="privilege-desc">Watch on any device: phone, tablet, TV, computer, or streaming box.</p>
+          </div>
+          <div class="privilege-card">
+            <div class="privilege-icon">🏠</div>
+            <h3 class="privilege-title">Multi-Home Support</h3>
+            <p class="privilege-desc">Use on multiple locations or households with family sharing.</p>
+          </div>
+          <div class="privilege-card">
+            <div class="privilege-icon">⬇️</div>
+            <h3 class="privilege-title">Unlimited Downloads</h3>
+            <p class="privilege-desc">Download content for offline viewing anytime, anywhere.</p>
+          </div>
+          <div class="privilege-card">
+            <div class="privilege-icon">🔄</div>
+            <h3 class="privilege-title">Online Updates</h3>
+            <p class="privilege-desc">Subscribe to get the latest channel updates anytime - always up to date and convenient.</p>
+          </div>
+          <div class="privilege-card">
+            <div class="privilege-icon">⚡</div>
+            <h3 class="privilege-title">99.9% Uptime</h3>
+            <p class="privilege-desc">Rock-solid reliability. Your entertainment is always available when you need it.</p>
+          </div>
+          <div class="privilege-card">
+            <div class="privilege-icon">🎯</div>
+            <h3 class="privilege-title">Priority Support</h3>
+            <p class="privilege-desc">Skip the queue. Get fast, dedicated customer support from our team.</p>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <!-- Trust badges - Marketing Psychology: Trust Building -->
-      <div class="trust-badges">
-        <span class="trust-item"><span class="trust-icon">🛡️</span> 7-Day Money Back</span>
-        <span class="trust-item"><span class="trust-icon">🔒</span> Secure Payment</span>
-        <span class="trust-item"><span class="trust-icon">💳</span> Multiple Payment Methods</span>
-        <span class="trust-item"><span class="trust-icon">📧</span> 24h Support</span>
+    <!-- Pricing Section -->
+    <section class="pricing-section">
+      <div class="container">
+        <div class="pricing-wrapper">
+          <!-- Left: Duration & IP Selection -->
+          <div class="pricing-left">
+            <div class="pricing-header">
+              <h2 class="pricing-title">Choose Your Plan</h2>
+              <p class="pricing-subtitle">Select duration and device count</p>
+            </div>
+
+            <div class="selectors-wrapper">
+              <div class="selector-group">
+                <div class="selector-label">Duration</div>
+                <div class="selector-bar" id="durationGrid">
+                  <!-- Dynamically rendered -->
+                </div>
+              </div>
+
+              <div class="selector-group">
+                <div class="selector-label">Devices</div>
+                <div class="selector-bar" id="ipGrid">
+                  <!-- Dynamically rendered -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Order Summary & CTA -->
+          <div class="pricing-right">
+            <div class="order-card">
+              <div class="order-header">Order Summary</div>
+
+              <div class="order-summary">
+                <div class="summary-row">
+                  <span class="label">Base Price</span>
+                  <span class="value" id="basePrice">¥0.00</span>
+                </div>
+                <div class="summary-row">
+                  <span class="label">Device Extension</span>
+                  <span class="value" id="ipPrice">¥0.00</span>
+                </div>
+                <div class="summary-row discount" id="discountRow" style="display: none;">
+                  <span class="label">Volume Discount</span>
+                  <span class="value" id="discountAmount">-¥0.00</span>
+                </div>
+                <div class="summary-divider"></div>
+                <div class="summary-total">
+                  <span class="label">Total</span>
+                  <span class="price" id="totalPrice">¥0.00</span>
+                </div>
+              </div>
+
+              <div class="payment-methods-section">
+                <div class="payment-methods-label">Select Payment Method</div>
+                <div class="payment-methods-grid" id="paymentMethodsGrid">
+                  <!-- Dynamically loaded from API -->
+                </div>
+              </div>
+
+              <div class="cta-section">
+                <button class="cta-button" onclick="handleSubscribe()">
+                  Subscribe Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+    </section>
+  </main>
 
-      <div id="xunhupay-button-container" style="margin: 20px 0;">
-        <button id="pay-button" onclick="handlePayClick()" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: 600; transition: all 0.3s; width: 100%; max-width: 300px;">
-          Pay Now
-        </button>
+  <!-- Trust Badges - Screen Bottom -->
+  <div class="trust-badges-bottom">
+    <div class="trust-badges">
+      <div class="trust-item">
+        <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Secure Payment
       </div>
-
-      <div id="loading" class="loading">
-        <div class="spinner"></div>
-        <p data-i18n="processing">Processing...</p>
+      <div class="trust-item">
+        <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Instant Access
       </div>
-
-      <div id="errorMessage" class="error-message" style="display: none;"></div>
+      <div class="trust-item">
+        <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        7-Day Refund
+      </div>
     </div>
   </div>
 
-  <div id="successModal" class="success-modal">
-    <div class="success-content">
-      <button class="modal-close" onclick="closeModal()">×</button>
-      <div class="success-icon">🎉</div>
-      <h2 class="success-title" data-i18n="paymentSuccess">Payment Successful!</h2>
-      <p class="success-message" data-i18n="subUrlGenerated">Your subscription URL has been generated</p>
-      <div class="code-display" id="generatedCode" style="font-size: 14px; word-break: break-all;">-</div>
-      <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">Copy Subscription URL</button>
-      <div class="copy-message" id="copyMessage"></div>
-      <div style="text-align: center; margin-top: 15px;">
-        <a href="/tutorial" style="display: inline-flex; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.7); text-decoration: none; font-size: 14px; transition: all 0.2s;" onmouseover="this.style.color='#e50914'" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)'">
-          <span>📺</span>
-          <span style="text-decoration: underline;">How to add to player</span>
-        </a>
-      </div>
-      <div class="modal-tips">
-        <p class="modal-tip">You can add this subscription URL directly to your player</p>
-        <p class="modal-tip-highlight">You can view order details in your account page after closing this window</p>
-      </div>
-    </div>
-  </div>
-
+  <!-- Payment Modal -->
   <div id="paymentModal" class="payment-modal">
     <div class="payment-content">
       <div class="payment-header">
-        <h2 class="payment-title" id="paymentModalTitle">Scan to Pay</h2>
+        <h2 class="payment-title">Complete Payment</h2>
         <button class="payment-close" onclick="closePaymentModal()">×</button>
       </div>
       <div class="payment-body">
@@ -1245,9 +1087,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           <div class="qrcode-wrapper">
             <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
           </div>
-          <p class="qrcode-tip" id="modalQrcodeTip" data-i18n="scanQrcode">Scan QR code to pay</p>
-          <!-- 支付提示 -->
-          <p class="payment-hint" id="paymentHint"></p>
+          <p class="qrcode-tip" id="modalQrcodeTip">Scan with Alipay/WeChat to pay</p>
+          <p class="payment-method-indicator" id="paymentMethodIndicator"></p>
           <p class="payment-status" id="paymentStatus">Waiting for payment...</p>
         </div>
         <div class="payment-info">
@@ -1256,272 +1097,238 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <span class="payment-info-value" id="paymentPlanName">-</span>
           </div>
           <div class="payment-info-item">
-            <span class="payment-info-label">IPs</span>
+            <span class="payment-info-label">Devices</span>
             <span class="payment-info-value" id="paymentIPCount">-</span>
           </div>
           <div class="payment-info-item">
-            <span class="payment-info-label">Payment</span>
-            <span class="payment-info-value" id="paymentMethod">-</span>
-          </div>
-          <div class="payment-info-item">
-            <span class="payment-info-label">Amount</span>
+            <span class="payment-info-label">Total</span>
             <span class="payment-info-value payment-amount" id="paymentAmount">-</span>
           </div>
         </div>
       </div>
       <div class="payment-footer">
-        <!-- 调试：模拟支付成功按钮（仅开发环境显示） -->
-        <button id="simulatePaymentBtn" class="payment-close-button" style="background: rgba(76, 175, 80, 0.2); border-color: #4CAF50; color: #4CAF50; display: none;" onclick="simulatePaymentSuccess()">[Debug] Simulate Payment Success</button>
+        <button id="simulatePaymentBtn" class="payment-test-button" style="display: none;" onclick="simulatePaymentSuccess()">[Test Only] Simulate Payment Success</button>
       </div>
     </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="success-modal">
+    <div class="success-content">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <div class="success-icon">✓</div>
+      <h2 class="success-title">Payment Successful!</h2>
+      <p class="success-message">Your VIP subscription is now active.</p>
+      <div class="purchase-details">
+        <div class="purchase-detail-item">
+          <span class="purchase-detail-label">Plan</span>
+          <span class="purchase-detail-value" id="successPlanName">-</span>
+        </div>
+        <div class="purchase-detail-item">
+          <span class="purchase-detail-label">Devices</span>
+          <span class="purchase-detail-value" id="successIPCount">-</span>
+        </div>
+        <div class="purchase-detail-item">
+          <span class="purchase-detail-label">Total Paid</span>
+          <span class="purchase-detail-value" id="successAmount">-</span>
+        </div>
+      </div>
+      <div class="code-display" id="generatedCode">-</div>
+      <button class="copy-button" onclick="copyCode()">Copy Subscription URL</button>
+      <div class="next-steps">
+        <p class="next-steps-hint">What's next?</p>
+        <a href="/account" class="next-steps-link">View your subscription in Account Page →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Processing...</p>
   </div>
 
   <script>
     const API_BASE = '/api';
 
-    // 智能判断浏览器语言
-    function detectBrowserLanguage() {
-      const savedLang = localStorage.getItem('subscription_lang');
-      if (savedLang) return savedLang;
-
-      const browserLang = navigator.language || navigator.userLanguage || 'en';
-      return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
-    }
-
-    let currentLang = detectBrowserLanguage();
-    let selectedDuration = null;
-    let selectedIPs = 3;
-    let durationOptions = [];
-    let planNames = {};
-
-    // IP数量配置
-    const ipOptions = [1, 2, 3, 5];
-
-    // 从数据库加载套餐配置
-    async function loadPlans() {
-      try {
-        const response = await fetch('/api/mall/plans');
-        const data = await response.json();
-        
-        // 如果没有有效的 plans 数据，使用默认配置
-        if (!data.success || !data.plans || data.plans.length === 0) {
-          console.warn('No plans from API, using defaults');
-          durationOptions = [
-            { days: 30, basePrice: 20, pricePerIP: 9, discount: 0, name: 'plan_default_1' },
-            { days: 90, basePrice: 79, pricePerIP: 18, discount: 0, name: 'plan_default_2' },
-            { days: 180, basePrice: 149, pricePerIP: 28, discount: 10, name: 'plan_default_3' },
-            { days: 365, basePrice: 279, pricePerIP: 49, discount: 20, name: 'plan_default_4' }
-          ];
-          translations.planNames = {
-            'plan_default_1': '1 Month',
-            'plan_default_2': '3 Months',
-            'plan_default_3': '6 Months',
-            'plan_default_4': '1 Year'
-          };
-          selectedDuration = durationOptions[0];
-          renderPlans();
-          return;
-        }
-        
-        durationOptions = data.plans.map(plan => ({
-          days: plan.days,
-          basePrice: plan.base_price,
-          pricePerIP: plan.price_per_ip,
-          discount: plan.discount || 0,
-          name: 'plan_' + plan.id
-        }));
-
-        // 更新套餐名称
-        translations.planNames = data.plans.reduce((acc, plan) => {
-          acc['plan_' + plan.id] = plan.name_en || plan.name || ('Plan ' + plan.id);
-          return acc;
-        }, {});
-
-        // 如果没有选中的套餐，默认选中第一个
-        if (durationOptions.length > 0 && !selectedDuration) {
-          selectedDuration = durationOptions[0];
-        }
-
-        renderPlans();
-      } catch (error) {
-        console.error('Failed to load plans:', error);
-        // 如果加载失败，使用默认配置
-        durationOptions = [
-          { days: 30, basePrice: 20, pricePerIP: 9, discount: 0, name: 'plan_default_1' },
-          { days: 90, basePrice: 79, pricePerIP: 18, discount: 0, name: 'plan_default_2' },
-          { days: 180, basePrice: 149, pricePerIP: 28, discount: 10, name: 'plan_default_3' },
-          { days: 365, basePrice: 279, pricePerIP: 49, discount: 20, name: 'plan_default_4' }
-        ];
-        translations.planNames = {
-          'plan_default_1': '1 Month',
-          'plan_default_2': '3 Months',
-          'plan_default_3': '6 Months',
-          'plan_default_4': '1 Year'
-        };
-        selectedDuration = durationOptions[0];
-        renderPlans();
-      }
-    }
-
-
-    const commonFeatures = [
-      { icon: '✓', name: 'feature', label: 'feature_hd_quality' },
-      { icon: '✓', name: 'feature', label: 'feature_multi_device' }
-    ];
-
-    // 翻译函数 - 使用 translate.js 处理页面翻译
-    // Dynamic content uses English, translate.js will auto-translate
-    const translations = {
-      'planNames': {
-        'month_1': '1 Month',
-        'month_3': '3 Months',
-        'month_6': '6 Months',
-        'month_12': '1 Year'
-      },
-      'error': {
-        'selectPlan': 'Please select a plan',
-        'paymentError': 'Payment failed, please try again',
-        'paymentNotConfigured': 'Payment method not configured',
-        'networkError': 'Network error, please try again later',
-        'notLoggedIn': 'Please login first'
-      }
+    // 支付方式名称映射
+    const paymentMethodNames = {
+      'alipay': 'Alipay',
+      'wechat': 'WeChat Pay',
+      'coinbase': 'Coinbase',
+      'usdt': 'USDT',
+      'usdc': 'USDC',
+      'paypal': 'PayPal'
     };
 
-    function t(key) {
-      if (key === 'selectDuration') return 'Select Duration';
-      if (key === 'selectIPs') return 'Select IP Count';
-      if (key === 'summary') return 'Order Summary';
-      if (key === 'basePrice') return 'Base Price';
-      if (key === 'ipPrice') return 'IP Price';
-      if (key === 'discount') return 'Discount';
-      if (key === 'total') return 'Total';
-      if (key === 'scanQrcode') return 'Scan QR code to pay';
-      if (key === 'waitingPayment') return 'Waiting for payment...';
-      if (key === 'planNames') return translations.planNames;
-      if (key === 'error') return translations.error;
-      return key;
+    // 支付方式图标 SVG
+    const paymentMethodIcons = {
+      'alipay': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#1677ff"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">A</text></svg>',
+      'wechat': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#07c160"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">W</text></svg>',
+      'coinbase': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#0052FF"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">₿</text></svg>',
+      'usdt': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#26A17B"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="9" font-weight="bold">₮</text></svg>',
+      'usdc': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#2775CA"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="9" font-weight="bold">$</text></svg>',
+      'paypal': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#003087"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">P</text></svg>'
+    };
+
+    let selectedPaymentMethod = 'alipay';
+    let availablePaymentMethods = [];
+
+    // 套餐配置
+    let durationOptions = [];
+    let selectedDuration = null;
+    let selectedIPs = 1;
+
+    // IP 数量配置
+    const ipOptions = [1, 2, 3, 5];
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     }
 
-    function formatPrice(price, currency = 'CNY') {
-      return '¥' + price.toFixed(2);
-    }
+    function calculatePrice(duration) {
+      const basePrice = duration.basePrice;
+      const ipPrice = duration.pricePerIP * (selectedIPs - 1);
+      const original = basePrice + ipPrice;
 
-    function calculatePrice(plan, ipCount) {
-      const price = plan.basePrice + (plan.pricePerIP * ipCount);
-      const discountedPrice = price * (1 - plan.discount / 100);
+      const now = Date.now();
+      const promoEndDate = duration.promoEndDate ? new Date(duration.promoEndDate).getTime() : 0;
+      const isPromoActive = promoEndDate > now && duration.promoDiscount > 0;
+
+      let finalPrice, appliedDiscount, isPromo;
+      if (isPromoActive) {
+        finalPrice = original * (1 - duration.promoDiscount / 100);
+        appliedDiscount = duration.promoDiscount;
+        isPromo = true;
+      } else {
+        finalPrice = original * (1 - duration.discount / 100);
+        appliedDiscount = duration.discount;
+        isPromo = false;
+      }
+
       return {
-        original: price,
-        discounted: discountedPrice,
-        discount: plan.discount
+        original: original,
+        discounted: finalPrice,
+        discount: appliedDiscount,
+        isPromo: isPromo
       };
     }
 
-    function renderPlans() {
-      const container = document.getElementById('plansContainer');
-      
-      // Guard: if no duration selected, use first option
-      if (!selectedDuration && durationOptions.length > 0) {
-        selectedDuration = durationOptions[0];
-      }
-      
-      // Guard: if still no duration, show loading state
-      if (!selectedDuration) {
-        container.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.6);">Loading plans...</div>';
-        return;
-      }
+    function renderDurationGrid() {
+      const container = document.getElementById('durationGrid');
+      if (!container) return;
 
       let html = '';
-
-      // Duration selector
-      html += '<div class="selection-section">';
-      html += '<span class="selection-label">Select Duration</span>';
-      html += '<div class="option-grid">';
       durationOptions.forEach(duration => {
-        const price = calculatePrice(duration, selectedIPs);
-        const isSelected = selectedDuration && selectedDuration.name === duration.name;
-        const daysText = duration.days === -1 ? 'Lifetime' : duration.days + ' days';
-        html += '<div class="option-card ' + (isSelected ? 'selected' : '') + '" onclick="selectDuration(' + "'" + duration.name + "'" + ')">';
-        html += '<div class="option-title">' + (t('planNames')[duration.name] || duration.name) + '</div>';
-        html += '<div class="option-subtitle">' + daysText + '</div>';
-        html += '<div class="option-price">¥' + price.discounted.toFixed(2) + '</div>';
-        if (duration.discount > 0) {
-          html += '<div class="option-discount">-' + duration.discount + '%</div>';
-        }
-        html += '</div>';
-      });
-      html += '</div></div>';
+        const price = calculatePrice(duration);
+        const isSelected = selectedDuration && selectedDuration.days === duration.days;
+        const finalPrice = price.discounted.toFixed(0);
+        const now = Date.now();
+        const promoEndDate = duration.promoEndDate ? new Date(duration.promoEndDate).getTime() : 0;
+        const hasPromo = promoEndDate > now && duration.promoDiscount > 0;
 
-      // IP选择器
-      html += '<div class="selection-section">';
-      html += '<span class="selection-label">' + t('selectIPs') + '</span>';
-      html += '<div class="option-grid">';
-      ipOptions.forEach(ip => {
-        const isSelected = selectedIPs === ip;
-        html += '<div class="option-card ' + (isSelected ? 'selected' : '') + '" onclick="selectIP(' + ip + ')">';
-        html += '<div class="option-title">' + ip + ' IP' + (ip > 1 ? 's' : '') + '</div>';
+        html += '<div class="select-option ' + (isSelected ? 'selected' : '') + '" onclick="selectDuration(' + duration.days + ')">';
+        html += '<span class="value">' + escapeHtml(duration.name) + '</span>';
+
+        if (hasPromo) {
+          html += '<span class="badge">' + escapeHtml(duration.promoLabel || 'Limited Time') + '</span>';
+        } else if (duration.discount > 0) {
+          html += '<span class="badge">-' + duration.discount + '%</span>';
+        }
+
+        html += '<span class="price-tag">¥' + finalPrice + '</span>';
+
+        if (hasPromo) {
+          html += '<span class="original">¥' + price.original.toFixed(0) + '</span>';
+        } else if (duration.discount > 0 && price.original !== price.discounted) {
+          html += '<span class="original">¥' + price.original.toFixed(0) + '</span>';
+        }
+
+        if (hasPromo && promoEndDate > now) {
+          html += '<span class="countdown-timer" data-end-time="' + promoEndDate + '"></span>';
+        }
+
         html += '</div>';
       });
-      html += '</div></div>';
 
       container.innerHTML = html;
-
-      // Render price summary
-      renderPaymentSummary();
+      updateCountdowns();
     }
 
-    function renderPaymentSummary() {
-      const summaryEl = document.getElementById('paymentSummary');
-      
-      // Guard: if no duration selected, don't render summary
-      if (!selectedDuration) {
-        summaryEl.innerHTML = '';
-        return;
-      }
-      
-      const price = calculatePrice(selectedDuration, selectedIPs);
+    function renderIPGrid() {
+      const container = document.getElementById('ipGrid');
+      if (!container) return;
 
-      const daysText = selectedDuration.days === -1 ? 'Lifetime' : selectedDuration.days + ' days';
-
-      let html = '<h3 style="color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 20px;">' + t('summary') + '</h3>';
-
-      // Base price
-      html += '<div class="summary-row">';
-      html += '<span class="summary-label">' + t('basePrice') + ' (' + daysText + ')</span>';
-      html += '<span class="summary-value">¥' + selectedDuration.basePrice.toFixed(2) + '</span>';
-      html += '</div>';
-
-      // IP price
-      html += '<div class="summary-row">';
-      html += '<span class="summary-label">' + t('ipPrice') + ' (' + selectedIPs + ' IP)</span>';
-      html += '<span class="summary-value">¥' + (selectedDuration.pricePerIP * selectedIPs).toFixed(2) + '</span>';
-      html += '</div>';
-
-      // Discount
-      if (selectedDuration.discount > 0) {
-        const discountAmount = price.original - price.discounted;
-        html += '<div class="summary-row">';
-        html += '<span class="summary-label" style="color: #ffcc00;">' + t('discount') + ' (' + selectedDuration.discount + '%)</span>';
-        html += '<span class="summary-value" style="color: #ffcc00;">-¥' + discountAmount.toFixed(2) + '</span>';
+      let html = '';
+      ipOptions.forEach(ip => {
+        const isSelected = selectedIPs === ip;
+        html += '<div class="select-option ' + (isSelected ? 'selected' : '') + '" onclick="selectIP(' + ip + ')">';
+        html += '<span class="value">' + ip + '</span>';
+        html += '<span class="label">IP' + (ip > 1 ? 's' : '') + '</span>';
         html += '</div>';
+      });
+
+      container.innerHTML = html;
+    }
+
+    function updateCountdowns() {
+      document.querySelectorAll('.countdown-timer').forEach(el => {
+        const endTime = parseInt(el.dataset.endTime) || 0;
+        if (!endTime) { el.textContent = ''; return; }
+
+        const diff = endTime - Date.now();
+        if (diff <= 0) { el.textContent = 'Expired'; return; }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        let text = '';
+        if (days > 0) text += days + 'd ';
+        text += hours.toString().padStart(2, '0') + ':';
+        text += minutes.toString().padStart(2, '0') + ':';
+        text += seconds.toString().padStart(2, '0');
+
+        el.textContent = text;
+      });
+    }
+
+    function updateSummary() {
+      if (!selectedDuration) return;
+
+      const price = calculatePrice(selectedDuration);
+      const ipPrice = selectedDuration.pricePerIP * (selectedIPs - 1);
+
+      document.getElementById('basePrice').textContent = '¥' + selectedDuration.basePrice.toFixed(2);
+      document.getElementById('ipPrice').textContent = '¥' + ipPrice.toFixed(2);
+
+      const discountRow = document.getElementById('discountRow');
+      if (price.isPromo) {
+        discountRow.style.display = 'flex';
+        document.getElementById('discountAmount').textContent = '-' + selectedDuration.promoDiscount + '% (' + escapeHtml(selectedDuration.promoLabel || 'Promo') + ')';
+      } else if (price.discount > 0) {
+        discountRow.style.display = 'flex';
+        document.getElementById('discountAmount').textContent = '-¥' + (price.original - price.discounted).toFixed(2);
+      } else {
+        discountRow.style.display = 'none';
       }
 
-      // Total
-      html += '<div class="total-row">';
-      html += '<span class="total-label">' + t('total') + '</span>';
-      html += '<span class="total-price">¥' + price.discounted.toFixed(2) + '</span>';
-      html += '</div>';
-
-      summaryEl.innerHTML = html;
+      document.getElementById('totalPrice').textContent = '¥' + price.discounted.toFixed(2);
     }
 
-    function selectDuration(durationName) {
-      selectedDuration = durationOptions.find(d => d.name === durationName);
-      renderPlans();
+    function selectDuration(days) {
+      selectedDuration = durationOptions.find(d => d.days === days);
+      renderDurationGrid();
+      updateSummary();
     }
 
-    function selectIP(ipCount) {
-      selectedIPs = ipCount;
-      renderPlans();
+    function selectIP(count) {
+      selectedIPs = count;
+      renderIPGrid();
+      updateSummary();
     }
 
     function getToken() {
@@ -1532,69 +1339,23 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       return !!getToken();
     }
 
-    async function processPayment() {
-      if (!selectedDuration) {
-        showError(t('error').selectPlan);
-        return;
-      }
-
-      if (!isLoggedIn()) {
-        // 显示登录提示模态框
-        showLoginModal();
-        return;
-      }
-
-      showLoading(true);
-      hideError();
-
-      try {
-        // 虎皮椒支付会自动处理支付流程
-      } catch (error) {
-        console.error('Payment error:', error);
-        showError(t('error').paymentError);
-        showLoading(false);
-      }
+    function selectPaymentMethod(method) {
+      selectedPaymentMethod = method;
+      document.querySelectorAll('.payment-method-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.method === method);
+      });
     }
 
     function showLoading(show) {
       document.getElementById('loading').classList.toggle('show', show);
     }
 
-    function showError(message) {
-      const errorEl = document.getElementById('errorMessage');
-      errorEl.textContent = message;
-      errorEl.style.display = 'block';
-
-      setTimeout(() => {
-        errorEl.style.display = 'none';
-      }, 5000);
-    }
-
-    function hideError() {
-      document.getElementById('errorMessage').style.display = 'none';
-    }
-
-    function showLoginModal() {
-      const modal = document.createElement('div');
-      modal.id = 'loginModal';
-      Object.assign(modal.style, {
-        position: 'fixed',
-        top: '0',
-        left: '0',
-        right: '0',
-        bottom: '0',
-        background: 'rgba(0, 0, 0, 0.8)',
-        backdropFilter: 'blur(10px)',
-        zIndex: '1000',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      });
-      modal.innerHTML = '<div style="background: #141414; border-radius: 20px; padding: 40px; max-width: 400px; text-align: center; border: 2px solid #e50914; box-shadow: 0 20px 60px rgba(229, 9, 20, 0.3);"><div style="font-size: 48px; margin-bottom: 20px;">🔐</div><h2 style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px;">Please Login First</h2><p style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 30px; line-height: 1.6;">Please login to continue your subscription purchase</p><button onclick="window.location.href=' + "'/'" + '" style="background: #e50914; color: white; border: none; padding: 16px 40px; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s;">Login Now</button><button onclick="document.getElementById(' + "'loginModal'" + ').remove()" style="background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); padding: 16px 30px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; margin-top: 15px; transition: all 0.2s;">Later</button></div>';
-      document.body.appendChild(modal);
-    }
-
-    function showSuccessModal(subUrl) {
+    function showSuccess(subUrl, purchaseDetails) {
+      if (purchaseDetails) {
+        document.getElementById('successPlanName').textContent = purchaseDetails.plan || '-';
+        document.getElementById('successIPCount').textContent = purchaseDetails.ips || '-';
+        document.getElementById('successAmount').textContent = purchaseDetails.amount || '-';
+      }
       document.getElementById('generatedCode').textContent = subUrl;
       document.getElementById('successModal').classList.add('show');
     }
@@ -1603,111 +1364,30 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       document.getElementById('successModal').classList.remove('show');
     }
 
-    function copyCode() {
-      const subUrl = document.getElementById('generatedCode').textContent;
-      const messageEl = document.getElementById('copyMessage');
-
-      navigator.clipboard.writeText(subUrl).then(() => {
-        messageEl.textContent = '✓ Subscription URL copied!';
-        messageEl.className = 'copy-message success';
-        setTimeout(() => {
-          messageEl.className = 'copy-message';
-        }, 3000);
-      }).catch(err => {
-        messageEl.textContent = '✗ Failed to copy URL';
-        messageEl.className = 'copy-message error';
-        setTimeout(() => {
-          messageEl.className = 'copy-message';
-        }, 3000);
-        console.error('Copy failed:', err);
-      });
-    }
-
-
-    // 支付方式切换
-    let currentPaymentMethod = 'alipay';
-    let checkPaymentInterval = null;
-    let currentOrderId = null;
-
-    function switchPaymentMethod(method) {
-      currentPaymentMethod = method;
-
-      // 更新UI
-      document.querySelectorAll('.payment-method-tab').forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.method === method);
-      });
-
-      // 根据支付方式显示对应区域（但不立即创建订单）
-      if (method === 'alipay' || method === 'wechat') {
-        // 显示支付按钮
-        showPaymentInfo(method);
-      }
-    }
-
-    function showPaymentInfo(method) {
-      // Show payment button
-      const payButton = document.getElementById('pay-button');
-      const xunhupayButtonContainer = document.getElementById('xunhupay-button-container');
-
-      if (method === 'alipay' || method === 'wechat') {
-        payButton.textContent = method === 'alipay' ? 'Pay with Alipay' : 'Pay with WeChat';
-        xunhupayButtonContainer.style.display = 'block';
-      }
-    }
-
-    // 处理支付按钮点击
-    async function handlePayClick() {
-      if (!selectedDuration) {
-        showError(t('error').selectPlan);
-        return;
-      }
-
-      if (!isLoggedIn()) {
-        showLoginModal();
-        return;
-      }
-
-      // 根据支付方式调用相应的初始化函数
-      if (currentPaymentMethod === 'alipay' || currentPaymentMethod === 'wechat') {
-        await initXunhuPay(currentPaymentMethod);
-      } else if (currentPaymentMethod === 'coinbase') {
-        await initCoinbasePay();
-      } else if (currentPaymentMethod === 'usdt' || currentPaymentMethod === 'usdc') {
-        await initCryptoPayment(currentPaymentMethod);
-      } else {
-        showError('Payment method not supported');
-      }
-    }
-
-    // 关闭支付弹窗
     function closePaymentModal() {
       const modal = document.getElementById('paymentModal');
       modal.classList.remove('show');
-
-      // 停止轮询订单状态
       if (checkPaymentInterval) {
         clearInterval(checkPaymentInterval);
         checkPaymentInterval = null;
       }
-
-      // 恢复支付按钮显示
-      document.getElementById('xunhupay-button-container').style.display = 'block';
     }
 
-    // 初始化虎皮椒支付
-    async function initXunhuPay(paymentMethod) {
+    let checkPaymentInterval = null;
+    let currentOrderId = null;
+
+    async function handleSubscribe() {
       if (!selectedDuration) {
-        showError(t('error').selectPlan);
+        alert('Please select a subscription plan');
         return;
       }
 
       if (!isLoggedIn()) {
-        showLoginModal();
+        window.location.href = '/login?redirect=/subscription';
         return;
       }
 
       showLoading(true);
-      hideError();
 
       try {
         const response = await fetch(API_BASE + '/subscription/xunhupay/create-order', {
@@ -1719,570 +1399,253 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           body: JSON.stringify({
             duration_days: selectedDuration.days,
             max_ips: selectedIPs,
-            payment_method: paymentMethod
+            payment_method: selectedPaymentMethod
           })
         });
 
         const result = await response.json();
 
-        if (response.ok && result.success && result.payment_data) {
-          // Calculate price
-          const price = calculatePrice(selectedDuration, selectedIPs);
+        if (result.success && result.payment_data) {
+          const price = calculatePrice(selectedDuration);
 
-          // Update modal info
-          const modal = document.getElementById('paymentModal');
-          const planDaysText = selectedDuration.days === -1 ? 'Lifetime' : selectedDuration.days + ' days';
-          document.getElementById('paymentPlanName').textContent = planDaysText;
+          document.getElementById('paymentPlanName').textContent = selectedDuration.name;
           document.getElementById('paymentIPCount').textContent = selectedIPs + ' IP' + (selectedIPs > 1 ? 's' : '');
-          document.getElementById('paymentMethod').textContent = paymentMethod === 'alipay' ? 'Alipay' : 'WeChat Pay';
           document.getElementById('paymentAmount').textContent = '¥' + price.discounted.toFixed(2);
 
-          // 显示二维码
-          const qrcodeImage = document.getElementById('modalQrcodeImage');
-          const qrcodeTip = document.getElementById('modalQrcodeTip');
+          const methodIndicator = document.getElementById('paymentMethodIndicator');
+          const methodName = paymentMethodNames[selectedPaymentMethod] || selectedPaymentMethod;
+          methodIndicator.innerHTML = 'Paying with <strong>' + methodName + '</strong>';
 
-          // 如果虎皮椒返回了二维码URL
+          const qrcodeTip = document.getElementById('modalQrcodeTip');
+          if (selectedPaymentMethod === 'coinbase') {
+            qrcodeTip.textContent = 'Complete payment via Coinbase';
+          } else if (selectedPaymentMethod === 'wechat') {
+            qrcodeTip.textContent = 'Scan with WeChat to pay';
+          } else {
+            qrcodeTip.textContent = 'Scan with Alipay to pay';
+          }
+
+          const qrcodeImage = document.getElementById('modalQrcodeImage');
           if (result.payment_data.url_qrcode) {
             qrcodeImage.src = result.payment_data.url_qrcode;
           } else {
-            // 使用 QR Code API 生成二维码
             qrcodeImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(result.payment_data.url);
           }
 
-          qrcodeTip.textContent = t('scanQrcode');
-          document.getElementById('paymentStatus').textContent = t('waitingPayment');
-
-           // 显示弹窗
-          modal.classList.add('show');
-
-          // 保存当前订单ID
+          document.getElementById('paymentStatus').textContent = 'Waiting for payment...';
+          document.getElementById('paymentStatus').style.color = '';
+          document.getElementById('paymentModal').classList.add('show');
           currentOrderId = result.order_id;
 
-          // 在开发环境下显示调试按钮
+          // 开发环境显示调试按钮
           if (isLocalhost()) {
-            document.getElementById('simulatePaymentBtn').style.display = 'inline-block';
+            document.getElementById('simulatePaymentBtn').style.display = 'block';
           }
 
-          // 开始轮询订单状态
           startOrderCheck(result.order_id);
         } else {
-          showError(result.error || t('error').paymentNotConfigured);
+          alert(result.error || 'Payment initialization failed');
         }
       } catch (error) {
-        console.error('XunhuPay error:', error);
-        showError(t('error').networkError);
+        console.error('Subscription error:', error);
+        alert('Network error, please try again');
       } finally {
         showLoading(false);
       }
     }
 
-    // 轮询订单状态
     function startOrderCheck(orderId) {
-      // Clear previous timer
-      if (checkPaymentInterval) {
-        clearInterval(checkPaymentInterval);
-      }
-
+      if (checkPaymentInterval) clearInterval(checkPaymentInterval);
       let checkCount = 0;
-      const maxChecks = 60; // Max 60 checks (5 minutes)
+      const maxChecks = 60;
 
       checkPaymentInterval = setInterval(async () => {
         checkCount++;
-
         if (checkCount > maxChecks) {
           clearInterval(checkPaymentInterval);
-          document.getElementById('paymentStatus').textContent = 'Payment timeout, please try again';
+          document.getElementById('paymentStatus').textContent = 'Payment timeout';
           return;
         }
 
         try {
           const response = await fetch(API_BASE + '/subscription/xunhupay/check-order?order_id=' + orderId, {
-            method: 'GET',
-            headers: {
-              'Authorization': 'Bearer ' + getToken()
-            }
+            headers: { 'Authorization': 'Bearer ' + getToken() }
           });
-
           const result = await response.json();
 
-          if (response.ok && result.success) {
-            if (result.order.status === 'completed') {
-              clearInterval(checkPaymentInterval);
-
-              // Update payment status
-              document.getElementById('paymentStatus').textContent = 'Payment successful!';
-              document.getElementById('paymentStatus').style.color = '#4CAF50';
-
-              // 延迟关闭支付弹窗
-              setTimeout(() => {
-                closePaymentModal();
-
-                // 查询订阅地址
-                fetch(API_BASE + '/auth/orders', {
-                  method: 'GET',
-                  headers: {
-                    'Authorization': 'Bearer ' + getToken()
-                  }
-                }).then(codeResult => {
-                  if (codeResult.ok) {
-                    return codeResult.json();
-                  }
-                }).then(codeData => {
-                  if (codeData && codeData.success && codeData.orders && codeData.orders.length > 0) {
-                    const latestOrder = codeData.orders[0];
-                    const subUrl = window.location.origin + '/sub/' + latestOrder.code + '.m3u';
-                    showSuccessModal(subUrl);
-                  }
-                }).catch(err => {
-                  console.error('Fetch orders error:', err);
-                });
-              }, 1500);
-            }
+          if (result.success && result.order && result.order.status === 'completed') {
+            clearInterval(checkPaymentInterval);
+            document.getElementById('paymentStatus').textContent = 'Payment successful!';
+            document.getElementById('paymentStatus').style.color = '#4CAF50';
+            setTimeout(() => {
+              closePaymentModal();
+              const subUrl = window.location.origin + '/sub/' + result.order.code + '.m3u';
+              const purchaseDetails = {
+                plan: selectedDuration ? selectedDuration.name : '-',
+                ips: selectedIPs + ' IP' + (selectedIPs > 1 ? 's' : ''),
+                amount: '¥' + (selectedDuration ? calculatePrice(selectedDuration).discounted.toFixed(2) : '0.00')
+              };
+              showSuccess(subUrl, purchaseDetails);
+            }, 1500);
           }
         } catch (error) {
-          console.error('Order check error:', error);
+          console.error('Check order error:', error);
         }
-      }, 5000); // 每5秒检查一次
+      }, 5000);
     }
 
-    // 初始化 Coinbase 支付
-    async function initCoinbasePay() {
-      if (!selectedDuration) {
-        showError(t('error').selectPlan);
-        return;
-      }
-
-      if (!isLoggedIn()) {
-        showLoginModal();
-        return;
-      }
-
-      showLoading(true);
-      hideError();
-
-      try {
-        const response = await fetch(API_BASE + '/subscription/crypto/coinbase-create-order', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + getToken()
-          },
-          body: JSON.stringify({
-            duration_days: selectedDuration.days,
-            max_ips: selectedIPs
-          })
-        });
-
-        const result = await response.json();
-
-        if (response.ok && result.success && result.payment_data) {
-          // Calculate price (convert CNY to USD)
-          const price = calculatePrice(selectedDuration, selectedIPs);
-          const priceUSD = (price.discounted / 7.2).toFixed(2); // 假设汇率 1 USD = 7.2 CNY
-
-          // Update modal info
-          const modal = document.getElementById('paymentModal');
-          const planDaysText = selectedDuration.days === -1 ? 'Lifetime' : selectedDuration.days + ' days';
-          document.getElementById('paymentPlanName').textContent = planDaysText;
-          document.getElementById('paymentIPCount').textContent = selectedIPs + ' IP' + (selectedIPs > 1 ? 's' : '');
-          document.getElementById('paymentMethod').textContent = 'Coinbase Commerce';
-          document.getElementById('paymentAmount').textContent = '$' + priceUSD;
-
-          // 显示二维码
-          const qrcodeImage = document.getElementById('modalQrcodeImage');
-          const qrcodeTip = document.getElementById('modalQrcodeTip');
-
-          // 如果 Coinbase 返回了二维码URL
-          if (result.payment_data.url_qrcode) {
-            qrcodeImage.src = result.payment_data.url_qrcode;
-          } else {
-            // 使用 QR Code API 生成二维码
-            qrcodeImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(result.payment_data.url);
-          }
-
-          qrcodeTip.textContent = 'Scan QR code to pay';
-          document.getElementById('paymentStatus').textContent = 'Waiting for payment...';
-
-          // 显示支付提示
-          const paymentHint = document.getElementById('paymentHint');
-          if (paymentHint) {
-            paymentHint.textContent = 'Support: BTC, ETH, USDC, USDT, DAI, DOGE, LTC, etc.';
-          }
-
-          // 显示弹窗
-          modal.classList.add('show');
-
-          // 保存当前订单ID
-          currentOrderId = result.order_id;
-
-          // 隐藏调试按钮（Coinbase 不需要）
-          document.getElementById('simulatePaymentBtn').style.display = 'none';
-
-          // 开始轮询订单状态
-          startCoinbaseOrderCheck(result.order_id);
-        } else {
-          showError(result.error || t('error').paymentNotConfigured);
-        }
-      } catch (error) {
-        console.error('Coinbase error:', error);
-        showError(t('error').networkError);
-      } finally {
-        showLoading(false);
-      }
-    }
-
-    // 轮询 Coinbase 订单状态
-    function startCoinbaseOrderCheck(orderId) {
-      // Clear previous timer
-      if (checkPaymentInterval) {
-        clearInterval(checkPaymentInterval);
-      }
-
-      let checkCount = 0;
-      const maxChecks = 120; // Max 120 checks (10 minutes, Coinbase may take longer)
-
-      checkPaymentInterval = setInterval(async () => {
-        checkCount++;
-
-        if (checkCount > maxChecks) {
-          clearInterval(checkPaymentInterval);
-          document.getElementById('paymentStatus').textContent = 'Payment timeout, please try again';
-          return;
-        }
-
-        try {
-          const response = await fetch(API_BASE + '/subscription/crypto/coinbase-check-order?order_id=' + orderId, {
-            method: 'GET',
-            headers: {
-              'Authorization': 'Bearer ' + getToken()
-            }
-          });
-
-          const result = await response.json();
-
-          if (response.ok && result.success) {
-            if (result.order.status === 'completed') {
-              clearInterval(checkPaymentInterval);
-
-              // Update payment status
-              document.getElementById('paymentStatus').textContent = 'Payment successful!';
-              document.getElementById('paymentStatus').style.color = '#4CAF50';
-
-              // 延迟关闭支付弹窗
-              setTimeout(() => {
-                closePaymentModal();
-
-                // 显示成功模态框
-                if (result.order.code) {
-                  const subUrl = window.location.origin + '/sub/' + result.order.code + '.m3u';
-                  showSuccessModal(subUrl);
-                }
-              }, 1500);
-            }
-          }
-        } catch (error) {
-          console.error('Coinbase order check error:', error);
-        }
-      }, 5000); // 每5秒检查一次
-    }
-
-    // 初始化直接稳定币支付（USDT/USDC）
-    async function initCryptoPayment(paymentMethod) {
-      if (!selectedDuration) {
-        showError(t('error').selectPlan);
-        return;
-      }
-
-      if (!isLoggedIn()) {
-        showLoginModal();
-        return;
-      }
-
-      showLoading(true);
-      hideError();
-
-      try {
-        const response = await fetch(API_BASE + '/subscription/crypto/direct-create-order', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + getToken()
-          },
-          body: JSON.stringify({
-            duration_days: selectedDuration.days,
-            max_ips: selectedIPs,
-            payment_method: paymentMethod
-          })
-        });
-
-        const result = await response.json();
-
-        if (response.ok && result.success && result.payment_data) {
-          // Calculate price (convert CNY to USD)
-          const price = calculatePrice(selectedDuration, selectedIPs);
-          const priceUSD = (price.discounted / 7.2).toFixed(2); // 假设汇率 1 USD = 7.2 CNY
-
-          // Update modal info
-          const modal = document.getElementById('paymentModal');
-          const planDaysText = selectedDuration.days === -1 ? 'Lifetime' : selectedDuration.days + ' days';
-          document.getElementById('paymentPlanName').textContent = planDaysText;
-          document.getElementById('paymentIPCount').textContent = selectedIPs + ' IP' + (selectedIPs > 1 ? 's' : '');
-          document.getElementById('paymentMethod').textContent = paymentMethod.toUpperCase() + ' (' + result.payment_data.network + ')';
-          document.getElementById('paymentAmount').textContent = '$' + priceUSD;
-
-          // 显示钱包地址（而不是二维码）
-          const qrcodeImage = document.getElementById('modalQrcodeImage');
-          const qrcodeTip = document.getElementById('modalQrcodeTip');
-
-          // 隐藏二维码，显示钱包信息
-          qrcodeImage.style.display = 'none';
-          qrcodeTip.innerHTML = '<div style="font-size: 14px; font-weight: 600; color: #fff;">Wallet Address:</div><div style="font-size: 18px; font-weight: 700; color: #fff; margin: 10px 0; word-break: break-all;">' + result.payment_data.wallet_address + '</div><div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 10px;">Network: ' + result.payment_data.network + '</div><div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 5px;">Amount: ' + result.payment_data.amount + ' ' + result.payment_data.currency + '</div>';
-
-          document.getElementById('paymentStatus').textContent = 'Waiting for payment...';
-
-          // 显示支付提示
-          const paymentHint = document.getElementById('paymentHint');
-          if (paymentHint) {
-            paymentHint.textContent = 'Please send exact amount. Include Order ID in memo: ' + result.payment_data.memo;
-          }
-
-          // 显示弹窗
-          modal.classList.add('show');
-
-          // 保存当前订单ID
-          currentOrderId = result.order_id;
-
-          // 隐藏调试按钮和二维码
-          document.getElementById('simulatePaymentBtn').style.display = 'none';
-
-          // 不轮询订单状态（直接支付需要管理员手动确认）
-          // 显示手动确认提示
-          document.getElementById('paymentStatus').textContent = 'Payment will be confirmed after manual review';
-        } else {
-          showError(result.error || t('error').paymentNotConfigured);
-        }
-      } catch (error) {
-        console.error('Crypto payment error:', error);
-        showError(t('error').networkError);
-      } finally {
-        showLoading(false);
-      }
-    }
-
-    // Debug: Simulate payment success
     async function simulatePaymentSuccess() {
       if (!currentOrderId) {
-        showError('No pending order');
+        alert('No order to simulate');
         return;
       }
-
-      const btn = document.getElementById('simulatePaymentBtn');
-      btn.disabled = true;
-      btn.textContent = 'Simulating...';
 
       try {
         const response = await fetch(API_BASE + '/subscription/xunhupay/simulate-success?order_id=' + currentOrderId, {
           method: 'POST',
-          headers: {
-            'Authorization': 'Bearer ' + getToken()
-          }
+          headers: { 'Authorization': 'Bearer ' + getToken() }
         });
 
         const result = await response.json();
 
-        if (response.ok && result.success) {
-          // Stop polling
-          if (checkPaymentInterval) {
-            clearInterval(checkPaymentInterval);
-            checkPaymentInterval = null;
-          }
-
-          // Update payment status
+        if (result.success) {
+          clearInterval(checkPaymentInterval);
           document.getElementById('paymentStatus').textContent = 'Payment successful!';
           document.getElementById('paymentStatus').style.color = '#4CAF50';
-
-          // 延迟关闭支付弹窗
           setTimeout(() => {
             closePaymentModal();
-            
-            // 显示成功模态框
-            if (result.code) {
-              const subUrl = window.location.origin + '/sub/' + result.code + '.m3u';
-              showSuccessModal(subUrl);
-            }
+            const subUrl = window.location.origin + '/sub/' + result.code + '.m3u';
+            const purchaseDetails = {
+              plan: selectedDuration ? selectedDuration.name : '-',
+              ips: selectedIPs + ' IP' + (selectedIPs > 1 ? 's' : ''),
+              amount: '¥' + (selectedDuration ? calculatePrice(selectedDuration).discounted.toFixed(2) : '0.00')
+            };
+            showSuccess(subUrl, purchaseDetails);
           }, 1500);
         } else {
-          showError(result.error || 'Simulation failed');
+          alert(result.error || 'Simulation failed');
         }
       } catch (error) {
         console.error('Simulate payment error:', error);
-        showError('Simulation failed: ' + error.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '[Debug] Simulate Payment Success';
+        alert('Simulation failed');
       }
     }
 
-    // 检测是否为本地开发环境
+    function copyCode() {
+      const code = document.getElementById('generatedCode').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        alert('Subscription URL copied to clipboard!');
+      }).catch(err => {
+        console.error('Copy failed:', err);
+      });
+    }
+
     function isLocalhost() {
-      return window.location.hostname === 'localhost' || 
+      return window.location.hostname === 'localhost' ||
              window.location.hostname === '127.0.0.1' ||
              window.location.hostname.startsWith('192.168.') ||
              window.location.hostname.startsWith('10.');
     }
 
+    // 加载套餐
+    async function loadPlans() {
+      try {
+        const response = await fetch('/api/mall/plans');
+        const data = await response.json();
 
+        if (data.success && data.plans && data.plans.length > 0) {
+          durationOptions = data.plans.map(plan => ({
+            days: plan.days,
+            basePrice: plan.base_price,
+            pricePerIP: plan.price_per_ip,
+            discount: plan.discount || 0,
+            name: plan.name_en || plan.name || ('Plan ' + plan.id),
+            promoEndDate: plan.promo_end_date || null,
+            promoDiscount: plan.promo_discount || 0,
+            promoLabel: plan.promo_label || '',
+            isPromoActive: plan.is_promo_active || false
+          }));
+        } else {
+          durationOptions = [
+            { days: 30, basePrice: 20, pricePerIP: 9, discount: 0, name: '1 Month', promoEndDate: null, promoDiscount: 0, promoLabel: '', isPromoActive: false },
+            { days: 90, basePrice: 79, pricePerIP: 18, discount: 10, name: '3 Months', promoEndDate: null, promoDiscount: 0, promoLabel: '', isPromoActive: false },
+            { days: 180, basePrice: 149, pricePerIP: 28, discount: 15, name: '6 Months', promoEndDate: null, promoDiscount: 0, promoLabel: '', isPromoActive: false },
+            { days: 365, basePrice: 279, pricePerIP: 49, discount: 25, name: '1 Year', promoEndDate: null, promoDiscount: 0, promoLabel: '', isPromoActive: false }
+          ];
+        }
 
+        selectedDuration = durationOptions[0];
+        renderDurationGrid();
+        renderIPGrid();
+        updateSummary();
+      } catch (error) {
+        console.error('Failed to load plans:', error);
+        durationOptions = [
+          { days: 30, basePrice: 20, pricePerIP: 9, discount: 0, name: '1 Month', promoEndDate: null, promoDiscount: 0, promoLabel: '', isPromoActive: false },
+          { days: 90, basePrice: 79, pricePerIP: 18, discount: 10, name: '3 Months', promoEndDate: null, promoDiscount: 0, promoLabel: '', isPromoActive: false },
+          { days: 180, basePrice: 149, pricePerIP: 28, discount: 15, name: '6 Months', promoEndDate: null, promoDiscount: 0, promoLabel: '', isPromoActive: false },
+          { days: 365, basePrice: 279, pricePerIP: 49, discount: 25, name: '1 Year', promoEndDate: null, promoDiscount: 0, promoLabel: '', isPromoActive: false }
+        ];
+        selectedDuration = durationOptions[0];
+        renderDurationGrid();
+        renderIPGrid();
+        updateSummary();
+      }
+    }
 
-    // 加载支付方式列表
     async function loadPaymentMethods() {
       try {
         const response = await fetch('/api/mall/payment-methods');
         const data = await response.json();
 
-        if (data.success && data.payment_methods) {
-          const enabledMethods = data.payment_methods.filter(m => m.enabled);
-          renderPaymentMethods(enabledMethods);
+        if (data.success && data.payment_methods && data.payment_methods.length > 0) {
+          availablePaymentMethods = data.payment_methods.filter(pm => pm.enabled);
+          renderPaymentMethods();
+        } else {
+          const section = document.querySelector('.payment-methods-section');
+          if (section) section.style.display = 'none';
         }
       } catch (error) {
         console.error('Failed to load payment methods:', error);
-        // 加载失败时显示默认的支付方式
+        const section = document.querySelector('.payment-methods-section');
+        if (section) section.style.display = 'none';
       }
     }
 
-    // 渲染支付方式选项卡
-    function renderPaymentMethods(methods) {
-      const paymentMethodsContainer = document.querySelector('.payment-methods');
-      if (!paymentMethodsContainer) return;
-
-      if (methods.length === 0) {
-        paymentMethodsContainer.innerHTML = '<p style="color:rgba(255,255,255,0.6);text-align:center;padding:20px;">No payment methods available</p>';
-        return;
-      }
+    function renderPaymentMethods() {
+      const grid = document.getElementById('paymentMethodsGrid');
+      if (!grid || availablePaymentMethods.length === 0) return;
 
       let html = '';
-      methods.forEach((method, index) => {
-        let iconHtml = '';
-        const activeClass = index === 0 ? 'active' : '';
-
-        // 根据支付类型设置对应的图标
-        switch (method.type) {
-          case 'alipay':
-            iconHtml = '<img src="/public/zhifubao.png" class="payment-method-icon" alt="Alipay">';
-            break;
-          case 'wechat':
-            iconHtml = '<img src="/public/weixin.png" class="payment-method-icon" alt="WeChat Pay">';
-            break;
-          case 'coinbase':
-            iconHtml = '<svg class="payment-method-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#0052FF"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">₿</text></svg>';
-            break;
-          case 'usdt':
-            iconHtml = '<svg class="payment-method-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#26A17B"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="9" font-weight="bold">₮</text></svg>';
-            break;
-          case 'usdc':
-            iconHtml = '<svg class="payment-method-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#2775CA"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="9" font-weight="bold">$</text></svg>';
-            break;
-          case 'paypal':
-            iconHtml = '<svg class="payment-method-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#003087"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">P</text></svg>';
-            break;
-          default:
-            iconHtml = '<svg class="payment-method-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#666"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">?</text></svg>';
-        }
-
-        html += '<div class="payment-method-tab ' + activeClass + '" onclick="switchPaymentMethod(&quot;' + method.type + '&quot;)" data-method="' + method.type + '">';
-        html += iconHtml;
-        html += '<span class="payment-method-name">' + method.name + '</span>';
-        html += '</div>';
+      availablePaymentMethods.forEach((pm, index) => {
+        const icon = paymentMethodIcons[pm.type] || '<svg viewBox="0 0 24 24" width="24" height="24"><rect width="24" height="24" fill="#888"/></svg>';
+        const displayName = escapeHtml(pm.name || paymentMethodNames[pm.type] || pm.type);
+        const typeEscaped = escapeHtml(pm.type);
+        const isSelected = index === 0 ? ' selected' : '';
+        const methodClass = 'method-' + typeEscaped.toLowerCase();
+        const divClass = 'payment-method-option ' + methodClass + isSelected;
+        const onclickAttr = "selectPaymentMethod('" + typeEscaped + "')";
+        html += '<div class="' + divClass + '" data-method="' + typeEscaped + '" onclick="' + onclickAttr + '">' + icon + '<span class="method-text">' + displayName + '</span></div>';
       });
 
-      paymentMethodsContainer.innerHTML = html;
+      grid.innerHTML = html;
 
-      // 默认选中第一个支付方式
-      if (methods.length > 0) {
-        currentPaymentMethod = methods[0].type;
+      if (availablePaymentMethods.length > 0) {
+        selectedPaymentMethod = availablePaymentMethods[0].type;
       }
     }
 
-    // 主题初始化
-    (function() {
-      const saved = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const isDark = saved ? saved === 'dark' : prefersDark;
-      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-      updateThemeIcons(isDark);
-    })();
-    function updateThemeIcons(isDark) {
-      const sun = document.querySelector('.sun-icon');
-      const moon = document.querySelector('.moon-icon');
-      if (sun && moon) {
-        sun.style.display = isDark ? 'none' : 'block';
-        moon.style.display = isDark ? 'block' : 'none';
-      }
-    }
+    // 倒计时定时器
+    let countdownInterval = setInterval(updateCountdowns, 1000);
 
-    // 主题切换
-    document.getElementById('themeToggle')?.addEventListener('click', function() {
-      const html = document.documentElement;
-      const current = html.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      html.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      const sun = document.querySelector('.sun-icon');
-      const moon = document.querySelector('.moon-icon');
-      if (sun && moon) {
-        sun.style.display = next === 'dark' ? 'none' : 'block';
-        moon.style.display = next === 'dark' ? 'block' : 'none';
-      }
+    // 页面初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      loadPlans();
+      loadPaymentMethods();
     });
-
-    // 页面加载时直接渲染套餐,不检查登录状态
-    document.addEventListener('DOMContentLoaded', () => {
-      loadPlans(); // 从数据库加载套餐配置
-      loadPaymentMethods(); // 加载支付方式列表
-      // translate.js 由 page-footer 统一加载
-    });
-  </script>
-
-  <!-- Translate.js 自动翻译 -->
-  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
-  <script>
-    // 等待 translate.js 加载完成后初始化
-    function initTranslate() {
-      console.log('translate:', typeof translate);
-      console.log('window.translate:', typeof window.translate);
-      
-      // 手动将 translate 暴露到 window（兼容某些环境）
-      if (typeof translate !== 'undefined' && !window.translate) {
-        window.translate = translate;
-      }
-      
-      if (typeof translate !== 'undefined' && translate.language) {
-        translate.language.setLocal('english');
-        translate.service.use('client.edge');
-        translate.listener.start();
-        translate.setAutoDiscriminateLocalLanguage();
-        translate.execute();
-        console.log('Translate.js initialized successfully');
-      } else {
-        console.log('Waiting for translate.js to load...');
-        setTimeout(initTranslate, 100);
-      }
-    }
-    
-    // 页面加载完成后也尝试初始化
-    window.addEventListener('load', initTranslate);
-    initTranslate();
-    
-    function changeLanguage(lang) {
-      var t = window.translate || translate;
-      if (t && t.changeLanguage) {
-        t.changeLanguage(lang);
-      }
-    }
   </script>
 
   ${PAGE_FOOTER}
-  
+
 </body>
 </html>`;
-

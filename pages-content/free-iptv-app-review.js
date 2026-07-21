@@ -5,48 +5,64 @@ export const pageDescription = 'Comprehensive review of free IPTV apps in 2026. 
 
 export const styles = `
 *{margin:0;padding:0;box-sizing:border-box}
+:root{
+--accent:#e50914;
+--bg:#0a0a0a;
+--bg-card:#141414;
+--border:1px solid rgba(255,255,255,0.08);
+--text:#fff;
+--text-secondary:rgba(255,255,255,0.6);
+--green:#22c55e;
+--yellow:#fbbf24;
+--red:#ef4444;
+--radius:0
+}
 html{scroll-padding-top:70px}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0a0a0a;min-height:100vh;display:flex;flex-direction:column;color:#fff}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;color:var(--text)}
 .main-content{flex:1;width:100%;margin-top:70px;padding:20px 0}
-.container{max-width:1200px;margin:0 auto;padding:0 20px}
+.container{max-width:1400px;margin:0 auto;padding:0 20px}
 .page-header{text-align:center;padding:3rem 0 2rem}
-.page-header h1{font-size:2.5rem;font-weight:800;margin-bottom:1rem;background:linear-gradient(135deg,#fff 0%,#999 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.page-header p{font-size:1.1rem;color:rgba(255,255,255,0.7);max-width:600px;margin:0 auto}
+.page-header h1{font-size:2.5rem;font-weight:800;margin-bottom:1rem;color:var(--text)}
+.page-header p{font-size:1.1rem;color:var(--text-secondary);max-width:600px;margin:0 auto}
 .section{margin-bottom:3rem}
-.section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem;padding-bottom:0.75rem;border-bottom:1px solid rgba(255,255,255,0.1)}
+.section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem;padding-bottom:0.75rem;border-bottom:var(--border)}
 .app-list{max-width:800px;margin:0 auto}
-.app-item{background:#141414;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:2rem;margin-bottom:1.5rem;transition:border-color 0.2s}
-.app-item:hover{border-color:#e50914}
+.app-item{background:transparent;border:var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:0;transition:border-color 0.2s}
+.app-item:hover{border-color:var(--accent)}
 .app-header{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
 .app-icon{font-size:2.5rem}
 .app-name{font-size:1.25rem;font-weight:700}
-.app-badge{display:inline-block;background:#22c55e;color:#000;font-size:0.75rem;padding:2px 8px;border-radius:4px;font-weight:600;margin-left:0.5rem}
-.app-desc{color:rgba(255,255,255,0.7);margin-bottom:1rem;line-height:1.7}
+.app-badge{display:inline-block;background:var(--green);color:#000;font-size:0.75rem;padding:2px 8px;border-radius:0;font-weight:600;margin-left:0.5rem}
+.app-desc{color:var(--text-secondary);margin-bottom:1rem;line-height:1.7}
 .app-meta{display:flex;gap:1.5rem;font-size:0.85rem;color:rgba(255,255,255,0.5);margin-bottom:1rem}
 .app-meta span{display:flex;align-items:center;gap:0.25rem}
 .feature-tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem}
-.tag{padding:4px 12px;background:rgba(255,255,255,0.05);border-radius:20px;font-size:0.8rem;color:rgba(255,255,255,0.7)}
-.tag.highlight{background:rgba(229,9,20,0.2);color:#e50914}
+.tag{padding:4px 12px;background:transparent;border:1px solid var(--border);border-radius:0;font-size:0.8rem;color:var(--text-secondary)}
+.tag.highlight{border-color:var(--accent);color:var(--accent)}
 .rating-row{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
-.rating{font-size:1.5rem;font-weight:700;color:#fbbf24}
-.stars{color:#fbbf24}
+.rating{font-size:1.5rem;font-weight:700;color:var(--yellow)}
+.stars{color:var(--yellow)}
 .rating-text{font-size:0.85rem;color:rgba(255,255,255,0.5)}
-.download-link{display:inline-block;background:#e50914;color:#fff;padding:10px 24px;border-radius:8px;font-weight:600;text-decoration:none;transition:background 0.2s}
+.download-link{display:inline-block;background:var(--accent);color:#fff;padding:10px 24px;border-radius:var(--radius);font-weight:600;text-decoration:none;transition:background 0.2s}
 .download-link:hover{background:#f7262c}
 .compare-section{overflow-x:auto}
-.compare-table{width:100%;border-collapse:collapse;background:#141414;border-radius:12px;min-width:600px}
+.compare-table{width:100%;border-collapse:collapse;background:transparent;border:var(--border);border-radius:0;min-width:600px}
 .compare-table th,.compare-table td{padding:1rem;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05)}
-.compare-table th{background:#1a1a1a;font-weight:600;position:sticky;top:0}
+.compare-table th{background:rgba(255,255,255,0.03);font-weight:600;position:sticky;top:0}
 .compare-table tr:last-child td{border-bottom:none}
-.compare-yes{color:#22c55e}
-.compare-no{color:#ef4444}
-.compare-maybe{color:#fbbf24}
-.tip-box{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:1.5rem;margin-top:1.5rem}
-.tip-box h4{color:#22c55e;margin-bottom:0.5rem}
+.compare-yes{color:var(--green)}
+.compare-no{color:var(--red)}
+.compare-maybe{color:var(--yellow)}
+.tip-box{background:transparent;border:1px solid var(--green);border-radius:var(--radius);padding:1.5rem;margin-top:1.5rem}
+.tip-box h4{color:var(--green);margin-bottom:0.5rem}
 .tip-box p{color:rgba(255,255,255,0.8);font-size:0.95rem}
-.warning-box{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:1.5rem;margin-top:1rem}
-.warning-box h4{color:#fbbf24;margin-bottom:0.5rem}
+.warning-box{background:transparent;border:1px solid var(--yellow);border-radius:var(--radius);padding:1.5rem;margin-top:1rem}
+.warning-box h4{color:var(--yellow);margin-bottom:0.5rem}
 .warning-box p{color:rgba(255,255,255,0.8);font-size:0.95rem}
+.cta-section{text-align:center;padding:2rem 0}
+.cta-section h2{font-size:1.5rem;margin-bottom:1rem;color:var(--text)}
+.cta-section p{color:var(--text-secondary);margin-bottom:1.5rem}
+.cta-section .cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:14px 32px;border-radius:var(--radius);font-weight:600;text-decoration:none}
 @media(max-width:768px){
 .main-content{margin-top:80px}
 .container{padding:0 16px}
@@ -55,6 +71,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .app-meta{flex-direction:column;gap:0.5rem}
 .compare-table{font-size:0.85rem}
 .compare-table th,.compare-table td{padding:0.75rem}
+}
+@media(max-width:480px){
+.main-content{margin-top:70px;padding:16px 0}
+.container{padding:0 12px}
+.page-header{padding:1.5rem 0 1rem}
+.page-header h1{font-size:1.4rem}
+.page-header p{font-size:0.95rem}
 }
 `;
 
@@ -186,10 +209,10 @@ export const content = `
       </div>
     </div>
 
-    <div class="section" style="text-align:center;padding:2rem 0">
-      <h2 style="font-size:1.5rem;margin-bottom:1rem">Want Better Viewing Experience?</h2>
-      <p style="color:rgba(255,255,255,0.7);margin-bottom:1.5rem">Upgrade to paid subscription for ad-free, HD quality and stable streaming</p>
-      <a href="/plans" style="display:inline-block;background:#e50914;color:#fff;padding:14px 32px;border-radius:8px;font-weight:600;text-decoration:none">View Plans →</a>
+    <div class="section cta-section">
+      <h2>Want Better Viewing Experience?</h2>
+      <p>Upgrade to paid subscription for ad-free, HD quality and stable streaming</p>
+      <a href="/plans" class="cta-btn">View Plans →</a>
     </div>
   </div>
 </div>

@@ -1,11 +1,9 @@
-// 通用网页页脚组件
-import { FLOATING_SIDEBAR_STYLES, FLOATING_SIDEBAR_SCRIPTS } from './floating-sidebar.js';
-
+// 通用网页页脚组件（极简线条风格）
 export const PAGE_FOOTER = `
   <!-- Floating Sidebar - Back to Top Only -->
   <div class="floating-sidebar">
     <button class="sidebar-btn back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Back to Top">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="18 15 12 9 6 15"></polyline>
       </svg>
       <span class="sidebar-tooltip">Back to Top</span>
@@ -13,61 +11,93 @@ export const PAGE_FOOTER = `
   </div>
 
   <footer class="page-footer">
-    <div class="footer-content">
-  <p class="footer-copyright">&copy; 2026 IPTV Search. Free IPTV Channel Directory & Search Tool</p>
-      
-      <!-- FAQ常见问题区块 -->
-      <div class="footer-faq">
-        <h3 class="footer-faq-title">Frequently Asked Questions</h3>
-        <div class="faq-grid">
-          <details class="faq-card">
-            <summary>How can I watch IPTV for free?</summary>
-            <div class="faq-answer">Browse our directory, select a channel, and start watching instantly. No registration required.</div>
-          </details>
-          <details class="faq-card">
-            <summary>What devices are supported?</summary>
-            <div class="faq-answer">Smart TVs, Roku, Firestick, Apple TV, computers, smartphones & tablets.</div>
-          </details>
-          <details class="faq-card">
-            <summary>Is using IPTV legal?</summary>
-            <div class="faq-answer">We index public links. Users must comply with local laws in their region.</div>
-          </details>
-          <details class="faq-card">
-            <summary>Why isn't a channel playing?</summary>
-            <div class="faq-answer">Try refreshing, different player, or check your internet connection.</div>
-          </details>
-          <details class="faq-card">
-            <summary>What are the subscription plans?</summary>
-            <div class="faq-answer">Free plan: check in once every 7 days to keep active. Premium: ad-free viewing experience on website with channels up to 4K quality (where available).</div>
-          </details>
-          <details class="faq-card">
-            <summary>How often are channels updated?</summary>
-            <div class="faq-answer">Daily updates - dead links removed & new channels added regularly.</div>
-          </details>
+    <div class="footer-inner">
+
+      <!-- Main Footer Grid - 5 columns -->
+      <div class="footer-grid">
+        <!-- Brand Column -->
+        <div class="footer-brand">
+          <a href="/" class="footer-logo">
+            <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
+              <defs>
+                <linearGradient id="footerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#e50914"/>
+                  <stop offset="100%" style="stop-color:#ff3b30"/>
+                </linearGradient>
+              </defs>
+              <rect x="0" y="0" width="36" height="36" fill="url(#footerGradient)"/>
+              <rect x="4" y="8" width="28" height="18" fill="#0a0a0a"/>
+              <path d="M14 12 L24 17 L14 22 Z" fill="#fff"/>
+            </svg>
+            <span>IPTV<span>Search</span></span>
+          </a>
+          <p class="footer-tagline">Free IPTV Channel Directory<br>Search & Watch Instantly</p>
+          <div class="footer-brand-bottom">
+            <div class="footer-disclaimer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span>This site does not host any IPTV streams. All channels are sourced from publicly available M3U playlists. Channels may go offline at any time.</span>
+            </div>
+            <div class="footer-badges">
+              <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+                <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
+              </a>
+              <span>Powered by Cloudflare</span>
+            </div>
+          </div>
+          <div class="footer-copyright">&copy; 2026 IPTV Search. All rights reserved.</div>
         </div>
-      </div>
-      
-      <!-- SEO 友好链接 -->
-      <div class="footer-links">
-        <a href="/tutorial">How to Watch on TV Devices</a>
-        <a href="/sitemap.xml">Sitemap</a>
-        <a href="/robots.txt">Robots</a>
-        <a href="/privacy-policy">Privacy Policy</a>
-        <a href="/terms">Terms of Service</a>
-        <a href="mailto:support@iptv-search.com">Contact Us</a>
-      </div>
-      
-      <!-- Cloudflare托管说明和徽章 -->
-      <div class="footer-badges">
-        <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
-          <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
-        </a>
-        <span>This site is powered by Cloudflare for acceleration and security</span>
-      </div>
-      
-      <!-- 免责声明 -->
-      <div class="footer-disclaimer">
-        This site does not host or provide any IPTV streams. All channels are sourced from publicly available M3U playlists. Channels may go offline at any time as their source streams change.
+
+        <!-- Quick Links -->
+        <div class="footer-col">
+          <h4 class="footer-col-title">Quick Links</h4>
+          <div class="footer-col-links">
+            <a href="/tutorial">How to Watch on TV</a>
+            <a href="/sitemap.xml">Sitemap</a>
+            <a href="/privacy-policy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+            <a href="mailto:support@iptv-search.com">Contact Us</a>
+          </div>
+        </div>
+
+        <!-- Support -->
+        <div class="footer-col">
+          <h4 class="footer-col-title">Support</h4>
+          <div class="footer-col-links">
+            <a href="/plans">Subscription Plans</a>
+            <a href="/favorites">My Favorites</a>
+            <a href="/account">My Account</a>
+            <a href="/search">Search Channels</a>
+          </div>
+        </div>
+
+        <!-- FAQ Column -->
+        <div class="footer-col footer-faq-col">
+          <h4 class="footer-col-title">FAQ</h4>
+          <div class="footer-faq-list">
+            <details class="footer-faq-item">
+              <summary>How to watch for free?</summary>
+              <div class="footer-faq-answer">Browse our directory, select a channel, and start watching instantly. No registration required.</div>
+            </details>
+            <details class="footer-faq-item">
+              <summary>What devices supported?</summary>
+              <div class="footer-faq-answer">Smart TVs, Roku, Firestick, Apple TV, computers, smartphones & tablets.</div>
+            </details>
+            <details class="footer-faq-item">
+              <summary>Is IPTV legal?</summary>
+              <div class="footer-faq-answer">We index public links. Users must comply with local laws in their region.</div>
+            </details>
+            <details class="footer-faq-item">
+              <summary>Channel not playing?</summary>
+              <div class="footer-faq-answer">Try refreshing, different player, or check your internet connection.</div>
+            </details>
+            <details class="footer-faq-item">
+              <summary>How often updated?</summary>
+              <div class="footer-faq-answer">Daily updates - dead links removed & new channels added regularly.</div>
+            </details>
+          </div>
+        </div>
       </div>
     </div>
   </footer>
@@ -101,250 +131,181 @@ export const PAGE_FOOTER = `
   </script>
 
   <style>
+    /* Footer - 极简线条风格 */
     .page-footer {
-      background: var(--bg-secondary);
-      border-top: 1px solid var(--border);
-      padding: 40px 20px;
-      margin-top: 60px;
+      background: var(--bg-primary);
+      border-top: var(--border);
+      padding: 0;
+      margin-top: 2rem;
     }
-
-    .footer-content {
-      max-width: 1000px;
+    .footer-inner {
+      max-width: 1200px;
       margin: 0 auto;
-      text-align: center;
+      padding: 0 2rem;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr repeat(3, 1fr);
+      gap: 2.5rem;
+      padding: 3rem 0;
     }
 
-    .footer-copyright {
-      color: var(--text-secondary);
-      font-size: 14px;
-      margin-bottom: 20px;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
+    .footer-brand { }
+    .footer-logo {
+      display: inline-flex;
       align-items: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-top: 15px;
-      font-size: 12px;
+      gap: 0.75rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+    .footer-logo svg { width: 32px; height: 32px; }
+    .footer-logo span span { color: var(--accent); }
+    .footer-tagline {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-top: 0.75rem;
+    }
+    .footer-brand-bottom {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .footer-brand .footer-disclaimer {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .footer-brand .footer-disclaimer svg { flex-shrink: 0; opacity: 0.6; }
+
+    .footer-brand .footer-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .footer-brand .footer-badges img { height: 14px; width: auto; opacity: 0.7; transition: opacity 0.2s; }
+    .footer-brand .footer-badges img:hover { opacity: 1; }
+    .footer-brand .footer-badges span { font-size: 0.75rem; color: var(--text-muted); }
+
+    .footer-brand .footer-copyright {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
     }
 
-    .footer-links a {
-      color: var(--text-muted);
+    .footer-col { }
+    .footer-col-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+    .footer-col-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .footer-col-links a {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
       text-decoration: none;
       transition: color 0.2s;
     }
+    .footer-col-links a:hover { color: var(--accent); }
 
-    .footer-links a:hover {
-      color: var(--text-primary);
-    }
-
-    .footer-badges {
+    /* FAQ Column - Compact */
+    .footer-faq-col { }
+    .footer-faq-list {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 20px;
+      flex-direction: column;
+      gap: 0.35rem;
     }
-
-    .footer-badges img {
-      height: 12px;
-      width: auto;
-      opacity: 0.8;
-      transition: opacity 0.2s;
+    .footer-faq-item {
+      background: transparent;
+      border: none;
+      border-radius: 0;
     }
-
-    .footer-badges img:hover {
-      opacity: 1;
-    }
-
-    .footer-badges span {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .footer-disclaimer {
-      margin-top: 15px;
-      font-size: 11px;
-      color: var(--text-muted);
-      line-height: 1.5;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    /* FAQ区块样式 */
-    .footer-faq {
-      margin: 2.5rem 0;
-    }
-
-    .footer-faq-title {
-      color: var(--text-primary);
-      font-size: 1.25rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .faq-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
-    }
-
-    .faq-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      transition: border-color var(--transition);
-    }
-
-    .faq-card:hover {
-      border-color: var(--accent);
-    }
-
-    .faq-card summary {
-      padding: 1rem 1.25rem;
+    .footer-faq-item summary {
+      padding: 0.4rem 0.5rem;
       cursor: pointer;
-      color: var(--text-primary);
-      font-size: 0.95rem;
-      font-weight: 500;
-      list-style: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .faq-card summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .faq-card summary::after {
-      content: '+';
-      font-size: 1.25rem;
-      color: var(--accent);
-      transition: transform 0.2s;
-    }
-
-    .faq-card details[open] summary::after {
-      transform: rotate(45deg);
-    }
-
-    .faq-card .faq-answer {
-      padding: 0 1.25rem 1.25rem;
       color: var(--text-secondary);
       font-size: 0.85rem;
-      line-height: 1.6;
+      list-style: none;
+    }
+    .footer-faq-item summary::-webkit-details-marker { display: none; }
+    .footer-faq-item summary:hover {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+    }
+    .footer-faq-item[open] summary { color: var(--accent); }
+    .footer-faq-answer {
+      padding: 0.5rem 0.5rem 0.5rem 1rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
     }
 
-    @media (max-width: 768px) {
-      .page-footer {
-        padding: 30px 15px;
-        margin-top: 40px;
-      }
-
-      .footer-copyright {
-        font-size: 13px;
-      }
-
-      .footer-links {
-        gap: 12px;
-        font-size: 11px;
-      }
-
-      .footer-badges span {
-        font-size: 11px;
-      }
-
-      .footer-disclaimer {
-        font-size: 10px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .page-footer {
-        padding: 25px 10px;
-        margin-top: 30px;
-      }
-
-      .footer-links {
-        gap: 10px;
-        flex-direction: column;
-      }
-
-      .footer-links a {
-        margin: 3px 0;
-      }
-
-      .footer-badges {
-        flex-direction: column;
-      }
-    }
-  </style>
-  <style>
-    /* Floating Sidebar - Back to Top Only */
+    /* Floating Sidebar - 极简线条 */
     .floating-sidebar {
       position: fixed;
       right: 20px;
       bottom: 30px;
       z-index: 9999;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
-
     .sidebar-btn {
       width: 48px;
       height: 48px;
-      border-radius: 50%;
-      border: none;
+      border-radius: 0;
+      border: 1px solid var(--border);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
-      transition: all 0.25s ease;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-      background: linear-gradient(145deg, #1a1a1a 0%, #2a2a2a 100%);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.2s ease;
+      background: transparent;
     }
-
     .sidebar-btn:hover {
-      transform: scale(1.08);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      border-color: var(--accent);
+      background: var(--bg-hover);
     }
-
     .sidebar-btn:active {
-      transform: scale(0.96);
+      transform: scale(0.98);
     }
-
     .sidebar-btn svg {
       width: 20px;
       height: 20px;
-      color: #ffffff;
+      color: var(--text-primary);
       transition: transform 0.2s ease;
     }
-
     .sidebar-btn:hover svg {
       transform: translateY(-2px);
     }
-
     .sidebar-tooltip {
       position: absolute;
       right: 60px;
       top: 50%;
       transform: translateY(-50%);
-      background: #1a1a1a;
-      color: #fff;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
       padding: 8px 12px;
-      border-radius: 6px;
       font-size: 12px;
       font-weight: 500;
       white-space: nowrap;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s ease, transform 0.2s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     }
-
     .sidebar-tooltip::after {
       content: '';
       position: absolute;
@@ -352,15 +313,29 @@ export const PAGE_FOOTER = `
       top: 50%;
       transform: translateY(-50%);
       border: 5px solid transparent;
-      border-left-color: #1a1a1a;
+      border-left-color: var(--border);
     }
-
     .sidebar-btn:hover .sidebar-tooltip {
       opacity: 1;
       transform: translateY(-50%) translateX(-4px);
     }
 
     @media (max-width: 768px) {
+      .page-footer {
+        padding: 0;
+      }
+      .footer-inner { padding: 0 1.5rem; }
+      .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        padding: 2.5rem 0;
+      }
+      .footer-brand {
+        grid-column: 1 / -1;
+      }
+      .footer-brand-bottom { align-items: center; }
+      .footer-disclaimer { flex-direction: column; text-align: center; gap: 0.75rem; }
+      .footer-badges { justify-content: center; }
       .floating-sidebar {
         right: 10px;
         bottom: 16px;
@@ -374,25 +349,24 @@ export const PAGE_FOOTER = `
       }
     }
 
-    [data-theme="light"] .sidebar-btn {
-      background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%);
-      border: 1px solid rgba(0, 0, 0, 0.08);
-    }
-
-    [data-theme="light"] .sidebar-btn svg {
-      color: #333;
-    }
-
-    [data-theme="light"] .sidebar-tooltip {
-      background: #fff;
-      color: #333;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-    }
-
-    [data-theme="light"] .sidebar-tooltip::after {
-      border-left-color: #fff;
+    @media (max-width: 480px) {
+      .footer-inner { padding: 0 1rem; }
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 2rem 0;
+      }
+      .footer-brand { grid-column: 1; text-align: center; }
+      .footer-logo { justify-content: center; }
+      .footer-brand-bottom { align-items: center; }
+      .footer-disclaimer { flex-direction: column; text-align: center; gap: 0.5rem; }
+      .footer-badges { justify-content: center; }
+      .footer-tagline { text-align: center; }
+      .footer-col-title { text-align: center; }
+      .footer-col-links { align-items: center; }
     }
   </style>
+
   <!-- Translate.js 自动翻译 -->
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
   <script>

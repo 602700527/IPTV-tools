@@ -27,57 +27,36 @@ export function generateFavoritesPage(options = {}) {
   
   <style>
     :root {
-      /* 背景层次 */
-      --bg-primary: #0a0a0a;
-      --bg-secondary: #141414;
-      --bg-card: #1a1a1a;
-      --bg-hover: #252525;
-      --bg-elevated: #222222;
-      
-      /* 文字层次 */
-      --text-primary: #ffffff;
-      --text-secondary: #a0a0a0;
-      --text-muted: #666666;
-      
-      /* 主色调 - Netflix红 */
       --accent: #e50914;
-      --accent-hover: #f7262c;
-      
-      /* 辅助色系 - 情感多元化 */
-      --premium-gold: #fbbf24;
-      --success-green: #22c55e;
-      --trust-blue: #3b82f6;
-      --alert-orange: #f59e0b;
-      
-      /* 价格高亮 */
-      --price-glow: 0 0 20px rgba(229, 9, 20, 0.4);
-      
-      /* 边框与阴影 */
-      --border: rgba(255,255,255,0.08);
-      --border-hover: rgba(255,255,255,0.15);
-      --shadow: 0 4px 20px rgba(0,0,0,0.5);
-      --radius: 8px;
+      --accent-hover: #ff1a1a;
       --transition: 0.2s ease;
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #0f0f0f;
+      --bg-card: transparent;
+      --bg-hover: transparent;
+      --text-primary: #ffffff;
+      --text-secondary: #888888;
+      --text-muted: #555555;
+      --border: 1px solid rgba(255,255,255,0.08);
+      --border-hover: 1px solid rgba(229,9,20,0.4);
     }
 
     [data-theme="light"] {
-      --bg-primary: #f5f5f5;
-      --bg-secondary: #ffffff;
-      --bg-card: #ffffff;
-      --bg-hover: #f0f0f0;
-      --bg-elevated: #ffffff;
-      --text-primary: #1a1a1a;
+      --bg-primary: #ffffff;
+      --bg-secondary: #fafafa;
+      --bg-card: transparent;
+      --bg-hover: transparent;
+      --text-primary: #0a0a0a;
       --text-secondary: #666666;
       --text-muted: #999999;
-      --border: rgba(0,0,0,0.08);
-      --border-hover: rgba(0,0,0,0.15);
-      --shadow: 0 4px 20px rgba(0,0,0,0.1);
+      --border: 1px solid rgba(0,0,0,0.1);
+      --border-hover: 1px solid rgba(229,9,20,0.5);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
+    html { scroll-padding-top: 60px; }
+    body { font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
     a { color: inherit; text-decoration: none; }
-    img { max-width: 100%; display: block; }
     button { cursor: pointer; font-family: inherit; }
 
     /* Header */

@@ -5,37 +5,53 @@ export const pageDescription = 'Discover the best IPTV apps for Android phones, 
 
 export const styles = `
 *{margin:0;padding:0;box-sizing:border-box}
+:root{
+--accent:#e50914;
+--bg:#0a0a0a;
+--bg-card:#141414;
+--border:1px solid rgba(255,255,255,0.08);
+--text:#fff;
+--text-secondary:rgba(255,255,255,0.6);
+--green:#22c55e;
+--yellow:#fbbf24;
+--red:#ef4444;
+--radius:0
+}
 html{scroll-padding-top:70px}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0a0a0a;min-height:100vh;display:flex;flex-direction:column;color:#fff}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;color:var(--text)}
 .main-content{flex:1;width:100%;margin-top:70px;padding:20px 0}
-.container{max-width:1200px;margin:0 auto;padding:0 20px}
+.container{max-width:1400px;margin:0 auto;padding:0 20px}
 .page-header{text-align:center;padding:3rem 0 2rem}
-.page-header h1{font-size:2.5rem;font-weight:800;margin-bottom:1rem;background:linear-gradient(135deg,#fff 0%,#999 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.page-header p{font-size:1.1rem;color:rgba(255,255,255,0.7);max-width:600px;margin:0 auto}
+.page-header h1{font-size:2.5rem;font-weight:800;margin-bottom:1rem;color:var(--text)}
+.page-header p{font-size:1.1rem;color:var(--text-secondary);max-width:600px;margin:0 auto}
 .section{margin-bottom:3rem}
-.section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem;padding-bottom:0.75rem;border-bottom:1px solid rgba(255,255,255,0.1)}
+.section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem;padding-bottom:0.75rem;border-bottom:var(--border)}
 .app-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.5rem}
-.app-card{background:#141414;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:2rem;transition:border-color 0.2s}
-.app-card:hover{border-color:#e50914}
+.app-card{background:var(--bg-card);border:var(--border);border-radius:var(--radius);padding:2rem;transition:border-color 0.2s}
+.app-card:hover{border-color:var(--accent)}
 .app-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem}
 .app-icon{font-size:3rem}
 .app-info h3{font-size:1.25rem;font-weight:700;margin-bottom:0.25rem}
-.app-info .rating{color:#fbbf24;font-size:0.9rem}
-.app-desc{color:rgba(255,255,255,0.7);font-size:0.95rem;line-height:1.7;margin-bottom:1.5rem}
+.app-info .rating{color:var(--yellow);font-size:0.9rem}
+.app-desc{color:var(--text-secondary);font-size:0.95rem;line-height:1.7;margin-bottom:1.5rem}
 .app-features{list-style:none;padding:0;margin-bottom:1.5rem}
 .app-features li{padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.8);font-size:0.9rem}
-.app-features li:before{content:"✓ ";color:#22c55e;margin-right:0.5rem}
+.app-features li:before{content:"✓ ";color:var(--green);margin-right:0.5rem}
 .pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
 .pros,.cons{font-size:0.85rem}
-.pros h4{color:#22c55e;margin-bottom:0.5rem}
-.cons h4{color:#ef4444;margin-bottom:0.5rem}
+.pros h4{color:var(--green);margin-bottom:0.5rem}
+.cons h4{color:var(--red);margin-bottom:0.5rem}
 .pros li,.cons li{padding:0.25rem 0}
-.download-btn{display:block;background:#e50914;color:#fff;text-align:center;padding:12px;border-radius:8px;font-weight:600;text-decoration:none;transition:background 0.2s}
+.download-btn{display:block;background:var(--accent);color:#fff;text-align:center;padding:12px;border-radius:var(--radius);font-weight:600;text-decoration:none;transition:background 0.2s}
 .download-btn:hover{background:#f7262c}
-.comparison-table{width:100%;border-collapse:collapse;background:#141414;border-radius:12px;overflow:hidden}
+.comparison-table{width:100%;border-collapse:collapse;background:var(--bg-card);border-radius:var(--radius);overflow:hidden}
 .comparison-table th,.comparison-table td{padding:1rem;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05)}
-.comparison-table th{background:#1a1a1a;font-weight:600}
+.comparison-table th{background:rgba(255,255,255,0.03);font-weight:600}
 .comparison-table tr:last-child td{border-bottom:none}
+.faq-block{background:transparent;border:var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
+.faq-block h3{margin-bottom:0.5rem;color:var(--text)}
+.faq-block p{color:var(--text-secondary)}
+.faq-block:last-child{margin-bottom:0}
 @media(max-width:768px){
 .main-content{margin-top:80px}
 .container{padding:0 16px}
@@ -45,6 +61,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .pros-cons{grid-template-columns:1fr}
 .comparison-table{font-size:0.85rem}
 .comparison-table th,.comparison-table td{padding:0.75rem}
+}
+@media(max-width:480px){
+.main-content{margin-top:70px;padding:16px 0}
+.container{padding:0 12px}
+.page-header{padding:1.5rem 0 1rem}
+.page-header h1{font-size:1.4rem}
+.page-header p{font-size:0.95rem}
 }
 `;
 
@@ -166,17 +189,17 @@ export const content = `
 
     <div class="section">
       <h2 class="section-title"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.25rem"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> FAQ</h2>
-      <div style="background:#141414;border-radius:12px;padding:1.5rem;margin-bottom:1rem">
-        <h3 style="margin-bottom:0.5rem">Are these apps safe?</h3>
-        <p style="color:rgba(255,255,255,0.7)">All recommended apps are from Google Play official store and have been verified for safety.</p>
+      <div class="faq-block">
+        <h3>Are these apps safe?</h3>
+        <p>All recommended apps are from Google Play official store and have been verified for safety.</p>
       </div>
-      <div style="background:#141414;border-radius:12px;padding:1.5rem;margin-bottom:1rem">
-        <h3 style="margin-bottom:0.5rem">Do I need a subscription to use these apps?</h3>
-        <p style="color:rgba(255,255,255,0.7)">The apps themselves are free, but you need our IPTV subscription to watch live channels.</p>
+      <div class="faq-block">
+        <h3>Do I need a subscription to use these apps?</h3>
+        <p>The apps themselves are free, but you need our IPTV subscription to watch live channels.</p>
       </div>
-      <div style="background:#141414;border-radius:12px;padding:1.5rem">
-        <h3 style="margin-bottom:0.5rem">Can I use them on phone and TV?</h3>
-        <p style="color:rgba(255,255,255,0.7)">Yes, these apps support Android phones, tablets, and Android TV devices.</p>
+      <div class="faq-block">
+        <h3>Can I use them on phone and TV?</h3>
+        <p>Yes, these apps support Android phones, tablets, and Android TV devices.</p>
       </div>
     </div>
   </div>

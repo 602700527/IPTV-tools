@@ -6,7 +6,7 @@ export const styles = `
   :root {
     --accent: #e50914;
     --accent-hover: #ff1a1a;
-    --radius: 12px;
+    --radius: 0;
     --transition: 0.2s ease;
     --bg-primary: #0a0a0a;
     --bg-secondary: #141414;
@@ -17,7 +17,7 @@ export const styles = `
     --text-muted: #666666;
     --border: rgba(255,255,255,0.08);
     --border-hover: rgba(255,255,255,0.15);
-    --shadow: 0 4px 20px rgba(0,0,0,0.5);
+    --shadow: none;
   }
   [data-theme="light"] {
     --bg-primary: #f5f5f5;
@@ -37,7 +37,7 @@ export const styles = `
   img { max-width: 100%; display: block; }
   button { cursor: pointer; font-family: inherit; }
   .main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem; }
-  .login-container { width: 100%; max-width: 400px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; box-shadow: var(--shadow); }
+  .login-container { width: 100%; max-width: 400px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; box-shadow: none; }
   .login-header { text-align: center; margin-bottom: 1.5rem; }
   .login-header h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
   .login-header p { color: var(--text-secondary); font-size: 0.9rem; }
@@ -64,7 +64,10 @@ export const styles = `
   .form-toggle { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
   .form-toggle a { color: var(--accent); font-weight: 500; }
   .form-toggle a:hover { text-decoration: underline; }
-  .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); padding: 1rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); opacity: 0; transition: opacity 0.3s; z-index: 1000; }
+  .hidden-form { display: none; }
+  .forgot-link-wrap { text-align: center; margin-top: 1rem; }
+  .forgot-link-wrap a { color: var(--text-secondary); font-size: 0.9rem; }
+  .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); padding: 1rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: none; opacity: 0; transition: opacity 0.3s; z-index: 1000; }
   .toast.show { opacity: 1; }
   .toast.success { border-color: #22c55e; }
   .toast.error { border-color: #ef4444; }
@@ -105,7 +108,7 @@ export const content = `
       </button>
     </form>
 
-    <form id="registerForm" style="display:none;" onsubmit="handleRegister(event)">
+    <form id="registerForm" class="hidden-form" onsubmit="handleRegister(event)">
       <div class="form-group">
         <label class="form-label" for="regEmail">Email</label>
         <input type="email" id="regEmail" class="form-input" placeholder="your@email.com" required>
@@ -126,8 +129,8 @@ export const content = `
       </button>
     </form>
 
-    <div class="forgot-password" style="text-align: center; margin-top: 1rem;">
-      <a href="/forgot-password" style="color: var(--text-secondary); font-size: 0.9rem;">Forgot Password?</a>
+    <div class="forgot-link-wrap">
+      <a href="/forgot-password">Forgot Password?</a>
     </div>
 
     <div class="form-toggle">
@@ -151,16 +154,14 @@ function switchTab(tab) {
   const toggleLink = document.getElementById('toggleLink');
 
   if (tab === 'login') {
-    loginForm.style.display = 'block';
-    registerForm.style.display = 'none';
+    registerForm.classList.add('hidden-form');
     formTitle.textContent = 'Welcome Back';
     formSubtitle.textContent = 'Login to manage your favorites and subscriptions';
     toggleText.textContent = "Don't have an account?";
     toggleLink.textContent = 'Register';
     toggleLink.onclick = () => { switchTab('register'); return false; };
   } else {
-    loginForm.style.display = 'none';
-    registerForm.style.display = 'block';
+    registerForm.classList.remove('hidden-form');
     formTitle.textContent = 'Create Account';
     formSubtitle.textContent = 'Register to save favorites and get subscriptions';
     toggleText.textContent = 'Already have an account?';

@@ -6,7 +6,7 @@ export const styles = `
   :root {
     --accent: #e50914;
     --accent-hover: #ff1a1a;
-    --radius: 12px;
+    --radius: 0;
     --transition: 0.2s ease;
     --bg-primary: #0a0a0a;
     --bg-secondary: #141414;
@@ -37,7 +37,7 @@ export const styles = `
   img { max-width: 100%; display: block; }
   button { cursor: pointer; font-family: inherit; }
   .main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem; }
-  .form-container { width: 100%; max-width: 400px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; box-shadow: var(--shadow); }
+  .form-container { width: 100%; max-width: 400px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; box-shadow: none; }
   .form-header { text-align: center; margin-bottom: 1.5rem; }
   .form-header h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
   .form-header p { color: var(--text-secondary); font-size: 0.9rem; }
@@ -64,7 +64,7 @@ export const styles = `
   .form-toggle { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
   .form-toggle a { color: var(--accent); font-weight: 500; }
   .form-toggle a:hover { text-decoration: underline; }
-  .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); padding: 1rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); opacity: 0; transition: opacity 0.3s; z-index: 1000; }
+  .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); padding: 1rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: none; opacity: 0; transition: opacity 0.3s; z-index: 1000; }
   .toast.show { opacity: 1; }
   .toast.success { border-color: #22c55e; }
   .toast.error { border-color: #ef4444; }

@@ -27,7 +27,7 @@ export const styles = `
   p { margin-bottom: 15px; color: var(--text-secondary); }
   ul { margin-bottom: 15px; padding-left: 30px; color: var(--text-secondary); }
   li { margin-bottom: 8px; }
-  .section { background: var(--bg-card); padding: 25px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border); }
+  .section { background: var(--bg-card); padding: 25px; border-radius: 0; margin-bottom: 20px; border: 1px solid var(--border); }
   .last-updated { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }

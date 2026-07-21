@@ -247,9 +247,9 @@ export function generateChannelPage(options = {}) {
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
+    html { scroll-padding-top: 60px; }
+    body { font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
     a { color: inherit; text-decoration: none; }
-    img { max-width: 100%; display: block; }
     button { cursor: pointer; font-family: inherit; }
 
     /* Header - Consistent with home page */
