@@ -494,6 +494,7 @@ import { pageTitle as asiaIptvTitle, pageDescription as asiaIptvDesc, styles as 
 import { pageTitle as europeIptvTitle, pageDescription as europeIptvDesc, styles as europeIptvStyles, content as europeIptvContent } from './pages-content/europe-iptv.js';
 import { pageTitle as americasIptvTitle, pageDescription as americasIptvDesc, styles as americasIptvStyles, content as americasIptvContent } from './pages-content/americas-iptv.js';
 import { pageTitle as oceaniaIptvTitle, pageDescription as oceaniaIptvDesc, styles as oceaniaIptvStyles, content as oceaniaIptvContent } from './pages-content/oceania-iptv.js';
+import { llmsTxt } from './pages-content/llms-txt.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 import { getSitemapFromCache } from './utils/channel-cache.js';
@@ -1276,6 +1277,11 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       return new Response(generateStaticPage(tutorialTitle, tutorialDesc, tutorialStyles, tutorialContent), {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
+    } else if (path === '/llms.txt' || path === '/llms.txt/') {
+      // AI crawler friendly summary
+      return new Response(llmsTxt, {
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+      });
     } else if (path === '/api/activate') {
       // 用户激活API
       return await handleUserActivate(request, env, ctx);
@@ -1561,6 +1567,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           { loc: '/plans', priority: '0.8', changefreq: 'weekly' },
           { loc: '/account', priority: '0.6', changefreq: 'monthly' },
           { loc: '/tutorial', priority: '0.7', changefreq: 'monthly' },
+          { loc: '/llms.txt', priority: '0.3', changefreq: 'weekly' },
           { loc: '/privacy-policy', priority: '0.5', changefreq: 'yearly' },
           { loc: '/terms', priority: '0.5', changefreq: 'yearly' },
           { loc: '/usa-iptv', priority: '0.8', changefreq: 'weekly' },

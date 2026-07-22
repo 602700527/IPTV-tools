@@ -227,6 +227,26 @@ export function generateSearchPage(options = {}) {
 
   ${pageFooter}
 
+  <!-- Static base JSON-LD (SSR) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "IPTV Search",
+    "url": "${origin}",
+    "description": "Free IPTV Channel Directory and Search Engine",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "${origin}/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "IPTV Search",
+      "url": "${origin}"
+    }
+  }
+  </script>
   <script id="json-ld" type="application/ld+json"></script>
 
   <script>
