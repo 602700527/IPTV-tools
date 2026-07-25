@@ -304,79 +304,6 @@ export function generateCategoryPage(options = {}) {
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Free trial banner - 优化设计 */
-    .free-trial-banner {
-      position: relative;
-      background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
-      border: 1px solid rgba(229, 9, 20, 0.3);
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin: 1.5rem 0;
-      overflow: hidden;
-    }
-    .free-trial-glow {
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at 30% 50%, rgba(229, 9, 20, 0.15) 0%, transparent 50%);
-      pointer-events: none;
-    }
-    .free-trial-inner {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .free-trial-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 56px;
-      height: 56px;
-      background: linear-gradient(135deg, var(--accent) 0%, #ff3b30 100%);
-      border-radius: 12px;
-      flex-shrink: 0;
-      box-shadow: 0 4px 20px rgba(229, 9, 20, 0.4);
-    }
-    .free-trial-icon svg { color: #fff; }
-    .free-trial-content { flex: 1; min-width: 0; }
-    .free-trial-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 0.25rem;
-      letter-spacing: -0.02em;
-    }
-    .free-trial-desc {
-      font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.6);
-    }
-    .free-trial-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.25rem;
-      background: var(--accent);
-      border: none;
-      border-radius: 25px;
-      color: #fff;
-      font-size: 0.9rem;
-      font-weight: 600;
-      text-decoration: none;
-      white-space: nowrap;
-      transition: all 0.25s ease;
-      box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
-    }
-    .free-trial-btn:hover {
-      background: #f6121d;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 25px rgba(229, 9, 20, 0.5);
-    }
-    .free-trial-btn svg { transition: transform 0.25s ease; }
-    .free-trial-btn:hover svg { transform: translateX(3px); }
-
     @media (max-width: 768px) {
       .sidebar { 
         width: 100%; 
@@ -390,8 +317,6 @@ export function generateCategoryPage(options = {}) {
       .batch-actions .btn svg { width: 14px; height: 14px; }
       .batch-actions .btn .btn-text { display: none; }
       .btn-shuffle, .btn-favorite-batch { min-width: 32px; }
-      .free-trial-inner { flex-direction: column; text-align: center; }
-      .free-trial-btn { width: 100%; justify-content: center; }
     }
 
     /* Channel list */
@@ -556,30 +481,6 @@ export function generateCategoryPage(options = {}) {
       <div id="loadingIndicator" class="loading-indicator" style="display:none;">
         <div class="spinner"></div>
         <span>Loading more channels...</span>
-      </div>
-
-      <!-- 免费试用引导 -->
-      <div class="free-trial-banner">
-        <div class="free-trial-glow"></div>
-        <div class="free-trial-inner">
-          <div class="free-trial-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-              <path d="M2 17l10 5 10-5"/>
-              <path d="M2 12l10 5 10-5"/>
-            </svg>
-          </div>
-          <div class="free-trial-content">
-            <h3 class="free-trial-title">Start Watching Free</h3>
-            <p class="free-trial-desc">No registration needed · No credit card · Instant access</p>
-          </div>
-          <a href="/plans" class="free-trial-btn">
-            <span>Get Free Subscription</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </a>
-        </div>
       </div>
     </div>
   </main>
