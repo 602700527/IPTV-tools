@@ -394,27 +394,6 @@ export function generateCategoryPage(options = {}) {
       .free-trial-btn { width: 100%; justify-content: center; }
     }
 
-    /* Category FAQ - 长尾词模块 */
-    .category-faq { margin: 2rem 0; padding-top: 1.5rem; border-top: 1px solid var(--border); }
-    .faq-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary); }
-    .faq-list { display: flex; flex-direction: column; gap: 0.5rem; }
-    .faq-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-    .faq-item summary {
-      padding: 0.85rem 1rem;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--text-primary);
-      list-style: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary::after { content: '+'; font-size: 1.1rem; color: var(--accent); transition: transform 0.2s; }
-    .faq-item details[open] summary::after { transform: rotate(45deg); }
-    .faq-item .faq-answer { padding: 0 1rem 0.85rem; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
-
     /* Channel list */
     .channel-list { display: flex; flex-direction: column; gap: 0.5rem; }
     .channel-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); transition: all var(--transition); }
@@ -600,37 +579,6 @@ export function generateCategoryPage(options = {}) {
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </a>
-        </div>
-      </div>
-
-      <!-- 长尾词问答模块 -->
-      <div class="category-faq">
-        <h2 class="faq-title">Frequently Asked Questions about ${escapeHtml(category)} IPTV</h2>
-        <div class="faq-list">
-          <details class="faq-item">
-            <summary>How to watch ${escapeHtml(category)} IPTV channels for free?</summary>
-            <div class="faq-answer">Browse our ${escapeHtml(category)} channel list, select your favorite channels, and start streaming instantly. No signup required for basic access.</div>
-          </details>
-          <details class="faq-item">
-            <summary>What devices support ${escapeHtml(category)} IPTV streaming?</summary>
-            <div class="faq-answer">Our IPTV service works on Smart TVs, Roku, Amazon Firestick, Apple TV, Android devices, iOS, and any device that supports M3U playlists like VLC or IPTV Smarters Pro.</div>
-          </details>
-          <details class="faq-item">
-            <summary>Is ${escapeHtml(category)} IPTV legal?</summary>
-            <div class="faq-answer">We only index publicly available channels. Users must ensure compliance with local laws and content licensing regulations in their region.</div>
-          </details>
-          <details class="faq-item">
-            <summary>Why choose our ${escapeHtml(category)} IPTV service?</summary>
-            <div class="faq-answer">We provide daily updated channels, 99.9% uptime, 4K quality where available, and 24/7 customer support. Try our free plan to test the service.</div>
-          </details>
-          <details class="faq-item">
-            <summary>Can I record ${escapeHtml(category)} IPTV streams?</summary>
-            <div class="faq-answer">While we don't provide recording features directly, most IPTV players like TiviMate support DVR functionality. Subscribe to our premium plan for ad-free experience.</div>
-          </details>
-          <details class="faq-item">
-            <summary>How often are ${escapeHtml(category)} channels updated?</summary>
-            <div class="faq-answer">We update our channel database daily, removing dead links and adding new channels to ensure you always have access to working streams.</div>
-          </details>
         </div>
       </div>
     </div>
