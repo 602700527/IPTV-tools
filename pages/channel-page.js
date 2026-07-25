@@ -64,11 +64,14 @@ export function generateChannelPage(options = {}) {
       '<span>Updated daily</span>' +
     '</div>';
 
-  // Build action buttons
+  // Build action buttons - direct intent fulfillment, not redirect through /plans
   const actionButtonsHtml =
-    '<a href="' + origin + '/plans" class="btn btn-primary">' +
+    '<a href="' + origin + '/subscription" class="btn btn-primary">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>' +
-      'Get Subscription' +
+      'Get VIP Subscription' +
+    '</a>' +
+    '<a href="' + origin + '/freesub" class="btn btn-secondary" style="margin-left:10px;">' +
+      'Try Free' +
     '</a>' +
     '<button class="btn btn-secondary" id="detailStarBtn" onclick="toggleChannelStar()">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' +
@@ -143,8 +146,8 @@ export function generateChannelPage(options = {}) {
     "thumbnailUrl": channel.logo || placeholderSvg,
     "image": channel.logo || placeholderSvg,
     "uploadDate": "2024-04-10",
-    "contentUrl": channel.playUrl || origin + "/play/" + hash,
-    "embedUrl": channel.playUrl || origin + "/play/" + hash,
+    "contentUrl": origin + "/play/" + hash,
+    "embedUrl": origin + "/play/" + hash,
     "genre": channel.group || "TV Channel",
     "publisher": {
       "@type": "Organization",
@@ -167,15 +170,17 @@ export function generateChannelPage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Watch ${escapeHtml(channel.name)} Online Free - ${escapeHtml(channel.group || 'Live TV')} IPTV M3U M3U8 Live Stream</title>
-  <meta name="description" content="Watch ${escapeHtml(channel.name)} live online for free. ${escapeHtml(channel.group)} IPTV streaming with instant M3U M3U8 download link. No signup required. Compatible with IPTV Smarters Pro, VLC, GSE Smart IPTV, and all players.">
-  <meta name="keywords" content="${escapeHtml(channel.name)} IPTV, watch ${escapeHtml(channel.name)} online, ${escapeHtml(channel.group)} live stream, ${escapeHtml(channel.name)} M3U, ${escapeHtml(channel.name)} M3U8, ${escapeHtml(channel.name)} free TV, ${escapeHtml(channel.name)} streaming, IPTV ${escapeHtml(channel.name)}">
+  <title>${escapeHtml(channel.name)} - Free IPTV Live Stream | ${escapeHtml(channel.group || 'Live TV')}</title>
+  <meta name="description" content="Watch ${escapeHtml(channel.name)} live online free. ${escapeHtml(channel.group)} IPTV streaming with M3U M3U8 download. No signup required.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="${origin}/channel/${channelSlug}">
   <meta property="og:url" content="${origin}/channel/${channelSlug}">
+  <meta property="og:locale" content="en_US">
   <meta property="og:title" content="Watch ${escapeHtml(channel.name)} Online - Free ${escapeHtml(channel.group || 'TV')} IPTV M3U M3U8">
   <meta property="og:description" content="Stream ${escapeHtml(channel.name)} live free. Instant M3U M3U8 link - works with all IPTV players. No registration needed.">
-  ${channel.logo ? '<meta property="og:image" content="' + escapeHtml(channel.logo) + '">' : ''}
+  ${channel.logo ? `<meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image" content="${escapeHtml(channel.logo)}">` : ''}
   <meta property="og:type" content="video.other">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Watch ${escapeHtml(channel.name)} Online Free - IPTV M3U M3U8">
@@ -486,14 +491,14 @@ export function generateChannelPage(options = {}) {
       <div class="watch-option">
         <div class="option-header">
           <span class="option-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span>
-          <h4>Option 1: Get Subscription (Recommended)</h4>
+          <h4>Option 1: Get VIP Subscription (Recommended)</h4>
         </div>
         <div class="option-steps">
           <div class="step">
             <div class="step-number">1</div>
             <div class="step-content">
-              <h4><a href="${origin}/plans">Choose a Plan</a></h4>
-              <p>Get instant access to all channels with your personal playlist URL.</p>
+              <h4><a href="${origin}/subscription">Choose a VIP Plan &amp; Pay</a></h4>
+              <p>Get instant access to all channels with your personal playlist URL. Starts at $9.99/mo.</p>
             </div>
           </div>
           <div class="step">

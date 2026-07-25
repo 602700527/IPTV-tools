@@ -556,6 +556,63 @@ async function serveStaticFile(filePath, env) {
 
 // 生成静态页面（注入页头页脚组件）
 function generateStaticPage(pageTitle, pageDescription, styles, content) {
+  // Determine page path and schema type
+  let pagePath = '/tutorial';
+  let schemaType = 'WebPage';
+  let additionalSchema = '';
+  if (pageTitle === 'Privacy Policy') {
+    pagePath = '/privacy-policy';
+    schemaType = 'PrivacyPolicy';
+  } else if (pageTitle === 'Terms of Service') {
+    pagePath = '/terms';
+    schemaType = 'WebPage';
+  } else if (pageTitle.toLowerCase().includes('usa')) {
+    pagePath = '/usa-iptv';
+    schemaType = 'CollectionPage';
+  } else if (pageTitle.toLowerCase().includes('uk')) {
+    pagePath = '/uk-iptv-plans';
+    schemaType = 'CollectionPage';
+  } else if (pageTitle.toLowerCase().includes('asia')) {
+    pagePath = '/asia-iptv';
+    schemaType = 'CollectionPage';
+  } else if (pageTitle.toLowerCase().includes('europe')) {
+    pagePath = '/europe-iptv';
+    schemaType = 'CollectionPage';
+  } else if (pageTitle.toLowerCase().includes('americas')) {
+    pagePath = '/americas-iptv';
+    schemaType = 'CollectionPage';
+  } else if (pageTitle.toLowerCase().includes('oceania')) {
+    pagePath = '/oceania-iptv';
+    schemaType = 'CollectionPage';
+  } else if (pageTitle.toLowerCase().includes('middle')) {
+    pagePath = '/middle-east-iptv';
+    schemaType = 'CollectionPage';
+  } else if (pageTitle.toLowerCase().includes('android')) {
+    pagePath = '/android-iptv-app';
+    schemaType = 'Article';
+  } else if (pageTitle.toLowerCase().includes('free iptv app')) {
+    pagePath = '/free-iptv-app-review';
+    schemaType = 'Article';
+  } else if (pageTitle.includes('Tutorial') || pageTitle.includes('How to')) {
+    pagePath = '/tutorial';
+    schemaType = 'HowTo';
+    // Add HowTo structured data
+    additionalSchema = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "How to Watch IPTV Channels",
+      "description": pageDescription,
+      "totalTime": "PT5M",
+      "step": [
+        {"@type": "HowToStep", "position": 1, "name": "Browse Channels", "text": "Visit iptv-search.com and browse or search for IPTV channels by country or category"},
+        {"@type": "HowToStep", "position": 2, "name": "Get M3U URL", "text": "Click on any channel category and copy the M3U playlist URL"},
+        {"@type": "HowToStep", "position": 3, "name": "Install Player", "text": "Download an IPTV player like VLC, IPTV Smarters, or TiviMate on your device"},
+        {"@type": "HowToStep", "position": 4, "name": "Add Playlist", "text": "Open the player, go to Add Playlist, and paste the M3U URL"},
+        {"@type": "HowToStep", "position": 5, "name": "Watch Live", "text": "Select any channel from the list and start watching live TV"}
+      ]
+    });
+  }
+  
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -563,8 +620,32 @@ function generateStaticPage(pageTitle, pageDescription, styles, content) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${pageTitle}</title>
   <meta name="description" content="${pageDescription}">
-  <meta name="robots" content="noindex, follow">
-  <link rel="canonical" href="https://iptv-search.com${pageTitle === 'Privacy Policy' ? '/privacy-policy' : pageTitle === 'Terms of Service' ? '/terms' : '/tutorial'}">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://iptv-search.com${pagePath}">
+  <meta property="og:type" content="${schemaType === 'HowTo' ? 'article' : 'website'}">
+  <meta property="og:title" content="${pageTitle}">
+  <meta property="og:description" content="${pageDescription}">
+  <meta property="og:url" content="https://iptv-search.com${pagePath}">
+  <meta property="og:locale" content="en_US">
+  ${additionalSchema ? `<script type="application/ld+json">${additionalSchema}</script>` : ''}
+  <script type="application/ld+json">${JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": schemaType,
+    "name": pageTitle,
+    "description": pageDescription,
+    "url": "https://iptv-search.com" + pagePath,
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "IPTV Search",
+      "url": "https://iptv-search.com"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "IPTV Search",
+      "url": "https://iptv-search.com"
+    },
+    "inLanguage": "en"
+  })}</script>
   <style>
     :root {
       --accent: #e50914;

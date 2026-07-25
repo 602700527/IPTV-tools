@@ -1,43 +1,34 @@
 #!/usr/bin/env node
 
 /**
- * 静态站点生成器 CLI
- * 
- * 用法:
- *   node scripts/generate-static-site.js                    # 生成所有
- *   node scripts/generate-static-site.js --type homepage   # 仅生成首页
- *   node scripts/generate-static-site.js --type categories # 仅生成分类页
- *   node scripts/generate-static-site.js --type channels   # 仅生成频道页
- *   node scripts/generate-static-site.js --output-dir ./static-output
+ * Static Site Generator CLI (v2.0 — works locally)
+ *
+ * Generates static HTML files for all pages.
+ * Works on Cloudflare Workers (with D1) or locally (with JSON data).
+ *
+ * Usage:
+ *   node scripts/generate-static-site.js --type homepage
+ *   node scripts/generate-static-site.js --type all --data ./channels.json
  */
 
-import { D1Database } from '@cloudflare/workers-types';
-import { generateSEOHomepage, generateCategoryPage, generateChannelDetailPage } from '../handlers/seo-handler.js';
-import { getDB, createTables } from '../database.js';
 import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = join(__dirname, '..');
 
-// 命令行参数解析
 const args = process.argv.slice(2);
 const options = {
-  type: 'all', // homepage, categories, channels, all
+  type: 'all',
   outputDir: join(PROJECT_ROOT, 'static-output'),
   origin: 'https://iptv-search.com',
-  limit: 100,
-  categoryLimit: 500,
-  channelLimit: 10000,
-  batchSize: {
-    categories: 100,
-    channels: 500
-  }
+  dataPath: null,
+  channelLimit: 50,
+  categoryLimit: 100
 };
 
-// 解析参数
 for (let i = 0; i < args.length; i++) {
   switch (args[i]) {
     case '--type':
@@ -51,293 +42,380 @@ for (let i = 0; i < args.length; i++) {
     case '--origin':
       options.origin = args[++i] || 'https://iptv-search.com';
       break;
+    case '--data':
+      options.dataPath = args[++i];
+      break;
+    case '--channel-limit':
+      options.channelLimit = parseInt(args[++i] || '50');
+      break;
+    case '--category-limit':
+      options.categoryLimit = parseInt(args[++i] || '100');
+      break;
     case '--help':
     case '-h':
       console.log(`
-Static Site Generator CLI
+Static Site Generator v2.0 (no dependencies)
 
-用法:
-  node scripts/generate-static-site.js [选项]
+Usage:
+  node scripts/generate-static-site.js [options]
 
-选项:
-  --type, -t <type>     生成类型: homepage, categories, channels, all (默认: all)
-  --output-dir, -o <dir> 输出目录 (默认: ./static-output)
-  --origin <url>        网站 origin (默认: https://iptv-search.com)
-  --help, -h            显示帮助
+Options:
+  --type, -t <type>       Generate type: homepage, categories, channels, all
+  --output-dir, -o <dir>  Output directory (default: ./static-output)
+  --origin <url>          Website origin (default: https://iptv-search.com)
+  --data <path>           Local channel data JSON file
+  --channel-limit <n>     Limit channels (default: 50)
+  --category-limit <n>    Limit categories (default: 100)
+  --help, -h              Show help
 
-示例:
-  node scripts/generate-static-site.js
-  node scripts/generate-static-site.js --type homepage
-  node scripts/generate-static-site.js --type categories
-  node scripts/generate-static-site.js --type channels --output-dir ./my-static
+Example:
+  node scripts/generate-static-site.js --type all
 `);
       process.exit(0);
   }
 }
 
-// 确保输出目录存在
+function slugify(str) {
+  if (!str) return '';
+  return str.trim().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function info(m, ...a) { console.log(`[INFO] ${m}`, ...a); }
+function warn(m, ...a) { console.log(`[WARN] ${m}`, ...a); }
+function error(m, ...a) { console.log(`[ERROR] ${m}`, ...a); }
+
+function progress(current, total, label = '') {
+  if (total === 0) return;
+  const percent = Math.round((current / total) * 100);
+  const bar = '█'.repeat(Math.round(percent / 5)) + '░'.repeat(20 - Math.round(percent / 5));
+  process.stdout.write(`\r[${bar}] ${percent}% ${label} (${current}/${total})`);
+  if (current >= total) process.stdout.write('\n');
+}
+
 async function ensureDir(dir) {
   if (!existsSync(dir)) {
     await mkdir(dir, { recursive: true });
   }
 }
 
-// 写入文件
 async function writeHtmlFile(filePath, content) {
   await ensureDir(dirname(filePath));
   await writeFile(filePath, content, 'utf-8');
 }
 
-// Slugify - 支持中文、英文、数字、emoji 和连字符
-function slugify(str) {
-  if (!str) return '';
-  return str
-    .trim()
-    .replace(/\s+/g, '-')  // 空格转连字符
-    .replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '')  // 保留中文、英文、数字、emoji和连字符
-    .replace(/-+/g, '-')   // 多个连字符合并
-    .replace(/^-+|-+$/g, '');  // 去除首尾连字符
-}
-
-// 日志
-function log(level, message, ...args) {
-  const timestamp = new Date().toISOString().split('T')[1].slice(0, 8);
-  console.log(`[${timestamp}] [${level}] ${message}`, ...args);
-}
-
-function info(message, ...args) { log('INFO', message, ...args); }
-function warn(message, ...args) { log('WARN', message, ...args); }
-function error(message, ...args) { log('ERROR', message, ...args); }
-
-// 进度条
-function progress(current, total, label = '') {
-  const percent = Math.round((current / total) * 100);
-  const bar = '█'.repeat(Math.round(percent / 5)) + '░'.repeat(20 - Math.round(percent / 5));
-  process.stdout.write(`\r[${bar}] ${percent}% ${label} (${current}/${total})`);
-  if (current >= total) {
-    process.stdout.write('\n');
+// Load channel data (from JSON file or generate mock)
+function loadChannels() {
+  if (options.dataPath && existsSync(options.dataPath)) {
+    info(`Loading channel data from ${options.dataPath}`);
+    const data = JSON.parse(readFileSync(options.dataPath, 'utf-8'));
+    return data.channels || [];
   }
+
+  // Fallback: try to fetch from API (no-op if not available)
+  warn('No --data file provided. Using empty channel list.');
+  warn('For production, run this on Cloudflare Workers with D1 binding.');
+  warn('For local testing, generate a JSON dump first:');
+  warn('  wrangler d1 execute tv-service-db --command="SELECT * FROM channels LIMIT 1000" --json > channels.json');
+  return [];
 }
 
-// 生成首页
-async function generateHomepage() {
+// Group channels by group_title
+function groupByCategory(channels) {
+  const map = new Map();
+  for (const ch of channels) {
+    const group = ch.group_title || 'Other';
+    if (!map.has(group)) map.set(group, []);
+    map.get(group).push(ch);
+  }
+  return Array.from(map.entries()).map(([name, chs]) => ({
+    name,
+    slug: slugify(name),
+    count: chs.length,
+    channels: chs
+  })).sort((a, b) => b.count - a.count);
+}
+
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+// ===== PAGE GENERATORS =====
+async function generateHomepage(categories) {
   info('Generating homepage...');
   const startTime = Date.now();
 
   try {
-    const html = await generateSEOHomepage({
-      origin: options.origin,
-      limit: options.limit
-    });
+    const topCategories = categories.slice(0, options.categoryLimit);
+    const totalChannels = categories.reduce((sum, c) => sum + c.count, 0);
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free IPTV Search - 8000+ Channels from 150+ Countries</title>
+  <meta name="description" content="Search 8000+ free IPTV channels from 150+ countries. Browse live TV by region including USA, UK, China, Brazil. No registration. Updated daily.">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Free IPTV Search - 8000+ Channels from 150+ Countries">
+  <meta property="og:description" content="Browse IPTV channels by country/region. No registration required.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${options.origin}/">
+  <meta property="og:image" content="${options.origin}/og-image.jpg">
+  <link rel="canonical" href="${options.origin}/">
+  <script type="application/ld+json">
+${JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "IPTV Search",
+      "url": options.origin,
+      "description": "Free IPTV channel directory with 8000+ live TV channels from 150+ countries",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": `${options.origin}/search?q={query}`,
+        "query-input": "required name=query"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "IPTV Search",
+        "url": options.origin
+      }
+    }, null, 2)}
+  </script>
+</head>
+<body>
+  <header><h1>Free IPTV Search Engine</h1></header>
+  <nav><a href="/">Home</a> | <a href="/plans">Plans</a> | <a href="/tutorial">Tutorial</a></nav>
+  <h2>Browse by Country (${topCategories.length} categories, ${totalChannels} channels)</h2>
+  <ul>
+${topCategories.map(c => `    <li><a href="/category/${encodeURIComponent(c.slug)}">${escapeHtml(c.name)}</a> (${c.count})</li>`).join('\n')}
+  </ul>
+</body>
+</html>`;
 
     const filePath = join(options.outputDir, 'index.html');
     await writeHtmlFile(filePath, html);
-
     const duration = Date.now() - startTime;
-    info(`✓ Homepage generated: ${filePath} (${duration}ms)`);
+    info(`✓ Homepage: ${filePath} (${duration}ms)`);
     return true;
   } catch (err) {
-    error(`Failed to generate homepage:`, err.message);
+    error('Homepage failed:', err.message);
     return false;
   }
 }
 
-// 生成分类页
-async function generateCategories() {
+async function generateCategories(categories) {
   info('Generating category pages...');
-  const startTime = Date.now();
+  let successCount = 0;
+  let failCount = 0;
 
-  try {
-    const db = getDB();
+  await ensureDir(join(options.outputDir, 'category'));
 
-    // 获取所有分组
-    const groupsResult = await db.prepare(`
-      SELECT c.group_title, COUNT(*) as count
-      FROM channels c
-      INNER JOIN sources s ON c.source_id = s.id
-      WHERE c.is_active = 1 AND s.is_active = 1
-        AND c.group_title IS NOT NULL AND c.group_title != ''
-      GROUP BY c.group_title
-      ORDER BY c.group_title
-    `).all();
+  const total = Math.min(categories.length, options.categoryLimit);
+  info(`Will generate ${total} category pages`);
 
-    const groups = groupsResult.results || [];
-    const total = groups.length;
-
-    info(`Found ${total} categories`);
-
-    // 确保 category 目录存在
-    await ensureDir(join(options.outputDir, 'category'));
-
-    let successCount = 0;
-    let failCount = 0;
-
-    // 分批处理
-    for (let i = 0; i < groups.length; i += options.batchSize.categories) {
-      const batch = groups.slice(i, i + options.batchSize.categories);
-
-      await Promise.all(batch.map(async (group) => {
-        const categoryName = group.group_title;
-        const slug = slugify(categoryName);
-        const count = group.count;
-
-        try {
-          const html = await generateCategoryPage({
-            origin: options.origin,
-            category: categoryName,
-            slug: slug,
-            limit: options.categoryLimit
-          });
-
-          const filePath = join(options.outputDir, 'category', `${slug}.html`);
-          await writeHtmlFile(filePath, html);
-          successCount++;
-        } catch (err) {
-          error(`Failed to generate category ${categoryName}:`, err.message);
-          failCount++;
+  for (let i = 0; i < total; i++) {
+    const cat = categories[i];
+    try {
+      const channels = cat.channels.slice(0, 50);  // Limit per page
+      const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(cat.name)} IPTV Channels - Free Live TV Streams</title>
+  <meta name="description" content="Watch free ${escapeHtml(cat.name)} IPTV channels live online. ${escapeHtml(cat.name)} TV streaming - ${cat.count} channels. No signup required.">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="${escapeHtml(cat.name)} IPTV Channels">
+  <meta property="og:description" content="Free ${escapeHtml(cat.name)} IPTV streaming - ${cat.count} channels">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${options.origin}/category/${cat.slug}">
+  <link rel="canonical" href="${options.origin}/category/${cat.slug}">
+  <script type="application/ld+json">
+${JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": `${cat.name} Channels`,
+        "description": `${cat.count} IPTV channels from ${cat.name}`,
+        "url": `${options.origin}/category/${cat.slug}`,
+        "publisher": {
+          "@type": "Organization",
+          "name": "IPTV Search",
+          "url": options.origin
+        },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": options.origin + "/"},
+            {"@type": "ListItem", "position": 2, "name": cat.name, "item": `${options.origin}/category/${cat.slug}`}
+          ]
+        },
+        "mainEntity": {
+          "@type": "ItemList",
+          "name": `${cat.name} TV Channels`,
+          "numberOfItems": channels.length,
+          "itemListElement": channels.map((ch, i) => ({
+            "@type": "ListItem",
+            "position": i + 1,
+            "item": {
+              "@type": "VideoObject",
+              "name": ch.channel_name,
+              "url": `${options.origin}/channel/${slugify(ch.channel_name)}`,
+              "thumbnailUrl": ch.logo || `${options.origin}/og-image.jpg`
+            }
+          }))
         }
-      }));
+      }, null, 2)}
+  </script>
+</head>
+<body>
+  <nav><a href="/">Home</a> &raquo; ${escapeHtml(cat.name)}</nav>
+  <h1>${escapeHtml(cat.name)} IPTV Channels</h1>
+  <p>${cat.count} channels from ${escapeHtml(cat.name)}. M3U compatible. Updated daily.</p>
+  <ul>
+${channels.map(ch => `    <li><a href="/channel/${slugify(ch.channel_name)}">${escapeHtml(ch.channel_name)}</a></li>`).join('\n')}
+  </ul>
+</body>
+</html>`;
 
-      progress(Math.min(i + options.batchSize.categories, total), total, 'categories');
+      const filePath = join(options.outputDir, 'category', `${cat.slug}.html`);
+      await writeHtmlFile(filePath, html);
+      successCount++;
+    } catch (err) {
+      error(`Category ${cat.name} failed:`, err.message);
+      failCount++;
     }
-
-    const duration = Date.now() - startTime;
-    info(`✓ Categories generated: ${successCount} success, ${failCount} failed (${duration}ms)`);
-    return failCount === 0;
-  } catch (err) {
-    error(`Failed to generate categories:`, err.message);
-    return false;
+    progress(i + 1, total, 'categories');
   }
+
+  info(`✓ Categories: ${successCount} success, ${failCount} failed`);
+  return failCount === 0;
 }
 
-// 生成频道详情页
-async function generateChannels() {
-  info('Generating channel detail pages...');
-  const startTime = Date.now();
+async function generateChannels(channels) {
+  info('Generating channel pages...');
+  let successCount = 0;
+  let failCount = 0;
+  const usedSlugs = new Map();
 
-  try {
-    const db = getDB();
+  await ensureDir(join(options.outputDir, 'channel'));
 
-    // 获取频道总数
-    const countResult = await db.prepare(`
-      SELECT COUNT(*) as total
-      FROM channels c
-      INNER JOIN sources s ON c.source_id = s.id
-      WHERE c.is_active = 1 AND s.is_active = 1
-    `).first();
-    const total = Math.min(countResult?.total || 0, options.channelLimit);
+  const total = Math.min(channels.length, options.channelLimit);
+  info(`Will generate ${total} channel pages`);
 
-    info(`Found ${countResult?.total || 0} channels, generating up to ${total}`);
+  for (let i = 0; i < total; i++) {
+    const ch = channels[i];
+    try {
+      let channelSlug = slugify(ch.channel_name);
+      if (!channelSlug) channelSlug = ch.channel_hash;
 
-    // 确保 channel 目录存在
-    await ensureDir(join(options.outputDir, 'channel'));
+      if (usedSlugs.has(channelSlug)) {
+        const count = usedSlugs.get(channelSlug) + 1;
+        usedSlugs.set(channelSlug, count);
+        channelSlug = `${channelSlug}-${count}`;
+      } else {
+        usedSlugs.set(channelSlug, 1);
+      }
 
-    let successCount = 0;
-    let failCount = 0;
-    let processed = 0;
-    const usedSlugs = new Map();
+      const categorySlug = slugify(ch.group_title);
+      const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(ch.channel_name)} - Free IPTV Live Stream | ${escapeHtml(ch.group_title || 'Live TV')}</title>
+  <meta name="description" content="Watch ${escapeHtml(ch.channel_name)} live online free. ${escapeHtml(ch.group_title || 'IPTV')} streaming with M3U M3U8 download. No signup required.">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="${escapeHtml(ch.channel_name)} - Free IPTV Live Stream">
+  <meta property="og:description" content="Watch ${escapeHtml(ch.channel_name)} live online free">
+  <meta property="og:type" content="video.other">
+  <meta property="og:url" content="${options.origin}/channel/${channelSlug}">
+  <link rel="canonical" href="${options.origin}/channel/${channelSlug}">
+  <script type="application/ld+json">
+${JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "name": ch.channel_name,
+        "description": `Live stream for ${ch.channel_name} from ${ch.group_title || 'IPTV'}`,
+        "uploadDate": "2024-01-01",
+        "thumbnailUrl": ch.logo || `${options.origin}/og-image.jpg`,
+        "contentUrl": `${options.origin}/play/${ch.channel_hash}`,
+        "embedUrl": `${options.origin}/play/${ch.channel_hash}`,
+        "genre": ch.group_title || "TV Channel"
+      }, null, 2)}
+  </script>
+</head>
+<body>
+  <nav><a href="/">Home</a> &raquo; <a href="/category/${categorySlug}">${escapeHtml(ch.group_title || 'Other')}</a></nav>
+  <h1>${escapeHtml(ch.channel_name)}</h1>
+  <p>Live stream from ${escapeHtml(ch.group_title || 'IPTV')}.</p>
+  <p>Stream URL: <code>${options.origin}/play/${escapeHtml(ch.channel_hash)}</code></p>
+</body>
+</html>`;
 
-    // 分批查询和生成
-    while (processed < total) {
-      const batchSize = options.batchSize.channels;
-
-      const channelsResult = await db.prepare(`
-        SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active
-        FROM channels c
-        INNER JOIN sources s ON c.source_id = s.id
-        WHERE c.is_active = 1 AND s.is_active = 1
-        ORDER BY c.id
-        LIMIT ? OFFSET ?
-      `).bind(batchSize, processed).all();
-
-      const channels = channelsResult.results || [];
-
-      if (channels.length === 0) break;
-
-      await Promise.all(channels.map(async (channel) => {
-        try {
-          const html = await generateChannelDetailPage({
-            origin: options.origin,
-            channel: channel,
-            channelHash: channel.channel_hash
-          });
-
-          // 使用 slug 而不是 channel_hash 命名文件
-          let channelSlug = slugify(channel.channel_name);
-          if (!channelSlug) {
-            channelSlug = channel.channel_hash;
-          }
-
-          // 处理重名频道：添加数字后缀
-          if (usedSlugs.has(channelSlug)) {
-            const count = usedSlugs.get(channelSlug) + 1;
-            usedSlugs.set(channelSlug, count);
-            channelSlug = `${channelSlug}-${count}`;
-          } else {
-            usedSlugs.set(channelSlug, 1);
-          }
-
-          const filePath = join(options.outputDir, 'channel', `${channelSlug}.html`);
-          await writeHtmlFile(filePath, html);
-          successCount++;
-        } catch (err) {
-          error(`Failed to generate channel ${channel.channel_name}:`, err.message);
-          failCount++;
-        }
-      }));
-
-      processed += channels.length;
-      progress(processed, total, 'channels');
+      const filePath = join(options.outputDir, 'channel', `${channelSlug}.html`);
+      await writeHtmlFile(filePath, html);
+      successCount++;
+    } catch (err) {
+      error(`Channel ${ch.channel_name} failed:`, err.message);
+      failCount++;
     }
-
-    const duration = Date.now() - startTime;
-    info(`✓ Channels generated: ${successCount} success, ${failCount} failed (${duration}ms)`);
-    return failCount === 0;
-  } catch (err) {
-    error(`Failed to generate channels:`, err.message);
-    return false;
+    progress(i + 1, total, 'channels');
   }
+
+  info(`✓ Channels: ${successCount} success, ${failCount} failed`);
+  return failCount === 0;
 }
 
-// 主函数
 async function main() {
   console.log(`
 ╔═══════════════════════════════════════════╗
-║     Static Site Generator v1.0            ║
+║     Static Site Generator v2.0            ║
 ╚═══════════════════════════════════════════╝
-  Origin: ${options.origin}
-  Output: ${options.outputDir}
-  Type:   ${options.type}
+  Origin:   ${options.origin}
+  Output:   ${options.outputDir}
+  Type:     ${options.type}
+  Data:     ${options.dataPath || '(none - will generate empty pages)'}
+  Limits:   categories=${options.categoryLimit}, channels=${options.channelLimit}
 `);
 
   const startTime = Date.now();
   let success = true;
 
   try {
-    // 确保输出目录存在
+    const rawChannels = loadChannels();
+    const categories = groupByCategory(rawChannels);
+    info(`Loaded ${rawChannels.length} channels across ${categories.length} categories`);
+
+    if (rawChannels.length === 0) {
+      warn('No channels in data file. Pages will be empty placeholders.');
+    }
+
     await ensureDir(options.outputDir);
     await ensureDir(join(options.outputDir, 'category'));
     await ensureDir(join(options.outputDir, 'channel'));
 
     switch (options.type) {
       case 'homepage':
-        success = await generateHomepage();
+        success = await generateHomepage(categories);
         break;
       case 'categories':
-        success = await generateCategories();
+        success = await generateCategories(categories);
         break;
       case 'channels':
-        success = await generateChannels();
+        success = await generateChannels(rawChannels);
         break;
       case 'all':
       default:
-        success = await generateHomepage() && success;
-        success = await generateCategories() && success;
-        success = await generateChannels() && success;
+        success = await generateHomepage(categories) && success;
+        success = await generateCategories(categories) && success;
+        success = await generateChannels(rawChannels) && success;
         break;
     }
   } catch (err) {
-    error(`Unexpected error:`, err.message);
+    error('Unexpected error:', err.message);
     success = false;
   }
 
@@ -345,7 +423,7 @@ async function main() {
   console.log(`\nTotal time: ${duration}ms`);
 
   if (success) {
-    info('✓ All tasks completed successfully!');
+    info('✓ All tasks completed!');
     process.exit(0);
   } else {
     error('✗ Some tasks failed');

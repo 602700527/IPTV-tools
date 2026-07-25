@@ -220,29 +220,59 @@ export function generateFavoritesPage(options = {}) {
   @media (max-width: 480px) { .toast-container { top: auto; bottom: 24px; left: 16px; right: 16px; } .toast { min-width: auto; width: 100%; } }
   </style>
 
-  <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"
+            onerror="window.__fpLoadFailed=true"></script>
 
-  <script>
-    const FAVORITES_KEY = 'favorites';
-    const MAX_FREE_DOWNLOAD = 100;
-    const BATCH_SIZE = 50;
+    <script>
+      const FAVORITES_KEY = 'favorites';
+      const MAX_FREE_DOWNLOAD = 100;
+      const BATCH_SIZE = 50;
+      const STABLE_ID_KEY = 'iptv_stable_id';
 
-    // Fingerprint promise (lazy initialization)
-    let fpPromise = null;
-
-    function getFingerprint() {
-      if (!fpPromise) {
-        fpPromise = FingerprintJS.load().then(fp => fp.get()).then(result => result.visitorId);
+      // Stable anonymous ID fallback (used if FingerprintJS CDN is blocked)
+      function getStableId() {
+        try {
+          let id = localStorage.getItem(STABLE_ID_KEY);
+          if (!id) {
+            id = 'anon_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+            localStorage.setItem(STABLE_ID_KEY, id);
+          }
+          return id;
+        } catch (e) {
+          return 'anon_' + Date.now().toString(36);
+        }
       }
-      return fpPromise;
-    }
+
+      // Fingerprint promise (lazy initialization, with stable-ID fallback)
+      let fpPromise = null;
+
+      function getFingerprint() {
+        if (!fpPromise) {
+          if (typeof FingerprintJS === 'undefined' || window.__fpLoadFailed) {
+            // CDN blocked or load failed — use stable localStorage ID instead
+            fpPromise = Promise.resolve(getStableId());
+          } else {
+            fpPromise = FingerprintJS.load().then(fp => fp.get()).then(result => result.visitorId).catch(() => getStableId());
+          }
+        }
+        return fpPromise;
+      }
 
     function escapeHtml(str) { if (!str) return ''; return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
 
     // Slugify function for SEO-friendly URLs
+    // NOTE: Avoid backslash escapes in regex literals; wrangler's
+    // esbuild pass strips backslashes in regex literals, breaking them.
+    // Affected regexes can silently misbehave (e.g. eating characters).
+    // Use String.fromCharCode to build regex strings at runtime.
     function slugify(str) {
       if (!str) return '';
-      return str.trim().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+      var ws = String.fromCharCode(9, 10, 11, 12, 13, 32);
+      var reWs = new RegExp('[' + ws + ']+', 'g');
+      var reKeep = new RegExp('[^a-zA-Z0-9' + String.fromCharCode(0x4e00) + '-' + String.fromCharCode(0x9fff) + String.fromCharCode(0xff00) + '-' + String.fromCharCode(0xffef) + String.fromCharCode(0xfe00) + '-' + String.fromCharCode(0xfeff) + String.fromCharCode(0x3000) + '-' + String.fromCharCode(0x303f) + String.fromCharCode(0x2000) + '-' + String.fromCharCode(0x206f) + String.fromCharCode(0xfe30) + '-' + String.fromCharCode(0xfe4f) + String.fromCharCode(0x2600) + '-' + String.fromCharCode(0x26ff) + '-]', 'g');
+      var reDash = /-+/g;
+      var reEdge = /^-+|-+$/g;
+      return str.trim().replace(reWs, '-').replace(reKeep, '').replace(reDash, '-').replace(reEdge, '');
     }
 
     // Build SEO-friendly channel URL (pure slug, no hash)

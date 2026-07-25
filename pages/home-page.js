@@ -58,22 +58,22 @@ export function generateHomePage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>iptvsearch - Free IPTV Search Engine | 8000+ Live TV Channels M3U M3U8</title>
-  <meta name="description" content="Find any IPTV channel instantly with iptvsearch. Search live sports, movies, news. Updated daily. No signup required. Compatible with IPTV Smarters Pro, VLC, GSE Smart IPTV, and all M3U M3U8 players.">
-  <meta name="keywords" content="iptv search, iptvsearch, free IPTV search, IPTV search engine, search IPTV channels, find IPTV, best IPTV search, iptv link finder, M3U search, M3U8 search, live TV search, watch IPTV online, IPTV search free, IPTV M3U, IPTV M3U8, free IPTV, IPTV player">
+  <title>Free IPTV Search - 8000+ Channels from 150+ Countries</title>
+  <meta name="description" content="Search 8000+ free IPTV channels from 150+ countries. Browse live TV by region including USA, UK, China, Brazil. No registration. Updated daily.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="${origin}/">
   <meta property="og:title" content="iptvsearch - Free IPTV Search Engine | 8000+ Live TV Channels">
   <meta property="og:description" content="Find any IPTV channel instantly. Search live sports, movies, news. Updated daily. No signup required.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${origin}/">
+  <meta property="og:locale" content="en_US">
   <meta property="og:image" content="${origin}/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="iptvsearch - Free IPTV Search Engine | 8000+ Live TV Channels">
   <meta name="twitter:description" content="Find any IPTV channel instantly. Search live sports, movies, news. Updated daily.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="${origin}/">
-  <meta property="og:image" content="${origin}/og-image.png">
+
+
+
 
   <!-- JSON-LD structured data (SSR - visible to AI crawlers without JS) -->
   <script type="application/ld+json">
@@ -427,7 +427,7 @@ export function generateHomePage(options = {}) {
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-content">
-        <h1>Global Live TV Channels</h1>
+        <h1>Free IPTV Channel Search - 5000+ Live TV Channels from 150+ Countries</h1>
         <p>Overseas Chinese' no.1 Choice | Works with VLC, APTV, Smarters & all platforms</p>
       </div>
       <div class="hero-stats">

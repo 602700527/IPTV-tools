@@ -1,6 +1,7 @@
 {
   "name": "cf-tv-service",
   "version": "1.0.0",
+  "type": "module",
   "description": "基于 Cloudflare Workers 的电视直播服务",
   "main": "worker.js",
   "scripts": {

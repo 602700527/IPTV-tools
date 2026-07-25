@@ -64,31 +64,68 @@ export function generateCategoryPage(options = {}) {
   }
 
   // Generate JSON-LD
+  // Build JSON-LD structured data
+  // Schema.org CollectionPage + BreadcrumbList + ItemList
+  const channelItemList = {
+    "@type": "ItemList",
+    "name": category + " Channels",
+    "description": "List of " + category + " live TV channels available on IPTV Search",
+    "numberOfItems": channels.length,
+    "itemListElement": channels.slice(0, 50).map((ch, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "item": {
+        "@type": "VideoObject",
+        "name": ch.name,
+        "url": origin + buildChannelUrl(ch.name),
+        "uploadDate": "2024-01-01",
+        "thumbnailUrl": ch.logo || (origin + "/og-image.jpg"),
+        "description": "Watch " + ch.name + " live from " + (ch.group || category) + " on IPTV Search"
+      }
+    }))
+  };
+
   const jsonLd = channels.length > 0 ? {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": category + " Channels",
     "description": "Watch all " + category + " channels live on IPTV Search. Free IPTV streaming.",
     "url": origin + "/category/" + slug,
-    "publisher": {
-      "@type": "Organization",
+    "inLanguage": "en",
+    "isPartOf": {
+      "@type": "WebSite",
       "name": "IPTV Search",
       "url": origin
     },
-    "mainEntity": {
+    "publisher": {
+      "@type": "Organization",
+      "name": "IPTV Search",
+      "url": origin,
+      "logo": {
+        "@type": "ImageObject",
+        "url": origin + "/logo.svg"
+      }
+    },
+    "breadcrumb": {
       "@type": "BreadcrumbList",
       "itemListElement": [
         {"@type": "ListItem", "position": 1, "name": "Home", "item": origin + "/"},
         {"@type": "ListItem", "position": 2, "name": category, "item": origin + "/category/" + slug}
       ]
     },
-    "itemListElement": channels.slice(0, 10).map((ch, i) => ({
-      "@type": "ListItem",
-      "position": i + 1,
-      "name": ch.name,
-      "url": origin + buildChannelUrl(ch.name)
-    }))
-  } : null;
+    "mainEntity": channelItemList
+  } : {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": category + " Channels",
+    "description": "IPTV channels from " + category,
+    "url": origin + "/category/" + slug,
+    "publisher": {
+      "@type": "Organization",
+      "name": "IPTV Search",
+      "url": origin
+    }
+  };
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -96,11 +133,11 @@ export function generateCategoryPage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Watch ${escapeHtml(category)} IPTV Channels - Free Live Stream Online in ${escapeHtml(category)}</title>
-  <meta name="description" content="Watch free ${escapeHtml(category)} IPTV channels live online. ${escapeHtml(category)} TV streaming - no signup required. Compatible with IPTV Smarters Pro, VLC, GSE Smart IPTV, and all M3U M3U8 players.">
-  <meta name="keywords" content="${escapeHtml(category)} IPTV, watch ${escapeHtml(category)} TV, ${escapeHtml(category)} live stream, free ${escapeHtml(category)} IPTV, ${escapeHtml(category)} M3U, ${escapeHtml(category)} M3U8, ${escapeHtml(category)} online TV, ${escapeHtml(category)} streaming channels">
+  <title>${escapeHtml(category)} IPTV Channels - Free Live TV Streams</title>
+  <meta name="description" content="Watch free ${escapeHtml(category)} IPTV channels live online. ${escapeHtml(category)} TV streaming - no signup required. Compatible with IPTV Smarters.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="${origin}/category/${encodeURIComponent(slug)}">
+  <meta property="og:locale" content="en_US">
   <meta property="og:title" content="Watch ${escapeHtml(category)} IPTV Channels - Free ${escapeHtml(category)} Live Stream">
   <meta property="og:description" content="Stream free ${escapeHtml(category)} IPTV channels online. No signup required. Works with IPTV Smarters, VLC, GSE, and all M3U players.">
   <meta property="og:type" content="website">
@@ -108,8 +145,8 @@ export function generateCategoryPage(options = {}) {
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Watch ${escapeHtml(category)} IPTV Channels Free Online">
   <meta name="twitter:description" content="Stream free ${escapeHtml(category)} live TV channels. No signup, no fees. Compatible with all IPTV players.">
-   <meta property="og:type" content="website">
-   <meta property="og:url" content="${origin}/category/${encodeURIComponent(slug)}">
+
+
 
    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
 
