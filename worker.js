@@ -484,6 +484,7 @@ import { pageTitle as privacyTitle, pageDescription as privacyDesc, styles as pr
 import { pageTitle as termsTitle, pageDescription as termsDesc, styles as termsStyles, content as termsContent } from './pages-content/terms.js';
 import { pageTitle as tutorialTitle, pageDescription as tutorialDesc, styles as tutorialStyles, content as tutorialContent } from './pages-content/tutorial.js';
 import { pageTitle as loginTitle, pageDescription as loginDesc, styles as loginStyles, content as loginContent } from './pages-content/login.js';
+import { pageTitle as accountTitle, pageDescription as accountDesc, styles as accountStyles, content as accountContent } from './pages-content/account.js';
 import { pageTitle as forgotTitle, pageDescription as forgotDesc, styles as forgotStyles, content as forgotContent } from './pages-content/forgot-password.js';
 import { pageTitle as usaIptvTitle, pageDescription as usaIptvDesc, styles as usaIptvStyles, content as usaIptvContent } from './pages-content/usa-iptv.js';
 import { pageTitle as ukIptvTitle, pageDescription as ukIptvDesc, styles as ukIptvStyles, content as ukIptvContent } from './pages-content/uk-iptv-plans.js';
@@ -1259,6 +1260,11 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/login') {
       // 登录页 - 使用静态页面系统
       return new Response(generateStaticPage(loginTitle, loginDesc, loginStyles, loginContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/account') {
+      // 账户中心 - 需要登录（页面 JS 自动检查 token）
+      return new Response(generateStaticPage(accountTitle, accountDesc, accountStyles, accountContent), {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     } else if (path === '/favorites') {
