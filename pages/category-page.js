@@ -16,7 +16,7 @@ export function generateCategoryPage(options = {}) {
   // Slugify function for SEO-friendly URLs
   function slugify(str) {
     if (!str) return '';
-    return str.trim().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+    var ws = String.fromCharCode(9, 10, 11, 12, 13, 32); var reWs = new RegExp('[' + ws + ']+', 'g'); var reKeep = new RegExp('[^a-zA-Z0-9' + String.fromCharCode(0x4e00) + '-' + String.fromCharCode(0x9fff) + String.fromCharCode(0xff00) + '-' + String.fromCharCode(0xffef) + String.fromCharCode(0xfe00) + '-' + String.fromCharCode(0xfeff) + String.fromCharCode(0x3000) + '-' + String.fromCharCode(0x303f) + String.fromCharCode(0x2000) + '-' + String.fromCharCode(0x206f) + String.fromCharCode(0xfe30) + '-' + String.fromCharCode(0xfe4f) + String.fromCharCode(0x2600) + '-' + String.fromCharCode(0x26ff) + '-]', 'g'); var reDash = /-+/g; var reEdge = /^-+|-+$/g; return str.trim().replace(reWs, '-').replace(reKeep, '').replace(reDash, '-').replace(reEdge, '');
   }
 
   // Build SEO-friendly channel URL (pure slug, no hash)
@@ -432,6 +432,16 @@ export function generateCategoryPage(options = {}) {
     .btn-favorite:hover { color: var(--accent); background: var(--bg-hover); }
     .btn-favorite.active { color: var(--accent); }
     .btn-favorite.active svg { fill: var(--accent); }
+    .btn-favorite:disabled, .btn-favorite[disabled] { cursor: default; opacity: 0.85; }
+
+    /* Already-favorited row: dim the checkbox, add a subtle star tint */
+    .channel-row.is-favorited { background: rgba(229, 9, 20, 0.04); }
+    .channel-row.is-favorited .ch-name::before {
+      content: '★ ';
+      color: var(--accent);
+      font-size: 0.9em;
+    }
+    .channel-row.is-favorited input[type="checkbox"]:disabled { opacity: 0.4; cursor: not-allowed; }
 
     /* Spinner */
     .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
@@ -748,20 +758,50 @@ export function generateCategoryPage(options = {}) {
       if (isLoading) return;
       isLoading = true;
       document.getElementById('loadingIndicator').style.display = 'flex';
-      
+
       setTimeout(function() {
         var end = Math.min(loadedCount + batchSize, lazyRows.length);
         for (var i = loadedCount; i < end; i++) {
           lazyRows[i].style.display = '';
         }
+        // Re-apply favorite state on newly-revealed rows so the star stays
+        // filled and the row is visually marked for already-favorited channels.
+        applyFavoriteStateToRows(lazyRows, loadedCount, end);
         loadedCount = end;
         document.getElementById('loadingIndicator').style.display = 'none';
         isLoading = false;
-        
+
         if (loadedCount >= lazyRows.length) {
           document.getElementById('channelListContainer').removeAttribute('data-has-more');
         }
       }, 300);
+    }
+
+    // Mark rows already in localStorage as favorited (button .active,
+    // aria-pressed, row .is-favorited). Used by both init and infinite scroll.
+    function applyFavoriteStateToRows(rows, from, to) {
+      try {
+        var favs = JSON.parse(localStorage.getItem('favorites') || '[]');
+        if (!favs.length) return;
+        var hashSet = {};
+        for (var i = 0; i < favs.length; i++) hashSet[favs[i].hash] = true;
+        for (var j = from; j < to && j < rows.length; j++) {
+          var row = rows[j];
+          var h = row.dataset.hash;
+          if (hashSet[h]) {
+            var btn = row.querySelector('.btn-favorite');
+            if (btn) {
+              btn.classList.add('active');
+              btn.setAttribute('aria-pressed', 'true');
+              var svg = btn.querySelector('svg');
+              if (svg) svg.setAttribute('fill', 'currentColor');
+            }
+            row.classList.add('is-favorited');
+            var cb = row.querySelector('input[type="checkbox"]');
+            if (cb) { cb.checked = false; cb.disabled = true; }
+          }
+        }
+      } catch (e) { /* localStorage may be unavailable */ }
     }
 
     // Scroll event listener for infinite scroll
@@ -779,34 +819,74 @@ export function generateCategoryPage(options = {}) {
     });
 
     // Add selected to favorites
+    // Tracks three outcomes distinctly so the toast can give clear feedback:
+    //   addedCount  = newly added to favorites this click
+    //   skippedCount = already in favorites before this click
+    //   selected    = total selection size (for empty/all-skipped edge cases)
     function addSelectedToFavorites() {
       const selected = getSelectedChannels();
       if (selected.length === 0) {
         showToastWarning('No channels selected', 'Please select at least one channel to add to favorites.');
         return;
       }
-      
+
       const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      const existingHashes = {};
+      for (let i = 0; i < favorites.length; i++) existingHashes[favorites[i].hash] = true;
+
       let addedCount = 0;
+      let skippedCount = 0;
       selected.forEach(ch => {
-        if (!favorites.find(f => f.hash === ch.hash)) {
+        if (existingHashes[ch.hash]) {
+          skippedCount++;
+        } else {
           favorites.push(ch);
+          existingHashes[ch.hash] = true;
           addedCount++;
         }
       });
-      
+
       localStorage.setItem('favorites', JSON.stringify(favorites));
-      
-      // Update button states
+
+      // Update button states: mark added rows as favorited, and uncheck +
+      // disable rows that were skipped (already in favorites).
       selected.forEach(ch => {
-        const btn = document.querySelector('.channel-row[data-hash="' + ch.hash + '"] .btn-favorite');
-        if (btn) {
-          btn.classList.add('active');
-          btn.querySelector('svg').setAttribute('fill', 'currentColor');
+        const row = document.querySelector('.channel-row[data-hash="' + ch.hash + '"]');
+        if (!row) return;
+        const btn = row.querySelector('.btn-favorite');
+        if (existingHashes[ch.hash]) {
+          if (btn) {
+            btn.classList.add('active');
+            btn.setAttribute('aria-pressed', 'true');
+            const svg = btn.querySelector('svg');
+            if (svg) svg.setAttribute('fill', 'currentColor');
+          }
+          row.classList.add('is-favorited');
+          const cb = row.querySelector('input[type="checkbox"]');
+          if (cb) { cb.checked = false; cb.disabled = true; }
         }
       });
-      
-      showToastSuccess('Added to favorites', addedCount + ' channel(s) have been saved.');
+
+      // Toast: choose the message that matches the actual outcome so the
+      // user never sees "Added to favorites: 0" when they didn't add anything.
+      if (addedCount === 0 && skippedCount > 0) {
+        showToastInfo(
+          skippedCount + ' channel' + (skippedCount === 1 ? '' : 's') + ' already in favorites',
+          'Nothing new added'
+        );
+      } else if (addedCount > 0 && skippedCount > 0) {
+        showToastSuccess(
+          addedCount + ' added, ' + skippedCount + ' already in favorites',
+          'Favorites updated'
+        );
+      } else {
+        showToastSuccess(
+          addedCount + ' channel' + (addedCount === 1 ? '' : 's') + ' saved to favorites',
+          'Added to favorites'
+        );
+      }
+
+      updateSelectedCount();
     }
 
     const MAX_FREE_DOWNLOAD = 100;
@@ -931,16 +1011,15 @@ export function generateCategoryPage(options = {}) {
       }
     }
 
-    // Initialize favorite buttons
+    // Initialize favorite buttons: mark already-favorited rows on first paint
+    // (visible batch + the first lazy batch), then keep applying on infinite scroll.
     document.addEventListener('DOMContentLoaded', function() {
-      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-      favorites.forEach(f => {
-        const btn = document.querySelector('.channel-row[data-hash="' + f.hash + '"] .btn-favorite');
-        if (btn) {
-          btn.classList.add('active');
-          btn.querySelector('svg').setAttribute('fill', 'currentColor');
-        }
-      });
+      var visibleRows = document.querySelectorAll('.channel-row:not(.channel-row-lazy)');
+      applyFavoriteStateToRows(visibleRows, 0, visibleRows.length);
+      // Also mark the first lazy batch so they're correct as soon as the user
+      // scrolls (and so applyFavoriteStateToRows in loadMoreChannels is idempotent).
+      var lazyAll = document.querySelectorAll('.channel-row-lazy');
+      applyFavoriteStateToRows(lazyAll, 0, Math.min(50, lazyAll.length));
     });
   </script>
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
