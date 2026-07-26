@@ -56,6 +56,9 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     .info-value{color:#fff;font-weight:500;font-size:13px}
     .sub-url-container{margin-top:14px;padding:14px;background:rgba(229,9,20,.1);border-radius:10px;border:1px solid rgba(229,9,20,.3)}
     .sub-url-label{color:rgba(229,9,20,.9);font-size:11px;margin-bottom:6px;font-weight:500}
+    .sub-url-controls{display:flex;gap:12px;margin-bottom:8px}
+    .format-radio{color:rgba(229,9,20,.9);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+    .format-radio input{accent-color:#e50914;cursor:pointer}
     .sub-url{color:rgba(255,255,255,.9);font-size:12px;font-weight:600;word-break:break-all;line-height:1.6;cursor:pointer}
     .sub-url:hover{opacity:.8}
     .copy-btn{width:100%;margin-top:14px;padding:12px;background:#e50914;color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;-webkit-tap-highlight-color:transparent}
@@ -147,6 +150,10 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
 
       <div class="sub-url-container">
         <div class="sub-url-label" data-i18n="subUrlLabel">Subscription URL (click to copy)</div>
+        <div class="sub-url-controls">
+          <label class="format-radio"><input type="radio" name="subFormat" value="m3u" checked onchange="updateSubUrlFormat()"> M3U</label>
+          <label class="format-radio"><input type="radio" name="subFormat" value="txt" onchange="updateSubUrlFormat()"> TXT</label>
+        </div>
         <div class="sub-url" id="subUrl" onclick="copySubUrl()">-</div>
       </div>
 
@@ -291,12 +298,22 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       document.getElementById('resultExpired').textContent = expiredAt.toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US');
 
       const host = window.location.origin;
-      const subUrl = host + '/sub/' + code + '.m3u';
-      document.getElementById('subUrl').textContent = subUrl;
+      window._activeCode = code;
+      window._subUrlBase = host + '/sub/' + code;
+      updateSubUrlFormat();
 
       result.classList.add('active');
     }
 
+    function getSelectedFormat() {
+      const sel = document.querySelector('input[name="subFormat"]:checked');
+      return sel ? sel.value : 'm3u';
+    }
+    function updateSubUrlFormat() {
+      if (!window._subUrlBase) return;
+      const fmt = getSelectedFormat();
+      document.getElementById('subUrl').textContent = window._subUrlBase + '.' + fmt;
+    }
     function copySubUrl() {
       const subUrl = document.getElementById('subUrl').textContent;
       if (subUrl && subUrl !== '-') {

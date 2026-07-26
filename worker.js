@@ -1,7 +1,7 @@
 // Cloudflare Worker 主入口文件
 import { initDB, createTables, isMallEnabled, getDB } from './database.js';
 import { handleLiveRequest } from './handlers/live.js';
-import { handleSubRequest } from './handlers/sub.js';
+import { handleSubRequest, handleSubRequestTxt } from './handlers/sub.js';
 import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
 import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } from './handlers/scheduler.js';
 import { handleUserActivate } from './handlers/user.js';
@@ -1597,6 +1597,9 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path.startsWith('/live/')) {
       // 播放请求处理: /live/{prefix}/{token}/{hash}
       return await handleLiveRequest(request, env, ctx);
+    } else if (path.startsWith('/sub/') && path.endsWith('.txt')) {
+      // 订阅请求处理: /sub/{code}.txt (txt format)
+      return await handleSubRequestTxt(request, env, ctx);
     } else if (path.startsWith('/sub/') && path.endsWith('.m3u')) {
       // 订阅请求处理: /sub/{code}.m3u
       return await handleSubRequest(request, env, ctx);

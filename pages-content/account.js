@@ -289,7 +289,12 @@ export const styles = `
     gap: 8px;
   }
 
-  .copy-btn {
+  .sub-format-radios { display: flex; gap: 10px; margin-bottom: 10px; }
+  .sub-format-radios-modal { justify-content: center; margin-bottom: 16px; }
+  .format-radio { color: var(--text-secondary); font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); transition: all 0.2s; }
+  .format-radio:has(input:checked) { color: var(--text-primary); border-color: var(--accent); background: rgba(229, 9, 20, 0.1); }
+  .format-radio input { accent-color: var(--accent); cursor: pointer; }
+    .copy-btn {
     padding: 4px 8px;
     background: var(--accent);
     color: #fff;
@@ -968,6 +973,10 @@ export const content = `
                 <div class="subscription-detail">
                   <span class="subscription-detail-label">订阅网址</span>
                   <span class="subscription-detail-value code">
+                    <div class="sub-format-radios">
+                      <label class="format-radio"><input type="radio" name="vipFormat" value="m3u" checked onchange="updateVipCodeFormat()"> M3U</label>
+                      <label class="format-radio"><input type="radio" name="vipFormat" value="txt" onchange="updateVipCodeFormat()"> TXT</label>
+                    </div>
                     <span id="vipCode" data-code="PERMA34VIP">https://iptv-search.com/sub/PERMA34VIP.m3u</span>
                     <button class="copy-btn" onclick="copyVipCode()">收到</button>
                   </span>
@@ -1049,6 +1058,10 @@ export const content = `
     <div class="success-icon">🎉</div>
     <h2 class="success-title" data-i18n="paymentSuccess">paymentSuccess</h2>
     <p class="success-message" data-i18n="subUrlGenerated">subUrlGenerated</p>
+    <div class="sub-format-radios sub-format-radios-modal">
+      <label class="format-radio"><input type="radio" name="modalFormat" value="m3u" checked onchange="updateModalCodeFormat()"> M3U</label>
+      <label class="format-radio"><input type="radio" name="modalFormat" value="txt" onchange="updateModalCodeFormat()"> TXT</label>
+    </div>
     <div class="code-display" id="generatedCode">-</div>
     <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">copyUrl</button>
     <div class="modal-tips">
@@ -1291,8 +1304,9 @@ async function loadVipStatus() {
       if (avatarRing) avatarRing.classList.add('vip-ring');
 
       const baseUrl = window.location.origin;
-      const codeText = baseUrl + '/sub/' + latestOrder.code + '.m3u';
-      if (vipCodeEl) { vipCodeEl.textContent = codeText; vipCodeEl.dataset.code = latestOrder.code; }
+      window._vipCodeBase = baseUrl + '/sub/' + latestOrder.code;
+      if (vipCodeEl) vipCodeEl.dataset.code = latestOrder.code;
+      updateVipCodeFormat();
 
       let expiryText = 'Permanent';
       if (isExpired) {
@@ -1319,6 +1333,15 @@ async function loadVipStatus() {
   }
 }
 
+function getVipFormat() {
+  const sel = document.querySelector('input[name="vipFormat"]:checked');
+  return sel ? sel.value : 'm3u';
+}
+function updateVipCodeFormat() {
+  if (!window._vipCodeBase) return;
+  const vipCodeEl = document.getElementById('vipCode');
+  if (vipCodeEl) vipCodeEl.textContent = window._vipCodeBase + '.' + getVipFormat();
+}
 function copyVipCode() {
   const vipCodeEl = document.getElementById('vipCode');
   if (!vipCodeEl) { console.error('vipCode element not found'); return; }
@@ -1570,9 +1593,19 @@ function showToast(message, type) {
   }, 3000);
 }
 
-function showSuccessModal(subUrl) {
-  document.getElementById('generatedCode').textContent = subUrl;
+function getModalFormat() {
+  const sel = document.querySelector('input[name="modalFormat"]:checked');
+  return sel ? sel.value : 'm3u';
+}
+function updateModalCodeFormat() {
+  if (!window._modalCodeBase) return;
+  const codeEl = document.getElementById('generatedCode');
+  if (codeEl) codeEl.textContent = window._modalCodeBase + '.' + getModalFormat();
+}
+function showSuccessModal(codeBase) {
+  window._modalCodeBase = codeBase;
   document.getElementById('successModal').classList.add('show');
+  updateModalCodeFormat();
 }
 
 function closeSuccessModal() {
@@ -1606,8 +1639,8 @@ async function loadLatestOrder() {
     if (response.ok && data.success && data.orders && data.orders.length > 0) {
       const completedOrder = data.orders.find(order => order.status === 'completed');
       if (completedOrder && completedOrder.code) {
-        const subUrl = window.location.origin + '/sub/' + completedOrder.code + '.m3u';
-        showSuccessModal(subUrl);
+        const codeBase = window.location.origin + '/sub/' + completedOrder.code;
+        showSuccessModal(codeBase);
       } else {
         showToast(currentLang === 'zh-CN' ? '暂无订阅信息' : 'No subscription info', 'info');
       }
