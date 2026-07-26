@@ -210,14 +210,14 @@ function switchTab(tab) {
   }
 }
 
-function showToast(message, type = 'success') {
+function showToast(message, type) {
+  type = type || 'info';
   const container = document.getElementById('toastContainer');
   if (!container) return;
   const toastEl = document.createElement('div');
   toastEl.className = 'toast ' + type;
-  const icons = { success: '\u2713', error: '\u2715', warning: '\u26a0', info: '\u2139' };
-  const icon = icons[type] || icons.info;
-  toastEl.innerHTML = '<span class="toast-icon">' + icon + '</span><span>' + message + '</span>';
+  const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+  toastEl.innerHTML = '<div class="toast-content"><span class="toast-icon">' + icons[type] + '</span><span class="toast-message">' + message + '</span></div>';
   container.appendChild(toastEl);
   setTimeout(() => {
     toastEl.style.opacity = '0';

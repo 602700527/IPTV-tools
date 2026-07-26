@@ -1573,7 +1573,7 @@ async function logout() {
     console.error('登出失败:', error);
   } finally {
     localStorage.removeItem('auth_token');
-    showToast(t('logoutSuccess'), 'success');
+    showToast(currentLang === 'zh-CN' ? '已安全退出' : 'Logged out successfully', 'success');
     setTimeout(() => { window.location.href = '/'; }, 500);
   }
 }
