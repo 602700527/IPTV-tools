@@ -299,18 +299,18 @@ function buildM3uContent(channels, host, token, domainBlacklist) {
     play_url: resolvePlayUrl(ch, host, token, domainBlacklist)
   }));
 
-  // Step 2: Deduplicate by channel_name — keep first attributes, merge URLs
+  // Step 2: Deduplicate by (group_title, channel_name) — different groups are different channels
   const seen = new Map();
   for (const ch of resolved) {
-    const name = ch.channel_name || '';
-    if (!seen.has(name)) {
+    const key = (ch.group_title || '') + '|' + (ch.channel_name || '');
+    if (!seen.has(key)) {
       seen.set(name, { ...ch, urls: [] });
     }
     seen.get(name).urls.push(ch.play_url);
   }
 
   const lines = ['#EXTM3U'];
-  for (const [name, entry] of seen) {
+  for (const [key, entry] of seen) {
     const infoParts = ['#EXTINF:-1'];
     if (entry.group_title) infoParts.push(`group-title="${entry.group_title}"`);
     if (entry.logo) infoParts.push(`tvg-logo="${entry.logo}"`);
@@ -328,7 +328,7 @@ function buildM3uContent(channels, host, token, domainBlacklist) {
         }
       } catch (e) { /* ignore parse errors */ }
     }
-    infoParts.push(',' + name);
+    infoParts.push(',' + entry.channel_name);
     lines.push(infoParts.join(' '));
     // Join all URLs with # separator — Aptv/Televizo recognize this as multi-line
     lines.push(entry.urls.join('#'));
