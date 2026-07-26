@@ -67,10 +67,48 @@ export const styles = `
   .hidden-form { display: none; }
   .forgot-link-wrap { text-align: center; margin-top: 1rem; }
   .forgot-link-wrap a { color: var(--text-secondary); font-size: 0.9rem; }
-  .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); padding: 1rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: none; opacity: 0; transition: opacity 0.3s; z-index: 1000; }
-  .toast.show { opacity: 1; }
-  .toast.success { border-color: #22c55e; }
-  .toast.error { border-color: #ef4444; }
+    .toast-container {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 20px;
+    max-width: 420px;
+    width: 100%;
+    pointer-events: none;
+  }
+  .toast {
+    background: linear-gradient(145deg, #1a1a2e, #0a0a0f);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    pointer-events: auto;
+    animation: toastSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .toast-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .toast.success { border-color: rgba(52, 199, 89, 0.4); }
+  .toast.success .toast-icon { color: #22c55e; }
+  .toast.error { border-color: rgba(239, 68, 68, 0.4); }
+  .toast.error .toast-icon { color: #ef4444; }
+  @keyframes toastSlideIn {
+    from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
   @media (max-width: 480px) { .main { padding: 1rem; } .login-container { padding: 1.5rem; } }
 `;
 
@@ -140,7 +178,7 @@ export const content = `
   </div>
 </main>
 
-<div class="toast" id="toast"></div>
+<div class="toast-container" id="toastContainer"></div>
 
 <script>
 const API_BASE = '/api/auth';
@@ -172,11 +210,20 @@ function switchTab(tab) {
   }
 }
 
-function showToast(message, type = 'success') {
-  const toast = document.getElementById('toast');
-  toast.textContent = message;
-  toast.className = 'toast show ' + type;
-  setTimeout(() => toast.classList.remove('show'), 3000);
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toastEl = document.createElement('div');
+  toastEl.className = 'toast ' + type;
+  const icons = { success: '\u2713', error: '\u2715', warning: '\u26a0', info: '\u2139' };
+  const icon = icons[type] || icons.info;
+  toastEl.innerHTML = '<span class="toast-icon">' + icon + '</span><span>' + message + '</span>';
+  container.appendChild(toastEl);
+  setTimeout(() => {
+    toastEl.style.opacity = '0';
+    toastEl.style.transform = 'translateY(-10px)';
+    setTimeout(() => toastEl.remove(), 300);
+  }, 3000);
 }
 
 let codeCooldown = 0;
