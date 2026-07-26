@@ -293,55 +293,47 @@ function buildSubscriptionContent(channels, format, host, token, domainBlacklist
 
 
 function buildM3uContent(channels, host, token, domainBlacklist) {
+  // Step 1: Resolve all URLs first (avoids calling resolvePlayUrl per channel in dedup)
+  const resolved = channels.map(ch => ({
+    ...ch,
+    play_url: resolvePlayUrl(ch, host, token, domainBlacklist)
+  }));
 
-  const lines = ['#EXTM3U'];
-
-  for (const channel of channels) {
-
-    const infoParts = ['#EXTINF:-1'];
-
-    if (channel.group_title) infoParts.push(`group-title="${channel.group_title}"`);
-
-    if (channel.logo) infoParts.push(`tvg-logo="${channel.logo}"`);
-
-    if (channel.headers && channel.headers !== '{}') {
-
-      try {
-
-        const headers = JSON.parse(channel.headers);
-
-        if (headers['User-Agent']) {
-
-          const ua = headers['User-Agent'].replace(/"/g, '\\"');
-
-          infoParts.push(`http-user-agent="${ua}"`);
-
-        }
-
-        if (headers['Referer']) {
-
-          const referer = headers['Referer'].replace(/"/g, '\\"');
-
-          infoParts.push(`http-header="Referer: ${referer}"`);
-
-          infoParts.push(`referer="${referer}"`);
-
-        }
-
-      } catch (e) { /* ignore parse errors */ }
-
+  // Step 2: Deduplicate by channel_name — keep first attributes, merge URLs
+  const seen = new Map();
+  for (const ch of resolved) {
+    const name = ch.channel_name || '';
+    if (!seen.has(name)) {
+      seen.set(name, { ...ch, urls: [] });
     }
-
-    infoParts.push(',' + channel.channel_name);
-
-    lines.push(infoParts.join(' '));
-
-    lines.push(resolvePlayUrl(channel, host, token, domainBlacklist));
-
+    seen.get(name).urls.push(ch.play_url);
   }
 
+  const lines = ['#EXTM3U'];
+  for (const [name, entry] of seen) {
+    const infoParts = ['#EXTINF:-1'];
+    if (entry.group_title) infoParts.push(`group-title="${entry.group_title}"`);
+    if (entry.logo) infoParts.push(`tvg-logo="${entry.logo}"`);
+    if (entry.headers && entry.headers !== '{}') {
+      try {
+        const headers = JSON.parse(entry.headers);
+        if (headers['User-Agent']) {
+          const ua = headers['User-Agent'].replace(/"/g, '\\"');
+          infoParts.push(`http-user-agent="${ua}"`);
+        }
+        if (headers['Referer']) {
+          const referer = headers['Referer'].replace(/"/g, '\\"');
+          infoParts.push(`http-header="Referer: ${referer}"`);
+          infoParts.push(`referer="${referer}"`);
+        }
+      } catch (e) { /* ignore parse errors */ }
+    }
+    infoParts.push(',' + name);
+    lines.push(infoParts.join(' '));
+    // Join all URLs with # separator — Aptv/Televizo recognize this as multi-line
+    lines.push(entry.urls.join('#'));
+  }
   return lines.join('\n');
-
 }
 
 
