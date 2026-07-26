@@ -293,48 +293,50 @@ function buildSubscriptionContent(channels, format, host, token, domainBlacklist
 
 
 function buildM3uContent(channels, host, token, domainBlacklist) {
-  // Step 1: Resolve all URLs first (avoids calling resolvePlayUrl per channel in dedup)
   const resolved = channels.map(ch => ({
     ...ch,
     play_url: resolvePlayUrl(ch, host, token, domainBlacklist)
   }));
 
-  // Step 2: Deduplicate by (group_title, channel_name) — different groups are different channels
   const seen = new Map();
   for (const ch of resolved) {
     const key = (ch.group_title || '__NO_GROUP__') + '|' + (ch.channel_name || '__UNKNOWN__');
     if (!seen.has(key)) {
-      seen.set(key, { ...ch, urls: [] });
+      seen.set(key, {
+        channel_name: ch.channel_name,
+        group_title: ch.group_title,
+        logo: ch.logo,
+        headers: {},
+        urls: []
+      });
     }
-    seen.get(key).urls.push(ch.play_url);
+    const entry = seen.get(key);
+    entry.urls.push(ch.play_url);
+    if (ch.headers && ch.headers !== '{}') {
+      try {
+        const hdrs = JSON.parse(ch.headers);
+        Object.keys(hdrs).forEach(k => {
+          if (!entry.headers[k]) entry.headers[k] = hdrs[k];
+        });
+      } catch (e) {}
+    }
   }
 
   const lines = ['#EXTM3U'];
   for (const [key, entry] of seen) {
     const infoParts = ['#EXTINF:-1'];
-    if (entry.group_title) infoParts.push(`group-title="${entry.group_title}"`);
-    if (entry.logo) infoParts.push(`tvg-logo="${entry.logo}"`);
-    if (entry.headers && entry.headers !== '{}') {
-      try {
-        const headers = JSON.parse(entry.headers);
-        if (headers['User-Agent']) {
-          const ua = headers['User-Agent'].replace(/"/g, '\\"');
-          infoParts.push(`http-user-agent="${ua}"`);
-        }
-        if (headers['Referer']) {
-          const referer = headers['Referer'].replace(/"/g, '\\"');
-          infoParts.push(`http-header="Referer: ${referer}"`);
-          infoParts.push(`referer="${referer}"`);
-        }
-      } catch (e) { /* ignore parse errors */ }
+    if (entry.group_title) infoParts.push('group-title="' + entry.group_title + '"');
+    if (entry.logo) infoParts.push('tvg-logo="' + entry.logo + '"');
+    for (const [k, v] of Object.entries(entry.headers || {})) {
+      const escapedK = String(k).replace(/"/g, '\\"');
+      const escapedV = String(v).replace(/"/g, '\\"');
+      infoParts.push(escapedK + '="' + escapedV + '"');
     }
     infoParts.push(',' + entry.channel_name);
     lines.push(infoParts.join(' '));
-    // Join all URLs with # separator — Aptv/Televizo recognize this as multi-line
     lines.push(entry.urls.join('#'));
   }
-  return lines.join('\n');
-}
+  return lines.join('\n');}
 
 
 
