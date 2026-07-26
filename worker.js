@@ -1556,16 +1556,6 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         return await handleCloseTicket(request, env, ticketId);
       }
       return new Response('Not Found', { status: 404 });
-    } else if (path === '/plans' || path === '/plans/' || path === '/plans/index' || path === '/plans/index.html') {
-      // 订阅计划页面 - 检查商城设置
-      if (await isMallEnabled()) {
-        return new Response(PLANS_HTML, {
-          headers: { 'Content-Type': 'text/html; charset=utf-8' }
-        });
-      } else {
-        // 商城关闭，重定向到免费订阅页面
-        return Response.redirect(url.origin + '/freesub', 302);
-      }
     } else if (path === '/reset-password' || path === '/reset-password/' || path === '/reset-password/index' || path === '/reset-password/index.html') {
       // 重置密码页面
       return new Response(RESET_PASSWORD_HTML, {
@@ -1651,7 +1641,6 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         const staticPages = [
           { loc: '/', priority: '1.0', changefreq: 'daily' },
           { loc: '/favorites', priority: '0.8', changefreq: 'weekly' },
-          { loc: '/plans', priority: '0.8', changefreq: 'weekly' },
           { loc: '/account', priority: '0.6', changefreq: 'monthly' },
           { loc: '/tutorial', priority: '0.7', changefreq: 'monthly' },
           { loc: '/llms.txt', priority: '0.3', changefreq: 'weekly' },

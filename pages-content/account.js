@@ -920,10 +920,6 @@ export const content = `
 门票
       </button>
       <div class="sidebar-divider"></div>
-      <button class="sidebar-item" onclick="window.location.href='/plans'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-计划
-      </button>
       <button class="sidebar-item logout" onclick="logout()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
 登出
@@ -1002,11 +998,11 @@ export const content = `
             </div>
 
             <div class="profile-actions">
-              <button class="btn-renew" id="btnRenew" onclick="window.location.href='/plans'" style="display: inline-flex;">
+              <button class="btn-renew" id="btnRenew" onclick="window.location.href='/freesub'" style="display: inline-flex;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"></path></svg>
 更新VIP
               </button>
-              <button class="btn-plans" id="btnViewPlans" onclick="window.location.href='/plans'" style="display: none;">查看平面图</button>
+              <button class="btn-plans" id="btnViewPlans" onclick="window.location.href='/freesub'" style="display: none;">查看平面图</button>
             </div>
           </div>
         </div>
