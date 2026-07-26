@@ -302,11 +302,11 @@ function buildM3uContent(channels, host, token, domainBlacklist) {
   // Step 2: Deduplicate by (group_title, channel_name) — different groups are different channels
   const seen = new Map();
   for (const ch of resolved) {
-    const key = (ch.group_title || '') + '|' + (ch.channel_name || '');
+    const key = (ch.group_title || '__NO_GROUP__') + '|' + (ch.channel_name || '__UNKNOWN__');
     if (!seen.has(key)) {
-      seen.set(name, { ...ch, urls: [] });
+      seen.set(key, { ...ch, urls: [] });
     }
-    seen.get(name).urls.push(ch.play_url);
+    seen.get(key).urls.push(ch.play_url);
   }
 
   const lines = ['#EXTM3U'];
