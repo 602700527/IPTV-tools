@@ -1,297 +1,797 @@
 // 订阅请求处理器: /sub/{code}.m3u（简化版）
+
 import { getDB, isDomainBlacklisted, getDomainBlacklist } from '../database.js';
+
 import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
+
 import { getIPAccessCount, checkAndAddSubscriptionIP, getSubscriptionIPCacheStatus } from '../utils/cache.js';
+
 import { getAllChannels } from '../utils/channel-cache.js';
+
 import { getCurrentToken } from '../utils/token-manager.js';
 
+
+
 export async function handleSubRequest(request, env, ctx) {
+
   const url = new URL(request.url);
+
   const pathParts = url.pathname.split('/');
 
+
+
   // 0. IP黑名单检查（防止撞库）
+
   const clientIP = getClientIP(request);
+
   const ipCheck = await checkIPRateLimit(env, ctx, clientIP, '/sub');
+
   
+
   if (!ipCheck.allowed) {
+
     const response = new Response(ipCheck.message, { status: 403 });
+
     response.headers.set('X-IP-Blacklisted', 'true');
+
     return response;
+
   }
+
   const filename = pathParts[pathParts.length - 1]; // 获取文件名部分，如 "abc123.m3u"
 
+
+
   // 从文件名中提取卡密
+
   const code = filename.replace('.m3u', '');
 
 
+
+
+
   // 1. 防盗检查 (缓存)
+
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD格式
 
+
+
   // 从缓存获取今日订阅请求次数
+
   const requestCount = getIPAccessCount(clientIP, '/sub', today);
 
+
+
   // 如果超过每日限制，返回403
+
   if (requestCount > 20) {
+
     return new Response('Forbidden: Daily request limit exceeded', { status: 403 });
+
   }
 
+
+
   // 2. 禁用订阅请求的缓存（因为需要实时记录IP）
+
   // 不使用 Cache API 缓存，确保每次订阅都能记录IP
+
   // const cache = caches.default;
+
   // const cacheKey = new Request(url.toString(), request);
+
   // let response = await cache.match(cacheKey);
+
   // if (response) {
+
   //   // 缓存命中
+
   //   return response;
+
   // }
+
+
 
   // 3. 生成M3U内容
 
+
+
   // 3.1 校验卡密
+
   const db = getDB();
+
   const auth = await db.prepare("SELECT status, expired_at, max_ips FROM codes WHERE code = ?").bind(code).first();
 
+
+
   const now = new Date().toISOString();
+
     if (!auth || auth.status !== 'active' || (auth.expired_at && auth.expired_at < now)) {
+
       // 如果卡密已过期，自动设置为禁用状态
+
       if (auth && auth.expired_at < now && auth.status === 'active') {
+
         await db.prepare("UPDATE codes SET status = 'disabled' WHERE code = ?").bind(code).run();
+
       }
+
       const errorResponse = new Response('Forbidden: Invalid or Expired Code', { status: 403 });
+
       errorResponse.headers.set("Cache-Control", "public, max-age=600");
+
       return errorResponse;
+
     }
+
+
 
   // 3.1.1 检查订阅IP限制（只允许最新的max_ips个IP订阅）- 使用内存缓存
+
   const maxIPs = auth.max_ips || 3;
 
+
+
   // 使用内存缓存检查和添加订阅IP
+
   const isAllowed = checkAndAddSubscriptionIP(code, clientIP, today, maxIPs);
 
+
+
   console.log(`[Sub] Code: ${code}, IP: ${clientIP}, Allowed: ${isAllowed}, maxIPs: ${maxIPs}`);
+
   console.log(`[Sub] Cache status:`, getSubscriptionIPCacheStatus());
 
+
+
   if (!isAllowed) {
+
     const errorResponse = new Response(`Forbidden: Too many unique IPs (max ${maxIPs})`, { status: 403 });
+
     errorResponse.headers.set("Cache-Control", "public, max-age=60");
+
     return errorResponse;
+
   }
+
+
 
   // 3.2 获取所有频道（优先从 KV 缓存，只获取启用源的频道）
+
   const cacheResult = await getAllChannels(env);
+
   let allChannels = cacheResult.channels;
 
+
+
   // 如果 KV 缓存中没有，过滤已启用的频道
+
   if (!cacheResult.fromCache) {
+
     allChannels = allChannels.filter(c => c.is_active && c.source_active);
+
   }
+
+
 
   if (!allChannels || allChannels.length === 0) {
+
     return new Response('#EXTM3U\n# No channels available', {
+
       headers: {
+
         'Content-Type': 'application/vnd.apple.mpegurl',
+
         'Cache-Control': 'public, max-age=600'
+
       }
+
     });
+
   }
+
+
 
   // 3.3 对频道进行排序
+
   const sortedChannels = sortChannels(allChannels);
 
+
+
   // 3.4 生成M3U内容（性能优化版）
+
   const host = url.origin;
 
+
+
   // 获取当前 token 用于 M3U 播放地址
+
   const token = await getCurrentToken(env);
+
   if (!token) {
+
     return new Response('#EXTM3U\n#EXTINF:-1 ,当前正在维护，请稍后再试\nhttp://example.com/stream.m3u8', {
+
       headers: { 'Content-Type': 'application/vnd.apple.mpegurl' }
+
     });
+
   }
+
+
 
   // 加载域名黑名单（缓存到内存中）
+
   let domainBlacklist = [];
+
   try {
+
     const blacklistResult = await getDomainBlacklist();
+
     if (blacklistResult && blacklistResult.length > 0) {
+
       domainBlacklist = blacklistResult.map(item => item.domain);
+
       console.log(`[Sub] Loaded ${domainBlacklist.length} domains to blacklist`);
+
     }
+
   } catch (e) {
+
     console.error('[Sub] Failed to load domain blacklist:', e);
+
   }
 
-  const m3uLines = ['#EXTM3U'];
 
-  for (const channel of sortedChannels) {
+
+  const m3uContent = buildSubscriptionContent(sortedChannels, 'm3u', host, token, domainBlacklist);
+
+
+
+  // 4. 创建响应（增加缓存时间到12小时）
+
+  const response = new Response(m3uContent, {
+
+    headers: {
+
+      'Content-Type': 'application/vnd.apple.mpegurl; charset=utf-8',
+
+      'Content-Disposition': `attachment; filename="${filename}"`,
+
+      'Cache-Control': 'public, max-age=43200'
+
+    }
+
+  });
+
+
+
+  return response;
+
+}
+
+
+
+// Generate subscription content (m3u or txt format).
+
+// m3u: standard #EXTINF format
+
+// txt: genre-grouped plain text format, duplicate channel names joined with '#' as URL separator
+
+function buildSubscriptionContent(channels, format, host, token, domainBlacklist) {
+
+  if (format === 'txt') {
+
+    return buildTxtContent(channels, host, token, domainBlacklist);
+
+  }
+
+  return buildM3uContent(channels, host, token, domainBlacklist);
+
+}
+
+
+
+function buildM3uContent(channels, host, token, domainBlacklist) {
+
+  const lines = ['#EXTM3U'];
+
+  for (const channel of channels) {
+
     const infoParts = ['#EXTINF:-1'];
+
     if (channel.group_title) infoParts.push(`group-title="${channel.group_title}"`);
+
     if (channel.logo) infoParts.push(`tvg-logo="${channel.logo}"`);
 
-    // 添加请求头信息（优化：只在有headers时才解析）
     if (channel.headers && channel.headers !== '{}') {
+
       try {
+
         const headers = JSON.parse(channel.headers);
-        // 处理User-Agent
+
         if (headers['User-Agent']) {
+
           const ua = headers['User-Agent'].replace(/"/g, '\\"');
+
           infoParts.push(`http-user-agent="${ua}"`);
+
         }
-        // 处理Referer
+
         if (headers['Referer']) {
+
           const referer = headers['Referer'].replace(/"/g, '\\"');
+
           infoParts.push(`http-header="Referer: ${referer}"`);
+
           infoParts.push(`referer="${referer}"`);
+
         }
-      } catch (e) {
-        // headers 解析失败，忽略
-      }
+
+      } catch (e) { /* ignore parse errors */ }
+
     }
 
     infoParts.push(',' + channel.channel_name);
-    m3uLines.push(infoParts.join(' '));
 
-    // 检查频道URL是否在域名黑名单中
-    let playUrl;
-    let isBlacklisted = false;
+    lines.push(infoParts.join(' '));
 
-    if (channel.play_url) {
-      try {
-        const urlObj = new URL(channel.play_url);
-        const hostname = urlObj.hostname;
+    lines.push(resolvePlayUrl(channel, host, token, domainBlacklist));
 
-        // 检查完全匹配
-        isBlacklisted = domainBlacklist.includes(hostname);
-
-        // 检查子域名匹配（例如：*.example.com 匹配 sub.example.com）
-        if (!isBlacklisted) {
-          for (const blacklistDomain of domainBlacklist) {
-            if (blacklistDomain.startsWith('*.') && hostname.endsWith(blacklistDomain.substring(2))) {
-              isBlacklisted = true;
-              break;
-            }
-          }
-        }
-      } catch (e) {
-        console.error('[Sub] Error parsing channel URL:', e);
-      }
-    }
-
-    if (isBlacklisted) {
-      // 如果域名在黑名单中，直接使用原始播放地址（透传）
-      playUrl = channel.play_url;
-    } else {
-      // 否则使用代理播放地址
-      playUrl = `${host}/live/vip/${token}/${channel.channel_hash}`;
-    }
-
-    m3uLines.push(playUrl);
   }
 
-  const m3uContent = m3uLines.join('\n');
+  return lines.join('\n');
 
-  // 4. 创建响应（增加缓存时间到12小时）
-  const response = new Response(m3uContent, {
-    headers: {
-      'Content-Type': 'application/vnd.apple.mpegurl; charset=utf-8',
-      'Content-Disposition': `attachment; filename="${filename}"`,
-      'Cache-Control': 'public, max-age=43200'
+}
+
+
+
+function buildTxtContent(channels, host, token, domainBlacklist) {
+
+  // Map: group -> Map<channelName, urls[]>
+
+  // Same (group, name) entries get URLs joined with '#' as separator.
+
+  const grouped = new Map();
+
+  for (const channel of channels) {
+
+    const group = channel.group_title || '';
+
+    const name = channel.channel_name || '';
+
+    if (!grouped.has(group)) grouped.set(group, new Map());
+
+    const nameMap = grouped.get(group);
+
+    if (!nameMap.has(name)) nameMap.set(name, []);
+
+    nameMap.get(name).push(resolvePlayUrl(channel, host, token, domainBlacklist));
+
+  }
+
+  const out = [];
+
+  for (const [group, nameMap] of grouped) {
+
+    out.push(`${group},#genre#`);
+
+    for (const [name, urls] of nameMap) {
+
+      out.push(`${name},${urls.join('#')}`);
+
     }
+
+    out.push('');
+
+  }
+
+  while (out.length && out[out.length - 1] === '') out.pop();
+
+  return out.join('\n');
+
+}
+
+
+
+// Pick play URL: pass-through original if hostname matches blacklist (or *.subdomain),
+
+// otherwise proxy through platform URL.
+
+function resolvePlayUrl(channel, host, token, domainBlacklist) {
+
+  if (channel.play_url) {
+
+    try {
+
+      const hostname = new URL(channel.play_url).hostname;
+
+      if (domainBlacklist.includes(hostname)) return channel.play_url;
+
+      for (const d of domainBlacklist) {
+
+        if (d.startsWith('*.') && hostname.endsWith(d.substring(2))) return channel.play_url;
+
+      }
+
+    } catch (e) { /* fall through to proxy URL */ }
+
+  }
+
+  return `${host}/live/vip/${token}/${channel.channel_hash}`;
+
+}
+
+
+
+// Handle subscription TXT download: /sub/{code}.txt
+
+// Same auth/IP/blacklist rules as /sub/{code}.m3u, just a different content format.
+
+export async function handleSubRequestTxt(request, env, ctx) {
+
+  const url = new URL(request.url);
+
+  const pathParts = url.pathname.split('/');
+
+  const filename = pathParts[pathParts.length - 1];
+
+  const code = filename.replace('.txt', '');
+
+
+
+  // IP blacklist check
+
+  const { getClientIP, checkIPRateLimit } = await import('../security/ip-blacklist.js');
+
+  const clientIP = getClientIP(request);
+
+  const ipCheck = await checkIPRateLimit(env, ctx, clientIP, '/sub');
+
+  if (!ipCheck.allowed) {
+
+    const response = new Response(ipCheck.message, { status: 403 });
+
+    response.headers.set('X-IP-Blacklisted', 'true');
+
+    return response;
+
+  }
+
+
+
+  // Daily request limit
+
+  const { getIPAccessCount } = await import('../utils/cache.js');
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const requestCount = getIPAccessCount(clientIP, '/sub', today);
+
+  if (requestCount > 20) {
+
+    return new Response('Forbidden: Daily request limit exceeded', { status: 403 });
+
+  }
+
+
+
+  // Validate card
+
+  const db = getDB();
+
+  const auth = await db.prepare("SELECT status, expired_at, max_ips FROM codes WHERE code = ?").bind(code).first();
+
+  const now = new Date().toISOString();
+
+  if (!auth || auth.status !== 'active' || (auth.expired_at && auth.expired_at < now)) {
+
+    if (auth && auth.expired_at < now && auth.status === 'active') {
+
+      await db.prepare("UPDATE codes SET status = 'disabled' WHERE code = ?").bind(code).run();
+
+    }
+
+    const errorResponse = new Response('Forbidden: Invalid or Expired Code', { status: 403 });
+
+    errorResponse.headers.set('Cache-Control', 'public, max-age=600');
+
+    return errorResponse;
+
+  }
+
+
+
+  // IP per-card limit
+
+  const { checkAndAddSubscriptionIP } = await import('../utils/cache.js');
+
+  const maxIPs = auth.max_ips || 3;
+
+  if (!checkAndAddSubscriptionIP(code, clientIP, today, maxIPs)) {
+
+    const errorResponse = new Response(`Forbidden: Too many unique IPs (max ${maxIPs})`, { status: 403 });
+
+    errorResponse.headers.set('Cache-Control', 'public, max-age=60');
+
+    return errorResponse;
+
+  }
+
+
+
+  // Fetch channels
+
+  const cacheResult = await getAllChannels(env);
+
+  let allChannels = cacheResult.channels;
+
+  if (!cacheResult.fromCache) {
+
+    allChannels = allChannels.filter(c => c.is_active && c.source_active);
+
+  }
+
+  if (!allChannels || allChannels.length === 0) {
+
+    return new Response('', {
+
+      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=600' }
+
+    });
+
+  }
+
+
+
+  // Domain blacklist
+
+  let domainBlacklist = [];
+
+  try {
+
+    const { getDomainBlacklist } = await import('../database.js');
+
+    const blacklistResult = await getDomainBlacklist();
+
+    if (blacklistResult && blacklistResult.length > 0) {
+
+      domainBlacklist = blacklistResult.map(item => item.domain);
+
+    }
+
+  } catch (e) {
+
+    console.error('[SubTxt] Failed to load domain blacklist:', e);
+
+  }
+
+
+
+  // Token
+
+  const token = await getCurrentToken(env);
+
+  if (!token) {
+
+    return new Response('', {
+
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+
+    });
+
+  }
+
+
+
+  const sortedChannels = sortChannels(allChannels);
+
+  const txtContent = buildSubscriptionContent(sortedChannels, 'txt', url.origin, token, domainBlacklist);
+
+  const response = new Response(txtContent, {
+
+    headers: {
+
+      'Content-Type': 'text/plain; charset=utf-8',
+
+      'Content-Disposition': `attachment; filename="${filename}"`,
+
+      'Cache-Control': 'public, max-age=43200'
+
+    }
+
   });
 
   return response;
+
 }
+
+
 
 // 频道排序函数
+
+
 function sortChannels(channels) {
+
   if (!channels || channels.length === 0) {
+
     return [];
+
   }
 
+
+
   // 首先按分组排序，然后按频道名排序
+
   return channels.sort((a, b) => {
+
     const groupA = a.group_title || '';
+
     const groupB = b.group_title || '';
+
     
+
     // 判断分组是否为中文（包含中文字符）
+
     const isChineseGroup = (str) => /[\u4e00-\u9fa5]/.test(str);
+
     const groupAIsChinese = isChineseGroup(groupA);
+
     const groupBIsChinese = isChineseGroup(groupB);
+
     
+
     // 中文分组优先排在前面
+
     if (groupAIsChinese !== groupBIsChinese) {
+
       return groupAIsChinese ? -1 : 1;
+
     }
+
     
+
     // 先按分组名排序（中文按拼音顺序）
+
     if (groupA !== groupB) {
+
       return groupA.localeCompare(groupB, 'zh-CN', { numeric: true });
+
     }
+
+
 
     // 同一分组内：英文 -> 数字 -> 中文（数字按数值大小排序）
+
     const nameA = a.channel_name || '';
+
     const nameB = b.channel_name || '';
 
+
+
     // 尝试提取CCTV格式的数字
+
     const cctvMatchA = nameA.match(/^([A-Za-z]+)(\d+)/);
+
     const cctvMatchB = nameB.match(/^([A-Za-z]+)(\d+)/);
 
+
+
     // 如果都是CCTV格式（字母开头+数字），按数字大小排序
+
     if (cctvMatchA && cctvMatchB && cctvMatchA[1].toUpperCase() === cctvMatchB[1].toUpperCase()) {
+
       const numA = parseInt(cctvMatchA[2]);
+
       const numB = parseInt(cctvMatchB[2]);
+
       if (numA !== numB) {
+
         return numA - numB;
+
       }
+
       // 数字相同，继续按后缀排序（无后缀的排前面）
+
       const suffixA = nameA.substring(cctvMatchA[1].length + cctvMatchA[2].length);
+
       const suffixB = nameB.substring(cctvMatchB[1].length + cctvMatchB[2].length);
 
+
+
       // 如果一个有后缀一个没有，无后缀的排前面
+
       const hasSuffixA = suffixA.trim().length > 0;
+
       const hasSuffixB = suffixB.trim().length > 0;
+
       if (hasSuffixA !== hasSuffixB) {
+
         return hasSuffixA ? 1 : -1;
+
       }
+
+
 
       // 都有后缀或都没有后缀，按后缀内容排序
+
       return suffixA.localeCompare(suffixB, 'zh-CN', { numeric: true });
+
     }
+
+
 
     // 普通排序：按字符逐个比较
+
     for (let i = 0; i < Math.min(nameA.length, nameB.length); i++) {
+
       const charA = nameA.charCodeAt(i);
+
       const charB = nameB.charCodeAt(i);
 
+
+
       // 英文字母 (A-Z, a-z: 65-90, 97-122)
+
       const isAlphaA = (charA >= 65 && charA <= 90) || (charA >= 97 && charA <= 122);
+
       const isAlphaB = (charB >= 65 && charB <= 90) || (charB >= 97 && charB <= 122);
 
+
+
       // 数字 (0-9: 48-57)
+
       const isDigitA = charA >= 48 && charA <= 57;
+
       const isDigitB = charB >= 48 && charB <= 57;
 
+
+
       // 中文 (\u4e00-\u9fa5: 19968-40869)
+
       const isChineseA = charA >= 19968 && charA <= 40869;
+
       const isChineseB = charB >= 19968 && charB <= 40869;
 
+
+
       // 确定字符类型优先级：英文=1, 数字=2, 中文=3
+
       const typeA = isAlphaA ? 1 : (isDigitA ? 2 : (isChineseA ? 3 : 4));
+
       const typeB = isAlphaB ? 1 : (isDigitB ? 2 : (isChineseB ? 3 : 4));
 
+
+
       // 类型不同时，按类型排序
+
       if (typeA !== typeB) {
+
         return typeA - typeB;
+
       }
+
+
 
       // 类型相同时，按字符值排序
+
       if (charA !== charB) {
+
         return charA - charB;
+
       }
+
     }
 
+
+
     // 所有字符都相等，按长度排序
+
     return nameA.length - nameB.length;
+
   });
+
 }
+
+
 
