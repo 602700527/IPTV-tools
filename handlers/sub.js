@@ -293,83 +293,39 @@ function buildSubscriptionContent(channels, format, host, token, domainBlacklist
 
 
 function buildM3uContent(channels, host, token, domainBlacklist) {
-  const resolved = channels.map(ch => ({
-    ...ch,
-    play_url: resolvePlayUrl(ch, host, token, domainBlacklist)
-  }));
 
-  // Dedup key: group_title + channel_name + http-user-agent + #EXTVLCOPT
-  // Only merge channels where ALL these fields are identical.
-  const seen = new Map();
-  for (const ch of resolved) {
-    let userAgent = "";
-    let extVlcOpt = "";
-    if (ch.headers && ch.headers !== "{}") {
+  const lines = ['#EXTM3U'];
+
+  for (const channel of channels) {
+
+    const infoParts = ['#EXTINF:-1'];
+
+    if (channel.group_title) infoParts.push(`group-title="${channel.group_title}"`);
+
+    if (channel.logo) infoParts.push(`tvg-logo="${channel.logo}"`);
+
+    if (channel.headers && channel.headers !== '{}') {
+
       try {
-        const hdrs = JSON.parse(ch.headers);
-        userAgent = hdrs["User-Agent"] || hdrs["user-agent"] || "";
-        extVlcOpt = hdrs["#EXTVLCOPT"] || hdrs["extvlcopt"] || "";
-      } catch (e) {}
+        const headers = JSON.parse(channel.headers);
+        if (headers['User-Agent']) {
+          const ua = headers['User-Agent'].replace(/"/g, '\\"');
+          infoParts.push(`http-user-agent="${ua}"`);
+        }
+        if (headers['Referer']) {
+          const referer = headers['Referer'].replace(/"/g, '\\"');
+          infoParts.push(`http-header="Referer: ${referer}"`);
+          infoParts.push(`referer="${referer}"`);
+        }
+      } catch (e) { /* ignore parse errors */ }
     }
 
-    const groupKey = (ch.group_title || "__NO_GROUP__") + "|" +
-                     (ch.channel_name || "__UNKNOWN__") + "|" +
-                     userAgent + "|" +
-                     extVlcOpt;
-
-    if (!seen.has(groupKey)) {
-      seen.set(groupKey, {
-        channel_name: ch.channel_name,
-        group_title: ch.group_title,
-        logo: ch.logo,
-        headers: {},
-        urls: [],
-        userAgent: userAgent,
-        extVlcOpt: extVlcOpt
-      });
-    }
-    const entry = seen.get(groupKey);
-    entry.urls.push(ch.play_url);
-
-    if (ch.headers && ch.headers !== "{}") {
-      try {
-        const hdrs = JSON.parse(ch.headers);
-        Object.keys(hdrs).forEach(k => {
-          if (!entry.headers[k]) entry.headers[k] = hdrs[k];
-        });
-      } catch (e) {}
-    }
+    infoParts.push(',' + channel.channel_name);
+    lines.push(infoParts.join(' '));
+    lines.push(resolvePlayUrl(channel, host, token, domainBlacklist));
   }
 
-  const lines = ["#EXTM3U"];
-  for (const [groupKey, entry] of seen) {
-    const infoParts = ["#EXTINF:-1"];
-
-    if (entry.group_title) infoParts.push('group-title="' + entry.group_title + '"');
-    if (entry.logo) infoParts.push('tvg-logo="' + entry.logo + '"');
-
-    if (entry.userAgent) {
-      const escaped = entry.userAgent.replace(/"/g, '\\"');
-      infoParts.push('http-user-agent="' + escaped + '"');
-    }
-
-    for (const [k, v] of Object.entries(entry.headers || {})) {
-      if (k === "User-Agent" || k === "user-agent") continue;
-      if (k === "#EXTVLCOPT" || k === "extvlcopt") {
-        const escaped = String(v).replace(/"/g, '\\"');
-        infoParts.push('#EXTVLCOPT="' + escaped + '"');
-        continue;
-      }
-      const escapedK = String(k).replace(/"/g, '\\"');
-      const escapedV = String(v).replace(/"/g, '\\"');
-      infoParts.push(escapedK + '="' + escapedV + '"');
-    }
-
-    infoParts.push("," + entry.channel_name);
-    lines.push(infoParts.join(" "));
-    lines.push(entry.urls.join("#"));
-  }
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 
