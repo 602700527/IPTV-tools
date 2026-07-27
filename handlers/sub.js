@@ -298,21 +298,40 @@ function buildM3uContent(channels, host, token, domainBlacklist) {
     play_url: resolvePlayUrl(ch, host, token, domainBlacklist)
   }));
 
+  // Dedup key: group_title + channel_name + http-user-agent + #EXTVLCOPT
+  // Only merge channels where ALL these fields are identical.
   const seen = new Map();
   for (const ch of resolved) {
-    const key = (ch.group_title || '__NO_GROUP__') + '|' + (ch.channel_name || '__UNKNOWN__');
-    if (!seen.has(key)) {
-      seen.set(key, {
+    let userAgent = "";
+    let extVlcOpt = "";
+    if (ch.headers && ch.headers !== "{}") {
+      try {
+        const hdrs = JSON.parse(ch.headers);
+        userAgent = hdrs["User-Agent"] || hdrs["user-agent"] || "";
+        extVlcOpt = hdrs["#EXTVLCOPT"] || hdrs["extvlcopt"] || "";
+      } catch (e) {}
+    }
+
+    const groupKey = (ch.group_title || "__NO_GROUP__") + "|" +
+                     (ch.channel_name || "__UNKNOWN__") + "|" +
+                     userAgent + "|" +
+                     extVlcOpt;
+
+    if (!seen.has(groupKey)) {
+      seen.set(groupKey, {
         channel_name: ch.channel_name,
         group_title: ch.group_title,
         logo: ch.logo,
         headers: {},
-        urls: []
+        urls: [],
+        userAgent: userAgent,
+        extVlcOpt: extVlcOpt
       });
     }
-    const entry = seen.get(key);
+    const entry = seen.get(groupKey);
     entry.urls.push(ch.play_url);
-    if (ch.headers && ch.headers !== '{}') {
+
+    if (ch.headers && ch.headers !== "{}") {
       try {
         const hdrs = JSON.parse(ch.headers);
         Object.keys(hdrs).forEach(k => {
@@ -322,22 +341,36 @@ function buildM3uContent(channels, host, token, domainBlacklist) {
     }
   }
 
-  const lines = ['#EXTM3U'];
-  for (const [key, entry] of seen) {
-    const infoParts = ['#EXTINF:-1'];
+  const lines = ["#EXTM3U"];
+  for (const [groupKey, entry] of seen) {
+    const infoParts = ["#EXTINF:-1"];
+
     if (entry.group_title) infoParts.push('group-title="' + entry.group_title + '"');
     if (entry.logo) infoParts.push('tvg-logo="' + entry.logo + '"');
+
+    if (entry.userAgent) {
+      const escaped = entry.userAgent.replace(/"/g, '\\"');
+      infoParts.push('http-user-agent="' + escaped + '"');
+    }
+
     for (const [k, v] of Object.entries(entry.headers || {})) {
+      if (k === "User-Agent" || k === "user-agent") continue;
+      if (k === "#EXTVLCOPT" || k === "extvlcopt") {
+        const escaped = String(v).replace(/"/g, '\\"');
+        infoParts.push('#EXTVLCOPT="' + escaped + '"');
+        continue;
+      }
       const escapedK = String(k).replace(/"/g, '\\"');
       const escapedV = String(v).replace(/"/g, '\\"');
       infoParts.push(escapedK + '="' + escapedV + '"');
     }
-    infoParts.push(',' + entry.channel_name);
-    lines.push(infoParts.join(' '));
-    lines.push(entry.urls.join('#'));
-  }
-  return lines.join('\n');}
 
+    infoParts.push("," + entry.channel_name);
+    lines.push(infoParts.join(" "));
+    lines.push(entry.urls.join("#"));
+  }
+  return lines.join("\n");
+}
 
 
 function buildTxtContent(channels, host, token, domainBlacklist) {
