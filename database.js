@@ -1475,12 +1475,12 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
       // 处理 EXTVLCOPT 行（在 URL 之前）
       if (!vlcOptProcessed && line.startsWith('#EXTVLCOPT:')) {
         // 提取 http-user-agent
-        const vlcUAMatch = line.match(/http-user-agent\s*=\s*([^\s]+)/i);
+        const vlcUAMatch = line.match(/http-user-agent\s*=\s*([^\r\n]+)/i);
         if (vlcUAMatch) {
           currentChannel.headers['User-Agent'] = vlcUAMatch[1];
         }
         // 提取 Referer
-        const vlcRefererMatch = line.match(/http-referrer\s*=\s*([^\s]+)/i);
+        const vlcRefererMatch = line.match(/http-referrer\s*=\s*([^\r\n]+)/i);
         if (vlcRefererMatch) {
           currentChannel.headers['Referer'] = vlcRefererMatch[1];
         }
@@ -1897,11 +1897,11 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
       const line = lines[i].trim();
 
       if (!vlcOptProcessed && line.startsWith('#EXTVLCOPT:')) {
-        const vlcUAMatch = line.match(/http-user-agent\s*=\s*([^\s]+)/i);
+        const vlcUAMatch = line.match(/http-user-agent\s*=\s*([^\r\n]+)/i);
         if (vlcUAMatch) {
           currentChannel.headers['User-Agent'] = vlcUAMatch[1];
         }
-        const vlcRefererMatch = line.match(/http-referrer\s*=\s*([^\s]+)/i);
+        const vlcRefererMatch = line.match(/http-referrer\s*=\s*([^\r\n]+)/i);
         if (vlcRefererMatch) {
           currentChannel.headers['Referer'] = vlcRefererMatch[1];
         }
