@@ -5,14 +5,14 @@ compatibility_date = "2023-05-18"
 # KV 命名空间
 [[kv_namespaces]]
 binding = "KV"
-id = "6302889111ca4190abe5d8eace0a18c9"
-preview_id = "6302889111ca4190abe5d8eace0a18c9"
+id = "d5e943d023d0474382b04b3c15c47ffb"
+preview_id = "d5e943d023d0474382b04b3c15c47ffb"
 
 # D1 数据库
 [[d1_databases]]
 binding = "DB"
 database_name = "tv-service-db"
-database_id = "1b482a28-d36c-4de7-9dc4-f4362116807f"
+database_id = "9c7c22f1-fa0e-48da-8874-19731483c550"
 
 # Workers AI
 [ai]
