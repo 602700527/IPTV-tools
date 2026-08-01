@@ -133,7 +133,7 @@ export const content = `
       <h2>Start Watching UK IPTV</h2>
       <p>Subscribe for access to BBC, Sky Sports and British channels</p>
       <p style="margin-top:0.5rem;font-size:0.95rem;opacity:0.9;">Updates pushed to your player - no site login needed. Ensure your player has "auto-update playlist" enabled.</p>
-      <a href="/plans" class="cta-btn">View Plans →</a>
+      <a href="/subscription" class="cta-btn">View Plans →</a>
     </div>
   </div>
 </div>
