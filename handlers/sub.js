@@ -304,24 +304,30 @@ function buildM3uContent(channels, host, token, domainBlacklist) {
 
     if (channel.logo) infoParts.push(`tvg-logo="${channel.logo}"`);
 
-    if (channel.headers && channel.headers !== '{}') {
+    // 保留 original 字段（保留原始线路信息）
+    if (channel.original) infoParts.push(`original="${channel.original}"`);
 
+    // 解析 headers，准备还原成 #EXTVLCOPT 行（与源 m3u 格式一致）
+    const vlcOptLines = [];
+    if (channel.headers && channel.headers !== '{}') {
       try {
         const headers = JSON.parse(channel.headers);
         if (headers['User-Agent']) {
-          const ua = headers['User-Agent'].replace(/"/g, '\\"');
-          infoParts.push(`http-user-agent="${ua}"`);
+          vlcOptLines.push(`#EXTVLCOPT:http-user-agent=${headers['User-Agent']}`);
         }
+        // Referer 还原为 #EXTVLCOPT:http-referrer=（源 m3u 标准格式）
         if (headers['Referer']) {
-          const referer = headers['Referer'].replace(/"/g, '\\"');
-          infoParts.push(`http-header="Referer: ${referer}"`);
-          infoParts.push(`referer="${referer}"`);
+          vlcOptLines.push(`#EXTVLCOPT:http-referrer=${headers['Referer']}`);
         }
       } catch (e) { /* ignore parse errors */ }
     }
 
     infoParts.push(',' + channel.channel_name);
     lines.push(infoParts.join(' '));
+
+    // ⭐ 在 URL 之前输出 #EXTVLCOPT 行（保留原 m3u 格式）
+    for (const opt of vlcOptLines) lines.push(opt);
+
     lines.push(resolvePlayUrl(channel, host, token, domainBlacklist));
   }
 

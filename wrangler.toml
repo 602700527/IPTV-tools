@@ -2,17 +2,22 @@ name = "cf-tv-service"
 main = "worker.js"
 compatibility_date = "2023-05-18"
 
-# KV 命名空间
+# =====================================================
+# 本地开发环境（wrangler dev 默认使用）
+# KV / D1 用占位 ID，wrangler dev 会自动创建本地模拟器
+# =====================================================
+
+# 本地 KV 命名空间（占位 ID，本地模式自动建模拟器）
 [[kv_namespaces]]
 binding = "KV"
-id = "d5e943d023d0474382b04b3c15c47ffb"
-preview_id = "d5e943d023d0474382b04b3c15c47ffb"
+id = "local-kv-placeholder"
+preview_id = "local-kv-placeholder"
 
-# D1 数据库
+# 本地 D1 数据库（占位 ID，本地模式自动建 SQLite）
 [[d1_databases]]
 binding = "DB"
 database_name = "tv-service-db"
-database_id = "9c7c22f1-fa0e-48da-8874-19731483c550"
+database_id = "local-d1-placeholder"
 
 # Workers AI
 [ai]
@@ -20,35 +25,65 @@ binding = "AI"
 
 # 环境变量
 [vars]
-# 在生产环境中应该设置为安全值
 ADMIN_KEY = "admin-key-please-change-in-production"
-# 时区设置（东八区）
 TIMEZONE = "Asia/Shanghai"
-# 邮件服务配置
 RESEND_API_KEY = "re_SV65wtWn_6zDFiwGvPFRRv3gbcLDACDKe"
 FROM_EMAIL = "support@iptv-search.com"
 APP_URL = "https://iptv-search.com"
-# 虎皮椒支付配置 - 支付宝
 XUNHUPAY_ALIPAY_APP_ID = "202303140161"
 XUNHUPAY_ALIPAY_APP_SECRET = "9265ede6d1d85a9ecb7cbf2b97ca0cbd"
-# 虎皮椒支付配置 - 微信（需要您提供微信的APPID和SECRET）
 XUNHUPAY_WECHAT_APP_ID = ""
 XUNHUPAY_WECHAT_APP_SECRET = ""
-# 虎皮椒支付网关
 XUNHUPAY_GATEWAY = "https://api.xunhuweb.com/payment/do.html"
-# 静态文件配置
 STATIC_SOURCE = "local"
 STATIC_OUTPUT_DIR = "static-output"
-
-# Google OAuth configuration
 GOOGLE_CLIENT_ID = "1070165774283-e75bs3en213p81iaq3g5dmpt15e6te9l.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET = "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"
+GOOGLE_CLIENT_SECRET = "GOCSPX-oMHiR_wUYIe85DL0zWEii5Dee9I"
 
-# 定时触发器 (用于自动同步启用的数据源和刷新缓存)
-# Cron表达式格式: 分 时 日 月 周
-# 示例: "0 2 * * *" 表示每天凌晨2点执行
-# "0 */6 * * *" 表示每6小时执行一次
-# ⚠️ 已暂时禁用所有定时任务
+# 定时触发器
 [triggers]
-crons = ["0 3 * * *", "0 4 * * *", "0 9 * * *", "0 21 * * *"]  # 3:00同步数据源，4:00生成token，9:00/21:00刷新缓存
+crons = ["0 3 * * *", "0 4 * * *", "0 9 * * *", "0 21 * * *"]
 
+# =====================================================
+# 生产环境（wrangler deploy --env production）
+# 用真实的远程 KV / D1 ID
+# =====================================================
+
+[env.production]
+name = "cf-tv-service"
+
+# 生产 KV
+[[env.production.kv_namespaces]]
+binding = "KV"
+id = "d5e943d023d0474382b04b3c15c47ffb"
+
+# 生产 D1
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "tv-service-db"
+database_id = "9c7c22f1-fa0e-48da-8874-19731483c550"
+
+# Workers AI
+[env.production.ai]
+binding = "AI"
+
+# 生产环境变量（可以覆盖默认）
+[env.production.vars]
+ADMIN_KEY = "admin-key-please-change-in-production"
+TIMEZONE = "Asia/Shanghai"
+RESEND_API_KEY = "re_SV65wtWn_6zDFiwGvPFRRv3gbcLDACDKe"
+FROM_EMAIL = "support@iptv-search.com"
+APP_URL = "https://iptv-search.com"
+XUNHUPAY_ALIPAY_APP_ID = "202303140161"
+XUNHUPAY_ALIPAY_APP_SECRET = "9265ede6d1d85a9ecb7cbf2b97ca0cbd"
+XUNHUPAY_WECHAT_APP_ID = ""
+XUNHUPAY_WECHAT_APP_SECRET = ""
+XUNHUPAY_GATEWAY = "https://api.xunhuweb.com/payment/do.html"
+STATIC_SOURCE = "local"
+STATIC_OUTPUT_DIR = "static-output"
+GOOGLE_CLIENT_ID = "1070165774283-e75bs3en213p81iaq3g5dmpt15e6te9l.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET = "GOCSPX-oMHiR_wUYIe85DL0zWEii5Dee9I"
+
+# 生产 cron
+[env.production.triggers]
+crons = ["0 3 * * *", "0 4 * * *", "0 9 * * *", "0 21 * * *"]

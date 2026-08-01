@@ -2,6 +2,7 @@
 import { getDB, initDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, getSyncFilterConfig, updateSyncFilterConfig, getTypeMappingConfig, updateTypeMappingConfig, getDomainBlacklist, addDomainToBlacklist, removeDomainFromBlacklist, addMultipleDomainsToBlacklist } from '../database.js';
 import {
   handleGetPaymentMethods,
+  handleCreatePaymentMethod,
   handleUpdatePaymentMethod,
   handleDeletePaymentMethod,
   handleGetMallSettings,

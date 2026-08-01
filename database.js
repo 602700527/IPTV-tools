@@ -1,8 +1,8 @@
-// 数据库初始化和表结构管理
+// 鏁版嵁搴撳垵濮嬪寲鍜岃〃缁撴瀯绠＄悊
 let DB = null;
-let tablesCreated = false;  // 防止重复创建表和索引
+let tablesCreated = false;  // 闃叉閲嶅鍒涘缓琛ㄥ拰绱㈠紩
 
-// 初始化数据库连接
+// 鍒濆鍖栨暟鎹簱杩炴帴
 export async function initDB(env) {
   if (!DB) {
     DB = env.DB;
@@ -10,7 +10,7 @@ export async function initDB(env) {
   return DB;
 }
 
-// 获取数据库实例
+// 鑾峰彇鏁版嵁搴撳疄渚?
 export function getDB() {
   if (!DB) {
     throw new Error('Database not initialized');
@@ -19,26 +19,26 @@ export function getDB() {
 }
 
 /**
- * 生成免费订阅播放令牌（简化版，用于免费订阅）
- * @param {string} channelHash - 频道哈希
- * @param {string} subId - 订阅ID
- * @returns {string} 令牌
+ * 鐢熸垚鍏嶈垂璁㈤槄鎾斁浠ょ墝锛堢畝鍖栫増锛岀敤浜庡厤璐硅闃咃級
+ * @param {string} channelHash - 棰戦亾鍝堝笇
+ * @param {string} subId - 璁㈤槄ID
+ * @returns {string} 浠ょ墝
  */
 export function generateFreeSubPlayToken(channelHash, subId) {
   const timestamp = Date.now();
   const data = `${channelHash}|${subId}|${timestamp}`;
-  // 使用简单的base64编码
+  // 浣跨敤绠€鍗曠殑base64缂栫爜
   const hash = btoa(data);
   return hash;
 }
 
 /**
- * 验证免费订阅播放令牌
- * @param {string} token - 令牌
- * @param {string} channelHash - 频道哈希
- * @param {string} subId - 订阅ID
- * @param {number} maxAge - 最大有效期（毫秒），默认1小时
- * @returns {boolean} 是否有效
+ * 楠岃瘉鍏嶈垂璁㈤槄鎾斁浠ょ墝
+ * @param {string} token - 浠ょ墝
+ * @param {string} channelHash - 棰戦亾鍝堝笇
+ * @param {string} subId - 璁㈤槄ID
+ * @param {number} maxAge - 鏈€澶ф湁鏁堟湡锛堟绉掞級锛岄粯璁?灏忔椂
+ * @returns {boolean} 鏄惁鏈夋晥
  */
 export function verifyFreeSubPlayToken(token, channelHash, subId, maxAge = 60 * 60 * 1000) {
   try {
@@ -51,17 +51,17 @@ export function verifyFreeSubPlayToken(token, channelHash, subId, maxAge = 60 * 
 
     const [hashChannelHash, hashSubId, hashTimestamp] = parts;
 
-    // 验证频道哈希
+    // 楠岃瘉棰戦亾鍝堝笇
     if (hashChannelHash !== channelHash) {
       return false;
     }
 
-    // 验证订阅ID
+    // 楠岃瘉璁㈤槄ID
     if (hashSubId !== subId) {
       return false;
     }
 
-    // 验证时间戳
+    // 楠岃瘉鏃堕棿鎴?
     const timestamp = parseInt(hashTimestamp, 10);
     const now = Date.now();
 
@@ -76,16 +76,16 @@ export function verifyFreeSubPlayToken(token, channelHash, subId, maxAge = 60 * 
   }
 }
 
-// 创建表结构
+// 鍒涘缓琛ㄧ粨鏋?
 export async function createTables(env) {
-  // 如果已经创建过，直接返回
+  // 濡傛灉宸茬粡鍒涘缓杩囷紝鐩存帴杩斿洖
   if (tablesCreated) {
     return;
   }
 
   const db = env.DB;
 
-  // 创建直播源配置表
+  // 鍒涘缓鐩存挱婧愰厤缃〃
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS sources (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -97,18 +97,18 @@ export async function createTables(env) {
     )
   `).run();
 
-  // 迁移：添加 is_active 字段（如果不存在）
+  // 杩佺Щ锛氭坊鍔?is_active 瀛楁锛堝鏋滀笉瀛樺湪锛?
   try {
     await db.prepare('ALTER TABLE sources ADD COLUMN is_active BOOLEAN DEFAULT 1').run();
     console.log('Migrated sources table: added is_active column');
   } catch (e) {
-    // 字段已存在，忽略错误
+    // 瀛楁宸插瓨鍦紝蹇界暐閿欒
     if (!e.message.includes('duplicate column name')) {
       console.error('Migration error:', e);
     }
   }
 
-  // 创建频道表（注意：D1 不支持 FOREIGN KEY，所以移除外键约束）
+  // 鍒涘缓棰戦亾琛紙娉ㄦ剰锛欴1 涓嶆敮鎸?FOREIGN KEY锛屾墍浠ョЩ闄ゅ閿害鏉燂級
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS channels (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -119,46 +119,64 @@ export async function createTables(env) {
       play_url TEXT,
       headers TEXT,
       channel_hash TEXT,
-      is_active BOOLEAN DEFAULT 1
+      is_active BOOLEAN DEFAULT 1,
+      original TEXT
     )
   `).run();
 
-  // 创建频道哈希索引
+  // Migrate: add original column to existing channels table if missing
+  try {
+    const channelCols = await db.prepare('PRAGMA table_info(channels)').all();
+    const hasOriginal = (channelCols.results || []).some(c => c.name === 'original');
+    if (!hasOriginal) {
+      await db.prepare(`ALTER TABLE channels ADD COLUMN original TEXT DEFAULT ''`).run();
+      console.log('Migrated channels table: added original column');
+    } else {
+      console.log('channels.original column already exists');
+    }
+  } catch (e) {
+    if (!e.message.includes('duplicate column name')) {
+      console.error('Failed to migrate channels.original column:', e);
+    }
+  }
+
+
+  // 鍒涘缓棰戦亾鍝堝笇绱㈠紩
   await db.prepare(`
     CREATE INDEX IF NOT EXISTS idx_channel_hash ON channels(channel_hash)
   `).run();
 
-  // 创建频道is_active索引（优化订阅查询）
+  // 鍒涘缓棰戦亾is_active绱㈠紩锛堜紭鍖栬闃呮煡璇級
   await db.prepare(`
     CREATE INDEX IF NOT EXISTS idx_channels_is_active ON channels(is_active)
   `).run();
 
-  // 创建source_id索引（优化删除操作和JOIN查询）
+  // 鍒涘缓source_id绱㈠紩锛堜紭鍖栧垹闄ゆ搷浣滃拰JOIN鏌ヨ锛?
   await db.prepare(`
     CREATE INDEX IF NOT EXISTS idx_channels_source_id ON channels(source_id)
   `).run();
 
-  // 创建group_title索引（优化分组查询）
+  // 鍒涘缓group_title绱㈠紩锛堜紭鍖栧垎缁勬煡璇級
   await db.prepare(`
     CREATE INDEX IF NOT EXISTS idx_channels_group_title ON channels(group_title)
   `).run();
 
-  // 创建is_active+source_id组合索引（优化频道列表查询）
+  // 鍒涘缓is_active+source_id缁勫悎绱㈠紩锛堜紭鍖栭閬撳垪琛ㄦ煡璇級
   await db.prepare(`
     CREATE INDEX IF NOT EXISTS idx_channels_active_source ON channels(is_active, source_id)
   `).run();
 
-  // 创建group_title优化索引（优化DISTINCT查询）
+  // 鍒涘缓group_title浼樺寲绱㈠紩锛堜紭鍖朌ISTINCT鏌ヨ锛?
   await db.prepare(`
     CREATE INDEX IF NOT EXISTS idx_channels_group_title_optimized ON channels(group_title, is_active)
   `).run();
 
-  // 创建源is_active索引（优化订阅查询）
+  // 鍒涘缓婧恑s_active绱㈠紩锛堜紭鍖栬闃呮煡璇級
   await db.prepare(`
     CREATE INDEX IF NOT EXISTS idx_sources_is_active ON sources(is_active)
   `).run();
 
-  // 迁移：添加 channels.type 字段（如果不存在）
+  // 杩佺Щ锛氭坊鍔?channels.type 瀛楁锛堝鏋滀笉瀛樺湪锛?
   try {
     const channelTableInfo = await db.prepare('PRAGMA table_info(channels)').all();
     const channelColumns = channelTableInfo.results || [];
@@ -169,7 +187,7 @@ export async function createTables(env) {
       console.log('Database: Migrated channels table - added type column');
     }
 
-    // 创建 type 索引（优化按类型筛选查询）
+    // 鍒涘缓 type 绱㈠紩锛堜紭鍖栨寜绫诲瀷绛涢€夋煡璇級
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_channels_type ON channels(type)').run();
     console.log('Database: channels type index created or already exists');
   } catch (e) {
@@ -178,7 +196,7 @@ export async function createTables(env) {
     }
   }
 
-  // 迁移：添加 channels.description 字段（如果不存在）
+  // 杩佺Щ锛氭坊鍔?channels.description 瀛楁锛堝鏋滀笉瀛樺湪锛?
   try {
     const channelColumns = (await db.prepare('PRAGMA table_info(channels)').all()).results || [];
     const hasDescriptionColumn = channelColumns.some(col => col.name === 'description');
@@ -193,8 +211,8 @@ export async function createTables(env) {
     }
   }
 
-  // 创建频道名-类型映射表（用于同步后恢复类型和描述）
-  // 使用 channel_name + group_title 组合唯一键，因为同一频道名在不同地区可能有不同分类
+  // 鍒涘缓棰戦亾鍚?绫诲瀷鏄犲皠琛紙鐢ㄤ簬鍚屾鍚庢仮澶嶇被鍨嬪拰鎻忚堪锛?
+  // 浣跨敤 channel_name + group_title 缁勫悎鍞竴閿紝鍥犱负鍚屼竴棰戦亾鍚嶅湪涓嶅悓鍦板尯鍙兘鏈変笉鍚屽垎绫?
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS channel_type_mapping (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -208,20 +226,20 @@ export async function createTables(env) {
     )
   `).run();
 
-  // 迁移：为已存在的 channel_type_mapping 表添加新字段
+  // 杩佺Щ锛氫负宸插瓨鍦ㄧ殑 channel_type_mapping 琛ㄦ坊鍔犳柊瀛楁
   try {
-    // 检查表结构
+    // 妫€鏌ヨ〃缁撴瀯
     const tableInfo = await db.prepare('PRAGMA table_info(channel_type_mapping)').all();
     const columns = tableInfo.results || [];
     const columnNames = columns.map(c => c.name);
 
-    // 添加 group_title 字段（如果不存在）
+    // 娣诲姞 group_title 瀛楁锛堝鏋滀笉瀛樺湪锛?
     if (!columnNames.includes('group_title')) {
       await db.prepare('ALTER TABLE channel_type_mapping ADD COLUMN group_title TEXT DEFAULT \'\'').run();
       console.log('Database: Migrated channel_type_mapping - added group_title column');
     }
 
-    // 添加 description 字段（如果不存在）
+    // 娣诲姞 description 瀛楁锛堝鏋滀笉瀛樺湪锛?
     if (!columnNames.includes('description')) {
       await db.prepare('ALTER TABLE channel_type_mapping ADD COLUMN description TEXT DEFAULT \'\'').run();
       console.log('Database: Migrated channel_type_mapping - added description column');
@@ -230,12 +248,12 @@ export async function createTables(env) {
     console.log('Database: channel_type_mapping migration skipped (columns may already exist)');
   }
 
-  // 创建频道名+分组组合索引（加速查询）
+  // 鍒涘缓棰戦亾鍚?鍒嗙粍缁勫悎绱㈠紩锛堝姞閫熸煡璇級
   await db.prepare(`
     CREATE INDEX IF NOT EXISTS idx_channel_type_mapping_name_group ON channel_type_mapping(channel_name, group_title)
   `).run();
 
-  // 清理旧的无用 type_mapping_config（旧的关键词规则格式，已迁移到 channel_type_mapping）
+  // 娓呯悊鏃х殑鏃犵敤 type_mapping_config锛堟棫鐨勫叧閿瘝瑙勫垯鏍煎紡锛屽凡杩佺Щ鍒?channel_type_mapping锛?
   try {
     await db.prepare('DELETE FROM settings WHERE key = ?').bind('type_mapping_config').run();
     console.log('Database: Cleaned up old type_mapping_config from settings');
@@ -244,7 +262,7 @@ export async function createTables(env) {
   }
   console.log('Database: channel_type_mapping table created with group_title and description');
 
-  // 创建卡密表
+  // 鍒涘缓鍗″瘑琛?
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS codes (
       code TEXT PRIMARY KEY,
@@ -258,12 +276,12 @@ export async function createTables(env) {
     )
   `).run();
 
-  // 创建卡密状态索引
+  // 鍒涘缓鍗″瘑鐘舵€佺储寮?
   await db.prepare(`
     CREATE INDEX IF NOT EXISTS idx_code_status ON codes(status)
   `).run();
 
-  // 迁移：添加 banned_until 字段（如果不存在）
+  // 杩佺Щ锛氭坊鍔?banned_until 瀛楁锛堝鏋滀笉瀛樺湪锛?
   try {
     await db.prepare('ALTER TABLE codes ADD COLUMN banned_until DATETIME').run();
     console.log('Migrated codes table: added banned_until column');
@@ -273,7 +291,7 @@ export async function createTables(env) {
     }
   }
 
-  // 创建配置表
+  // 鍒涘缓閰嶇疆琛?
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
@@ -281,12 +299,12 @@ export async function createTables(env) {
     )
   `).run();
 
-  // 初始化默认配置（如果不存在）
+  // 鍒濆鍖栭粯璁ら厤缃紙濡傛灉涓嶅瓨鍦級
   const defaultSettings = {
     'channel_daily_limit': '100',
     'ban_duration_days': '7',
     'auto_ban_on_exceed': 'true',
-    // IP黑名单配置
+    // IP榛戝悕鍗曢厤缃?
     'sub_rate_min': '1',
     'sub_rate_hour': '60',
     'sub_rate_day': '500',
@@ -294,17 +312,17 @@ export async function createTables(env) {
     'live_rate_hour': '300',
     'live_rate_day': '2000',
     'admin_rate_hour': '10',
-    // 首页展示配置（JSON格式）
+    // 棣栭〉灞曠ず閰嶇疆锛圝SON鏍煎紡锛?
     'homepage_display_config': '{}',
-    // IP直连播放配置
+    // IP鐩磋繛鎾斁閰嶇疆
     'enable_ip_play': 'true',
-    // M3U缓存TTL配置
+    // M3U缂撳瓨TTL閰嶇疆
     'm3u_ttl_hours': '72',
-    // 每日IP播放限制配置
+    // 姣忔棩IP鎾斁闄愬埗閰嶇疆
     'play_limit_per_ip': '100',
-    // 同步过滤规则配置（JSON格式）
+    // 鍚屾杩囨护瑙勫垯閰嶇疆锛圝SON鏍煎紡锛?
     'sync_filter_config': '{}',
-    // 频道类型映射配置（JSON格式）：M3U tvg-type 到标准 type 的映射
+    // 棰戦亾绫诲瀷鏄犲皠閰嶇疆锛圝SON鏍煎紡锛夛細M3U tvg-type 鍒版爣鍑?type 鐨勬槧灏?
     'type_mapping_config': JSON.stringify({
       'cinema': 'movie',
       'films': 'movie',
@@ -335,7 +353,7 @@ export async function createTables(env) {
     }
   }
 
-  // 创建播放记录表（只记录IP用于并发检测，10分钟后自动清理）
+  // 鍒涘缓鎾斁璁板綍琛紙鍙褰旾P鐢ㄤ簬骞跺彂妫€娴嬶紝10鍒嗛挓鍚庤嚜鍔ㄦ竻鐞嗭級
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS play_logs (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -347,12 +365,12 @@ export async function createTables(env) {
     )
   `).run();
 
-  // 创建播放记录索引
+  // 鍒涘缓鎾斁璁板綍绱㈠紩
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_play_logs_code ON play_logs(code)').run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_play_logs_code_date ON play_logs(code, created_date)').run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_play_logs_code_hash_date ON play_logs(code, channel_hash, created_date)').run();
 
-  // 创建IP访问记录表
+  // 鍒涘缓IP璁块棶璁板綍琛?
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS ip_access_logs (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -365,11 +383,11 @@ export async function createTables(env) {
     )
   `).run();
 
-  // 创建IP访问记录索引
+  // 鍒涘缓IP璁块棶璁板綍绱㈠紩
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_ip_access_logs_ip_date ON ip_access_logs(ip, created_date)').run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_ip_access_logs_ip_path_date ON ip_access_logs(ip, path, created_date)').run();
 
-  // 创建IP黑名单表
+  // 鍒涘缓IP榛戝悕鍗曡〃
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS ip_blacklist (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -381,10 +399,10 @@ export async function createTables(env) {
     )
   `).run();
 
-  // 创建IP黑名单索引
+  // 鍒涘缓IP榛戝悕鍗曠储寮?
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_ip_blacklist_ip ON ip_blacklist(ip)').run();
 
-  // 创建已使用token表
+  // 鍒涘缓宸蹭娇鐢╰oken琛?
   await db.prepare(`
     CREATE TABLE IF NOT EXISTS used_tokens (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -394,10 +412,10 @@ export async function createTables(env) {
     )
   `).run();
 
-  // 创建已使用token索引
+  // 鍒涘缓宸蹭娇鐢╰oken绱㈠紩
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_used_tokens_token ON used_tokens(token)').run();
 
-  // 创建订阅IP记录表（记录卡密的订阅IP，用于验证播放请求）
+  // 鍒涘缓璁㈤槄IP璁板綍琛紙璁板綍鍗″瘑鐨勮闃匢P锛岀敤浜庨獙璇佹挱鏀捐姹傦級
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS subscription_ips (
@@ -414,7 +432,7 @@ export async function createTables(env) {
   }
 
   try {
-    // 创建订阅IP记录索引
+    // 鍒涘缓璁㈤槄IP璁板綍绱㈠紩
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_subscription_ips_code_date ON subscription_ips(code, created_date)').run();
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_subscription_ips_code_ip_date ON subscription_ips(code, client_ip, created_date)').run();
     console.log('Database: subscription_ips indexes created or already exist');
@@ -422,7 +440,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create subscription_ips indexes:', e);
   }
 
-  // 创建广告TS文件表
+  // 鍒涘缓骞垮憡TS鏂囦欢琛?
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS ad_ts_files (
@@ -441,7 +459,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create ad_ts_files table:', e);
   }
 
-  // 创建广告TS文件索引
+  // 鍒涘缓骞垮憡TS鏂囦欢绱㈠紩
   try {
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_ad_ts_files_active ON ad_ts_files(is_active)').run();
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_ad_ts_files_type_active ON ad_ts_files(ad_type, is_active)').run();
@@ -451,9 +469,9 @@ export async function createTables(env) {
     console.error('Database: Failed to create ad_ts_files indexes:', e);
   }
 
-  // 检查并添加缺失的列（用于迁移旧数据库）
+  // 妫€鏌ュ苟娣诲姞缂哄け鐨勫垪锛堢敤浜庤縼绉绘棫鏁版嵁搴擄級
   try {
-    // 检查 ad_ts_files 表结构
+    // 妫€鏌?ad_ts_files 琛ㄧ粨鏋?
     const tableInfo = await db.prepare('PRAGMA table_info(ad_ts_files)').all();
     const columns = tableInfo.results || [];
 
@@ -476,7 +494,7 @@ export async function createTables(env) {
       console.log('Database: Added description column to ad_ts_files table');
     }
 
-    // 检查并添加 remote_url 字段（用于远程广告文件）
+    // 妫€鏌ュ苟娣诲姞 remote_url 瀛楁锛堢敤浜庤繙绋嬪箍鍛婃枃浠讹級
     const hasRemoteUrlColumn = columns.some(col => col.name === 'remote_url');
     if (!hasRemoteUrlColumn) {
       await db.prepare('ALTER TABLE ad_ts_files ADD COLUMN remote_url TEXT').run();
@@ -486,7 +504,7 @@ export async function createTables(env) {
     console.error('Database: Failed to migrate ad_ts_files table:', e);
   }
 
-  // 创建广告绑定表（注意：D1 不支持 FOREIGN KEY，所以移除外键约束）
+  // 鍒涘缓骞垮憡缁戝畾琛紙娉ㄦ剰锛欴1 涓嶆敮鎸?FOREIGN KEY锛屾墍浠ョЩ闄ゅ閿害鏉燂級
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS ad_bindings (
@@ -504,7 +522,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create ad_bindings table:', e);
   }
 
-  // 创建广告绑定索引
+  // 鍒涘缓骞垮憡缁戝畾绱㈠紩
   try {
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_ad_bindings_action ON ad_bindings(action_type)').run();
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_ad_bindings_priority ON ad_bindings(priority DESC)').run();
@@ -514,7 +532,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create ad_bindings indexes:', e);
   }
 
-  // 创建广告播放日志表
+  // 鍒涘缓骞垮憡鎾斁鏃ュ織琛?
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS ad_play_logs (
@@ -530,7 +548,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create ad_play_logs table:', e);
   }
 
-  // 创建广告播放日志索引
+  // 鍒涘缓骞垮憡鎾斁鏃ュ織绱㈠紩
   try {
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_ad_play_logs_action_ip_date ON ad_play_logs(action_type, client_ip, created_date)').run();
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_ad_play_logs_played_at ON ad_play_logs(played_at DESC)').run();
@@ -539,7 +557,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create ad_play_logs indexes:', e);
   }
 
-  // 创建免费订阅表
+  // 鍒涘缓鍏嶈垂璁㈤槄琛?
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS free_subscriptions (
@@ -563,7 +581,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create free_subscriptions table:', e);
   }
 
-  // 创建免费订阅索引
+  // 鍒涘缓鍏嶈垂璁㈤槄绱㈠紩
   try {
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_sub_id ON free_subscriptions(sub_id)').run();
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_ip ON free_subscriptions(ip)').run();
@@ -575,18 +593,18 @@ export async function createTables(env) {
     console.error('Database: Failed to create free_subscriptions indexes:', e);
   }
 
-  // 迁移：添加 fp_token 字段（如果不存在）
+  // 杩佺Щ锛氭坊鍔?fp_token 瀛楁锛堝鏋滀笉瀛樺湪锛?
   try {
     await db.prepare('ALTER TABLE free_subscriptions ADD COLUMN fp_token TEXT').run();
     console.log('Database: Migrated free_subscriptions table - added fp_token column');
   } catch (e) {
     if (!e.message.includes('duplicate column name')) {
-      // 字段已存在，忽略错误
+      // 瀛楁宸插瓨鍦紝蹇界暐閿欒
       console.log('Database: fp_token column already exists');
     }
   }
 
-  // 创建 fp_token 索引
+  // 鍒涘缓 fp_token 绱㈠紩
   try {
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_fp_token ON free_subscriptions(fp_token)').run();
     console.log('Database: fp_token index created or already exists');
@@ -594,7 +612,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create fp_token index:', e);
   }
 
-  // 创建签到记录表（注意：D1 不支持 FOREIGN KEY，所以移除外键约束）
+  // 鍒涘缓绛惧埌璁板綍琛紙娉ㄦ剰锛欴1 涓嶆敮鎸?FOREIGN KEY锛屾墍浠ョЩ闄ゅ閿害鏉燂級
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS checkin_records (
@@ -612,7 +630,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create checkin_records table:', e);
   }
 
-  // 创建签到记录索引
+  // 鍒涘缓绛惧埌璁板綍绱㈠紩
   try {
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_checkin_records_subscription_id ON checkin_records(subscription_id)').run();
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_checkin_records_date ON checkin_records(checkin_date DESC)').run();
@@ -622,7 +640,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create checkin_records indexes:', e);
   }
 
-  // 创建用户系统表
+  // 鍒涘缓鐢ㄦ埛绯荤粺琛?
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS users (
@@ -698,7 +716,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create user_orders table:', e);
   }
 
-  // 创建密码重置令牌表
+  // 鍒涘缓瀵嗙爜閲嶇疆浠ょ墝琛?
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS password_reset_tokens (
@@ -718,7 +736,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create password_reset_tokens table:', e);
   }
 
-  // 创建支付方式表
+  // 鍒涘缓鏀粯鏂瑰紡琛?
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS payment_methods (
@@ -737,7 +755,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create payment_methods table:', e);
   }
 
-  // 创建商城设置表
+  // 鍒涘缓鍟嗗煄璁剧疆琛?
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS mall_settings (
@@ -753,7 +771,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create mall_settings table:', e);
   }
 
-  // 创建订阅套餐表
+  // 鍒涘缓璁㈤槄濂楅琛?
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS subscription_plans (
@@ -777,7 +795,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create subscription_plans table:', e);
   }
 
-  // 创建虎皮椒支付订单表
+  // 鍒涘缓铏庣毊妞掓敮浠樿鍗曡〃
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS xunhupay_orders (
@@ -807,13 +825,13 @@ export async function createTables(env) {
     console.error('Database: Failed to create xunhupay_orders table:', e);
   }
 
-  // 初始化默认支付方式
+  // 鍒濆鍖栭粯璁ゆ敮浠樻柟寮?
   try {
     const alipayCount = await db.prepare('SELECT COUNT(*) as count FROM payment_methods WHERE type = ?').bind('alipay').first();
     if (!alipayCount || alipayCount.count === 0) {
       await db.prepare(`
         INSERT INTO payment_methods (type, name, enabled, config) VALUES
-        ('alipay', '支付宝', 1, '{"app_id":"","app_secret":"","notify_url":""}')
+        ('alipay', '鏀粯瀹?, 1, '{"app_id":"","app_secret":"","notify_url":""}')
       `).run();
       console.log('Database: Initialized alipay payment method');
     }
@@ -822,7 +840,7 @@ export async function createTables(env) {
     if (!wechatCount || wechatCount.count === 0) {
       await db.prepare(`
         INSERT INTO payment_methods (type, name, enabled, config) VALUES
-        ('wechat', '微信支付', 1, '{"app_id":"","app_secret":"","notify_url":""}')
+        ('wechat', '寰俊鏀粯', 1, '{"app_id":"","app_secret":"","notify_url":""}')
       `).run();
       console.log('Database: Initialized wechat payment method');
     }
@@ -836,7 +854,7 @@ export async function createTables(env) {
       console.log('Database: Initialized paypal payment method');
     }
 
-    // 初始化加密货币支付方式
+    // 鍒濆鍖栧姞瀵嗚揣甯佹敮浠樻柟寮?
     const coinbaseCount = await db.prepare('SELECT COUNT(*) as count FROM payment_methods WHERE type = ?').bind('coinbase').first();
     if (!coinbaseCount || coinbaseCount.count === 0) {
       await db.prepare(`
@@ -867,7 +885,7 @@ export async function createTables(env) {
     console.error('Database: Failed to initialize payment methods:', e);
   }
 
-  // 初始化商城设置
+  // 鍒濆鍖栧晢鍩庤缃?
   try {
     const mallEnabledCount = await db.prepare('SELECT COUNT(*) as count FROM mall_settings WHERE key = ?').bind('mall_enabled').first();
     if (!mallEnabledCount || mallEnabledCount.count === 0) {
@@ -888,7 +906,7 @@ export async function createTables(env) {
     console.error('Database: Failed to initialize mall settings:', e);
   }
 
-  // 创建域名黑名单表
+  // 鍒涘缓鍩熷悕榛戝悕鍗曡〃
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS domain_blacklist (
@@ -904,7 +922,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create domain_blacklist table:', e);
   }
 
-  // 创建工单表
+  // 鍒涘缓宸ュ崟琛?
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS tickets (
@@ -926,7 +944,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create tickets table:', e);
   }
 
-  // 创建工单索引
+  // 鍒涘缓宸ュ崟绱㈠紩
   try {
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_tickets_user_id ON tickets(user_id)').run();
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_tickets_order_id ON tickets(order_id)').run();
@@ -937,7 +955,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create tickets indexes:', e);
   }
 
-  // 创建工单回复表
+  // 鍒涘缓宸ュ崟鍥炲琛?
   try {
     await db.prepare(`
       CREATE TABLE IF NOT EXISTS ticket_replies (
@@ -954,7 +972,7 @@ export async function createTables(env) {
     console.error('Database: Failed to create ticket_replies table:', e);
   }
 
-  // 创建工单回复索引
+  // 鍒涘缓宸ュ崟鍥炲绱㈠紩
   try {
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_ticket_replies_ticket_id ON ticket_replies(ticket_id)').run();
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_ticket_replies_created_at ON ticket_replies(created_at ASC)').run();
@@ -964,10 +982,10 @@ export async function createTables(env) {
   }
 
   console.log('Tables created successfully');
-  tablesCreated = true;  // 标记表已创建，避免重复执行
+  tablesCreated = true;  // 鏍囪琛ㄥ凡鍒涘缓锛岄伩鍏嶉噸澶嶆墽琛?
 }
 
-// 获取安全配置
+// 鑾峰彇瀹夊叏閰嶇疆
 export async function getSecurityConfig() {
   const db = getDB();
   const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?)')
@@ -993,7 +1011,7 @@ export async function getSecurityConfig() {
   return config;
 }
 
-// 获取IP黑名单配置
+// 鑾峰彇IP榛戝悕鍗曢厤缃?
 export async function getIPBlacklistConfig() {
   const db = getDB();
   const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?)')
@@ -1019,7 +1037,7 @@ export async function getIPBlacklistConfig() {
   return config;
 }
 
-// 更新IP黑名单配置
+// 鏇存柊IP榛戝悕鍗曢厤缃?
 export async function updateIPBlacklistConfig(config) {
   const db = getDB();
 
@@ -1034,19 +1052,19 @@ export async function updateIPBlacklistConfig(config) {
   }
 }
 
-// 获取首页展示配置
+// 鑾峰彇棣栭〉灞曠ず閰嶇疆
 export async function getHomepageDisplayConfig() {
   const db = getDB();
   const result = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('homepage_display_config').first();
 
   if (!result) {
-    // 返回默认配置（空，表示展示所有）
+    // 杩斿洖榛樿閰嶇疆锛堢┖锛岃〃绀哄睍绀烘墍鏈夛級
     return {
-      sources: [], // 启用的数据源ID列表，空表示全部
-      groups: [],  // 启用的分类列表，空表示全部
-      hosts: [],    // 启用的host列表，空表示全部
-      hasHeaders: null, // null=全部, true=有请求头, false=无请求头
-      manualHosts: [] // 手动添加的域名列表
+      sources: [], // 鍚敤鐨勬暟鎹簮ID鍒楄〃锛岀┖琛ㄧず鍏ㄩ儴
+      groups: [],  // 鍚敤鐨勫垎绫诲垪琛紝绌鸿〃绀哄叏閮?
+      hosts: [],    // 鍚敤鐨刪ost鍒楄〃锛岀┖琛ㄧず鍏ㄩ儴
+      hasHeaders: null, // null=鍏ㄩ儴, true=鏈夎姹傚ご, false=鏃犺姹傚ご
+      manualHosts: [] // 鎵嬪姩娣诲姞鐨勫煙鍚嶅垪琛?
     };
   }
 
@@ -1071,7 +1089,7 @@ export async function getHomepageDisplayConfig() {
   }
 }
 
-// 更新首页展示配置
+// 鏇存柊棣栭〉灞曠ず閰嶇疆
 export async function updateHomepageDisplayConfig(config) {
   const db = getDB();
   const configJson = JSON.stringify(config);
@@ -1080,7 +1098,7 @@ export async function updateHomepageDisplayConfig(config) {
     .run();
 }
 
-// 获取系统安全配置
+// 鑾峰彇绯荤粺瀹夊叏閰嶇疆
 export async function getSystemConfig() {
   const db = getDB();
   const settings = await db.prepare('SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
@@ -1116,13 +1134,13 @@ export async function getSystemConfig() {
   return config;
 }
 
-// 获取同步过滤规则配置
+// 鑾峰彇鍚屾杩囨护瑙勫垯閰嶇疆
 export async function getSyncFilterConfig() {
   const db = getDB();
   const result = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('sync_filter_config').first();
 
   if (!result) {
-    // 返回默认配置（空，表示不过滤）
+    // 杩斿洖榛樿閰嶇疆锛堢┖锛岃〃绀轰笉杩囨护锛?
     return {
       excludeGroups: [],
       excludeUrls: [],
@@ -1148,12 +1166,12 @@ export async function getSyncFilterConfig() {
   }
 }
 
-// 更新同步过滤规则配置
+// 鏇存柊鍚屾杩囨护瑙勫垯閰嶇疆
 export async function updateSyncFilterConfig(config) {
   const db = getDB();
   const configJson = JSON.stringify(config);
 
-  // 检查配置是否存在
+  // 妫€鏌ラ厤缃槸鍚﹀瓨鍦?
   const existing = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('sync_filter_config').first();
 
   if (existing) {
@@ -1167,22 +1185,22 @@ export async function updateSyncFilterConfig(config) {
   }
 }
 
-// 获取频道类型映射配置（从 channel_type_mapping 表）
+// 鑾峰彇棰戦亾绫诲瀷鏄犲皠閰嶇疆锛堜粠 channel_type_mapping 琛級
 export async function getTypeMappingConfig() {
   const db = getDB();
   const result = await db.prepare('SELECT channel_name, group_title, type, description FROM channel_type_mapping ORDER BY channel_name, group_title').all();
   return result.results || [];
 }
 
-// 更新频道类型映射配置（写入 channel_type_mapping 表）
-// newMappings: [{channel_name: 'CCTV-1', group_title: '央视', type: 'news', description: '...'}, ...]
+// 鏇存柊棰戦亾绫诲瀷鏄犲皠閰嶇疆锛堝啓鍏?channel_type_mapping 琛級
+// newMappings: [{channel_name: 'CCTV-1', group_title: '澶', type: 'news', description: '...'}, ...]
 export async function updateTypeMappingConfig(newMappings) {
   const db = getDB();
 
-  // 先清空旧数据
+  // 鍏堟竻绌烘棫鏁版嵁
   await db.prepare('DELETE FROM channel_type_mapping').run();
 
-  // 批量插入新数据
+  // 鎵归噺鎻掑叆鏂版暟鎹?
   if (newMappings && newMappings.length > 0) {
     const statements = newMappings.map(m =>
       db.prepare('INSERT INTO channel_type_mapping (channel_name, group_title, type, description) VALUES (?, ?, ?, ?)')
@@ -1192,7 +1210,7 @@ export async function updateTypeMappingConfig(newMappings) {
   }
 }
 
-// 更新系统配置
+// 鏇存柊绯荤粺閰嶇疆
 export async function updateSystemConfig(config) {
   const db = getDB();
 
@@ -1221,7 +1239,7 @@ export async function updateSystemConfig(config) {
   }
 }
 
-// 更新安全配置
+// 鏇存柊瀹夊叏閰嶇疆
 export async function updateSecurityConfig(config) {
   const db = getDB();
 
@@ -1244,22 +1262,22 @@ export async function updateSecurityConfig(config) {
   }
 }
 
-// 规范化频道名称（如CCTV等格式）
+// 瑙勮寖鍖栭閬撳悕绉帮紙濡侰CTV绛夋牸寮忥級
 function normalizeChannelName(name) {
   if (!name) return name;
 
-  // CCTV格式规范化：cctv[-\s+]?(\d{1,2})(\+)? 后续可选中文/英文/数字/空格/横线
+  // CCTV鏍煎紡瑙勮寖鍖栵細cctv[-\s+]?(\d{1,2})(\+)? 鍚庣画鍙€変腑鏂?鑻辨枃/鏁板瓧/绌烘牸/妯嚎
   const cctvRegex = /^cctv[-\s+]?(\d{1,2})(\+)?\b([\u4e00-\u9fa5A-Za-z0-9\s-]*)?/iu;
   
   const match = name.match(cctvRegex);
   if (match) {
     const num = parseInt(match[1]);
     const plus = match[2] || '';
-    // 只规范化1-17的CCTV频道
+    // 鍙鑼冨寲1-17鐨凜CTV棰戦亾
     if (num >= 1 && num <= 17) {
       const newName = 'CCTV' + num + plus;
       if (match[3] && match[3].trim()) {
-        // 保留后缀内容（如"高清"、"4K"等）
+        // 淇濈暀鍚庣紑鍐呭锛堝"楂樻竻"銆?4K"绛夛級
         return newName + match[3];
       }
       return newName;
@@ -1269,104 +1287,104 @@ function normalizeChannelName(name) {
   return name;
 }
 
-// 自定义排序函数：英文 -> 数字 -> 中文（数字按数值大小排序）
+// 鑷畾涔夋帓搴忓嚱鏁帮細鑻辨枃 -> 鏁板瓧 -> 涓枃锛堟暟瀛楁寜鏁板€煎ぇ灏忔帓搴忥級
 function customChannelSort(a, b) {
   const nameA = a.channel_name || '';
   const nameB = b.channel_name || '';
 
-  // 尝试提取CCTV格式的数字
+  // 灏濊瘯鎻愬彇CCTV鏍煎紡鐨勬暟瀛?
   const cctvMatchA = nameA.match(/^([A-Za-z]+)(\d+)/);
   const cctvMatchB = nameB.match(/^([A-Za-z]+)(\d+)/);
 
-  // 如果都是CCTV格式（字母开头+数字），按数字大小排序
+  // 濡傛灉閮芥槸CCTV鏍煎紡锛堝瓧姣嶅紑澶?鏁板瓧锛夛紝鎸夋暟瀛楀ぇ灏忔帓搴?
   if (cctvMatchA && cctvMatchB && cctvMatchA[1].toUpperCase() === cctvMatchB[1].toUpperCase()) {
     const numA = parseInt(cctvMatchA[2]);
     const numB = parseInt(cctvMatchB[2]);
     if (numA !== numB) {
       return numA - numB;
     }
-    // 数字相同，继续按后缀排序（无后缀的排前面）
+    // 鏁板瓧鐩稿悓锛岀户缁寜鍚庣紑鎺掑簭锛堟棤鍚庣紑鐨勬帓鍓嶉潰锛?
     const suffixA = nameA.substring(cctvMatchA[1].length + cctvMatchA[2].length);
     const suffixB = nameB.substring(cctvMatchB[1].length + cctvMatchB[2].length);
 
-    // 如果一个有后缀一个没有，无后缀的排前面
+    // 濡傛灉涓€涓湁鍚庣紑涓€涓病鏈夛紝鏃犲悗缂€鐨勬帓鍓嶉潰
     const hasSuffixA = suffixA.trim().length > 0;
     const hasSuffixB = suffixB.trim().length > 0;
     if (hasSuffixA !== hasSuffixB) {
       return hasSuffixA ? 1 : -1;
     }
 
-    // 都有后缀或都没有后缀，按后缀内容排序
+    // 閮芥湁鍚庣紑鎴栭兘娌℃湁鍚庣紑锛屾寜鍚庣紑鍐呭鎺掑簭
     return suffixA.localeCompare(suffixB, 'zh-CN', { numeric: true });
   }
 
-  // 普通排序：按字符逐个比较
+  // 鏅€氭帓搴忥細鎸夊瓧绗﹂€愪釜姣旇緝
   for (let i = 0; i < Math.min(nameA.length, nameB.length); i++) {
     const charA = nameA.charCodeAt(i);
     const charB = nameB.charCodeAt(i);
 
-    // 英文字母 (A-Z, a-z: 65-90, 97-122)
+    // 鑻辨枃瀛楁瘝 (A-Z, a-z: 65-90, 97-122)
     const isAlphaA = (charA >= 65 && charA <= 90) || (charA >= 97 && charA <= 122);
     const isAlphaB = (charB >= 65 && charB <= 90) || (charB >= 97 && charB <= 122);
 
-    // 数字 (0-9: 48-57)
+    // 鏁板瓧 (0-9: 48-57)
     const isDigitA = charA >= 48 && charA <= 57;
     const isDigitB = charB >= 48 && charB <= 57;
 
-    // 中文 (\u4e00-\u9fa5: 19968-40869)
+    // 涓枃 (\u4e00-\u9fa5: 19968-40869)
     const isChineseA = charA >= 19968 && charA <= 40869;
     const isChineseB = charB >= 19968 && charB <= 40869;
 
-    // 确定字符类型优先级：英文=1, 数字=2, 中文=3
+    // 纭畾瀛楃绫诲瀷浼樺厛绾э細鑻辨枃=1, 鏁板瓧=2, 涓枃=3
     const typeA = isAlphaA ? 1 : (isDigitA ? 2 : (isChineseA ? 3 : 4));
     const typeB = isAlphaB ? 1 : (isDigitB ? 2 : (isChineseB ? 3 : 4));
 
-    // 类型不同时，按类型排序
+    // 绫诲瀷涓嶅悓鏃讹紝鎸夌被鍨嬫帓搴?
     if (typeA !== typeB) {
       return typeA - typeB;
     }
 
-    // 类型相同时，按字符值排序
+    // 绫诲瀷鐩稿悓鏃讹紝鎸夊瓧绗﹀€兼帓搴?
     if (charA !== charB) {
       return charA - charB;
     }
   }
 
-  // 所有字符都相等，按长度排序
+  // 鎵€鏈夊瓧绗﹂兘鐩哥瓑锛屾寜闀垮害鎺掑簭
   return nameA.length - nameB.length;
 }
 
-// 解析M3U内容并提取频道信息
+// 瑙ｆ瀽M3U鍐呭骞舵彁鍙栭閬撲俊鎭?
 export async function parseM3UContent(content, sourceId, filter = {}) {
   const db = getDB();
   const channels = [];
   let globalHeaders = {};
   
-  // 用于跟踪已处理的播放地址（过滤重复URL）
+  // 鐢ㄤ簬璺熻釜宸插鐞嗙殑鎾斁鍦板潃锛堣繃婊ら噸澶峌RL锛?
   const processedUrls = new Set();
 
-  // 确保 sourceId 是整数
+  // 纭繚 sourceId 鏄暣鏁?
   sourceId = parseInt(sourceId);
   if (isNaN(sourceId) || sourceId <= 0) {
     throw new Error('Invalid source ID');
   }
 
-  // 提取全局头部信息（User-Agent等）
+  // 鎻愬彇鍏ㄥ眬澶撮儴淇℃伅锛圲ser-Agent绛夛級
   const extm3uMatch = content.match(/^#EXTM3U\s*(.*)$/m);
   if (extm3uMatch) {
     const extm3uLine = extm3uMatch[1];
-    // 匹配 user-agent="..."
+    // 鍖归厤 user-agent="..."
     const uaMatch = extm3uLine.match(/user-agent\s*=\s*"([^"]+)"/i);
     if (uaMatch) {
       globalHeaders['User-Agent'] = uaMatch[1];
     }
   }
 
-  // 基于 #EXTINF 块进行分割
+  // 鍩轰簬 #EXTINF 鍧楄繘琛屽垎鍓?
   const blocks = content.split(/^#EXTINF:/m);
   console.log(`[Sync] Found ${blocks.length - 1} potential channels in M3U`);
 
-  // 跳过第一个空块（#EXTM3U之前的部分）
+  // 璺宠繃绗竴涓┖鍧楋紙#EXTM3U涔嬪墠鐨勯儴鍒嗭級
   for (const block of blocks) {
     if (!block.trim()) continue;
 
@@ -1378,54 +1396,60 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
       headers: {...globalHeaders}
     };
 
-    // 解析 EXTINF 行
+    // 瑙ｆ瀽 EXTINF 琛?
     const extinfLine = '#EXTINF:' + lines[0];
 
-    // 提取频道名称 - 改进：从最后一个逗号后提取，避免误匹配 URL 中的逗号
+    // 鎻愬彇棰戦亾鍚嶇О - 鏀硅繘锛氫粠鏈€鍚庝竴涓€楀彿鍚庢彁鍙栵紝閬垮厤璇尮閰?URL 涓殑閫楀彿
     const nameMatch = extinfLine.match(/,([^,\n]+)$/);
     if (nameMatch) {
       currentChannel.channel_name = nameMatch[1].trim();
-      // 规范化频道名（CCTV等格式）
+      // 瑙勮寖鍖栭閬撳悕锛圕CTV绛夋牸寮忥級
       currentChannel.channel_name = normalizeChannelName(currentChannel.channel_name);
     } else {
-      // 如果没有找到频道名，尝试提取 tvg-id 作为备用
+      // 濡傛灉娌℃湁鎵惧埌棰戦亾鍚嶏紝灏濊瘯鎻愬彇 tvg-id 浣滀负澶囩敤
       const idMatch = extinfLine.match(/tvg-id="([^"]+)"/i);
       if (idMatch) {
         currentChannel.channel_name = idMatch[1].trim();
-        // 规范化频道名
+        // 瑙勮寖鍖栭閬撳悕
         currentChannel.channel_name = normalizeChannelName(currentChannel.channel_name);
       } else {
-        // 完全没有频道名，使用 "Unknown" 避免把 URL 当成频道名
+        // 瀹屽叏娌℃湁棰戦亾鍚嶏紝浣跨敤 "Unknown" 閬垮厤鎶?URL 褰撴垚棰戦亾鍚?
         currentChannel.channel_name = 'Unknown';
         console.warn('[Sync] No channel name found for line:', extinfLine.substring(0, 100));
       }
     }
 
-    // 提取组名
+    // 鎻愬彇缁勫悕
     const groupMatch = extinfLine.match(/group-title\s*=\s*"([^"]+)"/i);
     if (groupMatch) {
       currentChannel.group_title = groupMatch[1];
     }
 
-    // 提取logo
+    // 鎻愬彇logo
     const logoMatch = extinfLine.match(/tvg-logo\s*=\s*"([^"]+)"/i);
     if (logoMatch) {
       currentChannel.logo = logoMatch[1];
     }
 
-    // 提取 tvg-type（频道类型）
+    // 鎻愬彇 tvg-type锛堥閬撶被鍨嬶級
     const typeMatch = extinfLine.match(/tvg-type\s*=\s*"([^"]+)"/i);
     if (typeMatch) {
       currentChannel.tvg_type = typeMatch[1];
     }
 
-    // 提取 tvg-desc（频道描述）- 这是真正的频道简介
+    // 鎻愬彇 original 瀛楁锛堢敤浜庝繚鐣欏師濮嬬嚎璺俊鎭級
+    const originalMatch = extinfLine.match(/original\s*=\s*"([^"]+)"/i);
+    if (originalMatch) {
+      currentChannel.original = originalMatch[1];
+    }
+    
+    // 鎻愬彇 tvg-desc锛堥閬撴弿杩帮級- 杩欐槸鐪熸鐨勯閬撶畝浠?
     const descMatch = extinfLine.match(/tvg-desc\s*=\s*"([^"]+)"/i);
     if (descMatch) {
       currentChannel.description = descMatch[1];
     }
 
-    // 提取 EXTINF 行内的 http-user-agent、ua、user_agent
+    // 鎻愬彇 EXTINF 琛屽唴鐨?http-user-agent銆乽a銆乽ser_agent
     const uaMatch = extinfLine.match(/http-user-agent\s*=\s*"([^"]+)"/i);
     if (uaMatch) {
       currentChannel.headers['User-Agent'] = uaMatch[1];
@@ -1439,12 +1463,12 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
       currentChannel.headers['User-Agent'] = uaMatch3[1];
     }
 
-    // 提取 http-header (格式: http-header="Key=Value" 或 http-header="Key: Value")
+    // 鎻愬彇 http-header (鏍煎紡: http-header="Key=Value" 鎴?http-header="Key: Value")
     const httpHeaderMatch = extinfLine.match(/http-header\s*=\s*"([^"]+)"/i);
     if (httpHeaderMatch) {
-      // 先尝试用 = 分割（APTV格式）
+      // 鍏堝皾璇曠敤 = 鍒嗗壊锛圓PTV鏍煎紡锛?
       let parts = httpHeaderMatch[1].split('=', 2);
-      // 如果 = 分割不成功或值包含多个等号，尝试用 : 分割
+      // 濡傛灉 = 鍒嗗壊涓嶆垚鍔熸垨鍊煎寘鍚涓瓑鍙凤紝灏濊瘯鐢?: 鍒嗗壊
       if (parts.length !== 2 || parts[0].trim() === '') {
         parts = httpHeaderMatch[1].split(':', 2);
       }
@@ -1455,7 +1479,7 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
       }
     }
 
-    // 提取 Referer（支持 http-referer 和 referer 两种格式）
+    // 鎻愬彇 Referer锛堟敮鎸?http-referer 鍜?referer 涓ょ鏍煎紡锛?
     const httpRefererMatch = extinfLine.match(/http-referer\s*=\s*"([^"]+)"/i);
     if (httpRefererMatch) {
       currentChannel.headers['Referer'] = httpRefererMatch[1];
@@ -1465,21 +1489,21 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
       currentChannel.headers['Referer'] = refererMatch[1];
     }
 
-    // 查找 URL 行（第一个非 # 开头的行）
+    // 鏌ユ壘 URL 琛岋紙绗竴涓潪 # 寮€澶寸殑琛岋級
     let urlLine = null;
     let vlcOptProcessed = false;
 
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
 
-      // 处理 EXTVLCOPT 行（在 URL 之前）
+      // 澶勭悊 EXTVLCOPT 琛岋紙鍦?URL 涔嬪墠锛?
       if (!vlcOptProcessed && line.startsWith('#EXTVLCOPT:')) {
-        // 提取 http-user-agent
+        // 鎻愬彇 http-user-agent
         const vlcUAMatch = line.match(/http-user-agent\s*=\s*([^\r\n]+)/i);
         if (vlcUAMatch) {
           currentChannel.headers['User-Agent'] = vlcUAMatch[1];
         }
-        // 提取 Referer
+        // 鎻愬彇 Referer
         const vlcRefererMatch = line.match(/http-referrer\s*=\s*([^\r\n]+)/i);
         if (vlcRefererMatch) {
           currentChannel.headers['Referer'] = vlcRefererMatch[1];
@@ -1488,7 +1512,7 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
         continue;
       }
 
-      // 找到 URL 行
+      // 鎵惧埌 URL 琛?
       if (!line.startsWith('#') && line) {
         urlLine = line;
         break;
@@ -1499,19 +1523,19 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
 
     currentChannel.play_url = urlLine;
 
-    // 提取URL中的参数（User-Agent等）
+    // 鎻愬彇URL涓殑鍙傛暟锛圲ser-Agent绛夛級
     try {
       const urlObj = new URL(urlLine);
       if (urlObj.searchParams.has('User-Agent')) {
         currentChannel.headers['User-Agent'] = urlObj.searchParams.get('User-Agent');
       }
     } catch (e) {
-      // 忽略URL解析错误
+      // 蹇界暐URL瑙ｆ瀽閿欒
     }
 
-    // 应用过滤条件（如果提供了）
+    // 搴旂敤杩囨护鏉′欢锛堝鏋滄彁渚涗簡锛?
     if (filter) {
-      // 过滤分组名
+      // 杩囨护鍒嗙粍鍚?
       if (filter.excludeGroups && filter.excludeGroups.length > 0) {
         if (currentChannel.group_title && filter.excludeGroups.some(keyword =>
           currentChannel.group_title.toLowerCase().includes(keyword.toLowerCase())
@@ -1521,7 +1545,7 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
         }
       }
 
-      // 过滤播放地址
+      // 杩囨护鎾斁鍦板潃
       if (filter.excludeUrls && filter.excludeUrls.length > 0) {
         if (currentChannel.play_url && filter.excludeUrls.some(keyword =>
           currentChannel.play_url.toLowerCase().includes(keyword.toLowerCase())
@@ -1531,7 +1555,7 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
         }
       }
 
-      // 过滤频道名
+      // 杩囨护棰戦亾鍚?
       if (filter.excludeNames && filter.excludeNames.length > 0) {
         if (currentChannel.channel_name && filter.excludeNames.some(keyword =>
           currentChannel.channel_name.toLowerCase().includes(keyword.toLowerCase())
@@ -1541,7 +1565,7 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
         }
       }
 
-      // 过滤重复播放地址
+      // 杩囨护閲嶅鎾斁鍦板潃
       if (filter.excludeDuplicateUrls && currentChannel.play_url) {
         if (processedUrls.has(currentChannel.play_url)) {
           console.log(`[Filter] Excluding duplicate URL: "${currentChannel.play_url}"`);
@@ -1550,59 +1574,59 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
         processedUrls.add(currentChannel.play_url);
       }
 
-      // 分组重命名逻辑
+      // 鍒嗙粍閲嶅懡鍚嶉€昏緫
       if (currentChannel.group_title && filter.groupRenameRules && filter.groupRenameRules.length > 0) {
-        // 检查是否在排除列表中
+        // 妫€鏌ユ槸鍚﹀湪鎺掗櫎鍒楄〃涓?
         const shouldExclude = filter.groupRenameExclude && filter.groupRenameExclude.length > 0 &&
           filter.groupRenameExclude.some(exclude => 
             currentChannel.group_title.toLowerCase().includes(exclude.toLowerCase())
           );
         
         if (!shouldExclude) {
-          // 应用重命名规则（按优先级匹配第一个）
+          // 搴旂敤閲嶅懡鍚嶈鍒欙紙鎸変紭鍏堢骇鍖归厤绗竴涓級
           for (const rule of filter.groupRenameRules) {
             if (currentChannel.group_title.toLowerCase().includes(rule.keyword.toLowerCase())) {
               const originalGroup = currentChannel.group_title;
               currentChannel.group_title = rule.newName;
               console.log(`[Group Rename] "${originalGroup}" -> "${rule.newName}" (matched keyword: "${rule.keyword}")`);
-              break; // 只应用第一个匹配的规则
+              break; // 鍙簲鐢ㄧ涓€涓尮閰嶇殑瑙勫垯
             }
           }
         }
       }
     }
 
-    // ========== Type 推断逻辑 ==========
-    // 优先级: 1. tvg-type 映射  2. channel_name 关键词推断  3. 空
+    // ========== Type 鎺ㄦ柇閫昏緫 ==========
+    // 浼樺厛绾? 1. tvg-type 鏄犲皠  2. channel_name 鍏抽敭璇嶆帹鏂? 3. 绌?
     const inferredTypes = new Set();
 
-    // 1. 如果有 tvg-type，尝试映射到标准 type
+    // 1. 濡傛灉鏈?tvg-type锛屽皾璇曟槧灏勫埌鏍囧噯 type
     if (currentChannel.tvg_type && filter.typeMappingConfig) {
       const mappedType = filter.typeMappingConfig[currentChannel.tvg_type.toLowerCase()];
       if (mappedType) {
         inferredTypes.add(mappedType);
       } else {
-        // 如果映射表中没有，保留原始值（允许多值）
+        // 濡傛灉鏄犲皠琛ㄤ腑娌℃湁锛屼繚鐣欏師濮嬪€硷紙鍏佽澶氬€硷級
         inferredTypes.add(currentChannel.tvg_type.toLowerCase());
       }
     } else if (currentChannel.tvg_type) {
-      // 如果没有映射配置但有 tvg-type，保留原始值
+      // 如果沒有映射配置但有 tvg-type锛屼繚鐣欏師濮嬪€?
       inferredTypes.add(currentChannel.tvg_type.toLowerCase());
     }
 
-    // 2. 从 channel_name 关键词推断（使用内置规则）
+    // 2. 以 channel_name 关键词推断（使用内置规则）
     const channelName = currentChannel.channel_name || '';
     const CHANNEL_TYPE_KEYWORDS = [
-      { keywords: ['电影', '影院', '放影', '影城'], type: 'movie' },
+      { keywords: ['电影', '影院', '放映', '影城'], type: 'movie' },
       { keywords: ['动画', '动漫', '卡通', '少儿动画'], type: 'animation' },
       { keywords: ['综艺'], type: 'entertainment' },
       { keywords: ['体育', '足球', '篮球', '网球', '羽毛球', '乒乓球', '排球', '高尔夫', '赛车', '赛事'], type: 'sports' },
       { keywords: ['新闻', '资讯', '时事'], type: 'news' },
       { keywords: ['少儿', '儿童', '幼儿', '宝宝'], type: 'kids' },
       { keywords: ['纪录', '探索', '人文', '自然'], type: 'documentary' },
-      { keywords: ['教育', '课堂', '讲堂', '公开课', '大学'], type: 'education' },
-      { keywords: ['戏曲', '戏剧', '京剧', '梨园', '粤剧', '越剧', '黄梅戏'], type: 'drama' },
-      { keywords: ['音乐', 'MV', '演唱会', '歌剧院', '古典音乐'], type: 'music' },
+      { keywords: ['教育', '课堂', '讲座', '公开课', '大学'], type: 'education' },
+      { keywords: ['戏曲', '戏剧', '京剧', '唱腔', '越剧', '黄梅戏'], type: 'drama' },
+      { keywords: ['音乐', 'MV', '演唱会', '歌剧', '古典音乐'], type: 'music' },
     ];
 
     for (const rule of CHANNEL_TYPE_KEYWORDS) {
@@ -1611,7 +1635,7 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
       }
     }
 
-    // 3. 合并多值 type（去重）
+    // 3. 合并多个 type锛堝幓閲嶏級
     currentChannel.type = Array.from(inferredTypes).join(',');
 
     // 生成channel_hash (SHA-256)
@@ -1622,23 +1646,23 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     currentChannel.channel_hash = hashHex.substring(0, 8); // 取前8位
 
-    // 确保所有字段都有值，避免 null/undefined 导致类型错误
+    // 纭繚鎵€鏈夊瓧娈甸兘鏈夊€硷紝閬垮厤 null/undefined 瀵艰嚧绫诲瀷閿欒
     currentChannel.channel_name = currentChannel.channel_name || 'Unknown';
     currentChannel.group_title = currentChannel.group_title || '';
     currentChannel.logo = currentChannel.logo || '';
 
-    // 将headers转为JSON字符串（如果为空则存空对象）
+    // 灏唄eaders杞负JSON瀛楃涓诧紙濡傛灉涓虹┖鍒欏瓨绌哄璞★級
     currentChannel.headers = Object.keys(currentChannel.headers).length > 0
       ? JSON.stringify(currentChannel.headers)
       : JSON.stringify({});
 
-    // 数据验证：限制字段长度（D1 单行限制约 1MB）
+    // 鏁版嵁楠岃瘉锛氶檺鍒跺瓧娈甸暱搴︼紙D1 鍗曡闄愬埗绾?1MB锛?
     if (currentChannel.channel_name && currentChannel.channel_name.length > 500) {
       currentChannel.channel_name = currentChannel.channel_name.substring(0, 500);
     }
     if (currentChannel.play_url && currentChannel.play_url.length > 2000) {
       console.warn(`[Sync] URL too long, truncating: ${currentChannel.play_url.substring(0, 50)}...`);
-      continue; // 跳过过长的URL
+      continue; // 璺宠繃杩囬暱鐨刄RL
     }
     if (currentChannel.logo && currentChannel.logo.length > 500) {
       currentChannel.logo = currentChannel.logo.substring(0, 500);
@@ -1647,8 +1671,8 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
     channels.push(currentChannel);
   }
 
-  // 加载频道类型映射（用于同步时回填type和description）
-  // 使用 channel_name + group_title 组合键
+  // 鍔犺浇棰戦亾绫诲瀷鏄犲皠锛堢敤浜庡悓姝ユ椂鍥炲～type鍜宒escription锛?
+  // 浣跨敤 channel_name + group_title 缁勫悎閿?
   const typeMap = new Map(); // key: channel_name, value: {type, description}
   const typeMapWithGroup = new Map(); // key: channel_name + '|' + group_title, value: {type, description}
   try {
@@ -1657,7 +1681,7 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
       for (const row of mappingRows.results) {
         const key = row.channel_name + '|' + (row.group_title || '');
         typeMapWithGroup.set(key, { type: row.type, description: row.description || '' });
-        // 同时按 channel_name 存储，用于没有 group_title 精确匹配的情况
+        // 鍚屾椂鎸?channel_name 瀛樺偍锛岀敤浜庢病鏈?group_title 绮剧‘鍖归厤鐨勬儏鍐?
         if (!typeMap.has(row.channel_name)) {
           typeMap.set(row.channel_name, { type: row.type, description: row.description || '' });
         }
@@ -1668,54 +1692,54 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
     console.warn('[Sync] Failed to load channel type mapping:', e.message);
   }
 
-  // 批量插入频道，使用 batch 减少API调用
+  // 鎵归噺鎻掑叆棰戦亾锛屼娇鐢?batch 鍑忓皯API璋冪敤
   console.log(`[Sync] Starting batch insert for ${channels.length} channels`);
 
-  // 对频道按分组内进行排序（英文 -> 数字 -> 中文）
+  // 瀵归閬撴寜鍒嗙粍鍐呰繘琛屾帓搴忥紙鑻辨枃 -> 鏁板瓧 -> 涓枃锛?
   if (channels.length > 0) {
-    // 先按分组名排序
+    // 鍏堟寜鍒嗙粍鍚嶆帓搴?
     channels.sort((a, b) => {
       const groupA = a.group_title || '';
       const groupB = b.group_title || '';
       if (groupA !== groupB) {
         return groupA.localeCompare(groupB, 'zh-CN', { numeric: true });
       }
-      // 同一分组内使用自定义排序
+      // 鍚屼竴鍒嗙粍鍐呬娇鐢ㄨ嚜瀹氫箟鎺掑簭
       return customChannelSort(a, b);
     });
     console.log(`[Sync] Channels sorted`);
   }
 
   if (channels.length > 0) {
-    const BATCH_SIZE = 500; // 每批500条
+    const BATCH_SIZE = 500; // 姣忔壒500鏉?
     let processedCount = 0;
 
-    // D1 的 batch API 本身就是原子的，不需要手动使用 BEGIN/COMMIT
-    // 批量插入频道
+    // D1 鐨?batch API 鏈韩灏辨槸鍘熷瓙鐨勶紝涓嶉渶瑕佹墜鍔ㄤ娇鐢?BEGIN/COMMIT
+    // 鎵归噺鎻掑叆棰戦亾
     try {
       for (let i = 0; i < channels.length; i += BATCH_SIZE) {
         const batch = channels.slice(i, i + BATCH_SIZE);
         const statements = batch.map(channel => {
-          // 优先级：映射表 > M3U tvg-desc > 空
-          // 优先用映射表的type和description（精确匹配 channel_name + group_title）
-          // 其次用仅 channel_name 的映射，最后用M3U解析出的type和description
+          // 浼樺厛绾э細鏄犲皠琛?> M3U tvg-desc > 绌?
+          // 浼樺厛鐢ㄦ槧灏勮〃鐨則ype鍜宒escription锛堢簿纭尮閰?channel_name + group_title锛?
+          // 鍏舵鐢ㄤ粎 channel_name 鐨勬槧灏勶紝鏈€鍚庣敤M3U瑙ｆ瀽鍑虹殑type鍜宒escription
           const compositeKey = channel.channel_name + '|' + (channel.group_title || '');
           let type = channel.type || '';
-          let description = channel.description || '';  // 来自M3U的tvg-desc
+          let description = channel.description || '';  // 鏉ヨ嚜M3U鐨則vg-desc
 
           if (typeMapWithGroup.has(compositeKey)) {
             const mapped = typeMapWithGroup.get(compositeKey);
             type = mapped.type;
-            description = mapped.description;  // 覆盖为映射表的描述
+            description = mapped.description;  // 瑕嗙洊涓烘槧灏勮〃鐨勬弿杩?
           } else if (typeMap.has(channel.channel_name)) {
             const mapped = typeMap.get(channel.channel_name);
             type = mapped.type || type;
-            description = mapped.description || description;  // 映射表描述优先，其次用M3U的
+            description = mapped.description || description;  // 鏄犲皠琛ㄦ弿杩颁紭鍏堬紝鍏舵鐢∕3U鐨?
           }
 
           return db.prepare(`
-            INSERT INTO channels (source_id, channel_name, group_title, type, description, logo, play_url, headers, channel_hash, is_active)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO channels (source_id, channel_name, group_title, type, description, logo, play_url, headers, channel_hash, is_active, original)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `).bind(
             channel.source_id,
             channel.channel_name,
@@ -1726,7 +1750,8 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
             channel.play_url,
             channel.headers,
             channel.channel_hash,
-            1  // is_active 使用数字1
+            1,  // is_active value
+            channel.original || ''  // original column value
           );
         });
 
@@ -1736,11 +1761,11 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
           console.log(`[Sync] Batch processed: ${processedCount}/${channels.length}`);
         } catch (batchError) {
           console.error(`[Sync] Batch insert error at batch ${i}:`, batchError);
-          // 记录第一个失败的数据用于调试
+          // 璁板綍绗竴涓け璐ョ殑鏁版嵁鐢ㄤ簬璋冭瘯
           if (batch.length > 0) {
             console.error('[Sync] First channel data:', batch[0]);
           }
-          // D1 的 batch 操作是原子的，失败会自动回滚
+          // D1 鐨?batch 鎿嶄綔鏄師瀛愮殑锛屽け璐ヤ細鑷姩鍥炴粴
           throw batchError;
         }
       }
@@ -1756,21 +1781,21 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
   return channels.length;
 }
 
-// 只解析M3U内容，不写入数据库（用于优化的同步逻辑）
+// 鍙В鏋怣3U鍐呭锛屼笉鍐欏叆鏁版嵁搴擄紙鐢ㄤ簬浼樺寲鐨勫悓姝ラ€昏緫锛?
 export async function parseM3UContentOnly(content, sourceId, filter = {}) {
   const channels = [];
   let globalHeaders = {};
 
-  // 用于跟踪已处理的播放地址（过滤重复URL）
+  // 鐢ㄤ簬璺熻釜宸插鐞嗙殑鎾斁鍦板潃锛堣繃婊ら噸澶峌RL锛?
   const processedUrls = new Set();
 
-  // 确保 sourceId 是整数
+  // 纭繚 sourceId 鏄暣鏁?
   sourceId = parseInt(sourceId);
   if (isNaN(sourceId) || sourceId <= 0) {
     throw new Error('Invalid source ID');
   }
 
-  // 提取全局头部信息（User-Agent等）
+  // 鎻愬彇鍏ㄥ眬澶撮儴淇℃伅锛圲ser-Agent绛夛級
   const extm3uMatch = content.match(/^#EXTM3U\s*(.*)$/m);
   if (extm3uMatch) {
     const extm3uLine = extm3uMatch[1];
@@ -1780,11 +1805,11 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
     }
   }
 
-  // 基于 #EXTINF 块进行分割
+  // 鍩轰簬 #EXTINF 鍧楄繘琛屽垎鍓?
   const blocks = content.split(/^#EXTINF:/m);
   console.log(`[Sync] Found ${blocks.length - 1} potential channels in M3U`);
 
-  // 跳过第一个空块（#EXTM3U之前的部分）
+  // 璺宠繃绗竴涓┖鍧楋紙#EXTM3U涔嬪墠鐨勯儴鍒嗭級
   for (const block of blocks) {
     if (!block.trim()) continue;
 
@@ -1796,10 +1821,10 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
       headers: {...globalHeaders}
     };
 
-    // 解析 EXTINF 行
+    // 瑙ｆ瀽 EXTINF 琛?
     const extinfLine = '#EXTINF:' + lines[0];
 
-    // 提取频道名称
+    // 鎻愬彇棰戦亾鍚嶇О
     const nameMatch = extinfLine.match(/,([^,\n]+)$/);
     if (nameMatch) {
       currentChannel.channel_name = nameMatch[1].trim();
@@ -1815,19 +1840,19 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
       }
     }
 
-    // 提取组名
+    // 鎻愬彇缁勫悕
     const groupMatch = extinfLine.match(/group-title\s*=\s*"([^"]+)"/i);
     if (groupMatch) {
       currentChannel.group_title = groupMatch[1];
     }
 
-    // 提取logo
+    // 鎻愬彇logo
     const logoMatch = extinfLine.match(/tvg-logo\s*=\s*"([^"]+)"/i);
     if (logoMatch) {
       currentChannel.logo = logoMatch[1];
     }
 
-    // 提取 tvg-id, tvg-name, tvg-logo, tvg-chno
+    // 鎻愬彇 tvg-id, tvg-name, tvg-logo, tvg-chno
     const tvgIdMatch = extinfLine.match(/tvg-id\s*=\s*"([^"]+)"/i);
     if (tvgIdMatch) {
       currentChannel.tvg_id = tvgIdMatch[1];
@@ -1845,13 +1870,13 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
       currentChannel.tvg_chno = tvgChnoMatch[1];
     }
 
-    // 提取 tvg-type（频道类型）
+    // 鎻愬彇 tvg-type锛堥閬撶被鍨嬶級
     const tvgTypeMatch = extinfLine.match(/tvg-type\s*=\s*"([^"]+)"/i);
     if (tvgTypeMatch) {
       currentChannel.tvg_type = tvgTypeMatch[1];
     }
 
-    // 提取 http-user-agent、ua、user_agent
+    // 鎻愬彇 http-user-agent銆乽a銆乽ser_agent
     const uaMatch = extinfLine.match(/http-user-agent\s*=\s*"([^"]+)"/i);
     if (uaMatch) {
       currentChannel.headers['User-Agent'] = uaMatch[1];
@@ -1865,7 +1890,7 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
       currentChannel.headers['User-Agent'] = uaMatch3[1];
     }
 
-    // 提取 http-header
+    // 鎻愬彇 http-header
     const httpHeaderMatch = extinfLine.match(/http-header\s*=\s*"([^"]+)"/i);
     if (httpHeaderMatch) {
       let parts = httpHeaderMatch[1].split('=', 2);
@@ -1879,7 +1904,7 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
       }
     }
 
-    // 提取 Referer
+    // 鎻愬彇 Referer
     const httpRefererMatch = extinfLine.match(/http-referer\s*=\s*"([^"]+)"/i);
     if (httpRefererMatch) {
       currentChannel.headers['Referer'] = httpRefererMatch[1];
@@ -1889,7 +1914,7 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
       currentChannel.headers['Referer'] = refererMatch[1];
     }
 
-    // 查找 URL 行
+    // 鏌ユ壘 URL 琛?
     let urlLine = null;
     let vlcOptProcessed = false;
 
@@ -1919,7 +1944,7 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
 
     currentChannel.play_url = urlLine;
 
-    // 应用过滤条件
+    // 搴旂敤杩囨护鏉′欢
     if (filter) {
       if (filter.excludeGroups && filter.excludeGroups.length > 0) {
         if (currentChannel.group_title && filter.excludeGroups.some(keyword =>
@@ -1973,11 +1998,11 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
       }
     }
 
-    // ========== Type 推断逻辑 ==========
-    // 优先级: 1. tvg-type 映射  2. channel_name 关键词推断  3. 空
+    // ========== Type 鎺ㄦ柇閫昏緫 ==========
+    // 浼樺厛绾? 1. tvg-type 鏄犲皠  2. channel_name 鍏抽敭璇嶆帹鏂? 3. 绌?
     const inferredTypes = new Set();
 
-    // 1. 如果有 tvg-type，尝试映射到标准 type
+    // 1. 濡傛灉鏈?tvg-type锛屽皾璇曟槧灏勫埌鏍囧噯 type
     if (currentChannel.tvg_type && filter.typeMappingConfig) {
       const mappedType = filter.typeMappingConfig[currentChannel.tvg_type.toLowerCase()];
       if (mappedType) {
@@ -1989,19 +2014,19 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
       inferredTypes.add(currentChannel.tvg_type.toLowerCase());
     }
 
-    // 2. 从 channel_name 关键词推断
+    // 2. 以 channel_name 关键词推断（使用内置规则）
     const channelName = currentChannel.channel_name || '';
     const CHANNEL_TYPE_KEYWORDS = [
-      { keywords: ['电影', '影院', '放影', '影城'], type: 'movie' },
+      { keywords: ['电影', '影院', '放映', '影城'], type: 'movie' },
       { keywords: ['动画', '动漫', '卡通', '少儿动画'], type: 'animation' },
       { keywords: ['综艺'], type: 'entertainment' },
       { keywords: ['体育', '足球', '篮球', '网球', '羽毛球', '乒乓球', '排球', '高尔夫', '赛车', '赛事'], type: 'sports' },
       { keywords: ['新闻', '资讯', '时事'], type: 'news' },
       { keywords: ['少儿', '儿童', '幼儿', '宝宝'], type: 'kids' },
       { keywords: ['纪录', '探索', '人文', '自然'], type: 'documentary' },
-      { keywords: ['教育', '课堂', '讲堂', '公开课', '大学'], type: 'education' },
-      { keywords: ['戏曲', '戏剧', '京剧', '梨园', '粤剧', '越剧', '黄梅戏'], type: 'drama' },
-      { keywords: ['音乐', 'MV', '演唱会', '歌剧院', '古典音乐'], type: 'music' },
+      { keywords: ['教育', '课堂', '讲座', '公开课', '大学'], type: 'education' },
+      { keywords: ['戏曲', '戏剧', '京剧', '唱腔', '越剧', '黄梅戏'], type: 'drama' },
+      { keywords: ['音乐', 'MV', '演唱会', '歌剧', '古典音乐'], type: 'music' },
     ];
 
     for (const rule of CHANNEL_TYPE_KEYWORDS) {
@@ -2010,10 +2035,10 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
       }
     }
 
-    // 3. 合并多值 type
+    // 3. 合并多个 type
     currentChannel.type = Array.from(inferredTypes).join(',');
 
-    // 生成channel_hash
+    // 鐢熸垚channel_hash
     const encoder = new TextEncoder();
     const data = encoder.encode(urlLine);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
@@ -2021,19 +2046,19 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     currentChannel.channel_hash = hashHex.substring(0, 8);
 
-    // 数据验证
+    // 鏁版嵁楠岃瘉
     currentChannel.channel_name = currentChannel.channel_name || 'Unknown';
     currentChannel.group_title = currentChannel.group_title || '';
     currentChannel.logo = currentChannel.logo || '';
     currentChannel.url = currentChannel.play_url;
     currentChannel.hash = currentChannel.channel_hash;
 
-    // 将headers转为JSON字符串（如果为空则存空对象）
+    // 灏唄eaders杞负JSON瀛楃涓诧紙濡傛灉涓虹┖鍒欏瓨绌哄璞★級
     currentChannel.headers = Object.keys(currentChannel.headers).length > 0
       ? JSON.stringify(currentChannel.headers)
       : JSON.stringify({});
 
-    // 限制字段长度
+    // 闄愬埗瀛楁闀垮害
     if (currentChannel.channel_name && currentChannel.channel_name.length > 500) {
       currentChannel.channel_name = currentChannel.channel_name.substring(0, 500);
     }
@@ -2048,7 +2073,7 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
     channels.push(currentChannel);
   }
 
-  // 对频道进行排序
+  // 瀵归閬撹繘琛屾帓搴?
   if (channels.length > 0) {
     channels.sort((a, b) => {
       const groupA = a.group_title || '';
@@ -2064,7 +2089,7 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
   return { channels, channelCount: channels.length };
 }
 
-// 从远程URL获取M3U内容并解析（只解析，不写入数据库）
+// 浠庤繙绋婾RL鑾峰彇M3U鍐呭骞惰В鏋愶紙鍙В鏋愶紝涓嶅啓鍏ユ暟鎹簱锛?
 export async function fetchAndParseM3UOnly(sourceUrl, sourceId, filter = null) {
   try {
     console.log(`[Sync] Fetching M3U from: ${sourceUrl} for source ID: ${sourceId}`);
@@ -2084,7 +2109,7 @@ export async function fetchAndParseM3UOnly(sourceUrl, sourceId, filter = null) {
     const content = await response.text();
     console.log(`[Sync] M3U content size: ${content.length} bytes`);
 
-    // 去除开头的空白字符后检查
+    // 鍘婚櫎寮€澶寸殑绌虹櫧瀛楃鍚庢鏌?
     const trimmedContent = content.trimStart();
     if (!trimmedContent || !trimmedContent.startsWith('#EXTM3U')) {
       console.error(`[Sync] Invalid M3U content`);
@@ -2109,7 +2134,7 @@ export async function fetchAndParseM3UOnly(sourceUrl, sourceId, filter = null) {
   }
 }
 
-// 从远程URL获取M3U内容并解析
+// 浠庤繙绋婾RL鑾峰彇M3U鍐呭骞惰В鏋?
 export async function fetchAndParseM3U(sourceUrl, sourceId, filter = null) {
   try {
     console.log(`[Sync] Fetching M3U from: ${sourceUrl} for source ID: ${sourceId}`);
@@ -2135,7 +2160,7 @@ export async function fetchAndParseM3U(sourceUrl, sourceId, filter = null) {
     const content = await response.text();
     console.log(`[Sync] M3U content size: ${content.length} bytes`);
 
-    // 检查内容是否为空或格式不正确（去除开头空白）
+    // 妫€鏌ュ唴瀹规槸鍚︿负绌烘垨鏍煎紡涓嶆纭紙鍘婚櫎寮€澶寸┖鐧斤級
     const trimmedContent = content.trimStart();
     if (!trimmedContent || !trimmedContent.startsWith('#EXTM3U')) {
       console.error(`[Sync] Invalid M3U content: starts with ${trimmedContent ? trimmedContent.substring(0, 50) : 'empty'}...`);
@@ -2147,7 +2172,7 @@ export async function fetchAndParseM3U(sourceUrl, sourceId, filter = null) {
     const parseEndTime = Date.now();
     console.log(`[Sync] Parse completed in ${parseEndTime - parseStartTime}ms`);
 
-    // 更新源的最后更新时间（使用 JavaScript 生成当前时间）
+    // 鏇存柊婧愮殑鏈€鍚庢洿鏂版椂闂达紙浣跨敤 JavaScript 鐢熸垚褰撳墠鏃堕棿锛?
     const db = getDB();
     const now = new Date().toISOString();
     await db.prepare(`
@@ -2164,7 +2189,7 @@ export async function fetchAndParseM3U(sourceUrl, sourceId, filter = null) {
   }
 }
 
-// 获取当前活跃的广告TS文件
+// 鑾峰彇褰撳墠娲昏穬鐨勫箍鍛奣S鏂囦欢
 export async function getActiveAdTsFile(adType = null) {
   const db = getDB();
 
@@ -2176,7 +2201,7 @@ export async function getActiveAdTsFile(adType = null) {
     params.push(adType);
   }
 
-  // 获取所有符合条件的活跃广告
+  // 鑾峰彇鎵€鏈夌鍚堟潯浠剁殑娲昏穬骞垮憡
   const adTsFiles = await db.prepare(query).bind(...params).all();
   const ads = adTsFiles.results || [];
 
@@ -2184,15 +2209,15 @@ export async function getActiveAdTsFile(adType = null) {
     return null;
   }
 
-  // 随机选择一个广告
+  // 闅忔満閫夋嫨涓€涓箍鍛?
   const randomIndex = Math.floor(Math.random() * ads.length);
   return ads[randomIndex];
 }
 
 /**
- * 获取广告绑定配置
- * @param {string} actionType - 操作类型
- * @returns {object|null} 广告绑定配置
+ * 鑾峰彇骞垮憡缁戝畾閰嶇疆
+ * @param {string} actionType - 鎿嶄綔绫诲瀷
+ * @returns {object|null} 骞垮憡缁戝畾閰嶇疆
  */
 export async function getAdBinding(actionType) {
   const db = getDB();
@@ -2210,9 +2235,9 @@ export async function getAdBinding(actionType) {
 }
 
 /**
- * 创建广告绑定
- * @param {object} data - 绑定数据
- * @returns {object} 创建的绑定
+ * 鍒涘缓骞垮憡缁戝畾
+ * @param {object} data - 缁戝畾鏁版嵁
+ * @returns {object} 鍒涘缓鐨勭粦瀹?
  */
 export async function createAdBinding(data) {
   const db = getDB();
@@ -2235,10 +2260,10 @@ export async function createAdBinding(data) {
 }
 
 /**
- * 更新广告绑定
- * @param {number} id - 绑定ID
- * @param {object} data - 绑定数据
- * @returns {boolean} 是否成功
+ * 鏇存柊骞垮憡缁戝畾
+ * @param {number} id - 缁戝畾ID
+ * @param {object} data - 缁戝畾鏁版嵁
+ * @returns {boolean} 鏄惁鎴愬姛
  */
 export async function updateAdBinding(id, data) {
   const db = getDB();
@@ -2261,9 +2286,9 @@ export async function updateAdBinding(id, data) {
 }
 
 /**
- * 删除广告绑定
- * @param {number} id - 绑定ID
- * @returns {boolean} 是否成功
+ * 鍒犻櫎骞垮憡缁戝畾
+ * @param {number} id - 缁戝畾ID
+ * @returns {boolean} 鏄惁鎴愬姛
  */
 export async function deleteAdBinding(id) {
   const db = getDB();
@@ -2273,8 +2298,8 @@ export async function deleteAdBinding(id) {
 }
 
 /**
- * 获取所有广告绑定
- * @returns {array} 绑定列表
+ * 鑾峰彇鎵€鏈夊箍鍛婄粦瀹?
+ * @returns {array} 缁戝畾鍒楄〃
  */
 export async function getAllAdBindings() {
   const db = getDB();
@@ -2290,10 +2315,10 @@ export async function getAllAdBindings() {
 }
 
 /**
- * 根据操作类型获取绑定广告（检查冷却时间）
- * @param {string} actionType - 操作类型
- * @param {string} clientIP - 客户端IP
- * @returns {object|null} 广告数据
+ * 鏍规嵁鎿嶄綔绫诲瀷鑾峰彇缁戝畾骞垮憡锛堟鏌ュ喎鍗存椂闂达級
+ * @param {string} actionType - 鎿嶄綔绫诲瀷
+ * @param {string} clientIP - 瀹㈡埛绔疘P
+ * @returns {object|null} 骞垮憡鏁版嵁
  */
 export async function getBoundAdByAction(actionType, clientIP) {
   const db = getDB();
@@ -2303,16 +2328,16 @@ export async function getBoundAdByAction(actionType, clientIP) {
     return null;
   }
 
-  // 如果没有绑定广告ID，返回null（不播放广告）
+  // 濡傛灉娌℃湁缁戝畾骞垮憡ID锛岃繑鍥瀗ull锛堜笉鎾斁骞垮憡锛?
   if (!binding.ad_id) {
     return null;
   }
 
   console.log(`[AdBinding] Checking cooldown for action: ${actionType}, IP: ${clientIP}, cooldown: ${binding.cooldown_seconds}s`);
 
-  // 检查冷却时间
+  // 妫€鏌ュ喎鍗存椂闂?
   if (binding.cooldown_seconds > 0) {
-    // 使用SQLite的datetime函数计算冷却时间，确保时区一致
+    // 浣跨敤SQLite鐨刣atetime鍑芥暟璁＄畻鍐峰嵈鏃堕棿锛岀‘淇濇椂鍖轰竴鑷?
     const recentPlay = await db.prepare(`
       SELECT COUNT(*) as count,
              MAX(played_at) as last_played_at,
@@ -2325,13 +2350,13 @@ export async function getBoundAdByAction(actionType, clientIP) {
     console.log('[AdBinding] Cooldown check result:', recentPlay);
 
     if (recentPlay && recentPlay.count > 0) {
-      // 在冷却期内，返回null
+      // 鍦ㄥ喎鍗存湡鍐咃紝杩斿洖null
       console.log(`[AdBinding] In cooldown period for ${actionType}, last played: ${recentPlay.last_played_at}`);
       return null;
     }
   }
 
-  // 记录播放日志
+  // 璁板綍鎾斁鏃ュ織
   await db.prepare(`
     INSERT INTO ad_play_logs (action_type, client_ip, played_at)
     VALUES (?, ?, datetime('now'))
@@ -2339,7 +2364,7 @@ export async function getBoundAdByAction(actionType, clientIP) {
 
   console.log(`[AdBinding] Ad logged for action: ${actionType}, IP: ${clientIP}`);
 
-  // 返回绑定的特定广告
+  // 杩斿洖缁戝畾鐨勭壒瀹氬箍鍛?
   if (binding.ad_content) {
     return {
       id: binding.ad_id,
@@ -2350,13 +2375,13 @@ export async function getBoundAdByAction(actionType, clientIP) {
     };
   }
 
-  // 如果有ad_id但没有content，查询广告详情
+  // 濡傛灉鏈塧d_id浣嗘病鏈塩ontent锛屾煡璇㈠箍鍛婅鎯?
   const adFile = await db.prepare('SELECT * FROM ad_ts_files WHERE id = ? AND is_active = 1').bind(binding.ad_id).first();
   if (!adFile) {
     return null;
   }
 
-  // 如果有本地content，直接返回
+  // 濡傛灉鏈夋湰鍦癱ontent锛岀洿鎺ヨ繑鍥?
   if (adFile.content) {
     return {
       id: adFile.id,
@@ -2369,7 +2394,7 @@ export async function getBoundAdByAction(actionType, clientIP) {
     };
   }
 
-  // 如果有远程URL，也返回广告对象（会在handleAdTsFile中获取远程内容）
+  // 濡傛灉鏈夎繙绋婾RL锛屼篃杩斿洖骞垮憡瀵硅薄锛堜細鍦╤andleAdTsFile涓幏鍙栬繙绋嬪唴瀹癸級
   if (adFile.remote_url) {
     return {
       id: adFile.id,
@@ -2394,22 +2419,22 @@ export async function getBoundAdByAction(actionType, clientIP) {
 }
 
 /**
- * 生成广告M3U8内容
- * @param {object} adTsFile - 广告文件对象
- * @param {string} redirectUrl - 广告播放后的重定向URL（可选，未使用）
- * @param {string} baseUrl - 基础URL（用于生成TS文件路径）
- * @param {string} fullBaseUrl - 完整的基础URL（如 https://example.com）
- * @returns {string} M3U8内容
+ * 鐢熸垚骞垮憡M3U8鍐呭
+ * @param {object} adTsFile - 骞垮憡鏂囦欢瀵硅薄
+ * @param {string} redirectUrl - 骞垮憡鎾斁鍚庣殑閲嶅畾鍚慤RL锛堝彲閫夛紝鏈娇鐢級
+ * @param {string} baseUrl - 鍩虹URL锛堢敤浜庣敓鎴怲S鏂囦欢璺緞锛?
+ * @param {string} fullBaseUrl - 瀹屾暣鐨勫熀纭€URL锛堝 https://example.com锛?
+ * @returns {string} M3U8鍐呭
  */
 export function generateAdM3U8(adTsFile, redirectUrl = null, baseUrl = '/api/ads', fullBaseUrl = null) {
   console.log('[AdM3U8] Generating M3U8 for ad:', adTsFile.id, 'baseUrl:', baseUrl, 'fullBaseUrl:', fullBaseUrl);
 
-  // 使用相对路径（让VLC自动解析）
+  // 浣跨敤鐩稿璺緞锛堣VLC鑷姩瑙ｆ瀽锛?
   const tsPath = `${baseUrl}/${adTsFile.id}.ts`;
 
   console.log('[AdM3U8] TS path:', tsPath);
 
-  // 生成M3U8内容 - 使用标准格式，不使用数组join
+  // 鐢熸垚M3U8鍐呭 - 浣跨敤鏍囧噯鏍煎紡锛屼笉浣跨敤鏁扮粍join
   const m3u8 = '#EXTM3U8\n' +
                 '#EXT-X-VERSION:3\n' +
                 '#EXT-X-TARGETDURATION:10.000\n' +
@@ -2425,7 +2450,7 @@ export function generateAdM3U8(adTsFile, redirectUrl = null, baseUrl = '/api/ads
 }
 
 /**
- * 获取所有活跃频道（用于免费订阅）
+ * 鑾峰彇鎵€鏈夋椿璺冮閬擄紙鐢ㄤ簬鍏嶈垂璁㈤槄锛?
  */
 export async function getActiveChannels() {
   const db = getDB();
@@ -2442,12 +2467,12 @@ export async function getActiveChannels() {
 }
 
 /**
- * 生成M3U内容
+ * 鐢熸垚M3U鍐呭
  */
 export function generateM3UContent(channels, subId, isFreeSub = false, baseUrl = '', domainBlacklist = []) {
   let m3u = '#EXTM3U\n';
 
-  // 添加订阅信息注释
+  // 娣诲姞璁㈤槄淇℃伅娉ㄩ噴
   if (isFreeSub) {
     m3u += '# Free Subscription\n';
   } else {
@@ -2457,7 +2482,7 @@ export function generateM3UContent(channels, subId, isFreeSub = false, baseUrl =
   m3u += `# Channels: ${channels.length}\n`;
   m3u += `# Generated: ${new Date().toISOString()}\n\n`;
 
-  // 添加频道
+  // 娣诲姞棰戦亾
   for (const channel of channels) {
     const headers = channel.headers ? JSON.parse(channel.headers) : {};
 
@@ -2475,7 +2500,7 @@ export function generateM3UContent(channels, subId, isFreeSub = false, baseUrl =
 
     m3u += extinf;
 
-    // 检查频道URL是否在域名黑名单中
+    // 妫€鏌ラ閬揢RL鏄惁鍦ㄥ煙鍚嶉粦鍚嶅崟涓?
     let playUrl;
     let isBlacklisted = false;
 
@@ -2484,10 +2509,10 @@ export function generateM3UContent(channels, subId, isFreeSub = false, baseUrl =
         const urlObj = new URL(channel.play_url);
         const hostname = urlObj.hostname;
 
-        // 检查完全匹配
+        // 妫€鏌ュ畬鍏ㄥ尮閰?
         isBlacklisted = domainBlacklist.includes(hostname);
 
-        // 检查子域名匹配（例如：*.example.com 匹配 sub.example.com）
+        // 妫€鏌ュ瓙鍩熷悕鍖归厤锛堜緥濡傦細*.example.com 鍖归厤 sub.example.com锛?
         if (!isBlacklisted) {
           for (const blacklistDomain of domainBlacklist) {
             if (blacklistDomain.startsWith('*.') && hostname.endsWith(blacklistDomain.substring(2))) {
@@ -2501,19 +2526,19 @@ export function generateM3UContent(channels, subId, isFreeSub = false, baseUrl =
       }
     }
 
-    // 免费订阅
+    // 鍏嶈垂璁㈤槄
     if (isFreeSub) {
       if (isBlacklisted) {
-        // 如果域名在黑名单中，直接使用原始播放地址（透传）
+        // 濡傛灉鍩熷悕鍦ㄩ粦鍚嶅崟涓紝鐩存帴浣跨敤鍘熷鎾斁鍦板潃锛堥€忎紶锛?
         playUrl = channel.play_url;
       } else {
-        // 否则使用代理播放地址
+        // 鍚﹀垯浣跨敤浠ｇ悊鎾斁鍦板潃
         const apiUrl = baseUrl || '/api';
         playUrl = `${apiUrl}/play/${channel.channel_hash}?freesub=${subId}`;
       }
     } else {
-      // 普通订阅（如果不是免费订阅，目前逻辑是直接使用原始URL）
-      // 如果需要支持普通订阅的透传，可以在这里添加逻辑
+      // 鏅€氳闃咃紙濡傛灉涓嶆槸鍏嶈垂璁㈤槄锛岀洰鍓嶉€昏緫鏄洿鎺ヤ娇鐢ㄥ師濮婾RL锛?
+      // 濡傛灉闇€瑕佹敮鎸佹櫘閫氳闃呯殑閫忎紶锛屽彲浠ュ湪杩欓噷娣诲姞閫昏緫
       playUrl = channel.play_url;
     }
 
@@ -2523,7 +2548,7 @@ export function generateM3UContent(channels, subId, isFreeSub = false, baseUrl =
   return m3u;
 }
 
-// 商城设置相关函数
+// 鍟嗗煄璁剧疆鐩稿叧鍑芥暟
 export async function getMallSettings() {
   const db = getDB();
   const settings = await db.prepare('SELECT * FROM mall_settings').all();
@@ -2544,10 +2569,10 @@ export async function isSubscriptionEnabled() {
   return settings.subscription_enabled === '1';
 }
 
-// ========== 域名黑名单相关函数 ==========
+// ========== 鍩熷悕榛戝悕鍗曠浉鍏冲嚱鏁?==========
 
 /**
- * 获取所有域名黑名单
+ * 鑾峰彇鎵€鏈夊煙鍚嶉粦鍚嶅崟
  */
 export async function getDomainBlacklist() {
   const db = getDB();
@@ -2556,7 +2581,7 @@ export async function getDomainBlacklist() {
 }
 
 /**
- * 添加域名到黑名单
+ * 娣诲姞鍩熷悕鍒伴粦鍚嶅崟
  */
 export async function addDomainToBlacklist(domain, reason) {
   const db = getDB();
@@ -2571,7 +2596,7 @@ export async function addDomainToBlacklist(domain, reason) {
 }
 
 /**
- * 从黑名单删除域名
+ * 浠庨粦鍚嶅崟鍒犻櫎鍩熷悕
  */
 export async function removeDomainFromBlacklist(id) {
   const db = getDB();
@@ -2580,7 +2605,7 @@ export async function removeDomainFromBlacklist(id) {
 }
 
 /**
- * 批量添加域名到黑名单
+ * 鎵归噺娣诲姞鍩熷悕鍒伴粦鍚嶅崟
  */
 export async function addMultipleDomainsToBlacklist(domains) {
   const db = getDB();
@@ -2608,7 +2633,7 @@ export async function addMultipleDomainsToBlacklist(domains) {
 }
 
 /**
- * 检查域名是否在黑名单中
+ * 妫€鏌ュ煙鍚嶆槸鍚﹀湪榛戝悕鍗曚腑
  */
 export async function isDomainBlacklisted(playUrl) {
   const db = getDB();
@@ -2616,13 +2641,13 @@ export async function isDomainBlacklisted(playUrl) {
     const url = new URL(playUrl);
     const hostname = url.hostname;
 
-    // 检查完全匹配
+    // 妫€鏌ュ畬鍏ㄥ尮閰?
     const exactMatch = await db.prepare('SELECT id FROM domain_blacklist WHERE domain = ?').bind(hostname).first();
     if (exactMatch) {
       return true;
     }
 
-    // 检查子域名匹配（例如：*.example.com 匹配 sub.example.com）
+    // 妫€鏌ュ瓙鍩熷悕鍖归厤锛堜緥濡傦細*.example.com 鍖归厤 sub.example.com锛?
     const subdomainMatches = await db.prepare('SELECT domain FROM domain_blacklist WHERE domain LIKE ?').bind('%.' + hostname).all();
     if (subdomainMatches.results && subdomainMatches.results.length > 0) {
       return true;
@@ -2636,7 +2661,7 @@ export async function isDomainBlacklisted(playUrl) {
 }
 
 /**
- * 从URL提取域名
+ * 浠嶶RL鎻愬彇鍩熷悕
  */
 export function extractDomainFromUrl(url) {
   try {
