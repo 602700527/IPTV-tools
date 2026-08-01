@@ -34,8 +34,6 @@ find_issues.py
 fix2.py
 fix_bytes.py
 fix_script.py
-generate-image-data.js
-image-data.js
 
 # Design mockups / temporary pages
 design-mockup.html
