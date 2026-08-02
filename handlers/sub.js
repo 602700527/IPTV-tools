@@ -294,34 +294,41 @@ function buildSubscriptionContent(channels, format, host, token, domainBlacklist
 
 function buildM3uContent(channels, host, token, domainBlacklist) {
 
-  // Group by (group_title, channel_name) — same as buildTxtContent
-  const grouped = new Map();
-
-  for (const channel of channels) {
-    const group = channel.group_title || '';
-    const name = channel.channel_name || '';
-    const key = group + '||' + name;
-
-    if (!grouped.has(key)) {
-      grouped.set(key, { group_title: group, channel_name: name, logo: channel.logo, urls: [] });
-    }
-
-    grouped.get(key).urls.push(resolvePlayUrl(channel, host, token, domainBlacklist));
-  }
-
   const lines = ['#EXTM3U'];
 
-  for (const entry of grouped.values()) {
+  for (const channel of channels) {
+
     const infoParts = ['#EXTINF:-1'];
 
-    if (entry.group_title) infoParts.push(`group-title="${entry.group_title}"`);
-    if (entry.logo) infoParts.push(`tvg-logo="${entry.logo}"`);
+    if (channel.group_title) infoParts.push(`group-title="${channel.group_title}"`);
 
-    infoParts.push(',' + entry.channel_name);
+    if (channel.logo) infoParts.push(`tvg-logo="${channel.logo}"`);
+
+    // 保留 original 字段（保留原始线路信息）
+    if (channel.original) infoParts.push(`original="${channel.original}"`);
+
+    // 解析 headers，准备还原成 #EXTVLCOPT 行（与源 m3u 格式一致）
+    const vlcOptLines = [];
+    if (channel.headers && channel.headers !== '{}') {
+      try {
+        const headers = JSON.parse(channel.headers);
+        if (headers['User-Agent']) {
+          vlcOptLines.push(`#EXTVLCOPT:http-user-agent=${headers['User-Agent']}`);
+        }
+        // Referer 还原为 #EXTVLCOPT:http-referrer=（源 m3u 标准格式）
+        if (headers['Referer']) {
+          vlcOptLines.push(`#EXTVLCOPT:http-referrer=${headers['Referer']}`);
+        }
+      } catch (e) { /* ignore parse errors */ }
+    }
+
+    infoParts.push(',' + channel.channel_name);
     lines.push(infoParts.join(' '));
 
-    // Multiple URLs for the same channel joined with '#' (APTV supports this)
-    lines.push(entry.urls.join('#'));
+    // ⭐ 在 URL 之前输出 #EXTVLCOPT 行（保留原 m3u 格式）
+    for (const opt of vlcOptLines) lines.push(opt);
+
+    lines.push(resolvePlayUrl(channel, host, token, domainBlacklist));
   }
 
   return lines.join('\n');
