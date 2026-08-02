@@ -2583,8 +2583,11 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         const res = await fetch('/api/admin/topics');
         const topics = await res.json();
         const select = document.getElementById('generateTopicId');
-        select.innerHTML = '<option value="">不绑定（使用全部频道）</option>' +
-          topics.map(t => \`<option value="\${t.id}">\${escapeHtml(t.name)}</option>\`).join('');
+        let options = '<option value="">不绑定（使用全部频道）</option>';
+        topics.forEach(t => {
+          options += '<option value="' + t.id + '">' + escapeHtml(t.name) + '</option>';
+        });
+        select.innerHTML = options;
       } catch (e) {
         console.error('Failed to load topics:', e);
       }
@@ -5733,19 +5736,23 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         const res = await fetch('/api/admin/topics');
         const topics = await res.json();
         const tbody = document.getElementById('topicsTable');
-        tbody.innerHTML = topics.map(t => \`
-          <tr>
-            <td>\${t.id}</td>
-            <td>\${escapeHtml(t.name)}</td>
-            <td>\${escapeHtml(t.description || '')}</td>
-            <td>\${(t.rules ? JSON.parse(t.rules).length : 0)}</td>
-            <td>\${t.created_at ? new Date(t.created_at).toLocaleDateString() : '-'}</td>
-            <td>
-              <button class="btn btn-primary btn-sm" onclick="editTopic(\${t.id})">编辑</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteTopic(\${t.id})">删除</button>
-            </td>
-          </tr>
-        \`).join('');
+        let html = '';
+        topics.forEach(t => {
+          const ruleCount = t.rules ? JSON.parse(t.rules).length : 0;
+          const createdDate = t.created_at ? new Date(t.created_at).toLocaleDateString() : '-';
+          html += '<tr>';
+          html += '<td>' + t.id + '</td>';
+          html += '<td>' + escapeHtml(t.name) + '</td>';
+          html += '<td>' + escapeHtml(t.description || '') + '</td>';
+          html += '<td>' + ruleCount + '</td>';
+          html += '<td>' + createdDate + '</td>';
+          html += '<td>';
+          html += '<button class="btn btn-primary btn-sm" onclick="editTopic(' + t.id + ')">编辑</button>';
+          html += '<button class="btn btn-danger btn-sm" onclick="deleteTopic(' + t.id + ')">删除</button>';
+          html += '</td>';
+          html += '</tr>';
+        });
+        tbody.innerHTML = html;
       } catch (e) {
         showToast('加载专题列表失败: ' + e.message, 'error');
       } finally {
@@ -5788,36 +5795,36 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     
     function renderTopicRules() {
       const container = document.getElementById('topicRulesContainer');
-      container.innerHTML = currentTopicRules.map((rule, i) => `
-        <div class="topic-rule" style="margin-bottom:12px;padding:12px;background:#f5f5f7;border-radius:8px;">
-          <div style="display:flex;gap:8px;margin-bottom:8px;">
-            <select class="filter-select" onchange="currentTopicRules[${i}].dimension=this.value;renderTopicRules()">
-              <option value="group_title" ${rule.dimension==='group_title'?'selected':''}>分组名</option>
-              <option value="original" ${rule.dimension==='original'?'selected'/''>地域</option>
-              <option value="type" ${rule.dimension==='type'?'selected':''}>类型</option>
-            </select>
-            <select class="filter-select" onchange="currentTopicRules[${i}].op=this.value;renderTopicRules()">
-              <option value="include" ${rule.op==='include'?'selected':''}>包含</option>
-              <option value="exclude" ${rule.op==='exclude'?'selected':''}>排除</option>
-            </select>
-            <button class="btn btn-danger btn-sm" onclick="removeTopicRule(${i})">删除</button>
-          </div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            ${rule.values.map((v, vi) => `
-              <div style="display:flex;gap:4px;">
-                <input type="text" value="${escapeHtml(v)}" placeholder="值" 
-                  onchange="currentTopicRules[${i}].values[${vi}]=this.value"
-                  class="search-box" style="width:120px;">
-                <button class="btn btn-danger btn-sm" onclick="removeRuleValue(${i},${vi})">x</button>
-              </div>
-            `).join('')}
-            <button class="btn btn-primary btn-sm" onclick="addRuleValue(${i})">+ 添加值</button>
-          </div>
-        </div>
-      `).join('');
+      let html = '';
+      currentTopicRules.forEach((rule, i) => {
+        html += '<div class="topic-rule" style="margin-bottom:12px;padding:12px;background:#f5f5f7;border-radius:8px;">';
+        html += '<div style="display:flex;gap:8px;margin-bottom:8px;">';
+        html += '<select class="filter-select" onchange="currentTopicRules[' + i + '].dimension=this.value;renderTopicRules()">';
+        html += '<option value="group_title"' + (rule.dimension==='group_title'?' selected':'') + '>分组名</option>';
+        html += '<option value="original"' + (rule.dimension==='original'?' selected':'') + '>地域</option>';
+        html += '<option value="type"' + (rule.dimension==='type'?' selected':'') + '>类型</option>';
+        html += '</select>';
+        html += '<select class="filter-select" onchange="currentTopicRules[' + i + '].op=this.value;renderTopicRules()">';
+        html += '<option value="include"' + (rule.op==='include'?' selected':'') + '>包含</option>';
+        html += '<option value="exclude"' + (rule.op==='exclude'?' selected':'') + '>排除</option>';
+        html += '</select>';
+        html += '<button class="btn btn-danger btn-sm" onclick="removeTopicRule(' + i + ')">删除</button>';
+        html += '</div>';
+        html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+        rule.values.forEach((v, vi) => {
+          html += '<div style="display:flex;gap:4px;">';
+          html += '<input type="text" value="' + escapeHtml(v) + '" placeholder="值" onchange="currentTopicRules[' + i + '].values[' + vi + ']=this.value" class="search-box" style="width:120px;">';
+          html += '<button class="btn btn-danger btn-sm" onclick="removeRuleValue(' + i + ',' + vi + ')">x</button>';
+          html += '</div>';
+        });
+        html += '<button class="btn btn-primary btn-sm" onclick="addRuleValue(' + i + ')">+ 添加值</button>';
+        html += '</div>';
+        html += '</div>';
+      });
       if (currentTopicRules.length === 0) {
-        container.innerHTML = '<p style="color:#86868b;font-size:14px;">暂无规则，所有频道将被包含</p>';
+        html = '<p style="color:#86868b;font-size:14px;">暂无规则，所有频道将被包含</p>';
       }
+      container.innerHTML = html;
     }
     
     async function saveTopic() {
@@ -5834,11 +5841,11 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       
       try {
         const method = id ? 'PUT' : 'POST';
-        const url = id ? `/api/admin/topics?action=update&id=${id}` : '/api/admin/topics?action=create';
+        const url = id ? '/api/admin/topics?action=update&id=' + id : '/api/admin/topics?action=create';
         const res = await fetch(url, {
-          method,
+          method: method,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: id ? parseInt(id) : undefined, name, description, rules })
+          body: JSON.stringify({ id: id ? parseInt(id) : undefined, name: name, description: description, rules: rules })
         });
         const data = await res.json();
         if (data.success) {
@@ -5855,7 +5862,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     
     async function editTopic(id) {
       try {
-        const res = await fetch(`/api/admin/topics?action=get&id=${id}`);
+        const res = await fetch('/api/admin/topics?action=get&id=' + id);
         const topic = await res.json();
         showTopicModal(topic);
       } catch (e) {
@@ -5866,7 +5873,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     async function deleteTopic(id) {
       if (!confirm('确定要删除此专题吗？')) return;
       try {
-        const res = await fetch(`/api/admin/topics?action=delete&id=${id}`, { method: 'DELETE' });
+        const res = await fetch('/api/admin/topics?action=delete&id=' + id, { method: 'DELETE' });
         const data = await res.json();
         if (data.success) {
           showToast('专题已删除', 'success');
@@ -5878,7 +5885,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         showToast('请求失败: ' + e.message, 'error');
       }
     }
-
     <!-- Topic Modal -->
     <div id="topicModal" class="modal">
       <div class="modal-content" style="max-width:600px;">
