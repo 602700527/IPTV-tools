@@ -5870,10 +5870,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       
       try {
         const method = id ? 'PUT' : 'POST';
-        const url = id ? '/admin/topics?action=update&id=' + id : '/admin/topics?action=create';
-        const res = await fetch(url, {
+        const action = id ? 'update&id=' + id : 'create';
+        const res = await apiRequest('/topics?action=' + action, {
           method: method,
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: id ? parseInt(id) : undefined, name: name, description: description, rules: rules })
         });
         const data = await res.json();
