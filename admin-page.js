@@ -5869,11 +5869,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       try {
         const method = id ? 'PUT' : 'POST';
         const action = id ? 'update&id=' + id : 'create';
-        const res = await apiRequest('/topics?action=' + action, {
+        const data = await apiRequest('/topics?action=' + action, {
           method: method,
           body: JSON.stringify({ id: id ? parseInt(id) : undefined, name: name, description: description, rules: rules })
         });
-        const data = await res.json();
         if (data.success) {
           showToast(id ? '专题更新成功' : '专题创建成功', 'success');
           closeTopicModal();
