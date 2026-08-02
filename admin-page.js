@@ -5793,7 +5793,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <div style="display:flex;gap:8px;margin-bottom:8px;">
             <select class="filter-select" onchange="currentTopicRules[${i}].dimension=this.value;renderTopicRules()">
               <option value="group_title" ${rule.dimension==='group_title'?'selected':''}>分组名</option>
-              <option value="source_name" ${rule.dimension==='source_name'?'selected':''}>来源</option>
+              <option value="source_name" ${rule.dimension==='source_name'?'selected'/''>数据源</option>
               <option value="type" ${rule.dimension==='type'?'selected':''}>类型</option>
             </select>
             <select class="filter-select" onchange="currentTopicRules[${i}].op=this.value;renderTopicRules()">
