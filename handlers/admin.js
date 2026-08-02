@@ -1,5 +1,5 @@
 // 管理后台API处理器
-import { getDB, initDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, getSyncFilterConfig, updateSyncFilterConfig, getTypeMappingConfig, updateTypeMappingConfig, getDomainBlacklist, addDomainToBlacklist, removeDomainFromBlacklist, addMultipleDomainsToBlacklist } from '../database.js';
+import { getDB, initDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, getSyncFilterConfig, updateSyncFilterConfig, getTypeMappingConfig, updateTypeMappingConfig, getDomainBlacklist, addDomainToBlacklist, removeDomainFromBlacklist, addMultipleDomainsToBlacklist, getTopics, getTopic, createTopic, updateTopic, deleteTopic, applyTopicFilter } from '../database.js';
 import {
   handleGetPaymentMethods,
   handleCreatePaymentMethod,
@@ -667,13 +667,14 @@ export async function handleAdminRequest(request, env, ctx) {
             // 生成卡密时只设置 status='unused' 和 duration_days
             // activated_at 和 expired_at 在激活时设置
             await db.prepare(`
-              INSERT INTO codes (code, status, duration_days, max_ips, remark)
-              VALUES (?, 'unused', ?, ?, ?)
+              INSERT INTO codes (code, status, duration_days, max_ips, remark, topic_id)
+              VALUES (?, 'unused', ?, ?, ?, ?)
             `).bind(
               code,
               data.duration_days,
               data.max_ips || 3,
-              data.remark || ''
+              data.remark || '',
+              data.topic_id || null
             ).run();
 
             codes.push({
@@ -713,6 +714,65 @@ export async function handleAdminRequest(request, env, ctx) {
             success: true,
             message: 'Deleted ' + codeCount + ' codes'
           }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        break;
+
+      case 'topics':
+        // 专题管理 API
+        const topicAction = url.searchParams.get('action');
+        
+        if (request.method === 'GET' && !topicAction) {
+          // 获取所有专题
+          const topics = await getTopics();
+          return new Response(JSON.stringify(topics), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'GET' && topicAction === 'get') {
+          // 获取单个专题
+          const id = parseInt(url.searchParams.get('id'));
+          if (!id) {
+            return new Response(JSON.stringify({ success: false, error: 'Missing id' }), { status: 400 });
+          }
+          const topic = await getTopic(id);
+          if (!topic) {
+            return new Response(JSON.stringify({ success: false, error: 'Topic not found' }), { status: 404 });
+          }
+          return new Response(JSON.stringify(topic), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'POST' && topicAction === 'create') {
+          // 创建专题
+          const data = await request.json();
+          if (!data.name) {
+            return new Response(JSON.stringify({ success: false, error: 'Missing name' }), { status: 400 });
+          }
+          const topic = await createTopic(data);
+          return new Response(JSON.stringify({ success: true, topic }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'PUT' && topicAction === 'update') {
+          // 更新专题
+          const data = await request.json();
+          if (!data.id) {
+            return new Response(JSON.stringify({ success: false, error: 'Missing id' }), { status: 400 });
+          }
+          const topic = await updateTopic(data.id, data);
+          if (!topic) {
+            return new Response(JSON.stringify({ success: false, error: 'Topic not found' }), { status: 404 });
+          }
+          return new Response(JSON.stringify({ success: true, topic }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (request.method === 'DELETE' && topicAction === 'delete') {
+          // 删除专题
+          const id = parseInt(url.searchParams.get('id'));
+          if (!id) {
+            return new Response(JSON.stringify({ success: false, error: 'Missing id' }), { status: 400 });
+          }
+          const result = await deleteTopic(id);
+          return new Response(JSON.stringify(result), {
             headers: { 'Content-Type': 'application/json' }
           });
         }

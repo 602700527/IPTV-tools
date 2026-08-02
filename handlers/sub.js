@@ -1,6 +1,6 @@
 // 订阅请求处理器: /sub/{code}.m3u（简化版）
 
-import { getDB, isDomainBlacklisted, getDomainBlacklist } from '../database.js';
+import { getDB, isDomainBlacklisted, getDomainBlacklist, getTopic, applyTopicFilter } from '../database.js';
 
 import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
 
@@ -100,7 +100,7 @@ export async function handleSubRequest(request, env, ctx) {
 
   const db = getDB();
 
-  const auth = await db.prepare("SELECT status, expired_at, max_ips FROM codes WHERE code = ?").bind(code).first();
+  const auth = await db.prepare("SELECT status, expired_at, max_ips, topic_id FROM codes WHERE code = ?").bind(code).first();
 
 
 
@@ -170,6 +170,20 @@ export async function handleSubRequest(request, env, ctx) {
 
     allChannels = allChannels.filter(c => c.is_active && c.source_active);
 
+  }
+
+  // 3.1.2 应用专题过滤
+  if (auth && auth.topic_id) {
+    const topic = await getTopic(auth.topic_id);
+    if (topic && topic.rules) {
+      try {
+        const rules = JSON.parse(topic.rules);
+        allChannels = applyTopicFilter(allChannels, rules);
+        console.log(`[Sub] Topic filter applied: ${allChannels.length} channels remaining (topic: ${topic.name})`);
+      } catch (e) {
+        console.error('[Sub] Failed to parse topic rules:', e);
+      }
+    }
   }
 
 
@@ -469,7 +483,7 @@ export async function handleSubRequestTxt(request, env, ctx) {
 
   const db = getDB();
 
-  const auth = await db.prepare("SELECT status, expired_at, max_ips FROM codes WHERE code = ?").bind(code).first();
+  const auth = await db.prepare("SELECT status, expired_at, max_ips, topic_id FROM codes WHERE code = ?").bind(code).first();
 
   const now = new Date().toISOString();
 
@@ -519,6 +533,20 @@ export async function handleSubRequestTxt(request, env, ctx) {
 
     allChannels = allChannels.filter(c => c.is_active && c.source_active);
 
+  }
+
+  // 3.1.2 应用专题过滤
+  if (auth && auth.topic_id) {
+    const topic = await getTopic(auth.topic_id);
+    if (topic && topic.rules) {
+      try {
+        const rules = JSON.parse(topic.rules);
+        allChannels = applyTopicFilter(allChannels, rules);
+        console.log(`[Sub] Topic filter applied: ${allChannels.length} channels remaining (topic: ${topic.name})`);
+      } catch (e) {
+        console.error('[Sub] Failed to parse topic rules:', e);
+      }
+    }
   }
 
   if (!allChannels || allChannels.length === 0) {

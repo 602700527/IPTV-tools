@@ -195,6 +195,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab active" onclick="showTab('sources')">直播源管理</button>
       <button class="nav-tab" onclick="showTab('channels')">频道管理</button>
       <button class="nav-tab" onclick="showTab('codes')">卡密管理</button>
+      <button class="nav-tab" onclick="showTab('topics')">专题管理</button>
       <button class="nav-tab" onclick="showTab('users')">账户管理</button>
       <button class="nav-tab" onclick="showTab('orders')">订单管理</button>
       <button class="nav-tab" onclick="showTab('mall')">商城管理</button>
@@ -302,6 +303,27 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
         <table><thead><tr><th><input type="checkbox" id="selectAllCodes" class="custom-checkbox" onclick="toggleSelectAllCodes()"></th><th>卡密</th><th>状态</th><th>有效期(天)</th><th>最大IP数</th><th>激活时间</th><th>过期时间</th><th>备注</th><th>操作</th></tr></thead><tbody id="codesTable"></tbody></table>
         <div id="codePagination" class="pagination"></div>
+      </div>
+    </div>
+    <div id="topics" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>专题管理</h3>
+          <button class="btn btn-primary" onclick="showTopicModal()">创建专题</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>名称</th>
+              <th>描述</th>
+              <th>规则数</th>
+              <th>创建时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="topicsTable"></tbody>
+        </table>
       </div>
     </div>
     <div id="tickets" class="tab-content">
@@ -1514,6 +1536,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       }
       else if (tabName === 'channels') { loadSources(); loadChannels(); }
       else if (tabName === 'codes') loadCodes();
+      else if (tabName === 'topics') loadTopics();
       else if (tabName === 'users') loadUsers();
       else if (tabName === 'orders') loadOrders();
       else if (tabName === 'mall') {
@@ -2547,13 +2570,25 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       }
     }
 
-    function showGenerateCodeModal() {
+    async function showGenerateCodeModal() {
       document.getElementById('generateCount').value = 1;
       document.getElementById('generateDuration').value = 30;
       document.getElementById('generateDurationCustom').value = 7;
       document.getElementById('generateDurationCustom').style.display = 'none';
       document.getElementById('generateMaxIps').value = 3;
       document.getElementById('generateRemark').value = '';
+      
+      // Load topics for dropdown
+      try {
+        const res = await fetch('/api/admin/topics');
+        const topics = await res.json();
+        const select = document.getElementById('generateTopicId');
+        select.innerHTML = '<option value="">不绑定（使用全部频道）</option>' +
+          topics.map(t => \`<option value="\${t.id}">\${escapeHtml(t.name)}</option>\`).join('');
+      } catch (e) {
+        console.error('Failed to load topics:', e);
+      }
+      
       document.getElementById('generateCodeModal').classList.add('active');
     }
 
@@ -2594,6 +2629,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
       const maxIps = parseInt(document.getElementById('generateMaxIps').value);
       const remark = document.getElementById('generateRemark').value.trim();
+      const topicId = document.getElementById('generateTopicId').value;
+      const topicIdNum = topicId ? parseInt(topicId) : null;
 
       if (!count || count < 1 || count > 100) {
         showToast('生成数量必须在1-100之间', 'error');
@@ -2603,7 +2640,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       try {
         const result = await apiRequest('/codes', {
           method: 'POST',
-          body: JSON.stringify({ count, duration_days: durationDays, max_ips: maxIps, remark })
+          body: JSON.stringify({ count, duration_days: durationDays, max_ips: maxIps, remark, topic_id: topicIdNum })
         });
 
         if (result.success && result.codes) {

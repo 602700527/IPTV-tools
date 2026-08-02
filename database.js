@@ -299,6 +299,27 @@ export async function createTables(env) {
     )
   `).run();
 
+  // 鍒涘缓涓婚?琛?
+  await db.prepare(`
+    CREATE TABLE IF NOT EXISTS topics (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT DEFAULT '',
+      rules TEXT DEFAULT '[]',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+
+  // 杩佺Щ锛氭坊鍔?topic_id 瀛楁鍒?codes 琛?
+  try {
+    await db.prepare('ALTER TABLE codes ADD COLUMN topic_id INTEGER REFERENCES topics(id)').run();
+    console.log('Migrated codes table: added topic_id column');
+  } catch (e) {
+    if (!e.message.includes('duplicate column name')) {
+      console.error('Migration error:', e);
+    }
+  }
+
   // 鍒濆鍖栭粯璁ら厤缃紙濡傛灉涓嶅瓨鍦級
   const defaultSettings = {
     'channel_daily_limit': '100',
@@ -2672,5 +2693,80 @@ export function extractDomainFromUrl(url) {
   }
 }
 
+// ==================== Topics CRUD ====================
 
+export async function getTopics() {
+  const db = getDB();
+  const result = await db.prepare('SELECT * FROM topics ORDER BY id DESC').all();
+  return result.results || [];
+}
 
+export async function getTopic(id) {
+  const db = getDB();
+  return await db.prepare('SELECT * FROM topics WHERE id = ?').bind(id).first();
+}
+
+export async function createTopic(data) {
+  const db = getDB();
+  await db.prepare(
+    'INSERT INTO topics (name, description, rules) VALUES (?, ?, ?)'
+  ).bind(
+    data.name,
+    data.description || '',
+    JSON.stringify(data.rules || [])
+  ).run();
+  return getTopic(db.prepare('SELECT last_insert_rowid() as id').first().id);
+}
+
+export async function updateTopic(id, data) {
+  const db = getDB();
+  await db.prepare(
+    'UPDATE topics SET name = ?, description = ?, rules = ? WHERE id = ?'
+  ).bind(
+    data.name,
+    data.description || '',
+    JSON.stringify(data.rules || []),
+    id
+  ).run();
+  return getTopic(id);
+}
+
+export async function deleteTopic(id) {
+  const db = getDB();
+  // Check if any codes are using this topic
+  const count = await db.prepare(
+    'SELECT COUNT(*) as count FROM codes WHERE topic_id = ?'
+  ).bind(id).first();
+  if (count && count.count > 0) {
+    return { success: false, error: '有卡密绑定此专题，无法删除' };
+  }
+  await db.prepare('DELETE FROM topics WHERE id = ?').bind(id).run();
+  return { success: true };
+}
+
+export async function applyTopicFilter(channels, rules) {
+  if (!rules || !Array.isArray(rules) || rules.length === 0) {
+    return channels;
+  }
+
+  return channels.filter(channel => {
+    // Check each rule - if any rule matches (OR logic), apply it
+    for (const rule of rules) {
+      const { dimension, op, values } = rule;
+      if (!dimension || !op || !values || values.length === 0) continue;
+
+      let fieldValue = '';
+      if (dimension === 'group_title') fieldValue = channel.group_title || '';
+      else if (dimension === 'source_name') fieldValue = channel.source_name || '';
+      else if (dimension === 'type') fieldValue = channel.type || '';
+      else continue;
+
+      const isMatch = values.some(v => fieldValue === v);
+
+      if (op === 'include' && isMatch) return true;
+      if (op === 'exclude' && isMatch) return false;
+    }
+    // No rules matched - include by default
+    return true;
+  });
+}
