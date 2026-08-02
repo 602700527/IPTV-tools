@@ -2757,7 +2757,7 @@ export async function applyTopicFilter(channels, rules) {
 
       let fieldValue = '';
       if (dimension === 'group_title') fieldValue = channel.group_title || '';
-      else if (dimension === 'source_name') fieldValue = channel.source_name || '';
+      else if (dimension === 'original') fieldValue = channel.original || '';
       else if (dimension === 'type') fieldValue = channel.type || '';
       else continue;
 
