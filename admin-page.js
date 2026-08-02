@@ -2609,7 +2609,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       
       // Load topics for dropdown
       try {
-        const res = await fetch('/api/admin/topics');
+        const res = await fetch('/admin/topics');
         const topics = await res.json();
         const select = document.getElementById('generateTopicId');
         let options = '<option value="">不绑定（使用全部频道）</option>';
@@ -5762,7 +5762,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     async function loadTopics() {
       showLoading();
       try {
-        const res = await fetch('/api/admin/topics');
+        const res = await fetch('/admin/topics');
         const topics = await res.json();
         const tbody = document.getElementById('topicsTable');
         let html = '';
@@ -5870,7 +5870,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       
       try {
         const method = id ? 'PUT' : 'POST';
-        const url = id ? '/api/admin/topics?action=update&id=' + id : '/api/admin/topics?action=create';
+        const url = id ? '/admin/topics?action=update&id=' + id : '/admin/topics?action=create';
         const res = await fetch(url, {
           method: method,
           headers: { 'Content-Type': 'application/json' },
@@ -5891,7 +5891,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     
     async function editTopic(id) {
       try {
-        const res = await fetch('/api/admin/topics?action=get&id=' + id);
+        const res = await fetch('/admin/topics?action=get&id=' + id);
         const topic = await res.json();
         showTopicModal(topic);
       } catch (e) {
@@ -5902,7 +5902,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     async function deleteTopic(id) {
       if (!confirm('确定要删除此专题吗？')) return;
       try {
-        const res = await fetch('/api/admin/topics?action=delete&id=' + id, { method: 'DELETE' });
+        const res = await fetch('/admin/topics?action=delete&id=' + id, { method: 'DELETE' });
         const data = await res.json();
         if (data.success) {
           showToast('专题已删除', 'success');
