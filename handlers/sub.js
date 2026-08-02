@@ -320,8 +320,8 @@ function buildM3uContent(channels, host, token, domainBlacklist) {
     infoParts.push(',' + entry.channel_name);
     lines.push(infoParts.join(' '));
 
-    // Multiple URLs for the same channel on separate lines (APTV shows as different routes)
-    for (const url of entry.urls) lines.push(url);
+    // Multiple URLs for the same channel joined with '#' (APTV supports this)
+    lines.push(entry.urls.join('#'));
   }
 
   return lines.join('\n');
