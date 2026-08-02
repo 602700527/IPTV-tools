@@ -5733,19 +5733,19 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         const res = await fetch('/api/admin/topics');
         const topics = await res.json();
         const tbody = document.getElementById('topicsTable');
-        tbody.innerHTML = topics.map(t => `
+        tbody.innerHTML = topics.map(t => \`
           <tr>
-            <td>${t.id}</td>
-            <td>${escapeHtml(t.name)}</td>
-            <td>${escapeHtml(t.description || '')}</td>
-            <td>${(t.rules ? JSON.parse(t.rules).length : 0)}</td>
-            <td>${t.created_at ? new Date(t.created_at).toLocaleDateString() : '-'}</td>
+            <td>\${t.id}</td>
+            <td>\${escapeHtml(t.name)}</td>
+            <td>\${escapeHtml(t.description || '')}</td>
+            <td>\${(t.rules ? JSON.parse(t.rules).length : 0)}</td>
+            <td>\${t.created_at ? new Date(t.created_at).toLocaleDateString() : '-'}</td>
             <td>
-              <button class="btn btn-primary btn-sm" onclick="editTopic(${t.id})">编辑</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteTopic(${t.id})">删除</button>
+              <button class="btn btn-primary btn-sm" onclick="editTopic(\${t.id})">编辑</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteTopic(\${t.id})">删除</button>
             </td>
           </tr>
-        `).join('');
+        \`).join('');
       } catch (e) {
         showToast('加载专题列表失败: ' + e.message, 'error');
       } finally {
