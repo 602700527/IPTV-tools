@@ -2609,7 +2609,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       
       // Load topics for dropdown
       try {
-        const res = await fetch('/admin/topics');
+        const res = await apiRequest('/topics');
         const topics = await res.json();
         const select = document.getElementById('generateTopicId');
         let options = '<option value="">不绑定（使用全部频道）</option>';
@@ -5762,7 +5762,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     async function loadTopics() {
       showLoading();
       try {
-        const res = await fetch('/admin/topics');
+        const res = await apiRequest('/topics');
         const topics = await res.json();
         const tbody = document.getElementById('topicsTable');
         let html = '';
@@ -5891,7 +5891,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     
     async function editTopic(id) {
       try {
-        const res = await fetch('/admin/topics?action=get&id=' + id);
+        const res = await apiRequest('/topics?action=get&id=' + id);
         const topic = await res.json();
         showTopicModal(topic);
       } catch (e) {
@@ -5902,7 +5902,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     async function deleteTopic(id) {
       if (!confirm('确定要删除此专题吗？')) return;
       try {
-        const res = await fetch('/admin/topics?action=delete&id=' + id, { method: 'DELETE' });
+        const res = await apiRequest('/topics?action=delete&id=' + id, { method: 'DELETE' });
         const data = await res.json();
         if (data.success) {
           showToast('专题已删除', 'success');
