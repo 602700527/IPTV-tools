@@ -5723,6 +5723,191 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       if (data.success) { showToast('Ticket closed', 'success'); closeTicketModal(); loadTickets(); }
       else { showToast('Failed to close ticket', 'error'); }
     }
-  <\/script>
+  
+    // ==================== Topic Management ====================
+    let currentTopicRules = [];
+    
+    async function loadTopics() {
+      showLoading();
+      try {
+        const res = await fetch('/api/admin/topics');
+        const topics = await res.json();
+        const tbody = document.getElementById('topicsTable');
+        tbody.innerHTML = topics.map(t => `
+          <tr>
+            <td>${t.id}</td>
+            <td>${escapeHtml(t.name)}</td>
+            <td>${escapeHtml(t.description || '')}</td>
+            <td>${(t.rules ? JSON.parse(t.rules).length : 0)}</td>
+            <td>${t.created_at ? new Date(t.created_at).toLocaleDateString() : '-'}</td>
+            <td>
+              <button class="btn btn-primary btn-sm" onclick="editTopic(${t.id})">编辑</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteTopic(${t.id})">删除</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        showToast('加载专题列表失败: ' + e.message, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+    
+    function showTopicModal(topic = null) {
+      currentTopicRules = topic ? (topic.rules ? JSON.parse(topic.rules) : []) : [];
+      document.getElementById('topicId').value = topic ? topic.id : '';
+      document.getElementById('topicName').value = topic ? topic.name : '';
+      document.getElementById('topicDescription').value = topic ? topic.description : '';
+      renderTopicRules();
+      document.getElementById('topicModal').classList.add('active');
+    }
+    
+    function closeTopicModal() {
+      document.getElementById('topicModal').classList.remove('active');
+    }
+    
+    function addTopicRule() {
+      currentTopicRules.push({ dimension: 'group_title', op: 'include', values: [] });
+      renderTopicRules();
+    }
+    
+    function removeTopicRule(index) {
+      currentTopicRules.splice(index, 1);
+      renderTopicRules();
+    }
+    
+    function addRuleValue(index) {
+      currentTopicRules[index].values.push('');
+      renderTopicRules();
+    }
+    
+    function removeRuleValue(index, vIndex) {
+      currentTopicRules[index].values.splice(vIndex, 1);
+      renderTopicRules();
+    }
+    
+    function renderTopicRules() {
+      const container = document.getElementById('topicRulesContainer');
+      container.innerHTML = currentTopicRules.map((rule, i) => `
+        <div class="topic-rule" style="margin-bottom:12px;padding:12px;background:#f5f5f7;border-radius:8px;">
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <select class="filter-select" onchange="currentTopicRules[${i}].dimension=this.value;renderTopicRules()">
+              <option value="group_title" ${rule.dimension==='group_title'?'selected':''}>分组名</option>
+              <option value="source_name" ${rule.dimension==='source_name'?'selected':''}>来源</option>
+              <option value="type" ${rule.dimension==='type'?'selected':''}>类型</option>
+            </select>
+            <select class="filter-select" onchange="currentTopicRules[${i}].op=this.value;renderTopicRules()">
+              <option value="include" ${rule.op==='include'?'selected':''}>包含</option>
+              <option value="exclude" ${rule.op==='exclude'?'selected':''}>排除</option>
+            </select>
+            <button class="btn btn-danger btn-sm" onclick="removeTopicRule(${i})">删除</button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            ${rule.values.map((v, vi) => `
+              <div style="display:flex;gap:4px;">
+                <input type="text" value="${escapeHtml(v)}" placeholder="值" 
+                  onchange="currentTopicRules[${i}].values[${vi}]=this.value"
+                  class="search-box" style="width:120px;">
+                <button class="btn btn-danger btn-sm" onclick="removeRuleValue(${i},${vi})">x</button>
+              </div>
+            `).join('')}
+            <button class="btn btn-primary btn-sm" onclick="addRuleValue(${i})">+ 添加值</button>
+          </div>
+        </div>
+      `).join('');
+      if (currentTopicRules.length === 0) {
+        container.innerHTML = '<p style="color:#86868b;font-size:14px;">暂无规则，所有频道将被包含</p>';
+      }
+    }
+    
+    async function saveTopic() {
+      const id = document.getElementById('topicId').value;
+      const name = document.getElementById('topicName').value.trim();
+      const description = document.getElementById('topicDescription').value.trim();
+      
+      if (!name) {
+        showToast('请输入专题名称', 'error');
+        return;
+      }
+      
+      const rules = currentTopicRules.filter(r => r.values.length > 0);
+      
+      try {
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/admin/topics?action=update&id=${id}` : '/api/admin/topics?action=create';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id ? parseInt(id) : undefined, name, description, rules })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(id ? '专题更新成功' : '专题创建成功', 'success');
+          closeTopicModal();
+          loadTopics();
+        } else {
+          showToast(data.error || '操作失败', 'error');
+        }
+      } catch (e) {
+        showToast('请求失败: ' + e.message, 'error');
+      }
+    }
+    
+    async function editTopic(id) {
+      try {
+        const res = await fetch(`/api/admin/topics?action=get&id=${id}`);
+        const topic = await res.json();
+        showTopicModal(topic);
+      } catch (e) {
+        showToast('加载专题失败: ' + e.message, 'error');
+      }
+    }
+    
+    async function deleteTopic(id) {
+      if (!confirm('确定要删除此专题吗？')) return;
+      try {
+        const res = await fetch(`/api/admin/topics?action=delete&id=${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast('专题已删除', 'success');
+          loadTopics();
+        } else {
+          showToast(data.error || '删除失败', 'error');
+        }
+      } catch (e) {
+        showToast('请求失败: ' + e.message, 'error');
+      }
+    }
+
+    <!-- Topic Modal -->
+    <div id="topicModal" class="modal">
+      <div class="modal-content" style="max-width:600px;">
+        <div class="modal-header">
+          <h3 id="topicModalTitle">创建专题</h3>
+          <span class="close" onclick="closeTopicModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="topicId">
+          <div class="form-group" style="margin-bottom:16px;">
+            <label>专题名称 *</label>
+            <input type="text" id="topicName" placeholder="输入专题名称" class="search-box" style="width:100%">
+          </div>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label>描述</label>
+            <input type="text" id="topicDescription" placeholder="输入描述（可选）" class="search-box" style="width:100%">
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:block;margin-bottom:8px;font-weight:500;">过滤规则（OR 关系，满足任意一条即应用）</label>
+            <div id="topicRulesContainer"></div>
+            <button class="btn btn-primary btn-sm" onclick="addTopicRule()" style="margin-top:8px;">+ 添加规则</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" onclick="closeTopicModal()">取消</button>
+          <button class="btn btn-primary" onclick="saveTopic()">保存</button>
+        </div>
+      </div>
+    </div>
+<\/script>
 </body>
 </html>`;
