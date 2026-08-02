@@ -1263,7 +1263,36 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       </div>
     </div>
   </div>
-  <script>
+  <!-- Topic Modal -->
+    <div id="topicModal" class="modal">
+      <div class="modal-content" style="max-width:600px;">
+        <div class="modal-header">
+          <h3 id="topicModalTitle">创建专题</h3>
+          <span class="close" onclick="closeTopicModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="topicId">
+          <div class="form-group" style="margin-bottom:16px;">
+            <label>专题名称 *</label>
+            <input type="text" id="topicName" placeholder="输入专题名称" class="search-box" style="width:100%">
+          </div>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label>描述</label>
+            <input type="text" id="topicDescription" placeholder="输入描述（可选）" class="search-box" style="width:100%">
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="display:block;margin-bottom:8px;font-weight:500;">过滤规则（OR 关系，满足任意一条即应用）</label>
+            <div id="topicRulesContainer"></div>
+            <button class="btn btn-primary btn-sm" onclick="addTopicRule()" style="margin-top:8px;">+ 添加规则</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" onclick="closeTopicModal()">取消</button>
+          <button class="btn btn-primary" onclick="saveTopic()">保存</button>
+        </div>
+      </div>
+    </div>
+<script>
     const API_BASE='/admin';
     const STORAGE_KEY = 'admin_auth_key';
     const SYNC_KEY = 'admin_sync_status';
@@ -5888,35 +5917,6 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
 
 
-<!-- Topic Modal -->
-    <div id="topicModal" class="modal">
-      <div class="modal-content" style="max-width:600px;">
-        <div class="modal-header">
-          <h3 id="topicModalTitle">创建专题</h3>
-          <span class="close" onclick="closeTopicModal()">&times;</span>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="topicId">
-          <div class="form-group" style="margin-bottom:16px;">
-            <label>专题名称 *</label>
-            <input type="text" id="topicName" placeholder="输入专题名称" class="search-box" style="width:100%">
-          </div>
-          <div class="form-group" style="margin-bottom:16px;">
-            <label>描述</label>
-            <input type="text" id="topicDescription" placeholder="输入描述（可选）" class="search-box" style="width:100%">
-          </div>
-          <div style="margin-bottom:16px;">
-            <label style="display:block;margin-bottom:8px;font-weight:500;">过滤规则（OR 关系，满足任意一条即应用）</label>
-            <div id="topicRulesContainer"></div>
-            <button class="btn btn-primary btn-sm" onclick="addTopicRule()" style="margin-top:8px;">+ 添加规则</button>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn" onclick="closeTopicModal()">取消</button>
-          <button class="btn btn-primary" onclick="saveTopic()">保存</button>
-        </div>
-      </div>
-    </div>
 <\/script>
 </body>
 </html>`;
