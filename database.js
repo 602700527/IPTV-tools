@@ -2708,14 +2708,15 @@ export async function getTopic(id) {
 
 export async function createTopic(data) {
   const db = getDB();
-  await db.prepare(
+  const result = await db.prepare(
     'INSERT INTO topics (name, description, rules) VALUES (?, ?, ?)'
   ).bind(
     data.name,
     data.description || '',
     JSON.stringify(data.rules || [])
   ).run();
-  return getTopic(db.prepare('SELECT last_insert_rowid() as id').first().id);
+  const id = result.meta.last_row_id;
+  return getTopic(id);
 }
 
 export async function updateTopic(id, data) {
