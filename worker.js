@@ -497,6 +497,7 @@ import { pageTitle as europeIptvTitle, pageDescription as europeIptvDesc, styles
 import { pageTitle as americasIptvTitle, pageDescription as americasIptvDesc, styles as americasIptvStyles, content as americasIptvContent } from './pages-content/americas-iptv.js';
 import { pageTitle as oceaniaIptvTitle, pageDescription as oceaniaIptvDesc, styles as oceaniaIptvStyles, content as oceaniaIptvContent } from './pages-content/oceania-iptv.js';
 import { llmsTxt } from './pages-content/llms-txt.js';
+import { generateShowcasePage } from './pages/showcase-page.js';
 import { getSystemConfig } from './database.js';
 import { initCache } from './utils/cache.js';
 import { getSitemapFromCache } from './utils/channel-cache.js';
@@ -1345,6 +1346,22 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path.startsWith('/api/play/')) {
       // 公开播放API（无需卡密）
       return await handlePublicPlay(request, env, ctx);
+    } else if (path === '/showcase' || path === '/showcase/' || path === '/showcase/index' || path === '/showcase/index.html') {
+      // 频道展示页 - 用于电商客户展示
+      const { getAllChannels, getAllGroups } = await import('./utils/channel-cache.js');
+      const { channels } = await getAllChannels(env);
+      const { groups } = await getAllGroups(env);
+      const { generateShowcasePage } = await import('./pages/showcase-page.js');
+      const html = generateShowcasePage({
+        origin: url.origin,
+        channels: channels,
+        groups: groups,
+        totalChannels: channels.length,
+        totalGroups: groups.length
+      });
+      return new Response(html, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     } else if (path === '/activate' || path === '/activate/' || path === '/activate/index' || path === '/activate/index.html') {
       // 用户激活页面
       const timezone = env.TIMEZONE || 'Asia/Shanghai';
