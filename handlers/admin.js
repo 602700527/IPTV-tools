@@ -690,11 +690,12 @@ export async function handleAdminRequest(request, env, ctx) {
           // 更新卡密状态
           const data = await request.json();
           await getDB().prepare(`
-            UPDATE codes SET status = ?, remark = ?
+            UPDATE codes SET status = ?, remark = ?, topic_id = ?
             WHERE code = ?
           `).bind(
             data.status,
-            data.remark,
+            data.remark || '',
+            data.topic_id || null,
             data.code
           ).run();
 
