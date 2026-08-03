@@ -834,7 +834,7 @@ export async function handleAdminRequest(request, env, ctx) {
           });
         }
 
-        let channelsQuery = 'SELECT c.*, s.name as source_name FROM channels c LEFT JOIN sources s ON c.source_id = s.id';
+        let channelsQuery = 'SELECT c.id, c.source_id, c.channel_name, c.group_title, c.type, c.description, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active, c.original, s.name as source_name, s.is_active as source_active FROM channels c LEFT JOIN sources s ON c.source_id = s.id';
         const countQuery = 'SELECT COUNT(*) as total FROM channels c LEFT JOIN sources s ON c.source_id = s.id';
         const params = [];
         const whereConditions = [];
