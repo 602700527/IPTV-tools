@@ -136,38 +136,38 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     <div id="successBox" class="success"></div>
     <div id="toastContainer" class="toast-container"></div>
     <div id="activateForm">
-    <div class="form-group">
-      <label for="code" data-i18n="enterCode">Enter card number</label>
-      <input type="text" id="code" data-i18n-placeholder="codePlaceholder" placeholder="Enter your card number" autocomplete="off">
-    </div>
-
-    <div class="form-group">
-      <label for="captchaInput" data-i18n="captchaLabel">Verification Code</label>
-      <div class="captcha-row">
-        <input type="text" id="captchaInput" class="captcha-input" placeholder="?" maxlength="4">
-        <div class="captcha-question" id="captchaQuestion">5 + 3 = ?</div>
-        <button class="captcha-refresh" onclick="refreshCaptcha()" title="Refresh">↻</button>
+      <div class="form-group">
+        <label for="code" data-i18n="enterCode">Enter card number</label>
+        <input type="text" id="code" data-i18n-placeholder="codePlaceholder" placeholder="Enter your card number" autocomplete="off">
       </div>
-    </div>
 
-    <div class="form-group">
-      <label>Match Network (Optional)</label>
-      <div class="topic-dropdown">
-        <div class="topic-trigger" id="topicTrigger" onclick="toggleTopicMenu()">
-          <span id="topicLabel">Not Selected</span>
-          <span class="arrow">▼</span>
+      <div class="form-group">
+        <label for="captchaInput" data-i18n="captchaLabel">Verification Code</label>
+        <div class="captcha-row">
+          <input type="text" id="captchaInput" class="captcha-input" placeholder="?" maxlength="4">
+          <div class="captcha-question" id="captchaQuestion">5 + 3 = ?</div>
+          <button class="captcha-refresh" onclick="refreshCaptcha()" title="Refresh">↻</button>
         </div>
-        <div class="topic-menu" id="topicMenu"></div>
       </div>
-      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-top:6px;">Select to get channels matching the target network, or leave unselected for all channels</p>
-    </div>
 
-    <button id="activateBtn" class="btn" onclick="activateCode()" data-i18n="activate">Activate Now</button>
+      <div class="form-group">
+        <label>Match Network (Optional)</label>
+        <div class="topic-dropdown">
+          <div class="topic-trigger" id="topicTrigger" onclick="toggleTopicMenu()">
+            <span id="topicLabel">Not Selected</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="topic-menu" id="topicMenu"></div>
+        </div>
+        <p style="color:rgba(255,255,255,.5);font-size:12px;margin-top:6px;">Select to get channels matching the target network, or leave unselected for all channels</p>
+      </div>
 
-    <div id="loading" class="loading">
-      <div class="spinner"></div>
-      <p class="loading-text" data-i18n="activating">Activating...</p>
-    </div>
+      <button id="activateBtn" class="btn" onclick="activateCode()" data-i18n="activate">Activate Now</button>
+
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p class="loading-text" data-i18n="activating">Activating...</p>
+      </div>
     </div>
 
     <div id="result" class="result">
