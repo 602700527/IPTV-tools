@@ -168,6 +168,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       <div class="spinner"></div>
       <p class="loading-text" data-i18n="activating">Activating...</p>
     </div>
+    </div>
 
     <div id="result" class="result">
       <h3 data-i18n="success">✅ Activation Successful</h3>
@@ -219,7 +220,6 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         </ul>
       </div>
     </div>
-  </div>
   </div>
 
   <script>
