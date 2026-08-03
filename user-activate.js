@@ -317,8 +317,11 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         if (response.ok && data.success) {
           showSuccess(t('success'));
           showResult(code, data);
-          // Hide form, show result
-          document.getElementById('activateForm').style.display = 'none';
+          // Hide form, show result - 直接操作 display
+          var form = document.getElementById('activateForm');
+          var result = document.getElementById('result');
+          if (form) form.style.display = 'none';
+          if (result) result.style.display = 'block';
           refreshCaptcha();
         } else {
           showError(data.error || t('fail'));
@@ -365,7 +368,10 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       window._subUrlBase = host + '/sub/' + code;
       updateSubUrlFormat();
 
-      result.classList.add('active');
+      // 直接设置 display，不使用 classList
+      if (result) {
+        result.style.display = 'block';
+      }
     }
 
     function getSelectedFormat() {
