@@ -472,7 +472,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     // 点击外部关闭菜单
     document.addEventListener('click', (e) => {
       const dropdown = document.querySelector('.topic-dropdown');
-      if (dropdown && !_dropdown.contains(e.target) && _topicMenuOpen) {
+      if (dropdown && !dropdown.contains(e.target) && _topicMenuOpen) {
         toggleTopicMenu();
       }
     });
