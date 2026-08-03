@@ -153,7 +153,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       <label>Match Network (Optional)</label>
       <div class="topic-dropdown">
         <div class="topic-trigger" id="topicTrigger" onclick="toggleTopicMenu()">
-          <span id="topicLabel">No Topic</span>
+          <span id="topicLabel">No Matched Network</span>
           <span class="arrow">▼</span>
         </div>
         <div class="topic-menu" id="topicMenu"></div>
