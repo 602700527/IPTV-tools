@@ -441,8 +441,8 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         const emptyItem = document.createElement('div');
         emptyItem.className = 'topic-item selected';
         emptyItem.dataset.id = '';
-        emptyItem.textContent = 'No Topic';
-        emptyItem.onclick = () => selectTopic('', 'No Topic');
+        emptyItem.textContent = 'No Matched Network';
+        emptyItem.onclick = () => selectTopic('', 'No Matched Network');
         menu.appendChild(emptyItem);
 
         if (topics && Array.isArray(topics)) {
