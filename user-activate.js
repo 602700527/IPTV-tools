@@ -5,14 +5,14 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Activation - TV Live Service</title>
-  <meta name="description" content="Activate your TV Live Service account with your activation code. Get started with live TV streaming.">
+  <meta name="description" content="Activate your TV Live Service account with your card number. Get started with live TV streaming.">
   <meta name="robots" content="noindex, follow">
   <link rel="canonical" href="https://iptv-search.com/activate">
   <link rel="alternate" hreflang="zh-CN" href="https://iptv-search.com/activate">
   <link rel="alternate" hreflang="en" href="https://iptv-search.com/activate?lang=en">
   <link rel="alternate" hreflang="x-default" href="https://iptv-search.com/activate?lang=en">
   <meta property="og:title" content="Activation - TV Live Service">
-  <meta property="og:description" content="Activate your TV Live Service account with your activation code. Get started with live TV streaming.">
+  <meta property="og:description" content="Activate your TV Live Service account with your card number. Get started with live TV streaming.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com/activate">
   <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
@@ -21,7 +21,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
   <meta property="og:site_name" content="TV Live Service">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Activation - TV Live Service">
-  <meta name="twitter:description" content="Activate your TV Live Service account with your activation code. Get started with live TV streaming.">
+  <meta name="twitter:description" content="Activate your TV Live Service account with your card number. Get started with live TV streaming.">
   <meta name="twitter:image" content="https://iptv-search.com/og-homepage.png">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -136,8 +136,8 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     <div id="successBox" class="success"></div>
     <div id="toastContainer" class="toast-container"></div>
     <div class="form-group">
-      <label for="code" data-i18n="enterCode">Enter activation code</label>
-      <input type="text" id="code" data-i18n-placeholder="codePlaceholder" placeholder="Enter your activation code" autocomplete="off">
+      <label for="code" data-i18n="enterCode">Enter card number</label>
+      <input type="text" id="code" data-i18n-placeholder="codePlaceholder" placeholder="Enter your card number" autocomplete="off">
     </div>
 
     <div class="form-group">
@@ -279,7 +279,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       const captchaInput = document.getElementById('captchaInput').value.trim();
 
       if (!code) {
-        showError(t('enterCodeError'));
+        showError(t('cardNumberError'));
         return;
       }
 
