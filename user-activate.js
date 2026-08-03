@@ -135,6 +135,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     <div id="errorBox" class="error"></div>
     <div id="successBox" class="success"></div>
     <div id="toastContainer" class="toast-container"></div>
+    <div id="activateForm">
     <div class="form-group">
       <label for="code" data-i18n="enterCode">Enter card number</label>
       <input type="text" id="code" data-i18n-placeholder="codePlaceholder" placeholder="Enter your card number" autocomplete="off">
@@ -175,6 +176,10 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         <span class="info-value" id="resultCode">-</span>
       </div>
       <div class="info-item">
+        <span class="info-label" data-i18n="topicLabel">Topic</span>
+        <span class="info-value" id="resultTopic">-</span>
+      </div>
+      <div class="info-item">
         <span class="info-label" data-i18n="durationLabel">Validity</span>
         <span class="info-value" id="resultDuration">-</span>
       </div>
@@ -213,6 +218,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
           <li data-i18n="instr9">Your IP address is logged for security and anti-abuse</li>
         </ul>
       </div>
+    </div>
     </div>
   </div>
 
@@ -311,6 +317,8 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         if (response.ok && data.success) {
           showSuccess(t('success'));
           showResult(code, data);
+          // Hide form, show result
+          document.getElementById('activateForm').style.display = 'none';
           refreshCaptcha();
         } else {
           showError(data.error || t('fail'));
@@ -348,6 +356,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       const durationDays = Math.ceil((expiredAt - now) / (1000 * 60 * 60 * 24));
 
       document.getElementById('resultCode').textContent = code;
+      document.getElementById('resultTopic').textContent = data.topic_name || (currentLang === 'zh-CN' ? '未选择' : 'Not Selected');
       document.getElementById('resultDuration').textContent = durationDays + t('days');
       document.getElementById('resultExpired').textContent = expiredAt.toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US');
 
