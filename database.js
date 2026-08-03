@@ -2762,7 +2762,10 @@ export function applyTopicFilter(channels, rules) {
       else if (dimension === 'type') fieldValue = channel.type || '';
       else continue;
 
-      const isMatch = values.some(v => fieldValue === v);
+      // Use substring match for 'original' dimension (e.g. "电信" matches "电信线路")
+      const isMatch = values.some(v => 
+        dimension === 'original' ? fieldValue.includes(v) : fieldValue === v
+      );
 
       if (op === 'include' && isMatch) return true;
       if (op === 'exclude' && isMatch) return false;
