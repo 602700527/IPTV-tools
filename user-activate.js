@@ -177,7 +177,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         <span class="info-value" id="resultCode">-</span>
       </div>
       <div class="info-item">
-        <span class="info-label" data-i18n="topicLabel">Topic</span>
+        <span class="info-label" data-i18n="topicLabel">Network</span>
         <span class="info-value" id="resultTopic">-</span>
       </div>
       <div class="info-item">
