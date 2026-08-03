@@ -132,7 +132,7 @@ export async function handleUserActivate(request, env, ctx) {
           if (!topic) {
             return new Response(JSON.stringify({ success: false, error: '专题不存在' }), {
               status: 400,
-              headers: { 'Content-Type: application/json' }
+              headers: { 'Content-Type': 'application/json' }
             });
           }
           await db.prepare('UPDATE codes SET topic_id = ? WHERE code = ?').bind(topicId, code).run();
@@ -144,7 +144,7 @@ export async function handleUserActivate(request, env, ctx) {
             topic_name: topic.name,
             message: '专题已更新'
           }), {
-            headers: { 'Content-Type: application/json' }
+            headers: { 'Content-Type': 'application/json' }
           });
         } else {
           await db.prepare('UPDATE codes SET topic_id = NULL WHERE code = ?').bind(code).run();
@@ -156,7 +156,7 @@ export async function handleUserActivate(request, env, ctx) {
             topic_name: null,
             message: '已清除专题'
           }), {
-            headers: { 'Content-Type: application/json' }
+            headers: { 'Content-Type': 'application/json' }
           });
         }
       }
@@ -176,7 +176,7 @@ export async function handleUserActivate(request, env, ctx) {
         topic_name: topicName,
         message: '该卡密已激活'
       }), {
-        headers: { 'Content-Type: application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
