@@ -135,6 +135,14 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       </div>
     </div>
 
+    <div class="form-group">
+      <label for="topicSelect" data-i18n="topicLabel">Select Topic (Optional)</label>
+      <select id="topicSelect" style="width:100%;padding:12px 14px;border:2px solid rgba(255,255,255,.2);border-radius:10px;font-size:14px;background:rgba(255,255,255,.05);color:#fff;appearance:none;">
+        <option value="">-- No Topic --</option>
+      </select>
+      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-top:6px;" data-i18n="topicHint">Choose a topic to filter channels, or leave empty for all channels</p>
+    </div>
+
     <button id="activateBtn" class="btn" onclick="activateCode()" data-i18n="activate">Activate Now</button>
 
     <div id="loading" class="loading">
@@ -273,8 +281,11 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       document.getElementById('result').classList.remove('active');
 
       try {
+        const topicId = document.getElementById('topicSelect').value;
         const response = await fetch(API_BASE + '?code=' + encodeURIComponent(code), {
-          method: 'POST'
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic_id: topicId || null })
         });
 
         const data = await response.json();
@@ -427,9 +438,29 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       document.getElementById('captchaInput').value = '';
     }
 
+    // Load topics for selection
+    async function loadTopics() {
+      try {
+        const resp = await fetch('/api/topics');
+        const topics = await resp.json();
+        const select = document.getElementById('topicSelect');
+        if (topics && Array.isArray(topics)) {
+          topics.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.id;
+            opt.textContent = t.name + (t.description ? ' - ' + t.description : '');
+            select.appendChild(opt);
+          });
+        }
+      } catch(e) {
+        console.error('Failed to load topics:', e);
+      }
+    }
+
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
       refreshCaptcha();
+      loadTopics();
 
       // Support Enter key activation
       document.getElementById('code').addEventListener('keypress', function(e) {

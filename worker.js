@@ -4,7 +4,7 @@ import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest, handleSubRequestTxt } from './handlers/sub.js';
 import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
 import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } from './handlers/scheduler.js';
-import { handleUserActivate } from './handlers/user.js';
+import { handleUserActivate, handleUserChangeTopic } from './handlers/user.js';
 import { handlePublicPlay, handleChannelDebug, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings, handleFavoritesM3U, handleChannelsM3U } from './handlers/public.js';
 import { handleFreeSubAPI } from './handlers/freesub-api.js';
 import { handleGetPlans } from './handlers/plans-api.js';
@@ -490,6 +490,7 @@ import { pageTitle as usaIptvTitle, pageDescription as usaIptvDesc, styles as us
 import { pageTitle as ukIptvTitle, pageDescription as ukIptvDesc, styles as ukIptvStyles, content as ukIptvContent } from './pages-content/uk-iptv-plans.js';
 import { pageTitle as androidIptvTitle, pageDescription as androidIptvDesc, styles as androidIptvStyles, content as androidIptvContent } from './pages-content/android-iptv-app.js';
 import { pageTitle as freeIptvTitle, pageDescription as freeIptvDesc, styles as freeIptvStyles, content as freeIptvContent } from './pages-content/free-iptv-app-review.js';
+import { pageTitle as carplayAptvTitle, pageDescription as carplayAptvDesc, styles as carplayAptvStyles, content as carplayAptvContent } from './pages-content/carplay-aptv.js';
 import { pageTitle as middleEastIptvTitle, pageDescription as middleEastIptvDesc, styles as middleEastIptvStyles, content as middleEastIptvContent } from './pages-content/middle-east-iptv.js';
 import { pageTitle as asiaIptvTitle, pageDescription as asiaIptvDesc, styles as asiaIptvStyles, content as asiaIptvContent } from './pages-content/asia-iptv.js';
 import { pageTitle as europeIptvTitle, pageDescription as europeIptvDesc, styles as europeIptvStyles, content as europeIptvContent } from './pages-content/europe-iptv.js';
@@ -1364,6 +1365,11 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       return new Response(generateStaticPage(tutorialTitle, tutorialDesc, tutorialStyles, tutorialContent), {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
+    } else if (path === '/carplay-aptv' || path === '/carplay-aptv/' || path === '/carplay-aptv/index' || path === '/carplay-aptv/index.html') {
+      // APTV & CarPlay Guide
+      return new Response(generateStaticPage(carplayAptvTitle, carplayAptvDesc, carplayAptvStyles, carplayAptvContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     } else if (path === '/llms.txt' || path === '/llms.txt/') {
       // AI crawler friendly summary
       return new Response(llmsTxt, {
@@ -1372,6 +1378,9 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/activate') {
       // 用户激活API
       return await handleUserActivate(request, env, ctx);
+    } else if (path === '/api/change-topic') {
+      // 修改用户专题
+      return await handleUserChangeTopic(request, env, ctx);
     } else if (path === '/api/auth/register') {
       // 用户注册
       return await handleRegister(request, env, ctx);
@@ -1653,6 +1662,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           { loc: '/uk-iptv-plans', priority: '0.8', changefreq: 'weekly' },
           { loc: '/android-iptv-app', priority: '0.8', changefreq: 'weekly' },
           { loc: '/free-iptv-app-review', priority: '0.8', changefreq: 'weekly' },
+          { loc: '/carplay-aptv', priority: '0.7', changefreq: 'monthly' },
           { loc: '/middle-east-iptv', priority: '0.8', changefreq: 'weekly' },
           { loc: '/asia-iptv', priority: '0.8', changefreq: 'weekly' },
           { loc: '/europe-iptv', priority: '0.8', changefreq: 'weekly' },
@@ -1721,6 +1731,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
   <url><loc>${baseUrl}/uk-iptv-plans</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>${baseUrl}/android-iptv-app</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>${baseUrl}/free-iptv-app-review</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>${baseUrl}/carplay-aptv</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>`;
 
       console.log('Sitemap: All fallbacks failed, returning minimal static sitemap');
