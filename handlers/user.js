@@ -119,9 +119,49 @@ export async function handleUserActivate(request, env, ctx) {
       });
     }
 
-    // 如果已经是活跃状态，直接返回信息
+    // 如果已经是活跃状态，允许更新专题
     if (codeRecord.status === 'active') {
-      // 获取专题信息
+      // 检查是否要更新专题
+      let body = null;
+      try { body = await request.json(); } catch(e) {}
+      const topicId = body ? body.topic_id : null;
+      
+      if (topicId !== null && topicId !== undefined && topicId !== '') {
+        if (topicId > 0) {
+          const topic = await db.prepare('SELECT name FROM topics WHERE id = ?').bind(topicId).first();
+          if (!topic) {
+            return new Response(JSON.stringify({ success: false, error: '专题不存在' }), {
+              status: 400,
+              headers: { 'Content-Type: application/json' }
+            });
+          }
+          await db.prepare('UPDATE codes SET topic_id = ? WHERE code = ?').bind(topicId, code).run();
+          return new Response(JSON.stringify({
+            success: true,
+            activated_at: codeRecord.activated_at,
+            expired_at: codeRecord.expired_at,
+            topic_id: topicId,
+            topic_name: topic.name,
+            message: '专题已更新'
+          }), {
+            headers: { 'Content-Type: application/json' }
+          });
+        } else {
+          await db.prepare('UPDATE codes SET topic_id = NULL WHERE code = ?').bind(code).run();
+          return new Response(JSON.stringify({
+            success: true,
+            activated_at: codeRecord.activated_at,
+            expired_at: codeRecord.expired_at,
+            topic_id: null,
+            topic_name: null,
+            message: '已清除专题'
+          }), {
+            headers: { 'Content-Type: application/json' }
+          });
+        }
+      }
+      
+      // 不更新专题，返回当前信息
       let topicName = null;
       if (codeRecord.topic_id) {
         const topic = await db.prepare('SELECT name FROM topics WHERE id = ?').bind(codeRecord.topic_id).first();
@@ -136,7 +176,7 @@ export async function handleUserActivate(request, env, ctx) {
         topic_name: topicName,
         message: '该卡密已激活'
       }), {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type: application/json' }
       });
     }
 
