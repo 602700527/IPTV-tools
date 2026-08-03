@@ -971,6 +971,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         <input type="number" id="generateDurationCustom" value="7" min="1" max="3650" placeholder="自定义天数" style="display:none;width:100%;margin-top:8px;">
       </div></div>
       <div class="form-row"><div class="form-group"><label>最大IP数</label><input type="number" id="generateMaxIps" value="3" min="1"></div><div class="form-group"><label>备注</label><input type="text" id="generateRemark" placeholder="可选备注"></div></div>
+      <div class="form-group"><label>绑定专题</label><select id="generateTopicId" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;"><option value="">不绑定（使用全部频道）</option></select></div>
       <div class="modal-footer"><button class="btn" onclick="closeGenerateCodeModal()">取消</button><button class="btn btn-primary" onclick="generateCodes()">生成</button></div>
     </div>
   </div>
@@ -987,6 +988,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <div class="form-group"><label>卡密</label><input type="text" id="editCode" disabled></div>
       <div class="form-group"><label>状态</label><select id="editStatus"><option value="unused">未使用</option><option value="active">活跃</option><option value="disabled">禁用</option></select></div>
       <div class="form-group"><label>备注</label><input type="text" id="editRemark" placeholder="备注信息"></div>
+      <div class="form-group"><label>绑定专题</label><select id="editTopicId" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;"><option value="">不绑定</option></select></div>
       <div class="modal-footer"><button class="btn" onclick="closeCodeEditModal()">取消</button><button class="btn btn-primary" onclick="saveCodeEdit()">保存</button></div>
     </div>
   </div>
@@ -2709,6 +2711,15 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           document.getElementById('editCode').value = targetCode.code;
           document.getElementById('editStatus').value = targetCode.status;
           document.getElementById('editRemark').value = targetCode.remark || '';
+          // Load topics for dropdown
+          apiRequest('/topics').then(topics => {
+            const select = document.getElementById('editTopicId');
+            let options = '<option value="">不绑定</option>';
+            topics.forEach(t => {
+              options += '<option value="' + t.id + '"' + (targetCode.topic_id == t.id ? ' selected' : '') + '>' + t.name + '</option>';
+            });
+            select.innerHTML = options;
+          }).catch(() => {});
           document.getElementById('codeEditModal').classList.add('active');
         }
       });
@@ -2722,11 +2733,13 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       const code = document.getElementById('editCode').value;
       const status = document.getElementById('editStatus').value;
       const remark = document.getElementById('editRemark').value.trim();
+      const topicId = document.getElementById('editTopicId').value;
+      const topicIdNum = topicId ? parseInt(topicId) : null;
 
       try {
         await apiRequest('/codes', {
           method: 'PUT',
-          body: JSON.stringify({ code, status, remark })
+          body: JSON.stringify({ code, status, remark, topic_id: topicIdNum })
         });
         showToast('卡密更新成功', 'success');
         closeCodeEditModal();
