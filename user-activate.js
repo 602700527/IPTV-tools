@@ -149,15 +149,15 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     </div>
 
     <div class="form-group">
-      <label>选择网络地区</label>
+      <label>Match Network (Optional)</label>
       <div class="topic-dropdown">
         <div class="topic-trigger" id="topicTrigger" onclick="toggleTopicMenu()">
-          <span id="topicLabel">未选择网络</span>
+          <span id="topicLabel">No Topic</span>
           <span class="arrow">▼</span>
         </div>
         <div class="topic-menu" id="topicMenu"></div>
       </div>
-      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-top:6px;">选中将提供适配该网络的频道，留空则提供所有频道</p>
+      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-top:6px;">Select a topic to filter channels, or leave empty for all channels</p>
     </div>
 
     <button id="activateBtn" class="btn" onclick="activateCode()" data-i18n="activate">Activate Now</button>
@@ -492,8 +492,8 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         const emptyItem = document.createElement('div');
         emptyItem.className = 'topic-item selected';
         emptyItem.dataset.id = '';
-        emptyItem.textContent = '未选择网络';
-        emptyItem.onclick = () => selectTopic('', '未选择网络');
+        emptyItem.textContent = 'No Topic';
+        emptyItem.onclick = () => selectTopic('', 'No Topic');
         menu.appendChild(emptyItem);
 
         if (topics && Array.isArray(topics)) {
