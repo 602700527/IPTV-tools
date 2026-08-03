@@ -288,7 +288,8 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         return;
       }
 
-      if (captchaInput !== captchaCode) {
+      const userAnswer = parseInt(captchaInput);
+      if (isNaN(userAnswer) || userAnswer !== captchaAnswer) {
         showError(t('invalidCaptcha'));
         refreshCaptcha();
         return;
