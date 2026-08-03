@@ -153,7 +153,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       <label>Match Network (Optional)</label>
       <div class="topic-dropdown">
         <div class="topic-trigger" id="topicTrigger" onclick="toggleTopicMenu()">
-          <span id="topicLabel">No Matched Network</span>
+          <span id="topicLabel">Not Selected</span>
           <span class="arrow">▼</span>
         </div>
         <div class="topic-menu" id="topicMenu"></div>
@@ -441,8 +441,8 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         const emptyItem = document.createElement('div');
         emptyItem.className = 'topic-item selected';
         emptyItem.dataset.id = '';
-        emptyItem.textContent = 'No Matched Network';
-        emptyItem.onclick = () => selectTopic('', 'No Matched Network');
+        emptyItem.textContent = 'Not Selected';
+        emptyItem.onclick = () => selectTopic('', 'Not Selected');
         menu.appendChild(emptyItem);
 
         if (topics && Array.isArray(topics)) {
