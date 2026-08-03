@@ -36,6 +36,9 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     #translate select:hover{border-color:rgba(255,255,255,.5);background-color:rgba(0,0,0,.8)}
     #translate select:focus{outline:none;border-color:#e50914}
     #translate select option{background:#1a1a1a;color:#fff}
+    #topicSelect{background:#1a1a1a;color:#fff;cursor:pointer}
+    #topicSelect option{background:#1a1a1a;color:#fff;padding:8px}
+    #topicSelect option:hover{background:#e50914;color:#fff}
     .form-group{margin-bottom:18px}
     .form-group label{display:block;margin-bottom:6px;font-weight:500;color:rgba(255,255,255,.8);font-size:14px}
     .form-group input{width:100%;padding:12px 14px;border:2px solid rgba(255,255,255,.2);border-radius:10px;font-size:16px;transition:border-color .2s;letter-spacing:1px;-webkit-appearance:none;height:44px;background:rgba(255,255,255,.05);color:#fff}
@@ -136,11 +139,11 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     </div>
 
     <div class="form-group">
-      <label for="topicSelect" data-i18n="topicLabel">Select Topic (Optional)</label>
-      <select id="topicSelect" style="width:100%;padding:12px 14px;border:2px solid rgba(255,255,255,.2);border-radius:10px;font-size:14px;background:rgba(255,255,255,.05);color:#fff;appearance:none;">
-        <option value="">-- No Topic --</option>
+      <label for="topicSelect">选择网络地区</label>
+      <select id="topicSelect" style="width:100%;padding:12px 14px;border:2px solid rgba(255,255,255,.2);border-radius:10px;font-size:14px;background:#1a1a1a;color:#fff;appearance:none;-webkit-appearance:none;-moz-appearance:none;">
+        <option value="">未选择网络</option>
       </select>
-      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-top:6px;" data-i18n="topicHint">Choose a topic to filter channels, or leave empty for all channels</p>
+      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-top:6px;">选择专题可过滤频道，留空则显示全部频道</p>
     </div>
 
     <button id="activateBtn" class="btn" onclick="activateCode()" data-i18n="activate">Activate Now</button>
