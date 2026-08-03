@@ -1381,6 +1381,17 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/change-topic') {
       // 修改用户专题
       return await handleUserChangeTopic(request, env, ctx);
+    } else if (path === '/api/topics') {
+      // 获取专题列表（公开）
+      try {
+        const { getTopics } = await import('./database.js');
+        const topics = await getTopics();
+        return new Response(JSON.stringify(topics || []), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+      }
     } else if (path === '/api/auth/register') {
       // 用户注册
       return await handleRegister(request, env, ctx);
