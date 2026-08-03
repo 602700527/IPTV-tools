@@ -2745,7 +2745,7 @@ export async function deleteTopic(id) {
   return { success: true };
 }
 
-export async function applyTopicFilter(channels, rules) {
+export function applyTopicFilter(channels, rules) {
   if (!rules || !Array.isArray(rules) || rules.length === 0) {
     return channels;
   }
