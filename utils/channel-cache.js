@@ -65,6 +65,7 @@ export async function cacheChannelsToKV(env) {
         c.channel_hash,
         c.is_active,
         c.source_id,
+        c.original,
         s.name as source_name,
         s.is_active as source_active
       FROM channels c
@@ -344,6 +345,7 @@ export async function getAllChannels(env) {
         c.channel_hash,
         c.is_active,
         c.source_id,
+        c.original,
         s.name as source_name,
         s.is_active as source_active
       FROM channels c
