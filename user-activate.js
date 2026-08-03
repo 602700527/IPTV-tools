@@ -219,7 +219,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         </ul>
       </div>
     </div>
-    </div>
+  </div>
   </div>
 
   <script>
