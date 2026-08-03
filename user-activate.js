@@ -36,9 +36,19 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     #translate select:hover{border-color:rgba(255,255,255,.5);background-color:rgba(0,0,0,.8)}
     #translate select:focus{outline:none;border-color:#e50914}
     #translate select option{background:#1a1a1a;color:#fff}
-    #topicSelect{background:#1a1a1a;color:#fff;cursor:pointer}
-    #topicSelect option{background:#1a1a1a;color:#fff;padding:8px}
-    #topicSelect option:hover{background:#e50914;color:#fff}
+    /* 自定义下拉框样式 */
+    .topic-dropdown{position:relative;width:100%;margin-bottom:6px}
+    .topic-trigger{width:100%;padding:12px 36px 12px 14px;border:2px solid rgba(255,255,255,.2);border-radius:10px;font-size:14px;background:#1a1a1a;color:#fff;cursor:pointer;text-align:left;transition:border-color .2s;position:relative}
+    .topic-trigger:hover{border-color:rgba(255,255,255,.4)}
+    .topic-trigger.open{border-color:#e50914;border-radius:10px 10px 0 0}
+    .topic-trigger .arrow{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.6);font-size:10px;transition:transform .2s}
+    .topic-trigger.open .arrow{transform:translateY(-50%) rotate(180deg)}
+    .topic-menu{position:absolute;top:100%;left:0;right:0;background:#1e1e2e;border:2px solid #e50914;border-top:none;border-radius:0 0 10px 10px;z-index:100;display:none;max-height:240px;overflow-y:auto}
+    .topic-menu.open{display:block}
+    .topic-item{padding:10px 14px;color:rgba(255,255,255,.85);font-size:14px;cursor:pointer;transition:background .15s}
+    .topic-item:hover{background:#e50914;color:#fff}
+    .topic-item.selected{background:rgba(229,9,20,.2);color:#ff6b6b}
+    .topic-item.selected:hover{background:#e50914;color:#fff}
     .form-group{margin-bottom:18px}
     .form-group label{display:block;margin-bottom:6px;font-weight:500;color:rgba(255,255,255,.8);font-size:14px}
     .form-group input{width:100%;padding:12px 14px;border:2px solid rgba(255,255,255,.2);border-radius:10px;font-size:16px;transition:border-color .2s;letter-spacing:1px;-webkit-appearance:none;height:44px;background:rgba(255,255,255,.05);color:#fff}
@@ -139,10 +149,14 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     </div>
 
     <div class="form-group">
-      <label for="topicSelect">选择网络地区</label>
-      <select id="topicSelect" style="width:100%;padding:12px 14px;border:2px solid rgba(255,255,255,.2);border-radius:10px;font-size:14px;background:#1a1a1a;color:#fff;appearance:none;-webkit-appearance:none;-moz-appearance:none;">
-        <option value="">未选择网络</option>
-      </select>
+      <label>选择网络地区</label>
+      <div class="topic-dropdown">
+        <div class="topic-trigger" id="topicTrigger" onclick="toggleTopicMenu()">
+          <span id="topicLabel">未选择网络</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="topic-menu" id="topicMenu"></div>
+      </div>
       <p style="color:rgba(255,255,255,.5);font-size:12px;margin-top:6px;">选择专题可过滤频道，留空则显示全部频道</p>
     </div>
 
@@ -284,7 +298,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       document.getElementById('result').classList.remove('active');
 
       try {
-        const topicId = document.getElementById('topicSelect').value;
+        const topicId = getSelectedTopicId();
         const response = await fetch(API_BASE + '?code=' + encodeURIComponent(code), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -441,24 +455,69 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       document.getElementById('captchaInput').value = '';
     }
 
+    // 自定义下拉框状态
+    let _topicMenuOpen = false;
+    let _selectedTopicId = null;
+
+    function toggleTopicMenu() {
+      const menu = document.getElementById('topicMenu');
+      const trigger = document.getElementById('topicTrigger');
+      _topicMenuOpen = !_topicMenuOpen;
+      menu.classList.toggle('open', _topicMenuOpen);
+      trigger.classList.toggle('open', _topicMenuOpen);
+    }
+
+    function selectTopic(id, label) {
+      _selectedTopicId = id;
+      document.getElementById('topicLabel').textContent = label;
+      document.querySelectorAll('.topic-item').forEach(el => {
+        el.classList.toggle('selected', el.dataset.id === id);
+      });
+      toggleTopicMenu();
+    }
+
+    function getSelectedTopicId() {
+      return _selectedTopicId || null;
+    }
+
     // Load topics for selection
     async function loadTopics() {
       try {
         const resp = await fetch('/api/topics');
         const topics = await resp.json();
-        const select = document.getElementById('topicSelect');
+        const menu = document.getElementById('topicMenu');
+        menu.innerHTML = '';
+
+        // 未选择选项
+        const emptyItem = document.createElement('div');
+        emptyItem.className = 'topic-item selected';
+        emptyItem.dataset.id = '';
+        emptyItem.textContent = '未选择网络';
+        emptyItem.onclick = () => selectTopic('', '未选择网络');
+        menu.appendChild(emptyItem);
+
         if (topics && Array.isArray(topics)) {
           topics.forEach(t => {
-            const opt = document.createElement('option');
-            opt.value = t.id;
-            opt.textContent = t.name + (t.description ? ' - ' + t.description : '');
-            select.appendChild(opt);
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.dataset.id = t.id;
+            item.textContent = t.name + (t.description ? ' - ' + t.description : '');
+            item.onclick = () => selectTopic(t.id, t.name + (t.description ? ' - ' + t.description : ''));
+            menu.appendChild(item);
           });
         }
       } catch(e) {
         console.error('Failed to load topics:', e);
       }
     }
+
+    // 点击外部关闭菜单
+    document.addEventListener('click', (e) => {
+      const dropdown = document.querySelector('.topic-dropdown');
+      if (dropdown && !_dropdown.contains(e.target) && _topicMenuOpen) {
+        toggleTopicMenu();
+      }
+    });
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
