@@ -158,7 +158,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         </div>
         <div class="topic-menu" id="topicMenu"></div>
       </div>
-      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-top:6px;">Select a network for matching channels, or leave unselected for all channels</p>
+      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-top:6px;">Select to get channels matching the target network, or leave unselected for all channels</p>
     </div>
 
     <button id="activateBtn" class="btn" onclick="activateCode()" data-i18n="activate">Activate Now</button>
