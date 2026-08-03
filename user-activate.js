@@ -157,7 +157,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         </div>
         <div class="topic-menu" id="topicMenu"></div>
       </div>
-      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-top:6px;">选择专题可过滤频道，留空则显示全部频道</p>
+      <p style="color:rgba(255,255,255,.5);font-size:12px;margin-top:6px;">选中将提供适配该网络的频道，留空则提供所有频道</p>
     </div>
 
     <button id="activateBtn" class="btn" onclick="activateCode()" data-i18n="activate">Activate Now</button>
