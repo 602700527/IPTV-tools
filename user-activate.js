@@ -129,7 +129,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     <div id="translate"></div>
     <div class="logo">
       <h1 data-i18n="title">📺 TV Live Service</h1>
-      <p data-i18n="subtitle">Activate your code to get subscription URL</p>
+      <p data-i18n="subtitle">Activate your card to get subscription URL</p>
     </div>
 
     <div id="errorBox" class="error"></div>
