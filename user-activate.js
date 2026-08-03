@@ -143,8 +143,11 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     <div class="form-group">
       <label for="captchaInput" data-i18n="captchaLabel">Verification Code</label>
       <div class="captcha-container">
-        <input type="text" id="captchaInput" placeholder="" maxlength="6">
-        <canvas id="captchaCanvas" width="100" height="44" onclick="refreshCaptcha()"></canvas>
+        <input type="text" id="captchaInput" placeholder="" maxlength="4">
+        <div id="captchaDisplay" style="display:flex;align-items:center;gap:10px;">
+          <span id="captchaQuestion" style="font-size:20px;font-weight:bold;color:#fff;background:rgba(255,255,255,.1);padding:8px 16px;border-radius:8px;letter-spacing:2px;"></span>
+          <button onclick="refreshCaptcha()" style="background:none;border:none;cursor:pointer;font-size:18px;color:rgba(255,255,255,.6);padding:4px;" title="Refresh">↻</button>
+        </div>
       </div>
     </div>
 
@@ -385,74 +388,24 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       }
     }
 
+    let captchaAnswer = 0;
+    
     function refreshCaptcha() {
-      const canvas = document.getElementById('captchaCanvas');
-      const ctx = canvas.getContext('2d');
-
-      ctx.fillStyle = '#f5f5f7';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // 只使用大写字母和数字，移除易混淆字符
-      const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-      captchaCode = '';
-      for (let i = 0; i < 4; i++) {
-        captchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
+      const a = Math.floor(Math.random() * 20) + 1;
+      const b = Math.floor(Math.random() * 20) + 1;
+      const isPlus = Math.random() > 0.5;
+      
+      if (isPlus) {
+        captchaAnswer = a + b;
+        document.getElementById('captchaQuestion').textContent = a + ' + ' + b + ' = ?';
+      } else {
+        // Ensure positive result for subtraction
+        const max = Math.max(a, b);
+        const min = Math.min(a, b);
+        captchaAnswer = max - min;
+        document.getElementById('captchaQuestion').textContent = max + ' - ' + min + ' = ?';
       }
-
-      ctx.font = 'bold 28px Arial';
-      ctx.textBaseline = 'middle';
-
-      for (let i = 0; i < captchaCode.length; i++) {
-        // 使用深色高对比度颜色
-        const colors = [
-          '#1a1a1a', '#2d3748', '#1a365d', '#742a2a', '#1c4532', '#553c9a', '#744210', '#285e61'
-        ];
-        ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
-
-        const x = 20 + i * 22;
-        const y = 22;
-        // 极小的旋转角度，几乎不旋转
-        const angle = (Math.random() - 0.5) * 0.05;
-
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(angle);
-        ctx.fillText(captchaCode[i], 0, 0);
-        ctx.restore();
-      }
-
-      // 添加 5 条干扰线
-      for (let i = 0; i < 5; i++) {
-        ctx.strokeStyle = 'rgba(150, 150, 150, 0.4)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
-        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
-        ctx.stroke();
-      }
-
-      // 添加少量弯曲干扰线
-      for (let i = 0; i < 2; i++) {
-        ctx.strokeStyle = 'rgba(180, 180, 180, 0.3)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
-        ctx.bezierCurveTo(
-          Math.random() * canvas.width, Math.random() * canvas.height,
-          Math.random() * canvas.width, Math.random() * canvas.height,
-          Math.random() * canvas.width, Math.random() * canvas.height
-        );
-        ctx.stroke();
-      }
-
-      // 添加干扰点
-      for (let i = 0; i < 15; i++) {
-        ctx.fillStyle = 'rgba(180, 180, 180, 0.5)';
-        ctx.beginPath();
-        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1.5, 0, 2 * Math.PI);
-        ctx.fill();
-      }
-
+      
       document.getElementById('captchaInput').value = '';
     }
 
