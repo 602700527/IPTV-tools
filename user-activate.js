@@ -100,7 +100,6 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     .captcha-container{display:flex;gap:10px;align-items:center}
     .captcha-input{flex:1;padding:0 12px;border:2px solid rgba(255,255,255,.2);border-radius:10px;font-size:16px;text-align:center;letter-spacing:2px;-webkit-appearance:none;transition:border-color .2s;height:44px;background:rgba(255,255,255,.05);color:#fff}
     .captcha-input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
-    .captcha-canvas{width:100px;height:44px;border:2px solid rgba(255,255,255,.2);border-radius:10px;cursor:pointer;flex-shrink:0;background:rgba(255,255,255,.05)}
     .captcha-refresh{padding:8px 12px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;transition:background .2s;-webkit-tap-highlight-color:transparent;height:44px;white-space:nowrap;flex-shrink:0;min-width:60px;color:rgba(255,255,255,.7)}
     .captcha-refresh:hover{background:rgba(255,255,255,.15)}
     @media (max-width:480px){
@@ -221,8 +220,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
   <script>
     const API_BASE = '/api/activate';
 
-    let captchaCode = '';
-
+    
     // 翻译函数 - 使用 translate.js 处理页面翻译
     function t(key) {
       return key;
