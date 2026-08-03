@@ -97,11 +97,12 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
     .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#e50914;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
     @keyframes spin{to{transform:rotate(360deg)}}
     .loading-text{margin-top:12px;color:rgba(255,255,255,.6);font-size:14px}
-    .captcha-container{display:flex;gap:10px;align-items:center}
+    .captcha-row{display:flex;gap:10px;align-items:center}
     .captcha-input{flex:1;padding:0 12px;border:2px solid rgba(255,255,255,.2);border-radius:10px;font-size:16px;text-align:center;letter-spacing:2px;-webkit-appearance:none;transition:border-color .2s;height:44px;background:rgba(255,255,255,.05);color:#fff}
     .captcha-input:focus{outline:none;border-color:#e50914;background:rgba(255,255,255,.1)}
-    .captcha-refresh{padding:8px 12px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;transition:background .2s;-webkit-tap-highlight-color:transparent;height:44px;white-space:nowrap;flex-shrink:0;min-width:60px;color:rgba(255,255,255,.7)}
-    .captcha-refresh:hover{background:rgba(255,255,255,.15)}
+    .captcha-question{padding:0 16px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:10px;color:#fff;font-size:18px;font-weight:bold;white-space:nowrap;min-width:100px;text-align:center;letter-spacing:1px;display:flex;align-items:center;justify-content:center;height:44px}
+    .captcha-refresh{padding:0 14px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:10px;cursor:pointer;font-size:20px;color:rgba(255,255,255,.6);transition:all .2s;-webkit-tap-highlight-color:transparent;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .captcha-refresh:hover{background:rgba(229,9,20,.2);border-color:#e50914;color:#fff}
     @media (max-width:480px){
       body{padding:10px}
       .container{padding:20px;border-radius:12px}
@@ -141,12 +142,10 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
 
     <div class="form-group">
       <label for="captchaInput" data-i18n="captchaLabel">Verification Code</label>
-      <div class="captcha-container">
-        <input type="text" id="captchaInput" placeholder="" maxlength="4">
-        <div id="captchaDisplay" style="display:flex;align-items:center;gap:10px;">
-          <span id="captchaQuestion" style="font-size:20px;font-weight:bold;color:#fff;background:rgba(255,255,255,.1);padding:8px 16px;border-radius:8px;letter-spacing:2px;"></span>
-          <button onclick="refreshCaptcha()" style="background:none;border:none;cursor:pointer;font-size:18px;color:rgba(255,255,255,.6);padding:4px;" title="Refresh">↻</button>
-        </div>
+      <div class="captcha-row">
+        <input type="text" id="captchaInput" class="captcha-input" placeholder="?" maxlength="4">
+        <div class="captcha-question" id="captchaQuestion">5 + 3 = ?</div>
+        <button class="captcha-refresh" onclick="refreshCaptcha()" title="Refresh">↻</button>
       </div>
     </div>
 
@@ -403,8 +402,6 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         captchaAnswer = max - min;
         document.getElementById('captchaQuestion').textContent = max + ' - ' + min + ' = ?';
       }
-      
-      document.getElementById('captchaInput').value = '';
     }
 
     // 自定义下拉框状态
