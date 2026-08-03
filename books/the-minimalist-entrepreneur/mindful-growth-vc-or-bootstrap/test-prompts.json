@@ -1,0 +1,144 @@
+{
+  "skill_name": "mindful-growth-vc-or-bootstrap",
+  "stage": 4,
+  "stage_name": "pressure-test",
+  "description": "压力测试用例,验证 mindful-growth-vc-or-bootstrap skill 的触发/不触发判定,以及与相邻 skill 的边界。",
+  "should_trigger": [
+    {
+      "id": "st-01",
+      "prompt": "我现在每月盈利 8 万,有人给我开了 term sheet 要融 3000 万。我要不要接?",
+      "expected_skill": "mindful-growth-vc-or-bootstrap",
+      "rationale": "经典 VC 接不接场景:已盈利 + 拿到 term sheet,正是本 skill 的核心触发点(三选项分诊:VC / Boot / Crowdfunding)。",
+      "checks": [
+        "应触发三选项分诊(VC/Boot/Crowdfunding)",
+        "应先确认 default alive 再谈融资",
+        "应追问控制权稀释与退出压力"
+      ]
+    },
+    {
+      "id": "st-02",
+      "prompt": "投资人想听的故事是'明年 10x 增长',但我的客户只想稳定好用的产品。我是不是该按投资人的剧本改?",
+      "expected_skill": "mindful-growth-vc-or-bootstrap",
+      "rationale": "命中 ce01 失败模式(VC 故事 > 客户产品),用户正在用 VC 尺子丈量自己的生意——本 skill 的标志性场景。",
+      "checks": [
+        "应识别为 ce01 失败模式",
+        "应区分'投资人尺子'与'客户尺子'",
+        "不应给出'两边都讨好'的中庸答案"
+      ]
+    },
+    {
+      "id": "st-03",
+      "prompt": "朋友和家人都说我这个生意做是做得不错,但市场太小了。要不要换赛道做大?",
+      "expected_skill": "mindful-growth-vc-or-bootstrap",
+      "rationale": "命中 ce03(健康小生意被错认为赛道问题),用户被外部声音动摇,需要分辨'健康的小'vs'真天花板'。",
+      "checks": [
+        "应区分'健康的小'与'真天花板'",
+        "应要求先看 P&L 和客户留存数据",
+        "不应默认'换赛道=更正确'"
+      ]
+    },
+    {
+      "id": "st-04",
+      "prompt": "我一个人撑不住了,要不要雇第一个人?还是把活外包出去?",
+      "expected_skill": "mindful-growth-vc-or-bootstrap",
+      "rationale": "命中 ce22(雇人前跳过'痛到不得不雇'的临界点),用户没说'具体哪件事会出错'——降本清单 + hire when it hurts 的反射动作。",
+      "checks": [
+        "应执行降本清单 5 项",
+        "应追问'没人接,具体哪件事会出错'",
+        "应区分'真痛点'与'视觉上忙'"
+      ]
+    },
+    {
+      "id": "st-05",
+      "prompt": "业绩翻倍了,我是不是该租个像样的办公室、扩个品类、进新市场?",
+      "expected_skill": "mindful-growth-vc-or-bootstrap",
+      "rationale": "命中 ce21(业绩增长后开始松手花钱),Parkinson 定律场景——本 skill 的'降本 > 扩张'判定直接生效。",
+      "checks": [
+        "应识别为 Parkinson 陷阱",
+        "应先做降本清单再做扩张决策",
+        "应追问每个动作的不可逆性"
+      ]
+    }
+  ],
+  "should_not_trigger": [
+    {
+      "id": "snt-01",
+      "prompt": "我产品还没盈利,要不要先融一笔救命钱活下去?",
+      "expected_skill": "profitability-first-financial-model",
+      "not_trigger_reason": "产品未盈利 → 跳回 s01 盈利优先财务模型,先做到 default alive 再谈融资。本 skill 的硬性前置条件不满足。",
+      "checks": [
+        "必须先触发 profitability-first-financial-model",
+        "本 skill 应明确说'现在讨论融资是空中楼阁'"
+      ]
+    },
+    {
+      "id": "snt-02",
+      "prompt": "我要雇第一个员工了,公司文化和价值观该怎么定?",
+      "expected_skill": "first-principles-company-culture",
+      "not_trigger_reason": "问题中心是'从 1 到 10'的文化/价值观定义,不是'该不该雇 / 什么时候雇'的成长判定。两个阶段不同,文化 skill 优先。",
+      "checks": [
+        "必须先触发 first-principles-company-culture",
+        "本 skill 只在'该不该雇'的判定层面参与,不主导文化内容"
+      ]
+    },
+    {
+      "id": "snt-03",
+      "prompt": "今天天气不错,适合出去走走。",
+      "expected_skill": null,
+      "not_trigger_reason": "完全无关的非商业闲聊,任何 skill 都不应被触发。",
+      "checks": [
+        "不应触发本 skill",
+        "不应触发任何 skill"
+      ]
+    }
+  ],
+  "edge_cases": [
+    {
+      "id": "ec-01",
+      "prompt": "我已经持续盈利 12 个月了,现金流健康,现在 VC 主动找来,该融资吗?",
+      "expected_skill": "mindful-growth-vc-or-bootstrap",
+      "rationale": "边界场景:盈利已达标、对方主动给钱,看似最优融资时机——本 skill 的'融资前自检'(5 项)直接生效,正是高价值判定点。",
+      "checks": [
+        "应触发且执行'融资前自检'5 项",
+        "不应因为'盈利就鼓励融'——必须问清楚目的",
+        "应区分'加速器'vs'救命稻草'"
+      ]
+    },
+    {
+      "id": "ec-02",
+      "prompt": "公司已经盈利稳定,我该不该去上市?",
+      "expected_skill": null,
+      "not_trigger_reason": "上市(out-of-scope):本书讨论的是 lifestyle / mindful / profitable business 的边界,IPO 与 VC 10x 退出属于另一套游戏。本 skill 应明确说'这超出本书范围,需要专门的 IPO 框架'。",
+      "checks": [
+        "本 skill 应识别为边界外",
+        "应建议另寻 IPO/退出规划框架",
+        "不应给'上市好不好'的二元答案"
+      ]
+    }
+  ],
+  "cross_skill_confusion_pairs": [
+    {
+      "primary": "mindful-growth-vc-or-bootstrap",
+      "confused_with": "profitability-first-financial-model",
+      "discriminator": "看用户是否已 default alive。未盈利/未达 default alive → profitability-first;已盈利但在纠结融资/扩张 → mindful-growth。"
+    },
+    {
+      "primary": "mindful-growth-vc-or-bootstrap",
+      "confused_with": "first-principles-company-culture",
+      "discriminator": "看问题主语。问'该不该雇 / 何时雇 / 招人 vs 外包' → mindful-growth;问'雇进来后价值观/文化怎么定' → first-principles-company-culture。"
+    },
+    {
+      "primary": "mindful-growth-vc-or-bootstrap",
+      "confused_with": "vc-growth-at-all-costs (反面)",
+      "discriminator": "本 skill 是 vc-growth-at-all-costs 的明确对立面——前者选后者舍。任何'为了增长必须牺牲 X'的命题应直接驳回。"
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-07-17",
+    "created_by": "cangjie-skill stage 4",
+    "should_trigger_count": 5,
+    "should_not_trigger_count": 3,
+    "edge_cases_count": 2,
+    "notes": "should_not_trigger 中 snt-01/snt-02 为跨 skill 误触发,snt-03 为无关 decoy。ec-02 (上市) 明确为 out-of-scope,验证 skill 的边界识别能力。"
+  }
+}

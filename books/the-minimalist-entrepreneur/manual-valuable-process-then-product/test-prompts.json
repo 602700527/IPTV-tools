@@ -1,0 +1,81 @@
+{
+  "skill": "manual-valuable-process-then-product",
+  "stage": 4,
+  "test_type": "pressure_test",
+  "description": "压力测试 — 检验 skill 在边缘场景、相邻 skill 干扰、decoy prompt 上的触发准确性",
+  "should_trigger": [
+    {
+      "id": "st-01",
+      "category": "core_signal",
+      "prompt": "我想做个最小版本的小程序先跑跑看,验证一下有没有人要。",
+      "reason": "用户说出'最小版本'+'先跑跑看'两个明确的 manual-first 信号词;技能 E1 要求'停 + 问能不能不写代码先动手',应触发。"
+    },
+    {
+      "id": "st-02",
+      "category": "core_signal",
+      "prompt": "我们要不要先开个站,做个 Landing Page 看看用户反应?",
+      "reason": "'先开个站'是 SKILL.md A2 中明确的语言信号;但 Landing Page 仍是产品化思维,技能应拦截并提示'能不能不写代码就交付价值'。"
+    },
+    {
+      "id": "st-03",
+      "category": "core_signal",
+      "prompt": "可不可以先做个最简版 Demo? 投资人下周要看。",
+      "reason": "Demo 给投资人看是边界 B 提到的'不适用'场景——但用户用了'先做'/'最简版'两个触发词;技能应触发并明确警告投资人 Demo 不属于本 skill 适用域。"
+    },
+    {
+      "id": "st-04",
+      "category": "downstream_signal",
+      "prompt": "我做了 8 个客户访谈,反复听到他们抱怨 X。我要不要动手做点东西?",
+      "reason": "A2 触发场景第 1 条原文:'已经做了 5-10 个客户访谈、听到了反复出现的具体抱怨,准备动手做东西时';直接命中,必触发。"
+    },
+    {
+      "id": "st-05",
+      "category": "core_signal",
+      "prompt": "我现在手动帮几个朋友做 Y,要不要外包给工程师把它做成 SaaS?",
+      "reason": "A2 触发场景第 2 条:'自由职业者已经在手动服务一些客户,考虑要不要做套 SaaS';E5 明确要求'未痛到不招不行'前不应 productize,技能应拦截。"
+    }
+  ],
+  "should_not_trigger": [
+    {
+      "id": "snt-01",
+      "category": "cross_skill",
+      "expected_skill": "founder-led-sales-process",
+      "prompt": "我现在手上有几个付费客户,前 100 个客户怎么找?",
+      "reason": "'怎么找客户'是 founder-led-sales-process 的核心触发词;'找客户'≠'做什么交付给客户',本 skill 不应被激活。"
+    },
+    {
+      "id": "snt-02",
+      "category": "cross_skill",
+      "expected_skill": "community-first-niche-selection",
+      "prompt": "我有几个可能的方向,不知道该服务哪个社区,你怎么看?",
+      "reason": "'该服务哪个社区'是 community-first-niche-selection 的核心问题;A2 明确'本 skill 通常依赖前一步 — 你已经知道在哪群人了';未明确社区前不应触发本 skill。"
+    },
+    {
+      "id": "snt-03",
+      "category": "decoy",
+      "prompt": "我们的产品已经上线一年,如何增加产品功能让用户更活跃?",
+      "reason": "边界 B 明文:'已有付费用户、瓶颈是规模,直接 productize,本 skill 不该被用作延迟自动化借口';'增加产品功能'是已 productize 阶段的事,不触发。"
+    }
+  ],
+  "edge_cases": [
+    {
+      "id": "ec-01",
+      "category": "premature_automation",
+      "prompt": "我刚有了一个想法,还要不要先手动? 直接做产品不行吗?",
+      "expected_decision": "trigger",
+      "reason": "用户在质疑 manual-first 是否必要,正是本 skill 应响应的时机;E1 直接回应'不写代码能不能先动手'。"
+    },
+    {
+      "id": "ec-02",
+      "category": "transition_decision",
+      "prompt": "我已经手动跑了 3 个月,服务过 12 个付费客户,什么时候开始写代码做产品?",
+      "expected_decision": "trigger",
+      "reason": "E4-E5 决策点原文:'仅当(a)痛到少睡觉、(b)稳定赚钱、(c)SOP 稳定时才进入 Productize';用户已到临界,本 skill 应触发并引导做 productize 决策而非跳过。"
+    }
+  ],
+  "scoring": {
+    "total_prompts": 10,
+    "pass_threshold": 0.9,
+    "notes": "cross_skill 干扰用例占 2/3 not-trigger,验证 skill 不会被相邻方法论的话题拉走。"
+  }
+}

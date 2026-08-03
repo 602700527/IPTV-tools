@@ -1,0 +1,91 @@
+{
+  "skill_name": "right-size-business-sequencing",
+  "skill_type": "meta-skill",
+  "stage": 4,
+  "stage_name": "pressure_test",
+  "distilled_date": "2026-07-17",
+  "source_book": "The Minimalist Entrepreneur (Sahil Lavingia)",
+  "summary": "Pressure-test prompts for the meta-skill that enforces the strict 7-step founder sequence (Community → Process → Product → Sales → Marketing → Growth → Culture). Meta-skills have highest false-positive risk, so should_not_trigger cases deliberately include execution-mode questions that should be delegated to the sub-skills rather than triggering sequencing diagnosis.",
+  "should_trigger": [
+    {
+      "id": "st-01",
+      "prompt": "创业从哪开始?我手里同时有几个方向:做产品、招人、做营销、找融资,不知道先做哪个。",
+      "reason": "Classic 'where do I start' sequencing question with multiple parallel hands (产品/招人/营销/融资) — exactly the multi-hand selection trigger listed in A2.1.",
+      "expected_stage": "A2",
+      "expected_skill_action": "Run step 1: identify which step user is currently on via the 4 diagnostic questions, then refuse to recommend skipping."
+    },
+    {
+      "id": "st-02",
+      "prompt": "我手上有几个牌,不知道先做哪个。是该先发布产品上 Product Hunt,还是先把团队扩到 5 人,还是先去见投资人?",
+      "reason": "Three parallel options map directly onto Step 4 (Sales), Step 7 (Culture/team), Step 6 (Growth/VC) — the user is trying to skip ahead without knowing the current step.",
+      "expected_stage": "A2",
+      "expected_skill_action": "Diagnose current step, then trigger ce09 (盛大发布) / ce05 (跳过社区) / VC 陷阱反例 as brakes."
+    },
+    {
+      "id": "st-03",
+      "prompt": "现在该做营销还是该做产品?我已经写了 3 个月代码,产品快上线了,但还没想清楚怎么做营销。",
+      "reason": "Binary 'X or Y' question between two non-adjacent steps in the sequence. Skill must clarify where user actually is (likely Step 3→4 transition, NOT 3→5).",
+      "expected_stage": "A2",
+      "expected_skill_action": "Reframe: marketing is Step 5, but you may not be ready for it; check whether Step 4 (founder-led sales) is complete first."
+    },
+    {
+      "id": "st-04",
+      "prompt": "我要不要先融资 / 先招人 / 先做品牌?有个 VC 主动约我下周聊,Product Hunt 编辑也邀请我上线。",
+      "reason": "External pressure signals (VC reaching out, Product Hunt invite) are listed verbatim in A2 trigger #2 as 'skip-step temptation signals'.",
+      "expected_stage": "A2",
+      "expected_skill_action": "Apply brakes — run ce01 (VC 陷阱) and ce09 (盛大发布) as warnings; ask diagnostic questions before any commitment."
+    },
+    {
+      "id": "st-05",
+      "prompt": "我做了产品 + 营销 + 招人,半年烧了 200 万,但客户不来,LTV 很低,团队也涣散。这是为什么?",
+      "reason": "Pattern-match to A2.3 — '做了一堆但没进展' symptom. Skill must hypothesize missing earlier step (probably Step 1 community or Step 2 manual process) rather than give execution advice.",
+      "expected_stage": "A2 + B",
+      "expected_skill_action": "Diagnose which earlier step is missing, recommend rolling back to that step before continuing."
+    }
+  ],
+  "should_not_trigger": [
+    {
+      "id": "snt-01",
+      "prompt": "JD 怎么写?我想招一个后端工程师,需要哪些关键能力?",
+      "reason": "CRITICAL cross-skill confusion — pure execution question about hiring. Per B boundary, when user is already executing a step, delegate to sub-skill directly: should trigger `first-principles-company-culture` (Step 7) for JD writing, NOT this meta-skill.",
+      "expected_skill_to_trigger": "first-principles-company-culture",
+      "expected_skill_to_NOT_trigger": "right-size-business-sequencing"
+    },
+    {
+      "id": "snt-02",
+      "prompt": "前 100 个客户怎么找?我现在有 3 个付费客户,想扩大销售。",
+      "reason": "CRITICAL cross-skill confusion — user is clearly in Step 4 (Sales), already executing. Per B boundary #1, should trigger `founder-led-sales-process` directly for concrete tactics, NOT this meta-skill.",
+      "expected_skill_to_trigger": "founder-led-sales-process",
+      "expected_skill_to_NOT_trigger": "right-size-business-sequencing"
+    },
+    {
+      "id": "snt-03",
+      "prompt": "技术栈选什么?我打算用 Next.js + Supabase + Stripe 搭 MVP,这样合理吗?",
+      "reason": "Decoy — sub-step execution detail (Step 3 product implementation), not sequencing. Tech stack has no ordering dependency with the 7-step sequence. Per B boundary #2, questions unrelated to 'order' should not trigger this skill.",
+      "expected_skill_to_trigger": "manual-valuable-process-then-product",
+      "expected_skill_to_NOT_trigger": "right-size-business-sequencing"
+    }
+  ],
+  "edge_cases": [
+    {
+      "id": "ec-01",
+      "prompt": "我已经做到 step 5(开始做内容营销了),现在该进 step 6 考虑融资或扩张吗?",
+      "reason": "Sequence checkpoint question — user is asking 'am I ready to advance' which is exactly the sequencing diagnostic this skill provides. Triggers skill to verify Step 1-5 are truly steady-state before allowing Step 6.",
+      "expected_stage": "E (step 3 — refuse skip + explain)",
+      "expected_skill_action": "Confirm Step 5 is genuinely done (marketing produces organic repeatable growth, not vanity metrics), then decide whether Step 6 is appropriate."
+    },
+    {
+      "id": "ec-02",
+      "prompt": "我跳过了 step 1(社区),直接做了产品和融资,现在卡住了,怎么办?要不要重做?",
+      "reason": "Rollback / recovery question — user already skipped and is asking for sequencing advice to recover. Triggers the meta-skill because the answer requires diagnosing where they are in the sequence and prescribing a backward move.",
+      "expected_stage": "E (step 2 + 3)",
+      "expected_skill_action": "Diagnose actual current state, prescribe rolling back to missing earlier step (likely Step 1 community or Step 4 founder-led sales), use ce05 / ce10 as cautionary anchors."
+    }
+  ],
+  "false_positive_risk_notes": [
+    "Meta-skills have the highest false-positive rate because they describe a 'meta-mode' (asking about order) vs 'execution mode' (asking about a specific step).",
+    "Every should_not_trigger case must be in execution mode — user is inside a single step, not asking about sequence.",
+    "If in doubt: ask 'is the user asking WHAT to do, or in WHAT ORDER?' — only the latter triggers this skill.",
+    "The 7 sub-skills (s01-s07) are all execution skills; if user lands in any of them, the meta-skill should NOT also trigger."
+  ]
+}

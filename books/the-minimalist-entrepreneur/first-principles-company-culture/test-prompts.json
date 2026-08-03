@@ -1,0 +1,81 @@
+{
+  "skill": "first-principles-company-culture",
+  "stage": 4,
+  "test_type": "pressure_test",
+  "description": "压力测试 — 检验 skill 在边缘场景、相邻 skill 干扰、decoy prompt 上的触发准确性",
+  "should_trigger": [
+    {
+      "id": "st-01",
+      "category": "core_signal",
+      "prompt": "我要招第一个全职员工,JD 应该怎么写?",
+      "reason": "直接命中 A2 触发场景 1 与语言信号第一条'我要招第一个员工';E3 要求 JD 当过滤器非磁铁,必触发。"
+    },
+    {
+      "id": "st-02",
+      "category": "core_signal",
+      "prompt": "我们团队已经有 7 个人了,但我说不出我们的核心价值观是什么,这正常吗?",
+      "reason": "命中 A2 触发场景 2:5+ 人但写不出价值观,属于 ce24 '等文化自然长出' 反例;E2 要求'坐下来定义',必触发。"
+    },
+    {
+      "id": "st-03",
+      "category": "core_signal",
+      "prompt": "团队最近有人开始当面一套背后一套,我该怎么办?",
+      "reason": "命中 A2 触发场景 4:drama/bully/gossip 信号;A2 触发场景 3 '能力没问题但感觉不对'也是同源问题;E7 季度重审、离职访谈机制相关,必触发。"
+    },
+    {
+      "id": "st-04",
+      "category": "core_signal",
+      "prompt": "Hiring culture fit 怎么判断?有没有具体面试问题清单?",
+      "reason": "命中 A2 语言信号 'hire culture fit';E4 要求用价值观行为面试替代技能面试;用户明确要清单,必触发。"
+    },
+    {
+      "id": "st-05",
+      "category": "core_signal",
+      "prompt": "新员工入职 3 个月,总觉得哪里不对但说不上来,该怎么处理?",
+      "reason": "命中 A2 触发场景 3:'最近招的人让你觉得哪里不对劲';E6 双向契合机制要求 48 小时内书面谈、给改进期,必触发。"
+    }
+  ],
+  "should_not_trigger": [
+    {
+      "id": "snt-01",
+      "category": "cross_skill",
+      "expected_skill": "mindful-growth-vc-or-bootstrap",
+      "prompt": "我现在忙不过来了,要不要招人?够不够痛该不该雇?",
+      "reason": "'要不要招人 / 够不够痛' 是 mindful-growth-vc-or-bootstrap 的核心触发(对应 ce22 雇人前未达痛点);A2 明确'需先走前 6 步确认疼到必须雇人',本 skill 不能替代决策招聘与否的前置问题,不触发。"
+    },
+    {
+      "id": "snt-02",
+      "category": "cross_skill",
+      "expected_skill": "founder-led-sales-process",
+      "prompt": "销售岗位招进来之后,日常怎么管理?KPI 怎么定?",
+      "reason": "'销售岗位招进来之后怎么管理 + KPI' 是已雇人后的管理问题;边界 B 明文'绩效考核设计 / 薪酬体系搭建'不适用本 skill;属 founder-led-sales-process 与传统 HR 范畴,不触发。"
+    },
+    {
+      "id": "snt-03",
+      "category": "decoy",
+      "prompt": "团队士气最近有点低落,有什么激励手段能让大家打起精神?",
+      "reason": "边界 B 明文:'你只是想要员工激励/团队氛围提升'是症状处理,本 skill 解决源头价值观定义;'士气低落 + 激励手段'是症状题,不触发。"
+    }
+  ],
+  "edge_cases": [
+    {
+      "id": "ec-01",
+      "category": "pre_hire_culture_design",
+      "prompt": "我现在还没雇人,要不要先定义好公司文化再开始招?",
+      "expected_decision": "trigger",
+      "reason": "E2 第一句要求'坐下来定义价值观(创始人 + 现有团队一起)';ce23 反例明文警告'文化未定义就招人';用户先走文化再招是本 skill 推荐路径,必触发。"
+    },
+    {
+      "id": "ec-02",
+      "category": "scale_team_culture_refresh",
+      "prompt": "我们团队已经从 3 人扩到 50 人,现在要不要重设一遍文化?",
+      "expected_decision": "trigger",
+      "reason": "A2 触发场景 2 与 E7 季度重审机制都覆盖此规模;50 人团队价值观漂移风险更高,本 skill 应触发并引导分阶段重审价值观 + 离职访谈清单。"
+    }
+  ],
+  "scoring": {
+    "total_prompts": 10,
+    "pass_threshold": 0.9,
+    "notes": "cross_skill 干扰用例占 2/3 not-trigger,验证 skill 不会被'是否雇人 / 雇人后管理' 拉到邻近方法论的辖区。"
+  }
+}

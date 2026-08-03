@@ -1,0 +1,80 @@
+{
+  "skill": "profitability-first-financial-model",
+  "version": "0.1.0",
+  "source_book": "The Minimalist Entrepreneur — Sahil Lavingia",
+  "darwin_compatible": true,
+  "test_cases": [
+    {
+      "id": "should-trigger-01",
+      "type": "should_trigger",
+      "prompt": "我要不要接 VC 的 TS?有家基金给我开了 1000 万刀的 term sheet,要求 7% 股权 + 月增长 20% KPI。",
+      "expected_behavior": "激活本 skill。识别用户处于'已有点营收+VC 上门推销'状态,套用 default alive + profit is oxygen + sell to users not sell users 三重判定,给出 A 不动 / B 盈利内扩张 / C 融资扩张 三条选项及对盈利优先模型的契合度评分;提醒'拿了以后被增长绑架'与'客户必须是付费方,投资人不能反客为主'。",
+      "notes": "原型场景 1:用户在纠结是否拿 VC 融资。中文+VC 术语混合,典型真实创业语境。"
+    },
+    {
+      "id": "should-trigger-02",
+      "type": "should_trigger",
+      "prompt": "现在每月利润 5 万,要不要扩张到 100 万月营收?我看同行都冲得很快,担心不做大会被卷死。",
+      "expected_behavior": "激活本 skill。先判定用户当前在 default alive 状态(已盈利),再讨论'扩张的费从哪来'(利润支付 vs 借债 vs 融资);用 Parkinson's Law 提醒'支出会自动膨胀到收入';区分'真痛点需要扩张'与'视觉上看起来该扩张'。",
+      "notes": "原型场景 3:扩张与失控之间摇摆;月利润 5 万→100 万 的具体数字触发盈利 vs 增长二元决策。"
+    },
+    {
+      "id": "should-trigger-03",
+      "type": "should_trigger",
+      "prompt": "如果不做大会被大公司卷死吗?我 SaaS 才 100 个客户,巨头随时可以进来碾压。",
+      "expected_behavior": "激活本 skill。识别为'scale trap 焦虑',引用 ce03 警告('用 VC 尺子丈量 Goldilocks size 是指标错配');指出'right-size 是优势而非劣势';若市场真有网络效应壁垒则承认盈利优先模型在此类市场有边界。",
+      "notes": "原型场景:担心规模陷阱;同时触发'对谁优化'的判定(为付费用户 vs 为想象中的'大公司竞争')。"
+    },
+    {
+      "id": "should-trigger-04",
+      "type": "should_trigger",
+      "prompt": "我的 CAC 100, LTV 80, 能盈利吗?我数学不好,这种单位经济怎么算?",
+      "expected_behavior": "激活本 skill。先算 unit economics(LTV<CAC,LTV/CAC=0.8<1,LTV< CAC → 单位经济不健康,长期烧钱);判定'客户=付费方'测试通过(收入来自用户付费),但 default alive 测试不通过(每单亏 20)。结论:先不扩张,把 LTV 提到 120+ 或 CAC 压到 60 再谈 scale。",
+      "notes": "原型场景 4:单位经济诊断。这是盈利优先模型最核心的'底盘'判定之一。"
+    },
+    {
+      "id": "should-trigger-05",
+      "type": "should_trigger",
+      "prompt": "广告商想买我们的用户数据,接不接?我们现在免费给用户用,广告变现是不是更'互联网思维'?",
+      "expected_behavior": "激活本 skill。立即触发 'sell to users not sell users' 警告——客户必须是付费方,把客户当资产卖给广告主会扭曲激励机制;参照 Quibi 反例('fanfare ≠ real customers');建议转向'卖产品给客户'或众筹/付费订阅作为替代。",
+      "notes": "原型场景 4(变现模式选择)+ 触发作者在书中最核心的伦理判定之一。"
+    },
+    {
+      "id": "should-not-trigger-01",
+      "type": "should_not_trigger",
+      "prompt": "我不知道怎么找客户,产品做出来了但没人买,怎么办?",
+      "expected_behavior": "不应激活本 skill。应转去激活 `founder-led-sales-process`(创始人亲售)——这是'靠销售获得第一批收入'的技能,而本 skill 讨论的是'获得收入后单位经济是否健康'。当前用户还没'获得收入',跳过盈利模型,先解决 sales test。",
+      "notes": "跨 skill 混淆 A:用户缺的是销售,不是财务模型。'产品做出来了但没人买'是 sales 阶段问题,盈利模型对此无解。"
+    },
+    {
+      "id": "should-not-trigger-02",
+      "type": "should_not_trigger",
+      "prompt": "我该做哪类生意?我对 AI 和 SaaS 都在犹豫,怎么选赛道?",
+      "expected_behavior": "不应激活本 skill。应转去激活 `community-first-niche-selection`(社区优先的赛道选择)——这是'选什么 niche 服务'的元决策,在讨论盈利模型之前用户先要选对方向;本 skill 是 sequence 的 Step 1 之后的执行细节,赛道未定谈不上盈利。",
+      "notes": "跨 skill 混淆 B:niche 决策先于盈利模型决策。'赛道选择'是 right-size business sequencing 的上游任务。"
+    },
+    {
+      "id": "should-not-trigger-03",
+      "type": "should_not_trigger",
+      "prompt": "今天晚饭吃什么?附近开了家新店想试试。",
+      "expected_behavior": "不应激活本 skill。这是纯消费选择,非营收/非成本相关的日常决策;触发模型会过度机械化(明确写在 B-边界里:'非营收相关的日常决策')。",
+      "notes": "纯诱饵:验证 skill 在完全无关的语境下不会被错误激活。"
+    },
+    {
+      "id": "edge-case-01",
+      "type": "edge_case",
+      "prompt": "我已经盈利了还要不要扩张?现在 ARR 200 万,创始人想躺平,但团队里有人想冲 1000 万。",
+      "expected_behavior": "激活本 skill(模糊但倾向激活)。判定为'盈利内扩张 vs 维持现态'的二元决策:用 profitable confidence 框架——公司 default alive,扩张与否是心理自由度的选择,不是'不得不扩张';给出 A 不动 / B 利润支撑下慢扩张 / C 融资冲规模 三条;提醒 ce22('看起来该雇人'的视觉偏差)。",
+      "notes": "模糊边界:已盈利 + 团队内部冲突。可能误判为 'right-size business sequencing'(元技能);但用户的真实问题是'盈利 vs 增长'的具体决策,落在本 skill 范畴。"
+    },
+    {
+      "id": "edge-case-02",
+      "type": "edge_case",
+      "prompt": "VC 不给我压力,但我想用众筹扩张,把客户和投资人合并成同一群人,可以吗?",
+      "expected_behavior": "激活本 skill。引用 Gumroad $5M/12h/7000 创作者众筹案例,说明'客户即投资人'是盈利优先模型的中间路线,既不引入第二套相关方也不放弃扩张杠杆;判定为'盈利底盘 + 客户既是付费方又是出资方'的合规扩张。",
+      "notes": "模糊边界:用户主动提出众筹作为'VC 与 bootstrap 中间道路',正好对应书中第 6 章核心论点;验证 skill 能否识别这一'盈利优先模型独门解药'。"
+    }
+  ],
+  "minimum_pass_rate": 0.8,
+  "notes": "Stage 4 压力测试。5 个 should_trigger 覆盖 4 个原型场景(VC 决策 / 扩张摇摆 / scale trap / 单位经济 / 变现伦理);3 个 should_not_trigger 含 2 个跨 skill 混淆(sales / niche)+ 1 个纯诱饵;2 个 edge_case 验证'盈利 vs 增长'的二元判断和'众筹作为中间解'的识别能力。pass_rate 0.8 允许 1/10 误判但不容忍核心判定错位。"
+}

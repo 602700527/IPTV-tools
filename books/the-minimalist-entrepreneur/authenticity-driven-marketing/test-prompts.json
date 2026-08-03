@@ -1,0 +1,100 @@
+{
+  "skill": "authenticity-driven-marketing",
+  "stage": 4,
+  "stage_name": "pressure_test",
+  "version": "1.0",
+  "created": "2026-07-17",
+  "description": "压力测试用例:验证 authenticity-driven-marketing 在真实用户问句中的触发边界,重点是与 founder-led-sales-process、mindful-growth-vc-or-bootstrap 的区分,以及'花钱 vs 不花钱'语义红线。",
+  "should_trigger": [
+    {
+      "id": "st1",
+      "prompt": "我要不要花钱投广告?我准备拿 5000 块去投小红书种草。",
+      "expected_trigger": true,
+      "rationale": "典型 trigger 信号:'要不要投广告'。skill 主张花时间而非花钱,会先反问内容管道是否准备好,再判断是否烧钱。",
+      "trigger_signal": "要不要投广告 / 花钱投流",
+      "expected_behavior": "诊断现状 → 检查内容管道(社媒+邮件)是否就绪 → 若未就绪,劝退并引导走 1% 法则+Educate/Inspire/Entertain 三级阶梯。"
+    },
+    {
+      "id": "st2",
+      "prompt": "我们下个月要上线新产品,要不要办一场盛大的发布活动?我想冲 Product Hunt 首页。",
+      "expected_trigger": true,
+      "rationale": "典型 trigger:'盛大发布'。skill 警告 ce09——launch 是庆祝里程碑,不是终点仪式;应先卖给 100 个人。",
+      "trigger_signal": "盛大发布 / launch event / Product Hunt 冲首页",
+      "expected_behavior": "反对花预算做仪式 → 建议把资源放在已有 100 个付费客户 + 口碑积累后再做 launch → 推荐用 build-in-public 替代。"
+    },
+    {
+      "id": "st3",
+      "prompt": "我有 5 万粉丝但没人买,转化率几乎为零,怎么办?",
+      "expected_trigger": true,
+      "rationale": "典型 trigger:'粉丝多但没人买'。直接对应 ce17——把寒暄等同于潜在付费用户。skill 应收紧漏斗,聚焦 1% 创造者,把 follower 转化为 customer,把关系从平台迁到邮件列表。",
+      "trigger_signal": "粉丝挺多但没人买 / 转化率低",
+      "expected_behavior": "诊断 audience ≠ customer → 重新定位 1% 创造者 → 引导从'广撒网'切换为'窄而深'的 Level 1 Educate → 立即建邮件列表把粉丝迁出平台。"
+    },
+    {
+      "id": "st4",
+      "prompt": "我不是做营销的人,不会写公众号,也不知道该写什么,怎么开始?",
+      "expected_trigger": true,
+      "rationale": "典型 trigger:'我不会营销 / 我不是做内容的人'。skill 核心论点——真实性营销不是营销技能,而是'你愿不愿意活成内容'。应打破借口,引导用户从自己真实生活出发。",
+      "trigger_signal": "我不会营销 / 我不是做内容的人",
+      "expected_behavior": "指出'我不是营销人'是回避表达的借口 → 让用户列出'我每天在解决的问题' → 从创始人=首个用户出发找 Educate 内容候选。"
+    },
+    {
+      "id": "st5",
+      "prompt": "我要不要找 KOL / 网红推广?有人报价 2 万帮我推一条产品。",
+      "expected_trigger": true,
+      "rationale": "典型 trigger:'要不要找网红'。skill 对'paid-growth-hacking/influencer-marketing'是 contrasts-with 关系。反对用钱换注意力,坚持'用自己换流量'。",
+      "trigger_signal": "要不要找网红 / KOL 推广",
+      "expected_behavior": "反对付费 KOL → 推荐'让自己成为创造者'替代 → 引导用 build-in-public 和 Educate 内容积累自有受众 → 与 paid-ads-timing 形成清晰边界(本 skill 反对一切付费获客)。"
+    }
+  ],
+  "should_not_trigger": [
+    {
+      "id": "snt1",
+      "prompt": "前 100 个客户怎么找?我现在产品做出来了,完全没人买。",
+      "expected_trigger": false,
+      "correct_skill": "founder-led-sales-process",
+      "rationale": "Cross-skill 混淆:这是 cold outreach / 一对一销售场景,不是 in-bound 内容营销。authenticity-driven-marketing 依赖依赖项 founder-led-sales-process——必须先完成 100 个亲售,知道客户语言长什么样,才能把它们放大。",
+      "trigger_signal_absent": "未出现'投广告/盛大发布/我不会营销/没人买但粉丝多'等信号"
+    },
+    {
+      "id": "snt2",
+      "prompt": "我要不要接 VC 一轮 500 万融资,然后用这笔钱去 Facebook/Google 投广告加速增长?",
+      "expected_trigger": false,
+      "correct_skill": "mindful-growth-vc-or-bootstrap",
+      "rationale": "Cross-skill 混淆:这是'何时/该不该花钱买流量'的判断题,属于有节制成长的核心问题。authenticity-driven-marketing 是'不花钱获取注意力的方法论',mindful-growth-vc-or-bootstrap 才是花钱的入口判断。",
+      "trigger_signal_absent": "关键词是 VC 决策而非'我要不要投广告'本身;前者是融资/规模化决策,后者才是营销方法论选择"
+    },
+    {
+      "id": "snt3",
+      "prompt": "可口可乐怎么做品牌?为什么它们可以一年砸几亿广告还能盈利?",
+      "expected_trigger": false,
+      "correct_skill": null,
+      "rationale": "Decoy:这是 B2C 大公司品牌曝光问题,SKILL 明确 B 边界——'B2C 品牌广告不是本 skill'。ce20 警告:大公司'重复曝光'逻辑对小公司既不可负担也不必要。agent 应识别为大公司案例而非自己客户的可执行建议。",
+      "trigger_signal_absent": "B2C 品牌曝光 vs 个人真实性营销"
+    }
+  ],
+  "edge_cases": [
+    {
+      "id": "ec1",
+      "prompt": "我业务已经盈利了,要不要投广告加速增长?现在每月净利 5 万,投 3 万/月广告 ROI 划算吗?",
+      "expected_trigger": "ambiguous",
+      "rationale": "模糊地带:用户已盈利、ROI 可量化——这其实已经过了'不花钱获客'阶段。SKILL B 边界明确:'已经有付费复购客户、想扩量'应转 paid-ads-timing。但若用户仍想走真实性路径,可参考 mindful-growth-vc-or-bootstrap 决定花钱时机。",
+      "expected_behavior": "承认已有付费复购客户 → 引导转 paid-ads-timing(投放时机)评估 ROI → 若用户坚持不花钱路径,提醒 ceiling——真实性营销天花板在万级到十万级受众,过了就该转付费。"
+    },
+    {
+      "id": "ec2",
+      "prompt": "我不会写代码也不会做内容,应该如何获客?",
+      "expected_trigger": false,
+      "correct_skill": null,
+      "rationale": "反 scope:真实性营销前提是'创始人本人是创造者'(Brandon Sanderson 案例)。若用户明确表示无内容生产能力,本 skill 的所有执行步骤(Educate 三级阶梯)都失去前提。agent 应识别为'创始人-产品匹配问题',可能回到 community-first-niche-selection 或 founder-led-sales-process(更看重一对一关系而非内容输出)。",
+      "trigger_signal_absent": "用户身份/能力与本 skill 前提冲突——本 skill 要求创始人愿意活成内容"
+    }
+  ],
+  "boundary_summary": {
+    "core_red_line": "反对一切'花钱买注意力'——投广告、KOL、网红、付费增长都是 contrasts-with",
+    "depends_on": ["founder-led-sales-process(必须先完成 100 亲售)"],
+    "composes_with": ["community-first-niche-selection(在选定的社区内转化最高)", "mindful-growth-vc-or-bootstrap(判断何时转付费的入口)"],
+    "contrasts_with": ["paid-ads-timing(付费广告的正确阶段)", "performance-marketing", "influencer-marketing"],
+    "failure_modes_blocked": ["ce09 盛大发布", "ce10 用钱买增长", "ce17 把粉丝当客户", "ce20 把品牌营销等同于广告", "ce25 把创业等同于身份"]
+  }
+}

@@ -54,6 +54,7 @@ export const PAGE_FOOTER = `
           <h4 class="footer-col-title">Quick Links</h4>
           <div class="footer-col-links">
             <a href="/tutorial">How to Watch on TV</a>
+            <a href="/carplay-aptv">APTV & CarPlay Guide</a>
             <a href="/sitemap.xml">Sitemap</a>
             <a href="/privacy-policy">Privacy Policy</a>
             <a href="/terms">Terms of Service</a>

@@ -1,0 +1,116 @@
+{
+  "skill": "community-first-niche-selection",
+  "stage": 4,
+  "purpose": "Pressure-test whether the skill activates on the right triggers and stays silent on lookalikes (especially the high-confusion neighbors: founder-led-sales, authenticity-driven-marketing, manual-valuable-process-then-product, profitability-first-financial-model).",
+  "version": "1.0",
+  "generated_at": "2026-07-17",
+  "expected_behavior": {
+    "should_trigger": "Skill must invoke the Goldilocks community filter and/or the community-vs-network distinction, and must NOT redirect to a sibling skill.",
+    "should_not_trigger": "Skill must NOT invoke. If a sibling skill fits better (e.g. founder-led-sales, authenticity-driven-marketing) it should hand off rather than overlap.",
+    "edge_cases": "Skill should trigger when the user has partial context (already has a product, already inside a community) but is still making a 'who to serve / which community' decision. Must not trigger when the decision is purely tactical-execution."
+  },
+  "should_trigger": [
+    {
+      "id": "st1",
+      "prompt": "我想创业但没 idea,怎么找到方向?",
+      "rationale": "Canonical blank-slate scenario. Skill's trigger signal '我不知道该做什么产品' / '我要不要先做市场调研'. Must activate and steer the user away from market-report-driven idea hunting toward community embedding.",
+      "expected_signal": "activate",
+      "key_frames_expected": ["社区先于产品", "1% 法则 (潜水→评论→创造)", "Find Your People 盘点"]
+    },
+    {
+      "id": "st2",
+      "prompt": "我有三个候选方向在纠结: A 大众健身 App / B 产后康复训练营 / C 盲人程序员的辅助工具,我该选哪个?",
+      "rationale": "Three-way niche shootout — textbook Goldilocks filter use case. Must activate and run the size / willingness-to-pay / underservice triage.",
+      "expected_signal": "activate",
+      "key_frames_expected": ["Goldilocks 三维过滤器 (大小/付费意愿/欠服务)", "成为唯一比成为最好容易"]
+    },
+    {
+      "id": "st3",
+      "prompt": "市场调研说产后修复是个 200 亿的市场,我应该all in进去切 1% 吗?",
+      "rationale": "Silicon-Valley TAM seduction pattern (ce05). Must activate and reframe via '大市场引巨头 + 你只是 1%' — likely FAIL on size dimension.",
+      "expected_signal": "activate",
+      "key_frames_expected": ["太大引巨头", "TAM ≠ 你的 TAM", "为什么跳过社区直奔产品"]
+    },
+    {
+      "id": "st4",
+      "prompt": "我有 5 万 Twitter 粉丝,等于有社区吗?可以直接变现吗?",
+      "rationale": "Canonical f25 community-vs-network confusion. Must activate the second filter and explain that audience on a rented platform is a network, not a community, and why attention != customer (ce17).",
+      "expected_signal": "activate",
+      "key_frames_expected": ["Community vs Network 四问", "attention ≠ customer", "rented land 风险"]
+    },
+    {
+      "id": "st5",
+      "prompt": "我准备做一个面向中老年拼布爱好者的电商,这个细分够大吗?三年能养活我吗?",
+      "rationale": "Classic 'is this Goldilocks' question — references the Missouri Star / Blossom and Root archetype from the book. Must activate and run the three-dimension filter.",
+      "expected_signal": "activate",
+      "key_frames_expected": ["Goldilocks 大小阈值", "欠服务程度", "创始人是社区成员检查"]
+    }
+  ],
+  "should_not_trigger": [
+    {
+      "id": "snt1",
+      "prompt": "我做了一个 iPad 笔记 App,前 100 个付费客户从哪找最快?",
+      "rationale": "CROSS-SKILL CONFUSION — has a product and a known channel target, asking how to acquire. Belongs to founder-led-sales-process, not community-selection. Must NOT trigger this skill; should hand off.",
+      "expected_signal": "no-trigger",
+      "redirect_to": "founder-led-sales-process"
+    },
+    {
+      "id": "snt2",
+      "prompt": "我要在小红书做内容营销,但完全不会写文案,有没有模板?",
+      "rationale": "CROSS-SKILL CONFUSION — content production question. Belongs to authenticity-driven-marketing. Must NOT trigger this skill.",
+      "expected_signal": "no-trigger",
+      "redirect_to": "authenticity-driven-marketing"
+    },
+    {
+      "id": "snt3",
+      "prompt": "晚饭吃什么?给我推荐个菜谱。",
+      "rationale": "Plain decoy — non-entrepreneurship question. Must NOT trigger.",
+      "expected_signal": "no-trigger",
+      "redirect_to": null
+    }
+  ],
+  "edge_cases": [
+    {
+      "id": "ec1",
+      "prompt": "我已经在杭州的独立咖啡师圈子里混了两年了,要不要从这个切入做产品?",
+      "rationale": "User is already IN a candidate community and is deciding whether to make it the served community. Trigger is required because the decision is exactly the 'should I serve the people I already belong to' check (Step 1 Find Your People + Step 4 Solve Your Own Problem).",
+      "expected_signal": "activate",
+      "key_frames_expected": ["Find Your People 检验", "Solve Your Own Problem 自检", "是否已通过'社区成员'门槛"]
+    },
+    {
+      "id": "ec2",
+      "prompt": "我做了一个面向大学生的求职课,做了 8 个月发现月营收不到 1 万,我要不要换到留学文书社区?",
+      "rationale": "Has a product, but the question is really 'did I pick the wrong community; should I switch'. Trigger is required because the decision is a niche-switching choice — must run community-vs-network and Goldilocks filter on the new candidate before switching (avoid sunk-cost + mis-switch into another wrong-sized niche).",
+      "expected_signal": "activate",
+      "key_frames_expected": ["原社区诊断 (Goldilocks FAIL 在哪一维)", "切换前对新社区跑三维度过滤", "沉没成本警告"]
+    }
+  ],
+  "confusion_matrix": [
+    {
+      "neighbor": "founder-led-sales-process",
+      "differentiation": "本 skill 答 '卖给谁', 那个 skill 答 '怎么卖'. 有产品 + 已知渠道 → 切到那个 skill."
+    },
+    {
+      "neighbor": "authenticity-driven-marketing",
+      "differentiation": "本 skill 决定'写给谁看', 那个 skill 决定'怎么写/在哪发'."
+    },
+    {
+      "neighbor": "manual-valuable-process-then-product",
+      "differentiation": "两者都强调'先不建东西', 但本 skill 选对人, 那个 skill 先把手弄脏."
+    },
+    {
+      "neighbor": "profitability-first-financial-model",
+      "differentiation": "本 skill 在选 TAM 与人群, 那个 skill 在问'是否值得融资/单位经济学是否成立'."
+    },
+    {
+      "neighbor": "right-size-business-sequencing",
+      "differentiation": "本 skill 是 sequence 中 Step 2 的执行细节; 那个 skill 是元顺序."
+    }
+  ],
+  "pass_criteria": {
+    "should_trigger_accuracy": ">= 4/5 (>= 80%)",
+    "should_not_trigger_accuracy": ">= 2/3 (>= 66%)",
+    "edge_case_accuracy": ">= 1/2 (>= 50%)",
+    "cross_skill_handling": "On snt1 and snt2 the skill must explicitly hand off to the named sibling rather than silently answering anyway."
+  }
+}
