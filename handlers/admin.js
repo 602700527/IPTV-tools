@@ -228,7 +228,7 @@ export async function handleAdminRequest(request, env, ctx) {
             // 异步模式：立即返回，后台处理
             ctx.waitUntil((async () => {
               try {
-                const result = await manualSyncAll(env, data.filter || null);
+                const result = await manualSyncAll(env, data.filter || data);
                 console.log('[Admin] Async sync completed:', result);
               } catch (e) {
                 console.error('[Admin] Async sync failed:', e);
@@ -244,7 +244,7 @@ export async function handleAdminRequest(request, env, ctx) {
             });
           } else {
             // 同步模式：等待完成
-            const result = await manualSyncAll(env, data.filter || null);
+            const result = await manualSyncAll(env, data.filter || data);
             return new Response(JSON.stringify(result), {
               headers: { 'Content-Type': 'application/json' }
             });
