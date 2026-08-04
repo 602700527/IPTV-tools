@@ -1284,6 +1284,13 @@ export async function updateSecurityConfig(config) {
 }
 
 // 瑙勮寖鍖栭閬撳悕绉帮紙濡侰CTV绛夋牸寮忥級
+// 移除字符串中的 emoji 表情
+function removeEmoji(str) {
+  if (!str) return str;
+  // 匹配常见 emoji 范围
+  return str.replace(/[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]|[\u{FE00}-\u{FE0F}]|[\u{200D}]|[\u{20E3}]|[\u{E0020}-\u{E007F}]/gu, '');
+}
+
 function normalizeChannelName(name) {
   if (!name) return name;
 
@@ -1443,7 +1450,7 @@ export async function parseM3UContent(content, sourceId, filter = {}) {
     // 鎻愬彇缁勫悕
     const groupMatch = extinfLine.match(/group-title\s*=\s*"([^"]+)"/i);
     if (groupMatch) {
-      currentChannel.group_title = groupMatch[1];
+      currentChannel.group_title = removeEmoji(groupMatch[1]);
     }
 
     // 鎻愬彇logo
@@ -1864,7 +1871,7 @@ export async function parseM3UContentOnly(content, sourceId, filter = {}) {
     // 鎻愬彇缁勫悕
     const groupMatch = extinfLine.match(/group-title\s*=\s*"([^"]+)"/i);
     if (groupMatch) {
-      currentChannel.group_title = groupMatch[1];
+      currentChannel.group_title = removeEmoji(groupMatch[1]);
     }
 
     // 鎻愬彇logo
