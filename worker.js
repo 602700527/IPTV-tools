@@ -1281,6 +1281,16 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         }
       });
     } else if (path.startsWith('/search')) {
+      // 检查是否为旧地址（如 /zh-hant/search/），返回 410 Gone
+      const userAgent = request.headers.get('user-agent') || '';
+      const isBot = /bot|crawler|spider|slurp|mj12bot/i.test(userAgent);
+      if (isBot && !url.searchParams.get('q')) {
+        return new Response('Not Found', { 
+          status: 410,
+          headers: { 'Content-Type': 'text/plain' }
+        });
+      }
+      
       // 搜索结果页 - 使用新的 HTML 壳 + API 方案
       const query = url.searchParams.get('q') || '';
       const { generateSearchPage } = await import('./pages/search-page.js');
