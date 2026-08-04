@@ -1,0 +1,9 @@
+# Cloudflare API Token (Get from https://dash.cloudflare.com/profile/api-tokens)
+cloudflare_api_token = "your_api_token_here"
+
+# Your Cloudflare Account ID
+cloudflare_account_id = "your_account_id_here"
+
+# Zone ID for iptv-search.com
+# Get from: https://dash.cloudflare.com -> iptv-search.com -> Overview -> Zone ID
+cloudflare_zone_id = "your_zone_id_here"
