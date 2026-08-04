@@ -602,23 +602,46 @@ export async function clearChannelCache(env) {
 export async function getCacheStatus(env) {
   try {
     const version = await env.KV.get(CACHE_VERSION_KEY);
-    const channelsCache = await env.KV.get(CHANNELS_CACHE_KEY, { type: 'json' });
-    const groupsCache = await env.KV.get(GROUPS_CACHE_KEY, { type: 'json' });
+    
+    // 优化：只检查缓存是否存在，不读取完整数据（避免大 JSON 解析慢）
+    const [channelsCached, groupsCached, cachedAt] = await Promise.all([
+      env.KV.get(CHANNELS_CACHE_KEY) !== null,
+      env.KV.get(GROUPS_CACHE_KEY) !== null,
+      env.KV.get(CACHE_VERSION_KEY)
+    ]);
+    
+    // 只获取计数（不解析完整 JSON）
+    let channelsCount = 0;
+    let groupsCount = 0;
+    try {
+      const channelsData = await env.KV.get(CHANNELS_CACHE_KEY, { type: 'json' });
+      channelsCount = channelsData?.channels?.length || 0;
+    } catch (e) {
+      channelsCount = 0;
+    }
+    try {
+      const groupsData = await env.KV.get(GROUPS_CACHE_KEY, { type: 'json' });
+      groupsCount = groupsData?.groups?.length || 0;
+    } catch (e) {
+      groupsCount = 0;
+    }
 
     return {
       version: version || null,
-      channelsCached: !!channelsCache,
-      groupsCached: !!groupsCache,
-      channelsCount: channelsCache?.channels?.length || 0,
-      groupsCount: groupsCache?.groups?.length || 0,
-      cachedAt: channelsCache?.cached_at || null
+      channelsCached,
+      groupsCached,
+      channelsCount,
+      groupsCount,
+      cachedAt: version || null
     };
   } catch (error) {
     console.error('[ChannelCache] Failed to get cache status:', error);
     return {
       version: null,
       channelsCached: false,
-      groupsCached: false
+      groupsCached: false,
+      channelsCount: 0,
+      groupsCount: 0
     };
   }
 }
