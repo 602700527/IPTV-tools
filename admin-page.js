@@ -1795,11 +1795,35 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         .map(s => s.trim())
         .filter(s => s.length > 0);
 
+      // 解析分组重命名规则
+      const groupRenameRules = document.getElementById('groupRenameRules').value
+        .split(new RegExp('[\\n]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0)
+        .map(rule => {
+          const parts = rule.split('->');
+          if (parts.length === 2) {
+            return {
+              keyword: parts[0].trim(),
+              newName: parts[1].trim()
+            };
+          }
+          return null;
+        })
+        .filter(rule => rule !== null);
+
+      const groupRenameExclude = document.getElementById('groupRenameExclude').value
+        .split(new RegExp('[\\n,]+'))
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
       const filter = {
         excludeGroups,
         excludeUrls,
         excludeNames,
-        async: true  // 启用异步模式，不阻塞UI
+        excludeDuplicateUrls: document.getElementById('excludeDuplicateUrls').checked,
+        groupRenameRules,
+        groupRenameExclude
       };
 
       console.log('Sync filter:', filter);
