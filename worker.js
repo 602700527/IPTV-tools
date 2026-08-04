@@ -1280,10 +1280,10 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           'Cache-Control': 'public, max-age=60'
         }
       });
-    } else if (path.startsWith('/search')) {
-      // 检查是否为旧地址（如 /zh-hant/search/），返回 410 Gone
+    } else if (path.startsWith('/search') || path.startsWith('/zh-hant/search') || path.startsWith('/zh-cn/search')) {
+      // 检查是否为旧地址或爬虫，返回 410 Gone
       const userAgent = request.headers.get('user-agent') || '';
-      const isBot = /bot|crawler|spider|slurp|mj12bot/i.test(userAgent);
+      const isBot = /bot|crawler|spider|slurp|mj12bot|semrush|ahrefs/i.test(userAgent);
       if (isBot && !url.searchParams.get('q')) {
         return new Response('Not Found', { 
           status: 410,
