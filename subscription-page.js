@@ -407,6 +407,37 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     
     
+    .testimonials-scroll {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      padding: 10px 0 20px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .testimonials-scroll::-webkit-scrollbar {
+      height: 8px;
+    }
+    .testimonials-scroll::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+    }
+    .testimonials-scroll::-webkit-scrollbar-thumb {
+      background: rgba(229,9,20,0.5);
+      border-radius: 4px;
+    }
+    .testimonials-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(229,9,20,0.8);
+    }
+    .testimonial-card {
+      flex: 0 0 320px;
+      scroll-snap-align: start;
+    }
+    @media (max-width: 768px) {
+      .testimonials-scroll { gap: 15px; }
+      .testimonial-card { flex: 0 0 280px; }
+    }
     .testimonials-subtitle {
       text-align: center;
       color: var(--text-secondary);
