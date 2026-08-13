@@ -120,16 +120,34 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .pain-card-scene {
       width: 100%;
       height: 160px;
-      background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, rgba(0,0,0,0.3) 100%);
+      background-size: cover;
+      background-position: center;
       border-radius: 12px;
       margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       position: relative;
       overflow: hidden;
     }
-    .pain-card-scene svg { width: 64px; height: 64px; opacity: 0.8; }
+    .pain-card-scene::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);
+      border-radius: 12px;
+    }
+    .pain-card-scene-icon {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+      background: rgba(229,9,20,0.9);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      z-index: 1;
+    }
     
     .pain-card-icon {
       position: absolute;
@@ -155,6 +173,37 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       color: var(--text-secondary);
       font-size: 0.95rem;
       line-height: 1.6;
+    }
+    .pain-card-scene-img {
+      width: 100%;
+      height: 160px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .pain-card-scene-img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%);
+      border-radius: 12px;
+    }
+    .pain-card-scene-icon {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+      background: rgba(229,9,20,0.9);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      z-index: 2;
     }
     
     /* ========== 解决方案 - 产品优势 ========== */
@@ -749,41 +798,24 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         <h2 class="pain-title">作为<span>海外华人</span>，你是不是也经常遇到这些烦恼？</h2>
         <div class="pain-grid">
           <div class="pain-card">
-            <div class="pain-card-scene">
-              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="8" y="12" width="48" height="32" rx="4" stroke="currentColor" stroke-width="2" fill="rgba(229,9,20,0.1)"/>
-                <polygon points="26,22 26,38 40,30" fill="currentColor"/>
-                <text x="8" y="52" font-size="10" fill="currentColor" opacity="0.6">❌ 错过精彩</text>
-              </svg>
-              <div class="pain-card-icon">😤</div>
+            <div class="pain-card-scene" style="background-image: url('images/subscription/01-family-watching-tv.jpg')">
+              <div class="pain-card-scene-icon">😤</div>
             </div>
             <h3 class="pain-card-title">想家时只能看录像</h3>
             <p class="pain-card-text">春节晚会、世界杯、新闻联播...错过就是错过，等录播永远不如实时观看有感觉。</p>
           </div>
           
           <div class="pain-card">
-            <div class="pain-card-scene">
-              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="32" cy="32" r="20" stroke="currentColor" stroke-width="2" fill="rgba(229,9,20,0.1)"/>
-                <path d="M24 24 L40 32 L24 40" stroke="currentColor" stroke-width="2" fill="none"/>
-                <text x="12" y="58" font-size="8" fill="currentColor" opacity="0.6">⚠️ 卡顿断流</text>
-              </svg>
-              <div class="pain-card-icon">💸</div>
+            <div class="pain-card-scene" style="background-image: url('images/subscription/02-frustrated-tech.jpg')">
+              <div class="pain-card-scene-icon">💸</div>
             </div>
             <h3 class="pain-card-title">找到的IPTV服务不稳定</h3>
             <p class="pain-card-text">买了便宜的订阅，看球赛关键时刻卡顿、断流，花钱买罪受。</p>
           </div>
           
           <div class="pain-card">
-            <div class="pain-card-scene">
-              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="12" y="8" width="40" height="48" rx="4" stroke="currentColor" stroke-width="2" fill="rgba(229,9,20,0.1)"/>
-                <line x1="20" y1="20" x2="44" y2="20" stroke="currentColor" stroke-width="2"/>
-                <line x1="20" y1="28" x2="36" y2="28" stroke="currentColor" stroke-width="2" opacity="0.5"/>
-                <circle cx="32" cy="44" r="6" stroke="currentColor" stroke-width="2" fill="rgba(229,9,20,0.2)"/>
-                <text x="8" y="58" font-size="8" fill="currentColor" opacity="0.6">🔧 配置复杂</text>
-              </svg>
-              <div class="pain-card-icon">🤯</div>
+            <div class="pain-card-scene" style="background-image: url('images/subscription/03-elderly-confused.jpg')">
+              <div class="pain-card-scene-icon">🤯</div>
             </div>
             <h3 class="pain-card-title">配置太复杂，老人不会用</h3>
             <p class="pain-card-text">要装软件、要下APP、要找链接...折腾半天，父母想用还是不会。</p>
