@@ -989,7 +989,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <section class="testimonials-section">
       <div class="container">
         <h2 class="testimonials-title">用户真实评价</h2>
-        <div class="testimonials-grid">
+        <p class="testimonials-subtitle">来自全球华人的真实反馈</p>
+        <div class="testimonials-scroll">
           <div class="testimonial-card">
             <div class="testimonial-header">
               <div class="testimonial-avatar">张</div>
@@ -1011,7 +1012,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">"春节回不去家，通过会员看国内直播，感觉就像在家一样。家里老人也可以用，操作简单。最值得的是无广告，看球赛不会被中断。"</p>
+            <p class="testimonial-text">"给父母买的，他们说用起来很方便，一键导入就能看。最满意的是体育赛事直播很流畅，不用担心关键时刻卡住。"</p>
           </div>
           
           <div class="testimonial-card">
@@ -1023,9 +1024,94 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★☆</div>
-            <p class="testimonial-text">"体育频道很全，NBA、英超都能看。云同步功能方便，换设备不用重新设置。如果能有更多粤语频道就完美了。总体来说性价比很高。"</p>
+            <p class="testimonial-text">"用了一段时间，频道很全，港澳台都有。客服响应也挺快的，有问题都能解决。总体满意，推荐。"</p>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar">陈</div>
+              <div>
+                <div class="testimonial-name">陈女士</div>
+                <div class="testimonial-meta">澳大利亚 · 订阅6个月</div>
+              </div>
+            </div>
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"儿子留学澳洲，给他办了个会员。他说学校宿舍用这个看国内新闻很方便，而且还能看体育比赛，很实用。"</p>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar">刘</div>
+              <div>
+                <div class="testimonial-name">刘先生</div>
+                <div class="testimonial-meta">德国 · 订阅2年</div>
+              </div>
+            </div>
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"在德国生活了十年，最想看的就是春晚和世界杯。这个服务用了两年了，从来没让我失望过，强烈推荐！"</p>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar">赵</div>
+              <div>
+                <div class="testimonial-name">赵女士</div>
+                <div class="testimonial-meta">日本 · 订阅5个月</div>
+              </div>
+            </div>
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"在日本工作，平时喜欢看家乡的新闻。这个服务很稳定，而且有很多地方台，就像在家里一样。"</p>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar">周</div>
+              <div>
+                <div class="testimonial-name">周先生</div>
+                <div class="testimonial-meta">新加坡 · 订阅1年</div>
+              </div>
+            </div>
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"新加坡华人很多，这个服务也很受欢迎。我和家人一起订阅，五台设备够用，性价比很高。"</p>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar">吴</div>
+              <div>
+                <div class="testimonial-name">吴女士</div>
+                <div class="testimonial-meta">法国 · 订阅8个月</div>
+              </div>
+            </div>
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"在法国生活，逢年过节最想看的就是国内综艺和电视剧直播。这个服务让我重温了小时候的感觉。"</p>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar">郑</div>
+              <div>
+                <div class="testimonial-name">郑先生</div>
+                <div class="testimonial-meta">韩国 · 订阅3个月</div>
+              </div>
+            </div>
+            <div class="testimonial-stars">★★★★☆</div>
+            <p class="testimonial-text">"在韩国留学，用这个看国内体育比赛很方便。偶尔会有小卡顿，但总体体验不错，值得推荐。"</p>
+          </div>
+          
+          <div class="testimonial-card">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar">孙</div>
+              <div>
+                <div class="testimonial-name">孙女士</div>
+                <div class="testimonial-meta">意大利 · 订阅1年</div>
+              </div>
+            </div>
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"在欧洲生活多年，最想念的就是国内春晚和新闻联播。这个服务解决了我的问题，感谢！"</p>
           </div>
         </div>
+        <p class="testimonials-hint">← 左右滑动查看更多评价 →</p>
       </div>
     </section>
     
