@@ -280,6 +280,103 @@ export function generateHomePage(options = {}) {
       position: relative;
     }
     .promo-banner.show { display: block; }
+    /* Subscription Value Banner - V3 Editorial */
+    .sub-value-banner {
+      background: var(--bg-primary);
+      border-top: 3px solid var(--accent);
+      padding: 2.5rem 0;
+      margin-top: 2rem;
+    }
+    .sub-value-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 3rem;
+    }
+    .sub-value-left {
+      flex: 1;
+    }
+    .sub-value-eyebrow {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+    .sub-value-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+    .sub-value-title span {
+      color: var(--accent);
+    }
+    .sub-value-desc {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-top: 1rem;
+      max-width: 480px;
+      line-height: 1.6;
+    }
+    .sub-value-copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0.375rem 0.75rem;
+      transition: all 0.2s;
+    }
+    .sub-value-copy-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .sub-value-player-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+    .sub-value-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.5rem;
+      background: transparent;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border: 1px solid var(--accent);
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .sub-value-cta:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+    @media (max-width: 768px) {
+      .sub-value-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2rem;
+      }
+      .sub-value-title {
+        font-size: 1.75rem;
+      }
+      .sub-value-cta {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
     .promo-banner-inner {
       display: flex;
       align-items: center;
@@ -442,6 +539,20 @@ export function generateHomePage(options = {}) {
       </div>
     </div>
   </section>
+
+
+    <!-- Subscription Value Banner - V3 Editorial -->
+  <div class="sub-value-banner">
+    <div class="sub-value-inner">
+      <div class="sub-value-left">
+        <div class="sub-value-eyebrow">New User Special</div>
+        <h2 class="sub-value-title">Your Full Channel<br><span>Playlist</span> Awaits</h2>
+        <p class="sub-value-desc">Register now and get instant access to 5000+ IPTV channels. One click to your personal M3U subscription link.</p>
+        <div class="sub-value-player-hint">VLC • APTV • TVBox • Tivimate • Televizo • GSE Smart IPTV • 途播</div>
+      </div>
+      <a href="/login#register" class="sub-value-cta">Get Free VIP →</a>
+    </div>
+  </div>
 
   <!-- Promo Banner - Clean minimalist style -->
   <div class="promo-banner" id="promoBanner">
@@ -810,8 +921,7 @@ export function generateHomePage(options = {}) {
         translate.execute();
       } else { setTimeout(initTranslate, 100); }
     }
-    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initTranslate); } else { initTranslate(); }
-  </script>
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initTranslate); } else { initTranslate(); }</script>
 </body>
 </html>`;
 }

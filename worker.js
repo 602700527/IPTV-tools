@@ -6,7 +6,6 @@ import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
 import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } from './handlers/scheduler.js';
 import { handleUserActivate, handleUserChangeTopic } from './handlers/user.js';
 import { handlePublicPlay, handleChannelDebug, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings, handleFavoritesM3U, handleChannelsM3U } from './handlers/public.js';
-import { handleFreeSubAPI } from './handlers/freesub-api.js';
 import { handleGetPlans } from './handlers/plans-api.js';
 import { generateAndCacheSitemap, getAllChannels, getAllGroups } from './utils/channel-cache.js';
 
@@ -473,7 +472,6 @@ import {
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { ACCOUNT_HTML } from './account-page.js';
-import { FREE_SUB_HTML } from './freesub-page.js';
 import { SUBSCRIPTION_HTML } from './subscription-page.js';
 import { PLANS_HTML } from './plans-page.js';
 import { RESET_PASSWORD_HTML } from './reset-password-page.js';
@@ -1382,11 +1380,6 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       return new Response(htmlWithConfig, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
-    } else if (path === '/freesub' || path === '/freesub/' || path === '/freesub/index' || path === '/freesub/index.html') {
-      // 免费订阅页面
-      return new Response(FREE_SUB_HTML, {
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
-      });
     } else if (path === '/tutorial' || path === '/tutorial/' || path === '/tutorial/index' || path === '/tutorial/index.html') {
       // 教程页面 - 使用静态页面（注入页头页脚组件）
       return new Response(generateStaticPage(tutorialTitle, tutorialDesc, tutorialStyles, tutorialContent), {
@@ -1615,8 +1608,8 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           headers: { 'Content-Type': 'text/html; charset=utf-8' }
         });
       } else {
-        // 商城关闭，重定向到免费订阅页面
-        return Response.redirect(url.origin + '/freesub', 302);
+        // 商城关闭，重定向到首页
+        return Response.redirect(url.origin + '/', 302);
       }
     } else if (path === '/account' || path === '/account/' || path === '/account/index' || path === '/account/index.html') {
       // 用户账户页面
@@ -1844,9 +1837,6 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       return new Response(generateStaticPage(oceaniaIptvTitle, oceaniaIptvDesc, oceaniaIptvStyles, oceaniaIptvContent), {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
-    } else if (path.startsWith('/api/freesub')) {
-      // 免费订阅API
-      return await handleFreeSubAPI(request, env, ctx);
     } else if (path.startsWith('/api/ads/')) {
       // 广告TS文件API: /api/ads/{id}.ts
       return await handleAdTsFile(request, env, ctx);

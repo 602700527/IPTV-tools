@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPTV Banner Designs - Variant 1: Bold & Direct</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --accent: #e50914;
+      --accent-hover: #ff1a1a;
+      --border: rgba(255,255,255,0.08);
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    /* 当前横幅参考 */
+    .current-banner {
+      background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+      border-top: 1px solid rgba(229, 9, 20, 0.3);
+      border-bottom: 1px solid rgba(229, 9, 20, 0.3);
+      padding: 1.25rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .current-banner-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+    
+    .current-banner-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .current-banner-icon {
+      font-size: 2.5rem;
+    }
+    
+    .current-banner-text h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 0;
+    }
+    
+    .current-banner-text p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+    
+    .current-banner-demo {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+      max-width: 500px;
+    }
+    
+    .current-url-box {
+      display: flex;
+      align-items: center;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      gap: 0.25rem;
+    }
+    
+    .current-url-prefix {
+      color: var(--text-muted);
+    }
+    
+    .current-url-code {
+      color: #e50914;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+    }
+    
+    .current-url-copy {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.25rem;
+      margin-left: auto;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    
+    .current-player-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: right;
+    }
+    
+    .current-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.75rem 2rem;
+      background: linear-gradient(90deg, #e50914, #ff4444);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(229, 9, 20, 0.4);
+      flex-shrink: 0;
+    }
+    
+    .current-cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(229, 9, 20, 0.6);
+    }
+    
+    /* 变体1：极简线条风格 */
+    .variant-1 {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      max-width: 1400px;
+      margin: 2rem auto;
+    }
+    
+    .variant-1-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .variant-1-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .variant-1-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.25rem 0.5rem;
+      border-radius: 2px;
+    }
+    
+    .variant-1-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .variant-1-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 0.125rem;
+    }
+    
+    .variant-1-url {
+      display: flex;
+      align-items: center;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 0.5rem 0.75rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      gap: 0.5rem;
+      flex: 1;
+      max-width: 480px;
+    }
+    
+    .variant-1-url-prefix {
+      color: var(--text-muted);
+    }
+    
+    .variant-1-url-code {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+    
+    .variant-1-copy-btn {
+      background: none;
+      border: none;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      transition: opacity 0.2s;
+    }
+    
+    .variant-1-copy-btn:hover {
+      opacity: 0.7;
+    }
+    
+    .variant-1-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.5rem;
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    
+    .variant-1-cta:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+    
+    /* 变体2：玻璃拟态风格 */
+    .variant-2 {
+      background: linear-gradient(135deg, rgba(229, 9, 20, 0.1) 0%, rgba(10, 10, 10, 0.9) 100%);
+      border-left: 3px solid var(--accent);
+      padding: 1.25rem 2rem;
+      max-width: 1400px;
+      margin: 2rem auto;
+      backdrop-filter: blur(10px);
+    }
+    
+    .variant-2-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .variant-2-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .variant-2-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent), #ff4444);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 4px 20px rgba(229, 9, 20, 0.3);
+    }
+    
+    .variant-2-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    
+    .variant-2-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 0.125rem;
+    }
+    
+    .variant-2-url-box {
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 0.625rem 1rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      gap: 0.5rem;
+      flex: 1;
+      max-width: 480px;
+    }
+    
+    .variant-2-url-prefix {
+      color: var(--text-muted);
+    }
+    
+    .variant-2-url-code {
+      color: #fff;
+      font-weight: 600;
+    }
+    
+    .variant-2-copy {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    
+    .variant-2-copy:hover {
+      background: var(--accent);
+    }
+    
+    .variant-2-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.75rem;
+      background: linear-gradient(90deg, var(--accent), #ff4444);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(229, 9, 20, 0.4);
+    }
+    
+    .variant-2-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(229, 9, 20, 0.6);
+    }
+    
+    /* 变体3：杂志 editorial 风格 */
+    .variant-3 {
+      background: var(--bg-primary);
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 2rem auto;
+      border-top: 2px solid var(--accent);
+    }
+    
+    .variant-3-inner {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 3rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .variant-3-left {
+      flex: 1;
+    }
+    
+    .variant-3-eyebrow {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+    
+    .variant-3-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    
+    .variant-3-title span {
+      color: var(--accent);
+    }
+    
+    .variant-3-subtitle {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-top: 0.75rem;
+      max-width: 400px;
+    }
+    
+    .variant-3-url {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    
+    .variant-3-url-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    
+    .variant-3-url-code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+    
+    .variant-3-copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0.375rem 0.75rem;
+      transition: all 0.2s;
+    }
+    
+    .variant-3-copy-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    
+    .variant-3-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 2.5rem;
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+      border: 2px solid var(--text-primary);
+    }
+    
+    .variant-3-cta:hover {
+      background: transparent;
+      color: var(--text-primary);
+    }
+    
+    /* 对比表格 */
+    .comparison {
+      max-width: 1400px;
+      margin: 3rem auto;
+      padding: 0 2rem;
+    }
+    
+    .comparison h2 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .comparison-table th,
+    .comparison-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .comparison-table th {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+    
+    .comparison-table td {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .comparison-table td:first-child {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    /* 标签 */
+    .label {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.25rem 0.75rem;
+      border-radius: 2px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .label-current { background: #333; color: #888; }
+    .label-v1 { background: var(--accent); color: #fff; }
+    .label-v2 { background: #1a4d1a; color: #4dff4d; }
+    .label-v3 { background: #1a1a4d; color: #4d4dff; }
+    
+    /* 页面标题 */
+    .page-header {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+    
+    .page-header h1 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+    }
+    
+    .page-header p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>IPTV Banner Design Variants</h1>
+    <p>Comparing different design directions for the subscription value banner</p>
+  </div>
+  
+  <!-- Current Version -->
+  <div class="label label-current">Current Implementation</div>
+  <div class="current-banner">
+    <div class="current-banner-inner">
+      <div class="current-banner-left">
+        <div class="current-banner-icon">📺</div>
+        <div class="current-banner-text">
+          <h2 class="current-banner-title">Get Your Full Channel Playlist</h2>
+          <p class="current-banner-desc">Register to unlock your personal M3U subscription link — 5000+ channels in one click</p>
+        </div>
+      </div>
+      <div class="current-banner-demo">
+        <div class="current-url-box">
+          <span class="current-url-prefix">https://iptv-search.com/sub/</span>
+          <span class="current-url-code">••••••••••</span>
+          <button class="current-url-copy" onclick="copyDemo()" title="Copy URL">📋</button>
+        </div>
+        <div class="current-player-hint">
+          <span>Works with VLC • IPTV Smarters • GSE Smart IPTV</span>
+        </div>
+      </div>
+      <a href="#register" class="current-cta-btn">Get My Playlist →</a>
+    </div>
+  </div>
+  
+  <!-- Variant 1: Minimalist Line Style -->
+  <div class="label label-v1">Variant 1: Minimalist Line</div>
+  <div class="variant-1">
+    <div class="variant-1-inner">
+      <div class="variant-1-left">
+        <span class="variant-1-badge">FREE VIP</span>
+        <div>
+          <div class="variant-1-title">Get Your M3U Playlist</div>
+          <div class="variant-1-subtitle">5000+ channels in one click</div>
+        </div>
+      </div>
+      <div class="variant-1-url">
+        <span class="variant-1-url-prefix">https://iptv-search.com/sub/</span>
+        <span class="variant-1-url-code">YOUR_CODE.m3u</span>
+        <button class="variant-1-copy-btn" onclick="copyDemo()">Copy</button>
+      </div>
+      <a href="#register" class="variant-1-cta">
+        Get Access →
+      </a>
+    </div>
+  </div>
+  
+  <!-- Variant 2: Glassmorphism -->
+  <div class="label label-v2">Variant 2: Glass Effect</div>
+  <div class="variant-2">
+    <div class="variant-2-inner">
+      <div class="variant-2-left">
+        <div class="variant-2-icon">📺</div>
+        <div>
+          <div class="variant-2-title">Your Personal Playlist Awaits</div>
+          <div class="variant-2-subtitle">Register for 7 days free VIP access</div>
+        </div>
+      </div>
+      <div class="variant-2-url-box">
+        <span class="variant-2-url-prefix">https://iptv-search.com/sub/</span>
+        <span class="variant-2-url-code">••••••••••••</span>
+        <button class="variant-2-copy" onclick="copyDemo()">📋 Copy</button>
+      </div>
+      <a href="#register" class="variant-2-cta">
+        Get My Playlist →
+      </a>
+    </div>
+  </div>
+  
+  <!-- Variant 3: Editorial -->
+  <div class="label label-v3">Variant 3: Editorial</div>
+  <div class="variant-3">
+    <div class="variant-3-inner">
+      <div class="variant-3-left">
+        <div class="variant-3-eyebrow">New User Special</div>
+        <h2 class="variant-3-title">Your Full Channel<br><span>Playlist</span> Awaits</h2>
+        <p class="variant-3-subtitle">Register now and get instant access to 5000+ IPTV channels. One click to your personal M3U subscription link.</p>
+        <div class="variant-3-url">
+          <span class="variant-3-url-label">Preview URL:</span>
+          <span class="variant-3-url-code">https://iptv-search.com/sub/••••••••</span>
+          <button class="variant-3-copy-btn" onclick="copyDemo()">Copy Link</button>
+        </div>
+      </div>
+      <a href="#register" class="variant-3-cta">
+        Get Free VIP →
+      </a>
+    </div>
+  </div>
+  
+  <!-- Comparison Table -->
+  <div class="comparison">
+    <h2>Design Comparison</h2>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Current</th>
+          <th>V1: Minimalist</th>
+          <th>V2: Glass</th>
+          <th>V3: Editorial</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Density</td>
+          <td>Medium</td>
+          <td>Low</td>
+          <td>High</td>
+          <td>Medium</td>
+        </tr>
+        <tr>
+          <td>Primary Action Visibility</td>
+          <td>High</td>
+          <td>Medium</td>
+          <td>High</td>
+          <td>High</td>
+        </tr>
+        <tr>
+          <td>Scan-ability</td>
+          <td>High</td>
+          <td>High</td>
+          <td>Medium</td>
+          <td>Low</td>
+        </tr>
+        <tr>
+          <td>Feel</td>
+          <td>Functional</td>
+          <td>Clean, tool-like</td>
+          <td>Premium, modern</td>
+          <td>Editorial, confident</td>
+        </tr>
+        <tr>
+          <td>Boldness</td>
+          <td>Medium</td>
+          <td>Conservative</td>
+          <td>Strong</td>
+          <td>Very Strong</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <script>
+    function copyDemo() {
+      navigator.clipboard.writeText('https://iptv-search.com/sub/demo123.m3u');
+      alert('URL copied!');
+    }
+  </script>
+</body>
+</html>

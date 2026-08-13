@@ -5,9 +5,11 @@ import {
   enhancedChannelMatch,
   smartSort
 } from '../../utils/search-utils.js';
+import { getDB } from '../../database.js';
 
 const SEARCH_CACHE_KEY = 'search_cache:';
 const SEARCH_CACHE_TTL = 300; // 5分钟缓存
+const FREE_SEARCH_LIMIT = 5; // 免费用户搜索结果限制数量
 
 function slugify(str) {
   if (!str) return '';
@@ -19,17 +21,58 @@ function slugify(str) {
 }
 
 // 计算搜索词的缓存key
-function getSearchCacheKey(query) {
+function getSearchCacheKey(query, isVip) {
   const normalized = query.toLowerCase().trim();
-  return SEARCH_CACHE_KEY + normalized;
+  // VIP和免费用户用不同缓存key，避免缓存污染
+  return SEARCH_CACHE_KEY + normalized + (isVip ? ':vip' : ':free');
+}
+
+/**
+ * 检查用户是否是VIP（付费订阅用户）
+ */
+async function checkUserVipStatus(token) {
+  try {
+    const db = getDB();
+    // 验证token并获取用户信息
+    const session = await db.prepare(`
+      SELECT u.id, u.email, s.expires_at as session_expires
+      FROM users u
+      JOIN user_sessions s ON u.id = s.user_id
+      WHERE s.token = ? AND s.expires_at > datetime('now')
+    `).bind(token).first();
+
+    if (!session) return { isVip: false, reason: 'invalid_session' };
+
+    // 检查是否有有效订阅（通过user_orders表）
+    const activeOrder = await db.prepare(`
+      SELECT o.code, c.duration_days, c.expired_at
+      FROM user_orders o
+      LEFT JOIN codes c ON o.code = c.code
+      WHERE o.user_id = ? 
+        AND o.status = 'completed'
+        AND (c.expired_at IS NULL OR c.expired_at > datetime('now'))
+      ORDER BY o.created_at DESC
+      LIMIT 1
+    `).bind(session.id).first();
+
+    return {
+      isVip: !!activeOrder,
+      userId: session.id,
+      userEmail: session.email,
+      reason: activeOrder ? 'vip' : 'free_user'
+    };
+  } catch (e) {
+    console.error('[Search VIP Check] Error:', e.message);
+    return { isVip: false, reason: 'error' };
+  }
 }
 
 /**
  * Handle /api/search
  * Returns search results for the given query
- * 使用搜索结果缓存，避免重复计算
+ * VIP用户无限制，免费用户限制前5条
  */
-export async function handleApiSearch(request, env) {
+export async function handleApiSearch(request, env, ctx) {
   try {
     const url = new URL(request.url);
     const query = (url.searchParams.get('q') || '').trim();
@@ -44,12 +87,34 @@ export async function handleApiSearch(request, env) {
       });
     }
 
+    // 检查用户登录状态和VIP身份
+    const authHeader = request.headers.get('Authorization');
+    let isVip = false;
+    let userId = null;
+    let userEmail = null;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      const vipStatus = await checkUserVipStatus(token);
+      isVip = vipStatus.isVip;
+      userId = vipStatus.userId;
+      userEmail = vipStatus.userEmail;
+    }
+
     // 尝试从缓存获取搜索结果
-    const cacheKey = getSearchCacheKey(query);
+    const cacheKey = getSearchCacheKey(query, isVip);
     try {
       const cached = await env.KV.get(cacheKey, { type: 'json' });
       if (cached) {
-        console.log('[API Search] Cache hit for query:', query);
+        console.log('[API Search] Cache hit for query:', query, 'isVip:', isVip);
+        // 添加元信息
+        cached.meta = {
+          isVip,
+          isLimited: !isVip && cached.data?.totalResults > FREE_SEARCH_LIMIT,
+          freeLimit: FREE_SEARCH_LIMIT,
+          userId: userId,
+          userEmail: userEmail
+        };
         return new Response(JSON.stringify(cached), {
           headers: {
             'Content-Type': 'application/json',
@@ -73,27 +138,23 @@ export async function handleApiSearch(request, env) {
     let channelsToSearch = [];
     let searchedByGroup = false;
 
-    // 使用扩展后的搜索词检查匹配到哪个分组
     const matchedGroup = groups.find(g => {
       const groupLower = g.toLowerCase();
       return expandedTerms.some(term => groupLower.includes(term) || term.includes(groupLower));
     });
 
     if (matchedGroup) {
-      // 如果匹配到分组，只搜索该分组
       const groupResult = await getChannelsByGroup(env, matchedGroup);
       if (groupResult.fromCache && groupResult.channels.length > 0) {
         channelsToSearch = groupResult.channels;
         searchedByGroup = true;
         console.log(`[API Search] Group-based search: "${matchedGroup}", channels: ${channelsToSearch.length}`);
       } else {
-        // 分组缓存不存在，fallback 到全量
         const allChannelsResult = await getAllChannels(env);
         channelsToSearch = allChannelsResult.channels;
         console.log(`[API Search] Group cache miss, falling back to full search`);
       }
     } else {
-      // 没有匹配到分组，直接返回空结果（数据不存在，无需搜索全量）
       console.log(`[API Search] No group matched for query "${query}", returning empty results`);
       channelsToSearch = [];
     }
@@ -115,8 +176,11 @@ export async function handleApiSearch(request, env) {
     // 智能排序
     matchedChannels.sort((a, b) => smartSort(a.channel, b.channel, a.score, b.score));
     
-    // 取前100个结果
-    const results = matchedChannels.slice(0, 100).map(m => m.channel);
+    // 计算实际返回数量
+    const maxResults = isVip ? 100 : FREE_SEARCH_LIMIT;
+    const results = matchedChannels.slice(0, maxResults).map(m => m.channel);
+    const totalResults = matchedChannels.length;
+    const isLimited = !isVip && totalResults > FREE_SEARCH_LIMIT;
 
     // Build JSON-LD ItemList
     const itemListElement = results.map((ch, index) => ({
@@ -145,7 +209,7 @@ export async function handleApiSearch(request, env) {
       'itemListElement': itemListElement,
       data: {
         query: query,
-        totalResults: results.length,
+        totalResults: totalResults,
         results: results.map(ch => ({
           name: ch.channel_name,
           slug: slugify(ch.channel_name),
@@ -153,7 +217,13 @@ export async function handleApiSearch(request, env) {
           group: ch.group_title,
           logo: ch.logo
         })),
-        suggestedCategories: suggestedCategories
+        suggestedCategories: suggestedCategories,
+        // 新增元信息
+        isVip: isVip,
+        isLimited: isLimited,
+        freeLimit: FREE_SEARCH_LIMIT,
+        userId: userId,
+        userEmail: userEmail
       }
     };
 
@@ -179,3 +249,5 @@ export async function handleApiSearch(request, env) {
     });
   }
 }
+
+export { FREE_SEARCH_LIMIT };

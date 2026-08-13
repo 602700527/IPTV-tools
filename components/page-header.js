@@ -45,7 +45,7 @@ export const PAGE_HEADER = `
         <a href="/subscription" class="pill-btn" title="Plans">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         </a>
-        <a href="/account" class="account-btn" title="Account">
+        <a href="/account" class="account-btn guest-gift" title="Get 7 Days Free VIP" id="giftAccountBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </a>
         <div id="translate"></div>
@@ -93,6 +93,28 @@ export const PAGE_HEADER = `
         .catch(function() {
           loadAd();
         });
+    })();
+  </script>
+
+  <script>
+    // Gift animation for unauthenticated users
+    (function() {
+      var btn = document.getElementById('giftAccountBtn');
+      if (!btn) return;
+      
+      // 检查是否已登录（Cookie或localStorage）
+      var token = document.cookie.split('; ').find(row => row.startsWith('auth_token='))?.split('=')[1] || localStorage.getItem('auth_token');
+      if (token) {
+        btn.classList.remove('guest-gift');
+        var icon = btn.querySelector('.gift-icon');
+        if (icon) icon.remove();
+      } else {
+        btn.classList.add('guest-gift');
+        var giftIcon = document.createElement('span');
+        giftIcon.className = 'gift-icon';
+        giftIcon.textContent = '🎁';
+        btn.appendChild(giftIcon);
+      }
     })();
   </script>
 
@@ -262,6 +284,35 @@ export const PAGE_HEADER = `
     }
     .pill-btn:hover, .account-btn:hover { color: var(--accent); }
     .account-btn svg, .pill-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    
+    /* Gift animation for unauthenticated users */
+    .guest-gift {
+      position: relative;
+      animation: giftPulse 2s ease-in-out infinite;
+    }
+    .gift-icon {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      font-size: 12px;
+      animation: giftBounce 1s ease-in-out infinite;
+      filter: drop-shadow(0 2px 4px rgba(229, 9, 20, 0.5));
+    }
+    @keyframes giftPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @keyframes giftBounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-3px) rotate(-10deg); }
+    }
+    .guest-gift:hover .gift-icon {
+      animation: giftSpin 0.5s ease-out;
+    }
+    @keyframes giftSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
 
     #translate { position: relative; display: inline-flex; align-items: center; }
     #translateSelectLanguage {

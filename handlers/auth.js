@@ -9,6 +9,16 @@ function generateVerificationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+// 生成7天VIP体验码（16位随机字符串）
+function generateTrialCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let code = '';
+  for (let i = 0; i < 16; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
 /**
  * 密码哈希函数（使用 Web Crypto API）
  */
@@ -121,13 +131,38 @@ export async function handleRegister(request, env, ctx) {
       VALUES (?, ?, ?, ?)
     `).bind(result.meta.last_row_id, token, expiresAt.toISOString(), now.toISOString()).run();
 
+    // 自动赠送7天VIP体验订单
+    const userId = result.meta.last_row_id;
+    const trialCode = generateTrialCode();
+    const trialExpiredAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    
+    try {
+      // 插入codes表（active状态，已设置过期时间）
+      await db.prepare(`
+        INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, remark)
+        VALUES (?, 'active', ?, ?, ?, ?, ?)
+      `).bind(trialCode, 7, now.toISOString(), trialExpiredAt.toISOString(), 3, 'New user 7-day VIP trial').run();
+      
+      // 插入user_orders表
+      await db.prepare(`
+        INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, status)
+        VALUES (?, ?, ?, ?, ?, 'completed')
+      `).bind(userId, 'TRIAL_' + Date.now(), trialCode, 7, 0).run();
+      
+      console.log('[Register] 7-day VIP trial created for user:', userId, 'code:', trialCode);
+    } catch (trialError) {
+      console.error('[Register] Failed to create trial order:', trialError.message);
+    }
+
     // 获取用户信息
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').bind(result.meta.last_row_id).first();
+    const user = await db.prepare('SELECT * FROM users WHERE id = ?').bind(userId).first();
 
     return new Response(JSON.stringify({
       success: true,
       message: '注册成功',
       token: token,
+      trialCode: trialCode,
+      trialExpiredAt: trialExpiredAt.toISOString(),
       user: {
         id: user.id,
         email: user.email,

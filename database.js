@@ -578,60 +578,10 @@ export async function createTables(env) {
     console.error('Database: Failed to create ad_play_logs indexes:', e);
   }
 
-  // 鍒涘缓鍏嶈垂璁㈤槄琛?
-  try {
-    await db.prepare(`
-      CREATE TABLE IF NOT EXISTS free_subscriptions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        sub_id TEXT NOT NULL UNIQUE,
-        ip TEXT NOT NULL,
-        fingerprint TEXT NOT NULL,
-        fingerprint_components TEXT NOT NULL,
-        expired_at DATETIME NOT NULL,
-        total_days INTEGER DEFAULT 7,
-        consecutive_days INTEGER DEFAULT 1,
-        ip_change_count INTEGER DEFAULT 0,
-        ip_updated_at DATETIME,
-        last_checkin DATETIME,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `).run();
-    console.log('Database: free_subscriptions table created or already exists');
-  } catch (e) {
-    console.error('Database: Failed to create free_subscriptions table:', e);
-  }
 
-  // 鍒涘缓鍏嶈垂璁㈤槄绱㈠紩
-  try {
-    await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_sub_id ON free_subscriptions(sub_id)').run();
-    await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_ip ON free_subscriptions(ip)').run();
-    await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_fingerprint ON free_subscriptions(fingerprint)').run();
-    await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_expired_at ON free_subscriptions(expired_at)').run();
-    await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_ip_fingerprint ON free_subscriptions(ip, fingerprint)').run();
-    console.log('Database: free_subscriptions indexes created or already exist');
-  } catch (e) {
-    console.error('Database: Failed to create free_subscriptions indexes:', e);
-  }
 
-  // 杩佺Щ锛氭坊鍔?fp_token 瀛楁锛堝鏋滀笉瀛樺湪锛?
-  try {
-    await db.prepare('ALTER TABLE free_subscriptions ADD COLUMN fp_token TEXT').run();
-    console.log('Database: Migrated free_subscriptions table - added fp_token column');
-  } catch (e) {
-    if (!e.message.includes('duplicate column name')) {
-      // 瀛楁宸插瓨鍦紝蹇界暐閿欒
-      console.log('Database: fp_token column already exists');
-    }
-  }
 
-  // 鍒涘缓 fp_token 绱㈠紩
-  try {
-    await db.prepare('CREATE INDEX IF NOT EXISTS idx_free_subscriptions_fp_token ON free_subscriptions(fp_token)').run();
-    console.log('Database: fp_token index created or already exists');
-  } catch (e) {
-    console.error('Database: Failed to create fp_token index:', e);
-  }
+
 
   // 鍒涘缓绛惧埌璁板綍琛紙娉ㄦ剰锛欴1 涓嶆敮鎸?FOREIGN KEY锛屾墍浠ョЩ闄ゅ閿害鏉燂級
   try {

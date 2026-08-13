@@ -176,6 +176,50 @@ export function generateSearchPage(options = {}) {
       pointer-events: none;
     }
 
+    /* VIP Limit Notice */
+    .vip-limit-notice {
+      margin-top: 2rem;
+      padding: 1rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-hover);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .vip-limit-notice p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+    .vip-limit-notice p strong {
+      color: var(--accent);
+    }
+    .vip-upgrade-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      background: var(--accent);
+      color: #fff;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background var(--transition);
+      white-space: nowrap;
+    }
+    .vip-upgrade-btn:hover {
+      background: var(--accent-hover);
+    }
+    .vip-perks {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
     @media (max-width: 768px) {
       .header { padding: 0.5rem 0.75rem; }
       .header-inner { flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; }
@@ -308,14 +352,28 @@ export function generateSearchPage(options = {}) {
       }
 
       try {
-        const response = await fetch(origin + '/api/search?q=' + encodeURIComponent(query));
+        // 获取用户token（如果已登录）
+        const userToken = localStorage.getItem('user_token');
+        const headers = userToken ? { 'Authorization': 'Bearer ' + userToken } : {};
+        
+        const response = await fetch(origin + '/api/search?q=' + encodeURIComponent(query), { headers });
         const data = await response.json();
         const results = data.data?.results || [];
         const totalResults = data.data?.totalResults || 0;
+        const isLimited = data.data?.isLimited || false;
+        const freeLimit = data.data?.freeLimit || 5;
+        const isVip = data.data?.isVip || false;
 
-        resultText.innerHTML = totalResults > 0
-          ? 'Found <strong>' + totalResults + '</strong> channels for "<strong>' + escapeHtml(query) + '</strong>"'
-          : 'No channels found for "<strong>' + escapeHtml(query) + '</strong>"';
+        if (totalResults > 0) {
+          let resultTextContent = 'Found <strong>' + totalResults + '</strong> channels for "<strong>' + escapeHtml(query) + '</strong>"';
+          // 如果结果被限制，添加提示
+          if (isLimited && !isVip) {
+            resultTextContent += ' <span style="color: var(--accent); font-size: 0.9em;">(Showing top ' + freeLimit + ' - <a href="' + origin + '/subscription" style="color: var(--accent); text-decoration: underline;">Upgrade to VIP</a> to see all)</span>';
+          }
+          resultText.innerHTML = resultTextContent;
+        } else {
+          resultText.innerHTML = 'No channels found for "<strong>' + escapeHtml(query) + '</strong>"';
+        }
 
         if (results.length > 0) {
           resultsContainer.innerHTML = '<div class="channel-grid">' + results.map(ch => {
@@ -330,6 +388,17 @@ export function generateSearchPage(options = {}) {
             '</a>';
           }).join('') + '</div>';
 
+          // 如果结果被限制，显示升级提示
+          if (isLimited && !isVip) {
+            resultsContainer.innerHTML += '<div class="vip-limit-notice">' +
+              '<div>' +
+                '<p>Showing <strong>' + results.length + '</strong> of <strong>' + totalResults + '</strong> channels</p>' +
+                '<p class="vip-perks">Upgrade to VIP for unlimited search + no ads + cloud sync</p>' +
+              '</div>' +
+              '<a href="' + origin + '/subscription" class="vip-upgrade-btn">Upgrade Now →</a>' +
+            '</div>';
+          }
+
           // Hide tips if we have results
           document.getElementById('searchTips').style.display = 'none';
 
@@ -337,8 +406,8 @@ export function generateSearchPage(options = {}) {
           const jsonLd = {
             "@context": "https://schema.org",
             "@type": "ItemList",
-            "numberOfItems": totalResults,
-            "itemListElement": results.slice(0, 10).map((ch, i) => ({
+            "numberOfItems": results.length,
+            "itemListElement": results.map((ch, i) => ({
               "@type": "ListItem",
               "position": i + 1,
               "name": ch.name,
