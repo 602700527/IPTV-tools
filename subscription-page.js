@@ -1,4 +1,4 @@
-// 订阅页面 - 营销导向版
+// 订阅页面 - 营销优化版 v2
 import { PAGE_HEADER } from './components/page-header.js';
 import { PAGE_FOOTER } from './components/page-footer.js';
 import { HEAD_SCRIPTS } from './components/head-scripts.js';
@@ -16,88 +16,169 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     :root {
       --accent: #e50914;
       --accent-hover: #f7262c;
+      --accent-glow: rgba(229, 9, 20, 0.3);
       --bg: #0a0a0a;
       --bg-card: #141414;
+      --bg-elevated: #1a1a1a;
       --border: 1px solid rgba(255,255,255,0.08);
+      --border-accent: 1px solid rgba(229,9,20,0.3);
       --text: #fff;
-      --text-secondary: rgba(255,255,255,0.6);
+      --text-secondary: rgba(255,255,255,0.7);
       --text-muted: rgba(255,255,255,0.4);
       --success: #22c55e;
+      --gradient-hero: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 50%, #0a0a0a 100%);
+      --gradient-card: linear-gradient(145deg, rgba(20,20,20,0.9) 0%, rgba(10,10,10,0.95) 100%);
     }
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; }
     
-    /* ========== 痛点场景 ========== */
+    /* ========== 痛点场景 - 场景化设计 ========== */
     .pain-section {
-      padding: 80px 20px;
-      background: linear-gradient(180deg, rgba(229,9,20,0.08) 0%, transparent 100%);
-      border-bottom: var(--border);
+      padding: 100px 20px;
+      background: var(--gradient-hero);
+      position: relative;
+      overflow: hidden;
     }
-    .container { max-width: 1000px; margin: 0 auto; }
+    .pain-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(229,9,20,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .container { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
     
-    .pain-title {
-      text-align: center;
-      font-size: 2rem;
-      font-weight: 900;
-      margin-bottom: 48px;
-      line-height: 1.3;
-    }
-    .pain-title span { color: var(--accent); }
-    
-    .pain-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-    }
-    .pain-card {
-      background: var(--bg-card);
-      border: var(--border);
-      padding: 28px;
-      border-radius: 0;
-    }
-    .pain-card-icon {
-      font-size: 2rem;
-      margin-bottom: 16px;
-    }
-    .pain-card-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .pain-card-text {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
-    
-    /* ========== 解决方案 ========== */
-    .solution-section {
-      padding: 80px 20px;
-    }
-    .solution-header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-    .solution-badge {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 6px 16px;
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(229,9,20,0.15);
+      border: 1px solid rgba(229,9,20,0.3);
+      color: var(--accent);
+      padding: 8px 16px;
       font-size: 12px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 16px;
+      letter-spacing: 1.5px;
+      margin-bottom: 24px;
+    }
+    
+    .pain-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 60px;
+      text-align: center;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .pain-title span { 
+      background: linear-gradient(135deg, var(--accent) 0%, #ff4757 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .pain-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    
+    .pain-card {
+      background: var(--gradient-card);
+      border: var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+    .pain-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(229,9,20,0.4);
+    }
+    .pain-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .pain-card:hover::before { opacity: 1; }
+    
+    .pain-card-scene {
+      width: 100%;
+      height: 160px;
+      background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, rgba(0,0,0,0.3) 100%);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .pain-card-scene svg { width: 64px; height: 64px; opacity: 0.8; }
+    
+    .pain-card-icon {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      background: rgba(229,9,20,0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    
+    .pain-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .pain-card-text {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    
+    /* ========== 解决方案 - 产品优势 ========== */
+    .solution-section {
+      padding: 100px 20px;
+      background: linear-gradient(180deg, var(--bg) 0%, #0d0d0d 100%);
+    }
+    
+    .solution-header {
+      text-align: center;
+      margin-bottom: 60px;
     }
     .solution-title {
-      font-size: 2.2rem;
+      font-size: clamp(2rem, 4vw, 3rem);
       font-weight: 900;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.9) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     .solution-subtitle {
+      font-size: 1.2rem;
       color: var(--text-secondary);
-      font-size: 1.1rem;
     }
     
     .solution-grid {
@@ -105,198 +186,310 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 20px;
     }
+    
     .solution-card {
-      background: var(--bg-card);
+      background: var(--gradient-card);
       border: var(--border);
-      padding: 24px;
+      border-radius: 16px;
+      padding: 28px;
       text-align: center;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
     }
-    .solution-card-icon {
-      font-size: 2.5rem;
-      margin-bottom: 16px;
+    .solution-card:hover {
+      border-color: rgba(229,9,20,0.4);
+      transform: translateY(-2px);
     }
+    .solution-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 3px 3px 0 0;
+      opacity: 0;
+      transition: opacity 0.3s, width 0.3s;
+    }
+    .solution-card:hover::after {
+      opacity: 1;
+      width: 80px;
+    }
+    
+    .solution-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, rgba(229,9,20,0.2) 0%, rgba(229,9,20,0.1) 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 28px;
+      border: 1px solid rgba(229,9,20,0.2);
+    }
+    
     .solution-card-title {
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 700;
       margin-bottom: 8px;
     }
     .solution-card-text {
       color: var(--text-secondary);
-      font-size: 0.85rem;
-      line-height: 1.5;
+      font-size: 0.9rem;
     }
     
-    /* ========== 数据统计 ========== */
+    /* ========== 数据统计 - 大数字展示 ========== */
     .stats-section {
-      padding: 60px 20px;
-      background: rgba(229,9,20,0.05);
-      border-top: var(--border);
-      border-bottom: var(--border);
+      padding: 80px 20px;
+      background: linear-gradient(135deg, rgba(229,9,20,0.05) 0%, transparent 50%, rgba(229,9,20,0.03) 100%);
+      border-top: 1px solid rgba(229,9,20,0.1);
+      border-bottom: 1px solid rgba(229,9,20,0.1);
     }
+    
     .stats-grid {
       display: flex;
       justify-content: center;
-      gap: 64px;
+      gap: 80px;
       flex-wrap: wrap;
+      max-width: 900px;
+      margin: 0 auto;
     }
-    .stat-item { text-align: center; }
+    
+    .stat-item { text-align: center; position: relative; }
+    .stat-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: -40px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1px;
+      height: 40px;
+      background: rgba(255,255,255,0.1);
+    }
+    
     .stat-value {
-      font-size: 3rem;
+      font-size: 3.5rem;
       font-weight: 900;
-      color: var(--accent);
-      display: block;
+      background: linear-gradient(135deg, var(--accent) 0%, #ff4757 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
     }
     .stat-label {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
+      font-size: 0.9rem;
+      color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-top: 4px;
+      letter-spacing: 2px;
+      margin-top: 8px;
+      font-weight: 600;
     }
     
     /* ========== 对比表格 ========== */
     .comparison-section {
-      padding: 80px 20px;
+      padding: 100px 20px;
     }
+    
     .comparison-title {
       text-align: center;
-      font-size: 1.8rem;
+      font-size: 2rem;
       font-weight: 800;
-      margin-bottom: 40px;
+      margin-bottom: 48px;
     }
+    
     .comparison-table {
       width: 100%;
       border-collapse: collapse;
       max-width: 800px;
       margin: 0 auto;
+      background: var(--gradient-card);
+      border-radius: 16px;
+      overflow: hidden;
+      border: var(--border);
     }
+    
     .comparison-table th, .comparison-table td {
-      padding: 14px 20px;
+      padding: 18px 24px;
       text-align: center;
-      border-bottom: var(--border);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     .comparison-table th {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: var(--text-muted);
+      background: rgba(0,0,0,0.3);
     }
     .comparison-table th:first-child { text-align: left; color: var(--text-secondary); }
-    .comparison-table th.vip { color: var(--accent); font-weight: 700; }
-    .comparison-table td:first-child { text-align: left; }
-    .comparison-table .check { color: var(--success); font-size: 1.1rem; }
-    .comparison-table .cross { color: var(--text-muted); font-size: 1.1rem; }
-    .comparison-table .highlight-cell { background: rgba(229,9,20,0.05); }
+    .comparison-table th.vip { 
+      color: var(--accent); 
+      font-weight: 700;
+      background: rgba(229,9,20,0.1);
+    }
+    .comparison-table td:first-child { 
+      text-align: left; 
+      color: var(--text);
+      font-weight: 500;
+    }
+    .comparison-table tr:last-child td { border-bottom: none; }
+    .comparison-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .comparison-table .check { color: var(--success); font-size: 1.2rem; }
+    .comparison-table .cross { color: var(--text-muted); font-size: 1.2rem; }
+    .comparison-table .highlight-cell { 
+      background: rgba(229,9,20,0.05);
+      color: var(--text);
+    }
     
     /* ========== 用户评价 ========== */
     .testimonials-section {
-      padding: 80px 20px;
+      padding: 100px 20px;
       background: linear-gradient(180deg, transparent 0%, rgba(229,9,20,0.03) 50%, transparent 100%);
     }
+    
     .testimonials-title {
       text-align: center;
-      font-size: 1.6rem;
+      font-size: 2rem;
       font-weight: 800;
-      margin-bottom: 48px;
+      margin-bottom: 60px;
     }
+    
     .testimonials-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 24px;
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 0 auto;
     }
+    
     .testimonial-card {
-      background: var(--bg-card);
+      background: var(--gradient-card);
       border: var(--border);
-      padding: 24px;
+      border-radius: 16px;
+      padding: 28px;
+      transition: all 0.3s;
     }
+    .testimonial-card:hover {
+      border-color: rgba(229,9,20,0.3);
+      transform: translateY(-2px);
+    }
+    
     .testimonial-header {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       margin-bottom: 16px;
     }
+    
     .testimonial-avatar {
-      width: 44px;
-      height: 44px;
-      background: var(--accent);
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent) 0%, #ff4757 100%);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
+      flex-shrink: 0;
     }
-    .testimonial-name { font-weight: 600; }
+    
+    .testimonial-name { font-weight: 600; font-size: 1rem; }
     .testimonial-meta { font-size: 0.8rem; color: var(--text-muted); }
-    .testimonial-stars { color: #f59e0b; font-size: 0.9rem; margin-bottom: 12px; }
-    .testimonial-text { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; }
+    
+    .testimonial-stars { 
+      color: #f59e0b; 
+      font-size: 0.9rem; 
+      margin-bottom: 12px;
+      letter-spacing: 2px;
+    }
+    
+    .testimonial-text { 
+      color: var(--text-secondary); 
+      font-size: 0.95rem; 
+      line-height: 1.7;
+      font-style: italic;
+    }
     
     /* ========== 价格选择 ========== */
     .pricing-section {
-      padding: 80px 20px;
+      padding: 100px 20px;
     }
+    
     .pricing-wrapper {
       display: grid;
-      grid-template-columns: 1fr 360px;
-      gap: 32px;
+      grid-template-columns: 1fr 380px;
+      gap: 40px;
       max-width: 1000px;
       margin: 0 auto;
+      align-items: start;
     }
     
     .pricing-left {
-      background: transparent;
+      background: var(--gradient-card);
       border: var(--border);
-      padding: 32px;
+      border-radius: 20px;
+      padding: 40px;
     }
-    .pricing-header { margin-bottom: 24px; }
-    .pricing-header h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 4px; }
-    .pricing-header p { color: var(--text-secondary); font-size: 0.9rem; }
     
-    .selector-group { margin-bottom: 24px; }
+    .pricing-header { margin-bottom: 32px; }
+    .pricing-header h2 { 
+      font-size: 1.5rem; 
+      font-weight: 800; 
+      margin-bottom: 6px;
+    }
+    .pricing-header p { color: var(--text-secondary); font-size: 0.95rem; }
+    
+    .selector-group { margin-bottom: 28px; }
     .selector-label {
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: var(--text-muted);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
+    
     .selector-bar {
       display: flex;
-      background: transparent;
+      background: rgba(0,0,0,0.3);
       border: var(--border);
-      gap: 0;
+      border-radius: 12px;
+      overflow: hidden;
     }
+    
     .select-option {
       flex: 1;
-      padding: 14px 8px;
+      padding: 16px 12px;
       text-align: center;
       cursor: pointer;
-      transition: background 0.2s;
-      border-right: var(--border);
+      transition: all 0.2s;
+      border-right: 1px solid rgba(255,255,255,0.05);
       position: relative;
     }
     .select-option:last-child { border-right: none; }
-    .select-option:hover { background: rgba(255,255,255,0.05); }
+    .select-option:hover { background: rgba(255,255,255,0.03); }
     .select-option.selected {
-      background: var(--accent);
+      background: linear-gradient(135deg, var(--accent) 0%, #b8070f 100%);
       color: #fff;
     }
     .select-option .value {
       font-weight: 800;
-      font-size: 1rem;
+      font-size: 1.1rem;
       display: block;
     }
     .select-option .label {
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
       text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    .select-option.selected .label { color: rgba(255,255,255,0.8); }
+    .select-option.selected .label { color: rgba(255,255,255,0.85); }
     .select-option .price-tag {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 700;
       color: var(--accent);
       margin-top: 4px;
@@ -304,111 +497,152 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .select-option.selected .price-tag { color: #fff; }
     .select-option .badge {
       position: absolute;
-      top: -6px;
+      top: 6px;
       right: 6px;
-      background: var(--accent);
+      background: rgba(255,255,255,0.2);
       color: #fff;
-      font-size: 0.55rem;
+      font-size: 0.6rem;
       font-weight: 700;
       padding: 2px 6px;
+      border-radius: 4px;
     }
+    .select-option.selected .badge { background: rgba(255,255,255,0.3); }
     
     /* Right: Order Card */
     .pricing-right {
       position: sticky;
-      top: 80px;
+      top: 100px;
       height: fit-content;
     }
+    
     .order-card {
-      background: transparent;
-      border: 1px solid rgba(229, 9, 20, 0.3);
-      padding: 24px;
+      background: var(--gradient-card);
+      border: var(--border-accent);
+      border-radius: 20px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
     }
+    
+    .order-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent) 0%, #ff4757 100%);
+    }
+    
     .order-header {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       font-weight: 800;
-      margin-bottom: 16px;
+      margin-bottom: 24px;
     }
+    
     .order-summary {
-      background: transparent;
-      border: 1px solid rgba(229, 9, 20, 0.15);
-      padding: 16px;
-      margin-bottom: 16px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
     }
+    
     .summary-row {
       display: flex;
       justify-content: space-between;
-      padding: 6px 0;
-      font-size: 0.85rem;
+      padding: 8px 0;
+      font-size: 0.9rem;
     }
     .summary-row .label { color: var(--text-secondary); }
     .summary-row .value { font-weight: 600; }
+    
     .summary-divider {
       height: 1px;
-      background: var(--border);
-      margin: 10px 0;
+      background: rgba(255,255,255,0.1);
+      margin: 12px 0;
     }
+    
     .summary-total {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-top: 4px;
+      padding-top: 8px;
     }
-    .summary-total .label { font-size: 0.95rem; font-weight: 700; }
-    .summary-total .price { font-size: 1.6rem; font-weight: 900; color: var(--accent); }
+    .summary-total .label { font-size: 1rem; font-weight: 700; }
+    .summary-total .price { 
+      font-size: 2rem; 
+      font-weight: 900; 
+      background: linear-gradient(135deg, var(--accent) 0%, #ff4757 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     
     .payment-methods-label {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 600;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
     }
+    
     .payment-methods-grid {
       display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
+      gap: 10px;
+      margin-bottom: 24px;
     }
+    
     .payment-method-option {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 10px;
-      background: transparent;
+      padding: 14px;
+      background: rgba(0,0,0,0.3);
       border: var(--border);
+      border-radius: 10px;
       cursor: pointer;
-      transition: border-color 0.2s;
+      transition: all 0.2s;
       color: var(--text-secondary);
     }
-    .payment-method-option:hover { border-color: var(--accent); }
+    .payment-method-option:hover { 
+      border-color: var(--accent);
+      background: rgba(229,9,20,0.05);
+    }
     .payment-method-option.selected {
       border-color: var(--accent);
-      background: rgba(229, 9, 20, 0.06);
+      background: rgba(229,9,20,0.15);
+      color: var(--text);
     }
     .payment-method-option svg { width: 24px; height: 24px; }
     
     .cta-button {
       width: 100%;
-      background: var(--accent);
+      background: linear-gradient(135deg, var(--accent) 0%, #b8070f 100%);
       color: #fff;
       border: none;
-      padding: 14px;
-      font-size: 1rem;
+      padding: 16px;
+      font-size: 1.1rem;
       font-weight: 800;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.3s;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(229,9,20,0.3);
     }
-    .cta-button:hover { background: var(--accent-hover); }
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(229,9,20,0.4);
+    }
     
     .trust-badges {
       display: flex;
       justify-content: center;
       gap: 20px;
-      margin-top: 16px;
+      margin-top: 20px;
       flex-wrap: wrap;
     }
     .trust-item {
@@ -416,55 +650,91 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       align-items: center;
       gap: 6px;
       font-size: 0.75rem;
-      color: var(--text-secondary);
+      color: var(--text-muted);
     }
+    .trust-item svg { width: 14px; height: 14px; fill: var(--success); }
     
     /* ========== 最终CTA ========== */
     .final-cta {
-      padding: 80px 20px;
+      padding: 100px 20px;
       text-align: center;
-      background: linear-gradient(180deg, transparent 0%, rgba(229,9,20,0.1) 100%);
+      background: linear-gradient(180deg, transparent 0%, rgba(229,9,20,0.08) 100%);
+      position: relative;
     }
+    .final-cta::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(229,9,20,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    
     .final-cta-title {
-      font-size: 2rem;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
       font-weight: 900;
       margin-bottom: 16px;
+      position: relative;
     }
-    .final-cta-title span { color: var(--accent); }
+    .final-cta-title span { 
+      background: linear-gradient(135deg, var(--accent) 0%, #ff4757 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     .final-cta-subtitle {
       color: var(--text-secondary);
-      margin-bottom: 32px;
+      margin-bottom: 40px;
       font-size: 1.1rem;
+      position: relative;
     }
     .final-cta-btn {
       display: inline-block;
-      background: var(--accent);
+      background: linear-gradient(135deg, var(--accent) 0%, #b8070f 100%);
       color: #fff;
-      padding: 16px 48px;
-      font-size: 1.1rem;
+      padding: 18px 56px;
+      font-size: 1.15rem;
       font-weight: 700;
       text-decoration: none;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: all 0.3s;
       border: none;
+      border-radius: 50px;
+      box-shadow: 0 4px 30px rgba(229,9,20,0.4);
+      position: relative;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-    .final-cta-btn:hover { transform: translateY(-2px); }
+    .final-cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 40px rgba(229,9,20,0.5);
+    }
     .final-cta-guarantee {
-      margin-top: 16px;
+      margin-top: 20px;
       font-size: 0.85rem;
       color: var(--text-muted);
+      position: relative;
     }
     
     /* ========== 响应式 ========== */
     @media (max-width: 900px) {
       .pricing-wrapper { grid-template-columns: 1fr; }
       .pricing-right { position: static; }
-      .stats-grid { gap: 32px; }
+      .stats-grid { gap: 40px; }
+      .stat-item:not(:last-child)::after { display: none; }
     }
     @media (max-width: 768px) {
-      .pain-title { font-size: 1.5rem; }
-      .solution-title { font-size: 1.6rem; }
-      .comparison-table th, .comparison-table td { padding: 10px 8px; font-size: 0.8rem; }
+      .pain-section { padding: 60px 20px; }
+      .solution-section { padding: 60px 20px; }
+      .comparison-section { padding: 60px 20px; }
+      .testimonials-section { padding: 60px 20px; }
+      .pricing-section { padding: 60px 20px; }
+      .final-cta { padding: 60px 20px; }
+      .pain-grid { grid-template-columns: 1fr; }
+      .comparison-table th, .comparison-table td { padding: 12px 16px; font-size: 0.85rem; }
     }
   </style>
 </head>
@@ -475,20 +745,46 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <!-- 痛点场景 -->
     <section class="pain-section">
       <div class="container">
+        <div class="section-badge" style="display: block; text-align: center;">🎯 你遇到的烦恼</div>
         <h2 class="pain-title">作为<span>海外华人</span>，你是不是也经常遇到这些烦恼？</h2>
         <div class="pain-grid">
           <div class="pain-card">
-            <div class="pain-card-icon">😤</div>
+            <div class="pain-card-scene">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="12" width="48" height="32" rx="4" stroke="currentColor" stroke-width="2" fill="rgba(229,9,20,0.1)"/>
+                <polygon points="26,22 26,38 40,30" fill="currentColor"/>
+                <text x="8" y="52" font-size="10" fill="currentColor" opacity="0.6">❌ 错过精彩</text>
+              </svg>
+              <div class="pain-card-icon">😤</div>
+            </div>
             <h3 class="pain-card-title">想家时只能看录像</h3>
             <p class="pain-card-text">春节晚会、世界杯、新闻联播...错过就是错过，等录播永远不如实时观看有感觉。</p>
           </div>
+          
           <div class="pain-card">
-            <div class="pain-card-icon">💸</div>
+            <div class="pain-card-scene">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="32" r="20" stroke="currentColor" stroke-width="2" fill="rgba(229,9,20,0.1)"/>
+                <path d="M24 24 L40 32 L24 40" stroke="currentColor" stroke-width="2" fill="none"/>
+                <text x="12" y="58" font-size="8" fill="currentColor" opacity="0.6">⚠️ 卡顿断流</text>
+              </svg>
+              <div class="pain-card-icon">💸</div>
+            </div>
             <h3 class="pain-card-title">找到的IPTV服务不稳定</h3>
             <p class="pain-card-text">买了便宜的订阅，看球赛关键时刻卡顿、断流，花钱买罪受。</p>
           </div>
+          
           <div class="pain-card">
-            <div class="pain-card-icon">🤯</div>
+            <div class="pain-card-scene">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="12" y="8" width="40" height="48" rx="4" stroke="currentColor" stroke-width="2" fill="rgba(229,9,20,0.1)"/>
+                <line x1="20" y1="20" x2="44" y2="20" stroke="currentColor" stroke-width="2"/>
+                <line x1="20" y1="28" x2="36" y2="28" stroke="currentColor" stroke-width="2" opacity="0.5"/>
+                <circle cx="32" cy="44" r="6" stroke="currentColor" stroke-width="2" fill="rgba(229,9,20,0.2)"/>
+                <text x="8" y="58" font-size="8" fill="currentColor" opacity="0.6">🔧 配置复杂</text>
+              </svg>
+              <div class="pain-card-icon">🤯</div>
+            </div>
             <h3 class="pain-card-title">配置太复杂，老人不会用</h3>
             <p class="pain-card-text">要装软件、要下APP、要找链接...折腾半天，父母想用还是不会。</p>
           </div>
@@ -500,28 +796,28 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <section class="solution-section">
       <div class="container">
         <div class="solution-header">
-          <div class="solution-badge">我们的方案</div>
+          <div class="section-badge" style="margin: 0 auto 20px;">✨ 我们的方案</div>
           <h2 class="solution-title">一个链接，解决所有问题</h2>
           <p class="solution-subtitle">无需复杂配置，一个播放列表搞定所有需求</p>
         </div>
         <div class="solution-grid">
           <div class="solution-card">
-            <div class="solution-card-icon">📺</div>
+            <div class="solution-icon">📺</div>
             <h3 class="solution-card-title">5000+频道</h3>
             <p class="solution-card-text">央视、卫视、地方台、体育、电影全覆盖</p>
           </div>
           <div class="solution-card">
-            <div class="solution-card-icon">⚡</div>
+            <div class="solution-icon">⚡</div>
             <h3 class="solution-card-title">秒开不卡</h3>
             <p class="solution-card-text">CDN全球加速，海外访问依然流畅</p>
           </div>
           <div class="solution-card">
-            <div class="solution-card-icon">🔧</div>
+            <div class="solution-icon">🔧</div>
             <h3 class="solution-card-title">一键使用</h3>
             <p class="solution-card-text">把链接导入VLC/APTV/TVBox就能看</p>
           </div>
           <div class="solution-card">
-            <div class="solution-card-icon">👨‍👩‍👧‍👦</div>
+            <div class="solution-icon">👨‍👩‍👧‍👦</div>
             <h3 class="solution-card-title">全家共享</h3>
             <p class="solution-card-text">最多5台设备，爸妈也能轻松用</p>
           </div>
@@ -543,7 +839,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           </div>
           <div class="stat-item">
             <span class="stat-value">99.9%</span>
-            <span class="stat-label">在线稳定</span>
+            <span class="stat-label">稳定在线</span>
           </div>
           <div class="stat-item">
             <span class="stat-value">4.8</span>
@@ -730,15 +1026,15 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               
               <div class="trust-badges">
                 <div class="trust-item">
-                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                  <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                   安全支付
                 </div>
                 <div class="trust-item">
-                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                  <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                   即时开通
                 </div>
                 <div class="trust-item">
-                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                  <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                   7天退款
                 </div>
               </div>
