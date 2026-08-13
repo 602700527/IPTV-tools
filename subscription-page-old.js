@@ -1,4 +1,6 @@
-// 订阅页面 - 原有支付卡片 + 新增营销内容
+// 优化版订阅页面 - 营销导向设计
+// 新增：免费vs VIP对比表、用户评价、更清晰的CTA
+
 import { PAGE_HEADER } from './components/page-header.js';
 import { PAGE_FOOTER } from './components/page-footer.js';
 import { HEAD_SCRIPTS } from './components/head-scripts.js';
@@ -24,12 +26,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       --text: #fff;
       --text-secondary: rgba(255,255,255,0.6);
       --text-muted: rgba(255,255,255,0.4);
+      --radius: 0;
     }
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
     
-    /* ========== Hero ========== */
+    /* ========== Hero Section ========== */
     .hero {
       padding: 80px 20px 60px;
       text-align: center;
@@ -105,223 +108,112 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .cross { color: var(--text-muted); font-size: 1.2rem; }
     .highlight-cell { background: rgba(229,9,20,0.05); }
     
-    /* ========== Pricing Section (原有样式) ========== */
-    .pricing-section { padding: 80px 0; }
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-    
-    .pricing-wrapper {
-      display: grid;
-      grid-template-columns: 1fr 360px;
-      gap: 32px;
+    /* ========== Pricing Cards ========== */
+    .pricing {
+      padding: 60px 20px;
+      max-width: 1000px;
+      margin: 0 auto;
     }
-    
-    .pricing-left {
-      background: transparent;
-      border: var(--border);
-      padding: 36px;
-    }
-    
-    .pricing-header { margin-bottom: 28px; }
-    .pricing-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; }
-    .pricing-subtitle { color: var(--text-secondary); font-size: 0.9rem; }
-    
-    .selectors-wrapper { display: flex; flex-direction: column; gap: 24px; }
-    .selector-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .selector-bar {
-      display: flex;
-      background: transparent;
-      border: var(--border);
-      padding: 0;
-      gap: 0;
-    }
-    .select-option {
-      flex: 1;
-      padding: 14px 8px;
+    .pricing-title {
       text-align: center;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-      border-right: var(--border);
-      position: relative;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 40px;
     }
-    .select-option:last-child { border-right: none; }
-    .select-option:hover { background: rgba(255,255,255,0.05); }
-    .select-option.selected {
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .pricing-card {
+      background: var(--bg-card);
+      border: var(--border);
+      padding: 32px 24px;
+      text-align: center;
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .pricing-card:hover { transform: translateY(-4px); }
+    .pricing-card.featured {
+      border-color: var(--accent);
+      box-shadow: 0 0 40px rgba(229,9,20,0.2);
+    }
+    .pricing-card.featured::before {
+      content: '最受欢迎';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
       background: var(--accent);
       color: #fff;
+      padding: 4px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
     }
-    .select-option .value {
-      font-weight: 800;
-      font-size: 1.05rem;
-      display: block;
+    .pricing-card-duration {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .pricing-card-price {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: var(--accent);
       margin-bottom: 4px;
     }
-    .select-option .label {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-    }
-    .select-option.selected .label { color: rgba(255,255,255,0.85); }
-    .select-option .badge {
-      position: absolute;
-      top: -8px;
-      right: 8px;
-      background: var(--accent);
-      color: #fff;
-      font-size: 0.6rem;
-      font-weight: 700;
-      padding: 2px 8px;
-    }
-    .select-option .price-tag {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-top: 6px;
-    }
-    .select-option.selected .price-tag { color: #fff; }
-    .select-option .original {
-      font-size: 0.7rem;
+    .pricing-card-price span { font-size: 1rem; color: var(--text-muted); font-weight: 400; }
+    .pricing-card-original {
+      font-size: 0.9rem;
       color: var(--text-muted);
       text-decoration: line-through;
+      margin-bottom: 16px;
     }
-    
-    /* Order Card (原有样式) */
-    .pricing-right {
-      position: sticky;
-      top: 100px;
-      height: fit-content;
-    }
-    
-    .order-card {
-      background: transparent;
-      border: 1px solid rgba(229, 9, 20, 0.3);
-      padding: 28px;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .order-header {
-      font-size: 1.15rem;
-      font-weight: 800;
-      margin-bottom: 20px;
-    }
-    
-    .order-summary {
-      background: transparent;
-      border: 1px solid rgba(229, 9, 20, 0.15);
-      padding: 18px;
-      margin-bottom: 20px;
-    }
-    
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      font-size: 0.9rem;
-    }
-    
-    .summary-row .label { color: var(--text-secondary); }
-    .summary-row .value { font-weight: 600; }
-    .summary-row.discount .value { color: var(--success); }
-    
-    .summary-divider {
-      height: 1px;
-      background: var(--border);
-      margin: 12px 0;
-    }
-    
-    .summary-total {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 6px;
-    }
-    
-    .summary-total .label { font-size: 1.05rem; font-weight: 700; }
-    .summary-total .price { font-size: 1.8rem; font-weight: 900; color: var(--accent); }
-    
-    .payment-methods-section { margin-bottom: 16px; }
-    
-    .payment-methods-label {
+    .pricing-card-save {
+      display: inline-block;
+      background: rgba(34,197,94,0.1);
+      color: var(--success);
+      padding: 4px 12px;
       font-size: 0.75rem;
       font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
     }
-    
-    .payment-methods-grid { display: flex; gap: 8px; }
-    
-    .payment-method-option {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 8px;
-      background: transparent;
-      border: var(--border);
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
+    .pricing-card-features {
+      list-style: none;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+    .pricing-card-features li {
+      padding: 8px 0;
+      border-bottom: var(--border);
+      font-size: 0.9rem;
       color: var(--text-secondary);
-      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    
-    .payment-method-option:hover { border-color: var(--accent); }
-    .payment-method-option.selected {
-      border-color: var(--accent);
-      background: rgba(229, 9, 20, 0.06);
-    }
-    
-    .payment-method-option svg { width: 24px; height: 24px; }
-    .payment-method-option .method-text { font-weight: 700; }
-    
-    .cta-button {
+    .pricing-card-features li:last-child { border-bottom: none; }
+    .pricing-card-features .check { font-size: 1rem; }
+    .pricing-card-btn {
+      display: block;
       width: 100%;
       background: var(--accent);
       color: #fff;
-      border: none;
-      padding: 16px 32px;
-      font-size: 1.05rem;
-      font-weight: 800;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
       cursor: pointer;
-      transition: background 0.2s, transform 0.2s;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      transition: background 0.2s;
+      border: none;
     }
-    
-    .cta-button:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
+    .pricing-card-btn:hover { background: var(--accent-hover); }
+    .pricing-card-btn.secondary {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
     }
-    
-    /* Trust Badges */
-    .trust-badges-bottom {
-      padding: 16px 0;
-      border-top: var(--border);
-      margin-top: 24px;
-    }
-    .trust-badges {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      flex-wrap: wrap;
-    }
-    .trust-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-    }
-    .trust-item svg { width: 16px; height: 16px; fill: var(--success); }
+    .pricing-card-btn.secondary:hover { background: rgba(229,9,20,0.1); }
     
     /* ========== Testimonials ========== */
     .testimonials {
@@ -368,6 +260,27 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .testimonial-stars { color: var(--warning); font-size: 0.9rem; margin-bottom: 12px; }
     .testimonial-text { color: var(--text-secondary); line-height: 1.6; font-size: 0.95rem; }
     
+    /* ========== Trust Badges ========== */
+    .trust-section {
+      padding: 40px 20px;
+      text-align: center;
+      border-top: var(--border);
+    }
+    .trust-badges {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+    .trust-item svg { width: 20px; height: 20px; fill: var(--success); }
+    
     /* ========== FAQ ========== */
     .faq {
       padding: 80px 20px;
@@ -390,6 +303,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       cursor: pointer;
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
     .faq-question::after { content: '+'; font-size: 1.5rem; color: var(--accent); }
     .faq-item.open .faq-question::after { content: '-'; }
@@ -431,10 +345,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-weight: 700;
       text-decoration: none;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: transform 0.2s, background 0.2s;
       border: none;
     }
-    .final-cta-btn:hover { transform: translateY(-2px); }
+    .final-cta-btn:hover { background: var(--accent-hover); transform: translateY(-2px); }
     .final-cta-guarantee {
       margin-top: 16px;
       font-size: 0.85rem;
@@ -442,14 +356,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     
     /* ========== Responsive ========== */
-    @media (max-width: 900px) {
-      .pricing-wrapper { grid-template-columns: 1fr; }
-      .pricing-right { position: static; }
-    }
     @media (max-width: 768px) {
       .hero { padding: 60px 20px 40px; }
       .hero-stats { gap: 24px; }
       .comparison-table th, .comparison-table td { padding: 12px 8px; font-size: 0.85rem; }
+      .pricing-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -533,132 +444,60 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </table>
     </section>
     
-    <!-- Pricing Section (原有样式) -->
-    <section class="pricing-section">
-      <div class="container">
-        <div class="pricing-wrapper">
-          <!-- Left: Duration & IP Selection -->
-          <div class="pricing-left">
-            <div class="pricing-header">
-              <h2 class="pricing-title">选择您的方案</h2>
-              <p class="pricing-subtitle">选择时长和设备数量</p>
-            </div>
-            
-            <div class="selectors-wrapper">
-              <div class="selector-group">
-                <div class="selector-label">订阅时长</div>
-                <div class="selector-bar" id="durationGrid">
-                  <div class="select-option selected" onclick="selectDuration(30)">
-                    <span class="value">月度</span>
-                    <span class="label">30天</span>
-                    <span class="price-tag">¥20</span>
-                  </div>
-                  <div class="select-option" onclick="selectDuration(90)">
-                    <span class="value">季度</span>
-                    <span class="label">90天</span>
-                    <span class="badge">-25%</span>
-                    <span class="price-tag">¥45</span>
-                    <span class="original">¥60</span>
-                  </div>
-                  <div class="select-option" onclick="selectDuration(365)">
-                    <span class="value">年度</span>
-                    <span class="label">365天</span>
-                    <span class="badge">-30%</span>
-                    <span class="price-tag">¥168</span>
-                    <span class="original">¥240</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="selector-group">
-                <div class="selector-label">设备数量</div>
-                <div class="selector-bar" id="ipGrid">
-                  <div class="select-option selected" onclick="selectIP(1)">
-                    <span class="value">1</span>
-                    <span class="label">IP</span>
-                  </div>
-                  <div class="select-option" onclick="selectIP(2)">
-                    <span class="value">2</span>
-                    <span class="label">IPs</span>
-                  </div>
-                  <div class="select-option" onclick="selectIP(3)">
-                    <span class="value">3</span>
-                    <span class="label">IPs</span>
-                  </div>
-                  <div class="select-option" onclick="selectIP(5)">
-                    <span class="value">5</span>
-                    <span class="label">IPs</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Right: Order Summary -->
-          <div class="pricing-right">
-            <div class="order-card">
-              <div class="order-header">订单摘要</div>
-              
-              <div class="order-summary">
-                <div class="summary-row">
-                  <span class="label">基础价格</span>
-                  <span class="value" id="basePrice">¥20.00</span>
-                </div>
-                <div class="summary-row">
-                  <span class="label">设备扩展</span>
-                  <span class="value" id="ipPrice">¥0.00</span>
-                </div>
-                <div class="summary-row discount" id="discountRow" style="display: none;">
-                  <span class="label">优惠折扣</span>
-                  <span class="value" id="discountAmount">-¥0.00</span>
-                </div>
-                <div class="summary-divider"></div>
-                <div class="summary-total">
-                  <span class="label">总计</span>
-                  <span class="price" id="totalPrice">¥20.00</span>
-                </div>
-              </div>
-              
-              <div class="payment-methods-section">
-                <div class="payment-methods-label">选择付款方式</div>
-                <div class="payment-methods-grid" id="paymentMethodsGrid">
-                  <div class="payment-method-option selected" onclick="selectPayment('alipay')">
-                    <svg viewBox="0 0 24 24" fill="#1677FF"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
-                    <span class="method-text">支付宝</span>
-                  </div>
-                  <div class="payment-method-option" onclick="selectPayment('wechat')">
-                    <svg viewBox="0 0 24 24" fill="#07C160"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
-                    <span class="method-text">微信支付</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="cta-section">
-                <button class="cta-button" onclick="handleSubscribe()">立即订阅</button>
-              </div>
-            </div>
-          </div>
+    <!-- Pricing Cards -->
+    <section class="pricing">
+      <h2 class="pricing-title">选择您的会员方案</h2>
+      <div class="pricing-grid">
+        <!-- Monthly -->
+        <div class="pricing-card">
+          <div class="pricing-card-duration">月度会员</div>
+          <div class="pricing-card-price">¥20<span>/月</span></div>
+          <div class="pricing-card-original">原价 ¥40</div>
+          <div class="pricing-card-save">立省 50%</div>
+          <ul class="pricing-card-features">
+            <li><span class="check">✓</span> 5000+ 直播频道</li>
+            <li><span class="check">✓</span> 无广告观看</li>
+            <li><span class="check">✓</span> 无限收藏</li>
+            <li><span class="check">✓</span> 1台设备</li>
+            <li><span class="check">✓</span> 7天无理由退款</li>
+          </ul>
+          <button class="pricing-card-btn secondary" onclick="selectPlan('monthly')">选择月度</button>
+        </div>
+        
+        <!-- Quarterly -->
+        <div class="pricing-card">
+          <div class="pricing-card-duration">季度会员</div>
+          <div class="pricing-card-price">¥45<span>/季</span></div>
+          <div class="pricing-card-original">原价 ¥120</div>
+          <div class="pricing-card-save">立省 62%</div>
+          <ul class="pricing-card-features">
+            <li><span class="check">✓</span> 5000+ 直播频道</li>
+            <li><span class="check">✓</span> 无广告观看</li>
+            <li><span class="check">✓</span> 无限收藏</li>
+            <li><span class="check">✓</span> 2台设备</li>
+            <li><span class="check">✓</span> 7天无理由退款</li>
+          </ul>
+          <button class="pricing-card-btn secondary" onclick="selectPlan('quarterly')">选择季度</button>
+        </div>
+        
+        <!-- Yearly - Featured -->
+        <div class="pricing-card featured">
+          <div class="pricing-card-duration">年度会员</div>
+          <div class="pricing-card-price">¥168<span>/年</span></div>
+          <div class="pricing-card-original">原价 ¥480</div>
+          <div class="pricing-card-save">立省 65%</div>
+          <ul class="pricing-card-features">
+            <li><span class="check">✓</span> 5000+ 直播频道</li>
+            <li><span class="check">✓</span> 无广告观看</li>
+            <li><span class="check">✓</span> 无限收藏</li>
+            <li><span class="check">✓</span> 5台设备</li>
+            <li><span class="check">✓</span> 优先客服支持</li>
+            <li><span class="check">✓</span> 7天无理由退款</li>
+          </ul>
+          <button class="pricing-card-btn" onclick="selectPlan('yearly')">立即订阅</button>
         </div>
       </div>
     </section>
-    
-    <!-- Trust Badges -->
-    <div class="trust-badges-bottom">
-      <div class="trust-badges">
-        <div class="trust-item">
-          <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-          安全支付
-        </div>
-        <div class="trust-item">
-          <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-          即时开通
-        </div>
-        <div class="trust-item">
-          <svg viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-          7天退款保证
-        </div>
-      </div>
-    </div>
     
     <!-- Testimonials -->
     <section class="testimonials">
@@ -688,7 +527,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           <p class="testimonial-text">"春节回不去家，通过会员看国内直播，感觉就像在家一样。家里老人也可以用，操作简单。最值得的是无广告，看球赛不会被中断。"</p>
         </div>
         
-        <div class="testimonial-card">
+        <div class="testimential-card">
           <div class="testimonial-header">
             <div class="testimonial-avatar">王</div>
             <div>
@@ -702,6 +541,28 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
     </section>
     
+    <!-- Trust Badges -->
+    <section class="trust-section">
+      <div class="trust-badges">
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+          <span>安全支付</span>
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          <span>即时开通</span>
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          <span>7天退款保证</span>
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          <span>24/7技术支持</span>
+        </div>
+      </div>
+    </section>
+    
     <!-- FAQ -->
     <section class="faq">
       <h2 class="faq-title">常见问题</h2>
@@ -711,7 +572,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
       <div class="faq-item">
         <div class="faq-question">可以在多少台设备上使用？</div>
-        <div class="faq-answer">根据选择的设备数量，最多支持5台设备同时在线。多设备可以同时观看不同内容。</div>
+        <div class="faq-answer">月度会员支持1台设备，季度会员支持2台，年度会员支持5台。多设备可以同时在线观看不同内容。</div>
       </div>
       <div class="faq-item">
         <div class="faq-question">支持哪些播放软件？</div>
@@ -739,73 +600,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${PAGE_FOOTER}
   
   <script>
-    // 套餐配置
-    const durationOptions = [
-      { days: 30, name: '月度', basePrice: 20, pricePerIP: 0, discount: 0 },
-      { days: 90, name: '季度', basePrice: 45, pricePerIP: 5, discount: 25 },
-      { days: 365, name: '年度', basePrice: 168, pricePerIP: 10, discount: 30 }
-    ];
-    
-    const ipOptions = [1, 2, 3, 5];
-    
-    let selectedDuration = durationOptions[0];
-    let selectedIPs = 1;
-    let selectedPaymentMethod = 'alipay';
-    
-    function calculatePrice() {
-      const basePrice = selectedDuration.basePrice;
-      const ipPrice = selectedDuration.pricePerIP * (selectedIPs - 1);
-      const original = basePrice + ipPrice;
-      const discount = selectedDuration.discount > 0 ? original * (selectedDuration.discount / 100) : 0;
-      return { original, discount, finalPrice: original - discount };
-    }
-    
-    function selectDuration(days) {
-      selectedDuration = durationOptions.find(d => d.days === days);
-      document.querySelectorAll('#durationGrid .select-option').forEach(el => {
-        el.classList.remove('selected');
-      });
-      event.currentTarget.classList.add('selected');
-      updateOrderSummary();
-    }
-    
-    function selectIP(count) {
-      selectedIPs = count;
-      document.querySelectorAll('#ipGrid .select-option').forEach(el => {
-        el.classList.remove('selected');
-      });
-      event.currentTarget.classList.add('selected');
-      updateOrderSummary();
-    }
-    
-    function selectPayment(method) {
-      selectedPaymentMethod = method;
-      document.querySelectorAll('.payment-method-option').forEach(el => {
-        el.classList.remove('selected');
-      });
-      event.currentTarget.classList.add('selected');
-    }
-    
-    function updateOrderSummary() {
-      const price = calculatePrice();
-      document.getElementById('basePrice').textContent = '¥' + price.original.toFixed(2);
-      document.getElementById('ipPrice').textContent = '¥' + (price.original - selectedDuration.basePrice).toFixed(2);
-      
-      const discountRow = document.getElementById('discountRow');
-      if (price.discount > 0) {
-        discountRow.style.display = 'flex';
-        document.getElementById('discountAmount').textContent = '-¥' + price.discount.toFixed(2);
-      } else {
-        discountRow.style.display = 'none';
-      }
-      
-      document.getElementById('totalPrice').textContent = '¥' + price.finalPrice.toFixed(2);
-    }
-    
-    function handleSubscribe() {
-      window.location.href = '/subscribe?duration=' + selectedDuration.days + '&ips=' + selectedIPs + '&payment=' + selectedPaymentMethod;
-    }
-    
     // FAQ Toggle
     document.querySelectorAll('.faq-question').forEach(q => {
       q.addEventListener('click', () => {
@@ -813,8 +607,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       });
     });
     
-    // Initialize
-    updateOrderSummary();
+    // Plan Selection
+    function selectPlan(type) {
+      const url = type === 'yearly' ? '/subscription?duration=yearly' : 
+                  type === 'quarterly' ? '/subscription?duration=quarterly' : 
+                  '/subscription?duration=monthly';
+      window.location.href = url + '#checkout';
+    }
   </script>
 </body>
 </html>`;
