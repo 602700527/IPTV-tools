@@ -640,7 +640,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     @media (max-width: 768px) {
       .pain-grid { grid-template-columns: 1fr; }
       .solution-grid { grid-template-columns: 1fr; }
-      .trust-grid { grid-template-columns: 1fr 1fr; }
       .testimonial-card { flex: 0 0 280px; }
     }
   </style>
