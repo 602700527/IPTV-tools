@@ -714,30 +714,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         <a href="#pricing" class="hero-cta">立即订阅，首月 ¥20 →</a>
       </div>
     </section>
-
-    <!-- 信任数据区 -->
-    <section class="trust-section">
-      <div class="container">
-        <div class="trust-grid">
-          <div class="trust-item">
-            <div class="trust-value">10,000+</div>
-            <div class="trust-label">活跃用户</div>
-          </div>
-          <div class="trust-item">
-            <div class="trust-value">5000+</div>
-            <div class="trust-label">直播频道</div>
-          </div>
-          <div class="trust-item">
-            <div class="trust-value">99.9%</div>
-            <div class="trust-label">稳定在线率</div>
-          </div>
-          <div class="trust-item">
-            <div class="trust-value">4.8★</div>
-            <div class="trust-label">用户好评率</div>
-          </div>
-        </div>
-      </div>
-    </section>
     
     <!-- 对比表 -->
     <section class="comparison-section">
