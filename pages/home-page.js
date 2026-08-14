@@ -519,6 +519,33 @@ export function generateHomePage(options = {}) {
   </style>
 </head>
 <body>
+  <script>
+    // Make switchView globally accessible BEFORE any other scripts
+    window.switchView = function(view) {
+      try {
+        const regionGrid = document.getElementById('regionGrid');
+        const typeGrid = document.getElementById('typeGrid');
+        const toggleBtns = document.querySelectorAll('.view-toggle-btn');
+
+        if (toggleBtns.length > 0) {
+          toggleBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === view);
+          });
+
+          if (view === 'region') {
+            regionGrid.style.display = '';
+            typeGrid.style.display = 'none';
+          } else {
+            regionGrid.style.display = 'none';
+            typeGrid.style.display = '';
+          }
+        }
+      } catch (error) {
+        console.error('switchView error:', error);
+      }
+    };
+  </script>
+
   ${pageHeader}
 
   <section class="hero">
