@@ -697,15 +697,29 @@ export function generateHomePage(options = {}) {
 
     <!-- View Mode Toggle -->
     <div class="view-toggle">
-      <button class="view-toggle-btn active" data-view="region" onclick="switchView('region')">
+      <button class="view-toggle-btn active" data-view="region" onclick="window.switchView('region')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
         By Region
       </button>
-      <button class="view-toggle-btn" data-view="type" onclick="switchView('type')">
+      <button class="view-toggle-btn" data-view="type" onclick="window.switchView('type')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         By Type
       </button>
     </div>
+
+    <script>
+      // Attach click handlers after DOM is ready
+      document.addEventListener('DOMContentLoaded', function() {
+        const btns = document.querySelectorAll('.view-toggle-btn');
+        btns.forEach(btn => {
+          btn.addEventListener('click', function() {
+            if (window.switchView) {
+              window.switchView(this.dataset.view);
+            }
+          });
+        });
+      });
+    </script>
 
     <!-- Region-based Categories (default view) -->
     <div class="category-grid" id="regionGrid">
