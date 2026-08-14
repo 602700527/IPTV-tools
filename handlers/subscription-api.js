@@ -1,4 +1,5 @@
 // 订阅支付相关 API 处理
+import { getTopics, getTopic, applyTopicFilter } from '../database.js';
 
 // 生成随机卡密
 function generateCode() {
@@ -10,37 +11,25 @@ function generateCode() {
   return code;
 }
 
-/**
- * 计算叠加后的过期时间
- * @param {Date|null} existingExpiry - 现有订阅过期时间
- * @param {number} newDurationDays - 新购买时长（天数，-1表示永久）
- * @returns {Date|null} 新的过期时间
- */
+// 计算叠加后的过期时间
 function calculateStackedExpiry(existingExpiry, newDurationDays) {
   const now = new Date();
   
-  // 永久卡密不计算过期时间
   if (newDurationDays === -1) {
-    return null; // 永久有效
+    return null;
   }
   
-  // 如果没有现有过期时间，或者已过期，从当前时间计算
   const baseDate = existingExpiry && new Date(existingExpiry) > now 
     ? new Date(existingExpiry) 
     : now;
   
-  // 叠加新时长
   return new Date(baseDate.getTime() + newDurationDays * 24 * 60 * 60 * 1000);
 }
 
-/**
- * 获取用户最新的有效订阅code
- * @returns {Promise<string|null>} 有效订阅的code，如果没有则返回null
- */
+// 获取用户最新的有效订阅code
 async function getUserActiveCode(userId, db) {
   const now = new Date().toISOString();
   
-  // 查询用户最新的有效订阅（未过期的）
   const result = await db.prepare(`
     SELECT c.code, c.expired_at, c.duration_days
     FROM user_orders o
@@ -55,51 +44,68 @@ async function getUserActiveCode(userId, db) {
   return result || null;
 }
 
-// 生成随机卡密（支持叠加购买）
-export async function generateActivationCode(env, durationDays, maxIPs, userId, isTestMode = false, baseUrl = '') {
+// 获取所有可用主题
+export async function handleGetTopics(request, env, ctx) {
+  try {
+    const topics = await getTopics();
+    
+    return new Response(JSON.stringify({
+      success: true,
+      topics: topics.map(t => ({
+        id: t.id,
+        name: t.name,
+        description: t.description || '',
+        channelCount: 0 // 可以在这里计算实际频道数
+      }))
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('[Topics] Error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: error.message
+    }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+  }
+}
+
+// 生成订阅卡密
+export async function generateActivationCode(env, durationDays, maxIPs, userId, topicId, isTestMode = false, baseUrl = '') {
   const now = new Date();
   let code;
   let expiredAt;
   let isStacked = false;
 
   try {
-    // 检查是否有现有的有效订阅
     const existingCode = await getUserActiveCode(userId, env.DB);
     
     if (existingCode) {
-      // 叠加购买：延长现有code的过期时间
       code = existingCode.code;
       expiredAt = calculateStackedExpiry(existingCode.expired_at, durationDays);
       isStacked = true;
       
-      // 更新现有code的过期时间
       await env.DB.prepare(`
         UPDATE codes 
-        SET expired_at = ?, duration_days = ?
+        SET expired_at = ?, duration_days = ?, topic_id = ?
         WHERE code = ?
-      `).bind(expiredAt ? expiredAt.toISOString() : null, durationDays, code).run();
+      `).bind(expiredAt ? expiredAt.toISOString() : null, durationDays, topicId || null, code).run();
       
-      console.log('[Subscription] Stacked code:', code, 'for user:', userId, 'new duration:', durationDays, 'new expiry:', expiredAt);
+      console.log('[Subscription] Stacked code:', code, 'for user:', userId, 'topic:', topicId);
     } else {
-      // 新购买：创建新code
       code = generateCode();
       
-      // 计算过期时间
-      // 永久卡密（duration_days = -1）不设置过期时间
       if (durationDays !== -1) {
         expiredAt = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
       }
       
-      // 生成卡密，状态为 active（已激活），激活时间为当天
       await env.DB.prepare(`
-        INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, remark)
-        VALUES (?, 'active', ?, ?, ?, ?, ?)
-      `).bind(code, durationDays, now.toISOString(), expiredAt ? expiredAt.toISOString() : null, maxIPs, isTestMode ? `Test purchase by user ${userId}` : `User ${userId} purchase`).run();
+        INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, topic_id, remark)
+        VALUES (?, 'active', ?, ?, ?, ?, ?, ?)
+      `).bind(code, durationDays, now.toISOString(), expiredAt ? expiredAt.toISOString() : null, maxIPs, topicId || null, isTestMode ? `Test purchase by user ${userId}` : `User ${userId} purchase`).run();
       
-      console.log('[Subscription] Code generated:', code, 'for user:', userId, 'duration:', durationDays, 'max_ips:', maxIPs);
+      console.log('[Subscription] Code generated:', code, 'for user:', userId, 'duration:', durationDays, 'topic:', topicId);
     }
 
-    // 生成订阅地址
     const subUrl = `${baseUrl}/sub/${code}.m3u`;
 
     return {
@@ -108,7 +114,8 @@ export async function generateActivationCode(env, durationDays, maxIPs, userId, 
       subUrl: subUrl,
       expiredAt: expiredAt ? expiredAt.toISOString() : null,
       activatedAt: now.toISOString(),
-      stacked: isStacked
+      stacked: isStacked,
+      topicId: topicId
     };
   } catch (error) {
     console.error('[Subscription] Failed to generate code:', error);
@@ -122,7 +129,6 @@ export async function generateActivationCode(env, durationDays, maxIPs, userId, 
 // 处理创建卡密请求
 export async function handleCreateCode(request, env, ctx) {
   try {
-    // 验证用户身份
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return new Response(JSON.stringify({
@@ -136,7 +142,6 @@ export async function handleCreateCode(request, env, ctx) {
 
     const token = authHeader.substring(7);
 
-    // 验证 token 并获取用户信息
     const user = await env.DB.prepare(`
       SELECT u.id, u.email
       FROM users u
@@ -155,9 +160,8 @@ export async function handleCreateCode(request, env, ctx) {
     }
 
     const body = await request.json();
-    const { duration_days, max_ips = 3, test_mode = false, payment_id = null } = body;
+    const { duration_days, max_ips = 3, topic_id = null, test_mode = false, payment_id = null } = body;
 
-    // 验证参数（允许 -1 表示永久卡密）
     if (!duration_days || (duration_days !== -1 && (duration_days < 1 || duration_days > 365))) {
       return new Response(JSON.stringify({
         success: false,
@@ -178,14 +182,26 @@ export async function handleCreateCode(request, env, ctx) {
       });
     }
 
-    // 获取请求的 host 来构建订阅地址
+    // 验证主题存在（如果指定了主题）
+    if (topic_id) {
+      const topic = await getTopic(topic_id);
+      if (!topic) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Invalid topic_id'
+        }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
     const url = new URL(request.url);
     const baseUrl = `${url.protocol}//${url.host}`;
 
-    console.log('[Subscription] Creating code for user:', user.id, 'duration:', duration_days, 'ips:', max_ips, 'test_mode:', test_mode);
+    console.log('[Subscription] Creating code for user:', user.id, 'duration:', duration_days, 'ips:', max_ips, 'topic:', topic_id);
 
-    // 生成卡密，状态为 active（已激活），激活时间为当天
-    const result = await generateActivationCode(env, duration_days, max_ips, user.id, test_mode, baseUrl);
+    const result = await generateActivationCode(env, duration_days, max_ips, user.id, topic_id, test_mode, baseUrl);
 
     if (!result.success) {
       return new Response(JSON.stringify(result), {
@@ -194,9 +210,7 @@ export async function handleCreateCode(request, env, ctx) {
       });
     }
 
-      // 记录订单（无论是测试模式还是真实支付）
     try {
-      // 从数据库获取套餐配置
       const plan = await getPlanFromDB(duration_days, env);
       if (!plan) {
         return new Response(JSON.stringify({
@@ -209,18 +223,16 @@ export async function handleCreateCode(request, env, ctx) {
       }
       const price = calculatePrice(plan, max_ips);
 
-      // 如果没有 payment_id，生成一个（用于测试模式）
       const orderId = payment_id || (test_mode ? 'test_' + Date.now() : 'manual_' + Date.now());
 
       await env.DB.prepare(`
-        INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, status)
-        VALUES (?, ?, ?, ?, ?, 'completed')
-      `).bind(user.id, orderId, result.code, duration_days, price.discounted).run();
+        INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, topic_id, status)
+        VALUES (?, ?, ?, ?, ?, ?, 'completed')
+      `).bind(user.id, orderId, result.code, duration_days, price.discounted, topic_id || null).run();
 
-      console.log('[Subscription] Order created:', orderId, 'for user:', user.id);
+      console.log('[Subscription] Order created:', orderId, 'for user:', user.id, 'topic:', topic_id);
     } catch (error) {
       console.error('[Subscription] Failed to create order:', error);
-      // 不影响卡密生成，所以继续返回
     }
 
     return new Response(JSON.stringify(result), {

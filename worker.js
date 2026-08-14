@@ -446,7 +446,7 @@ import {
 } from './handlers/auth.js';
 
 import { handleGoogleAuthDebug } from './handlers/google-auth-debug.js';
-import { handleCreateCode } from './handlers/subscription-api.js';
+import { handleCreateCode, handleGetTopics } from './handlers/subscription-api.js';
 import {
   handleCreateXunhuPayOrder,
   handleXunhuPayNotify,
@@ -1454,6 +1454,9 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/subscription/create-code') {
       // 创建订阅卡密
       return await handleCreateCode(request, env, ctx);
+    } else if (path === '/api/subscription/topics') {
+      // 获取可用主题列表
+      return await handleGetTopics(request, env, ctx);
     } else if (path === '/api/subscription/xunhupay/create-order') {
       // 创建虎皮椒支付订单
       return await handleCreateXunhuPayOrder(request, env, ctx);

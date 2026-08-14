@@ -579,6 +579,43 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       border-radius: 20px;
       margin-top: 4px;
     }
+
+    /* ========== 主题选择器 ========== */
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .theme-card {
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .theme-card:hover {
+      border-color: rgba(229,9,20,0.4);
+      background: rgba(229,9,20,0.05);
+    }
+    .theme-card.selected {
+      border-color: var(--accent);
+      background: rgba(229,9,20,0.15);
+    }
+    .theme-card-icon {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+    .theme-card-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+    .theme-card-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
     
     .pricing-right {
       background: var(--gradient-card);
@@ -785,40 +822,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         </div>
       </div>
     </section>
-    
-    <!-- 方案区 -->
-    <section class="solution-section">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-tag">✨ 我们的方案</div>
-          <h2 class="section-title">一个链接，<span>解决所有问题</span></h2>
-          <p class="section-desc">不需要复杂配置，30秒就能开始观看</p>
-        </div>
-        <div class="solution-grid">
-          <div class="solution-card">
-            <span class="solution-icon">📺</span>
-            <h3 class="solution-card-title">5000+ 频道全覆盖</h3>
-            <p class="solution-card-text">央视、卫视、地方台、体育、电影、港澳台、国际频道...你想要的都有</p>
-          </div>
-          <div class="solution-card">
-            <span class="solution-icon">⚡</span>
-            <h3 class="solution-card-title">全球 CDN 加速</h3>
-            <p class="solution-card-text">海外专线，秒开不卡。看球赛、追综艺，流畅如初</p>
-          </div>
-          <div class="solution-card">
-            <span class="solution-icon">🔧</span>
-            <h3 class="solution-card-title">一键导入即用</h3>
-            <p class="solution-card-text">把链接导入 VLC、APTV、TVBox 就能看，爸妈也能轻松上手</p>
-          </div>
-          <div class="solution-card">
-            <span class="solution-icon">👨‍👩‍👧‍👦</span>
-            <h3 class="solution-card-title">全家共享设备</h3>
-            <p class="solution-card-text">最高支持 5 台设备，爸妈、爱人、孩子各用各的</p>
-          </div>
-        </div>
-      </div>
-    </section>
-    
+
     <!-- 信任数据区 -->
     <section class="trust-section">
       <div class="container">
@@ -1048,6 +1052,17 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         <div class="pricing-wrapper">
           <div class="pricing-left">
             <div class="selector-group">
+              <div class="selector-label">选择主题</div>
+              <div class="theme-grid" id="themeGrid">
+                <div class="theme-card selected" onclick="selectTheme(null)" data-theme="all">
+                  <div class="theme-card-icon">📺</div>
+                  <div class="theme-card-name">全部频道</div>
+                  <div class="theme-card-desc">5000+ 国内外频道</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="selector-group">
               <div class="selector-label">订阅时长</div>
               <div class="selector-bar" id="durationGrid">
                 <div class="select-option selected" onclick="selectDuration(30)">
@@ -1194,8 +1209,58 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       document.getElementById('totalPrice').textContent = '¥' + totalPrice.toFixed(2);
     }
     
+    let selectedTheme = null;
+
+    async function loadThemes() {
+      try {
+        const response = await fetch('/api/subscription/topics');
+        const data = await response.json();
+
+        if (data.success && data.topics.length > 0) {
+          const grid = document.getElementById('themeGrid');
+          const icons = ['🎬', '⚽', '🎵', '📰', '🌍', '🎮', '🏀', '⚾'];
+
+          data.topics.forEach((topic, index) => {
+            const card = document.createElement('div');
+            card.setAttribute('class', 'theme-card');
+            card.onclick = () => selectTheme(topic.id);
+            card.dataset.theme = topic.id;
+            const icon = icons[index % icons.length];
+            const desc = topic.description || '精选频道';
+            card.innerHTML = '<div class="theme-card-icon">' + icon + '</div><div class="theme-card-name">' + topic.name + '</div><div class="theme-card-desc">' + desc + '</div>';
+            grid.appendChild(card);
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load topics:', error);
+      }
+    }
+
+    function selectTheme(themeId) {
+      selectedTheme = themeId;
+
+      document.querySelectorAll('.theme-card').forEach(card => {
+        card.classList.remove('selected');
+        if ((themeId === null && card.dataset.theme === 'all') ||
+            card.dataset.theme === themeId.toString()) {
+          card.classList.add('selected');
+        }
+      });
+    }
+
+    // 页面加载时获取主题列表
+    loadThemes();
+
     function handleSubscribe() {
-      window.location.href = '/subscribe?duration=' + selectedDuration.days + '&ips=' + selectedIPs + '&payment=' + selectedPaymentMethod;
+      const params = new URLSearchParams({
+        duration: selectedDuration.days,
+        ips: selectedIPs,
+        payment: selectedPaymentMethod
+      });
+      if (selectedTheme) {
+        params.set('theme', selectedTheme);
+      }
+      window.location.href = '/subscribe?' + params.toString();
     }
     
     // 初始化
