@@ -210,44 +210,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       line-height: 1.6;
     }
     
-    /* ========== 信任数据区 ========== */
-    .trust-section {
-      padding: 80px 20px;
-      background: linear-gradient(135deg, rgba(229,9,20,0.08) 0%, transparent 100%);
-      border-top: 1px solid rgba(229,9,20,0.1);
-      border-bottom: 1px solid rgba(229,9,20,0.1);
-    }
-    
-    .trust-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
-    }
-    @media (max-width: 768px) {
-      .trust-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    
-    .trust-item {
-      text-align: center;
-      padding: 24px;
-      background: rgba(255,255,255,0.02);
-      border-radius: 16px;
-      border: var(--border);
-    }
-    .trust-value {
-      font-size: 2.5rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, var(--accent) 0%, #ff6b6b 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 8px;
-    }
-    .trust-label {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-    }
-    
     /* ========== 对比表 ========== */
     .comparison-section {
       padding: 100px 20px;
