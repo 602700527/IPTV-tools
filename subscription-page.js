@@ -712,7 +712,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <section class="comparison-section">
       <div class="container">
         <div class="section-header">
-          <div class="section-tag">📊 免费版 vs VIP</div>
+          <div class="section-tag">⭐ 会员权益</div>
           <h2 class="section-title">升级<span>VIP</span>，解锁全部功能</h2>
         </div>
         <table class="comparison-table">
