@@ -971,7 +971,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         <input type="number" id="generateDurationCustom" value="7" min="1" max="3650" placeholder="自定义天数" style="display:none;width:100%;margin-top:8px;">
       </div></div>
       <div class="form-row"><div class="form-group"><label>最大IP数</label><input type="number" id="generateMaxIps" value="3" min="1"></div><div class="form-group"><label>备注</label><input type="text" id="generateRemark" placeholder="可选备注"></div></div>
-      <div class="form-group"><label>绑定专题</label><select id="generateTopicId" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;"><option value="">不绑定（使用全部频道）</option></select></div>
+      <div class="form-group"><label>绑定线路</label><select id="generateTopicId" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;"><option value="">不绑定（使用全部频道）</option></select></div>
       <div class="modal-footer"><button class="btn" onclick="closeGenerateCodeModal()">取消</button><button class="btn btn-primary" onclick="generateCodes()">生成</button></div>
     </div>
   </div>
@@ -988,7 +988,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <div class="form-group"><label>卡密</label><input type="text" id="editCode" disabled></div>
       <div class="form-group"><label>状态</label><select id="editStatus"><option value="unused">未使用</option><option value="active">活跃</option><option value="disabled">禁用</option></select></div>
       <div class="form-group"><label>备注</label><input type="text" id="editRemark" placeholder="备注信息"></div>
-      <div class="form-group"><label>绑定专题</label><select id="editTopicId" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;"><option value="">不绑定</option></select></div>
+      <div class="form-group"><label>绑定线路</label><select id="editTopicId" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;"><option value="">不绑定</option></select></div>
       <div class="modal-footer"><button class="btn" onclick="closeCodeEditModal()">取消</button><button class="btn btn-primary" onclick="saveCodeEdit()">保存</button></div>
     </div>
   </div>
@@ -5818,7 +5818,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         });
         tbody.innerHTML = html;
       } catch (e) {
-        showToast('加载专题列表失败: ' + e.message, 'error');
+        showToast('加载线路列表失败: ' + e.message, 'error');
       } finally {
         hideLoading();
       }
@@ -5897,7 +5897,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       const description = document.getElementById('topicDescription').value.trim();
       
       if (!name) {
-        showToast('请输入专题名称', 'error');
+        showToast('请输入线路名称', 'error');
         return;
       }
       
@@ -5911,7 +5911,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           body: JSON.stringify({ id: id ? parseInt(id) : undefined, name: name, description: description, rules: rules })
         });
         if (data.success) {
-          showToast(id ? '专题更新成功' : '专题创建成功', 'success');
+          showToast(id ? '线路更新成功' : '线路创建成功', 'success');
           closeTopicModal();
           loadTopics();
         } else {
@@ -5927,16 +5927,16 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         const topic = await apiRequest('/topics?action=get&id=' + id);
         showTopicModal(topic);
       } catch (e) {
-        showToast('加载专题失败: ' + e.message, 'error');
+        showToast('加载线路失败: ' + e.message, 'error');
       }
     }
     
     async function deleteTopic(id) {
-      if (!confirm('确定要删除此专题吗？')) return;
+      if (!confirm('确定要删除此线路吗？')) return;
       try {
         const data = await apiRequest('/topics?action=delete&id=' + id, { method: 'DELETE' });
         if (data.success) {
-          showToast('专题已删除', 'success');
+          showToast('线路已删除', 'success');
           loadTopics();
         } else {
           showToast(data.error || '删除失败', 'error');
