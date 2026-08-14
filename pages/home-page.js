@@ -724,25 +724,35 @@ export function generateHomePage(options = {}) {
 
     // Make switchView globally accessible for onclick handlers
     window.switchView = function(view) {
-      currentView = view;
-      const regionGrid = document.getElementById('regionGrid');
-      const typeGrid = document.getElementById('typeGrid');
-      const toggleBtns = document.querySelectorAll('.view-toggle-btn');
+      try {
+        currentView = view;
+        const regionGrid = document.getElementById('regionGrid');
+        const typeGrid = document.getElementById('typeGrid');
+        const toggleBtns = document.querySelectorAll('.view-toggle-btn');
 
-      toggleBtns.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.view === view);
-      });
-
-      if (view === 'region') {
-        regionGrid.style.display = '';
-        typeGrid.style.display = 'none';
-      } else {
-        regionGrid.style.display = 'none';
-        typeGrid.style.display = '';
-        // Render type grid if not already rendered
-        if (typeGrid.innerHTML.includes('loading') && homeData) {
-          renderTypeCategories(homeData);
+        if (!toggleBtns || toggleBtns.length === 0) {
+          console.warn('switchView: No toggle buttons found');
+          return;
         }
+
+        toggleBtns.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.view === view);
+        });
+
+        if (view === 'region') {
+          regionGrid.style.display = '';
+          typeGrid.style.display = 'none';
+        } else {
+          regionGrid.style.display = 'none';
+          typeGrid.style.display = '';
+          // Render type grid if not already rendered
+          if (typeGrid.innerHTML.includes('loading') && homeData) {
+            renderTypeCategories(homeData);
+          }
+        }
+        console.log('switchView called with:', view, 'currentView:', currentView);
+      } catch (error) {
+        console.error('switchView error:', error);
       }
     }
 
