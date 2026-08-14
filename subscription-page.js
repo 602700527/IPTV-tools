@@ -162,10 +162,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     /* ========== 方案区 ========== */
-      margin-bottom: 10px;
-      color: var(--text);
-    }
-    .pain-card-text {
       color: var(--text-secondary);
       font-size: 0.95rem;
       line-height: 1.7;
