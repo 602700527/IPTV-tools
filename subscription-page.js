@@ -874,6 +874,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td class="vip"><span class="check">✓</span> 无限制</td>
             </tr>
             <tr>
+              <td>频道收藏</td>
+              <td><span class="cross">✗</span> 本地收藏</td>
+              <td class="vip"><span class="check">✓</span> 云端同步</td>
+            </tr>
+            <tr>
               <td>线路地区匹配</td>
               <td><span class="cross">✗</span> 无</td>
               <td class="vip"><span class="check">✓</span> 有</td>
