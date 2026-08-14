@@ -557,8 +557,10 @@ export function generateHomePage(options = {}) {
   <script>
     // 根据登录状态动态更新横幅内容
     (function() {
-      var authCookie = document.cookie.split('; ').find(function(row) { return row.startsWith('auth_token='); });
-      var isLoggedIn = !!authCookie;
+      // 同时检查 Cookie 和 localStorage（Cookie 是 HttpOnly，需用 localStorage）
+      var cookieCheck = document.cookie.split('; ').find(function(row) { return row.startsWith('auth_token='); });
+      var localStorageCheck = localStorage.getItem('auth_token');
+      var isLoggedIn = !!cookieCheck || !!localStorageCheck;
       
       if (isLoggedIn) {
         // 已登录用户：显示VIP升级横幅
