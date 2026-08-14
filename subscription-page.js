@@ -805,7 +805,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">春节回不去家，今年终于能实时看春晚了！爸妈在视频里说画面很清晰，一家人守在电视前守岁，感觉就像在国内一样。</p>
+            <p class="testimonial-text">在美国待了快十年，每年春节最愁的就是看春晚。以前用VPN看国内APP，不是卡就是黑屏。朋友推荐了这个，导入TVBox后直接用，画质比之前流畅多了。今年终于不用躲在房间里刷手机了，客厅电视上看一家人守着，感觉挺好的。</p>
           </div>
           
           <div class="testimonial-card">
@@ -818,7 +818,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">给孩子看湖南卫视、给老人看CCTV，各看各的互不打扰。最满意的是看英超完全不卡，比之前用的其他服务强太多了。</p>
+            <p class="testimonial-text">给孩子看湖南卫视、给老人看CCTV，各看各的互不打扰。最满意的是看英超完全不卡，比之前用的其他服务强太多了。有个小问题是有时段性卡顿，客服回复挺快的，帮我调了线路就好了。</p>
           </div>
           
           <div class="testimonial-card">
@@ -831,7 +831,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">配置真的超简单，把链接给爸妈发了过去，他们自己导入TVBox就能看。现在每天晚饭后全家一起看新闻联播，特别温馨。</p>
+            <p class="testimonial-text">配置真的超简单，把链接给爸妈发了过去，他们自己导入TVBox就能看。现在每天晚饭后全家一起看新闻联播，特别温馨。就是频道有点多，找自己想看的还得挑一挑。</p>
           </div>
           
           <div class="testimonial-card">
@@ -844,7 +844,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">儿子在悉尼留学，给他办了个会员。他说学校宿舍用这个看国内比赛很方便，而且画质比学校IPTV清晰多了。</p>
+            <p class="testimonial-text">儿子在悉尼留学，给他办了个会员。他说学校宿舍用这个看国内比赛很方便，而且画质比学校IPTV清晰多了。就是有时候会小卡顿，但总体还行。</p>
           </div>
           
           <div class="testimonial-card">
@@ -857,7 +857,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在德国生活十年了，最想看的就是春晚和世界杯。这个服务用了两年，稳定性从来没让我失望过，强烈推荐给同胞！</p>
+            <p class="testimonial-text">在德国生活十年了，最想看的就是春晚和世界杯。这个服务用了两年，稳定性从来没让我失望过。强烈推荐给同胞！</p>
           </div>
           
           <div class="testimonial-card">
@@ -870,7 +870,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在日本工作，平时最喜欢看家乡的新闻和综艺。这个服务频道很全，连我们省的地面频道都有，就像在家里一样。</p>
+            <p class="testimonial-text">在日本工作，平时最喜欢看家乡的新闻和综艺。这个服务频道很全，连我们省的地面频道都有，就像在家里一样。有时候网速慢会卡一下，但整体体验不错。</p>
           </div>
           
           <div class="testimonial-card">
@@ -878,12 +878,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar">周</div>
               <div class="testimonial-info">
                 <div class="testimonial-name">周先生</div>
-                <div class="testimonial-meta">🇸🇬 新加坡 · 订阅 1 年</div>
+                <div class="testimonial-meta">🇸🇬 新加坡 · 订阅 3 个月</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★☆</div>
-            <p class="testimonial-text">新加坡华人多，办公室同事一起订阅了。5台设备够用，性价比很高。偶尔会小卡顿，但客服响应很快，总体满意。</p>
+            <p class="testimonial-text">新加坡华人多，办公室同事一起订阅了。5台设备够用，性价比很高。偶尔会小卡顿，但客服响应很快，总体满意。就是感觉价格能再便宜点就好了。</p>
           </div>
           
           <div class="testimonial-card">
@@ -891,12 +891,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar">吴</div>
               <div class="testimonial-info">
                 <div class="testimonial-name">吴女士</div>
-                <div class="testimonial-meta">🇫🇷 法国 · 订阅 8 个月</div>
+                <div class="testimonial-meta">🇰🇷 韩国 · 订阅 4 个月</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">逢年过节最想看的就是国内综艺和电视剧直播。这个服务让我重温了小时候的感觉，和家人视频一起看，特别开心。</p>
+            <p class="testimonial-text">逢年过节最想看的就是国内综艺和电视剧直播。这个服务让我重温了小时候的感觉，和家人视频一起看，特别开心。唯一不满意的是频道太多有时候找不到想看的。</p>
           </div>
           
           <div class="testimonial-card">
@@ -904,12 +904,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar">郑</div>
               <div class="testimonial-info">
                 <div class="testimonial-name">郑先生</div>
-                <div class="testimonial-meta">🇰🇷 韩国 · 订阅 3 个月</div>
+                <div class="testimonial-meta">🇰🇷 韩国 · 订阅 5 个月</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在韩国留学，用这个看国内体育比赛很方便。操作简单，室友都在用，我们群里经常一起聊球赛。</p>
+            <p class="testimonial-text">在韩国留学，用这个看国内体育比赛很方便。操作简单，室友都在用，我们群里经常一起聊球赛。画质清晰，基本不卡。</p>
           </div>
           
           <div class="testimonial-card">
@@ -917,18 +917,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar">孙</div>
               <div class="testimonial-info">
                 <div class="testimonial-name">孙女士</div>
-                <div class="testimonial-meta">🇮🇹 意大利 · 订阅 1 年</div>
+                <div class="testimonial-meta">🇫🇷 法国 · 订阅 7 个月</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在欧洲生活多年，最想念的就是国内春晚和新闻联播。这个服务解决了我的问题，7天无理由退款也让我放心尝试。</p>
+            <p class="testimonial-text">在欧洲生活多年，最想念的就是国内春晚和新闻联播。这个服务解决了我的问题，7天无理由退款也让我放心尝试。虽然偶尔有卡顿，但客服态度很好，整体体验不错。就是希望频道能再分类清楚一点。</p>
           </div>
         </div>
         <p class="testimonials-hint">← 左右滑动查看更多评价 →</p>
       </div>
     </section>
-    
+
     <!-- 价格区 -->
     <section class="pricing-section" id="pricing">
       <div class="container">
