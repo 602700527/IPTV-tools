@@ -542,17 +542,34 @@ export function generateHomePage(options = {}) {
 
 
     <!-- Subscription Value Banner - V3 Editorial -->
-  <div class="sub-value-banner">
+  <div class="sub-value-banner" id="subValueBanner">
     <div class="sub-value-inner">
       <div class="sub-value-left">
-        <div class="sub-value-eyebrow">New User Special</div>
-        <h2 class="sub-value-title">Your Full Channel<br><span>Playlist</span> Awaits</h2>
-        <p class="sub-value-desc">Register now and get instant access to 5000+ IPTV channels. One click to your personal M3U subscription link.</p>
-        <div class="sub-value-player-hint">VLC • APTV • TVBox • Tivimate • Televizo • GSE Smart IPTV • 途播</div>
+        <div class="sub-value-eyebrow" id="bannerEyebrow">New User Special</div>
+        <h2 class="sub-value-title" id="bannerTitle">Your Full Channel<br><span>Playlist</span> Awaits</h2>
+        <p class="sub-value-desc" id="bannerDesc">Register now and get instant access to 5000+ IPTV channels. One click to your personal M3U subscription link.</p>
+        <div class="sub-value-player-hint" id="bannerPlayerHint">VLC • APTV • TVBox • Tivimate • Televizo • GSE Smart IPTV • 途播</div>
       </div>
-      <a href="/login#register" class="sub-value-cta">Get Free VIP →</a>
+      <a href="/login#register" class="sub-value-cta" id="bannerCta">Get Free VIP →</a>
     </div>
   </div>
+
+  <script>
+    // 根据登录状态动态更新横幅内容
+    (function() {
+      var authCookie = document.cookie.split('; ').find(function(row) { return row.startsWith('auth_token='); });
+      var isLoggedIn = !!authCookie;
+      
+      if (isLoggedIn) {
+        // 已登录用户：显示VIP升级横幅
+        document.getElementById('bannerEyebrow').textContent = '🔥 VIP限时特惠';
+        document.getElementById('bannerTitle').innerHTML = '解锁全部功能<br><span>畅享5000+频道</span>';
+        document.getElementById('bannerDesc').textContent = '升级VIP会员，无限搜索、无限制下载、多设备同步、专属客服，稳定流畅不卡顿。';
+        document.getElementById('bannerCta').href = '/subscription';
+        document.getElementById('bannerCta').textContent = '立即升级VIP →';
+      }
+    })();
+  </script>
 
   <!-- Promo Banner - Clean minimalist style -->
   <div class="promo-banner" id="promoBanner">
