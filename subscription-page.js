@@ -161,102 +161,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       opacity: 0.6;
     }
 
-    /* ========== 痛点区 ========== */
-    .pain-section {
-      padding: 100px 20px;
-      background: linear-gradient(180deg, var(--bg) 0%, #0d0d0d 100%);
-    }
-    
-    .section-header {
-      text-align: center;
-      margin-bottom: 60px;
-    }
-    .section-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(229,9,20,0.1);
-      border: 1px solid rgba(229,9,20,0.2);
-      color: var(--accent);
-      padding: 8px 16px;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      border-radius: 50px;
-      margin-bottom: 20px;
-    }
-    .section-title {
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
-      font-weight: 800;
-      margin-bottom: 16px;
-    }
-    .section-title span {
-      background: linear-gradient(135deg, var(--accent) 0%, #ff4757 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .section-desc {
-      color: var(--text-secondary);
-      font-size: 1.05rem;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    
-    .pain-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-    }
-    
-    .pain-card {
-      background: var(--gradient-card);
-      border: var(--border);
-      border-radius: 20px;
-      padding: 32px;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-    .pain-card:hover {
-      transform: translateY(-6px);
-      border-color: rgba(229,9,20,0.4);
-      box-shadow: 0 20px 60px rgba(229,9,20,0.15);
-    }
-    .pain-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .pain-card:hover::before { opacity: 1; }
-    
-    .pain-card-scene {
-      width: 100%;
-      height: 180px;
-      background-size: cover;
-      background-position: center;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      position: relative;
-    }
-    .pain-card-scene::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%);
-      border-radius: 12px;
-    }
-    
-    .pain-card-title {
-      font-size: 1.15rem;
-      font-weight: 700;
+    /* ========== 方案区 ========== */
       margin-bottom: 10px;
       color: var(--text);
     }
@@ -811,34 +716,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           </div>
         </div>
         <a href="#pricing" class="hero-cta">立即订阅，首月 ¥20 →</a>
-      </div>
-    </section>
-    
-    <!-- 痛点区 -->
-    <section class="pain-section">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-tag">😤 真实痛点</div>
-          <h2 class="section-title">你是不是也经常<span>遇到这些烦恼</span>？</h2>
-          <p class="section-desc">作为海外华人，这些场景你一定不陌生...</p>
-        </div>
-        <div class="pain-grid">
-          <div class="pain-card">
-            <div class="pain-card-scene" style="background-image: url('static/images/subscription/01-family-watching-tv.jpg')"></div>
-            <h3 class="pain-card-title">春节晚会年年错过</h3>
-            <p class="pain-card-text">录播永远没有现场感，弹幕都剧透了还怎么看？想和家人一起守候跨年，却只能对着回放。</p>
-          </div>
-          <div class="pain-card">
-            <div class="pain-card-scene" style="background-image: url('static/images/subscription/02-frustrated-tech.jpg')"></div>
-            <h3 class="pain-card-title">看球关键时刻掉链子</h3>
-            <p class="pain-card-text">买了便宜的订阅，结果看欧冠/世界杯关键时刻卡顿、断流，花钱买罪受，比没看还难受。</p>
-          </div>
-          <div class="pain-card">
-            <div class="pain-card-scene" style="background-image: url('static/images/subscription/03-elderly-confused.jpg')"></div>
-            <h3 class="pain-card-title">爸妈想用却学不会</h3>
-            <p class="pain-card-text">要装软件、要下APP、要找链接...折腾半天，父母还是不会。想给他们看家乡的新闻，却帮不上忙。</p>
-          </div>
-        </div>
       </div>
     </section>
 
