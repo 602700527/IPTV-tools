@@ -161,12 +161,44 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       opacity: 0.6;
     }
 
-    /* ========== 方案区 ========== */
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-      line-height: 1.7;
+    /* ========== 通用区块样式 ========== */
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
     }
-    
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(229,9,20,0.1);
+      border: 1px solid rgba(229,9,20,0.2);
+      color: var(--accent);
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      border-radius: 50px;
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .section-title span {
+      background: linear-gradient(135deg, var(--accent) 0%, #ff4757 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
     /* ========== 方案区 ========== */
     .solution-section {
       padding: 100px 20px;
