@@ -839,12 +839,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar">陈</div>
               <div class="testimonial-info">
                 <div class="testimonial-name">陈女士</div>
-                <div class="testimonial-meta">🇦🇺 澳洲 · 订阅 6 个月</div>
+                <div class="testimonial-meta">📍 北京 · 订阅 3 个月</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">儿子在悉尼留学，给他办了个会员。他说学校宿舍用TiviMate看国内比赛很方便，画质比学校IPTV清晰多了。就是有时候会小卡顿，但总体还行。</p>
+            <p class="testimonial-text">以前在家只能看地方台，现在用APTV能看央视所有频道和湖南卫视。周末全家一起看新闻联播，爸妈可高兴了。用CarPlay在车上也能听广播，挺方便的。就是有时候频道太多要找一会儿。</p>
           </div>
           
           <div class="testimonial-card">
@@ -852,12 +852,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar">刘</div>
               <div class="testimonial-info">
                 <div class="testimonial-name">刘先生</div>
-                <div class="testimonial-meta">🇩🇪 德国 · 订阅 2 年</div>
+                <div class="testimonial-meta">📍 上海 · 订阅 1 年</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在德国生活十年了，最想看的就是春晚和世界杯。用APTV看了两年，稳定性从来没让我失望过。周末开车用CarPlay连上车载系统看新闻，特别方便。强烈推荐给同胞！</p>
+            <p class="testimonial-text">在家想看港澳台频道，找了好几个服务都不稳定。这个用Televizo导入就能看，凤凰卫视、阳光卫视都很清晰。偶尔有卡顿，客服响应很快，给我换了线路就好了。性价比高，推荐。</p>
           </div>
           
           <div class="testimonial-card">
@@ -891,12 +891,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar">吴</div>
               <div class="testimonial-info">
                 <div class="testimonial-name">吴女士</div>
-                <div class="testimonial-meta">🇰🇷 韩国 · 订阅 4 个月</div>
+                <div class="testimonial-meta">📍 成都 · 订阅 4 个月</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">逢年过节最想看的就是国内综艺和电视剧直播。用Televizo看，让我重温了小时候的感觉，和家人视频一起看，特别开心。唯一不满意的是频道太多有时候找不到想看的。</p>
+            <p class="testimonial-text">四川人喜欢晚上刷剧看综艺，以前只能看地方台。现在用GSE Smart IPTV能看到湖南卫视、浙江卫视的直播，还能回看。用Tivimate体验更好，界面简洁，操作方便。唯一不满的是想找老电影频道有点难。</p>
           </div>
           
           <div class="testimonial-card">
