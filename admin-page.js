@@ -9,36 +9,36 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#f5f5f7;color:#1d1d1f}
     .login-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000}
-    .login-box{background:white;padding:40px;border-radius:12px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+    .login-box{background:white;padding:40px;border-radius: 0;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
     .login-box h2{margin-bottom:24px;text-align:center;color:#1d1d1f}
-    .login-box input{width:100%;padding:12px 16px;border:1px solid #d2d2d7;border-radius:8px;font-size:16px;margin-bottom:16px}
-    .login-box button{width:100%;padding:12px;background:#0071e3;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;transition:background .2s}
+    .login-box input{width:100%;padding:12px 16px;border:1px solid #d2d2d7;border-radius: 0;font-size:16px;margin-bottom:16px}
+    .login-box button{width:100%;padding:12px;background:#0071e3;color:white;border:none;border-radius: 0;font-size:16px;cursor:pointer;transition:background .2s}
     .login-box button:hover{background:#0077ed}
     .login-error{color:#ff3b30;text-align:center;margin-bottom:12px;font-size:14px}
     .captcha-container{display:flex;gap:10px;align-items:center;margin-bottom:16px}
-    .captcha-input{flex:1;padding:12px 16px;border:1px solid #d2d2d7;border-radius:8px;font-size:16px;text-align:center;letter-spacing:3px}
-    .captcha-canvas{width:100px;height:44px;border:1px solid #d2d2d7;border-radius:8px;cursor:pointer;flex-shrink:0}
-    .captcha-refresh{padding:12px 16px;background:#f5f5f7;border:1px solid #d2d2d7;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:background .2s;white-space:nowrap;flex-shrink:0}
+    .captcha-input{flex:1;padding:12px 16px;border:1px solid #d2d2d7;border-radius: 0;font-size:16px;text-align:center;letter-spacing:3px}
+    .captcha-canvas{width:100px;height:44px;border:1px solid #d2d2d7;border-radius: 0;cursor:pointer;flex-shrink:0}
+    .captcha-refresh{padding:12px 16px;background:#f5f5f7;border:1px solid #d2d2d7;border-radius: 0;cursor:pointer;font-size:14px;font-weight:500;transition:background .2s;white-space:nowrap;flex-shrink:0}
     .captcha-refresh:hover{background:#e5e5ea}
     .container{max-width:1400px;margin:0 auto;padding:20px}
-    .header{background:white;padding:20px 30px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .header{background:white;padding:20px 30px;border-radius: 0;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.04)}
     .header h1{font-size:24px;font-weight:600}
-    .logout-btn{padding:8px 16px;background:#f5f5f7;border:1px solid #d2d2d7;border-radius:6px;cursor:pointer;font-size:14px}
+    .logout-btn{padding:8px 16px;background:#f5f5f7;border:1px solid #d2d2d7;border-radius: 0;cursor:pointer;font-size:14px}
     .logout-btn:hover{background:#e8e8ed}
     .nav-tabs{display:flex;gap:8px;margin-bottom:20px}
-    .nav-tab{padding:10px 20px;background:white;border:1px solid #d2d2d7;border-radius:8px;cursor:pointer;font-size:14px;transition:all .2s}
+    .nav-tab{padding:10px 20px;background:white;border:1px solid #d2d2d7;border-radius: 0;cursor:pointer;font-size:14px;transition:all .2s}
     .nav-tab:hover{background:#f5f5f7}
     .nav-tab.active{background:#0071e3;color:white;border-color:#0071e3}
     .tab-content{display:none}
     .tab-content.active{display:block}
-    .card{background:white;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,.04);margin-bottom:20px}
+    .card{background:white;border-radius: 0;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,.04);margin-bottom:20px}
     .card h3{margin-bottom:16px;font-size:18px;font-weight:600}
     .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
-    .stat-item{padding:20px;background:#f5f5f7;border-radius:8px;text-align:center}
+    .stat-item{padding:20px;background:#f5f5f7;border-radius: 0;text-align:center}
     .stat-value{font-size:32px;font-weight:600;color:#0071e3}
     .stat-label{margin-top:8px;color:#86868b;font-size:14px}
     .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-    .btn{padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-size:14px;transition:all .2s}
+    .btn{padding:8px 16px;border-radius: 0;border:none;cursor:pointer;font-size:14px;transition:all .2s}
     .btn-primary{background:#0071e3;color:white}
     .btn-primary:hover{background:#0077ed}
     .btn-danger{background:#ff3b30;color:white}
@@ -51,65 +51,65 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     th:first-child,td:first-child{text-align:center;width:40px;}
     th{background:#f5f5f7;font-weight:600;font-size:13px;color:#86868b;text-transform:uppercase}
     tr:hover{background:#f9f9fb}
-    .badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+    .badge{padding:2px 8px;border-radius: 0;font-size:11px;font-weight:500}
     .badge-success{background:#e8f5e9;color:#2e7d32}
     .badge-warning{background:#fff3e0;color:#e65100}
     .badge-danger{background:#ffebee;color:#c62828}
     .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);align-items:center;justify-content:center;z-index:100}
     .modal.active{display:flex}
-    .modal-content{background:white;padding:24px;border-radius:12px;width:100%;max-width:500px;max-height:80vh;overflow-y:auto}
+    .modal-content{background:white;padding:24px;border-radius: 0;width:100%;max-width:500px;max-height:80vh;overflow-y:auto}
     .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
     .modal-header h3{margin:0}
     .close-btn{background:none;border:none;font-size:24px;cursor:pointer;color:#86868b}
     .form-group{margin-bottom:16px}
     .form-group label{display:block;margin-bottom:6px;font-weight:500;font-size:14px}
-    .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;font-size:14px}
     .form-group textarea{min-height:80px;resize:vertical}
     .form-row{display:flex;gap:16px}
     .form-row .form-group{flex:1}
     .modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:24px}
     /* Channel Edit Modal Styles */
     .modal-channel-edit{max-width:560px}
-    .channel-info-header{display:flex;align-items:center;gap:16px;padding:16px;background:linear-gradient(135deg,#f8f9fa 0%,#e9ecef 100%);border-radius:12px;margin-bottom:20px}
-    .channel-logo-preview{width:56px;height:56px;border-radius:8px;object-fit:cover;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .channel-info-header{display:flex;align-items:center;gap:16px;padding:16px;background:linear-gradient(135deg,#f8f9fa 0%,#e9ecef 100%);border-radius: 0;margin-bottom:20px}
+    .channel-logo-preview{width:56px;height:56px;border-radius: 0;object-fit:cover;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1)}
     .channel-name-preview{flex:1;min-width:0}
     .channel-name{font-size:18px;font-weight:600;color:#1d1d1f;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .channel-group-preview{font-size:13px;color:#6c757d}
     .channel-meta-row{display:flex;gap:16px;margin-bottom:20px}
-    .channel-meta-item{flex:1;padding:12px;background:#f8f9fa;border-radius:8px}
+    .channel-meta-item{flex:1;padding:12px;background:#f8f9fa;border-radius: 0}
     .meta-label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#86868b;margin-bottom:4px}
-    .meta-input{width:100%;padding:8px 10px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;background:#fff}
+    .meta-input{width:100%;padding:8px 10px;border:1px solid #d2d2d7;border-radius: 0;font-size:14px;background:#fff}
     .meta-value{font-size:14px;color:#1d1d1f}
     .channel-desc-group{position:relative;margin-bottom:16px}
     .desc-label{display:flex;align-items:center;gap:6px;margin-bottom:8px;font-weight:500;font-size:14px;color:#1d1d1f}
     .desc-icon{width:16px;height:16px;color:#86868b}
-    .desc-textarea{width:100%;padding:12px;border:1px solid #d2d2d7;border-radius:8px;font-size:14px;line-height:1.6;resize:vertical;min-height:100px;transition:border-color .2s,box-shadow .2s}
+    .desc-textarea{width:100%;padding:12px;border:1px solid #d2d2d7;border-radius: 0;font-size:14px;line-height:1.6;resize:vertical;min-height:100px;transition:border-color .2s,box-shadow .2s}
     .desc-textarea:focus{outline:none;border-color:#0071e3;box-shadow:0 0 0 3px rgba(0,113,227,.15)}
     .desc-counter{position:absolute;bottom:8px;right:12px;font-size:11px;color:#86868b;pointer-events:none}
-    .search-box{padding:8px 12px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;width:200px}
-    .filter-select{padding:8px 12px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px}
+    .search-box{padding:8px 12px;border:1px solid #d2d2d7;border-radius: 0;font-size:14px;width:200px}
+    .filter-select{padding:8px 12px;border:1px solid #d2d2d7;border-radius: 0;font-size:14px}
     .empty-state{text-align:center;padding:40px;color:#86868b}
     .action-buttons{display:flex;gap:4px}
-    .toast{position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:8px;color:white;font-size:14px;z-index:1000;animation:slideIn .3s ease}
+    .toast{position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius: 0;color:white;font-size:14px;z-index:1000;animation:slideIn .3s ease}
     .toast.success{background:#34c759}
     .toast.error{background:#ff3b30}
     .toast.info{background:#0071e3}
     @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
     .loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.8);display:none;align-items:center;justify-content:center;z-index:2000}
     .loading-overlay.active{display:flex}
-    .loading-spinner{width:40px;height:40px;border:3px solid #e5e5ea;border-top-color:#0071e3;border-radius:50%;animation:spin 1s linear infinite}
+    .loading-spinner{width:40px;height:40px;border:3px solid #e5e5ea;border-top-color:#0071e3;border-radius: 0;animation:spin 1s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
     .loading-text{margin-top:16px;color:#86868b;font-size:14px}
-    .sync-indicator{position:fixed;top:80px;right:20px;padding:12px 16px;background:#fff3e0;border:1px solid #ff9800;border-radius:8px;z-index:1500;display:none;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .sync-indicator{position:fixed;top:80px;right:20px;padding:12px 16px;background:#fff3e0;border:1px solid #ff9800;border-radius: 0;z-index:1500;display:none;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
     .sync-indicator.active{display:flex}
-    .sync-spinner{width:16px;height:16px;border:2px solid #ffe0b2;border-top-color:#ff9800;border-radius:50%;animation:spin 1s linear infinite}
-    .code-display{font-family:'Courier New',monospace;background:#f5f5f7;padding:8px;border-radius:4px;font-size:13px}
-    .generated-codes{background:#f5f5f7;padding:16px;border-radius:8px;margin-top:16px}
+    .sync-spinner{width:16px;height:16px;border:2px solid #ffe0b2;border-top-color:#ff9800;border-radius: 0;animation:spin 1s linear infinite}
+    .code-display{font-family:'Courier New',monospace;background:#f5f5f7;padding:8px;border-radius: 0;font-size:13px}
+    .generated-codes{background:#f5f5f7;padding:16px;border-radius: 0;margin-top:16px}
     .generated-codes h4{margin-bottom:12px}
     .generated-codes-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #e5e5ea}
     .generated-codes-item:last-child{border-bottom:none}
     .pagination{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:20px}
-    .pagination button{padding:6px 12px;border:1px solid #d2d2d7;background:white;border-radius:6px;cursor:pointer;font-size:14px}
+    .pagination button{padding:6px 12px;border:1px solid #d2d2d7;background:white;border-radius: 0;cursor:pointer;font-size:14px}
     .pagination button:hover:not(:disabled){background:#f5f5f7}
     .pagination button:disabled{color:#86868b;cursor:not-allowed}
     .pagination button.active{background:#0071e3;color:white;border-color:#0071e3}
@@ -120,14 +120,14 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     .btn-copy{padding:2px 8px;font-size:11px;margin-left:6px;background:#f5f5f7}
     .btn-copy:hover{background:#e8e8ed}
     .headers-cell{max-width:200px;padding:8px;font-size:11px;color:#86868b}
-    .headers-tag{display:inline-block;padding:2px 6px;background:#f5f5f7;border-radius:4px;margin:2px;font-size:10px}
-    .type-badge{display:inline-block;padding:2px 6px;background:#e3f2fd;color:#1976d2;border-radius:4px;margin:2px;font-size:10px}
-    .ticket-type-badge{display:inline-block;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600;text-transform:uppercase}
+    .headers-tag{display:inline-block;padding:2px 6px;background:#f5f5f7;border-radius: 0;margin:2px;font-size:10px}
+    .type-badge{display:inline-block;padding:2px 6px;background:#e3f2fd;color:#1976d2;border-radius: 0;margin:2px;font-size:10px}
+    .ticket-type-badge{display:inline-block;padding:4px 8px;border-radius: 0;font-size:11px;font-weight:600;text-transform:uppercase}
     .ticket-type-badge.payment{background:rgba(255,204,0,.15);color:#b8860b}
     .ticket-type-badge.order{background:rgba(52,199,89,.15);color:#2e7d32}
     .ticket-type-badge.technical{background:rgba(0,122,255,.15);color:#007aff}
     .ticket-type-badge.other{background:rgba(142,142,147,.15);color:#6e6e73}
-    .ticket-status-badge{display:inline-block;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600}
+    .ticket-status-badge{display:inline-block;padding:4px 8px;border-radius: 0;font-size:11px;font-weight:600}
     .ticket-status-badge.pending{background:rgba(255,204,0,.15);color:#b8860b}
     .ticket-status-badge.processing{background:rgba(0,122,255,.15);color:#007aff}
     .ticket-status-badge.resolved{background:rgba(52,199,89,.15);color:#2e7d32}
@@ -140,7 +140,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       width: 18px;
       height: 18px;
       border: 2px solid #d2d2d7;
-      border-radius: 4px;
+      border-radius: 0;
       background: white;
       cursor: pointer;
       position: relative;
@@ -368,7 +368,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     <div id="security" class="tab-content">
       <div class="card">
         <div class="toolbar"><h3>安全配置</h3><button class="btn btn-primary" onclick="loadSecurityConfig()">刷新配置</button></div>
-        <div id="securityConfigForm" style="display:none;padding:16px;background:#f9f9fb;border-radius:8px;">
+        <div id="securityConfigForm" style="display:none;padding:16px;background:#f9f9fb;border-radius: 0;">
           <div class="form-row" style="margin-bottom:16px;">
             <div class="form-group">
               <label>每日播放次数限制（每个频道）</label>
@@ -404,7 +404,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <div class="stat-item" id="quotaBanStatus"><div class="stat-value" style="color:#34c759;">正常</div><div class="stat-label">状态</div></div>
             <div class="stat-item"><div class="stat-value" id="quotaBanTime">-</div><div class="stat-label">封禁时间</div></div>
           </div>
-          <div id="banAlert" style="margin-top:20px;display:none;padding:16px;background:#ffebee;border-left:4px solid #ff3b30;border-radius:4px;">
+          <div id="banAlert" style="margin-top:20px;display:none;padding:16px;background:#ffebee;border-left:4px solid #ff3b30;border-radius: 0;">
             <h4 style="margin-bottom:12px;color:#d32f2f;">⚠️ 卡密已被封禁</h4>
             <p style="margin-bottom:8px;"><strong>原因：</strong>该卡密今日有频道超出播放额度（<span id="banLimitText">100</span>次/天）</p>
             <p style="margin-bottom:8px;"><strong>封禁时长：</strong><span id="banDurationText">-</span></p>
@@ -481,7 +481,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <h3>IP黑名单配置</h3>
           <button class="btn btn-primary" onclick="loadIPBlacklistConfig()">刷新配置</button>
         </div>
-        <div id="ipBlacklistConfigForm" style="display:none;padding:16px;background:#f9f9fb;border-radius:8px;">
+        <div id="ipBlacklistConfigForm" style="display:none;padding:16px;background:#f9f9fb;border-radius: 0;">
           <h4 style="margin-bottom:16px;">订阅地址（/sub）限制</h4>
           <div class="form-row" style="margin-bottom:16px;">
             <div class="form-group">
@@ -642,11 +642,11 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <button class="btn" onclick="loadAdTsFiles()">刷新列表</button>
           </div>
         </div>
-        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+        <div style="padding:20px;background:#f9f9fb;border-radius: 0;margin-bottom:20px;">
           <p style="color:#86868b;margin-bottom:12px;">
             上传广告TS文件，在不同播放场景下播放广告内容。支持上传.ts格式的视频文件。
           </p>
-          <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius:4px;">
+          <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius: 0;">
             <strong style="color:#e65100;">注意事项：</strong>
             <ul style="margin:8px 0 0 20px;color:#666;">
               <li>广告文件以Base64格式存储在数据库中，建议文件大小不超过1MB</li>
@@ -682,11 +682,11 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <button class="btn" onclick="loadAdBindings()">刷新列表</button>
           </div>
         </div>
-        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+        <div style="padding:20px;background:#f9f9fb;border-radius: 0;margin-bottom:20px;">
           <p style="color:#86868b;margin-bottom:12px;">
             配置不同场景下播放的广告。支持绑定指定广告或随机播放，并可设置冷却时间。
           </p>
-          <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius:4px;">
+          <div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;border-radius: 0;">
             <strong style="color:#e65100;">操作类型说明：</strong>
             <ul style="margin:8px 0 0 20px;color:#666;">
               <li><strong>卡密正常播放</strong>：用户使用有效卡密正常播放时触发</li>
@@ -722,7 +722,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         <div class="toolbar">
           <h3>账户管理</h3>
           <div style="display:flex;gap:8px;">
-            <input type="text" id="userSearch" placeholder="搜索邮箱..." style="padding:8px 12px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;" oninput="handleUserSearch()">
+            <input type="text" id="userSearch" placeholder="搜索邮箱..." style="padding:8px 12px;border:1px solid #d2d2d7;border-radius: 0;font-size:14px;" oninput="handleUserSearch()">
           </div>
         </div>
         <div id="usersList" style="margin-top:20px;">
@@ -747,7 +747,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         <div class="toolbar">
           <h3>订单管理</h3>
           <div style="display:flex;gap:8px;">
-            <input type="text" id="orderUserFilter" placeholder="筛选用户邮箱..." style="padding:8px 12px;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;" oninput="filterOrders()">
+            <input type="text" id="orderUserFilter" placeholder="筛选用户邮箱..." style="padding:8px 12px;border:1px solid #d2d2d7;border-radius: 0;font-size:14px;" oninput="filterOrders()">
           </div>
         </div>
         <div id="ordersList" style="margin-top:20px;">
@@ -779,14 +779,14 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <button class="btn" onclick="loadMallSettings()">刷新设置</button>
           </div>
         </div>
-        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+        <div style="padding:20px;background:#f9f9fb;border-radius: 0;margin-bottom:20px;">
           <p style="color:#86868b;margin-bottom:12px;">
             配置商城功能开关。关闭商城后，订阅页面的会员订阅模块将不会显示。关闭订阅功能后，用户无法进行付费订阅。
           </p>
 
           <div class="form-group" style="margin-bottom:20px;">
             <label>商城开关</label>
-            <div style="display:flex;align-items:center;gap:12px;padding:16px;background:white;border:1px solid #e5e5ea;border-radius:8px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:16px;background:white;border:1px solid #e5e5ea;border-radius: 0;">
               <input type="checkbox" id="mallEnabled" checked style="width:20px;height:20px;cursor:pointer;">
               <div>
                 <div style="font-weight:600;font-size:15px;color:#1d1d1f;">启用商城</div>
@@ -797,7 +797,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
 
           <div class="form-group" style="margin-bottom:20px;">
             <label>订阅功能开关</label>
-            <div style="display:flex;align-items:center;gap:12px;padding:16px;background:white;border:1px solid #e5e5ea;border-radius:8px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:16px;background:white;border:1px solid #e5e5ea;border-radius: 0;">
               <input type="checkbox" id="subscriptionEnabled" checked style="width:20px;height:20px;cursor:pointer;">
               <div>
                 <div style="font-weight:600;font-size:15px;color:#1d1d1f;">启用订阅功能</div>
@@ -816,7 +816,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <button class="btn" onclick="loadPlans()">刷新</button>
           </div>
         </div>
-        <div style="padding:16px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+        <div style="padding:16px;background:#f9f9fb;border-radius: 0;margin-bottom:20px;">
           <p style="color:#86868b;margin-bottom:12px;">
             管理订阅套餐的价格和配置。修改后即时生效，订阅页面会自动更新显示。
           </p>
@@ -847,7 +847,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <button class="btn btn-primary" onclick="showPaymentMethodModal()">添加支付方式</button>
           </div>
         </div>
-        <div style="padding:16px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+        <div style="padding:16px;background:#f9f9fb;border-radius: 0;margin-bottom:20px;">
           <p style="color:#86868b;margin-bottom:12px;">
             管理支付接口。关闭某个支付方式后，订阅页面对应的支付选项将隐藏。
           </p>
@@ -880,11 +880,11 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <button class="btn" onclick="loadCacheStatus()">刷新状态</button>
           </div>
         </div>
-        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+        <div style="padding:20px;background:#f9f9fb;border-radius: 0;margin-bottom:20px;">
           <p style="color:#86868b;margin-bottom:12px;">
             频道数据会自动缓存到 KV 存储中，提高首页加载速度和减少数据库查询。缓存会在源数据同步后自动更新，也可以手动刷新。
           </p>
-          <div id="cacheStatusInfo" style="padding:12px;background:white;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;">
+          <div id="cacheStatusInfo" style="padding:12px;background:white;border:1px solid #d2d2d7;border-radius: 0;font-size:14px;">
             <div style="color:#86868b;">加载中...</div>
           </div>
         </div>
@@ -894,10 +894,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <h3>会员设置</h3>
           <button class="btn btn-primary" onclick="saveSystemConfig()">保存配置</button>
         </div>
-        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+        <div style="padding:20px;background:#f9f9fb;border-radius: 0;margin-bottom:20px;">
           <div style="margin-bottom:24px;">
             <div style="margin-bottom:16px;">
-              <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;">
+              <label style="display:flex;align-items:center;padding:12px;background:white;border:1px solid #e5e5ea;border-radius: 0;cursor:pointer;">
                 <input type="checkbox" id="enableMemberAdFree" checked style="margin-right:12px;">
                 <span style="font-size:14px;">启用会员网站免广告</span>
               </label>
@@ -914,11 +914,11 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <button class="btn" onclick="loadTokens()">刷新列表</button>
           </div>
         </div>
-        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+        <div style="padding:20px;background:#f9f9fb;border-radius: 0;margin-bottom:20px;">
           <p style="color:#86868b;margin-bottom:12px;">
             Token 用于 M3U 播放地址缓存。每个 Token 有效期 72 小时（可配置），包含所有频道的播放地址映射。
           </p>
-          <div id="tokenListInfo" style="padding:12px;background:white;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;">
+          <div id="tokenListInfo" style="padding:12px;background:white;border:1px solid #d2d2d7;border-radius: 0;font-size:14px;">
             <div style="color:#86868b;">加载中...</div>
           </div>
         </div>
@@ -928,11 +928,11 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <h3>频道类型映射配置</h3>
           <button class="btn btn-primary" onclick="saveTypeMappingConfig()">保存配置</button>
         </div>
-        <div style="padding:20px;background:#f9f9fb;border-radius:8px;margin-bottom:20px;">
+        <div style="padding:20px;background:#f9f9fb;border-radius: 0;margin-bottom:20px;">
           <p style="color:#86868b;margin-bottom:12px;">
             配置频道类型推断规则。关键词用于从频道名称自动推断类型，支持多值（如 movie,animation）。
           </p>
-          <div id="typeMappingConfig" style="padding:12px;background:white;border:1px solid #d2d2d7;border-radius:6px;font-size:14px;">
+          <div id="typeMappingConfig" style="padding:12px;background:white;border:1px solid #d2d2d7;border-radius: 0;font-size:14px;">
             <div style="color:#86868b;">加载中...</div>
           </div>
         </div>
@@ -971,7 +971,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         <input type="number" id="generateDurationCustom" value="7" min="1" max="3650" placeholder="自定义天数" style="display:none;width:100%;margin-top:8px;">
       </div></div>
       <div class="form-row"><div class="form-group"><label>最大IP数</label><input type="number" id="generateMaxIps" value="3" min="1"></div><div class="form-group"><label>备注</label><input type="text" id="generateRemark" placeholder="可选备注"></div></div>
-      <div class="form-group"><label>绑定线路</label><select id="generateTopicId" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;"><option value="">不绑定（使用全部频道）</option></select></div>
+      <div class="form-group"><label>绑定线路</label><select id="generateTopicId" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;"><option value="">不绑定（使用全部频道）</option></select></div>
       <div class="modal-footer"><button class="btn" onclick="closeGenerateCodeModal()">取消</button><button class="btn btn-primary" onclick="generateCodes()">生成</button></div>
     </div>
   </div>
@@ -988,14 +988,14 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <div class="form-group"><label>卡密</label><input type="text" id="editCode" disabled></div>
       <div class="form-group"><label>状态</label><select id="editStatus"><option value="unused">未使用</option><option value="active">活跃</option><option value="disabled">禁用</option></select></div>
       <div class="form-group"><label>备注</label><input type="text" id="editRemark" placeholder="备注信息"></div>
-      <div class="form-group"><label>绑定线路</label><select id="editTopicId" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;"><option value="">不绑定</option></select></div>
+      <div class="form-group"><label>绑定线路</label><select id="editTopicId" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;"><option value="">不绑定</option></select></div>
       <div class="modal-footer"><button class="btn" onclick="closeCodeEditModal()">取消</button><button class="btn btn-primary" onclick="saveCodeEdit()">保存</button></div>
     </div>
   </div>
   <div id="importCodeModal" class="modal">
     <div class="modal-content" style="max-width:800px">
       <div class="modal-header"><h3>批量导入卡密</h3><button class="close-btn" onclick="closeImportCodeModal()">&times;</button></div>
-      <div style="margin-bottom:16px;padding:12px;background:#e3f2fd;border-left:4px solid #2196f3;border-radius:4px;font-size:13px;color:#1976d2;line-height:1.6;">
+      <div style="margin-bottom:16px;padding:12px;background:#e3f2fd;border-left:4px solid #2196f3;border-radius: 0;font-size:13px;color:#1976d2;line-height:1.6;">
         <p style="margin:0;font-weight:600;">CSV文件格式要求：</p>
         <ul style="margin:8px 0 0 20px;">
           <li>第一行为表头：卡密,有效期,激活时间,过期时间,备注</li>
@@ -1007,7 +1007,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </ul>
       </div>
       <div class="form-group"><label>选择CSV文件</label><input type="file" id="importFile" accept=".csv" onchange="handleImportFileSelect()"></div>
-      <div class="form-group" id="fileInfo" style="display:none;padding:8px;background:#f5f5f7;border-radius:4px;font-size:13px;"><span id="fileName"></span></div>
+      <div class="form-group" id="fileInfo" style="display:none;padding:8px;background:#f5f5f7;border-radius: 0;font-size:13px;"><span id="fileName"></span></div>
       <div class="form-group">
         <label>导入选项</label>
         <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
@@ -1059,7 +1059,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
   <div id="batchTypeModal" class="modal">
     <div class="modal-content">
       <div class="modal-header"><h3>批量设置类型</h3><button class="close-btn" onclick="closeBatchTypeModal()">&times;</button></div>
-      <div class="form-group"><label>选中的频道</label><div id="batchTypeChannelCount" style="padding:8px;background:#f5f5f7;border-radius:4px;font-size:14px;"></div></div>
+      <div class="form-group"><label>选中的频道</label><div id="batchTypeChannelCount" style="padding:8px;background:#f5f5f7;border-radius: 0;font-size:14px;"></div></div>
       <div class="form-group"><label>类型</label><input type="text" id="batchChannelType" placeholder="多个类型用逗号分隔，如: movie,animation"></div>
       <div class="modal-footer"><button class="btn" onclick="closeBatchTypeModal()">取消</button><button class="btn btn-primary" onclick="saveBatchType()">保存</button></div>
     </div>
@@ -1071,42 +1071,42 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <div class="form-row">
         <div class="form-group">
           <label>套餐名称（中文）</label>
-          <input type="text" id="planName" placeholder="例如：1个月" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="text" id="planName" placeholder="例如：1个月" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
         </div>
         <div class="form-group">
           <label>套餐名称（英文）</label>
-          <input type="text" id="planNameEn" placeholder="例如：1 Month" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="text" id="planNameEn" placeholder="例如：1 Month" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>时长（天）</label>
-          <input type="number" id="planDays" placeholder="30" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="number" id="planDays" placeholder="30" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
           <small style="color:#86868b;">输入 -1 表示永久套餐</small>
         </div>
         <div class="form-group">
           <label>基础价格（元）</label>
-          <input type="number" id="planBasePrice" min="0" step="0.01" placeholder="29" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="number" id="planBasePrice" min="0" step="0.01" placeholder="29" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>IP单价（元/个）</label>
-          <input type="number" id="planPricePerIP" min="0" step="0.01" placeholder="9" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="number" id="planPricePerIP" min="0" step="0.01" placeholder="9" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
         </div>
         <div class="form-group">
           <label>折扣（%）</label>
-          <input type="number" id="planDiscount" min="0" max="100" placeholder="0" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="number" id="planDiscount" min="0" max="100" placeholder="0" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>排序（数字越小越靠前）</label>
-          <input type="number" id="planSortOrder" min="0" placeholder="1" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="number" id="planSortOrder" min="0" placeholder="1" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
         </div>
         <div class="form-group">
           <label>状态</label>
-          <label style="display:flex;align-items:center;gap:8px;padding:12px;background:white;border:1px solid #d2d2d7;border-radius:6px;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:8px;padding:12px;background:white;border:1px solid #d2d2d7;border-radius: 0;cursor:pointer;">
             <input type="checkbox" id="planEnabled" checked style="width:auto;">
             <span>启用</span>
           </label>
@@ -1128,7 +1128,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       
       <div class="form-group">
         <label>支付类型</label>
-        <select id="paymentType" class="form-control" onchange="updatePaymentConfigFields()" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        <select id="paymentType" class="form-control" onchange="updatePaymentConfigFields()" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
           <option value="alipay">支付宝（虎皮椒）</option>
           <option value="wechat">微信支付（虎皮椒）</option>
           <option value="paypal">PayPal</option>
@@ -1140,7 +1140,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       
       <div class="form-group">
         <label>名称</label>
-        <input type="text" id="paymentName" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+        <input type="text" id="paymentName" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
         <small style="color:#86868b;font-size:12px;">显示在订阅页面的名称</small>
       </div>
       
@@ -1160,17 +1160,17 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
         <div class="form-group">
           <label>商户ID (App ID)</label>
-          <input type="text" id="appId" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="text" id="appId" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
           <small style="color:#86868b;font-size:12px;">虎皮椒商户ID</small>
         </div>
         <div class="form-group">
           <label>商户密钥 (App Secret)</label>
-          <input type="password" id="appSecret" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="password" id="appSecret" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
           <small style="color:#86868b;font-size:12px;">虎皮椒商户密钥</small>
         </div>
         <div class="form-group">
           <label>支付网关地址</label>
-          <input type="text" id="gatewayUrl" value="" placeholder="https://api.xunhuweb.com/payment/do.html" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="text" id="gatewayUrl" value="" placeholder="https://api.xunhuweb.com/payment/do.html" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
           <small style="color:#86868b;font-size:12px;">留空则使用虎皮椒官方网关</small>
         </div>
       </div>
@@ -1183,17 +1183,17 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
         <div class="form-group">
           <label>客户端 ID (Client ID)</label>
-          <input type="text" id="paypalClientId" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="text" id="paypalClientId" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
           <small style="color:#86868b;font-size:12px;">PayPal 开发者账户获取的 Client ID</small>
         </div>
         <div class="form-group">
           <label>客户端密钥 (Client Secret)</label>
-          <input type="password" id="paypalClientSecret" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="password" id="paypalClientSecret" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
           <small style="color:#86868b;font-size:12px;">PayPal 开发者账户获取的 Client Secret</small>
         </div>
         <div class="form-group">
           <label>运行模式</label>
-          <select id="paypalMode" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <select id="paypalMode" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
             <option value="sandbox">沙盒测试</option>
             <option value="live">生产环境</option>
           </select>
@@ -1209,24 +1209,24 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
         <div class="form-group">
           <label>API Key</label>
-          <input type="text" id="coinbaseApiKey" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="text" id="coinbaseApiKey" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
           <small style="color:#86868b;font-size:12px;">从 https://commerce.coinbase.com/dashboard/settings 获取</small>
         </div>
         <div class="form-group">
           <label>Webhook Secret</label>
-          <input type="password" id="coinbaseWebhookSecret" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="password" id="coinbaseWebhookSecret" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
           <small style="color:#86868b;font-size:12px;">用于验证支付回调的签名密钥</small>
         </div>
         <div class="form-group">
           <label>自动转换目标</label>
-          <select id="coinbaseAutoConvert" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <select id="coinbaseAutoConvert" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
             <option value="usdc">USDC (稳定币)</option>
             <option value="btc">BTC (比特币)</option>
             <option value="eth">ETH (以太坊)</option>
           </select>
           <small style="color:#86868b;font-size:12px;">推荐选择 USDC，避免币价波动影响收入</small>
         </div>
-        <div style="margin-top:12px;padding:10px;background:#e8f4fd;border-left:4px solid:#0071e3;border-radius:4px;">
+        <div style="margin-top:12px;padding:10px;background:#e8f4fd;border-left:4px solid:#0071e3;border-radius: 0;">
           <p style="font-size:12px;color:#1976d2;margin:0;">
             📌 <strong>Webhook 配置：</strong>在 Coinbase 后台设置 <code>https://your-worker.workers.dev/api/subscription/crypto/webhook</code>
           </p>
@@ -1241,7 +1241,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
         <div class="form-group">
           <label>网络类型</label>
-          <select id="cryptoNetwork" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <select id="cryptoNetwork" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
             <option value="trc20">TRC20 (波场 - 费用低 ¥1-2)</option>
             <option value="eth">ETH (以太坊 - 费用高 ¥30-100)</option>
           </select>
@@ -1249,10 +1249,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         </div>
         <div class="form-group">
           <label>钱包地址</label>
-          <input type="text" id="cryptoWalletAddress" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius:6px;">
+          <input type="text" id="cryptoWalletAddress" value="" style="width:100%;padding:10px;border:1px solid #d2d2d7;border-radius: 0;">
           <small style="color:#86868b;font-size:12px;">你的 USDT/USDC 钱包地址，用户支付到这个地址</small>
         </div>
-        <div style="margin-top:12px;padding:10px;background:#fff3e0;border-left:4px solid:#ff9800;border-radius:4px;">
+        <div style="margin-top:12px;padding:10px;background:#fff3e0;border-left:4px solid:#ff9800;border-radius: 0;">
           <p style="font-size:12px;color:#e65100;margin:0;">
             ⚠️ <strong>注意：</strong>此支付方式需要管理员在后台手动确认支付，用户支付后不会自动生成卡密
           </p>
@@ -2350,9 +2350,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       // Channel logo
       const logoEl = document.getElementById('editChannelLogo');
       if (channel.logo) {
-        logoEl.innerHTML = '<img src="' + escapeHtml(channel.logo) + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';
+        logoEl.innerHTML = '<img src="' + escapeHtml(channel.logo) + '" style="width:100%;height:100%;object-fit:cover;border-radius: 0;">';
       } else {
-        logoEl.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#e9ecef;border-radius:8px;font-size:24px;color:#adb5bd;">' + (channel.channel_name ? channel.channel_name.charAt(0) : '?') + '</div>';
+        logoEl.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#e9ecef;border-radius: 0;font-size:24px;color:#adb5bd;">' + (channel.channel_name ? channel.channel_name.charAt(0) : '?') + '</div>';
       }
       
       // Add description counter listener
@@ -3705,7 +3705,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         sourcesContainer.innerHTML = options.sources.map(source => {
           const isChecked = homepageConfig.sources.includes(source.id) ? 'checked' : '';
           return \`
-            <label style="display:flex;align-items:center;padding:8px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;transition:all .2s;">
+            <label style="display:flex;align-items:center;padding:8px;background:white;border:1px solid #e5e5ea;border-radius: 0;cursor:pointer;transition:all .2s;">
               <input type="checkbox" value="\${source.id}" \${isChecked} onchange="updateHomepageConfig('sources', \${source.id}, this.checked)" style="margin-right:8px;">
               <span style="font-size:14px;">\${escapeHtml(source.name)}</span>
             </label>
@@ -3721,7 +3721,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         groupsContainer.innerHTML = options.groups.map(group => {
           const isChecked = homepageConfig.groups.includes(group) ? 'checked' : '';
           return \`
-            <label style="display:flex;align-items:center;padding:8px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;transition:all .2s;">
+            <label style="display:flex;align-items:center;padding:8px;background:white;border:1px solid #e5e5ea;border-radius: 0;cursor:pointer;transition:all .2s;">
               <input type="checkbox" value="\${escapeHtml(group)}" \${isChecked} onchange="updateHomepageConfig('groups', '\${escapeHtml(group)}', this.checked)" style="margin-right:8px;">
               <span style="font-size:14px;">\${escapeHtml(group)}</span>
             </label>
@@ -3738,10 +3738,10 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           const isChecked = true; // 都在 homepageConfig.hosts 中，所以都是选中状态
           const isManual = !homepageConfig.systemHosts || !homepageConfig.systemHosts.includes(host);
           return \`
-            <label style="display:flex;align-items:center;padding:8px;background:white;border:1px solid #e5e5ea;border-radius:6px;cursor:pointer;transition:all .2s;position:relative;">
+            <label style="display:flex;align-items:center;padding:8px;background:white;border:1px solid #e5e5ea;border-radius: 0;cursor:pointer;transition:all .2s;position:relative;">
               <input type="checkbox" value="\${escapeHtml(host)}" checked onchange="updateHomepageConfig('hosts', '\${escapeHtml(host)}', this.checked)" style="margin-right:8px;">
               <span style="font-size:14px;flex:1;">\${escapeHtml(host)}</span>
-              \${isManual ? '<button onclick="event.stopPropagation();removeManualHost(\\\`' + escapeHtml(host) + '\\\`)" style="padding:2px 8px;font-size:11px;margin-left:8px;border:1px solid #ff3b30;background:white;color:#ff3b30;border-radius:4px;cursor:pointer;">删除</button>' : ''}
+              \${isManual ? '<button onclick="event.stopPropagation();removeManualHost(\\\`' + escapeHtml(host) + '\\\`)" style="padding:2px 8px;font-size:11px;margin-left:8px;border:1px solid #ff3b30;background:white;color:#ff3b30;border-radius: 0;cursor:pointer;">删除</button>' : ''}
             </label>
           \`;
         }).join('');
@@ -4146,12 +4146,12 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       var div = document.getElementById('typeMappingConfig');
       var h = '<div style="margin-bottom:12px;color:#666;font-size:13px;">格式：频道名:地区:类型:简介（每行一个），例如：CCTV-1:央视:news:24-hour news channel for Chinese audiences</div>';
       h += '<div style="margin-bottom:8px;color:#86868b;font-size:12px;">说明：同步数据源后，系统会根据频道名+地区匹配映射，自动恢复类型和简介。支持通配符地区（留空表示匹配所有地区）</div>';
-      h += '<textarea id="typeMappingEditor" rows="15" style="width:100%;font-family:monospace;font-size:13px;padding:8px;border:1px solid #d2d2d7;border-radius:6px;resize:vertical;"></textarea>';
+      h += '<textarea id="typeMappingEditor" rows="15" style="width:100%;font-family:monospace;font-size:13px;padding:8px;border:1px solid #d2d2d7;border-radius: 0;resize:vertical;"></textarea>';
       h += '<div style="margin-top:8px;display:flex;gap:8px;">';
       h += '<button class="btn btn-primary" onclick="loadTypeMappingData()">刷新</button>';
       h += '<button class="btn btn-success" onclick="saveTypeMappingConfig()">保存</button>';
       h += '</div>';
-      h += '<div style="margin-top:12px;padding:12px;background:#f5f5f7;border-radius:6px;font-size:12px;color:#666;">';
+      h += '<div style="margin-top:12px;padding:12px;background:#f5f5f7;border-radius: 0;font-size:12px;color:#666;">';
       h += '<strong>类型说明：</strong>movie, animation, entertainment, sports, news, kids, documentary, education, drama, music, fashion, game, travel, food, finance, tech, health, comprehensive';
       h += '</div>';
       div.innerHTML = h;
@@ -4323,7 +4323,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             const timeLeft = isExpired ? '已过期' : formatTimeLeft(expiresAt - now);
 
             html += '<tr style="border-bottom:1px solid #f5f5f7;">';
-            html += '<td style="padding:8px;"><code style="font-size:12px;background:#f5f5f7;padding:2px 6px;border-radius:4px;">' + escapeHtml(token.token.substring(0, 16)) + '...</code></td>';
+            html += '<td style="padding:8px;"><code style="font-size:12px;background:#f5f5f7;padding:2px 6px;border-radius: 0;">' + escapeHtml(token.token.substring(0, 16)) + '...</code></td>';
             html += '<td style="padding:8px;">' + new Date(token.created_at).toLocaleString('zh-CN') + '</td>';
             html += '<td style="padding:8px;">' + expiresAt.toLocaleString('zh-CN') + '</td>';
             html += '<td style="padding:8px;"><span class="badge ' + (isExpired ? 'badge-danger' : 'badge-success') + '">' + timeLeft + '</span></td>';
@@ -4517,7 +4517,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             '</div>' +
             '<div class="form-group">' +
               '<label>广告类型</label>' +
-              '<select id="adType" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;">' +
+              '<select id="adType" style="width:100%;padding:8px;border:1px solid #ddd;border-radius: 0;">' +
                 '<option value="normal">普通广告</option>' +
                 '<option value="notice">通知类广告</option>' +
                 '<option value="promotion">促销广告</option>' +
@@ -5002,7 +5002,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <td style="padding:12px;">\${user.id}</td>
             <td style="padding:12px;">\${escapeHtml(user.email)}</td>
             <td style="padding:12px;">
-              <span style="padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;background:\${user.is_verified ? '#e8f5e9' : '#ffebee'};color:\${user.is_verified ? '#1b5e20' : '#c62828'};">
+              <span style="padding:4px 12px;border-radius: 0;font-size:12px;font-weight:600;background:\${user.is_verified ? '#e8f5e9' : '#ffebee'};color:\${user.is_verified ? '#1b5e20' : '#c62828'};">
                 \${user.is_verified ? '已验证' : '未验证'}
               </span>
             </td>
@@ -5138,7 +5138,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <td style="padding:12px;">\${order.duration_days ? order.duration_days + ' 天' : '-'}</td>
             <td style="padding:12px;">\${order.amount ? '$' + order.amount.toFixed(2) : '-'}</td>
             <td style="padding:12px;">
-              <span style="padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;background:\${statusClass};">
+              <span style="padding:4px 12px;border-radius: 0;font-size:12px;font-weight:600;background:\${statusClass};">
                 \${statusText}
               </span>
             </td>
@@ -5761,7 +5761,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       const modal = document.createElement('div');
       modal.id = 'ticketDetailModal';
       modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;';
-      modal.innerHTML = '<div style="background:white;border-radius:12px;width:90%;max-width:700px;max-height:90vh;overflow-y:auto;padding:24px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><h3 style="margin:0;">Ticket #' + ticket.id + '</h3><button onclick="closeTicketModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#86868b;">x</button></div><div style="margin-bottom:16px;"><div style="display:flex;gap:12px;margin-bottom:12px;"><span class="ticket-type-badge ' + ticket.type + '">' + typeLabels[ticket.type] + '</span><span class="ticket-status-badge ' + ticket.status + '">' + statusLabels[ticket.status] + '</span></div><div style="font-size:14px;color:#86868b;"><div>User: ' + escapeHtml(ticket.user_email) + '</div><div>Order: #' + ticket.order_id + (order ? ' (¥' + order.amount + ', ' + order.duration_days + ' days)' : '') + '</div><div>Created: ' + new Date(ticket.created_at).toLocaleString() + '</div></div></div><div style="background:#f5f5f7;padding:16px;border-radius:8px;margin-bottom:20px;"><h4 style="margin:0 0 8px;font-size:14px;color:#86868b;">Subject</h4><p style="margin:0;font-size:16px;font-weight:600;">' + escapeHtml(ticket.subject) + '</p><h4 style="margin:16px 0 8px;font-size:14px;color:#86868b;">Description</h4><p style="margin:0;color:#1a1a1a;line-height:1.6;white-space:pre-wrap;">' + escapeHtml(ticket.description) + '</p></div><h4 style="margin:0 0 16px;font-size:14px;color:#86868b;text-transform:uppercase;">Replies</h4><div id="ticketReplies" style="max-height:300px;overflow-y:auto;margin-bottom:20px;">' + (replies.length === 0 ? '<p style="text-align:center;color:#86868b;padding:20px;">No replies yet</p>' : replies.map(r => '<div style="background:' + (r.is_admin ? '#e3f2fd' : '#f5f5f7') + ';border-radius:8px;padding:12px;margin-bottom:12px;' + (r.is_admin ? 'border-left:3px solid #0071e3;' : '') + '"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><strong style="color:' + (r.is_admin ? '#0071e3' : '#1a1a1a') + '">' + (r.is_admin ? 'Support' : escapeHtml(r.user_email || 'User')) + '</strong><span style="font-size:12px;color:#86868b;">' + new Date(r.created_at).toLocaleString() + '</span></div><p style="margin:0;color:#1a1a1a;line-height:1.5;">' + escapeHtml(r.content) + '</p></div>').join('')) + '</div>' + (ticket.status !== 'closed' ? '<div style="border-top:1px solid #e5e5ea;padding-top:20px;"><textarea id="adminReplyContent" placeholder="Type your reply..." style="width:100%;min-height:80px;padding:12px;border:1px solid #d2d2d7;border-radius:8px;margin-bottom:12px;font-size:14px;resize:vertical;"></textarea><div style="display:flex;gap:8px;justify-content:flex-end;"><button class="btn" onclick="resolveTicket()" style="background:#34c759;color:white;">Mark Resolved</button><button class="btn" onclick="closeTicketFromAdmin()" style="background:#86868b;color:white;">Close Ticket</button><button class="btn btn-primary" onclick="submitAdminReply()">Send Reply</button></div></div>' : '<p style="text-align:center;color:#86868b;padding:20px;border-top:1px solid #e5e5ea;">This ticket is closed</p>') + '</div></div>';
+      modal.innerHTML = '<div style="background:white;border-radius: 0;width:90%;max-width:700px;max-height:90vh;overflow-y:auto;padding:24px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><h3 style="margin:0;">Ticket #' + ticket.id + '</h3><button onclick="closeTicketModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#86868b;">x</button></div><div style="margin-bottom:16px;"><div style="display:flex;gap:12px;margin-bottom:12px;"><span class="ticket-type-badge ' + ticket.type + '">' + typeLabels[ticket.type] + '</span><span class="ticket-status-badge ' + ticket.status + '">' + statusLabels[ticket.status] + '</span></div><div style="font-size:14px;color:#86868b;"><div>User: ' + escapeHtml(ticket.user_email) + '</div><div>Order: #' + ticket.order_id + (order ? ' (¥' + order.amount + ', ' + order.duration_days + ' days)' : '') + '</div><div>Created: ' + new Date(ticket.created_at).toLocaleString() + '</div></div></div><div style="background:#f5f5f7;padding:16px;border-radius: 0;margin-bottom:20px;"><h4 style="margin:0 0 8px;font-size:14px;color:#86868b;">Subject</h4><p style="margin:0;font-size:16px;font-weight:600;">' + escapeHtml(ticket.subject) + '</p><h4 style="margin:16px 0 8px;font-size:14px;color:#86868b;">Description</h4><p style="margin:0;color:#1a1a1a;line-height:1.6;white-space:pre-wrap;">' + escapeHtml(ticket.description) + '</p></div><h4 style="margin:0 0 16px;font-size:14px;color:#86868b;text-transform:uppercase;">Replies</h4><div id="ticketReplies" style="max-height:300px;overflow-y:auto;margin-bottom:20px;">' + (replies.length === 0 ? '<p style="text-align:center;color:#86868b;padding:20px;">No replies yet</p>' : replies.map(r => '<div style="background:' + (r.is_admin ? '#e3f2fd' : '#f5f5f7') + ';border-radius: 0;padding:12px;margin-bottom:12px;' + (r.is_admin ? 'border-left:3px solid #0071e3;' : '') + '"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><strong style="color:' + (r.is_admin ? '#0071e3' : '#1a1a1a') + '">' + (r.is_admin ? 'Support' : escapeHtml(r.user_email || 'User')) + '</strong><span style="font-size:12px;color:#86868b;">' + new Date(r.created_at).toLocaleString() + '</span></div><p style="margin:0;color:#1a1a1a;line-height:1.5;">' + escapeHtml(r.content) + '</p></div>').join('')) + '</div>' + (ticket.status !== 'closed' ? '<div style="border-top:1px solid #e5e5ea;padding-top:20px;"><textarea id="adminReplyContent" placeholder="Type your reply..." style="width:100%;min-height:80px;padding:12px;border:1px solid #d2d2d7;border-radius: 0;margin-bottom:12px;font-size:14px;resize:vertical;"></textarea><div style="display:flex;gap:8px;justify-content:flex-end;"><button class="btn" onclick="resolveTicket()" style="background:#34c759;color:white;">Mark Resolved</button><button class="btn" onclick="closeTicketFromAdmin()" style="background:#86868b;color:white;">Close Ticket</button><button class="btn btn-primary" onclick="submitAdminReply()">Send Reply</button></div></div>' : '<p style="text-align:center;color:#86868b;padding:20px;border-top:1px solid #e5e5ea;">This ticket is closed</p>') + '</div></div>';
       document.body.appendChild(modal);
       modal.addEventListener('click', function(e) { if (e.target === modal) closeTicketModal(); });
     }
@@ -5861,7 +5861,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       const container = document.getElementById('topicRulesContainer');
       let html = '';
       currentTopicRules.forEach((rule, i) => {
-        html += '<div class="topic-rule" style="margin-bottom:12px;padding:12px;background:#f5f5f7;border-radius:8px;">';
+        html += '<div class="topic-rule" style="margin-bottom:12px;padding:12px;background:#f5f5f7;border-radius: 0;">';
         html += '<div style="display:flex;gap:8px;margin-bottom:8px;">';
         html += '<select class="filter-select" onchange="currentTopicRules[' + i + '].dimension=this.value;renderTopicRules()">';
         html += '<option value="group_title"' + (rule.dimension==='group_title'?' selected':'') + '>分组名</option>';

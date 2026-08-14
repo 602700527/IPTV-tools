@@ -65,7 +65,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       padding: 10px 20px;
       font-size: 13px;
       font-weight: 700;
-      border-radius: 50px;
+      border-radius: 0;
       margin-bottom: 24px;
       animation: pulse 2s infinite;
     }
@@ -129,7 +129,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: var(--accent);
       color: white;
       padding: 16px 36px;
-      border-radius: 50px;
+      border-radius: 0;
       font-size: 1.1rem;
       font-weight: 700;
       text-decoration: none;
@@ -178,7 +178,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1.5px;
-      border-radius: 50px;
+      border-radius: 0;
       margin-bottom: 20px;
     }
     .section-title {
@@ -214,7 +214,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .solution-card {
       background: var(--gradient-card);
       border: var(--border);
-      border-radius: 20px;
+      border-radius: 0;
       padding: 36px 28px;
       text-align: center;
       transition: all 0.3s ease;
@@ -251,7 +251,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       width: 100%;
       border-collapse: collapse;
       background: var(--gradient-card);
-      border-radius: 20px;
+      border-radius: 0;
       overflow: hidden;
       border: var(--border);
     }
@@ -313,11 +313,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .testimonials-scroll::-webkit-scrollbar-track {
       background: rgba(255,255,255,0.05);
-      border-radius: 3px;
+      border-radius: 0;
     }
     .testimonials-scroll::-webkit-scrollbar-thumb {
       background: rgba(229,9,20,0.4);
-      border-radius: 3px;
+      border-radius: 0;
     }
     .testimonials-scroll::-webkit-scrollbar-thumb:hover {
       background: rgba(229,9,20,0.7);
@@ -328,7 +328,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       scroll-snap-align: start;
       background: var(--gradient-card);
       border: var(--border);
-      border-radius: 20px;
+      border-radius: 0;
       padding: 28px;
       transition: all 0.3s ease;
     }
@@ -348,7 +348,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       width: 48px;
       height: 48px;
       background: linear-gradient(135deg, var(--accent) 0%, #ff4757 100%);
-      border-radius: 50%;
+      border-radius: 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -376,7 +376,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       color: var(--success);
       background: rgba(34,197,94,0.1);
       padding: 2px 8px;
-      border-radius: 20px;
+      border-radius: 0;
       margin-top: 4px;
     }
     
@@ -422,7 +422,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .pricing-left {
       background: var(--gradient-card);
       border: var(--border);
-      border-radius: 24px;
+      border-radius: 0;
       padding: 40px;
     }
     
@@ -453,7 +453,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       padding: 16px 12px;
       background: rgba(255,255,255,0.03);
       border: 2px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
+      border-radius: 0;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s;
@@ -490,7 +490,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-size: 0.7rem;
       font-weight: 700;
       padding: 2px 8px;
-      border-radius: 20px;
+      border-radius: 0;
       margin-top: 4px;
     }
 
@@ -503,7 +503,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .theme-card {
       background: rgba(255,255,255,0.03);
       border: 2px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
+      border-radius: 0;
       padding: 16px 12px;
       text-align: center;
       cursor: pointer;
@@ -534,7 +534,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .pricing-right {
       background: var(--gradient-card);
       border: var(--border-accent);
-      border-radius: 24px;
+      border-radius: 0;
       padding: 32px;
       position: sticky;
       top: 100px;
@@ -584,7 +584,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       padding: 14px;
       background: rgba(255,255,255,0.03);
       border: 2px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
+      border-radius: 0;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s;
@@ -609,7 +609,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: var(--accent);
       color: white;
       border: none;
-      border-radius: 12px;
+      border-radius: 0;
       font-size: 1.1rem;
       font-weight: 700;
       cursor: pointer;
@@ -658,7 +658,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: var(--accent);
       color: white;
       padding: 18px 40px;
-      border-radius: 50px;
+      border-radius: 0;
       font-size: 1.1rem;
       font-weight: 700;
       text-decoration: none;
