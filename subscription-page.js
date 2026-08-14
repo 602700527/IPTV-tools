@@ -864,34 +864,19 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           </thead>
           <tbody>
             <tr>
-              <td>搜索频道次数</td>
-              <td><span class="cross">✗</span> 每天限 5 次</td>
-              <td class="vip"><span class="check">✓</span> 无限次搜索</td>
+              <td>搜索结果显示</td>
+              <td><span class="cross">✗</span> 前 5 个</td>
+              <td class="vip"><span class="check">✓</span> 不限数量</td>
             </tr>
             <tr>
-              <td>频道完整度</td>
-              <td>部分频道受限</td>
-              <td class="vip"><span class="check">✓</span> 5000+ 全量频道</td>
+              <td>专属订阅地址</td>
+              <td><span class="cross">✗</span> 无</td>
+              <td class="vip"><span class="check">✓</span> 有</td>
             </tr>
             <tr>
-              <td>观看体验</td>
-              <td><span class="cross">✗</span> 有广告打扰</td>
-              <td class="vip"><span class="check">✓</span> 纯净无广告</td>
-            </tr>
-            <tr>
-              <td>收藏功能</td>
-              <td><span class="cross">✗</span> 无法收藏</td>
-              <td class="vip"><span class="check">✓</span> 无限收藏频道</td>
-            </tr>
-            <tr>
-              <td>多设备使用</td>
-              <td><span class="cross">✗</span> 仅限 1 台</td>
-              <td class="vip"><span class="check">✓</span> 最多 5 台共享</td>
-            </tr>
-            <tr>
-              <td>客服支持</td>
-              <td><span class="cross">✗</span> 无优先支持</td>
-              <td class="vip"><span class="check">✓</span> 7×24 小时优先响应</td>
+              <td>广告</td>
+              <td><span class="cross">✗</span> 有</td>
+              <td class="vip"><span class="check">✓</span> 无</td>
             </tr>
           </tbody>
         </table>
