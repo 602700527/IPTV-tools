@@ -195,7 +195,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab active" onclick="showTab('sources')">直播源管理</button>
       <button class="nav-tab" onclick="showTab('channels')">频道管理</button>
       <button class="nav-tab" onclick="showTab('codes')">卡密管理</button>
-      <button class="nav-tab" onclick="showTab('topics')">专题管理</button>
+      <button class="nav-tab" onclick="showTab('topics')">线路管理</button>
       <button class="nav-tab" onclick="showTab('users')">账户管理</button>
       <button class="nav-tab" onclick="showTab('orders')">订单管理</button>
       <button class="nav-tab" onclick="showTab('mall')">商城管理</button>
@@ -308,8 +308,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     <div id="topics" class="tab-content">
       <div class="card">
         <div class="toolbar">
-          <h3>专题管理</h3>
-          <button class="btn btn-primary" onclick="showTopicModal()">创建专题</button>
+          <h3>线路管理</h3>
+          <button class="btn btn-primary" onclick="showTopicModal()">创建线路</button>
         </div>
         <table>
           <thead>
@@ -1269,14 +1269,14 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     <div id="topicModal" class="modal">
       <div class="modal-content" style="max-width:600px;">
         <div class="modal-header">
-          <h3 id="topicModalTitle">创建专题</h3>
+          <h3 id="topicModalTitle">创建线路</h3>
           <span class="close" onclick="closeTopicModal()">&times;</span>
         </div>
         <div class="modal-body">
           <input type="hidden" id="topicId">
           <div class="form-group" style="margin-bottom:16px;">
-            <label>专题名称 *</label>
-            <input type="text" id="topicName" placeholder="输入专题名称" class="search-box" style="width:100%">
+            <label>线路名称 *</label>
+            <input type="text" id="topicName" placeholder="输入线路名称" class="search-box" style="width:100%">
           </div>
           <div class="form-group" style="margin-bottom:16px;">
             <label>描述</label>
