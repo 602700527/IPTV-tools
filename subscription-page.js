@@ -857,7 +857,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在德国生活十年了，最想看的就是春晚和世界杯。用APTV看了两年，稳定性从来没让我失望过。强烈推荐给同胞！</p>
+            <p class="testimonial-text">在德国生活十年了，最想看的就是春晚和世界杯。用APTV看了两年，稳定性从来没让我失望过。周末开车用CarPlay连上车载系统看新闻，特别方便。强烈推荐给同胞！</p>
           </div>
           
           <div class="testimonial-card">
