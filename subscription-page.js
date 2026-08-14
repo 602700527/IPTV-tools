@@ -141,7 +141,26 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       box-shadow: 0 12px 40px rgba(229,9,20,0.5);
       background: var(--accent-hover);
     }
-    
+
+    /* ========== 对比表共有权益样式 ========== */
+    .comparison-table tr.shared {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+    }
+    .comparison-table tr.shared td {
+      padding: 10px 16px;
+    }
+    .comparison-table tr.shared td:first-child {
+      border-left: 3px solid var(--text-muted);
+      color: var(--text-secondary);
+    }
+    .comparison-table tr.shared td[class="vip"] {
+      border-right: 3px solid var(--text-muted);
+    }
+    .comparison-table tr.shared .check {
+      opacity: 0.6;
+    }
+
     /* ========== 痛点区 ========== */
     .pain-section {
       padding: 100px 20px;
@@ -863,6 +882,23 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </tr>
           </thead>
           <tbody>
+            <!-- 共有权益 -->
+            <tr class="shared">
+              <td>频道更新</td>
+              <td><span class="check">✓</span> 每日更新</td>
+              <td class="vip"><span class="check">✓</span> 每日更新</td>
+            </tr>
+            <tr class="shared">
+              <td>高清画质</td>
+              <td><span class="check">✓</span> 高清流畅</td>
+              <td class="vip"><span class="check">✓</span> 超清4K</td>
+            </tr>
+            <tr class="shared">
+              <td>稳定在线</td>
+              <td><span class="check">✓</span> 99% 在线率</td>
+              <td class="vip"><span class="check">✓</span> 99.9% 在线率</td>
+            </tr>
+            <!-- 差异权益 -->
             <tr>
               <td>搜索结果显示</td>
               <td><span class="cross">✗</span> 前 5 个</td>
