@@ -940,7 +940,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         <div class="pricing-wrapper">
           <div class="pricing-left">
             <div class="selector-group">
-              <div class="selector-label">选择主题</div>
+              <div class="selector-label">线路选择</div>
               <div class="theme-grid" id="themeGrid">
                 <div class="theme-card selected" onclick="selectTheme(null)" data-theme="all">
                   <div class="theme-card-icon">📺</div>
