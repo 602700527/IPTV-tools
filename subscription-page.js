@@ -891,7 +891,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <tr class="shared">
               <td>高清画质</td>
               <td><span class="check">✓</span> 高清流畅</td>
-              <td class="vip"><span class="check">✓</span> 超清4K</td>
+              <td class="vip"><span class="check">✓</span> 超清流畅</td>
             </tr>
             <tr class="shared">
               <td>稳定在线</td>
