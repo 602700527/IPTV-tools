@@ -869,14 +869,29 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td class="vip"><span class="check">✓</span> 不限数量</td>
             </tr>
             <tr>
+              <td>下载数量</td>
+              <td><span class="cross">✗</span> 50 个</td>
+              <td class="vip"><span class="check">✓</span> 无限制</td>
+            </tr>
+            <tr>
               <td>专属订阅地址</td>
               <td><span class="cross">✗</span> 无</td>
               <td class="vip"><span class="check">✓</span> 有</td>
             </tr>
             <tr>
+              <td>多设备支持</td>
+              <td><span class="cross">✗</span> 无</td>
+              <td class="vip"><span class="check">✓</span> 支持</td>
+            </tr>
+            <tr>
               <td>广告</td>
               <td><span class="cross">✗</span> 有</td>
               <td class="vip"><span class="check">✓</span> 无</td>
+            </tr>
+            <tr>
+              <td>客服极速响应</td>
+              <td><span class="cross">✗</span> 无</td>
+              <td class="vip"><span class="check">✓</span> 有</td>
             </tr>
           </tbody>
         </table>
