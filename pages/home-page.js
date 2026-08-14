@@ -722,8 +722,8 @@ export function generateHomePage(options = {}) {
     let homeData = null;
     let currentView = 'region';
 
-    // Switch between region and type view
-    function switchView(view) {
+    // Make switchView globally accessible for onclick handlers
+    window.switchView = function(view) {
       currentView = view;
       const regionGrid = document.getElementById('regionGrid');
       const typeGrid = document.getElementById('typeGrid');
