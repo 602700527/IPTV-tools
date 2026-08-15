@@ -1435,17 +1435,21 @@ function updateSubMode() {
   const selected = document.querySelector('input[name="subMode"]:checked');
   const hintEl = document.getElementById('subModeHint');
   if (!selected || !hintEl) return;
-  
+
   const mode = selected.value;
   const isZh = currentLang === 'zh-CN';
-  
+
   if (mode === 'favorites') {
     hintEl.textContent = isZh ? '仅返回您收藏的频道' : 'Only return your favorited channels';
     hintEl.style.color = 'var(--accent)';
   } else {
     hintEl.textContent = isZh ? '返回所有可用频道（按线路筛选）' : 'Return all available channels (filtered by topic)';
     hintEl.style.color = 'var(--text-muted)';
-  }}
+  }
+
+  // 自动保存到服务器
+  submitSubModeChange();
+}
 
 function copyVipCode() {
   const vipCodeEl = document.getElementById('vipCode');
