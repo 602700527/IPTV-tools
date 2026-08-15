@@ -1096,6 +1096,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                   <div class="theme-card-name">全部频道</div>
                   <div class="theme-card-desc">5000+ 国内外频道</div>
                 </div>
+                <div class="theme-card" onclick="selectTheme('favorites')" data-theme="favorites" id="favoritesCard" style="display:none;">
+                  <div class="theme-card-icon">⭐</div>
+                  <div class="theme-card-name">我的收藏</div>
+                  <div class="theme-card-desc">仅返回您收藏的频道</div>
+                </div>
               </div>
             </div>
 
@@ -1175,6 +1180,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             
+            <p class="theme-hint" id="themeHint" style="display:none;color:var(--accent);font-size:12px;margin-top:8px;"></p>
             <button class="subscribe-btn" onclick="handleSubscribe()">立即订阅</button>
             
             <div class="guarantee-badges">
@@ -1250,6 +1256,15 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     async function loadThemes() {
       try {
+        // 检查用户是否已登录且为 VIP
+        const isLoggedIn = localStorage.getItem('auth_token') || checkCookie('auth_token');
+        if (isLoggedIn) {
+          const favoritesCard = document.getElementById('favoritesCard');
+          if (favoritesCard) {
+            favoritesCard.style.display = 'block';
+          }
+        }
+
         const response = await fetch('/api/subscription/topics');
         const data = await response.json();
 
@@ -1283,6 +1298,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           card.classList.add('selected');
         }
       });
+
+      // 如果是 favorites，添加提示
+      const hintEl = document.getElementById('themeHint');
+      if (hintEl) {
+        if (themeId === 'favorites') {
+          hintEl.textContent = '订阅后将只返回您收藏的频道';
+          hintEl.style.display = 'block';
+        } else {
+          hintEl.textContent = '';
+          hintEl.style.display = 'none';
+        }
+      }
     }
 
     // 页面加载时获取主题列表
@@ -1296,6 +1323,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       });
       if (selectedTheme) {
         params.set('theme', selectedTheme);
+        // 如果是 favorites，添加 sub_mode
+        if (selectedTheme === 'favorites') {
+          params.set('sub_mode', 'favorites');
+        }
       }
       window.location.href = '/subscribe?' + params.toString();
     }
