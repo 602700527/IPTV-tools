@@ -672,10 +672,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       border-color: var(--accent);
       background: rgba(229,9,20,0.15);
     }
-    .theme-card-icon {
-      font-size: 1.8rem;
-      margin-bottom: 8px;
-    }
     .theme-card-name {
       font-weight: 700;
       font-size: 0.95rem;
