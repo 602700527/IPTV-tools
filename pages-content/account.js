@@ -1024,6 +1024,7 @@ export const content = `
                     </label>
                   </div>
                   <span class="sub-mode-hint" id="subModeHint"></span>
+                  <button type="button" class="btn btn-small btn-primary" onclick="submitSubModeChange()" style="margin-top:8px;">保存</button>
                 </div>
                 <div class="subscription-detail">
                   <span class="subscription-detail-label">订阅网址</span>
