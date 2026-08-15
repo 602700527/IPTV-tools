@@ -1367,8 +1367,8 @@ async function loadVipStatus() {
       const subMode = latestOrder.sub_mode || '';
       const subModeRadio = document.querySelector('input[name="subMode"][value="' + subMode + '"]');
       if (subModeRadio) subModeRadio.checked = true;
-      updateSubMode();
-      
+      updateSubModeHint(); // 只更新提示文字，不保存
+
       updateVipCodeFormat();
 
       let expiryText = 'Permanent';
@@ -1449,6 +1449,24 @@ function updateSubMode() {
 
   // 自动保存到服务器
   submitSubModeChange();
+}
+
+// 只更新提示文字，不保存到服务器（用于页面加载时）
+function updateSubModeHint() {
+  const selected = document.querySelector('input[name="subMode"]:checked');
+  const hintEl = document.getElementById('subModeHint');
+  if (!selected || !hintEl) return;
+
+  const mode = selected.value;
+  const isZh = currentLang === 'zh-CN';
+
+  if (mode === 'favorites') {
+    hintEl.textContent = isZh ? '仅返回您收藏的频道' : 'Only return your favorited channels';
+    hintEl.style.color = 'var(--accent)';
+  } else {
+    hintEl.textContent = isZh ? '返回所有可用频道（按线路筛选）' : 'Return all available channels (filtered by topic)';
+    hintEl.style.color = 'var(--text-muted)';
+  }
 }
 
 function copyVipCode() {
