@@ -9040,17 +9040,6 @@ export function generateCategoryPage(options = {}) {
 
 
 
-  </script>
-
-
-
-
-
-
-
-
-
-  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
 
 
 
