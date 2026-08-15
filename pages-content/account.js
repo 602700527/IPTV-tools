@@ -1414,7 +1414,7 @@ async function submitSubModeChange() {
   if (!code) return;
   
   try {
-    const response = await fetch(API_BASE + '/user/change-sub-mode?code=' + code, {
+    const response = await fetch('/api/user/change-sub-mode?code=' + code, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sub_mode: mode || null })
