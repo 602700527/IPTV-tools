@@ -1091,16 +1091,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <div class="selector-group">
               <div class="selector-label">线路选择</div>
               <div class="theme-grid" id="themeGrid">
-                <div class="theme-card selected" data-theme="all" id="defaultThemeCard">
-                  <div class="theme-card-icon">📺</div>
-                  <div class="theme-card-name">全部频道</div>
-                  <div class="theme-card-desc">5000+ 国内外频道</div>
-                </div>
-                <div class="theme-card" data-theme="favorites" id="favoritesCard" style="display:none;">
-                  <div class="theme-card-icon">⭐</div>
-                  <div class="theme-card-name">我的收藏</div>
-                  <div class="theme-card-desc">仅返回您收藏的频道</div>
-                </div>
+                <!-- 动态加载线路 -->
               </div>
             </div>
 
@@ -1256,37 +1247,41 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     async function loadThemes() {
       try {
-        // 检查用户是否已登录且为 VIP
+        const grid = document.getElementById('themeGrid');
         const isLoggedIn = localStorage.getItem('auth_token');
+
+        // 1. 添加"全部频道"
+        const allCard = document.createElement('div');
+        allCard.className = 'theme-card selected';
+        allCard.dataset.theme = 'all';
+        allCard.innerHTML = '<div class="theme-card-name">全部频道</div><div class="theme-card-desc">5000+ 国内外频道</div>';
+        allCard.onclick = () => selectTheme(null);
+        grid.appendChild(allCard);
+
+        // 2. 如果登录，添加"我的收藏"
         if (isLoggedIn) {
-          const favoritesCard = document.getElementById('favoritesCard');
-          if (favoritesCard) {
-            favoritesCard.style.display = 'block';
-            favoritesCard.onclick = () => selectTheme('favorites');
-          }
+          const favCard = document.createElement('div');
+          favCard.className = 'theme-card';
+          favCard.dataset.theme = 'favorites';
+          favCard.innerHTML = '<div class="theme-card-name">我的收藏</div><div class="theme-card-desc">仅返回您收藏的频道</div>';
+          favCard.onclick = () => selectTheme('favorites');
+          grid.appendChild(favCard);
         }
 
+        // 3. 从后台加载线路列表
         const response = await fetch('/api/subscription/topics');
         const data = await response.json();
 
         if (data.success && data.topics.length > 0) {
-          const grid = document.getElementById('themeGrid');
-
-          data.topics.forEach((topic, index) => {
+          data.topics.forEach(topic => {
             const card = document.createElement('div');
-            card.setAttribute('class', 'theme-card');
+            card.className = 'theme-card';
             card.onclick = () => selectTheme(topic.id);
             card.dataset.theme = topic.id;
             const desc = topic.description || '精选频道';
             card.innerHTML = '<div class="theme-card-name">' + topic.name + '</div><div class="theme-card-desc">' + desc + '</div>';
             grid.appendChild(card);
           });
-        }
-
-        // 给默认的"全部频道"卡片添加点击事件
-        const defaultCard = document.getElementById('defaultThemeCard');
-        if (defaultCard) {
-          defaultCard.onclick = () => selectTheme(null);
         }
       } catch (error) {
         console.error('Failed to load topics:', error);
