@@ -838,9 +838,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="container">
-    <!-- Hero Section -->
-    <section class="hero-section">
-      <div class="container">
         <div class="hero-badge-new">⭐ 专为华人打造</div>
         <h1 class="hero-title-large">
           一个订阅链接，就能看你想看的
