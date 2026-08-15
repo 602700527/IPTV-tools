@@ -1250,13 +1250,21 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const grid = document.getElementById('themeGrid');
         const isLoggedIn = localStorage.getItem('auth_token');
 
-        // 1. 添加"全部频道"
-        const allCard = document.createElement('div');
-        allCard.className = 'theme-card selected';
-        allCard.dataset.theme = 'all';
-        allCard.innerHTML = '<div class="theme-card-name">全部频道</div><div class="theme-card-desc">5000+ 国内外频道</div>';
-        allCard.onclick = () => selectTheme(null);
-        grid.appendChild(allCard);
+        // 1. 从后台加载线路列表
+        const response = await fetch('/api/subscription/topics');
+        const data = await response.json();
+
+        if (data.success && data.topics.length > 0) {
+          data.topics.forEach((topic, index) => {
+            const card = document.createElement('div');
+            card.className = 'theme-card' + (index === 0 ? ' selected' : '');
+            card.onclick = () => selectTheme(topic.id);
+            card.dataset.theme = topic.id;
+            const desc = topic.description || '精选频道';
+            card.innerHTML = '<div class="theme-card-name">' + topic.name + '</div><div class="theme-card-desc">' + desc + '</div>';
+            grid.appendChild(card);
+          });
+        }
 
         // 2. 如果登录，添加"我的收藏"
         if (isLoggedIn) {
@@ -1266,22 +1274,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           favCard.innerHTML = '<div class="theme-card-name">我的收藏</div><div class="theme-card-desc">仅返回您收藏的频道</div>';
           favCard.onclick = () => selectTheme('favorites');
           grid.appendChild(favCard);
-        }
-
-        // 3. 从后台加载线路列表
-        const response = await fetch('/api/subscription/topics');
-        const data = await response.json();
-
-        if (data.success && data.topics.length > 0) {
-          data.topics.forEach(topic => {
-            const card = document.createElement('div');
-            card.className = 'theme-card';
-            card.onclick = () => selectTheme(topic.id);
-            card.dataset.theme = topic.id;
-            const desc = topic.description || '精选频道';
-            card.innerHTML = '<div class="theme-card-name">' + topic.name + '</div><div class="theme-card-desc">' + desc + '</div>';
-            grid.appendChild(card);
-          });
         }
       } catch (error) {
         console.error('Failed to load topics:', error);
