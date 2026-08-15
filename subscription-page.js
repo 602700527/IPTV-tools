@@ -1257,7 +1257,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     async function loadThemes() {
       try {
         // 检查用户是否已登录且为 VIP
-        const isLoggedIn = localStorage.getItem('auth_token') || checkCookie('auth_token');
+        const isLoggedIn = localStorage.getItem('auth_token');
         if (isLoggedIn) {
           const favoritesCard = document.getElementById('favoritesCard');
           if (favoritesCard) {
@@ -1317,7 +1317,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     function handleSubscribe() {
       // 检查登录状态
-      const isLoggedIn = localStorage.getItem('auth_token') || checkCookie('auth_token');
+      const isLoggedIn = localStorage.getItem('auth_token');
       if (!isLoggedIn) {
         showToast(currentLang === 'zh-CN' ? '请先登录后再订阅' : 'Please login first', 'error');
         window.location.href = '/login?redirect=/subscription';
