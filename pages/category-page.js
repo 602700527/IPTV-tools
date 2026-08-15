@@ -112,7 +112,7 @@ export function generateCategoryPage(options = {}) {
 
         '</a>' +
 
-        '<button class="btn-favorite" data-hash="' + escapeHtml(ch.hash) + '" onclick="toggleFavorite(this)" title="Add to favorites">' +
+        '<button class="btn-favorite" data-hash="' + escapeHtml(ch.hash) + '" onclick="window.toggleFavorite(this)" title="Add to favorites">' +
 
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' +
 
@@ -916,7 +916,7 @@ export function generateCategoryPage(options = {}) {
 
         <label class="batch-select-all">
 
-          <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+          <input type="checkbox" id="selectAll" onchange="window.toggleSelectAll()">
 
           <span class="batch-select-text">全选</span>
 
@@ -924,7 +924,7 @@ export function generateCategoryPage(options = {}) {
 
         <div class="batch-actions">
 
-          <button class="btn btn-favorite-batch" onclick="addSelectedToFavorites()" title="添加收藏">
+          <button class="btn btn-favorite-batch" onclick="window.addSelectedToFavorites()" title="添加收藏">
 
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
 
@@ -1299,7 +1299,7 @@ export function generateCategoryPage(options = {}) {
 
           '</a>' +
 
-          '<button class="btn-favorite" data-hash="' + escapeHtml(ch.hash) + '" onclick="toggleFavorite(this)" title="Add to favorites">' +
+          '<button class="btn-favorite" data-hash="' + escapeHtml(ch.hash) + '" onclick="window.toggleFavorite(this)" title="Add to favorites">' +
 
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' +
 
