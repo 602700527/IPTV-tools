@@ -1362,6 +1362,13 @@ async function loadVipStatus() {
       window._vipCodeBase = baseUrl + '/sub/' + latestOrder.code;
       window._currentCode = latestOrder.code;
       if (vipCodeEl) vipCodeEl.dataset.code = latestOrder.code;
+      
+      // 加载订阅模式
+      const subMode = latestOrder.sub_mode || '';
+      const subModeRadio = document.querySelector('input[name="subMode"][value="' + subMode + '"]');
+      if (subModeRadio) subModeRadio.checked = true;
+      updateSubMode();
+      
       updateVipCodeFormat();
 
       let expiryText = 'Permanent';
