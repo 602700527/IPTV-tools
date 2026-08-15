@@ -325,9 +325,42 @@ export const styles = `
   }
 
   .sub-mode-hint {
-    font-size: 11px;
+    font-size: 0.8rem;
     color: var(--text-muted);
-    margin-top: 4px;
+    margin-top: 6px;
+  }
+
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .theme-card {
+    background: rgba(255,255,255,0.03);
+    border: 2px solid rgba(255,255,255,0.08);
+    border-radius: 0;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-card:hover {
+    border-color: rgba(229,9,20,0.4);
+    background: rgba(229,9,20,0.05);
+  }
+  .theme-card.selected {
+    border-color: var(--accent);
+    background: rgba(229,9,20,0.15);
+  }
+  .theme-card-name {
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+  }
+  .theme-card-desc {
+    font-size: 0.7rem;
+    color: var(--text-muted);
   }
 
   .sub-format-radios { display: flex; gap: 10px; margin-bottom: 10px; }
@@ -1028,10 +1061,9 @@ export const content = `
                 <!-- 线路选择 -->
                 <div class="subscription-detail" style="grid-column: span 2;">
                   <span class="subscription-detail-label">线路选择</span>
-                  <div class="topic-selector" id="topicSelector">
+                  <div class="theme-grid" id="topicSelector">
                     <div class="topic-loading" id="topicLoading">加载中...</div>
                   </div>
-                  <span class="sub-mode-hint" id="topicHint"></span>
                 </div>
                 <div class="subscription-detail">
                   <span class="subscription-detail-label">订阅网址</span>
@@ -1494,31 +1526,33 @@ async function loadTopics(selectedTopicId) {
 
     container.innerHTML = '';
 
+    const isLoggedIn = localStorage.getItem('auth_token');
+
     if (!data.topics || data.topics.length === 0) {
       container.innerHTML = '<span style="color: var(--text-muted); font-size: 0.9rem;">暂无可用线路</span>';
       return;
     }
 
-    // 创建线路选项
+    // 创建线路卡片
     data.topics.forEach(topic => {
-      const label = document.createElement('label');
-      label.className = 'topic-option';
-      const isChecked = selectedTopicId == topic.id ? ' checked' : '';
-      label.innerHTML = '<input type="radio" name="topic" value="' + topic.id + '"' + isChecked + '><span class="topic-label">' + topic.name + '</span>';
-      label.querySelector('input').onchange = () => saveTopic(topic.id);
-      container.appendChild(label);
+      const card = document.createElement('div');
+      card.className = 'theme-card' + (selectedTopicId == topic.id ? ' selected' : '');
+      card.dataset.topic = topic.id;
+      const desc = topic.description || '';
+      card.innerHTML = '<div class="theme-card-name">' + topic.name + '</div>' + (desc ? '<div class="theme-card-desc">' + desc + '</div>' : '');
+      card.onclick = () => saveTopic(topic.id, topic.name);
+      container.appendChild(card);
     });
 
-    // 如果有选中的线路，显示提示
-    if (selectedTopicId) {
-      const hintEl = document.getElementById('topicHint');
-      if (hintEl) {
-        const selected = data.topics.find(t => t.id == selectedTopicId);
-        if (selected) {
-          hintEl.textContent = '当前选择：' + selected.name;
-          hintEl.style.color = 'var(--accent)';
-        }
-      }
+    // 如果登录，添加"我的收藏"卡片
+    if (isLoggedIn) {
+      const favCard = document.createElement('div');
+      favCard.className = 'theme-card';
+      if (selectedTopicId === 'favorites') favCard.classList.add('selected');
+      favCard.dataset.topic = 'favorites';
+      favCard.innerHTML = '<div class="theme-card-name">我的收藏</div><div class="theme-card-desc">仅返回您收藏的频道</div>';
+      favCard.onclick = () => saveTopic('favorites', '我的收藏');
+      container.appendChild(favCard);
     }
 
   } catch (e) {
@@ -1527,7 +1561,7 @@ async function loadTopics(selectedTopicId) {
   }
 }
 
-async function saveTopic(topicId) {
+async function saveTopic(topicId, topicName) {
   const code = window._currentCode;
   if (!code) return;
 
@@ -1535,16 +1569,16 @@ async function saveTopic(topicId) {
     const response = await fetch('/api/user/change-topic?code=' + code, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ topic_id: topicId })
+      body: JSON.stringify({ topic_id: topicId === 'favorites' ? null : topicId })
     });
 
     const data = await response.json();
     if (data.success) {
-      const hintEl = document.getElementById('topicHint');
-      if (hintEl) {
-        hintEl.textContent = '已切换到：' + (data.topic_name || '当前线路');
-        hintEl.style.color = 'var(--accent)';
-      }
+      // 更新选中状态
+      document.querySelectorAll('.theme-card').forEach(card => {
+        card.classList.remove('selected');
+        if (card.dataset.topic == topicId) card.classList.add('selected');
+      });
     } else {
       console.error('保存线路失败:', data.error);
     }
