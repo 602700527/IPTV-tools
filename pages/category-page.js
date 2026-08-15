@@ -1436,6 +1436,14 @@ export function generateCategoryPage(options = {}) {
     //   selected    = total selection size (for empty/all-skipped edge cases)
 
     function addSelectedToFavorites() {
+
+      // Check if user is logged in
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        alert('请先登录后再收藏频道。\n\n<a href="/login" style="color:#e50914;font-weight:bold;">立即登录 →</a>');
+        return;
+      }
+
 
       const selected = getSelectedChannels();
 
