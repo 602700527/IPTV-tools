@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS codes (
   activated_at DATETIME, 
   expired_at DATETIME,
   max_ips INTEGER DEFAULT 3,
+  sub_mode TEXT DEFAULT NULL,
   remark TEXT
 );
 
@@ -286,3 +287,18 @@ CREATE TABLE IF NOT EXISTS ip_play_links (
 CREATE INDEX IF NOT EXISTS idx_ip_play_links_link_id ON ip_play_links(link_id);
 CREATE INDEX IF NOT EXISTS idx_ip_play_links_creator_ip ON ip_play_links(creator_ip);
 CREATE INDEX IF NOT EXISTS idx_ip_play_links_channel_hash ON ip_play_links(channel_hash);
+
+-- 用户收藏表（服务端存储）
+CREATE TABLE IF NOT EXISTS user_favorites (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  channel_hash TEXT NOT NULL,
+  name TEXT,
+  logo TEXT,
+  \`group\` TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, channel_hash),
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_user_favorites_user_id ON user_favorites(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_favorites_channel_hash ON user_favorites(channel_hash);

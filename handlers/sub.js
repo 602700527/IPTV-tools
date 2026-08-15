@@ -1,6 +1,6 @@
 // 订阅请求处理器: /sub/{code}.m3u（简化版）
 
-import { getDB, isDomainBlacklisted, getDomainBlacklist, getTopic, applyTopicFilter } from '../database.js';
+import { getDB, isDomainBlacklisted, getDomainBlacklist, getTopic, applyTopicFilter, getUserFavorites } from '../database.js';
 
 import { getClientIP, checkIPRateLimit } from '../security/ip-blacklist.js';
 
@@ -100,7 +100,13 @@ export async function handleSubRequest(request, env, ctx) {
 
   const db = getDB();
 
-  const auth = await db.prepare("SELECT status, expired_at, max_ips, topic_id FROM codes WHERE code = ?").bind(code).first();
+  // 查询卡密信息，同时获取 user_id（通过 user_orders 关联）和 sub_mode
+  const auth = await db.prepare(`
+    SELECT c.status, c.expired_at, c.max_ips, c.topic_id, c.sub_mode, o.user_id
+    FROM codes c
+    LEFT JOIN user_orders o ON o.code = c.code
+    WHERE c.code = ?
+  `).bind(code).first();
 
 
 
@@ -172,16 +178,30 @@ export async function handleSubRequest(request, env, ctx) {
 
   }
 
-  // 3.1.2 应用专题过滤
-  if (auth && auth.topic_id) {
-    const topic = await getTopic(auth.topic_id);
-    if (topic && topic.rules) {
+  // 3.1.2 应用专题过滤或收藏夹过滤
+  if (auth) {
+    // 如果设置了 sub_mode = 'favorites'，只返回用户的收藏夹
+    if (auth.sub_mode === 'favorites' && auth.user_id) {
       try {
-        const rules = JSON.parse(topic.rules);
-        allChannels = applyTopicFilter(allChannels, rules);
-        console.log(`[Sub] Topic filter applied: ${allChannels.length} channels remaining (topic: ${topic.name})`);
+        const favorites = await getUserFavorites(auth.user_id);
+        const hashSet = new Set(favorites.map(f => f.channel_hash));
+        allChannels = allChannels.filter(ch => hashSet.has(ch.channel_hash));
+        console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id}`);
       } catch (e) {
-        console.error('[Sub] Failed to parse topic rules:', e);
+        console.error('[Sub] Failed to get favorites:', e);
+      }
+    }
+    // 否则按 topic 过滤（原有逻辑）
+    else if (auth.topic_id) {
+      const topic = await getTopic(auth.topic_id);
+      if (topic && topic.rules) {
+        try {
+          const rules = JSON.parse(topic.rules);
+          allChannels = applyTopicFilter(allChannels, rules);
+          console.log(`[Sub] Topic filter applied: ${allChannels.length} channels remaining (topic: ${topic.name})`);
+        } catch (e) {
+          console.error('[Sub] Failed to parse topic rules:', e);
+        }
       }
     }
   }
@@ -535,16 +555,30 @@ export async function handleSubRequestTxt(request, env, ctx) {
 
   }
 
-  // 3.1.2 应用专题过滤
-  if (auth && auth.topic_id) {
-    const topic = await getTopic(auth.topic_id);
-    if (topic && topic.rules) {
+  // 3.1.2 应用专题过滤或收藏夹过滤
+  if (auth) {
+    // 如果设置了 sub_mode = 'favorites'，只返回用户的收藏夹
+    if (auth.sub_mode === 'favorites' && auth.user_id) {
       try {
-        const rules = JSON.parse(topic.rules);
-        allChannels = applyTopicFilter(allChannels, rules);
-        console.log(`[Sub] Topic filter applied: ${allChannels.length} channels remaining (topic: ${topic.name})`);
+        const favorites = await getUserFavorites(auth.user_id);
+        const hashSet = new Set(favorites.map(f => f.channel_hash));
+        allChannels = allChannels.filter(ch => hashSet.has(ch.channel_hash));
+        console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id}`);
       } catch (e) {
-        console.error('[Sub] Failed to parse topic rules:', e);
+        console.error('[Sub] Failed to get favorites:', e);
+      }
+    }
+    // 否则按 topic 过滤（原有逻辑）
+    else if (auth.topic_id) {
+      const topic = await getTopic(auth.topic_id);
+      if (topic && topic.rules) {
+        try {
+          const rules = JSON.parse(topic.rules);
+          allChannels = applyTopicFilter(allChannels, rules);
+          console.log(`[Sub] Topic filter applied: ${allChannels.length} channels remaining (topic: ${topic.name})`);
+        } catch (e) {
+          console.error('[Sub] Failed to parse topic rules:', e);
+        }
       }
     }
   }

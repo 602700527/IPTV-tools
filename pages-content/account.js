@@ -289,6 +289,47 @@ export const styles = `
     gap: 8px;
   }
 
+  .sub-mode-selector {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .mode-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .mode-option:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+  }
+
+  .mode-option:has(input:checked) {
+    border-color: var(--accent);
+    background: rgba(229, 9, 20, 0.1);
+    color: var(--text-primary);
+  }
+
+  .mode-option input {
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .sub-mode-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
   .sub-format-radios { display: flex; gap: 10px; margin-bottom: 10px; }
   .sub-format-radios-modal { justify-content: center; margin-bottom: 16px; }
   .format-radio { color: var(--text-secondary); font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); transition: all 0.2s; }
@@ -1305,6 +1346,7 @@ async function loadVipStatus() {
 
       const baseUrl = window.location.origin;
       window._vipCodeBase = baseUrl + '/sub/' + latestOrder.code;
+      window._currentCode = latestOrder.code;
       if (vipCodeEl) vipCodeEl.dataset.code = latestOrder.code;
       updateVipCodeFormat();
 
@@ -1342,6 +1384,32 @@ function updateVipCodeFormat() {
   const vipCodeEl = document.getElementById('vipCode');
   if (vipCodeEl) vipCodeEl.textContent = window._vipCodeBase + '.' + getVipFormat();
 }
+async function submitSubModeChange() {
+  const selected = document.querySelector('input[name="subMode"]:checked');
+  if (!selected) return;
+  
+  const mode = selected.value;
+  const code = window._currentCode;
+  if (!code) return;
+  
+  try {
+    const response = await fetch(API_BASE + '/user/change-sub-mode?code=' + code, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sub_mode: mode || null })
+    });
+    
+    const data = await response.json();
+    if (data.success) {
+      showToast(currentLang === 'zh-CN' ? '订阅模式已更新' : 'Subscription mode updated', 'success');
+    } else {
+      showToast(data.error || '更新失败', 'error');
+    }
+  } catch (e) {
+    console.error('Submit mode change error:', e);
+  }
+}
+
 function copyVipCode() {
   const vipCodeEl = document.getElementById('vipCode');
   if (!vipCodeEl) { console.error('vipCode element not found'); return; }

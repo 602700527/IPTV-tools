@@ -4,7 +4,7 @@ import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest, handleSubRequestTxt } from './handlers/sub.js';
 import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
 import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } from './handlers/scheduler.js';
-import { handleUserActivate, handleUserChangeTopic } from './handlers/user.js';
+import { handleUserActivate, handleUserChangeTopic, handleUserChangeSubMode } from './handlers/user.js';
 import { handlePublicPlay, handleChannelDebug, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings, handleFavoritesM3U, handleChannelsM3U } from './handlers/public.js';
 import { handleGetPlans } from './handlers/plans-api.js';
 import { generateAndCacheSitemap, getAllChannels, getAllGroups } from './utils/channel-cache.js';
@@ -1401,6 +1401,8 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/change-topic') {
       // 修改用户专题
       return await handleUserChangeTopic(request, env, ctx);
+    } else if (path === '/api/user/change-sub-mode') {
+      return await handleUserChangeSubMode(request, env, ctx);
     } else if (path === '/api/topics') {
       // 获取专题列表（公开）
       try {

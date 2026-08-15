@@ -2731,3 +2731,67 @@ export function applyTopicFilter(channels, rules) {
     return true;
   });
 }
+
+// ============ 用户收藏相关函数 ============
+
+export async function getUserFavorites(userId) {
+  const db = getDB();
+  try {
+    const favorites = await db.prepare(
+      'SELECT channel_hash, name, logo, \`group\`, created_at FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC'
+    ).bind(userId).all();
+    return favorites || [];
+  } catch (error) {
+    console.error('[getUserFavorites] Error:', error);
+    return [];
+  }
+}
+
+export async function saveUserFavorites(userId, favorites) {
+  const db = getDB();
+  try {
+    // 删除旧收藏
+    await db.prepare('DELETE FROM user_favorites WHERE user_id = ?').bind(userId).run();
+    
+    // 批量插入新收藏
+    if (favorites.length > 0) {
+      const stmt = db.prepare(
+        'INSERT INTO user_favorites (user_id, channel_hash, name, logo, \`group\`) VALUES (?, ?, ?, ?, ?)'
+      );
+      for (const fav of favorites) {
+        await stmt.bind(userId, fav.hash, fav.name || '', fav.logo || '', fav.group || '').run();
+      }
+      await stmt.finalize();
+    }
+    console.log(`[saveUserFavorites] Saved ${favorites.length} favorites for user ${userId}`);
+  } catch (error) {
+    console.error('[saveUserFavorites] Error:', error);
+    throw error;
+  }
+}
+
+export async function addFavoriteToUser(userId, channelHash, name = '', logo = '', group = '') {
+  const db = getDB();
+  try {
+    await db.prepare(
+      'INSERT OR IGNORE INTO user_favorites (user_id, channel_hash, name, logo, \`group\`) VALUES (?, ?, ?, ?, ?)'
+    ).bind(userId, channelHash, name, logo, group).run();
+    return getUserFavorites(userId);
+  } catch (error) {
+    console.error('[addFavoriteToUser] Error:', error);
+    throw error;
+  }
+}
+
+export async function removeFavoriteFromUser(userId, channelHash) {
+  const db = getDB();
+  try {
+    await db.prepare(
+      'DELETE FROM user_favorites WHERE user_id = ? AND channel_hash = ?'
+    ).bind(userId, channelHash).run();
+    return getUserFavorites(userId);
+  } catch (error) {
+    console.error('[removeFavoriteFromUser] Error:', error);
+    throw error;
+  }
+}

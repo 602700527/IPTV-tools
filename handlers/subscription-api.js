@@ -70,7 +70,7 @@ export async function handleGetTopics(request, env, ctx) {
 }
 
 // 生成订阅卡密
-export async function generateActivationCode(env, durationDays, maxIPs, userId, topicId, isTestMode = false, baseUrl = '') {
+export async function generateActivationCode(env, durationDays, maxIPs, userId, topicId, isTestMode = false, baseUrl = '', subMode = null) {
   const now = new Date();
   let code;
   let expiredAt;
@@ -78,32 +78,32 @@ export async function generateActivationCode(env, durationDays, maxIPs, userId, 
 
   try {
     const existingCode = await getUserActiveCode(userId, env.DB);
-    
+
     if (existingCode) {
       code = existingCode.code;
       expiredAt = calculateStackedExpiry(existingCode.expired_at, durationDays);
       isStacked = true;
-      
+
       await env.DB.prepare(`
-        UPDATE codes 
-        SET expired_at = ?, duration_days = ?, topic_id = ?
+        UPDATE codes
+        SET expired_at = ?, duration_days = ?, topic_id = ?, sub_mode = ?
         WHERE code = ?
-      `).bind(expiredAt ? expiredAt.toISOString() : null, durationDays, topicId || null, code).run();
-      
-      console.log('[Subscription] Stacked code:', code, 'for user:', userId, 'topic:', topicId);
+      `).bind(expiredAt ? expiredAt.toISOString() : null, durationDays, topicId || null, subMode, code).run();
+
+      console.log('[Subscription] Stacked code:', code, 'for user:', userId, 'topic:', topicId, 'mode:', subMode);
     } else {
       code = generateCode();
-      
+
       if (durationDays !== -1) {
         expiredAt = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
       }
-      
+
       await env.DB.prepare(`
-        INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, topic_id, remark)
-        VALUES (?, 'active', ?, ?, ?, ?, ?, ?)
-      `).bind(code, durationDays, now.toISOString(), expiredAt ? expiredAt.toISOString() : null, maxIPs, topicId || null, isTestMode ? `Test purchase by user ${userId}` : `User ${userId} purchase`).run();
-      
-      console.log('[Subscription] Code generated:', code, 'for user:', userId, 'duration:', durationDays, 'topic:', topicId);
+        INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, topic_id, sub_mode, remark)
+        VALUES (?, 'active', ?, ?, ?, ?, ?, ?, ?)
+      `).bind(code, durationDays, now.toISOString(), expiredAt ? expiredAt.toISOString() : null, maxIPs, topicId || null, subMode, isTestMode ? `Test purchase by user ${userId}` : `User ${userId} purchase`).run();
+
+      console.log('[Subscription] Code generated:', code, 'for user:', userId, 'duration:', durationDays, 'topic:', topicId, 'mode:', subMode);
     }
 
     const subUrl = `${baseUrl}/sub/${code}.m3u`;
@@ -115,7 +115,8 @@ export async function generateActivationCode(env, durationDays, maxIPs, userId, 
       expiredAt: expiredAt ? expiredAt.toISOString() : null,
       activatedAt: now.toISOString(),
       stacked: isStacked,
-      topicId: topicId
+      topicId: topicId,
+      subMode: subMode
     };
   } catch (error) {
     console.error('[Subscription] Failed to generate code:', error);
@@ -160,7 +161,7 @@ export async function handleCreateCode(request, env, ctx) {
     }
 
     const body = await request.json();
-    const { duration_days, max_ips = 3, topic_id = null, test_mode = false, payment_id = null } = body;
+    const { duration_days, max_ips = 3, topic_id = null, test_mode = false, payment_id = null, sub_mode = null } = body;
 
     if (!duration_days || (duration_days !== -1 && (duration_days < 1 || duration_days > 365))) {
       return new Response(JSON.stringify({
@@ -199,9 +200,9 @@ export async function handleCreateCode(request, env, ctx) {
     const url = new URL(request.url);
     const baseUrl = `${url.protocol}//${url.host}`;
 
-    console.log('[Subscription] Creating code for user:', user.id, 'duration:', duration_days, 'ips:', max_ips, 'topic:', topic_id);
+    console.log('[Subscription] Creating code for user:', user.id, 'duration:', duration_days, 'ips:', max_ips, 'topic:', topic_id, 'mode:', sub_mode);
 
-    const result = await generateActivationCode(env, duration_days, max_ips, user.id, topic_id, test_mode, baseUrl);
+    const result = await generateActivationCode(env, duration_days, max_ips, user.id, topic_id, test_mode, baseUrl, sub_mode);
 
     if (!result.success) {
       return new Response(JSON.stringify(result), {
@@ -230,7 +231,7 @@ export async function handleCreateCode(request, env, ctx) {
         VALUES (?, ?, ?, ?, ?, ?, 'completed')
       `).bind(user.id, orderId, result.code, duration_days, price.discounted, topic_id || null).run();
 
-      console.log('[Subscription] Order created:', orderId, 'for user:', user.id, 'topic:', topic_id);
+      console.log('[Subscription] Order created:', orderId, 'for user:', user.id, 'topic:', topic_id, 'mode:', sub_mode);
     } catch (error) {
       console.error('[Subscription] Failed to create order:', error);
     }

@@ -268,3 +268,69 @@ export async function handleUserChangeTopic(request, env, ctx) {
     });
   }
 }
+
+// 修改订阅模式（全部频道 / 我的收藏）
+export async function handleUserChangeSubMode(request, env, ctx) {
+  const url = new URL(request.url);
+  const code = url.searchParams.get('code');
+
+  if (!code) {
+    return new Response(JSON.stringify({ success: false, error: '卡密不能为空' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  try {
+    const db = getDB();
+
+    // 查询卡密
+    const codeRecord = await db.prepare('SELECT * FROM codes WHERE code = ?').bind(code).first();
+
+    if (!codeRecord) {
+      return new Response(JSON.stringify({ success: false, error: '卡密不存在' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 只允许激活的卡密修改订阅模式
+    if (codeRecord.status !== 'active') {
+      return new Response(JSON.stringify({ success: false, error: '该卡密尚未激活' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 获取请求体
+    let body = null;
+    try { body = await request.json(); } catch(e) {}
+    const subMode = body ? body.sub_mode : null;
+
+    // 验证 sub_mode（只能是 'favorites' 或 null）
+    if (subMode !== null && subMode !== undefined && subMode !== '' && subMode !== 'favorites') {
+      return new Response(JSON.stringify({ success: false, error: '无效的订阅模式' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 更新 sub_mode
+    await db.prepare('UPDATE codes SET sub_mode = ? WHERE code = ?').bind(subMode || null, code).run();
+
+    return new Response(JSON.stringify({
+      success: true,
+      sub_mode: subMode || null,
+      message: '订阅模式修改成功'
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error('修改订阅模式失败:', error);
+    return new Response(JSON.stringify({ success: false, error: '服务器错误' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
