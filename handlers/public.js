@@ -1316,8 +1316,8 @@ export async function handleFavoritesM3U(request, env, ctx) {
     console.error('[handleFavoritesM3U] Failed to parse body:', e);
   }
 
-  // 5. 非 VIP 限制 100 个
-  const MAX_FREE_CHANNELS = 100;
+  // 5. 非 VIP 限制 10 个
+  const MAX_FREE_CHANNELS = 10;
   if (!isVIP && favoriteChannels.length > MAX_FREE_CHANNELS) {
     favoriteChannels = favoriteChannels.slice(0, MAX_FREE_CHANNELS);
   }
