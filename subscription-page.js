@@ -1091,12 +1091,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <div class="selector-group">
               <div class="selector-label">线路选择</div>
               <div class="theme-grid" id="themeGrid">
-                <div class="theme-card selected" onclick="selectTheme(null)" data-theme="all">
+                <div class="theme-card selected" data-theme="all" id="defaultThemeCard">
                   <div class="theme-card-icon">📺</div>
                   <div class="theme-card-name">全部频道</div>
                   <div class="theme-card-desc">5000+ 国内外频道</div>
                 </div>
-                <div class="theme-card" onclick="selectTheme('favorites')" data-theme="favorites" id="favoritesCard" style="display:none;">
+                <div class="theme-card" data-theme="favorites" id="favoritesCard" style="display:none;">
                   <div class="theme-card-icon">⭐</div>
                   <div class="theme-card-name">我的收藏</div>
                   <div class="theme-card-desc">仅返回您收藏的频道</div>
@@ -1262,6 +1262,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           const favoritesCard = document.getElementById('favoritesCard');
           if (favoritesCard) {
             favoritesCard.style.display = 'block';
+            favoritesCard.onclick = () => selectTheme('favorites');
           }
         }
 
@@ -1282,6 +1283,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             card.innerHTML = '<div class="theme-card-icon">' + icon + '</div><div class="theme-card-name">' + topic.name + '</div><div class="theme-card-desc">' + desc + '</div>';
             grid.appendChild(card);
           });
+        }
+
+        // 给默认的"全部频道"卡片添加点击事件
+        const defaultCard = document.getElementById('defaultThemeCard');
+        if (defaultCard) {
+          defaultCard.onclick = () => selectTheme(null);
         }
       } catch (error) {
         console.error('Failed to load topics:', error);
