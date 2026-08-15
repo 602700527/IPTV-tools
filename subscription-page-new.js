@@ -132,68 +132,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       line-height: 1.6;
     }
 
-    .hero-subtitle-hero {
-      font-size: 1rem;
-      color: var(--text-secondary);
-      margin-bottom: 32px;
-      line-height: 2;
-    }
-
-    /* ========== Hero Features ========== */
-    .hero-features {
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 40px;
-    }
-
-    .hero-feature {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: linear-gradient(135deg, rgba(229, 9, 20, 0.12) 0%, rgba(229, 9, 20, 0.06) 100%);
-      border: 1px solid rgba(229, 9, 20, 0.35);
-      padding: 14px 24px;
-      border-radius: 0;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .hero-feature::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
-      transition: left 0.5s ease;
-    }
-
-    .hero-feature:hover::before {
-      left: 100%;
-    }
-
-    .hero-feature:hover {
-      transform: translateY(-2px);
-      border-color: rgba(229, 9, 20, 0.6);
-      box-shadow: 0 8px 24px rgba(229, 9, 20, 0.2);
-    }
-
-    .feature-icon {
-      font-size: 1.4rem;
-      filter: drop-shadow(0 2px 4px rgba(229, 9, 20, 0.3));
-    }
-
-    .feature-text {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text);
-      letter-spacing: 0.5px;
-    }
-
     .hero-value-box {
       background: var(--gradient-card);
       border: 1px solid var(--border-accent);
