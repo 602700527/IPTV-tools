@@ -1045,25 +1045,11 @@ export const content = `
               </div>
               <div class="subscription-details">
                 <div class="subscription-detail" style="grid-column: span 2;">
-                  <span class="subscription-detail-label">订阅模式</span>
-                  <div class="sub-mode-selector">
-                    <label class="mode-option">
-                      <input type="radio" name="subMode" value="" checked onchange="updateSubMode()">
-                      <span class="mode-label">全部频道</span>
-                    </label>
-                    <label class="mode-option">
-                      <input type="radio" name="subMode" value="favorites" onchange="updateSubMode()">
-                      <span class="mode-label">我的收藏</span>
-                    </label>
-                  </div>
-                  <span class="sub-mode-hint" id="subModeHint"></span>
-                </div>
-                <!-- 线路选择 -->
-                <div class="subscription-detail" style="grid-column: span 2;">
                   <span class="subscription-detail-label">线路选择</span>
                   <div class="theme-grid" id="topicSelector">
                     <div class="topic-loading" id="topicLoading">加载中...</div>
                   </div>
+                </div>
                 </div>
                 <div class="subscription-detail">
                   <span class="subscription-detail-label">订阅网址</span>
@@ -1403,14 +1389,8 @@ async function loadVipStatus() {
       window._currentCode = latestOrder.code;
       if (vipCodeEl) vipCodeEl.dataset.code = latestOrder.code;
       
-      // 加载订阅模式
-      const subMode = latestOrder.sub_mode || '';
-      const subModeRadio = document.querySelector('input[name="subMode"][value="' + subMode + '"]');
-      if (subModeRadio) subModeRadio.checked = true;
-      updateSubModeHint(); // 只更新提示文字，不保存
-
-      // 加载线路列表
-      loadTopics(latestOrder.topic_id);
+      // 加载线路（包含我的收藏）
+      loadTopics(latestOrder.topic_id, latestOrder.sub_mode);
 
       updateVipCodeFormat();
 
@@ -1512,7 +1492,7 @@ function updateSubModeHint() {
   }
 }
 
-async function loadTopics(selectedTopicId) {
+async function loadTopics(selectedTopicId, subMode) {
   const container = document.getElementById('topicSelector');
   const loadingEl = document.getElementById('topicLoading');
 
@@ -1527,6 +1507,7 @@ async function loadTopics(selectedTopicId) {
     container.innerHTML = '';
 
     const isLoggedIn = localStorage.getItem('auth_token');
+    const isFavorites = subMode === 'favorites' || selectedTopicId === 'favorites';
 
     if (!data.topics || data.topics.length === 0) {
       container.innerHTML = '<span style="color: var(--text-muted); font-size: 0.9rem;">暂无可用线路</span>';
@@ -1536,7 +1517,8 @@ async function loadTopics(selectedTopicId) {
     // 创建线路卡片
     data.topics.forEach(topic => {
       const card = document.createElement('div');
-      card.className = 'theme-card' + (selectedTopicId == topic.id ? ' selected' : '');
+      const isSelected = !isFavorites && selectedTopicId == topic.id;
+      card.className = 'theme-card' + (isSelected ? ' selected' : '');
       card.dataset.topic = topic.id;
       const desc = topic.description || '';
       card.innerHTML = '<div class="theme-card-name">' + topic.name + '</div>' + (desc ? '<div class="theme-card-desc">' + desc + '</div>' : '');
@@ -1547,8 +1529,7 @@ async function loadTopics(selectedTopicId) {
     // 如果登录，添加"我的收藏"卡片
     if (isLoggedIn) {
       const favCard = document.createElement('div');
-      favCard.className = 'theme-card';
-      if (selectedTopicId === 'favorites') favCard.classList.add('selected');
+      favCard.className = 'theme-card' + (isFavorites ? ' selected' : '');
       favCard.dataset.topic = 'favorites';
       favCard.innerHTML = '<div class="theme-card-name">我的收藏</div><div class="theme-card-desc">仅返回您收藏的频道</div>';
       favCard.onclick = () => saveTopic('favorites', '我的收藏');
