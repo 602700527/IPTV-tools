@@ -1403,7 +1403,7 @@ export async function handleChannelsM3U(request, env, ctx) {
   }
 
   // 5. 非会员限制 100 个
-  const MAX_FREE_CHANNELS = 100;
+  const MAX_FREE_CHANNELS = 10;
   if (!isVIP && channels.length > MAX_FREE_CHANNELS) {
     channels = channels.slice(0, MAX_FREE_CHANNELS);
   }
