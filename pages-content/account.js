@@ -1032,7 +1032,7 @@ export const content = `
               <div class="subscription-details">
                 <div class="subscription-detail" style="grid-column: span 2;">
                   <span class="subscription-detail-label">线路选择</span>
-                  <div class="theme-grid" id="topicSelector">
+                  <div id="topicSelector">
                     <div class="topic-loading" id="topicLoading">加载中...</div>
                   </div>
                 </div>
