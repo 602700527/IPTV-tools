@@ -1050,7 +1050,6 @@ export const content = `
                     <div class="topic-loading" id="topicLoading">加载中...</div>
                   </div>
                 </div>
-                </div>
                 <div class="subscription-detail">
                   <span class="subscription-detail-label">订阅网址</span>
                   <span class="subscription-detail-value code">
