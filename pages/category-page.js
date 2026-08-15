@@ -1128,13 +1128,6 @@ export function generateCategoryPage(options = {}) {
 
     function toggleFavorite(btn) {
 
-      // Check if user is logged in
-      const token = localStorage.getItem('auth_token');
-      if (!token) {
-        confirm('请先登录后再收藏频道，要现在去登录吗？') && (window.location.href = '/login');
-        return;
-      }
-
 
       const row = btn.closest('.channel-row');
 
@@ -1436,13 +1429,6 @@ export function generateCategoryPage(options = {}) {
     //   selected    = total selection size (for empty/all-skipped edge cases)
 
     function addSelectedToFavorites() {
-
-      // Check if user is logged in
-      const token = localStorage.getItem('auth_token');
-      if (!token) {
-        confirm('请先登录后再收藏频道，要现在去登录吗？') && (window.location.href = '/login');
-        return;
-      }
 
 
       const selected = getSelectedChannels();
