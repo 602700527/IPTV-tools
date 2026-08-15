@@ -9,8 +9,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIP会员 - IPTV搜索 | 全球华人都在用的国内电视神器</title>
-  <meta name="description" content="5000+国内电视直播，央视/卫视/港澳台/国际频道全覆盖。99.9%稳定率，一键导入就能看。7天无理由退款。">
+  <title>VIP会员 - IPTV搜索 | 一个链接，看遍所有频道</title>
+  <meta name="description" content="VIP订阅链接导入播放器，一次性搞定所有频道。不再每次手动搜索，收藏的云同步，多设备随意切换。">
   
   <style>
     :root {
@@ -59,8 +59,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(229,9,20,0.15);
-      border: 1px solid rgba(229,9,20,0.4);
+      background: rgba(229,9,9,0.15);
+      border: 1px solid rgba(229,9,9,0.4);
       color: var(--accent);
       padding: 10px 20px;
       font-size: 13px;
@@ -70,10 +70,24 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       animation: pulse 2s infinite;
     }
     @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(229,9,20,0.4); }
-      50% { box-shadow: 0 0 0 10px rgba(229,9,20,0); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(229,9,9,0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(229,9,9,0); }
     }
-    
+
+    .hero-badge-new {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(229,9,9,0.1);
+      border: 1px solid rgba(229,9,9,0.3);
+      color: var(--accent);
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 0;
+      margin-bottom: 16px;
+    }
+
     .hero-title {
       font-size: clamp(2rem, 5vw, 3.2rem);
       font-weight: 900;
@@ -90,7 +104,15 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    
+
+    .hero-title-large {
+      font-size: clamp(2.5rem, 6vw, 3.8rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: -1px;
+    }
+
     .hero-subtitle {
       font-size: 1.15rem;
       color: var(--text-secondary);
@@ -98,6 +120,56 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
+    }
+
+    .hero-subtitle-large {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .hero-value-box {
+      background: var(--gradient-card);
+      border: 1px solid var(--border-accent);
+      border-radius: 0;
+      padding: 24px 32px;
+      margin-bottom: 32px;
+      text-align: left;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-value-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .hero-value-items {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .hero-value-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
+    .hero-value-item strong {
+      color: var(--text);
+      font-weight: 600;
     }
     
     .hero-stats {
@@ -680,28 +752,28 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${PAGE_HEADER}
   
   <main>
-    <!-- Hero区 -->
+    <!-- Hero Section -->
     <section class="hero-section">
       <div class="container">
-        <div class="hero-badge">🔥 10,000+ 华人正在使用</div>
-        <h1 class="hero-title">全球华人都在用的<br><span>国内电视神器</span></h1>
-        <p class="hero-subtitle">无需翻墙技巧，一个链接导入就能看。5000+频道，央视/卫视/港澳台/国际全覆盖，99.9%稳定率。</p>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-value">5000+</div>
-            <div class="hero-stat-label">直播频道</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-value">99.9%</div>
-            <div class="hero-stat-label">稳定在线</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-value">4.8</div>
-            <div class="hero-stat-label">用户评分</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-value">30秒</div>
-            <div class="hero-stat-label">一键开通</div>
+        <div class="hero-badge-new">⭐ 专为华人打造</div>
+        <h1 class="hero-title-large">
+          别再每次手动搜频道<br><span>一个链接，看遍所有</span>
+        </h1>
+        <p class="hero-subtitle-large">
+          免费版能搜到，VIP版用得省心。<br>
+          订阅链接导入播放器，5000+频道自动更新，收藏云同步，多设备无缝切换。
+        </p>
+        <div class="hero-value-box">
+          <div class="hero-value-title">免费版 vs VIP 的核心区别</div>
+          <div class="hero-value-items">
+            <div class="hero-value-item">
+              <span>🔍</span>
+              <span><strong>免费版：</strong>每次都要重新搜索，只能看前5个结果，下载有限制</span>
+            </div>
+            <div class="hero-value-item">
+              <span>✅</span>
+              <span><strong>VIP版：</strong>订阅链接一键导入，频道自动更新，收藏云端同步，想看就看</span>
+            </div>
           </div>
         </div>
         <a href="#pricing" class="hero-cta">立即订阅，首月 ¥20 →</a>
