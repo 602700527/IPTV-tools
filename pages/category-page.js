@@ -92,7 +92,7 @@ export function generateCategoryPage(options = {}) {
 
         '<label class="channel-checkbox">' +
 
-          '<input type="checkbox" onchange="updateSelectedCount()">' +
+          '<input type="checkbox" onchange="updateSelectedCountReal()">' +
 
           '<span class="checkmark"></span>' +
 
@@ -932,7 +932,7 @@ export function generateCategoryPage(options = {}) {
 
           </button>
 
-          <button class="btn btn-primary" onclick="downloadSelectedM3U()" title="下载M3U">
+          <button class="btn btn-primary" onclick="downloadSelectedM3UReal()" title="下载M3U">
 
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
 
@@ -1064,7 +1064,7 @@ export function generateCategoryPage(options = {}) {
 
       });
 
-      updateSelectedCount();
+      updateSelectedCountReal();
 
     }
 
@@ -1072,7 +1072,7 @@ export function generateCategoryPage(options = {}) {
 
     // Update selected count
 
-    function updateSelectedCount() {
+    function updateSelectedCountReal() {
 
       const checked = document.querySelectorAll('.channel-row input[type="checkbox"]:checked');
 
@@ -1279,7 +1279,7 @@ export function generateCategoryPage(options = {}) {
 
           row.innerHTML = '<label class="channel-checkbox">' +
 
-            '<input type="checkbox" onchange="updateSelectedCount()">' +
+            '<input type="checkbox" onchange="updateSelectedCountReal()">' +
 
             '<span class="checkmark"></span>' +
 
@@ -1569,7 +1569,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-      updateSelectedCount();
+      updateSelectedCountReal();
 
     }
 
@@ -1681,7 +1681,7 @@ export function generateCategoryPage(options = {}) {
 
     // Download selected as M3U (一次性请求，服务端生成)
 
-    async function downloadSelectedM3U() {
+    async function downloadSelectedM3UReal() {
 
       const selected = getSelectedChannels();
 
@@ -1697,7 +1697,7 @@ export function generateCategoryPage(options = {}) {
 
       // Show loading state
 
-      const btn = document.querySelector('[onclick="downloadSelectedM3U()"]');
+      const btn = document.querySelector('[onclick="downloadSelectedM3UReal()"]');
 
       const originalText = btn.innerHTML;
 
@@ -1865,8 +1865,10 @@ export function generateCategoryPage(options = {}) {
     window.toggleFavorite = toggleFavoriteReal;
     window.addSelectedToFavorites = addSelectedToFavoritesReal;
     window.toggleSelectAll = toggleSelectAllReal;
+    window.updateSelectedCount = updateSelectedCountReal;
     window.downloadSelectedM3U = downloadSelectedM3UReal;
     window.shuffleChannels = shuffleChannelsReal;
+    window.loadMoreChannels = loadMoreChannels;
 
   </script>
 
