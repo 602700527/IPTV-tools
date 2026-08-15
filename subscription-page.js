@@ -756,26 +756,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <section class="hero-section">
       <div class="container">
         <div class="hero-badge-new">⭐ 专为华人打造</div>
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="hero-badge-new">⭐ 专为华人打造</div>
         <h1 class="hero-title-large">
-          别再每次手动搜频道<br><span>一个链接，看遍所有</span>
+          一个订阅链接，就能看你想看的
         </h1>
-        <p class="hero-subtitle-large">
-          免费版能搜到，VIP版用得省心。<br>
-          订阅链接导入播放器，5000+频道自动更新，收藏云同步，多设备无缝切换。
+        <p class="hero-subtitle-hero">
+          告别卡顿失效<br>
+          告别广告限制<br>
+          告别麻烦复杂
         </p>
-        <div class="hero-value-box">
-          <div class="hero-value-title">免费版 vs VIP 的核心区别</div>
-          <div class="hero-value-items">
-            <div class="hero-value-item">
-              <span>🔍</span>
-              <span><strong>免费版：</strong>每次都要重新搜索，只能看前5个结果，下载有限制</span>
-            </div>
-            <div class="hero-value-item">
-              <span>✅</span>
-              <span><strong>VIP版：</strong>订阅链接一键导入，频道自动更新，收藏云端同步，想看就看</span>
-            </div>
-          </div>
-        </div>
         <a href="#pricing" class="hero-cta">立即订阅，首月 ¥20 →</a>
       </div>
     </section>
