@@ -892,12 +892,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <!-- 差异权益 -->
             <tr>
               <td>搜索结果显示</td>
-              <td><span class="cross">✗</span> 前 5 个</td>
+              <td><span class="cross">✗</span> 前 10 个</td>
               <td class="vip"><span class="check">✓</span> 不限数量</td>
             </tr>
             <tr>
               <td>下载数量</td>
-              <td><span class="cross">✗</span> 50 个</td>
+              <td><span class="cross">✗</span> 10 个</td>
               <td class="vip"><span class="check">✓</span> 无限制</td>
             </tr>
             <tr>

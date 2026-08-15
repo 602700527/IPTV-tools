@@ -9,7 +9,7 @@ import { getDB } from '../../database.js';
 
 const SEARCH_CACHE_KEY = 'search_cache:';
 const SEARCH_CACHE_TTL = 300; // 5分钟缓存
-const FREE_SEARCH_LIMIT = 5; // 免费用户搜索结果限制数量
+const FREE_SEARCH_LIMIT = 10; // 免费用户搜索结果限制数量
 
 function slugify(str) {
   if (!str) return '';
