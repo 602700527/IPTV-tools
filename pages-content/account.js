@@ -1503,10 +1503,8 @@ async function loadTopics(selectedTopicId) {
     data.topics.forEach(topic => {
       const label = document.createElement('label');
       label.className = 'topic-option';
-      label.innerHTML = `
-        <input type="radio" name="topic" value="${topic.id}" ${selectedTopicId == topic.id ? 'checked' : ''}>
-        <span class="topic-label">${topic.name}</span>
-      `;
+      const isChecked = selectedTopicId == topic.id ? ' checked' : '';
+      label.innerHTML = '<input type="radio" name="topic" value="' + topic.id + '"' + isChecked + '><span class="topic-label">' + topic.name + '</span>';
       label.querySelector('input').onchange = () => saveTopic(topic.id);
       container.appendChild(label);
     });
