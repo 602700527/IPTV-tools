@@ -1293,8 +1293,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
       document.querySelectorAll('.theme-card').forEach(card => {
         card.classList.remove('selected');
-        if ((themeId === null && card.dataset.theme === 'all') ||
-            card.dataset.theme === themeId.toString()) {
+        const cardTheme = card.dataset.theme;
+        if (themeId === null) {
+          if (cardTheme === 'all' || cardTheme === 'favorites') {
+            card.classList.add('selected');
+          }
+        } else if (cardTheme === themeId.toString()) {
           card.classList.add('selected');
         }
       });
