@@ -1011,6 +1011,20 @@ export const content = `
                 <span class="subscription-status active" id="subscriptionStatus"><span class="dot"></span> Active</span>
               </div>
               <div class="subscription-details">
+                <div class="subscription-detail" style="grid-column: span 2;">
+                  <span class="subscription-detail-label">订阅模式</span>
+                  <div class="sub-mode-selector">
+                    <label class="mode-option">
+                      <input type="radio" name="subMode" value="" checked onchange="updateSubMode()">
+                      <span class="mode-label">全部频道</span>
+                    </label>
+                    <label class="mode-option">
+                      <input type="radio" name="subMode" value="favorites" onchange="updateSubMode()">
+                      <span class="mode-label">我的收藏</span>
+                    </label>
+                  </div>
+                  <span class="sub-mode-hint" id="subModeHint"></span>
+                </div>
                 <div class="subscription-detail">
                   <span class="subscription-detail-label">订阅网址</span>
                   <span class="subscription-detail-value code">
@@ -1409,6 +1423,22 @@ async function submitSubModeChange() {
     console.error('Submit mode change error:', e);
   }
 }
+
+function updateSubMode() {
+  const selected = document.querySelector('input[name="subMode"]:checked');
+  const hintEl = document.getElementById('subModeHint');
+  if (!selected || !hintEl) return;
+  
+  const mode = selected.value;
+  const isZh = currentLang === 'zh-CN';
+  
+  if (mode === 'favorites') {
+    hintEl.textContent = isZh ? '仅返回您收藏的频道' : 'Only return your favorited channels';
+    hintEl.style.color = 'var(--accent)';
+  } else {
+    hintEl.textContent = isZh ? '返回所有可用频道（按线路筛选）' : 'Return all available channels (filtered by topic)';
+    hintEl.style.color = 'var(--text-muted)';
+  }}
 
 function copyVipCode() {
   const vipCodeEl = document.getElementById('vipCode');
