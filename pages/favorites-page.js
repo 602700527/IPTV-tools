@@ -225,7 +225,7 @@ export function generateFavoritesPage(options = {}) {
 
     <script>
       const FAVORITES_KEY = 'favorites';
-      const MAX_FREE_DOWNLOAD = 100;
+      const MAX_FREE_DOWNLOAD = 10;
       const BATCH_SIZE = 50;
       const STABLE_ID_KEY = 'iptv_stable_id';
 
@@ -456,6 +456,18 @@ export function generateFavoritesPage(options = {}) {
     }
 
     async function downloadSelectedM3U() {
+      // Check if user is logged in
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        showToast({
+          type: 'warning',
+          title: '请先登录',
+          message: '下载收藏需要登录账户。<br><a href="/login" style="color:#e50914;font-weight:600;">立即登录 →</a>',
+          duration: 5000
+        });
+        return;
+      }
+      
       const selected = getSelectedChannels();
       if (selected.length === 0) {
         showToastWarning('No channels selected', 'Please select at least one channel to download.');
@@ -466,17 +478,21 @@ export function generateFavoritesPage(options = {}) {
       const isMember = await checkMemberStatus();
 
       if (!isMember && selected.length > MAX_FREE_DOWNLOAD) {
-        // Marketing Psychology: FOMO + Value Proposition + Loss Aversion
-        const upgradeMessage = 'You selected <strong style="color:#e50914">' + selected.length + '</strong> channels<br><br>' +
-          '💔 Free users can download up to <strong>' + MAX_FREE_DOWNLOAD + '</strong> channels<br>' +
-          '🎁 <strong style="color:#34c759">Upgrade to Premium</strong> - download all 10,000+ channels at once<br><br>' +
-          '<span style="font-size:12px;color:#888;">👥 5,000+ users already upgraded - enjoy unlimited access</span>';
+        // 营销心理：FOMO + 价值主张 + 损失厌恶
+        const upgradeMessage = '<div style="text-align:center;padding:8px 0;">';
+        upgradeMessage += '<p style="font-size:14px;color:#888;margin-bottom:8px;">已选择 <strong style="color:#e50914;font-size:20px;">' + selected.length + '</strong> 个频道</p>';
+        upgradeMessage += '<div style="background:linear-gradient(135deg,rgba(229,9,20,0.1),rgba(229,9,20,0.05));border:1px solid rgba(229,9,20,0.3);border-radius:12px;padding:16px;margin:12px 0;">';
+        upgradeMessage += '<p style="color:#fff;font-size:15px;margin-bottom:6px;">免费版仅可下载 <strong style="color:#e50914;">10 个</strong> 频道</p>';
+        upgradeMessage += '<p style="color:#aaa;font-size:13px;">开通会员 → 无限制下载所有频道</p>';
+        upgradeMessage += '</div>';
+        upgradeMessage += '<p style="font-size:12px;color:#666;margin-top:8px;">👥 已有 5000+ 用户升级会员</p>';
+        upgradeMessage += '</div>';
         showToast({
           type: 'info',
-          title: '🎁 Unlock All Channels - No More Limits',
+          title: '🎁 解锁全部频道 - 无限制下载',
           message: upgradeMessage,
           duration: 8000,
-          action: { text: 'Upgrade Now →', href: '${origin}/plans' }
+          action: { text: '立即升级 →', href: '${origin}/subscription' }
         });
         return;
       }
