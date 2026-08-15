@@ -1341,6 +1341,17 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     
     // 初始化
     updateOrderSummary();
+
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:4px;color:#fff;font-size:14px;z-index:9999;animation:fadeIn 0.3s;';
+      if (type === 'error') toast.style.background = 'var(--accent)';
+      else if (type === 'success') toast.style.background = '#22c55e';
+      else toast.style.background = '#3b82f6';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
   </script>
 </body>
 </html>`;
