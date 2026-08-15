@@ -142,23 +142,23 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     /* ========== Hero Features ========== */
     .hero-features {
       display: flex;
-      gap: 20px;
+      gap: 24px;
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: 40px;
+      margin-bottom: 44px;
     }
 
     .hero-feature {
       display: flex;
       align-items: center;
-      gap: 12px;
-      background: linear-gradient(135deg, rgba(229, 9, 20, 0.12) 0%, rgba(229, 9, 20, 0.06) 100%);
-      border: 1px solid rgba(229, 9, 20, 0.35);
-      padding: 14px 24px;
+      gap: 14px;
+      background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(229, 9, 20, 0.05) 100%);
+      border: 1px solid rgba(229, 9, 20, 0.4);
+      padding: 16px 28px;
       border-radius: 0;
       position: relative;
       overflow: hidden;
-      transition: all 0.3s ease;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .hero-feature::before {
@@ -168,30 +168,51 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
-      transition: left 0.5s ease;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .hero-feature::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      transition: width 0.35s ease;
     }
 
     .hero-feature:hover::before {
       left: 100%;
     }
 
+    .hero-feature:hover::after {
+      width: 80%;
+    }
+
     .hero-feature:hover {
-      transform: translateY(-2px);
-      border-color: rgba(229, 9, 20, 0.6);
-      box-shadow: 0 8px 24px rgba(229, 9, 20, 0.2);
+      transform: translateY(-3px);
+      border-color: rgba(229, 9, 20, 0.7);
+      box-shadow: 0 12px 32px rgba(229, 9, 20, 0.25), 0 0 0 1px rgba(229, 9, 20, 0.1);
     }
 
     .feature-icon {
-      font-size: 1.4rem;
-      filter: drop-shadow(0 2px 4px rgba(229, 9, 20, 0.3));
+      font-size: 1.5rem;
+      filter: drop-shadow(0 2px 6px rgba(229, 9, 20, 0.4));
+      transition: transform 0.3s ease;
+    }
+
+    .hero-feature:hover .feature-icon {
+      transform: scale(1.15);
     }
 
     .feature-text {
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 600;
       color: var(--text);
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
     }
 
     .hero-value-box {
