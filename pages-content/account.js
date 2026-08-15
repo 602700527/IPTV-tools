@@ -330,37 +330,23 @@ export const styles = `
     margin-top: 6px;
   }
 
-  .theme-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
-    margin-top: 10px;
-  }
-  .theme-card {
+  .topic-option {
+    padding: 10px 16px;
     background: rgba(255,255,255,0.03);
-    border: 2px solid rgba(255,255,255,0.08);
-    border-radius: 0;
-    padding: 12px 8px;
-    text-align: center;
+    border: 1px solid rgba(255,255,255,0.1);
     cursor: pointer;
     transition: all 0.2s;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
   }
-  .theme-card:hover {
+  .topic-option:hover {
     border-color: rgba(229,9,20,0.4);
     background: rgba(229,9,20,0.05);
   }
-  .theme-card.selected {
+  .topic-option.selected {
     border-color: var(--accent);
     background: rgba(229,9,20,0.15);
-  }
-  .theme-card-name {
-    font-weight: 700;
-    font-size: 0.85rem;
-    margin-bottom: 4px;
-  }
-  .theme-card-desc {
-    font-size: 0.7rem;
-    color: var(--text-muted);
+    color: var(--accent);
   }
 
   .sub-format-radios { display: flex; gap: 10px; margin-bottom: 10px; }
@@ -1432,52 +1418,48 @@ async function loadTopics(selectedTopicId, subMode) {
   const loadingEl = document.getElementById('topicLoading');
 
   try {
-    // 加载线路列表
     const response = await fetch('/api/subscription/topics');
     const data = await response.json();
 
     if (loadingEl) loadingEl.remove();
     if (!container) return;
-
     container.innerHTML = '';
 
     const isLoggedIn = localStorage.getItem('auth_token');
-    const isFavorites = subMode === 'favorites' || selectedTopicId === 'favorites';
+    const isFavorites = subMode === 'favorites';
 
     if (!data.topics || data.topics.length === 0) {
-      container.innerHTML = '<span style="color: var(--text-muted); font-size: 0.9rem;">暂无可用线路</span>';
+      container.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">暂无线路</div>';
       return;
     }
 
-    // 创建线路卡片
+    // 线路选项
     data.topics.forEach(topic => {
-      const card = document.createElement('div');
       const isSelected = !isFavorites && selectedTopicId == topic.id;
-      card.className = 'theme-card' + (isSelected ? ' selected' : '');
-      card.dataset.topic = topic.id;
-      const desc = topic.description || '';
-      card.innerHTML = '<div class="theme-card-name">' + topic.name + '</div>' + (desc ? '<div class="theme-card-desc">' + desc + '</div>' : '');
-      card.onclick = () => saveTopic(topic.id, topic.name);
-      container.appendChild(card);
+      const div = document.createElement('div');
+      div.className = 'topic-option' + (isSelected ? ' selected' : '');
+      div.textContent = topic.name;
+      div.onclick = () => saveTopic(topic.id);
+      container.appendChild(div);
     });
 
-    // 如果登录，添加"我的收藏"卡片
+    // 我的收藏
     if (isLoggedIn) {
-      const favCard = document.createElement('div');
-      favCard.className = 'theme-card' + (isFavorites ? ' selected' : '');
-      favCard.dataset.topic = 'favorites';
-      favCard.innerHTML = '<div class="theme-card-name">我的收藏</div><div class="theme-card-desc">仅返回您收藏的频道</div>';
-      favCard.onclick = () => saveTopic('favorites', '我的收藏');
-      container.appendChild(favCard);
+      const div = document.createElement('div');
+      div.className = 'topic-option' + (isFavorites ? ' selected' : '');
+      div.textContent = '我的收藏';
+      div.onclick = () => saveTopic('favorites');
+      container.appendChild(div);
     }
 
   } catch (e) {
-    console.error('加载线路失败:', e);
-    if (loadingEl) loadingEl.textContent = '加载失败，请刷新页面';
+    console.error('加载失败:', e);
+    if (loadingEl) loadingEl.textContent = '加载失败';
   }
 }
+}
 
-async function saveTopic(topicId, topicName) {
+async function saveTopic(topicId) {
   const code = window._currentCode;
   if (!code) return;
 
@@ -1491,15 +1473,18 @@ async function saveTopic(topicId, topicName) {
     const data = await response.json();
     if (data.success) {
       // 更新选中状态
-      document.querySelectorAll('.theme-card').forEach(card => {
-        card.classList.remove('selected');
-        if (card.dataset.topic == topicId) card.classList.add('selected');
+      document.querySelectorAll('.topic-option').forEach(el => {
+        el.classList.remove('selected');
+        // 判断是否当前选中
+        const isMatch = (topicId === 'favorites' && el.textContent === '我的收藏') ||
+                       (el.textContent && el.onclick && el.onclick.toString().includes(topicId.toString()));
+        if (isMatch) el.classList.add('selected');
       });
-    } else {
-      console.error('保存线路失败:', data.error);
+      // 简单处理：刷新页面重新加载
+      setTimeout(() => loadTopics(data.topic_id || null, topicId === 'favorites' ? 'favorites' : null), 300);
     }
   } catch (e) {
-    console.error('保存线路错误:', e);
+    console.error('保存失败:', e);
   }
 }
 
