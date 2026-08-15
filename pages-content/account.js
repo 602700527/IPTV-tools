@@ -289,66 +289,6 @@ export const styles = `
     gap: 8px;
   }
 
-  .sub-mode-selector {
-    display: flex;
-    gap: 12px;
-    margin-top: 8px;
-  }
-
-  .mode-option {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 13px;
-    color: var(--text-secondary);
-  }
-
-  .mode-option:hover {
-    border-color: var(--accent);
-    color: var(--text-primary);
-  }
-
-  .mode-option:has(input:checked) {
-    border-color: var(--accent);
-    background: rgba(229, 9, 20, 0.1);
-    color: var(--text-primary);
-  }
-
-  .mode-option input {
-    accent-color: var(--accent);
-    cursor: pointer;
-  }
-
-  .sub-mode-hint {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-top: 6px;
-  }
-
-  .topic-option {
-    padding: 10px 16px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.1);
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.9rem;
-    margin-bottom: 6px;
-  }
-  .topic-option:hover {
-    border-color: rgba(229,9,20,0.4);
-    background: rgba(229,9,20,0.05);
-  }
-  .topic-option.selected {
-    border-color: var(--accent);
-    background: rgba(229,9,20,0.15);
-    color: var(--accent);
-  }
-
   .sub-format-radios { display: flex; gap: 10px; margin-bottom: 10px; }
   .sub-format-radios-modal { justify-content: center; margin-bottom: 16px; }
   .format-radio { color: var(--text-secondary); font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); transition: all 0.2s; }
@@ -1030,12 +970,6 @@ export const content = `
                 <span class="subscription-status active" id="subscriptionStatus"><span class="dot"></span> Active</span>
               </div>
               <div class="subscription-details">
-                <div class="subscription-detail" style="grid-column: span 2;">
-                  <span class="subscription-detail-label">线路选择</span>
-                  <div id="topicSelector">
-                    <div class="topic-loading" id="topicLoading">加载中...</div>
-                  </div>
-                </div>
                 <div class="subscription-detail">
                   <span class="subscription-detail-label">订阅网址</span>
                   <span class="subscription-detail-value code">
@@ -1371,12 +1305,7 @@ async function loadVipStatus() {
 
       const baseUrl = window.location.origin;
       window._vipCodeBase = baseUrl + '/sub/' + latestOrder.code;
-      window._currentCode = latestOrder.code;
       if (vipCodeEl) vipCodeEl.dataset.code = latestOrder.code;
-      
-      // 加载线路（包含我的收藏）
-      loadTopics(latestOrder.topic_id, latestOrder.sub_mode);
-
       updateVipCodeFormat();
 
       let expiryText = 'Permanent';
@@ -1413,81 +1342,6 @@ function updateVipCodeFormat() {
   const vipCodeEl = document.getElementById('vipCode');
   if (vipCodeEl) vipCodeEl.textContent = window._vipCodeBase + '.' + getVipFormat();
 }
-async function loadTopics(selectedTopicId, subMode) {
-  const container = document.getElementById('topicSelector');
-  const loadingEl = document.getElementById('topicLoading');
-
-  try {
-    const response = await fetch('/api/subscription/topics');
-    const data = await response.json();
-
-    if (loadingEl) loadingEl.remove();
-    if (!container) return;
-    container.innerHTML = '';
-
-    const isLoggedIn = localStorage.getItem('auth_token');
-    const isFavorites = subMode === 'favorites';
-
-    if (!data.topics || data.topics.length === 0) {
-      container.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">暂无线路</div>';
-      return;
-    }
-
-    // 线路选项
-    data.topics.forEach(topic => {
-      const isSelected = !isFavorites && selectedTopicId == topic.id;
-      const div = document.createElement('div');
-      div.className = 'topic-option' + (isSelected ? ' selected' : '');
-      div.textContent = topic.name;
-      div.onclick = () => saveTopic(topic.id);
-      container.appendChild(div);
-    });
-
-    // 我的收藏
-    if (isLoggedIn) {
-      const div = document.createElement('div');
-      div.className = 'topic-option' + (isFavorites ? ' selected' : '');
-      div.textContent = '我的收藏';
-      div.onclick = () => saveTopic('favorites');
-      container.appendChild(div);
-    }
-
-  } catch (e) {
-    console.error('加载失败:', e);
-    if (loadingEl) loadingEl.textContent = '加载失败';
-  }
-}
-}
-
-async function saveTopic(topicId) {
-  const code = window._currentCode;
-  if (!code) return;
-
-  try {
-    const response = await fetch('/api/user/change-topic?code=' + code, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ topic_id: topicId === 'favorites' ? null : topicId })
-    });
-
-    const data = await response.json();
-    if (data.success) {
-      // 更新选中状态
-      document.querySelectorAll('.topic-option').forEach(el => {
-        el.classList.remove('selected');
-        // 判断是否当前选中
-        const isMatch = (topicId === 'favorites' && el.textContent === '我的收藏') ||
-                       (el.textContent && el.onclick && el.onclick.toString().includes(topicId.toString()));
-        if (isMatch) el.classList.add('selected');
-      });
-      // 简单处理：刷新页面重新加载
-      setTimeout(() => loadTopics(data.topic_id || null, topicId === 'favorites' ? 'favorites' : null), 300);
-    }
-  } catch (e) {
-    console.error('保存失败:', e);
-  }
-}
-
 function copyVipCode() {
   const vipCodeEl = document.getElementById('vipCode');
   if (!vipCodeEl) { console.error('vipCode element not found'); return; }
