@@ -1285,7 +1285,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
       document.querySelectorAll('.theme-card').forEach(card => {
         card.classList.remove('selected');
-        if (card.dataset.theme === themeId) {
+        // 确保类型一致（都是字符串）
+        if (card.dataset.theme === themeId.toString()) {
           card.classList.add('selected');
         }
       });
