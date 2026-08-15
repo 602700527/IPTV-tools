@@ -1295,7 +1295,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         card.classList.remove('selected');
         const cardTheme = card.dataset.theme;
         if (themeId === null) {
-          if (cardTheme === 'all' || cardTheme === 'favorites') {
+          // 点击"全部频道"，只选中全部频道
+          if (cardTheme === 'all') {
             card.classList.add('selected');
           }
         } else if (cardTheme === themeId.toString()) {
