@@ -1319,7 +1319,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       // 检查登录状态
       const isLoggedIn = localStorage.getItem('auth_token');
       if (!isLoggedIn) {
-        showToast(currentLang === 'zh-CN' ? '请先登录后再订阅' : 'Please login first', 'error');
+        showToast('Please login first', 'error');
         window.location.href = '/login?redirect=/subscription';
         return;
       }
