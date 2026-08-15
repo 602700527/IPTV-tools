@@ -1271,16 +1271,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
         if (data.success && data.topics.length > 0) {
           const grid = document.getElementById('themeGrid');
-          const icons = ['🎬', '⚽', '🎵', '📰', '🌍', '🎮', '🏀', '⚾'];
 
           data.topics.forEach((topic, index) => {
             const card = document.createElement('div');
             card.setAttribute('class', 'theme-card');
             card.onclick = () => selectTheme(topic.id);
             card.dataset.theme = topic.id;
-            const icon = icons[index % icons.length];
             const desc = topic.description || '精选频道';
-            card.innerHTML = '<div class="theme-card-icon">' + icon + '</div><div class="theme-card-name">' + topic.name + '</div><div class="theme-card-desc">' + desc + '</div>';
+            card.innerHTML = '<div class="theme-card-name">' + topic.name + '</div><div class="theme-card-desc">' + desc + '</div>';
             grid.appendChild(card);
           });
         }
