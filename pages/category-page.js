@@ -1050,7 +1050,7 @@ export function generateCategoryPage(options = {}) {
 
     // Select all toggle
 
-    function toggleSelectAll() {
+    function toggleSelectAllReal() {
 
       const selectAll = document.getElementById('selectAll');
 
@@ -1126,7 +1126,7 @@ export function generateCategoryPage(options = {}) {
 
     // Toggle favorite
 
-    function toggleFavorite(btn) {
+    function toggleFavoriteReal(btn) {
 
       // Check if user is logged in
       const token = localStorage.getItem('auth_token');
@@ -1184,7 +1184,7 @@ export function generateCategoryPage(options = {}) {
 
     // Shuffle channels (display random order)
 
-    function shuffleChannels() {
+    function shuffleChannelsReal() {
 
       const channelList = document.getElementById('channelList');
 
@@ -1435,7 +1435,7 @@ export function generateCategoryPage(options = {}) {
 
     //   selected    = total selection size (for empty/all-skipped edge cases)
 
-    function addSelectedToFavorites() {
+    function addSelectedToFavoritesReal() {
 
       // Check if user is logged in
       const token = localStorage.getItem('auth_token');
@@ -1861,6 +1861,13 @@ export function generateCategoryPage(options = {}) {
 
     if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initTranslate); } else { initTranslate(); }
 
+    // Expose functions to global scope
+    window.toggleFavorite = toggleFavoriteReal;
+    window.addSelectedToFavorites = addSelectedToFavoritesReal;
+    window.toggleSelectAll = toggleSelectAllReal;
+    window.downloadSelectedM3U = downloadSelectedM3UReal;
+    window.shuffleChannels = shuffleChannelsReal;
+
   </script>
 
 
