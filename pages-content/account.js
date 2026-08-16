@@ -110,7 +110,7 @@ export const styles = `
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 24px;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: all 0.3s ease;
   }
 
   .card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
@@ -125,7 +125,7 @@ export const styles = `
   }
 
   .card-title {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     color: var(--text-primary);
     display: flex;
@@ -133,57 +133,66 @@ export const styles = `
     gap: 10px;
   }
 
-  .card-title svg { width: 22px; height: 22px; color: var(--accent); }
+  .card-title svg { width: 20px; height: 20px; color: var(--accent); }
 
   .profile-hero {
     background: var(--bg-card);
-    border-radius: var(--radius);
-    padding: 0;
     border: 1px solid var(--border);
+    border-radius: var(--radius);
     overflow: hidden;
     position: relative;
+  }
+
+  .profile-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-neon);
   }
 
   .profile-hero-content { padding: 28px; }
 
   .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; }
 
-  .avatar-wrapper { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
+  .avatar-wrapper { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
 
   .avatar {
-    width: 72px;
-    height: 72px;
+    width: 64px;
+    height: 64px;
     border-radius: var(--radius);
     background: var(--accent);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     color: #fff;
     position: relative;
     z-index: 1;
+    box-shadow: 0 4px 12px var(--accent-glow);
   }
 
   .avatar-ring {
     position: absolute;
-    inset: -4px;
+    inset: -3px;
     border-radius: var(--radius);
     background: var(--accent);
-    opacity: 0.8;
+    opacity: 0;
+    transition: opacity 0.3s;
   }
 
-  .avatar-ring.vip-ring { opacity: 1; }
-
-  @keyframes rotate { to { transform: rotate(360deg); } }
+  .avatar-ring.vip-ring { opacity: 0.4; }
 
   .profile-info { flex: 1; min-width: 0; }
 
   .profile-name {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -193,36 +202,37 @@ export const styles = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
-    background: var(--tier-gold);
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, var(--tier-gold), #ffaa00);
     border-radius: var(--radius);
     font-size: 12px;
-    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
   }
 
-  .vip-star svg { width: 14px; height: 14px; fill: #000; stroke: none; }
+  .vip-star svg { width: 13px; height: 13px; fill: #000; stroke: none; }
 
-  .profile-email { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
+  .profile-email { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
 
   .profile-badges { display: flex; gap: 8px; flex-wrap: wrap; }
 
   .badge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
+    gap: 5px;
+    padding: 5px 10px;
     border-radius: var(--radius);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 
   .badge-vip {
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 170, 0, 0.1));
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 170, 0, 0.1));
     color: var(--tier-gold);
-    border: 1px solid rgba(255, 215, 0, 0.3);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.1);
   }
 
   .badge-verified {
@@ -311,7 +321,7 @@ export const styles = `
   .perks-section { margin-bottom: 20px; }
 
   .perks-title {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--text-muted);
     text-transform: uppercase;
@@ -324,16 +334,23 @@ export const styles = `
   .perk-item {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
+    gap: 8px;
+    padding: 10px 14px;
     background: var(--bg-hover);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
     font-size: 12px;
     color: var(--text-secondary);
-    border: 1px solid var(--glass-border);
+    transition: all 0.2s;
   }
 
-  .perk-item svg { width: 14px; height: 14px; color: var(--success); }
+  .perk-item:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+  }
+
+  .perk-item svg { width: 14px; height: 14px; color: var(--success); flex-shrink: 0; }
 
   /* ========== 线路方案切换 ========== */
   .scheme-section {
@@ -386,12 +403,12 @@ export const styles = `
   .scheme-vip-lock a { color: var(--accent); text-decoration: none; font-weight: 600; }
   .scheme-vip-lock a:hover { text-decoration: underline; }
 
-  .profile-actions { display: flex; gap: 10px; }
+  .profile-actions { display: flex; gap: 12px; margin-top: 4px; }
 
   .btn-renew {
     flex: 1;
     padding: 12px 20px;
-    background: var(--accent);
+    background: var(--gradient-neon);
     color: #fff;
     border: none;
     border-radius: var(--radius);
@@ -403,10 +420,10 @@ export const styles = `
     align-items: center;
     justify-content: center;
     gap: 8px;
+    box-shadow: 0 4px 12px var(--accent-glow);
   }
 
-  .btn-renew:hover { transform: translateY(-2px); opacity: 0.9; }
-
+  .btn-renew:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--accent-glow); }
   .btn-renew svg { width: 16px; height: 16px; }
 
   .btn-plans {
@@ -414,7 +431,7 @@ export const styles = `
     padding: 12px 20px;
     background: transparent;
     color: var(--text-secondary);
-    border: 1px solid var(--glass-border);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
     font-size: 13px;
     font-weight: 600;
@@ -422,7 +439,7 @@ export const styles = `
     transition: all 0.25s;
   }
 
-  .btn-plans:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .btn-plans:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-hover); }
 
   .info-panel {
     background: var(--bg-card);
