@@ -1074,7 +1074,7 @@ export const content = `
                 <span class="subscription-status active" id="subscriptionStatus"><span class="dot"></span> Active</span>
               </div>
               <div class="subscription-details">
-                <div class="subscription-detail url-section">
+                <div class="subscription-detail url-row">
                   <span class="subscription-detail-label">订阅网址</span>
                   <span class="subscription-detail-value code">
                     <div class="sub-format-radios">
