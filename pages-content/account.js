@@ -313,7 +313,8 @@ export const styles = `
   }
 
   .subscription-detail.info-row {
-    display: flex;
+    display: flex !important;
+    flex-direction: row !important;
     gap: 32px;
     padding-top: 12px;
     border-top: 1px solid var(--border);
