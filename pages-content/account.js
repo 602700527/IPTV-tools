@@ -299,24 +299,24 @@ export const styles = `
   .subscription-details {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-  }
-
-  .subscription-detail.url-section {
-    width: 100%;
-  }
-
-  .subscription-detail.info-row {
-    display: flex;
-    gap: 24px;
-    padding-top: 12px;
-    border-top: 1px solid var(--border);
+    gap: 12px;
   }
 
   .subscription-detail {
     display: flex;
     flex-direction: column;
     gap: 6px;
+  }
+
+  .subscription-detail.url-row {
+    width: 100%;
+  }
+
+  .subscription-detail.info-row {
+    display: flex;
+    gap: 32px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
   }
 
   .subscription-detail-label { font-size: 11px; color: var(--text-muted); }
