@@ -844,9 +844,10 @@ export async function handleGetOrderHistory(request, env, ctx) {
       });
     }
 
-    // 查询订单历史，关联codes表获取IP限制和过期时间
+    // 查询订单历史，关联codes表获取IP限制、过期时间和线路方案
     const ordersResult = await db.prepare(`
-      SELECT o.*, c.max_ips, c.expired_at, c.duration_days as code_duration_days
+      SELECT o.*, c.max_ips, c.expired_at, c.duration_days as code_duration_days,
+             c.topic_id, c.sub_mode
       FROM user_orders o
       LEFT JOIN codes c ON o.code = c.code
       WHERE o.user_id = ?

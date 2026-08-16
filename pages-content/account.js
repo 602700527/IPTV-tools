@@ -335,6 +335,57 @@ export const styles = `
 
   .perk-item svg { width: 14px; height: 14px; color: var(--success); }
 
+  /* ========== 线路方案切换 ========== */
+  .scheme-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .scheme-section-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .scheme-section-title {
+    font-size: 14px; font-weight: 700; color: var(--text-primary);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .scheme-section-title svg { width: 18px; height: 18px; color: var(--accent); }
+  .scheme-section-hint { font-size: 12px; color: var(--text-muted); }
+  .scheme-section-hint a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .scheme-section-hint a:hover { text-decoration: underline; }
+  .scheme-switcher { display: flex; flex-wrap: wrap; gap: 8px; }
+  .scheme-chip {
+    padding: 8px 16px;
+    font-size: 13px;
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+    font-weight: 500;
+  }
+  .scheme-chip:hover:not(:disabled) {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+  }
+  .scheme-chip.selected {
+    background: rgba(229, 9, 20, 0.15);
+    color: var(--text-primary);
+    border-color: var(--accent);
+  }
+  .scheme-chip:disabled { opacity: 0.5; cursor: not-allowed; }
+  .scheme-vip-lock {
+    margin-top: 10px; font-size: 12px; color: var(--text-muted);
+  }
+  .scheme-vip-lock a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .scheme-vip-lock a:hover { text-decoration: underline; }
+
   .profile-actions { display: flex; gap: 10px; }
 
   .btn-renew {
@@ -1017,6 +1068,20 @@ export const content = `
         </div>
       </div>
 
+      <div class="scheme-section" id="schemeSection" style="display:none;">
+        <div class="scheme-section-header">
+          <span class="scheme-section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            线路方案
+          </span>
+          <span class="scheme-section-hint" id="schemeSectionHint"></span>
+        </div>
+        <div class="scheme-switcher" id="schemeSwitcher"></div>
+        <div class="scheme-vip-lock" id="schemeVipLock" style="display:none;">
+          🔒 切换线路方案为 VIP 专属功能。<a href="/freesub">开通 VIP →</a>
+        </div>
+      </div>
+
       <div id="ordersTab" class="tab-panel" style="display: none;">
         <div class="card">
           <div class="card-header">
@@ -1327,9 +1392,45 @@ async function loadVipStatus() {
       const dayUnit = currentLang === 'zh-CN' ? ' 天' : ' days';
       if (vipDurationEl) vipDurationEl.textContent = latestOrder.duration_days ? latestOrder.duration_days + dayUnit : '-';
       if (vipMaxIpsEl) vipMaxIpsEl.textContent = latestOrder.max_ips || 3;
+
+      // 初始化线路方案
+      latestActiveCode = latestOrder.code;
+      isVipActive = !isExpired;  // VIP 门控：有 active 订阅即可
+      if (latestOrder.sub_mode === 'favorites') currentScheme = { type: 'favorites' };
+      else if (latestOrder.topic_id) currentScheme = { type: 'topic', id: latestOrder.topic_id };
+      else currentScheme = { type: 'all' };
+      const schemeEl = document.getElementById('schemeSection');
+      const hintEl = document.getElementById('schemeSectionHint');
+      if (schemeEl) {
+        schemeEl.style.display = 'block';
+        if (hintEl) {
+          if (isExpired) {
+            hintEl.textContent = currentLang === 'zh-CN' ? '订阅已过期，无法切换' : 'Subscription expired';
+          } else {
+            hintEl.innerHTML = (currentLang === 'zh-CN' ? '切换后立即生效，订阅地址不变 · 当前：' : 'Takes effect immediately · Current: ');
+          }
+        }
+        loadSchemes();
+      }
+    } else {
+      // 无 completed 订单
+      latestActiveCode = null;
+      currentScheme = { type: 'all' };
+      const schemeEl = document.getElementById('schemeSection');
+      if (schemeEl) {
+        schemeEl.style.display = 'block';
+        const hintEl = document.getElementById('schemeSectionHint');
+        if (hintEl) hintEl.textContent = currentLang === 'zh-CN' ? '激活订阅后可切换方案' : 'Activate subscription to switch';
+        loadSchemes();
+      }
     }
   } catch (error) {
     console.error('加载VIP状态失败:', error);
+    const schemeEl = document.getElementById('schemeSection');
+    if (schemeEl) {
+      schemeEl.style.display = 'block';
+      loadSchemes();
+    }
   }
 }
 
@@ -1341,6 +1442,144 @@ function updateVipCodeFormat() {
   if (!window._vipCodeBase) return;
   const vipCodeEl = document.getElementById('vipCode');
   if (vipCodeEl) vipCodeEl.textContent = window._vipCodeBase + '.' + getVipFormat();
+}
+
+// ============ 线路方案切换 ============
+let currentScheme = { type: 'all' }; // {type:'all'|'favorites'|'topic', id?:number|string}
+let availableSchemes = [];
+let latestActiveCode = null;
+let schemeSwitching = false;
+let isVipActive = false; // 由 loadVipStatus 根据 active 订阅设置
+
+function isCurrentScheme(s) {
+  if (currentScheme.type === 'all') return s.type === 'all';
+  if (currentScheme.type === 'favorites') return s.type === 'favorites';
+  if (currentScheme.type === 'topic') return s.type === 'topic' && String(currentScheme.id) === String(s.id);
+  return false;
+}
+
+function renderSchemeSwitcher() {
+  const container = document.getElementById('schemeSwitcher');
+  if (!container) return;
+  if (availableSchemes.length === 0) {
+    container.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">' +
+      (currentLang === 'zh-CN' ? '暂无可用方案' : 'No schemes available') + '</span>';
+    return;
+  }
+  const parts = [];
+  for (const s of availableSchemes) {
+    const selected = isCurrentScheme(s);
+    const safeName = String(s.name).replace(/[&<>"']/g, function (c) {
+      const m = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+      return m[c];
+    });
+    const cls = 'scheme-chip' + (selected ? ' selected' : '');
+    const dis = (schemeSwitching || !isVipActive) ? ' disabled' : '';
+    parts.push('<button type="button" class="' + cls + '" data-type="' + s.type + '" data-id="' + s.id + '"' + dis + '>' + safeName + '</button>');
+  }
+  container.innerHTML = parts.join('');
+  container.querySelectorAll('.scheme-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      selectScheme(chip.dataset.type, chip.dataset.id);
+    });
+  });
+
+  // VIP 锁提示
+  const lockEl = document.getElementById('schemeVipLock');
+  if (lockEl) lockEl.style.display = (!isVipActive && latestActiveCode === null) ? 'block' : 'none';
+}
+
+async function loadSchemes() {
+  try {
+    const resp = await fetch('/api/subscription/topics');
+    const data = await resp.json();
+    const topics = (data && data.success && Array.isArray(data.topics)) ? data.topics : [];
+    availableSchemes = [
+      { type: 'all', id: 'all', name: currentLang === 'zh-CN' ? '全部频道' : 'All Channels' },
+      { type: 'favorites', id: 'favorites', name: currentLang === 'zh-CN' ? '我的收藏' : 'My Favorites' },
+    ];
+    topics.forEach(function (t) { availableSchemes.push({ type: 'topic', id: t.id, name: t.name }); });
+    renderSchemeSwitcher();
+  } catch (err) {
+    console.error('Failed to load schemes:', err);
+    const c = document.getElementById('schemeSwitcher');
+    if (c) c.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">' +
+      (currentLang === 'zh-CN' ? '加载失败' : 'Load failed') + '</span>';
+  }
+}
+
+async function checkFavoritesCount() {
+  try {
+    const token = getToken();
+    const resp = await fetch('/api/favorites', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!resp.ok) return 0;
+    const data = await resp.json();
+    return (data && data.success) ? (data.count || 0) : 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
+async function selectScheme(type, id) {
+  if (schemeSwitching) return;
+  if (!isVipActive) {
+    showToast((currentLang === 'zh-CN' ? '切换线路方案为 VIP 专属功能，请先' : 'VIP only. Please ') +
+      '<a href="/freesub" style="color:#fff;font-weight:600;text-decoration:underline;">' +
+      (currentLang === 'zh-CN' ? '开通 VIP' : 'subscribe') + ' →</a>', 'error', 6000);
+    return;
+  }
+  if (!latestActiveCode) {
+    showToast(currentLang === 'zh-CN' ? '暂未激活订阅' : 'No active subscription', 'error');
+    return;
+  }
+  if (isCurrentScheme({ type: type, id: id })) return;
+
+  // 我的收藏：先检查收藏数
+  if (type === 'favorites') {
+    const count = await checkFavoritesCount();
+    if (count === 0) {
+      showToast((currentLang === 'zh-CN' ?
+        '你还没有任何收藏，请先到<a href="/favorites" style="color:#fff;font-weight:600;text-decoration:underline;">收藏页</a>添加频道' :
+        'No favorites yet. Add some at <a href="/favorites">/favorites</a>'), 'warning', 6000);
+      return;
+    }
+  }
+
+  let nextSubMode = null;
+  let nextTopicId = null;
+  if (type === 'all') { nextSubMode = null; nextTopicId = null; }
+  else if (type === 'favorites') { nextSubMode = 'favorites'; nextTopicId = null; }
+  else if (type === 'topic') { nextSubMode = null; nextTopicId = Number(id); }
+  else { return; }
+
+  schemeSwitching = true;
+  renderSchemeSwitcher();
+  const token = getToken();
+  const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+  try {
+    const subUrl = '/api/user/change-sub-mode?code=' + encodeURIComponent(latestActiveCode);
+    const subResp = await fetch(subUrl, { method: 'POST', headers, body: JSON.stringify({ sub_mode: nextSubMode }) });
+    const subData = await subResp.json();
+    if (!subResp.ok || !subData.success) throw new Error(subData.error || ('HTTP ' + subResp.status));
+
+    const topicUrl = '/api/change-topic?code=' + encodeURIComponent(latestActiveCode);
+    const topicResp = await fetch(topicUrl, { method: 'POST', headers, body: JSON.stringify({ topic_id: nextTopicId }) });
+    const topicData = await topicResp.json();
+    if (!topicResp.ok || !topicData.success) throw new Error(topicData.error || ('HTTP ' + topicResp.status));
+
+    currentScheme = (type === 'topic') ? { type: type, id: nextTopicId } : { type: type };
+    renderSchemeSwitcher();
+    showToast(currentLang === 'zh-CN' ? '线路方案已更新' : 'Scheme updated', 'success', 3000);
+  } catch (err) {
+    console.error('Scheme change failed:', err);
+    showToast(currentLang === 'zh-CN' ? '更新失败：' + err.message : 'Update failed: ' + err.message, 'error', 5000);
+    renderSchemeSwitcher();
+  } finally {
+    schemeSwitching = false;
+    renderSchemeSwitcher();
+  }
 }
 function copyVipCode() {
   const vipCodeEl = document.getElementById('vipCode');
@@ -1578,8 +1817,9 @@ async function logout() {
   }
 }
 
-function showToast(message, type) {
+function showToast(message, type, duration) {
   type = type || 'info';
+  const ms = (typeof duration === 'number' && duration > 0) ? duration : 3000;
   const container = document.getElementById('toastContainer');
   const toastEl = document.createElement('div');
   toastEl.className = 'toast ' + type;
@@ -1590,7 +1830,7 @@ function showToast(message, type) {
     toastEl.style.opacity = '0';
     toastEl.style.transform = 'translateY(-10px)';
     setTimeout(() => toastEl.remove(), 300);
-  }, 3000);
+  }, ms);
 }
 
 function getModalFormat() {

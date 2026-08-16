@@ -783,6 +783,8 @@ export async function createTables(env) {
         xunhupay_order_id TEXT,
         xunhupay_transaction_id TEXT,
         notify_received BOOLEAN DEFAULT 0,
+        topic_id INTEGER,
+        sub_mode TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )

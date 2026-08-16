@@ -84,13 +84,15 @@ export async function generateActivationCode(env, durationDays, maxIPs, userId, 
       expiredAt = calculateStackedExpiry(existingCode.expired_at, durationDays);
       isStacked = true;
 
+      // 续费场景：只延长过期时间和更新 duration_days
+      // 保留 topic_id / sub_mode（前端在续费时已隐藏选择器，方案变更请走账户页）
       await env.DB.prepare(`
         UPDATE codes
-        SET expired_at = ?, duration_days = ?, topic_id = ?, sub_mode = ?
+        SET expired_at = ?, duration_days = ?
         WHERE code = ?
-      `).bind(expiredAt ? expiredAt.toISOString() : null, durationDays, topicId || null, subMode, code).run();
+      `).bind(expiredAt ? expiredAt.toISOString() : null, durationDays, code).run();
 
-      console.log('[Subscription] Stacked code:', code, 'for user:', userId, 'topic:', topicId, 'mode:', subMode);
+      console.log('[Subscription] Stacked code:', code, 'for user:', userId, 'scheme preserved');
     } else {
       code = generateCode();
 

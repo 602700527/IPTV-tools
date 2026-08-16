@@ -75,7 +75,7 @@ export async function handleCreateXunhuPayOrder(request, env, ctx) {
     }
 
     const body = await request.json();
-    const { duration_days, max_ips, payment_method } = body;
+    const { duration_days, max_ips, payment_method, topic_id = null, sub_mode = null } = body;
 
     // 验证参数
     if (!duration_days || (duration_days !== -1 && (duration_days < 1 || duration_days > 365))) {
@@ -244,9 +244,9 @@ export async function handleCreateXunhuPayOrder(request, env, ctx) {
 
     // 保存订单信息到数据库
     await env.DB.prepare(`
-      INSERT INTO xunhupay_orders (order_id, user_id, trade_order_id, payment_method, amount, duration_days, max_ips, status, xunhupay_order_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)
-    `).bind(tradeOrderId, user.id, tradeOrderId, payment_method, price.discounted, duration_days, max_ips, standardizedPaymentData.openid || '').run();
+      INSERT INTO xunhupay_orders (order_id, user_id, trade_order_id, payment_method, amount, duration_days, max_ips, status, xunhupay_order_id, topic_id, sub_mode)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)
+    `).bind(tradeOrderId, user.id, tradeOrderId, payment_method, price.discounted, duration_days, max_ips, standardizedPaymentData.openid || '', topic_id || null, sub_mode).run();
 
     console.log('[XunhuPay] Order created:', tradeOrderId, 'for user:', user.id);
 
@@ -365,7 +365,7 @@ export async function handleXunhuPayNotify(request, env, ctx) {
       WHERE id = ?
     `).bind(data.open_order_id || '', data.transaction_id || '', order.id).run();
 
-    // 生成卡密
+    // 生成卡密（带 topic_id / sub_mode 保留订阅人选择的方案）
     const url = new URL(request.url);
     const baseUrl = `${url.protocol}//${url.host}`;
     const result = await generateActivationCode(
@@ -373,8 +373,10 @@ export async function handleXunhuPayNotify(request, env, ctx) {
       order.duration_days,
       order.max_ips,
       order.user_id,
+      order.topic_id || null,
       false,
-      baseUrl
+      baseUrl,
+      order.sub_mode || null
     );
 
     if (result.success) {
@@ -850,15 +852,17 @@ export async function handleSimulatePaymentSuccess(request, env, ctx) {
       WHERE id = ?
     `).bind(order.id).run();
 
-    // 生成卡密
+    // 生成卡密（带 topic_id / sub_mode）
     const baseUrl = `${url.protocol}//${url.host}`;
     const result = await generateActivationCode(
       env,
       order.duration_days,
       order.max_ips,
       order.user_id,
+      order.topic_id || null,
       false,
-      baseUrl
+      baseUrl,
+      order.sub_mode || null
     );
 
     if (result.success) {

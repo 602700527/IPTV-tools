@@ -655,6 +655,25 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 12px;
     }
+
+    /* 续费场景的方案保留提示 */
+    .scheme-renewal-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      background: rgba(229, 9, 20, 0.08);
+      border: 1px solid rgba(229, 9, 20, 0.25);
+      border-radius: 0;
+      margin-bottom: 14px;
+    }
+    .scheme-renewal-icon { font-size: 22px; line-height: 1; flex-shrink: 0; }
+    .scheme-renewal-content { flex: 1; min-width: 0; }
+    .scheme-renewal-title { font-size: 14px; color: var(--text-primary); margin-bottom: 4px; }
+    .scheme-renewal-title strong { color: var(--accent); }
+    .scheme-renewal-hint { font-size: 12px; color: var(--text-secondary); }
+    .scheme-renewal-hint a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .scheme-renewal-hint a:hover { text-decoration: underline; }
     .theme-card {
       background: rgba(255,255,255,0.03);
       border: 2px solid rgba(255,255,255,0.08);
@@ -825,6 +844,202 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       .solution-grid { grid-template-columns: 1fr; }
       .testimonial-card { flex: 0 0 280px; }
     }
+
+    /* ========== 加载遮罩 ========== */
+    .loading {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 2500;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .loading.show { display: flex; }
+    .loading p { color: #fff; font-size: 14px; }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ========== 支付模态框 ========== */
+    .payment-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .payment-modal.show { display: flex; }
+    .payment-content {
+      background: var(--bg-secondary);
+      border: var(--border);
+      border-radius: 0;
+      padding: 0;
+      max-width: 480px;
+      width: 100%;
+      animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes modalSlideIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .payment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: var(--border);
+    }
+    .payment-title {
+      font-size: 1.1rem; font-weight: 800; margin: 0;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .payment-title::before {
+      content: ''; width: 4px; height: 18px;
+      background: var(--accent); border-radius: 0;
+    }
+    .payment-close {
+      background: transparent;
+      border: var(--border);
+      color: var(--text-secondary);
+      font-size: 20px; cursor: pointer;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .payment-close:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .payment-body { padding: 24px; }
+    .qrcode-section {
+      border: var(--border);
+      padding: 20px; text-align: center; margin-bottom: 18px;
+    }
+    .qrcode-wrapper {
+      background: #fff; padding: 12px;
+      display: inline-block; margin-bottom: 14px;
+    }
+    .modal-qrcode-image { width: 200px; height: 200px; display: block; }
+    .qrcode-tip {
+      color: var(--text-secondary);
+      font-size: 0.85rem; font-weight: 500;
+      margin: 0 0 10px 0;
+    }
+    .payment-method-indicator {
+      color: var(--text-secondary); font-size: 0.85rem; margin: 0 0 10px 0;
+    }
+    .payment-status {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--accent); font-size: 0.8rem; font-weight: 700;
+      padding: 6px 14px; border: 1px solid var(--accent);
+    }
+    .payment-status::before {
+      content: ''; width: 8px; height: 8px;
+      background: var(--accent); border-radius: 50%;
+      animation: statusBlink 1.5s ease-in-out infinite;
+    }
+    @keyframes statusBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .payment-info {
+      border: var(--border);
+      padding: 16px 20px; margin-bottom: 18px;
+    }
+    .payment-info-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: var(--border);
+    }
+    .payment-info-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .payment-info-item:first-child { padding-top: 0; }
+    .payment-info-label {
+      color: var(--text-secondary); font-size: 0.75rem;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .payment-info-value { font-size: 0.9rem; font-weight: 600; }
+    .payment-amount { color: var(--accent); font-size: 1.1rem; font-weight: 800; }
+    .payment-footer { padding: 16px 24px 20px; border-top: var(--border); }
+    .payment-test-button {
+      width: 100%; background: transparent; color: #4CAF50;
+      border: 1px solid #4CAF50; padding: 12px;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer;
+    }
+
+    /* ========== 成功模态框 ========== */
+    .success-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(10px);
+      z-index: 3000;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .success-modal.show { display: flex; }
+    .success-content {
+      background: var(--bg-secondary);
+      border: 1px solid var(--accent);
+      padding: 40px; max-width: 420px; text-align: center;
+      position: relative;
+    }
+    .success-icon { font-size: 60px; margin-bottom: 20px; }
+    .success-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 10px; }
+    .success-message {
+      color: var(--text-secondary); margin-bottom: 24px;
+      line-height: 1.6; font-size: 0.95rem;
+    }
+    .purchase-details {
+      border: var(--border); padding: 16px; margin-bottom: 16px;
+    }
+    .purchase-detail-item {
+      display: flex; justify-content: space-between;
+      padding: 8px 0; border-bottom: var(--border);
+    }
+    .purchase-detail-item:last-child { border-bottom: none; }
+    .purchase-detail-label { color: var(--text-secondary); font-size: 0.85rem; }
+    .purchase-detail-value { font-weight: 600; font-size: 0.85rem; }
+    .code-display {
+      border: 1px solid var(--border); padding: 14px;
+      font-family: 'SF Mono', 'Courier New', monospace;
+      font-size: 0.85rem; word-break: break-all;
+      margin-bottom: 16px; color: var(--accent);
+    }
+    .copy-button {
+      background: var(--accent); color: #fff; border: none;
+      padding: 14px 32px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; width: 100%; transition: background 0.2s;
+    }
+    .copy-button:hover { background: var(--accent-hover); }
+    .next-steps {
+      margin-top: 18px; padding-top: 14px; border-top: var(--border);
+    }
+    .next-steps-hint {
+      color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 8px;
+    }
+    .next-steps-link {
+      color: var(--accent); font-size: 0.9rem;
+      text-decoration: none; font-weight: 600;
+    }
+    .next-steps-link:hover { text-decoration: underline; }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 32px; height: 32px;
+      background: transparent; border: var(--border);
+      color: var(--text-secondary); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; transition: all 0.2s;
+    }
+    .modal-close:hover { background: var(--bg-hover); color: var(--text-primary); }
   </style>
 </head>
 <body>
@@ -1086,6 +1301,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           <div class="pricing-left">
             <div class="selector-group">
               <div class="selector-label">线路选择</div>
+              <div class="scheme-renewal-banner" id="schemeRenewalBanner" style="display:none;">
+                <div class="scheme-renewal-icon">🔁</div>
+                <div class="scheme-renewal-content">
+                  <div class="scheme-renewal-title">你当前是 <strong id="schemeRenewalName">—</strong> 方案</div>
+                  <div class="scheme-renewal-hint">续费后保持不变。需要修改请去 <a href="/account">账户页</a>。</div>
+                </div>
+              </div>
               <div class="theme-grid" id="themeGrid">
                 <!-- 动态加载线路 -->
               </div>
@@ -1188,6 +1410,79 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         <a href="/login#register" class="final-cta-btn">立即注册获取免费VIP →</a>
       </div>
     </section>
+
+  <!-- 加载遮罩 -->
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p>处理中...</p>
+  </div>
+
+  <!-- 支付模态框 -->
+  <div id="paymentModal" class="payment-modal">
+    <div class="payment-content">
+      <div class="payment-header">
+        <h2 class="payment-title">完成支付</h2>
+        <button class="payment-close" onclick="closePaymentModal()">×</button>
+      </div>
+      <div class="payment-body">
+        <div class="qrcode-section">
+          <div class="qrcode-wrapper">
+            <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="支付二维码">
+          </div>
+          <p class="qrcode-tip" id="modalQrcodeTip">请用支付宝/微信扫码支付</p>
+          <p class="payment-method-indicator" id="paymentMethodIndicator"></p>
+          <p class="payment-status" id="paymentStatus">等待支付中...</p>
+        </div>
+        <div class="payment-info">
+          <div class="payment-info-item">
+            <span class="payment-info-label">订阅方案</span>
+            <span class="payment-info-value" id="paymentPlanName">-</span>
+          </div>
+          <div class="payment-info-item">
+            <span class="payment-info-label">设备数</span>
+            <span class="payment-info-value" id="paymentIPCount">-</span>
+          </div>
+          <div class="payment-info-item">
+            <span class="payment-info-label">应付金额</span>
+            <span class="payment-info-value payment-amount" id="paymentAmount">-</span>
+          </div>
+        </div>
+      </div>
+      <div class="payment-footer">
+        <button id="simulatePaymentBtn" class="payment-test-button" style="display: none;" onclick="simulatePaymentSuccess()">[仅测试] 模拟支付成功</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 成功模态框 -->
+  <div id="successModal" class="success-modal">
+    <div class="success-content">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <div class="success-icon">✓</div>
+      <h2 class="success-title">支付成功！</h2>
+      <p class="success-message">您的 VIP 订阅已激活。复制下方订阅链接到播放器即可使用。</p>
+      <div class="purchase-details">
+        <div class="purchase-detail-item">
+          <span class="purchase-detail-label">订阅方案</span>
+          <span class="purchase-detail-value" id="successPlanName">-</span>
+        </div>
+        <div class="purchase-detail-item">
+          <span class="purchase-detail-label">设备数</span>
+          <span class="purchase-detail-value" id="successIPCount">-</span>
+        </div>
+        <div class="purchase-detail-item">
+          <span class="purchase-detail-label">实付金额</span>
+          <span class="purchase-detail-value" id="successAmount">-</span>
+        </div>
+      </div>
+      <div class="code-display" id="generatedCode">-</div>
+      <button class="copy-button" onclick="copyCode()">复制订阅链接</button>
+      <div class="next-steps">
+        <p class="next-steps-hint">下一步：</p>
+        <a href="/account" class="next-steps-link">前往账户页查看订阅 →</a>
+      </div>
+    </div>
+  </div>
   </main>
   
   ${PAGE_FOOTER}
@@ -1240,18 +1535,50 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     
     let selectedTheme = null;
+    let isRenewalFlow = false;       // 续费场景：true = 隐藏选择器，方案保持不变
+    let availableTopics = [];        // 当前可用的 topic 列表（含 id + name）
+
+    let checkPaymentInterval = null;
+    let currentOrderId = null;
 
     async function loadThemes() {
       try {
         const grid = document.getElementById('themeGrid');
         const isLoggedIn = localStorage.getItem('auth_token');
+        const banner = document.getElementById('schemeRenewalBanner');
 
-        // 1. 从后台加载线路列表
+        // 1. 检测续费场景：调 /api/auth/orders 拿当前 active code 的方案
+        if (isLoggedIn) {
+          try {
+            const ordersResp = await fetch('/api/auth/orders', {
+              headers: { 'Authorization': 'Bearer ' + isLoggedIn }
+            });
+            const ordersData = await ordersResp.json();
+            if (ordersResp.ok && ordersData.success && Array.isArray(ordersData.orders)) {
+              const completed = ordersData.orders.filter(function (o) { return o.status === 'completed'; });
+              const nowMs = Date.now();
+              const activeOrder = completed.find(function (o) {
+                if (!o.expired_at) return true;
+                return new Date(o.expired_at).getTime() > nowMs;
+              });
+              if (activeOrder) {
+                isRenewalFlow = true;
+                showRenewalBanner(activeOrder, grid, banner);
+                return;
+              }
+            }
+          } catch (e) {
+            console.error('Failed to detect renewal:', e);
+          }
+        }
+
+        // 2. 新订阅场景：从后台加载线路列表
         const response = await fetch('/api/subscription/topics');
         const data = await response.json();
+        availableTopics = (data.success && Array.isArray(data.topics)) ? data.topics : [];
 
-        if (data.success && data.topics.length > 0) {
-          data.topics.forEach((topic, index) => {
+        if (availableTopics.length > 0) {
+          availableTopics.forEach((topic, index) => {
             const card = document.createElement('div');
             card.className = 'theme-card' + (index === 0 ? ' selected' : '');
             card.onclick = () => selectTheme(topic.id);
@@ -1262,7 +1589,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           });
         }
 
-        // 2. 如果登录，添加"我的收藏"
+        // 3. 如果登录，添加"我的收藏"
         if (isLoggedIn) {
           const favCard = document.createElement('div');
           favCard.className = 'theme-card';
@@ -1272,8 +1599,34 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           grid.appendChild(favCard);
         }
       } catch (error) {
-        console.error('Failed to load topics:', error);
+        console.error('Failed to load themes:', error);
       }
+    }
+
+    function showRenewalBanner(activeOrder, grid, banner) {
+      // 先把 topics 也拉一份，用于解析 topic_id → name
+      if (availableTopics.length === 0) {
+        fetch('/api/subscription/topics').then(function (r) { return r.json(); }).then(function (d) {
+          if (d && d.success && Array.isArray(d.topics)) availableTopics = d.topics;
+          paintRenewalBanner(activeOrder, grid, banner);
+        }).catch(function () { paintRenewalBanner(activeOrder, grid, banner); });
+      } else {
+        paintRenewalBanner(activeOrder, grid, banner);
+      }
+    }
+    function paintRenewalBanner(activeOrder, grid, banner) {
+      let schemeName = '全部频道';
+      if (activeOrder.sub_mode === 'favorites') {
+        schemeName = '我的收藏';
+      } else if (activeOrder.topic_id) {
+        const t = availableTopics.find(function (x) { return String(x.id) === String(activeOrder.topic_id); });
+        schemeName = t ? t.name : ('Topic #' + activeOrder.topic_id);
+      }
+      const nameEl = document.getElementById('schemeRenewalName');
+      if (nameEl) nameEl.textContent = schemeName;
+      if (banner) banner.style.display = '';
+      if (grid) grid.style.display = 'none';
+      selectedTheme = null;
     }
 
     function selectTheme(themeId) {
@@ -1303,28 +1656,210 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     // 页面加载时获取主题列表
     loadThemes();
 
-    function handleSubscribe() {
-      // 检查登录状态
-      const isLoggedIn = localStorage.getItem('auth_token');
-      if (!isLoggedIn) {
-        showToast('Please login first', 'error');
+    async function handleSubscribe() {
+      if (!selectedDuration) {
+        showToast('请选择订阅方案', 'error');
+        return;
+      }
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        showToast('请先登录', 'error');
         window.location.href = '/login?redirect=/subscription';
         return;
       }
 
-      const params = new URLSearchParams({
-        duration: selectedDuration.days,
-        ips: selectedIPs,
-        payment: selectedPaymentMethod
-      });
-      if (selectedTheme) {
-        params.set('theme', selectedTheme);
-        // 如果是 favorites，添加 sub_mode
-        if (selectedTheme === 'favorites') {
-          params.set('sub_mode', 'favorites');
+      showLoading(true);
+
+      try {
+        const body = {
+          duration_days: Number(selectedDuration.days),
+          max_ips: Number(selectedIPs),
+          payment_method: selectedPaymentMethod || 'alipay',
+          // 新订阅才发送；续费场景由后端保留
+          topic_id: (!isRenewalFlow && selectedTheme && selectedTheme !== 'favorites') ? Number(selectedTheme) : null,
+          sub_mode: (!isRenewalFlow && selectedTheme === 'favorites') ? 'favorites' : null,
+        };
+
+        const response = await fetch('/api/subscription/xunhupay/create-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify(body)
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.payment_data) {
+          const price = calculatePrice();
+          const planLabel = (selectedDuration.days === 30 ? '月度' : selectedDuration.days === 90 ? '季度' : selectedDuration.days === 365 ? '年度' : (selectedDuration.days + '天'));
+
+          document.getElementById('paymentPlanName').textContent = planLabel;
+          document.getElementById('paymentIPCount').textContent = selectedIPs + ' 台';
+          document.getElementById('paymentAmount').textContent = '¥' + price.discounted.toFixed(2);
+
+          const methodIndicator = document.getElementById('paymentMethodIndicator');
+          const methodName = selectedPaymentMethod === 'wechat' ? '微信支付' : '支付宝';
+          methodIndicator.innerHTML = '正在使用 <strong>' + methodName + '</strong>';
+
+          const qrcodeTip = document.getElementById('modalQrcodeTip');
+          qrcodeTip.textContent = selectedPaymentMethod === 'wechat' ? '请用微信扫码支付' : '请用支付宝扫码支付';
+
+          const qrcodeImage = document.getElementById('modalQrcodeImage');
+          if (result.payment_data.url_qrcode) {
+            qrcodeImage.src = result.payment_data.url_qrcode;
+          } else {
+            qrcodeImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(result.payment_data.url || '');
+          }
+
+          document.getElementById('paymentStatus').textContent = '等待支付中...';
+          document.getElementById('paymentStatus').style.color = '';
+          document.getElementById('paymentModal').classList.add('show');
+          currentOrderId = result.order_id;
+
+          // 本地环境显示测试按钮
+          if (isLocalhost()) {
+            const simBtn = document.getElementById('simulatePaymentBtn');
+            if (simBtn) simBtn.style.display = 'block';
+          }
+
+          startOrderCheck(result.order_id);
+        } else {
+          showToast(result.error || '支付订单创建失败', 'error');
         }
+      } catch (error) {
+        console.error('Subscription error:', error);
+        showToast('网络错误，请重试', 'error');
+      } finally {
+        showLoading(false);
       }
-      window.location.href = '/subscribe?' + params.toString();
+    }
+
+    function startOrderCheck(orderId) {
+      if (checkPaymentInterval) clearInterval(checkPaymentInterval);
+      let checkCount = 0;
+      const maxChecks = 60;
+      const token = localStorage.getItem('auth_token');
+
+      checkPaymentInterval = setInterval(async function () {
+        checkCount++;
+        if (checkCount > maxChecks) {
+          clearInterval(checkPaymentInterval);
+          document.getElementById('paymentStatus').textContent = '支付超时';
+          return;
+        }
+        try {
+          const response = await fetch('/api/subscription/xunhupay/check-order?order_id=' + encodeURIComponent(orderId), {
+            headers: { 'Authorization': 'Bearer ' + token }
+          });
+          const result = await response.json();
+
+          if (result.success && result.order && result.order.status === 'completed') {
+            clearInterval(checkPaymentInterval);
+            document.getElementById('paymentStatus').textContent = '支付成功！';
+            document.getElementById('paymentStatus').style.color = '#4CAF50';
+            setTimeout(function () {
+              closePaymentModal();
+              const subUrl = window.location.origin + '/sub/' + result.order.code + '.m3u';
+              const price = calculatePrice();
+              const planLabel = (selectedDuration.days === 30 ? '月度' : selectedDuration.days === 90 ? '季度' : selectedDuration.days === 365 ? '年度' : (selectedDuration.days + '天'));
+              const purchaseDetails = {
+                plan: planLabel,
+                ips: selectedIPs + ' 台',
+                amount: '¥' + price.discounted.toFixed(2)
+              };
+              showSuccess(subUrl, purchaseDetails);
+            }, 1500);
+          }
+        } catch (error) {
+          console.error('Check order error:', error);
+        }
+      }, 5000);
+    }
+
+    async function simulatePaymentSuccess() {
+      if (!currentOrderId) {
+        showToast('没有待支付的订单', 'error');
+        return;
+      }
+      const token = localStorage.getItem('auth_token');
+      try {
+        const response = await fetch('/api/subscription/xunhupay/simulate-success?order_id=' + encodeURIComponent(currentOrderId), {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await response.json();
+        if (result.success) {
+          clearInterval(checkPaymentInterval);
+          document.getElementById('paymentStatus').textContent = '支付成功！';
+          document.getElementById('paymentStatus').style.color = '#4CAF50';
+          setTimeout(function () {
+            closePaymentModal();
+            const subUrl = window.location.origin + '/sub/' + result.code + '.m3u';
+            const price = calculatePrice();
+            const planLabel = (selectedDuration.days === 30 ? '月度' : selectedDuration.days === 90 ? '季度' : selectedDuration.days === 365 ? '年度' : (selectedDuration.days + '天'));
+            const purchaseDetails = {
+              plan: planLabel,
+              ips: selectedIPs + ' 台',
+              amount: '¥' + price.discounted.toFixed(2)
+            };
+            showSuccess(subUrl, purchaseDetails);
+          }, 1500);
+        } else {
+          showToast(result.error || '模拟失败', 'error');
+        }
+      } catch (error) {
+        console.error('Simulate payment error:', error);
+        showToast('模拟失败', 'error');
+      }
+    }
+
+    function calculatePrice() {
+      const ipPrice = Math.max(0, (selectedIPs - 1) * 10);
+      return { base: selectedDuration.basePrice, ip: ipPrice, discounted: selectedDuration.basePrice + ipPrice };
+    }
+
+    function showLoading(show) {
+      document.getElementById('loading').classList.toggle('show', show);
+    }
+
+    function closePaymentModal() {
+      const modal = document.getElementById('paymentModal');
+      if (modal) modal.classList.remove('show');
+      if (checkPaymentInterval) {
+        clearInterval(checkPaymentInterval);
+        checkPaymentInterval = null;
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('successModal').classList.remove('show');
+    }
+
+    function showSuccess(subUrl, purchaseDetails) {
+      if (purchaseDetails) {
+        document.getElementById('successPlanName').textContent = purchaseDetails.plan || '-';
+        document.getElementById('successIPCount').textContent = purchaseDetails.ips || '-';
+        document.getElementById('successAmount').textContent = purchaseDetails.amount || '-';
+      }
+      document.getElementById('generatedCode').textContent = subUrl;
+      document.getElementById('successModal').classList.add('show');
+    }
+
+    function copyCode() {
+      const code = document.getElementById('generatedCode').textContent;
+      navigator.clipboard.writeText(code).then(function () {
+        showToast('订阅链接已复制到剪贴板', 'success');
+      }).catch(function (err) {
+        console.error('Copy failed:', err);
+        showToast('复制失败', 'error');
+      });
+    }
+
+    function isLocalhost() {
+      const h = window.location.hostname;
+      return h === 'localhost' || h === '127.0.0.1' || h.startsWith('192.168.') || h.startsWith('10.');
     }
     
     // 初始化
