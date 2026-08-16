@@ -1070,6 +1070,20 @@ export const content = `
               </div>
             </div>
 
+            <div class="scheme-section" id="schemeSection" style="display:none;">
+              <div class="scheme-section-header">
+                <span class="scheme-section-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  线路方案
+                </span>
+                <span class="scheme-section-hint" id="schemeSectionHint"></span>
+              </div>
+              <div class="scheme-switcher" id="schemeSwitcher"></div>
+              <div class="scheme-vip-lock" id="schemeVipLock" style="display:none;">
+                🔒 切换线路方案为 VIP 专属功能。<a href="/freesub">开通 VIP →</a>
+              </div>
+            </div>
+
             <div class="subscription-section" id="subscriptionSection" style="display: block;">
               <div class="subscription-header">
                 <span class="subscription-title">订阅</span>
@@ -1122,20 +1136,6 @@ export const content = `
               <button class="btn-plans" id="btnViewPlans" onclick="window.location.href='/freesub'" style="display: none;">查看平面图</button>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="scheme-section" id="schemeSection" style="display:none;">
-        <div class="scheme-section-header">
-          <span class="scheme-section-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            线路方案
-          </span>
-          <span class="scheme-section-hint" id="schemeSectionHint"></span>
-        </div>
-        <div class="scheme-switcher" id="schemeSwitcher"></div>
-        <div class="scheme-vip-lock" id="schemeVipLock" style="display:none;">
-          🔒 切换线路方案为 VIP 专属功能。<a href="/freesub">开通 VIP →</a>
         </div>
       </div>
 
