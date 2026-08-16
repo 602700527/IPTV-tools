@@ -273,17 +273,9 @@ export const styles = `
     50% { opacity: 0.5; }
   }
 
-  .subscription-details { display: flex; flex-direction: column; gap: 14px; }
+  .subscription-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-  .subscription-detail {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .subscription-detail:last-child { border-bottom: none; padding-bottom: 0; }
+  .subscription-detail { display: flex; flex-direction: column; gap: 4px; }
 
   .subscription-detail-label { font-size: 11px; color: var(--text-muted); }
 
@@ -327,27 +319,21 @@ export const styles = `
     margin-bottom: 12px;
   }
 
-  .perks-grid { display: flex; flex-direction: column; gap: 10px; }
+  .perks-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 
   .perk-item {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
+    gap: 6px;
+    padding: 8px 14px;
     background: var(--bg-hover);
-    border: 1px solid var(--border);
     border-radius: var(--radius);
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-secondary);
-    transition: all 0.15s;
+    border: 1px solid var(--glass-border);
   }
 
-  .perk-item:hover {
-    border-color: var(--border-hover);
-    color: var(--text-primary);
-  }
-
-  .perk-item svg { width: 16px; height: 16px; color: var(--success); flex-shrink: 0; }
+  .perk-item svg { width: 14px; height: 14px; color: var(--success); }
 
   /* ========== 线路方案切换 ========== */
   .scheme-section {
@@ -400,36 +386,40 @@ export const styles = `
   .scheme-vip-lock a { color: var(--accent); text-decoration: none; font-weight: 600; }
   .scheme-vip-lock a:hover { text-decoration: underline; }
 
-  .profile-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  .profile-actions { display: flex; gap: 10px; }
 
-  .btn-renew, .btn-plans {
-    width: 100%;
+  .btn-renew {
+    flex: 1;
     padding: 12px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    border-radius: var(--radius);
-    border: none;
-    font-family: inherit;
   }
 
-  .btn-renew {
-    background: var(--accent);
-    color: #fff;
-  }
+  .btn-renew:hover { transform: translateY(-2px); opacity: 0.9; }
 
-  .btn-renew:hover { opacity: 0.9; }
   .btn-renew svg { width: 16px; height: 16px; }
 
   .btn-plans {
+    flex: 1;
+    padding: 12px 20px;
     background: transparent;
     color: var(--text-secondary);
-    border: 1px solid var(--border);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
   }
 
   .btn-plans:hover { background: var(--bg-hover); color: var(--text-primary); }
