@@ -150,7 +150,7 @@ export const styles = `
     flex: 1;
     margin-left: var(--sidebar-width);
     padding: 24px 32px;
-    max-width: calc(100% - var(--sidebar-width));
+    max-width: 1280px;
   }
 
   /* ===== Page Header ===== */
