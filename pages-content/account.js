@@ -298,19 +298,19 @@ export const styles = `
 
   .subscription-details {
     display: flex;
-    gap: 20px;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
   }
 
   .subscription-detail.url-section {
-    flex: 1;
-    min-width: 0;
+    width: 100%;
   }
 
-  .subscription-detail.info-section {
+  .subscription-detail.info-row {
     display: flex;
-    gap: 20px;
-    flex-shrink: 0;
+    gap: 24px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
   }
 
   .subscription-detail {
@@ -1085,7 +1085,7 @@ export const content = `
                     <button class="copy-btn" onclick="copyVipCode()">复制</button>
                   </span>
                 </div>
-                <div class="subscription-detail info-section">
+                <div class="subscription-detail info-row">
                   <div class="subscription-detail">
                     <span class="subscription-detail-label">过期</span>
                     <span class="subscription-detail-value" id="vipExpiry">Permanent</span>
