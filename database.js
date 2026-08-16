@@ -2709,27 +2709,49 @@ export function applyTopicFilter(channels, rules) {
     return channels;
   }
 
-  return channels.filter(channel => {
-    // Check each rule - if any rule matches (OR logic), apply it
-    for (const rule of rules) {
-      const { dimension, op, values } = rule;
-      if (!dimension || !op || !values || values.length === 0) continue;
+  // 收集 include 和 exclude 规则
+  const includeRules = rules.filter(r => r.op === 'include' && r.dimension && r.values);
+  const excludeRules = rules.filter(r => r.op === 'exclude' && r.dimension && r.values);
 
+  return channels.filter(channel => {
+    // 先检查 exclude 规则：如果任一 exclude 规则匹配，排除
+    for (const rule of excludeRules) {
+      const { dimension, values } = rule;
       let fieldValue = '';
       if (dimension === 'group_title') fieldValue = channel.group_title || '';
       else if (dimension === 'original') fieldValue = channel.original || '';
       else if (dimension === 'type') fieldValue = channel.type || '';
       else continue;
 
-      // Use substring match for 'original' dimension (e.g. "电信" matches "电信线路")
-      const isMatch = values.some(v => 
+      const isMatch = values.some(v =>
         dimension === 'original' ? fieldValue.includes(v) : fieldValue === v
       );
-
-      if (op === 'include' && isMatch) return true;
-      if (op === 'exclude' && isMatch) return false;
+      if (isMatch) return false;
     }
-    // No rules matched - include by default
+
+    // 如果有 include 规则，至少一个匹配才保留
+    if (includeRules.length > 0) {
+      let anyIncludeMatch = false;
+      for (const rule of includeRules) {
+        const { dimension, values } = rule;
+        let fieldValue = '';
+        if (dimension === 'group_title') fieldValue = channel.group_title || '';
+        else if (dimension === 'original') fieldValue = channel.original || '';
+        else if (dimension === 'type') fieldValue = channel.type || '';
+        else continue;
+
+        const isMatch = values.some(v =>
+          dimension === 'original' ? fieldValue.includes(v) : fieldValue === v
+        );
+        if (isMatch) {
+          anyIncludeMatch = true;
+          break;
+        }
+      }
+      return anyIncludeMatch;
+    }
+
+    // 没有 include 规则，保留
     return true;
   });
 }

@@ -231,7 +231,7 @@ export async function handleUserChangeTopic(request, env, ctx) {
     const topicId = body ? body.topic_id : null;
 
     // 验证 topic_id（如果不为空）
-    if (topicId !== null && topicId !== undefined && topicId !== '') {
+    if (topicId !== null && topicId !== undefined && topicId !== '' && topicId !== 0) {
       const topic = await db.prepare('SELECT id, name FROM topics WHERE id = ?').bind(topicId).first();
       if (!topic) {
         return new Response(JSON.stringify({ success: false, error: '专题不存在' }), {
@@ -241,19 +241,19 @@ export async function handleUserChangeTopic(request, env, ctx) {
       }
     }
 
-    // 更新 topic_id
-    await db.prepare('UPDATE codes SET topic_id = ? WHERE code = ?').bind(topicId || null, code).run();
+    // 更新 topic_id（0 表示全部频道，null 表示无专题）
+    await db.prepare('UPDATE codes SET topic_id = ? WHERE code = ?').bind(topicId === 0 || topicId === '' ? null : topicId || null, code).run();
 
     // 获取更新后的专题名称
     let topicName = null;
-    if (topicId !== null && topicId !== undefined && topicId !== '') {
+    if (topicId !== null && topicId !== undefined && topicId !== '' && topicId !== 0) {
       const topic = await db.prepare('SELECT name FROM topics WHERE id = ?').bind(topicId).first();
       topicName = topic ? topic.name : null;
     }
 
     return new Response(JSON.stringify({
       success: true,
-      topic_id: topicId || null,
+      topic_id: topicId === 0 || topicId === '' ? null : topicId || null,
       topic_name: topicName,
       message: '专题修改成功'
     }), {
