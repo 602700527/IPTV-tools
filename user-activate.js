@@ -359,7 +359,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
       const durationDays = Math.ceil((expiredAt - now) / (1000 * 60 * 60 * 24));
 
       document.getElementById('resultCode').textContent = code;
-      document.getElementById('resultTopic').textContent = data.topic_name || (currentLang === 'zh-CN' ? '未选择' : 'Not Selected');
+      document.getElementById('resultTopic').textContent = data.topic_name || (currentLang === 'zh-CN' ? '全部频道' : 'All Channels');
       document.getElementById('resultDuration').textContent = durationDays + t('days');
       document.getElementById('resultExpired').textContent = expiredAt.toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US');
 
@@ -452,12 +452,12 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         const menu = document.getElementById('topicMenu');
         menu.innerHTML = '';
 
-        // 未选择选项
+        // 未选择选项（默认：全部频道）
         const emptyItem = document.createElement('div');
         emptyItem.className = 'topic-item selected';
         emptyItem.dataset.id = '';
-        emptyItem.textContent = 'Not Selected';
-        emptyItem.onclick = () => selectTopic('', 'Not Selected');
+        emptyItem.textContent = '全部频道';
+        emptyItem.onclick = () => selectTopic('', '全部频道');
         menu.appendChild(emptyItem);
 
         if (topics && Array.isArray(topics)) {
