@@ -247,9 +247,22 @@ export const styles = `
     border: 1px solid rgba(229, 9, 20, 0.3);
   }
 
-  .subscription-section { background: var(--bg-hover); border-radius: var(--radius); padding: 18px; margin-bottom: 20px; }
+  .subscription-section {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 20px;
+  }
 
-  .subscription-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .subscription-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
 
   .subscription-title {
     font-size: 12px;
@@ -283,7 +296,7 @@ export const styles = `
     50% { opacity: 0.5; }
   }
 
-  .subscription-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .subscription-details { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 
   .subscription-detail { display: flex; flex-direction: column; gap: 4px; }
 
@@ -292,11 +305,15 @@ export const styles = `
   .subscription-detail-value { font-size: 14px; font-weight: 600; color: var(--text-primary); }
 
   .subscription-detail-value.code {
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 11px;
+    font-family: 'SF Mono', monospace;
+    font-size: 12px;
     display: flex;
     align-items: center;
     gap: 8px;
+    background: var(--bg-primary);
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
   }
 
   .sub-format-radios { display: flex; gap: 10px; margin-bottom: 10px; }
