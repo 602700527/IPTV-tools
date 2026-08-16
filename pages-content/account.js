@@ -1,4 +1,4 @@
-// 静态页面内容模块 - 账户中心（YouTube Studio 风格）
+// 静态页面内容模块 - 账户中心
 export const pageTitle = 'My Account - IPTV Search';
 export const pageDescription = 'Manage your IPTV Search account, view subscription status and order history.';
 export const canonical = 'https://iptv-search.com/account';
@@ -6,445 +6,391 @@ export const robots = 'noindex, follow';
 
 export const styles = `
   /* ========================================
-     Account Page Styles (YouTube Studio Style)
+     Account Page Styles
      ======================================== */
 
   :root {
-    --bg-primary: #0f0f0f;
-    --bg-secondary: #1a1a1a;
-    --bg-sidebar: #121212;
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #141414;
     --bg-card: #1a1a1a;
-    --bg-hover: #272727;
-    --bg-active: #272727;
+    --bg-hover: #252525;
+    --bg-elevated: #222222;
     --border: rgba(255, 255, 255, 0.08);
     --border-hover: rgba(255, 255, 255, 0.15);
     --text-primary: #ffffff;
-    --text-secondary: #aaaaaa;
-    --text-muted: #717171;
+    --text-secondary: #a0a0a0;
+    --text-muted: #666666;
     --accent: #e50914;
-    --accent-hover: #f40612;
-    --success: #2ea043;
-    --warning: #ffb000;
-    --error: #ff4e4e;
+    --accent-hover: #ff1a1a;
+    --success: #22c55e;
+    --warning: #fbbf24;
+    --error: #ef4444;
+    --tier-bronze: #cd7f32;
+    --tier-silver: #c0c0c0;
     --tier-gold: #ffd700;
     --tier-emerald: #50c878;
-    --radius: 8px;
-    --sidebar-width: 240px;
+    --tier-crown: #ffd700;
+    --sidebar-width: 200px;
+    --radius: 0;
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --neon-cyan: #00d4ff;
+    --gradient-neon: linear-gradient(135deg, #e50914, #ff3b30);
+    --accent-glow: rgba(229, 9, 20, 0.4);
   }
 
   [data-theme="light"] {
-    --bg-primary: #ffffff;
-    --bg-secondary: #f9f9f9;
-    --bg-sidebar: #ffffff;
+    --bg-primary: #f5f5f5;
+    --bg-secondary: #ffffff;
     --bg-card: #ffffff;
     --bg-hover: #f0f0f0;
-    --bg-active: #e5e5e5;
-    --border: rgba(0, 0, 0, 0.12);
-    --border-hover: rgba(0, 0, 0, 0.2);
-    --text-primary: #0f0f0f;
-    --text-secondary: #606060;
-    --text-muted: #909090;
+    --bg-elevated: #ffffff;
+    --glass-bg: rgba(0, 0, 0, 0.02);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --glass-hover: rgba(0, 0, 0, 0.04);
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --text-muted: #999999;
   }
 
-  * { box-sizing: border-box; }
+  .main-content { flex: 1; width: 100%; margin-top: 80px; padding: 32px 24px 60px; }
 
-  .main-content {
-    flex: 1;
-    width: 100%;
-    margin-top: 64px;
-    background: var(--bg-primary);
-    min-height: calc(100vh - 64px);
-  }
+  .dashboard-layout { max-width: 1200px; margin: 0 auto; display: flex; gap: 32px; }
 
-  .dashboard-layout {
-    display: flex;
-    min-height: calc(100vh - 64px);
-    max-width: 1280px;
-    margin: 0 auto;
-  }
-
-  /* ===== Sidebar ===== */
   .sidebar {
     width: var(--sidebar-width);
-    background: var(--bg-sidebar);
-    border-right: 1px solid var(--border);
-    padding: 12px 0;
-    position: fixed;
-    top: 64px;
-    left: 0;
-    bottom: 0;
-    overflow-y: auto;
-    z-index: 100;
-  }
-
-  .sidebar-section {
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .sidebar-section:last-child { border-bottom: none; }
-
-  .sidebar-label {
-    padding: 8px 24px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: fadeInLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .sidebar-item {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 10px 24px;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: var(--radius);
     color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
     border: none;
     background: transparent;
     width: 100%;
     text-align: left;
-    font-size: 14px;
-    font-family: inherit;
   }
 
-  .sidebar-item:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-  }
+  .sidebar-item:hover { color: var(--text-primary); background: var(--bg-hover); }
 
-  .sidebar-item.active {
-    background: var(--bg-active);
-    color: var(--text-primary);
-    border-left: 3px solid var(--accent);
-    padding-left: 21px;
-  }
+  .sidebar-item.active { color: var(--text-primary); background: rgba(255, 255, 255, 0.08); }
 
-  .sidebar-item svg {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-  }
+  .sidebar-item svg { width: 20px; height: 20px; flex-shrink: 0; }
 
-  .sidebar-logout {
-    color: var(--error);
-  }
+  .sidebar-divider { height: 1px; background: var(--glass-border); margin: 12px 0; }
 
-  .sidebar-logout:hover {
-    background: rgba(255, 78, 78, 0.1);
-    color: var(--error);
-  }
+  .sidebar-item.logout { color: var(--error); margin-top: auto; }
 
-  /* ===== Main Content ===== */
-  .content-wrapper {
+  .sidebar-item.logout:hover { background: rgba(255, 59, 48, 0.15); }
+
+  .content-area {
     flex: 1;
-    margin-left: var(--sidebar-width);
-    padding: 24px 32px;
-    max-width: 960px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
   }
 
-  /* ===== Section Title ===== */
-  .section-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 20px 0;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  /* ===== Profile Card ===== */
-  .profile-card {
+  .card {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
+    padding: 24px;
+    transition: transform 0.3s, box-shadow 0.3s;
   }
 
-  .profile-avatar {
-    width: 56px;
-    height: 56px;
-    background: var(--accent);
+  .card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-title svg { width: 22px; height: 22px; color: var(--accent); }
+
+  .profile-hero {
+    background: var(--bg-card);
     border-radius: var(--radius);
+    padding: 0;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .profile-hero-content { padding: 28px; }
+
+  .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; }
+
+  .avatar-wrapper { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
+
+  .avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius);
+    background: var(--accent);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: 28px;
     font-weight: 700;
     color: #fff;
-    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
   }
 
-  .profile-avatar.vip {
-    background: linear-gradient(135deg, var(--tier-gold), #ffaa00);
-    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.3);
+  .avatar-ring {
+    position: absolute;
+    inset: -4px;
+    border-radius: var(--radius);
+    background: var(--accent);
+    opacity: 0.8;
   }
 
-  .profile-info { flex: 1; }
+  .avatar-ring.vip-ring { opacity: 1; }
+
+  @keyframes rotate { to { transform: rotate(360deg); } }
+
+  .profile-info { flex: 1; min-width: 0; }
 
   .profile-name {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 22px;
+    font-weight: 700;
     color: var(--text-primary);
-    margin: 0 0 4px 0;
+    margin-bottom: 4px;
     display: flex;
     align-items: center;
-    gap: 8px;
-  }
-
-  .profile-email {
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin: 0 0 8px 0;
-  }
-
-  .profile-badges {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 8px;
-    font-size: 10px;
-    font-weight: 600;
-    border-radius: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-  }
-
-  .badge-vip {
-    background: rgba(255, 215, 0, 0.15);
-    color: var(--tier-gold);
-    border: 1px solid rgba(255, 215, 0, 0.3);
-  }
-
-  .badge-verified {
-    background: rgba(46, 160, 67, 0.15);
-    color: var(--success);
-    border: 1px solid rgba(46, 160, 67, 0.3);
-  }
-
-  .badge-member {
-    background: rgba(229, 9, 20, 0.1);
-    color: var(--accent);
-    border: 1px solid rgba(229, 9, 20, 0.2);
+    gap: 10px;
   }
 
   .vip-star {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     background: var(--tier-gold);
-    border-radius: 4px;
-    font-size: 10px;
-  }
-
-  .vip-star svg { width: 11px; height: 11px; fill: #000; stroke: none; }
-
-  /* ===== Settings Group ===== */
-  .settings-group {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
     border-radius: var(--radius);
-    margin-bottom: 20px;
-    overflow: hidden;
+    font-size: 12px;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
   }
 
-  .settings-group-title {
-    font-size: 13px;
+  .vip-star svg { width: 14px; height: 14px; fill: #000; stroke: none; }
+
+  .profile-email { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
+
+  .profile-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-vip {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 170, 0, 0.1));
+    color: var(--tier-gold);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+  }
+
+  .badge-verified {
+    background: rgba(52, 199, 89, 0.15);
+    color: var(--success);
+    border: 1px solid rgba(52, 199, 89, 0.3);
+  }
+
+  .badge-member {
+    background: rgba(229, 9, 20, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(229, 9, 20, 0.3);
+  }
+
+  .subscription-section { background: var(--bg-hover); border-radius: var(--radius); padding: 18px; margin-bottom: 20px; }
+
+  .subscription-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+
+  .subscription-title {
+    font-size: 12px;
     font-weight: 600;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-hover);
+    letter-spacing: 1px;
   }
 
-  .settings-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .settings-row:last-child { border-bottom: none; }
-
-  .settings-row:hover { background: var(--bg-hover); }
-
-  .settings-label {
-    font-size: 14px;
-    color: var(--text-primary);
-    font-weight: 500;
-  }
-
-  .settings-desc {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 2px;
-  }
-
-  .settings-value {
-    font-size: 14px;
-    color: var(--text-secondary);
-    text-align: right;
-  }
-
-  .settings-value.primary {
-    color: var(--text-primary);
-    font-weight: 600;
-  }
-
-  /* ===== Subscription Status ===== */
-  .sub-status {
+  .subscription-status {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
+    border-radius: var(--radius);
+    font-size: 10px;
+    font-weight: 700;
     text-transform: uppercase;
   }
 
-  .sub-status.active { background: rgba(46, 160, 67, 0.15); color: var(--success); }
-  .sub-status.expired { background: rgba(255, 78, 78, 0.15); color: var(--error); }
+  .subscription-status.active { background: rgba(34, 197, 94, 0.15); color: var(--success); }
 
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-  }
+  .subscription-status.expired { background: rgba(239, 68, 68, 0.15); color: var(--error); }
 
-  .sub-status.active .status-dot { animation: pulse 2s infinite; }
+  .subscription-status .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .subscription-status.active .dot { animation: pulse 2s infinite; }
 
   @keyframes pulse {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    50% { opacity: 0.5; }
   }
 
-  /* ===== Sub URL Box ===== */
-  .sub-url-box {
+  .subscription-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .subscription-detail { display: flex; flex-direction: column; gap: 4px; }
+
+  .subscription-detail-label { font-size: 11px; color: var(--text-muted); }
+
+  .subscription-detail-value { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+  .subscription-detail-value.code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-top: 8px;
+    gap: 8px;
   }
 
-  .sub-url-text {
-    font-family: 'SF Mono', monospace;
-    font-size: 12px;
-    color: var(--text-primary);
-    word-break: break-all;
-    flex: 1;
-  }
-
-  .copy-btn {
-    padding: 6px 12px;
+  .sub-format-radios { display: flex; gap: 10px; margin-bottom: 10px; }
+  .sub-format-radios-modal { justify-content: center; margin-bottom: 16px; }
+  .format-radio { color: var(--text-secondary); font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius); transition: all 0.2s; }
+  .format-radio:has(input:checked) { color: var(--text-primary); border-color: var(--accent); background: rgba(229, 9, 20, 0.1); }
+  .format-radio input { accent-color: var(--accent); cursor: pointer; }
+    .copy-btn {
+    padding: 4px 8px;
     background: var(--accent);
     color: #fff;
     border: none;
     border-radius: var(--radius);
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 600;
     cursor: pointer;
-    white-space: nowrap;
+    transition: all 0.2s;
   }
 
-  .copy-btn:hover { background: var(--accent-hover); }
+  .copy-btn:hover { opacity: 0.9; }
 
-  /* ===== Format Toggle ===== */
-  .format-toggle {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 8px;
-  }
+  .perks-section { margin-bottom: 20px; }
 
-  .format-btn {
-    padding: 5px 10px;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
+  .perks-title {
     font-size: 12px;
-    cursor: pointer;
-    transition: all 0.15s;
-    border-radius: var(--radius);
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
   }
 
-  .format-btn.active {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(229, 9, 20, 0.1);
-  }
+  .perks-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 
-  /* ===== Scheme Chips ===== */
-  .scheme-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 8px;
-  }
-
-  .scheme-chip {
+  .perk-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     padding: 8px 14px;
+    background: var(--bg-hover);
+    border-radius: var(--radius);
+    font-size: 12px;
+    color: var(--text-secondary);
+    border: 1px solid var(--glass-border);
+  }
+
+  .perk-item svg { width: 14px; height: 14px; color: var(--success); }
+
+  /* ========== 线路方案切换 ========== */
+  .scheme-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .scheme-section-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .scheme-section-title {
+    font-size: 14px; font-weight: 700; color: var(--text-primary);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .scheme-section-title svg { width: 18px; height: 18px; color: var(--accent); }
+  .scheme-section-hint { font-size: 12px; color: var(--text-muted); }
+  .scheme-section-hint a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .scheme-section-hint a:hover { text-decoration: underline; }
+  .scheme-switcher { display: flex; flex-wrap: wrap; gap: 8px; }
+  .scheme-chip {
+    padding: 8px 16px;
     font-size: 13px;
-    background: var(--bg-primary);
+    background: var(--bg-hover);
     color: var(--text-secondary);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all 0.2s;
+    white-space: nowrap;
     font-family: inherit;
     font-weight: 500;
   }
-
   .scheme-chip:hover:not(:disabled) {
-    background: var(--bg-hover);
+    background: var(--bg-elevated);
     color: var(--text-primary);
     border-color: var(--border-hover);
   }
-
   .scheme-chip.selected {
     background: rgba(229, 9, 20, 0.15);
     color: var(--text-primary);
     border-color: var(--accent);
   }
-
-  .scheme-chip:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .scheme-hint {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
+  .scheme-chip:disabled { opacity: 0.5; cursor: not-allowed; }
+  .scheme-vip-lock {
+    margin-top: 10px; font-size: 12px; color: var(--text-muted);
   }
+  .scheme-vip-lock a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .scheme-vip-lock a:hover { text-decoration: underline; }
 
-  .scheme-hint a { color: var(--accent); text-decoration: none; font-weight: 500; }
+  .profile-actions { display: flex; gap: 10px; }
 
-  /* ===== Action Buttons ===== */
-  .action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
+  .btn-renew {
+    flex: 1;
+    padding: 12px 20px;
     background: var(--accent);
     color: #fff;
     border: none;
@@ -452,635 +398,836 @@ export const styles = `
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s;
-    text-decoration: none;
-  }
-
-  .action-btn:hover { background: var(--accent-hover); }
-
-  .action-btn.secondary {
-    background: transparent;
-    color: var(--text-secondary);
-    border: 1px solid var(--border);
-  }
-
-  .action-btn.secondary:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-  }
-
-  .action-btn svg { width: 14px; height: 14px; }
-
-  /* ===== Orders List ===== */
-  .orders-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    background: var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-
-  .order-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 16px;
-    background: var(--bg-card);
-  }
-
-  .order-item:hover { background: var(--bg-hover); }
-
-  .order-info { flex: 1; }
-
-  .order-id {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--accent);
-    margin-bottom: 2px;
-  }
-
-  .order-date {
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
-  .order-meta { text-align: right; }
-
-  .order-amount {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-  }
-
-  .order-status {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 4px;
-  }
-
-  .order-status.completed { background: rgba(46, 160, 67, 0.15); color: var(--success); }
-  .order-status.pending { background: rgba(255, 176, 0, 0.15); color: var(--warning); }
-
-  /* ===== Tickets List ===== */
-  .ticket-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    background: var(--bg-card);
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
-  .ticket-item:last-child { border-bottom: none; }
-  .ticket-item:hover { background: var(--bg-hover); }
-
-  .ticket-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius);
+    transition: all 0.25s;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    flex-shrink: 0;
+    gap: 8px;
   }
 
-  .ticket-icon.payment { background: rgba(255, 176, 0, 0.15); }
-  .ticket-icon.order { background: rgba(46, 160, 67, 0.15); }
-  .ticket-icon.technical { background: rgba(0, 212, 255, 0.15); }
-  .ticket-icon.other { background: rgba(255, 255, 255, 0.05); }
+  .btn-renew:hover { transform: translateY(-2px); opacity: 0.9; }
 
-  .ticket-info { flex: 1; min-width: 0; }
+  .btn-renew svg { width: 16px; height: 16px; }
 
-  .ticket-subject {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .ticket-meta {
-    font-size: 12px;
-    color: var(--text-muted);
-    display: flex;
-    gap: 12px;
-  }
-
-  .ticket-status {
-    font-size: 10px;
+  .btn-plans {
+    flex: 1;
+    padding: 12px 20px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    font-size: 13px;
     font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .btn-plans:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+  .info-panel {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    border: 1px solid var(--glass-border);
+  }
+
+  .info-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+
+  .info-panel-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+  .info-list { display: flex; flex-direction: column; }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .info-row:last-child { border-bottom: none; }
+
+  .info-label { color: var(--text-secondary); font-size: 13px; }
+
+  .info-value {
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .info-value svg { width: 14px; height: 14px; }
+
+  .info-value.verified { color: var(--success); }
+
+  .order-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .order-card {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius);
+    padding: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.25s;
+  }
+
+  .order-card:hover { transform: translateX(4px); border-color: rgba(229, 9, 20, 0.3); }
+
+  .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+
+  .order-id {
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--gradient-neon);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .order-date { color: var(--text-muted); font-size: 11px; }
+
+  .order-details { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+  .order-detail-item { padding: 10px; background: rgba(0, 0, 0, 0.2); border-radius: var(--radius); }
+
+  .order-detail-label {
+    color: var(--text-muted);
+    font-size: 10px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .order-detail-value { color: var(--text-primary); font-size: 13px; font-weight: 600; }
+
+  .order-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    font-size: 10px;
+    font-weight: 700;
     text-transform: uppercase;
   }
 
-  .ticket-status.pending { background: rgba(255, 176, 0, 0.15); color: var(--warning); }
-  .ticket-status.processing { background: rgba(0, 122, 255, 0.15); color: #007aff; }
-  .ticket-status.resolved { background: rgba(46, 160, 67, 0.15); color: var(--success); }
+  .order-status.completed { background: rgba(52, 199, 89, 0.15); color: var(--success); }
 
-  /* ===== Modal ===== */
-  .modal {
+  .order-status.pending { background: rgba(255, 204, 0, 0.15); color: var(--warning); }
+
+  .order-status.cancelled { background: rgba(255, 59, 48, 0.15); color: var(--error); }
+
+  .ticket-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .ticket-card {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    padding-left: 20px;
+  }
+
+  .ticket-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .ticket-card.payment::before { background: var(--warning); }
+  .ticket-card.order::before { background: var(--success); }
+  .ticket-card.technical::before { background: var(--neon-cyan); }
+  .ticket-card.other::before { background: var(--text-muted); }
+
+  .ticket-card:hover { transform: translateX(4px); border-color: rgba(255, 255, 255, 0.1); }
+
+  .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 12px; }
+
+  .ticket-type {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    letter-spacing: 0.5px;
+  }
+
+  .ticket-type.payment { background: rgba(255, 204, 0, 0.15); color: var(--warning); }
+  .ticket-type.order { background: rgba(52, 199, 89, 0.15); color: var(--success); }
+  .ticket-type.technical { background: rgba(0, 212, 255, 0.15); color: var(--neon-cyan); }
+  .ticket-type.other { background: rgba(255, 255, 255, 0.1); color: var(--text-secondary); }
+
+  .ticket-status {
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .ticket-status.pending { background: rgba(255, 204, 0, 0.15); color: var(--warning); }
+  .ticket-status.processing { background: rgba(0, 122, 255, 0.15); color: #007aff; }
+  .ticket-status.resolved { background: rgba(52, 199, 89, 0.15); color: var(--success); }
+  .ticket-status.closed { background: rgba(142, 142, 147, 0.15); color: #8e8e93; }
+
+  .ticket-subject { color: var(--text-primary); font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+
+  .ticket-meta { color: var(--text-muted); font-size: 11px; display: flex; gap: 12px; }
+
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+
+  .section-header h3 { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+
+  .btn-accent {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .btn-accent:hover { transform: translateY(-2px); opacity: 0.9; }
+
+  .success-modal,
+  .ticket-modal {
     display: none;
     position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    z-index: 3000;
     align-items: center;
     justify-content: center;
     padding: 20px;
   }
 
-  .modal.show { display: flex; }
+  .success-modal.show,
+  .ticket-modal.show { display: flex; }
 
-  .modal-content {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+  .success-content,
+  .ticket-modal-content {
+    background: linear-gradient(145deg, #1a1a2e, #0a0a0f);
     border-radius: var(--radius);
-    width: 100%;
+    padding: 40px;
     max-width: 480px;
-    max-height: 90vh;
-    overflow-y: auto;
+    width: 100%;
+    text-align: center;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 30px 100px rgba(0, 0, 0, 0.5), 0 0 60px rgba(229, 9, 20, 0.15);
+    animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
   }
 
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
+  @keyframes modalSlideIn {
+    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
   }
 
-  .modal-title {
-    font-size: 16px;
-    font-weight: 600;
+  .success-icon {
+    font-size: 72px;
+    margin-bottom: 24px;
+    animation: bounceIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+  }
+
+  @keyframes bounceIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  .success-title { font-size: 28px; font-weight: 800; color: var(--text-primary); margin: 0 0 12px 0; }
+
+  .success-message { color: var(--text-secondary); font-size: 15px; margin-bottom: 28px; }
+
+  .code-display {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 24px;
     color: var(--text-primary);
-    margin: 0;
+    font-size: 13px;
+    word-break: break-all;
+    font-family: 'SF Mono', monospace;
+    text-align: left;
   }
+
+  .copy-button {
+    background: var(--gradient-neon);
+    color: #fff;
+    border: none;
+    padding: 16px 32px;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .copy-button:hover { transform: translateY(-3px); box-shadow: 0 8px 30px var(--accent-glow); }
+
+  .modal-tips { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--glass-border); }
+
+  .modal-tip { color: var(--text-secondary); font-size: 13px; line-height: 1.6; margin-bottom: 8px; }
+
+  .modal-tip-highlight { color: var(--text-muted); font-size: 12px; margin-top: 16px; }
 
   .modal-close {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    font-size: 24px;
-    cursor: pointer;
-    line-height: 1;
-  }
-
-  .modal-close:hover { color: var(--text-primary); }
-
-  .modal-body { padding: 20px; }
-
-  .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 16px 20px;
-    border-top: 1px solid var(--border);
-  }
-
-  /* ===== Form ===== */
-  .form-group { margin-bottom: 16px; }
-
-  .form-label {
-    display: block;
-    font-size: 12px;
-    font-weight: 500;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
     color: var(--text-secondary);
-    margin-bottom: 6px;
-  }
-
-  .form-input,
-  .form-select,
-  .form-textarea {
-    width: 100%;
-    padding: 10px 12px;
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text-primary);
-    font-size: 14px;
-    font-family: inherit;
-    transition: border-color 0.15s;
-  }
-
-  .form-input:focus,
-  .form-select:focus,
-  .form-textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-  }
-
-  .form-textarea { min-height: 100px; resize: vertical; }
-
-  /* ===== Toast ===== */
-  .toast-container {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 2000;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .toast {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
-    padding: 12px 16px;
-    border-radius: var(--radius);
-    font-size: 13px;
-    color: var(--text-primary);
-    animation: toastIn 0.3s ease;
-    min-width: 240px;
-  }
-
-  .toast.success { border-left-color: var(--success); }
-  .toast.error { border-left-color: var(--error); }
-
-  @keyframes toastIn {
-    from { opacity: 0; transform: translateX(20px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  /* ===== Loading ===== */
-  .loading {
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px;
-    color: var(--text-muted);
-    font-size: 14px;
+    font-size: 22px;
+    transition: all 0.2s;
   }
 
+  .modal-close:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); transform: rotate(90deg); }
+
+  .ticket-modal-content { max-width: 560px; text-align: left; padding: 32px; }
+
+  .ticket-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .ticket-modal-header h3 { margin: 0; font-size: 22px; font-weight: 700; color: var(--text-primary); }
+
+  .ticket-modal-close {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: all 0.2s;
+  }
+
+  .ticket-modal-close:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); }
+
+  .form-group { margin-bottom: 22px; }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    font-size: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--text-primary);
+    transition: all 0.3s;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.15);
+  }
+
+  .form-group textarea { min-height: 120px; resize: vertical; }
+
+  .btn {
+    padding: 14px 28px;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+
+  .btn-primary { background: var(--gradient-neon); color: #fff; }
+
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px var(--accent-glow); }
+
+  .btn-secondary { background: rgba(255, 255, 255, 0.06); color: var(--text-primary); border: 1px solid var(--glass-border); }
+
+  .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+
+  .btn-danger { background: rgba(255, 59, 48, 0.15); color: var(--error); border: 1px solid rgba(255, 59, 48, 0.3); }
+
+  .btn-danger:hover { background: var(--error); color: #fff; }
+
+  .ticket-reply {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+    border-left: 4px solid var(--accent);
+  }
+
+  .ticket-reply.admin { border-left-color: var(--neon-cyan); }
+
+  .ticket-reply-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+
+  .ticket-reply-author { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+  .ticket-reply.admin .ticket-reply-author { color: var(--neon-cyan); }
+
+  .ticket-reply-time { font-size: 12px; color: var(--text-muted); }
+
+  .ticket-reply-content { color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+
+  .ticket-reply-form { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--glass-border); }
+
+  .ticket-reply-form textarea { margin-bottom: 14px; }
+
+  .reply-list {
+    max-height: 350px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding-right: 8px;
+  }
+
+  .reply-list::-webkit-scrollbar { width: 6px; }
+
+  .reply-list::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: var(--radius); }
+
+  .reply-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: var(--radius); }
+
+  .empty-state,
+  .empty-tickets { text-align: center; padding: 60px 24px; }
+
+  .empty-state svg,
+  .empty-tickets svg { width: 80px; height: 80px; margin-bottom: 20px; opacity: 0.3; }
+
+  .empty-state p,
+  .empty-tickets p { font-size: 15px; color: var(--text-muted); }
+
+  .empty-tickets h4 { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 10px; }
+
+  .empty-tickets p { margin-bottom: 24px; }
+
+  .loading { display: none; text-align: center; padding: 60px; }
+
+  .loading.active { display: block; }
+
   .spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--border);
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--glass-border);
     border-top-color: var(--accent);
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin-right: 10px;
+    margin: 0 auto;
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ===== Empty State ===== */
-  .empty-state {
-    text-align: center;
-    padding: 48px 20px;
-    color: var(--text-muted);
+  .toast-container {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 20px;
+    max-width: 420px;
+    width: 100%;
+    pointer-events: none;
   }
 
-  .empty-state p { font-size: 14px; margin-bottom: 16px; }
+  .toast {
+    background: linear-gradient(145deg, #1a1a2e, #0a0a0f);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    pointer-events: auto;
+    animation: toastSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-  /* ===== Responsive ===== */
+  @keyframes toastSlideIn {
+    from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .toast.success { border-color: rgba(52, 199, 89, 0.4); }
+  .toast.success .toast-icon { color: var(--success); }
+  .toast.error { border-color: rgba(255, 59, 48, 0.4); }
+  .toast.error .toast-icon { color: var(--error); }
+  .toast.warning { border-color: rgba(255, 204, 0, 0.4); }
+  .toast.warning .toast-icon { color: var(--warning); }
+
+  .toast-content { display: flex; align-items: center; gap: 12px; }
+
+  .toast-icon { font-size: 20px; }
+
+  .toast-message { color: var(--text-primary); font-size: 14px; font-weight: 500; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  @keyframes fadeInLeft {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
   @media (max-width: 900px) {
-    .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
-    .sidebar.open { transform: translateX(0); }
-    .content-wrapper { margin-left: 0; max-width: 100%; }
-    .profile-card { flex-direction: column; text-align: center; }
-    .profile-badges { justify-content: center; }
+    .dashboard-layout { flex-direction: column; gap: 24px; }
+
+    .sidebar {
+      width: 100%;
+      flex-direction: row;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      gap: 6px;
+    }
+
+    .sidebar-item { flex-shrink: 0; padding: 12px 16px; }
+
+    .sidebar-item.active { box-shadow: inset 0 -3px 0 var(--accent); }
+
+    .sidebar-divider { display: none; }
+
+    .sidebar-item.logout { margin-top: 0; margin-left: auto; }
+
+    :root { --sidebar-width: 100%; }
+  }
+
+  @media (max-width: 600px) {
+    .main-content { padding: 20px 16px 40px; }
+
+    .vip-header { gap: 14px; }
+
+    .vip-icon-wrapper { width: 52px; height: 52px; }
+
+    .vip-icon { font-size: 22px; }
+
+    .vip-tier { font-size: 18px; }
+
+    .vip-perks { gap: 6px; }
+
+    .perk-item { font-size: 11px; padding: 4px 8px; }
+
+    .vip-actions { flex-direction: column; }
+
+    .order-details { grid-template-columns: 1fr; }
+
+    .card { padding: 18px; }
   }
 `;
 
 export const content = `
 <main class="main-content">
   <div class="dashboard-layout">
-
-    <!-- Sidebar -->
-    <nav class="sidebar" id="sidebar">
-      <div class="sidebar-section">
-        <div class="sidebar-label">账户</div>
-        <button class="sidebar-item active" onclick="switchSection('dashboard')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          控制面板
-        </button>
-        <button class="sidebar-item" onclick="switchSection('subscription')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h12"/></svg>
-          订阅管理
-        </button>
-        <button class="sidebar-item" onclick="switchSection('orders')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-          订单历史
-        </button>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-label">支持</div>
-        <button class="sidebar-item" onclick="switchSection('tickets')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-          工单支持
-        </button>
-        <button class="sidebar-item" onclick="window.location.href='/favorites'">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          我的收藏
-        </button>
-      </div>
-
-      <div class="sidebar-section" style="margin-top: auto;">
-        <button class="sidebar-item sidebar-logout" onclick="logout()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          登出
-        </button>
-      </div>
+    <nav class="sidebar">
+      <button class="sidebar-item active" onclick="switchTab('account')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path></svg>
+账号
+      </button>
+      <button class="sidebar-item" onclick="switchTab('orders')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+命令
+      </button>
+      <button class="sidebar-item" onclick="switchTab('tickets')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"></path><rect x="9" y="3" width="6" height="4" rx="1"></rect></svg>
+门票
+      </button>
+      <div class="sidebar-divider"></div>
+      <button class="sidebar-item logout" onclick="logout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+登出
+      </button>
     </nav>
 
-    <!-- Main Content -->
-    <div class="content-wrapper">
-
-      <!-- Section: Dashboard -->
-      <div id="dashboardSection" class="section active">
-        <h1 class="section-title">控制面板</h1>
-
-        <!-- Profile Card -->
-        <div class="profile-card">
-          <div class="profile-avatar" id="userAvatar">?</div>
-          <div class="profile-info">
-            <h2 class="profile-name">
-              <span id="userName">用户</span>
-              <span class="vip-star" id="vipStar" style="display: none;">
-                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              </span>
-            </h2>
-            <p class="profile-email" id="userEmail">-</p>
-            <div class="profile-badges">
-              <span class="badge badge-vip" id="vipBadge" style="display: none;">
-                <span id="vipTierName">VIP</span>
-              </span>
-              <span class="badge badge-verified" id="verifiedBadge" style="display: none;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>
-                已验证
-              </span>
-              <span class="badge badge-member" id="memberBadge" style="display: none;">
-                成员 <span id="memberSince">-</span>
-              </span>
-            </div>
-          </div>
-          <div id="profileActions" style="display: none;">
-            <button class="action-btn" onclick="window.location.href='/freesub'">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-              续费
-            </button>
-          </div>
-        </div>
-
-        <!-- Subscription Settings -->
-        <div class="settings-group">
-          <div class="settings-group-title">订阅信息</div>
-          <div class="settings-row">
-            <div>
-              <div class="settings-label">订阅状态</div>
-              <div class="settings-desc">当前订阅的有效性</div>
-            </div>
-            <div id="subStatusBox" style="display: none;">
-              <span class="sub-status" id="subStatus">
-                <span class="status-dot" id="statusDot"></span>
-                <span id="statusText">Active</span>
-              </span>
-            </div>
-          </div>
-          <div class="settings-row" id="subUrlRow" style="display: none;">
-            <div>
-              <div class="settings-label">订阅链接</div>
-              <div class="settings-desc">复制到播放器使用</div>
-              <div class="format-toggle" id="formatToggle" style="display: none;">
-                <button class="format-btn active" onclick="setSubFormat('m3u')">M3U</button>
-                <button class="format-btn" onclick="setSubFormat('txt')">TXT</button>
+    <div class="content-area">
+      <div id="accountTab" class="tab-panel active">
+        <div class="profile-hero" id="profileHero">
+          <div class="profile-hero-content">
+            <div class="profile-header">
+              <div class="avatar-wrapper">
+                <div class="avatar-ring vip-ring" id="avatarRing"></div>
+                <div class="avatar" id="userAvatar">?</div>
               </div>
-              <div class="sub-url-box">
-                <span class="sub-url-text" id="subUrlText">-</span>
-                <button class="copy-btn" onclick="copySubUrl()">复制</button>
+              <div class="profile-info">
+                <div class="profile-name">
+                  <span id="userName">用户</span>
+                  <span class="vip-star" id="vipStar" style="display: inline-flex;">
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                  </span>
+                </div>
+                <div class="profile-email" id="userEmail">-</div>
+                <div class="profile-badges">
+                  <span class="badge badge-vip" id="vipBadge" style="display: inline-flex;">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                    <span id="vipTierName">Crown VIP</span>
+                  </span>
+                  <span class="badge badge-verified" id="verifiedBadge" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="10" height="10"><polyline points="20 6 9 17 4 12"></polyline></svg>
+已验证
+                  </span>
+                  <span class="badge badge-member" id="memberBadge">
+成员 <span id="memberSince">-</span>
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="settings-row" id="subDetailsRow" style="display: none;">
-            <div>
-              <div class="settings-label">到期时间</div>
-              <div class="settings-desc">订阅有效期</div>
-            </div>
-            <div class="settings-value primary" id="subExpiry">-</div>
-          </div>
-          <div class="settings-row" id="subDurationRow" style="display: none;">
-            <div>
-              <div class="settings-label">订阅时长</div>
-              <div class="settings-desc">购买时长</div>
-            </div>
-            <div class="settings-value" id="subDuration">-</div>
-          </div>
-          <div class="settings-row" id="subIPsRow" style="display: none;">
-            <div>
-              <div class="settings-label">最大 IP 数</div>
-              <div class="settings-desc">同时在线设备数</div>
-            </div>
-            <div class="settings-value" id="subIPs">-</div>
-          </div>
-        </div>
 
-        <!-- No Subscription State -->
-        <div class="empty-state" id="noSubState" style="display: none;">
-          <p>暂无活跃订阅</p>
-          <button class="action-btn" onclick="window.location.href='/freesub'">立即订阅</button>
-        </div>
+            <div class="subscription-section" id="subscriptionSection" style="display: block;">
+              <div class="subscription-header">
+                <span class="subscription-title">订阅</span>
+                <span class="subscription-status active" id="subscriptionStatus"><span class="dot"></span> Active</span>
+              </div>
+              <div class="subscription-details">
+                <div class="subscription-detail">
+                  <span class="subscription-detail-label">订阅网址</span>
+                  <span class="subscription-detail-value code">
+                    <div class="sub-format-radios">
+                      <label class="format-radio"><input type="radio" name="vipFormat" value="m3u" checked onchange="updateVipCodeFormat()"> M3U</label>
+                      <label class="format-radio"><input type="radio" name="vipFormat" value="txt" onchange="updateVipCodeFormat()"> TXT</label>
+                    </div>
+                    <span id="vipCode" data-code="PERMA34VIP">https://iptv-search.com/sub/PERMA34VIP.m3u</span>
+                    <button class="copy-btn" onclick="copyVipCode()">收到</button>
+                  </span>
+                </div>
+                <div class="subscription-detail">
+                  <span class="subscription-detail-label">过期</span>
+                  <span class="subscription-detail-value" id="vipExpiry">Permanent</span>
+                </div>
+                <div class="subscription-detail">
+                  <span class="subscription-detail-label">持续时间</span>
+                  <span class="subscription-detail-value" id="vipDuration">-1 天</span>
+                </div>
+                <div class="subscription-detail">
+                  <span class="subscription-detail-label">最大IP数</span>
+                  <span class="subscription-detail-value" id="vipMaxIps">5</span>
+                </div>
+              </div>
+            </div>
 
-        <!-- Quick Actions -->
-        <div class="settings-group">
-          <div class="settings-group-title">快捷操作</div>
-          <div class="settings-row" onclick="switchSection('orders')" style="cursor: pointer;">
-            <div>
-              <div class="settings-label">订单历史</div>
-              <div class="settings-desc">查看所有订阅记录</div>
+            <div class="perks-section" id="perksSection" style="display: block;">
+              <div class="perks-title">您的福利</div>
+              <div class="perks-grid">
+                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>没有广告</span>
+                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>无限频道</span>
+                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>优先支持</span>
+                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>云同步</span>
+              </div>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-          <div class="settings-row" onclick="switchSection('tickets')" style="cursor: pointer;">
-            <div>
-              <div class="settings-label">工单支持</div>
-              <div class="settings-desc">获取帮助和支持</div>
+
+            <div class="profile-actions">
+              <button class="btn-renew" id="btnRenew" onclick="window.location.href='/freesub'" style="display: inline-flex;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"></path></svg>
+更新VIP
+              </button>
+              <button class="btn-plans" id="btnViewPlans" onclick="window.location.href='/freesub'" style="display: none;">查看平面图</button>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-          <div class="settings-row" onclick="window.location.href='/favorites'" style="cursor: pointer;">
-            <div>
-              <div class="settings-label">我的收藏</div>
-              <div class="settings-desc">查看收藏的频道</div>
-            </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
         </div>
       </div>
 
-      <!-- Section: Subscription -->
-      <div id="subscriptionSection" class="section" style="display: none;">
-        <h1 class="section-title">订阅管理</h1>
-
-        <div class="settings-group">
-          <div class="settings-group-title">线路方案</div>
-          <div class="settings-row" style="flex-direction: column; align-items: flex-start; gap: 12px;">
-            <div class="settings-desc" style="margin-bottom: 8px;">选择您要观看的频道方案</div>
-            <div class="scheme-list" id="schemeList">
-              <div class="loading"><div class="spinner"></div>加载中...</div>
-            </div>
-            <div class="scheme-hint" id="schemeHint"></div>
-          </div>
+      <div class="scheme-section" id="schemeSection" style="display:none;">
+        <div class="scheme-section-header">
+          <span class="scheme-section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            线路方案
+          </span>
+          <span class="scheme-section-hint" id="schemeSectionHint"></span>
         </div>
+        <div class="scheme-switcher" id="schemeSwitcher"></div>
+        <div class="scheme-vip-lock" id="schemeVipLock" style="display:none;">
+          🔒 切换线路方案为 VIP 专属功能。<a href="/freesub">开通 VIP →</a>
+        </div>
+      </div>
 
-        <div class="settings-group">
-          <div class="settings-group-title">当前订阅</div>
-          <div class="settings-row" id="subStatusBox2" style="display: none;">
-            <div>
-              <div class="settings-label">订阅状态</div>
-            </div>
-            <span class="sub-status" id="subStatus2">
-              <span class="status-dot" id="statusDot2"></span>
-              <span id="statusText2">Active</span>
+      <div id="ordersTab" class="tab-panel" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+骑士团历史
             </span>
           </div>
-          <div class="settings-row" id="subUrlRow2" style="display: none;">
-            <div>
-              <div class="settings-label">订阅链接</div>
-              <div class="sub-url-box">
-                <span class="sub-url-text" id="subUrlText2">-</span>
-                <button class="copy-btn" onclick="copySubUrl()">复制</button>
-              </div>
-            </div>
-          </div>
-          <div class="settings-row" id="subExpiryRow2" style="display: none;">
-            <div>
-              <div class="settings-label">到期时间</div>
-            </div>
-            <div class="settings-value primary" id="subExpiry2">-</div>
-          </div>
-          <div class="settings-row" id="subDurationRow2" style="display: none;">
-            <div>
-              <div class="settings-label">订阅时长</div>
-            </div>
-            <div class="settings-value" id="subDuration2">-</div>
-          </div>
-          <div class="settings-row" id="subIPsRow2" style="display: none;">
-            <div>
-              <div class="settings-label">最大 IP 数</div>
-            </div>
-            <div class="settings-value" id="subIPs2">-</div>
-          </div>
-        </div>
-
-        <div style="margin-top: 16px;">
-          <button class="action-btn" onclick="switchSection('dashboard')">返回控制面板</button>
+          <div id="ordersList" class="order-list"></div>
+          <div id="ordersLoading" class="loading"><div class="spinner"></div></div>
         </div>
       </div>
 
-      <!-- Section: Orders -->
-      <div id="ordersSection" class="section" style="display: none;">
-        <h1 class="section-title">订单历史</h1>
-
-        <div class="settings-group">
-          <div class="settings-group-title">所有订单</div>
-          <div class="orders-list" id="ordersList">
-            <div class="loading"><div class="spinner"></div>加载中...</div>
+      <div id="ticketsTab" class="tab-panel" style="display: none;">
+        <div class="card">
+          <div class="section-header">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;vertical-align:-4px;margin-right:8px;"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"></path><rect x="9" y="3" width="6" height="4" rx="1"></rect></svg>
+支持工单
+            </h3>
+            <button class="btn-accent" onclick="showCreateTicketModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+新票
+            </button>
           </div>
-        </div>
-
-        <div style="margin-top: 16px;">
-          <button class="action-btn secondary" onclick="switchSection('dashboard')">返回</button>
+          <div id="ticketsList" class="ticket-list"></div>
+          <div id="ticketsLoading" class="loading"><div class="spinner"></div></div>
         </div>
       </div>
-
-      <!-- Section: Tickets -->
-      <div id="ticketsSection" class="section" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <h1 class="section-title" style="margin: 0; padding: 0; border: none;">工单支持</h1>
-          <button class="action-btn" onclick="showCreateTicketModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            新建工单
-          </button>
-        </div>
-
-        <div class="settings-group">
-          <div class="settings-group-title">我的工单</div>
-          <div id="ticketsList">
-            <div class="loading"><div class="spinner"></div>加载中...</div>
-          </div>
-        </div>
-
-        <div style="margin-top: 16px;">
-          <button class="action-btn secondary" onclick="switchSection('dashboard')">返回</button>
-        </div>
-      </div>
-
     </div>
   </div>
 </main>
 
-<!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Create Ticket Modal -->
-<div id="ticketModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 class="modal-title">新建工单</h3>
-      <button class="modal-close" onclick="closeTicketModal()">×</button>
+<div id="successModal" class="success-modal">
+  <div class="success-content">
+    <button class="modal-close" onclick="closeSuccessModal()">×</button>
+    <div class="success-icon">🎉</div>
+    <h2 class="success-title" data-i18n="paymentSuccess">paymentSuccess</h2>
+    <p class="success-message" data-i18n="subUrlGenerated">subUrlGenerated</p>
+    <div class="sub-format-radios sub-format-radios-modal">
+      <label class="format-radio"><input type="radio" name="modalFormat" value="m3u" checked onchange="updateModalCodeFormat()"> M3U</label>
+      <label class="format-radio"><input type="radio" name="modalFormat" value="txt" onchange="updateModalCodeFormat()"> TXT</label>
     </div>
-    <div class="modal-body">
-      <form id="ticketForm">
-        <div class="form-group">
-          <label class="form-label">关联订单（可选）</label>
-          <select class="form-select" id="ticketOrderId">
-            <option value="">无关联订单</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">工单类型</label>
-          <select class="form-select" id="ticketType">
-            <option value="payment">支付问题</option>
-            <option value="order">订单咨询</option>
-            <option value="technical">技术问题</option>
-            <option value="other">其他</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">标题</label>
-          <input type="text" class="form-input" id="ticketSubject" maxlength="200" placeholder="简要描述问题">
-        </div>
-        <div class="form-group">
-          <label class="form-label">详细描述</label>
-          <textarea class="form-textarea" id="ticketDescription" placeholder="请详细描述您的问题..."></textarea>
-        </div>
-      </form>
+    <div class="code-display" id="generatedCode">-</div>
+    <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">copyUrl</button>
+    <div class="modal-tips">
+      <p class="modal-tip">直接将此URL添加到你的IPTV播放器中</p>
+      <p class="modal-tip-highlight">关闭后查看账户内的订单详情</p>
     </div>
-    <div class="modal-footer">
-      <button class="action-btn secondary" onclick="closeTicketModal()">取消</button>
-      <button class="action-btn" onclick="submitTicket()">提交工单</button>
+  </div>
+</div>
+
+<div id="createTicketModal" class="ticket-modal">
+  <div class="ticket-modal-content">
+    <div class="ticket-modal-header">
+      <h3 data-i18n="createNewTicket">createNewTicket</h3>
+      <button class="ticket-modal-close" onclick="closeCreateTicketModal()">×</button>
+    </div>
+    <form id="createTicketForm">
+      <div class="form-group">
+        <label data-i18n="selectOrder">selectOrder</label>
+        <select id="ticketOrderId" required>
+          <option value="" data-i18n="selectOrderPlaceholder">selectOrderPlaceholder</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label data-i18n="ticketType">ticketType</label>
+        <select id="ticketType" required>
+          <option value="payment" data-i18n="typePayment">typePayment</option>
+          <option value="order" data-i18n="typeOrder">typeOrder</option>
+          <option value="technical" data-i18n="typeTechnical">typeTechnical</option>
+          <option value="other" data-i18n="typeOther">typeOther</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label data-i18n="ticketSubject">ticketSubject</label>
+        <input type="text" id="ticketSubject" required maxlength="200" placeholder="简要描述你的问题">
+      </div>
+      <div class="form-group">
+        <label data-i18n="ticketDescription">ticketDescription</label>
+        <textarea id="ticketDescription" required placeholder="请详细描述你的问题......"></textarea>
+      </div>
+      <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+        <button type="button" class="btn btn-secondary" onclick="closeCreateTicketModal()" data-i18n="cancel">cancel</button>
+        <button type="submit" class="btn btn-primary" data-i18n="submitTicket">submitTicket</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="ticketDetailModal" class="ticket-modal">
+  <div class="ticket-modal-content">
+    <div class="ticket-modal-header">
+      <h3 id="ticketDetailTitle">门票详情</h3>
+      <button class="ticket-modal-close" onclick="closeTicketDetailModal()">×</button>
+    </div>
+    <div id="ticketDetailContent"></div>
+    <div class="ticket-reply-form" id="ticketReplyForm">
+      <textarea id="replyContent" placeholder="请在这里输入你的回复......"></textarea>
+      <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <button type="button" class="btn btn-danger" onclick="closeTicketAction()" data-i18n="closeTicket">closeTicket</button>
+        <button type="button" class="btn btn-primary" onclick="submitTicketReply()" data-i18n="sendReply">sendReply</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
 const API_BASE = '/api/auth';
-let currentLang = navigator.language?.startsWith('zh') ? 'zh-CN' : 'en';
-let currentScheme = { type: 'all' };
-let availableSchemes = [];
-let latestActiveCode = null;
-let isVipActive = false;
-let currentSubFormat = 'm3u';
+
+function detectBrowserLanguage() {
+  const savedLang = localStorage.getItem('account_lang');
+  if (savedLang) return savedLang;
+  const browserLang = navigator.language || navigator.userLanguage || 'zh-CN';
+  return browserLang.startsWith('zh') && (browserLang.includes('CN') || browserLang === 'zh') ? 'zh-CN' : 'en';
+}
+
+let currentLang = detectBrowserLanguage();
+function t(key) { return key; }
+
+function setLanguage() {
+  const titleKey = document.querySelector('[data-i18n-title]');
+  if (titleKey) {
+    const key = titleKey.getAttribute('data-i18n-title');
+    document.title = t(key);
+  }
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => setLanguage(currentLang));
+} else {
+  setLanguage(currentLang);
+}
 
 function getToken() { return localStorage.getItem('auth_token'); }
 
-// Check auth
 const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('token')) {
-  localStorage.setItem('auth_token', urlParams.get('token'));
+const urlToken = urlParams.get('token');
+if (urlToken) {
+  localStorage.setItem('auth_token', urlToken);
   window.history.replaceState({}, document.title, window.location.pathname);
 }
 
@@ -1088,164 +1235,221 @@ if (!getToken()) {
   window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
 }
 
-// Section switching
-function switchSection(section) {
-  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-
-  document.getElementById(section + 'Section').style.display = 'block';
-  event.target.closest('.sidebar-item')?.classList.add('active') ||
-    document.querySelector('.sidebar-item[onclick*="' + section + '"]')?.classList.add('active');
-
-  if (section === 'orders') loadOrders();
-  if (section === 'tickets') loadTickets();
+async function validateToken() {
+  try {
+    const response = await fetch(API_BASE + '/user', {
+      headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+    if (response.status === 401) {
+      localStorage.removeItem('auth_token');
+      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+      return false;
+    }
+    return response.ok;
+  } catch (error) {
+    console.error('验证token失败:', error);
+    return false;
+  }
 }
 
-// Toast
-function showToast(message, type = 'info') {
-  const container = document.getElementById('toastContainer');
-  const toast = document.createElement('div');
-  toast.className = 'toast ' + type;
-  toast.textContent = message;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+(async () => {
+  const isValid = await validateToken();
+  if (!isValid) {
+    window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+  }
+})();
+
+function switchTab(tab) {
+  document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+  const sidebarItems = document.querySelectorAll('.sidebar-item');
+  if (tab === 'account') sidebarItems[0].classList.add('active');
+  else if (tab === 'orders') sidebarItems[1].classList.add('active');
+  else if (tab === 'tickets') sidebarItems[2].classList.add('active');
+
+  document.querySelectorAll('.tab-panel').forEach(panel => panel.style.display = 'none');
+  document.getElementById(tab + 'Tab').style.display = 'block';
+
+  if (tab === 'account') loadUserInfo();
+  else if (tab === 'orders') loadOrderHistory();
+  else if (tab === 'tickets') loadTickets();
 }
 
-// Load user info
 async function loadUserInfo() {
   try {
-    const resp = await fetch(API_BASE + '/user', { headers: { 'Authorization': 'Bearer ' + getToken() } });
-    const data = await resp.json();
-    if (resp.ok && data.success) {
+    const response = await fetch(API_BASE + '/user', {
+      headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+    const data = await response.json();
+    if (response.ok && data.success) {
       const user = data.user;
+      const createdDate = new Date(user.created_at);
       document.getElementById('userName').textContent = user.email.split('@')[0];
       document.getElementById('userEmail').textContent = user.email;
       document.getElementById('userAvatar').textContent = user.email.charAt(0).toUpperCase();
-      const createdDate = new Date(user.created_at);
       document.getElementById('memberSince').textContent = createdDate.toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US', { month: 'short', year: 'numeric' });
       if (user.is_verified) {
         document.getElementById('verifiedBadge').style.display = 'inline-flex';
       }
+    } else {
+      showToast(data.error || t('loadUserInfoFailed'), 'error');
+      if (response.status === 401) {
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+      }
     }
-  } catch (e) { console.error('Load user info error:', e); }
+  } catch (error) {
+    console.error('加载用户信息失败:', error);
+    showToast(t('networkError'), 'error');
+  }
 }
 
-// Load VIP status
 async function loadVipStatus() {
+  const profileHero = document.getElementById('profileHero');
+  const avatarRing = document.getElementById('avatarRing');
+  const vipStar = document.getElementById('vipStar');
+  const vipBadge = document.getElementById('vipBadge');
+  const vipTierNameEl = document.getElementById('vipTierName');
+  const subscriptionSection = document.getElementById('subscriptionSection');
+  const vipCodeEl = document.getElementById('vipCode');
+  const vipExpiryEl = document.getElementById('vipExpiry');
+  const vipDurationEl = document.getElementById('vipDuration');
+  const vipMaxIpsEl = document.getElementById('vipMaxIps');
+  const subscriptionStatusEl = document.getElementById('subscriptionStatus');
+  const vipStatusTextEl = document.getElementById('vipStatusText');
+  const perksSection = document.getElementById('perksSection');
+  const btnRenew = document.getElementById('btnRenew');
+  const btnViewPlans = document.getElementById('btnViewPlans');
+
+  if (!profileHero || !avatarRing) { console.error('Profile hero elements not found'); return; }
+
   try {
-    const resp = await fetch(API_BASE + '/orders', { headers: { 'Authorization': 'Bearer ' + getToken() } });
-    const data = await resp.json();
+    const response = await fetch(API_BASE + '/orders', {
+      headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+    const data = await response.json();
 
-    if (resp.ok && data.success && data.orders?.length > 0) {
-      const completed = data.orders.filter(o => o.status === 'completed');
-      if (completed.length === 0) return;
+    if (vipBadge) vipBadge.style.display = 'none';
+    if (vipStar) vipStar.style.display = 'none';
+    if (subscriptionSection) subscriptionSection.style.display = 'none';
+    if (perksSection) perksSection.style.display = 'none';
+    if (btnRenew) btnRenew.style.display = 'none';
+    if (btnViewPlans) btnViewPlans.style.display = 'inline-flex';
+    if (avatarRing) avatarRing.classList.remove('vip-ring');
+    if (subscriptionStatusEl) subscriptionStatusEl.className = 'subscription-status';
 
-      const latest = completed.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+    if (response.ok && data.success && data.orders && data.orders.length > 0) {
+      const completedOrders = data.orders.filter(order => order.status === 'completed');
+      if (completedOrders.length === 0) return;
+
+      const latestOrder = completedOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
       const now = new Date();
-      const expiredAt = latest.expired_at ? new Date(latest.expired_at) : null;
-      const isExpired = expiredAt && expiredAt < now;
-      const isPermanent = latest.code_duration_days === -1;
-      isVipActive = !isExpired;
-      latestActiveCode = latest.code;
+      const codeExpiredAt = latestOrder.expired_at;
+      const isExpired = codeExpiredAt && new Date(codeExpiredAt) < now;
+      const isPermanent = latestOrder.code_duration_days === -1 || latestOrder.code_duration_days === null;
 
-      if (isVipActive) {
-        document.getElementById('vipBadge').style.display = 'inline-flex';
-        document.getElementById('vipStar').style.display = 'inline-flex';
-        document.getElementById('memberBadge').style.display = 'inline-flex';
-        document.getElementById('profileActions').style.display = 'block';
-        document.getElementById('userAvatar').classList.add('vip');
+      let remainingDays = -1;
+      if (!isPermanent && codeExpiredAt) {
+        const expiryDate = new Date(codeExpiredAt);
+        if (expiryDate > now) remainingDays = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+      }
 
-        let tierName = 'VIP';
-        let remainingDays = isPermanent ? 999 : Math.ceil((expiredAt - now) / 86400000);
-        if (isPermanent || remainingDays > 365) tierName = 'Crown VIP';
-        else if (remainingDays > 180) tierName = 'Emerald VIP';
-        else if (remainingDays > 90) tierName = 'Gold VIP';
-        else if (remainingDays > 30) tierName = 'Silver VIP';
-        else tierName = 'Bronze VIP';
-        document.getElementById('vipTierName').textContent = tierName;
+      let tierName = 'VIP';
+      if (isPermanent || remainingDays === -1) tierName = 'Crown VIP';
+      else if (remainingDays > 365) tierName = 'Crown VIP';
+      else if (remainingDays > 180) tierName = 'Emerald VIP';
+      else if (remainingDays > 90) tierName = 'Gold VIP';
+      else if (remainingDays > 30) tierName = 'Silver VIP';
+      else tierName = 'Bronze VIP';
 
-        // Show subscription info
-        document.getElementById('subStatusBox').style.display = 'block';
-        document.getElementById('subUrlRow').style.display = 'flex';
-        document.getElementById('formatToggle').style.display = 'flex';
-        document.getElementById('subDetailsRow').style.display = 'flex';
-        document.getElementById('subDurationRow').style.display = 'flex';
-        document.getElementById('subIPsRow').style.display = 'flex';
-        document.getElementById('noSubState').style.display = 'none';
+      if (vipBadge) { vipBadge.style.display = 'inline-flex'; vipTierNameEl.textContent = tierName; }
+      if (vipStar) vipStar.style.display = 'inline-flex';
+      if (subscriptionSection) subscriptionSection.style.display = 'block';
+      if (perksSection) perksSection.style.display = 'block';
+      if (btnRenew) btnRenew.style.display = 'inline-flex';
+      if (btnViewPlans) btnViewPlans.style.display = 'none';
+      if (avatarRing) avatarRing.classList.add('vip-ring');
 
-        document.getElementById('statusDot').className = 'status-dot' + (isExpired ? ' expired' : '');
-        document.getElementById('statusText').textContent = isExpired ? '已过期' : '活跃';
-        document.getElementById('statusText').style.color = isExpired ? 'var(--error)' : 'var(--success)';
+      const baseUrl = window.location.origin;
+      window._vipCodeBase = baseUrl + '/sub/' + latestOrder.code;
+      if (vipCodeEl) vipCodeEl.dataset.code = latestOrder.code;
+      updateVipCodeFormat();
 
-        const baseUrl = window.location.origin;
-        window._vipCodeBase = baseUrl + '/sub/' + latest.code;
-        updateSubUrl();
+      let expiryText = 'Permanent';
+      if (isExpired) {
+        expiryText = codeExpiredAt ? new Date(codeExpiredAt).toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US') : 'Expired';
+        if (subscriptionStatusEl) { subscriptionStatusEl.className = 'subscription-status expired'; subscriptionStatusEl.innerHTML = '<span class="dot"></span> Expired'; }
+        if (vipStatusTextEl) vipStatusTextEl.textContent = 'Expired';
+      } else if (isPermanent) {
+        expiryText = 'Permanent';
+        if (subscriptionStatusEl) { subscriptionStatusEl.className = 'subscription-status active'; subscriptionStatusEl.innerHTML = '<span class="dot"></span> Active'; }
+        if (vipStatusTextEl) vipStatusTextEl.textContent = 'Active';
+      } else {
+        expiryText = codeExpiredAt ? new Date(codeExpiredAt).toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US') : 'Permanent';
+        if (subscriptionStatusEl) { subscriptionStatusEl.className = 'subscription-status active'; subscriptionStatusEl.innerHTML = '<span class="dot"></span> Active'; }
+        if (vipStatusTextEl) vipStatusTextEl.textContent = 'Active';
+      }
+      if (vipExpiryEl) vipExpiryEl.textContent = expiryText;
 
-        document.getElementById('subExpiry').textContent = expiredAt?.toLocaleDateString() || '永久';
-        document.getElementById('subDuration').textContent = latest.duration_days ? latest.duration_days + '天' : '永久';
-        document.getElementById('subIPs').textContent = latest.max_ips || 3;
+      const dayUnit = currentLang === 'zh-CN' ? ' 天' : ' days';
+      if (vipDurationEl) vipDurationEl.textContent = latestOrder.duration_days ? latestOrder.duration_days + dayUnit : '-';
+      if (vipMaxIpsEl) vipMaxIpsEl.textContent = latestOrder.max_ips || 3;
 
-        // Show same in subscription section
-        document.getElementById('subStatusBox2').style.display = 'flex';
-        document.getElementById('subUrlRow2').style.display = 'flex';
-        document.getElementById('subExpiryRow2').style.display = 'flex';
-        document.getElementById('subDurationRow2').style.display = 'flex';
-        document.getElementById('subIPsRow2').style.display = 'flex';
-        document.getElementById('statusDot2').className = 'status-dot' + (isExpired ? ' expired' : '');
-        document.getElementById('statusText2').textContent = isExpired ? '已过期' : '活跃';
-        document.getElementById('subUrlText2').textContent = window._vipCodeBase + '.m3u';
-        document.getElementById('subExpiry2').textContent = document.getElementById('subExpiry').textContent;
-        document.getElementById('subDuration2').textContent = document.getElementById('subDuration').textContent;
-        document.getElementById('subIPs2').textContent = document.getElementById('subIPs').textContent;
-
-        // Init scheme
-        if (latest.sub_mode === 'favorites') currentScheme = { type: 'favorites' };
-        else if (latest.topic_id) currentScheme = { type: 'topic', id: latest.topic_id };
-        else currentScheme = { type: 'all' };
+      // 初始化线路方案
+      latestActiveCode = latestOrder.code;
+      isVipActive = !isExpired;  // VIP 门控：有 active 订阅即可
+      if (latestOrder.sub_mode === 'favorites') currentScheme = { type: 'favorites' };
+      else if (latestOrder.topic_id) currentScheme = { type: 'topic', id: latestOrder.topic_id };
+      else currentScheme = { type: 'all' };
+      const schemeEl = document.getElementById('schemeSection');
+      const hintEl = document.getElementById('schemeSectionHint');
+      if (schemeEl) {
+        schemeEl.style.display = 'block';
+        if (hintEl) {
+          if (isExpired) {
+            hintEl.textContent = currentLang === 'zh-CN' ? '订阅已过期，无法切换' : 'Subscription expired';
+          } else {
+            hintEl.innerHTML = (currentLang === 'zh-CN' ? '切换后立即生效，订阅地址不变 · 当前：' : 'Takes effect immediately · Current: ');
+          }
+        }
+        loadSchemes();
+      }
+    } else {
+      // 无 completed 订单
+      latestActiveCode = null;
+      currentScheme = { type: 'all' };
+      const schemeEl = document.getElementById('schemeSection');
+      if (schemeEl) {
+        schemeEl.style.display = 'block';
+        const hintEl = document.getElementById('schemeSectionHint');
+        if (hintEl) hintEl.textContent = currentLang === 'zh-CN' ? '激活订阅后可切换方案' : 'Activate subscription to switch';
         loadSchemes();
       }
     }
-  } catch (e) { console.error('Load VIP status error:', e); }
-}
-
-// Scheme management
-async function loadSchemes() {
-  try {
-    const resp = await fetch('/api/subscription/topics');
-    const data = await resp.json();
-    const topics = (data?.success && Array.isArray(data.topics)) ? data.topics : [];
-    availableSchemes = [
-      { type: 'all', id: 'all', name: currentLang === 'zh-CN' ? '全部频道' : 'All Channels', desc: currentLang === 'zh-CN' ? '所有可用频道' : 'All available channels' },
-      { type: 'favorites', id: 'favorites', name: currentLang === 'zh-CN' ? '我的收藏' : 'My Favorites', desc: currentLang === 'zh-CN' ? '仅显示收藏的频道' : 'Only favorited channels' },
-    ];
-    topics.forEach(t => availableSchemes.push({ type: 'topic', id: t.id, name: t.name, desc: t.description || '' }));
-    renderSchemes();
-  } catch (e) { console.error('Load schemes error:', e); }
-}
-
-function renderSchemes() {
-  const container = document.getElementById('schemeList');
-  const hint = document.getElementById('schemeHint');
-  if (!container) return;
-
-  container.innerHTML = availableSchemes.map(s => {
-    const selected = isCurrentScheme(s);
-    const disabled = !isVipActive ? 'disabled' : '';
-    return '<button class="scheme-chip ' + (selected ? 'selected' : '') + '" data-type="' + s.type + '" data-id="' + s.id + '" ' + disabled + ' onclick="selectScheme(\'' + s.type + '\', \'' + s.id + '\')">' +
-      s.name + (s.desc ? '<br><span style="font-size:11px;color:var(--text-muted);font-weight:400;">' + s.desc + '</span>' : '') +
-    '</button>';
-  }).join('');
-
-  if (hint) {
-    if (!isVipActive && !latestActiveCode) {
-      hint.innerHTML = currentLang === 'zh-CN' ? '激活订阅后可切换方案' : 'Activate subscription to switch';
-    } else if (!isVipActive) {
-      hint.innerHTML = (currentLang === 'zh-CN' ? '切换线路方案为 VIP 专属功能。<a href="/freesub">开通 VIP →</a>' : 'VIP only. <a href="/freesub">Subscribe →</a>');
-    } else {
-      hint.textContent = currentLang === 'zh-CN' ? '切换后立即生效' : 'Takes effect immediately';
+  } catch (error) {
+    console.error('加载VIP状态失败:', error);
+    const schemeEl = document.getElementById('schemeSection');
+    if (schemeEl) {
+      schemeEl.style.display = 'block';
+      loadSchemes();
     }
   }
 }
+
+function getVipFormat() {
+  const sel = document.querySelector('input[name="vipFormat"]:checked');
+  return sel ? sel.value : 'm3u';
+}
+function updateVipCodeFormat() {
+  if (!window._vipCodeBase) return;
+  const vipCodeEl = document.getElementById('vipCode');
+  if (vipCodeEl) vipCodeEl.textContent = window._vipCodeBase + '.' + getVipFormat();
+}
+
+// ============ 线路方案切换 ============
+let currentScheme = { type: 'all' }; // {type:'all'|'favorites'|'topic', id?:number|string}
+let availableSchemes = [];
+let latestActiveCode = null;
+let schemeSwitching = false;
+let isVipActive = false; // 由 loadVipStatus 根据 active 订阅设置
 
 function isCurrentScheme(s) {
   if (currentScheme.type === 'all') return s.type === 'all';
@@ -1254,152 +1458,473 @@ function isCurrentScheme(s) {
   return false;
 }
 
-async function selectScheme(type, id) {
-  if (!isVipActive || !latestActiveCode) return;
-  if (isCurrentScheme({ type, id })) return;
-
-  if (type === 'favorites') {
-    try {
-      const resp = await fetch('/api/favorites', { headers: { 'Authorization': 'Bearer ' + getToken() } });
-      const data = await resp.json();
-      if (data?.count === 0) {
-        showToast(currentLang === 'zh-CN' ? '还没有收藏，请先添加' : 'No favorites yet');
-        return;
-      }
-    } catch (e) {}
+function renderSchemeSwitcher() {
+  const container = document.getElementById('schemeSwitcher');
+  if (!container) return;
+  if (availableSchemes.length === 0) {
+    container.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">' +
+      (currentLang === 'zh-CN' ? '暂无可用方案' : 'No schemes available') + '</span>';
+    return;
   }
-
-  const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() };
-  try {
-    await fetch('/api/user/change-sub-mode?code=' + encodeURIComponent(latestActiveCode), {
-      method: 'POST', headers, body: JSON.stringify({ sub_mode: type === 'favorites' ? 'favorites' : null })
+  const parts = [];
+  for (const s of availableSchemes) {
+    const selected = isCurrentScheme(s);
+    const safeName = String(s.name).replace(/[&<>"']/g, function (c) {
+      const m = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+      return m[c];
     });
-    await fetch('/api/change-topic?code=' + encodeURIComponent(latestActiveCode), {
-      method: 'POST', headers, body: JSON.stringify({ topic_id: type === 'topic' ? Number(id) : null })
-    });
-    currentScheme = type === 'topic' ? { type, id: Number(id) } : { type };
-    renderSchemes();
-    showToast(currentLang === 'zh-CN' ? '线路方案已更新' : 'Scheme updated');
-  } catch (e) {
-    showToast(currentLang === 'zh-CN' ? '更新失败' : 'Update failed');
+    const cls = 'scheme-chip' + (selected ? ' selected' : '');
+    const dis = (schemeSwitching || !isVipActive) ? ' disabled' : '';
+    parts.push('<button type="button" class="' + cls + '" data-type="' + s.type + '" data-id="' + s.id + '"' + dis + '>' + safeName + '</button>');
   }
-}
-
-// Subscription URL
-function setSubFormat(fmt) {
-  currentSubFormat = fmt;
-  document.querySelectorAll('.format-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.textContent.toLowerCase() === fmt);
+  container.innerHTML = parts.join('');
+  container.querySelectorAll('.scheme-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      selectScheme(chip.dataset.type, chip.dataset.id);
+    });
   });
-  updateSubUrl();
+
+  // VIP 锁提示
+  const lockEl = document.getElementById('schemeVipLock');
+  if (lockEl) lockEl.style.display = (!isVipActive && latestActiveCode === null) ? 'block' : 'none';
 }
 
-function updateSubUrl() {
-  const el = document.getElementById('subUrlText');
-  if (el && window._vipCodeBase) {
-    el.textContent = window._vipCodeBase + '.' + currentSubFormat;
-  }
-  const el2 = document.getElementById('subUrlText2');
-  if (el2 && window._vipCodeBase) {
-    el2.textContent = window._vipCodeBase + '.' + currentSubFormat;
-  }
-}
-
-function copySubUrl() {
-  const text = document.getElementById('subUrlText')?.textContent;
-  if (text) {
-    navigator.clipboard.writeText(text).then(() => showToast(currentLang === 'zh-CN' ? '已复制' : 'Copied', 'success'));
-  }
-}
-
-// Orders
-async function loadOrders() {
-  const container = document.getElementById('ordersList');
-  container.innerHTML = '<div class="loading"><div class="spinner"></div>加载中...</div>';
+async function loadSchemes() {
   try {
-    const resp = await fetch(API_BASE + '/orders', { headers: { 'Authorization': 'Bearer ' + getToken() } });
+    const resp = await fetch('/api/subscription/topics');
     const data = await resp.json();
-    if (resp.ok && data.success) {
+    const topics = (data && data.success && Array.isArray(data.topics)) ? data.topics : [];
+    availableSchemes = [
+      { type: 'all', id: 'all', name: currentLang === 'zh-CN' ? '全部频道' : 'All Channels' },
+      { type: 'favorites', id: 'favorites', name: currentLang === 'zh-CN' ? '我的收藏' : 'My Favorites' },
+    ];
+    topics.forEach(function (t) { availableSchemes.push({ type: 'topic', id: t.id, name: t.name }); });
+    renderSchemeSwitcher();
+  } catch (err) {
+    console.error('Failed to load schemes:', err);
+    const c = document.getElementById('schemeSwitcher');
+    if (c) c.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">' +
+      (currentLang === 'zh-CN' ? '加载失败' : 'Load failed') + '</span>';
+  }
+}
+
+async function checkFavoritesCount() {
+  try {
+    const token = getToken();
+    const resp = await fetch('/api/favorites', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!resp.ok) return 0;
+    const data = await resp.json();
+    return (data && data.success) ? (data.count || 0) : 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
+async function selectScheme(type, id) {
+  if (schemeSwitching) return;
+  if (!isVipActive) {
+    showToast((currentLang === 'zh-CN' ? '切换线路方案为 VIP 专属功能，请先' : 'VIP only. Please ') +
+      '<a href="/freesub" style="color:#fff;font-weight:600;text-decoration:underline;">' +
+      (currentLang === 'zh-CN' ? '开通 VIP' : 'subscribe') + ' →</a>', 'error', 6000);
+    return;
+  }
+  if (!latestActiveCode) {
+    showToast(currentLang === 'zh-CN' ? '暂未激活订阅' : 'No active subscription', 'error');
+    return;
+  }
+  if (isCurrentScheme({ type: type, id: id })) return;
+
+  // 我的收藏：先检查收藏数
+  if (type === 'favorites') {
+    const count = await checkFavoritesCount();
+    if (count === 0) {
+      showToast((currentLang === 'zh-CN' ?
+        '你还没有任何收藏，请先到<a href="/favorites" style="color:#fff;font-weight:600;text-decoration:underline;">收藏页</a>添加频道' :
+        'No favorites yet. Add some at <a href="/favorites">/favorites</a>'), 'warning', 6000);
+      return;
+    }
+  }
+
+  let nextSubMode = null;
+  let nextTopicId = null;
+  if (type === 'all') { nextSubMode = null; nextTopicId = null; }
+  else if (type === 'favorites') { nextSubMode = 'favorites'; nextTopicId = null; }
+  else if (type === 'topic') { nextSubMode = null; nextTopicId = Number(id); }
+  else { return; }
+
+  schemeSwitching = true;
+  renderSchemeSwitcher();
+  const token = getToken();
+  const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+  try {
+    const subUrl = '/api/user/change-sub-mode?code=' + encodeURIComponent(latestActiveCode);
+    const subResp = await fetch(subUrl, { method: 'POST', headers, body: JSON.stringify({ sub_mode: nextSubMode }) });
+    const subData = await subResp.json();
+    if (!subResp.ok || !subData.success) throw new Error(subData.error || ('HTTP ' + subResp.status));
+
+    const topicUrl = '/api/change-topic?code=' + encodeURIComponent(latestActiveCode);
+    const topicResp = await fetch(topicUrl, { method: 'POST', headers, body: JSON.stringify({ topic_id: nextTopicId }) });
+    const topicData = await topicResp.json();
+    if (!topicResp.ok || !topicData.success) throw new Error(topicData.error || ('HTTP ' + topicResp.status));
+
+    currentScheme = (type === 'topic') ? { type: type, id: nextTopicId } : { type: type };
+    renderSchemeSwitcher();
+    showToast(currentLang === 'zh-CN' ? '线路方案已更新' : 'Scheme updated', 'success', 3000);
+  } catch (err) {
+    console.error('Scheme change failed:', err);
+    showToast(currentLang === 'zh-CN' ? '更新失败：' + err.message : 'Update failed: ' + err.message, 'error', 5000);
+    renderSchemeSwitcher();
+  } finally {
+    schemeSwitching = false;
+    renderSchemeSwitcher();
+  }
+}
+function copyVipCode() {
+  const vipCodeEl = document.getElementById('vipCode');
+  if (!vipCodeEl) { console.error('vipCode element not found'); return; }
+  const codeText = vipCodeEl.textContent;
+  navigator.clipboard.writeText(codeText).then(() => {
+    showToast(currentLang === 'zh-CN' ? '订阅地址已复制！' : 'Subscription URL copied!', 'success');
+  }).catch(err => { console.error('Copy failed:', err); });
+}
+
+async function loadOrderHistory() {
+  const ordersListDiv = document.getElementById('ordersList');
+  const loadingDiv = document.getElementById('ordersLoading');
+  ordersListDiv.innerHTML = '';
+  loadingDiv.classList.add('active');
+  try {
+    const response = await fetch(API_BASE + '/orders', {
+      headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+    const data = await response.json();
+    if (response.ok && data.success) {
       const orders = data.orders || [];
       if (orders.length === 0) {
-        container.innerHTML = '<div class="empty-state"><p>暂无订单</p></div>';
+        ordersListDiv.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><p>' + t('noOrders') + '</p></div>';
       } else {
-        container.innerHTML = orders.map(o => {
-          const date = new Date(o.created_at).toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US');
-          return '<div class="order-item"><div class="order-info"><div class="order-id">' + o.order_id + '</div><div class="order-date">' + date + '</div></div><div class="order-meta"><div class="order-amount">¥' + (o.amount || 0).toFixed(2) + '</div><span class="order-status ' + o.status + '">' + o.status + '</span></div></div>';
+        ordersListDiv.innerHTML = orders.map(order => {
+          const createdDate = new Date(order.created_at);
+          const statusClass = order.status.toLowerCase();
+          const statusText = { completed: t('statusCompleted'), pending: t('statusPending'), cancelled: t('statusCancelled') }[order.status] || order.status;
+          const dayUnit = currentLang === 'zh-CN' ? ' 天' : ' days';
+          const baseUrl = window.location.origin;
+          const subUrl = order.code ? (baseUrl + '/sub/' + order.code + '.m3u') : '-';
+          return '<div class="order-card"><div class="order-header"><span class="order-id">' + t('orderId') + '：' + order.order_id + '</span><span class="order-status ' + statusClass + '">' + statusText + '</span></div><div class="order-details"><div class="order-detail-item"><div class="order-detail-label">Code</div><div class="order-detail-value">' + (order.code || '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">' + t('subUrl') + '</div><div class="order-detail-value" style="font-size: 12px; word-break: break-all;">' + subUrl + '</div></div><div class="order-detail-item"><div class="order-detail-label">Validity</div><div class="order-detail-value">' + (order.duration_days ? order.duration_days + dayUnit : '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">' + t('ipCount') + '</div><div class="order-detail-value">' + (order.max_ips || 3) + '</div></div><div class="order-detail-item"><div class="order-detail-label">' + t('amount') + '</div><div class="order-detail-value">' + (order.amount ? '¥' + order.amount.toFixed(2) : '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">' + t('orderDate') + '</div><div class="order-detail-value">' + createdDate.toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US') + '</div></div></div></div>';
         }).join('');
       }
-    }
-  } catch (e) { console.error('Load orders error:', e); }
-}
-
-// Tickets
-async function loadTickets() {
-  const container = document.getElementById('ticketsList');
-  container.innerHTML = '<div class="loading"><div class="spinner"></div>加载中...</div>';
-  try {
-    const resp = await fetch('/api/tickets', { headers: { 'Authorization': 'Bearer ' + getToken() } });
-    const data = await resp.json();
-    if (resp.ok && data.success) {
-      const tickets = data.tickets || [];
-      if (tickets.length === 0) {
-        container.innerHTML = '<div class="empty-state"><p>暂无工单</p><button class="action-btn" style="margin-top: 12px;" onclick="showCreateTicketModal()">新建工单</button></div>';
-      } else {
-        container.innerHTML = tickets.map(t => '<div class="ticket-item" onclick="showTicketDetail(' + t.id + ')"><div class="ticket-icon ' + t.type + '">' + {payment: '💳', order: '📋', technical: '🔧', other: '❓'}[t.type] + '</div><div class="ticket-info"><div class="ticket-subject">' + t.subject + '</div><div class="ticket-meta"><span>' + new Date(t.created_at).toLocaleDateString() + '</span><span class="ticket-status ' + t.status + '">' + t.status + '</span></div></div></div>').join('');
+    } else {
+      showToast(data.error || t('loadUserInfoFailed'), 'error');
+      if (response.status === 401) {
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
       }
     }
-  } catch (e) { console.error('Load tickets error:', e); }
+  } catch (error) {
+    console.error('加载订单历史失败:', error);
+    showToast(t('networkError'), 'error');
+  } finally {
+    loadingDiv.classList.remove('active');
+  }
 }
 
-function showCreateTicketModal() {
-  document.getElementById('ticketModal').classList.add('show');
-  fetch(API_BASE + '/orders', { headers: { 'Authorization': 'Bearer ' + getToken() } })
-    .then(r => r.json())
-    .then(d => {
-      const sel = document.getElementById('ticketOrderId');
-      sel.innerHTML = '<option value="">无关联订单</option>';
-      (d.orders || []).filter(o => o.status === 'completed').forEach(o => {
-        sel.innerHTML += '<option value="' + o.order_id + '">' + o.order_id + ' - ¥' + o.amount + '</option>';
-      });
-    });
-}
-
-function closeTicketModal() {
-  document.getElementById('ticketModal').classList.remove('show');
-}
-
-async function submitTicket() {
+async function loadTickets() {
+  const ticketsListDiv = document.getElementById('ticketsList');
+  const loadingDiv = document.getElementById('ticketsLoading');
+  ticketsListDiv.innerHTML = '';
+  loadingDiv.classList.add('active');
   try {
-    const resp = await fetch('/api/tickets', {
+    const response = await fetch('/api/tickets', {
+      headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+    const data = await response.json();
+    if (response.ok && data.success) {
+      const tickets = data.tickets || [];
+      if (tickets.length === 0) {
+        ticketsListDiv.innerHTML = '<div class="empty-tickets"><svg class="empty-tickets-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg><h4>No tickets yet</h4><p>If you have any questions about your orders, feel free to contact us</p><button class="btn-accent" onclick="showCreateTicketModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create Your First Ticket</button></div>';
+      } else {
+        ticketsListDiv.innerHTML = tickets.map(ticket => {
+          const createdDate = new Date(ticket.created_at);
+          const typeLabels = { payment: 'Payment', order: 'Order', technical: 'Technical', other: 'Other' };
+          return '<div class="ticket-card ' + ticket.type + '" onclick="showTicketDetail(' + ticket.id + ')"><div class="ticket-header"><span class="ticket-type ' + ticket.type + '">' + (typeLabels[ticket.type] || ticket.type) + '</span><span class="ticket-status ' + ticket.status + '">' + ticket.status + '</span></div><div class="ticket-subject">' + ticket.subject + '</div><div class="ticket-meta"><span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Order #' + ticket.order_id + '</span><span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>' + createdDate.toLocaleDateString() + '</span></div></div>';
+        }).join('');
+      }
+    } else {
+      showToast(data.error || 'Failed to load tickets', 'error');
+    }
+  } catch (error) {
+    console.error('Load tickets error:', error);
+    showToast('Network error', 'error');
+  } finally {
+    loadingDiv.classList.remove('active');
+  }
+}
+
+async function showCreateTicketModal() {
+  document.getElementById('createTicketModal').classList.add('show');
+  try {
+    const response = await fetch('/api/auth/orders', {
+      headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+    const data = await response.json();
+    if (data.success && data.orders) {
+      const select = document.getElementById('ticketOrderId');
+      select.innerHTML = '<option value="">-- Select an order --</option>';
+      data.orders.filter(o => o.status === 'completed').forEach(order => {
+        const date = new Date(order.created_at).toLocaleDateString();
+        select.innerHTML += '<option value="' + order.order_id + '">#' + order.order_id + ' - ' + (order.duration_days || '-') + ' days - ' + (order.amount ? '¥' + order.amount.toFixed(2) : '-') + ' (' + date + ')</option>';
+      });
+    }
+  } catch (error) { console.error('Load orders error:', error); }
+}
+
+function closeCreateTicketModal() {
+  document.getElementById('createTicketModal').classList.remove('show');
+  document.getElementById('createTicketForm').reset();
+}
+
+document.getElementById('createTicketForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const order_id = document.getElementById('ticketOrderId').value;
+  const type = document.getElementById('ticketType').value;
+  const subject = document.getElementById('ticketSubject').value;
+  const description = document.getElementById('ticketDescription').value;
+  try {
+    const response = await fetch('/api/tickets', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        order_id: document.getElementById('ticketOrderId').value,
-        type: document.getElementById('ticketType').value,
-        subject: document.getElementById('ticketSubject').value,
-        description: document.getElementById('ticketDescription').value
-      })
+      body: JSON.stringify({ order_id, type, subject, description })
     });
-    const data = await resp.json();
+    const data = await response.json();
     if (data.success) {
-      closeTicketModal();
-      showToast('工单已提交', 'success');
+      showToast('Ticket created successfully', 'success');
+      closeCreateTicketModal();
       loadTickets();
     } else {
-      showToast(data.error || '提交失败');
+      showToast(data.error || 'Failed to create ticket', 'error');
     }
-  } catch (e) { showToast('网络错误'); }
+  } catch (error) {
+    console.error('Create ticket error:', error);
+    showToast('Network error', 'error');
+  }
+});
+
+let currentTicketId = null;
+
+async function showTicketDetail(ticketId) {
+  currentTicketId = ticketId;
+  document.getElementById('ticketDetailModal').classList.add('show');
+  try {
+    const response = await fetch('/api/tickets/' + ticketId, {
+      headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+    const data = await response.json();
+    if (data.success) {
+      const ticket = data.ticket;
+      const replies = data.replies || [];
+      const typeLabels = { payment: 'Payment', order: 'Order', technical: 'Technical', other: 'Other' };
+      const statusLabels = { pending: 'Pending', processing: 'Processing', resolved: 'Resolved', closed: 'Closed' };
+      const createdDate = new Date(ticket.created_at).toLocaleString();
+      document.getElementById('ticketDetailTitle').textContent = ticket.subject;
+      let html = '<div style="margin-bottom:20px;"><div style="display:flex;gap:12px;margin-bottom:12px;"><span class="ticket-type ' + ticket.type + '">' + typeLabels[ticket.type] + '</span><span class="ticket-status ' + ticket.status + '">' + statusLabels[ticket.status] + '</span></div><div style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;"><span>Order: #' + ticket.order_id + '</span> · <span>Created: ' + createdDate + '</span></div><div style="background:var(--bg-card);padding:16px;border-radius:0;margin-bottom:20px;"><p style="color:var(--text-primary);margin:0;line-height:1.6;">' + ticket.description + '</p></div></div><h4 style="margin-bottom:16px;color:var(--text-secondary);font-size:14px;text-transform:uppercase;">Replies</h4><div class="reply-list">';
+      if (replies.length === 0) {
+        html += '<p style="color:var(--text-muted);text-align:center;padding:20px;">No replies yet</p>';
+      } else {
+        replies.forEach(reply => {
+          const replyDate = new Date(reply.created_at).toLocaleString();
+          const author = reply.is_admin ? 'Support' : 'You';
+          html += '<div class="ticket-reply ' + (reply.is_admin ? 'admin' : '') + '"><div class="ticket-reply-header"><span class="ticket-reply-author">' + author + '</span><span class="ticket-reply-time">' + replyDate + '</span></div><div class="ticket-reply-content">' + reply.content + '</div></div>';
+        });
+      }
+      html += '</div>';
+      document.getElementById('ticketDetailContent').innerHTML = html;
+      document.getElementById('ticketReplyForm').style.display = ticket.status === 'closed' ? 'none' : 'block';
+    } else {
+      showToast(data.error || 'Failed to load ticket', 'error');
+      closeTicketDetailModal();
+    }
+  } catch (error) {
+    console.error('Load ticket error:', error);
+    showToast('Network error', 'error');
+    closeTicketDetailModal();
+  }
 }
 
-function logout() {
-  localStorage.removeItem('auth_token');
-  window.location.href = '/';
+function closeTicketDetailModal() {
+  document.getElementById('ticketDetailModal').classList.remove('show');
+  currentTicketId = null;
 }
 
-// Init
+async function submitTicketReply() {
+  if (!currentTicketId) return;
+  const content = document.getElementById('replyContent').value.trim();
+  if (!content) { showToast('Please enter reply content', 'warning'); return; }
+  try {
+    const response = await fetch('/api/tickets/' + currentTicketId + '/reply', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    });
+    const data = await response.json();
+    if (data.success) {
+      showToast('Reply sent successfully', 'success');
+      document.getElementById('replyContent').value = '';
+      showTicketDetail(currentTicketId);
+    } else {
+      showToast(data.error || 'Failed to send reply', 'error');
+    }
+  } catch (error) {
+    console.error('Submit reply error:', error);
+    showToast('Network error', 'error');
+  }
+}
+
+async function closeTicketAction() {
+  if (!currentTicketId) return;
+  if (!confirm('Are you sure you want to close this ticket?')) return;
+  try {
+    const response = await fetch('/api/tickets/' + currentTicketId + '/close', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+    const data = await response.json();
+    if (data.success) {
+      showToast('Ticket closed successfully', 'success');
+      closeTicketDetailModal();
+      loadTickets();
+    } else {
+      showToast(data.error || 'Failed to close ticket', 'error');
+    }
+  } catch (error) {
+    console.error('Close ticket error:', error);
+    showToast('Network error', 'error');
+  }
+}
+
+async function logout() {
+  try {
+    await fetch(API_BASE + '/logout', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + getToken() }
+    });
+  } catch (error) {
+    console.error('登出失败:', error);
+  } finally {
+    localStorage.removeItem('auth_token');
+    showToast(currentLang === 'zh-CN' ? '已安全退出' : 'Logged out successfully', 'success');
+    setTimeout(() => { window.location.href = '/'; }, 500);
+  }
+}
+
+function showToast(message, type, duration) {
+  type = type || 'info';
+  const ms = (typeof duration === 'number' && duration > 0) ? duration : 3000;
+  const container = document.getElementById('toastContainer');
+  const toastEl = document.createElement('div');
+  toastEl.className = 'toast ' + type;
+  const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+  toastEl.innerHTML = '<div class="toast-content"><span class="toast-icon">' + icons[type] + '</span><span class="toast-message">' + message + '</span></div>';
+  container.appendChild(toastEl);
+  setTimeout(() => {
+    toastEl.style.opacity = '0';
+    toastEl.style.transform = 'translateY(-10px)';
+    setTimeout(() => toastEl.remove(), 300);
+  }, ms);
+}
+
+function getModalFormat() {
+  const sel = document.querySelector('input[name="modalFormat"]:checked');
+  return sel ? sel.value : 'm3u';
+}
+function updateModalCodeFormat() {
+  if (!window._modalCodeBase) return;
+  const codeEl = document.getElementById('generatedCode');
+  if (codeEl) codeEl.textContent = window._modalCodeBase + '.' + getModalFormat();
+}
+function showSuccessModal(codeBase) {
+  window._modalCodeBase = codeBase;
+  document.getElementById('successModal').classList.add('show');
+  updateModalCodeFormat();
+}
+
+function closeSuccessModal() {
+  document.getElementById('successModal').classList.remove('show');
+  window.history.replaceState({}, document.title, window.location.pathname);
+}
+
+function copyCode() {
+  const subUrl = document.getElementById('generatedCode').textContent;
+  navigator.clipboard.writeText(subUrl).then(() => {
+    showToast(currentLang === 'zh-CN' ? '订阅地址已复制到剪贴板！' : 'Subscription URL copied to clipboard!', 'success');
+  }).catch(err => { console.error('Copy failed:', err); });
+}
+
+function checkPaymentStatus() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const paymentStatus = urlParams.get('payment');
+  if (paymentStatus === 'success') loadLatestOrder();
+  else if (paymentStatus === 'cancelled') {
+    showToast(currentLang === 'zh-CN' ? '支付已取消' : 'Payment cancelled', 'warning');
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}
+
+async function loadLatestOrder() {
+  try {
+    const response = await fetch(API_BASE + '/orders', {
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('auth_token') }
+    });
+    const data = await response.json();
+    if (response.ok && data.success && data.orders && data.orders.length > 0) {
+      const completedOrder = data.orders.find(order => order.status === 'completed');
+      if (completedOrder && completedOrder.code) {
+        const codeBase = window.location.origin + '/sub/' + completedOrder.code;
+        showSuccessModal(codeBase);
+      } else {
+        showToast(currentLang === 'zh-CN' ? '暂无订阅信息' : 'No subscription info', 'info');
+      }
+    } else {
+      showToast(data.error || (currentLang === 'zh-CN' ? '获取订单失败' : 'Failed to get orders'), 'error');
+    }
+  } catch (error) {
+    console.error('Load latest order error:', error);
+    showToast(currentLang === 'zh-CN' ? '网络错误' : 'Network error', 'error');
+  }
+  window.history.replaceState({}, document.title, window.location.pathname);
+}
+
+(function() {
+  document.documentElement.setAttribute('data-theme', 'dark');
+})();
+
+function updateThemeIcons(isDark) {
+  const sun = document.querySelector('.sun-icon');
+  const moon = document.querySelector('.moon-icon');
+  if (sun && moon) {
+    sun.style.display = isDark ? 'none' : 'block';
+    moon.style.display = isDark ? 'block' : 'none';
+  }
+}
+
+document.getElementById('themeToggle')?.addEventListener('click', function() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  const sun = document.querySelector('.sun-icon');
+  const moon = document.querySelector('.moon-icon');
+  if (sun && moon) {
+    sun.style.display = next === 'dark' ? 'none' : 'block';
+    moon.style.display = next === 'dark' ? 'block' : 'none';
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   loadUserInfo();
   loadVipStatus();
+  checkPaymentStatus();
 });
 </script>
 `;
