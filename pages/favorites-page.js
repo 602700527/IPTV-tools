@@ -459,15 +459,33 @@ export function generateFavoritesPage(options = {}) {
       // Check if user is logged in
       const token = localStorage.getItem('auth_token');
       if (!token) {
+        // 1) 登录提示
         showToast({
           type: 'warning',
           title: '请先登录',
-          message: '下载收藏需要登录账户。<br><a href="/login" style="color:#e50914;font-weight:600;">立即登录 →</a>',
+          message: '下载收藏需要登录账户。登录后即可同步收藏到任意设备。<br><a href="/login?redirect=/favorites" style="color:#e50914;font-weight:600;">立即登录 →</a>',
           duration: 5000
         });
+        // 2) VIP 营销（FOMO + 价值主张）
+        setTimeout(function () {
+          const upgradeMessage = '<div style="text-align:center;padding:8px 0;">';
+          upgradeMessage += '<div style="background:linear-gradient(135deg,rgba(229,9,20,0.1),rgba(229,9,20,0.05));border:1px solid rgba(229,9,20,0.3);border-radius:12px;padding:14px;margin:8px 0;">';
+          upgradeMessage += '<p style="color:#fff;font-size:15px;margin-bottom:6px;">🎁 开通 VIP → <strong style="color:#e50914;">无限下载</strong> 全部频道</p>';
+          upgradeMessage += '<p style="color:#aaa;font-size:13px;">云同步收藏 · 多设备共享 · 7 天无理由退款</p>';
+          upgradeMessage += '</div>';
+          upgradeMessage += '<p style="font-size:12px;color:#666;margin-top:4px;">👥 已有 5000+ 用户升级会员</p>';
+          upgradeMessage += '</div>';
+          showToast({
+            type: 'info',
+            title: '解锁全部频道',
+            message: upgradeMessage,
+            duration: 8000,
+            action: { text: '查看会员方案 →', href: '/subscription' }
+          });
+        }, 800);
         return;
       }
-      
+
       const selected = getSelectedChannels();
       if (selected.length === 0) {
         showToastWarning('No channels selected', 'Please select at least one channel to download.');

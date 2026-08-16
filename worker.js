@@ -471,7 +471,6 @@ import {
 } from './handlers/ticket-api.js';
 import { ADMIN_HTML } from './admin-page.js';
 import { USER_ACTIVATE_HTML } from './user-activate.js';
-import { ACCOUNT_HTML } from './account-page.js';
 import { SUBSCRIPTION_HTML } from './subscription-page.js';
 import { PLANS_HTML } from './plans-page.js';
 import { RESET_PASSWORD_HTML } from './reset-password-page.js';
@@ -1616,16 +1615,6 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         // 商城关闭，重定向到首页
         return Response.redirect(url.origin + '/', 302);
       }
-    } else if (path === '/account' || path === '/account/' || path === '/account/index' || path === '/account/index.html') {
-      // 用户账户页面
-      const timezone = env.TIMEZONE || 'Asia/Shanghai';
-      const htmlWithConfig = ACCOUNT_HTML.replace(
-        '<script>',
-        `<script>window.TIMEZONE = '${timezone}';\n`
-      );
-      return new Response(htmlWithConfig, {
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
-      });
     } else if (path === '/admin' || path === '/admin/' || path === '/admin/index' || path === '/admin/index.html') {
       // 管理后台页面（注入时区配置）
       const timezone = env.TIMEZONE || 'Asia/Shanghai';
