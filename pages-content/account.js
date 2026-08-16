@@ -317,6 +317,7 @@ export const styles = `
     gap: 32px;
     padding-top: 12px;
     border-top: 1px solid var(--border);
+    align-items: flex-start;
   }
 
   .subscription-detail-label { font-size: 11px; color: var(--text-muted); }
