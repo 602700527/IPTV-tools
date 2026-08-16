@@ -1,4 +1,4 @@
-// 静态页面内容模块 - 账户中心（Tab 布局优化版）
+// 静态页面内容模块 - 账户中心（YouTube Studio 风格）
 export const pageTitle = 'My Account - IPTV Search';
 export const pageDescription = 'Manage your IPTV Search account, view subscription status and order history.';
 export const canonical = 'https://iptv-search.com/account';
@@ -6,91 +6,210 @@ export const robots = 'noindex, follow';
 
 export const styles = `
   /* ========================================
-     Account Page Styles (Tab Layout)
+     Account Page Styles (YouTube Studio Style)
      ======================================== */
 
   :root {
-    --bg-primary: #0a0a0a;
-    --bg-secondary: #141414;
+    --bg-primary: #0f0f0f;
+    --bg-secondary: #1a1a1a;
+    --bg-sidebar: #121212;
     --bg-card: #1a1a1a;
-    --bg-hover: #252525;
+    --bg-hover: #272727;
+    --bg-active: #272727;
     --border: rgba(255, 255, 255, 0.08);
-    --border-hover: rgba(255, 255, 255, 0.15);
+    --border-hover: rgba(255, 255, 255, 0.2);
     --text-primary: #ffffff;
-    --text-secondary: #a0a0a0;
-    --text-muted: #666666;
+    --text-secondary: #aaaaaa;
+    --text-muted: #717171;
     --accent: #e50914;
-    --success: #22c55e;
-    --warning: #fbbf24;
-    --error: #ef4444;
+    --accent-hover: #f40612;
+    --success: #2ea043;
+    --warning: #ffb000;
+    --error: #ff4e4e;
     --tier-gold: #ffd700;
     --tier-emerald: #50c878;
-    --radius: 0;
+    --radius: 8px;
+    --sidebar-width: 240px;
+    --header-height: 56px;
   }
 
   [data-theme="light"] {
-    --bg-primary: #f5f5f5;
-    --bg-secondary: #ffffff;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9f9f9;
+    --bg-sidebar: #ffffff;
     --bg-card: #ffffff;
     --bg-hover: #f0f0f0;
-    --border: rgba(0, 0, 0, 0.08);
-    --text-primary: #1a1a1a;
-    --text-secondary: #666666;
-    --text-muted: #999999;
+    --bg-active: #e5e5e5;
+    --border: rgba(0, 0, 0, 0.12);
+    --border-hover: rgba(0, 0, 0, 0.2);
+    --text-primary: #0f0f0f;
+    --text-secondary: #606060;
+    --text-muted: #909090;
   }
+
+  * { box-sizing: border-box; }
 
   .main-content {
     flex: 1;
     width: 100%;
-    margin-top: 80px;
-    padding: 32px 24px 60px;
+    margin-top: 64px;
+    background: var(--bg-primary);
+    min-height: calc(100vh - 64px);
   }
 
-  .account-container {
-    max-width: 1200px;
-    margin: 0 auto;
+  .dashboard-layout {
     display: flex;
-    flex-direction: column;
-    gap: 24px;
+    min-height: calc(100vh - 64px);
   }
 
-  /* User Banner */
-  .user-banner {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 24px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
+  /* ===== Sidebar ===== */
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    padding: 12px 0;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    bottom: 0;
+    overflow-y: auto;
+    z-index: 100;
   }
 
-  .user-info {
+  .sidebar-section {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-section:last-child { border-bottom: none; }
+
+  .sidebar-label {
+    padding: 8px 24px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .sidebar-item {
     display: flex;
     align-items: center;
     gap: 16px;
+    padding: 10px 24px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+    font-family: inherit;
   }
 
-  .user-avatar {
-    width: 56px;
-    height: 56px;
+  .sidebar-item:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  .sidebar-item.active {
+    background: var(--bg-active);
+    color: var(--text-primary);
+    border-left: 3px solid var(--accent);
+    padding-left: 21px;
+  }
+
+  .sidebar-item svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-item .badge {
+    margin-left: auto;
     background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
+
+  .sidebar-logout {
+    margin-top: auto;
+    color: var(--error);
+  }
+
+  .sidebar-logout:hover {
+    background: rgba(255, 78, 78, 0.1);
+    color: var(--error);
+  }
+
+  /* ===== Main Content ===== */
+  .content-wrapper {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    padding: 24px 32px;
+    max-width: calc(100% - var(--sidebar-width));
+  }
+
+  /* ===== Page Header ===== */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 4px 0 0 0;
+  }
+
+  /* ===== Profile Card ===== */
+  .profile-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .profile-avatar {
+    width: 64px;
+    height: 64px;
+    background: var(--accent);
+    border-radius: var(--radius);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 700;
     color: #fff;
     flex-shrink: 0;
   }
 
-  .user-avatar.vip-ring {
-    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.4);
+  .profile-avatar.vip {
+    background: linear-gradient(135deg, var(--tier-gold), #ffaa00);
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.3);
   }
 
-  .user-details h2 {
+  .profile-info { flex: 1; }
+
+  .profile-name {
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-primary);
     margin: 0 0 4px 0;
     display: flex;
@@ -98,13 +217,13 @@ export const styles = `
     gap: 8px;
   }
 
-  .user-details p {
-    font-size: 13px;
+  .profile-email {
+    font-size: 14px;
     color: var(--text-secondary);
     margin: 0 0 8px 0;
   }
 
-  .user-badges {
+  .profile-badges {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
@@ -114,11 +233,12 @@ export const styles = `
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 3px 8px;
-    font-size: 10px;
+    padding: 4px 10px;
+    font-size: 11px;
     font-weight: 600;
+    border-radius: 4px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
   }
 
   .badge-vip {
@@ -128,44 +248,479 @@ export const styles = `
   }
 
   .badge-verified {
-    background: rgba(52, 199, 89, 0.15);
+    background: rgba(46, 160, 67, 0.15);
     color: var(--success);
-    border: 1px solid rgba(52, 199, 89, 0.3);
+    border: 1px solid rgba(46, 160, 67, 0.3);
   }
 
-  .vip-star {
-    display: inline-flex;
+  .badge-member {
+    background: rgba(229, 9, 20, 0.1);
+    color: var(--accent);
+    border: 1px solid rgba(229, 9, 20, 0.2);
+  }
+
+  .profile-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  /* ===== Stats Grid ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .stat-value.vip { color: var(--tier-gold); }
+  .stat-value.active { color: var(--success); }
+  .stat-value.expired { color: var(--error); }
+
+  .stat-change {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  /* ===== Content Cards ===== */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title svg { width: 18px; height: 18px; color: var(--accent); }
+
+  .card-body { padding: 20px; }
+
+  /* ===== Subscription Card ===== */
+  .sub-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: rgba(46, 160, 67, 0.1);
+    border: 1px solid rgba(46, 160, 67, 0.2);
+    border-radius: var(--radius);
+  }
+
+  .sub-status.expired {
+    background: rgba(255, 78, 78, 0.1);
+    border-color: rgba(255, 78, 78, 0.2);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+  }
+
+  .status-dot.expired { background: var(--error); }
+
+  .status-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--success);
+  }
+
+  .status-text.expired { color: var(--error); }
+
+  .sub-url-box {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .sub-url-text {
+    font-family: 'SF Mono', monospace;
+    font-size: 13px;
+    color: var(--text-primary);
+    word-break: break-all;
+  }
+
+  .copy-btn {
+    padding: 6px 12px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .copy-btn:hover { background: var(--accent-hover); }
+
+  .sub-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .sub-detail {
+    text-align: center;
+    padding: 12px;
+    background: var(--bg-primary);
+    border-radius: var(--radius);
+  }
+
+  .sub-detail-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .sub-detail-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* ===== Scheme Card ===== */
+  .scheme-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .scheme-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .scheme-item:hover:not(:disabled) {
+    border-color: var(--border-hover);
+    background: var(--bg-hover);
+  }
+
+  .scheme-item.selected {
+    border-color: var(--accent);
+    background: rgba(229, 9, 20, 0.1);
+  }
+
+  .scheme-item:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .scheme-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .scheme-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .scheme-check {
     width: 20px;
     height: 20px;
-    background: var(--tier-gold);
-    border-radius: 0;
-    font-size: 11px;
+    color: var(--accent);
   }
 
-  .vip-star svg { width: 12px; height: 12px; fill: #000; stroke: none; }
+  .scheme-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
 
-  /* Tab Navigation */
+  .scheme-hint a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  /* ===== Quick Actions ===== */
+  .quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+
+  .action-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-hover);
+  }
+
+  .action-btn svg { width: 18px; height: 18px; color: var(--accent); }
+
+  .action-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .action-btn.primary:hover {
+    background: var(--accent-hover);
+  }
+
+  .action-btn.primary svg { color: #fff; }
+
+  /* ===== Orders List ===== */
+  .orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .order-info { flex: 1; }
+
+  .order-id {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .order-date {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .order-meta {
+    text-align: right;
+  }
+
+  .order-amount {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .order-status {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .order-status.completed {
+    background: rgba(46, 160, 67, 0.15);
+    color: var(--success);
+  }
+
+  .order-status.pending {
+    background: rgba(255, 176, 0, 0.15);
+    color: var(--warning);
+  }
+
+  /* ===== Tickets List ===== */
+  .ticket-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .ticket-item:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-hover);
+  }
+
+  .ticket-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .ticket-icon.payment { background: rgba(255, 176, 0, 0.15); }
+  .ticket-icon.order { background: rgba(46, 160, 67, 0.15); }
+  .ticket-icon.technical { background: rgba(0, 212, 255, 0.15); }
+  .ticket-icon.other { background: rgba(255, 255, 255, 0.05); }
+
+  .ticket-info { flex: 1; min-width: 0; }
+
+  .ticket-subject {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ticket-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 12px;
+  }
+
+  .ticket-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  .ticket-status.pending { background: rgba(255, 176, 0, 0.15); color: var(--warning); }
+  .ticket-status.processing { background: rgba(0, 122, 255, 0.15); color: #007aff; }
+  .ticket-status.resolved { background: rgba(46, 160, 67, 0.15); color: var(--success); }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    font-family: inherit;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover { background: var(--accent-hover); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  .btn svg { width: 16px; height: 16px; }
+
+  /* ===== Tabs ===== */
   .tab-nav {
     display: flex;
     gap: 0;
     border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
   }
 
   .tab-btn {
-    padding: 12px 24px;
+    padding: 12px 20px;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--text-secondary);
     background: transparent;
     border: none;
     cursor: pointer;
-    transition: all 0.2s;
     position: relative;
+    transition: all 0.15s;
     display: flex;
     align-items: center;
     gap: 8px;
+    font-family: inherit;
   }
 
   .tab-btn:hover { color: var(--text-primary); }
@@ -186,322 +741,17 @@ export const styles = `
 
   .tab-btn svg { width: 16px; height: 16px; }
 
-  /* Tab Panels */
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
-  /* Cards Grid */
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-  }
-
-  .card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 24px;
-  }
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .card-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .card-title svg { width: 18px; height: 18px; color: var(--accent); }
-
-  /* Subscription Card */
-  .subscription-status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--success);
-  }
-
-  .status-dot.expired { background: var(--error); }
-
-  .status-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .sub-url {
-    font-family: 'SF Mono', monospace;
-    font-size: 12px;
-    color: var(--text-secondary);
-    background: rgba(0, 0, 0, 0.3);
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    word-break: break-all;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .sub-url-copy {
-    padding: 4px 10px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    font-size: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  .format-toggle {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  .format-btn {
-    padding: 6px 12px;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .format-btn.active {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(229, 9, 20, 0.1);
-  }
-
-  .sub-detail {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-  }
-
-  .sub-detail:last-child { border-bottom: none; }
-
-  .sub-detail-label { color: var(--text-muted); }
-  .sub-detail-value { color: var(--text-primary); font-weight: 600; }
-
-  /* Scheme Card */
-  .scheme-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  .scheme-chip {
-    padding: 8px 16px;
-    font-size: 13px;
-    background: var(--bg-hover);
-    color: var(--text-secondary);
-    border: 1px solid var(--border);
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: inherit;
-    font-weight: 500;
-  }
-
-  .scheme-chip:hover:not(:disabled) {
-    background: var(--bg-card);
-    color: var(--text-primary);
-    border-color: var(--border-hover);
-  }
-
-  .scheme-chip.selected {
-    background: rgba(229, 9, 20, 0.15);
-    color: var(--text-primary);
-    border-color: var(--accent);
-  }
-
-  .scheme-chip:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  .scheme-hint {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 8px;
-  }
-
-  .scheme-hint a { color: var(--accent); text-decoration: none; font-weight: 600; }
-
-  /* Perks */
-  .perks-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .perk-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-    color: var(--text-secondary);
-  }
-
-  .perk-item svg { width: 16px; height: 16px; color: var(--success); flex-shrink: 0; }
-
-  /* Action Buttons */
-  .action-buttons {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-  }
-
-  .btn {
-    padding: 10px 20px;
-    font-size: 13px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .btn-primary {
-    background: var(--accent);
-    color: #fff;
-  }
-
-  .btn-primary:hover { opacity: 0.9; }
-
-  .btn-secondary {
-    background: transparent;
-    color: var(--text-secondary);
-    border: 1px solid var(--border);
-  }
-
-  .btn-secondary:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-  }
-
-  /* Orders List */
-  .order-list { display: flex; flex-direction: column; gap: 12px; }
-
-  .order-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 18px;
-  }
-
-  .order-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-
-  .order-id {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--accent);
-  }
-
-  .order-status {
-    padding: 4px 10px;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-
-  .order-status.completed { background: rgba(52, 199, 89, 0.15); color: var(--success); }
-  .order-status.pending { background: rgba(255, 204, 0, 0.15); color: var(--warning); }
-
-  .order-details {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
-  .order-detail { font-size: 12px; }
-  .order-detail-label { color: var(--text-muted); margin-bottom: 2px; }
-  .order-detail-value { color: var(--text-primary); font-weight: 600; }
-
-  /* Tickets */
-  .ticket-list { display: flex; flex-direction: column; gap: 10px; }
-
-  .ticket-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 16px;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    padding-left: 20px;
-  }
-
-  .ticket-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 3px;
-    height: 100%;
-  }
-
-  .ticket-card.payment::before { background: var(--warning); }
-  .ticket-card.order::before { background: var(--success); }
-  .ticket-card.technical::before { background: #00d4ff; }
-
-  .ticket-card:hover { border-color: var(--border-hover); }
-
-  .ticket-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-
-  .ticket-type {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    padding: 3px 8px;
-  }
-
-  .ticket-type.payment { background: rgba(255, 204, 0, 0.15); color: var(--warning); }
-  .ticket-type.order { background: rgba(52, 199, 89, 0.15); color: var(--success); }
-  .ticket-type.technical { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
-
-  .ticket-subject { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
-  .ticket-meta { font-size: 11px; color: var(--text-muted); }
-
-  /* Modal */
+  /* ===== Modal ===== */
   .modal {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.9);
-    z-index: 3000;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
     align-items: center;
     justify-content: center;
     padding: 20px;
@@ -512,30 +762,90 @@ export const styles = `
   .modal-content {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    padding: 32px;
-    max-width: 480px;
+    border-radius: var(--radius);
     width: 100%;
-    position: relative;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
   }
 
   .modal-close {
-    position: absolute;
-    top: 16px;
-    right: 16px;
     background: transparent;
     border: none;
-    color: var(--text-secondary);
+    color: var(--text-muted);
     font-size: 24px;
     cursor: pointer;
+    padding: 0;
+    line-height: 1;
   }
 
-  /* Toast */
+  .modal-close:hover { color: var(--text-primary); }
+
+  .modal-body { padding: 20px; }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ===== Form ===== */
+  .form-group { margin-bottom: 16px; }
+
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+
+  .form-input:focus,
+  .form-select:focus,
+  .form-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .form-textarea { min-height: 100px; resize: vertical; }
+
+  /* ===== Toast ===== */
   .toast-container {
     position: fixed;
-    top: 100px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 4000;
+    bottom: 24px;
+    right: 24px;
+    z-index: 2000;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -544,277 +854,418 @@ export const styles = `
   .toast {
     background: var(--bg-card);
     border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
     padding: 12px 16px;
+    border-radius: var(--radius);
     font-size: 13px;
     color: var(--text-primary);
     animation: toastIn 0.3s ease;
+    min-width: 240px;
+    max-width: 360px;
   }
 
-  .toast.success { border-color: rgba(52, 199, 89, 0.4); }
-  .toast.error { border-color: rgba(239, 68, 68, 0.4); }
+  .toast.success { border-left-color: var(--success); }
+  .toast.error { border-left-color: var(--error); }
+  .toast.warning { border-left-color: var(--warning); }
 
   @keyframes toastIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
   }
 
-  /* Loading */
-  .loading { display: none; text-align: center; padding: 40px; }
-  .loading.active { display: block; }
+  /* ===== Loading ===== */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--text-muted);
+  }
 
   .spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid var(--border);
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border);
     border-top-color: var(--accent);
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin: 0 auto 12px;
+    margin-right: 10px;
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Empty State */
+  /* ===== Empty State ===== */
   .empty-state {
     text-align: center;
-    padding: 60px 20px;
+    padding: 48px 20px;
     color: var(--text-muted);
   }
 
-  /* Responsive */
-  @media (max-width: 900px) {
-    .cards-grid { grid-template-columns: 1fr; }
-    .user-banner { flex-direction: column; align-items: flex-start; }
+  .empty-state svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    opacity: 0.5;
   }
 
-  @media (max-width: 600px) {
-    .main-content { padding: 20px 16px 40px; }
-    .tab-btn { padding: 10px 16px; font-size: 13px; }
-    .card { padding: 18px; }
-    .order-details { grid-template-columns: 1fr; }
+  .empty-state p {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 1200px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .content-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+      transition: transform 0.3s;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .content-wrapper { margin-left: 0; max-width: 100%; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .profile-card { flex-direction: column; text-align: center; }
+    .profile-badges { justify-content: center; }
+    .profile-actions { justify-content: center; }
   }
 `;
 
 export const content = `
 <main class="main-content">
-  <div class="account-container">
+  <div class="dashboard-layout">
 
-    <!-- User Banner -->
-    <div class="user-banner" id="userBanner">
-      <div class="user-info">
-        <div class="user-avatar" id="userAvatar">?</div>
-        <div class="user-details">
-          <h2>
-            <span id="userName">用户</span>
-            <span class="vip-star" id="vipStar" style="display: none;">
-              <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-            </span>
-          </h2>
-          <p id="userEmail">-</p>
-          <div class="user-badges">
-            <span class="badge badge-vip" id="vipBadge" style="display: none;">
-              <span id="vipTierName">Crown VIP</span>
-            </span>
-            <span class="badge badge-verified" id="verifiedBadge" style="display: none;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="10" height="10"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              已验证
-            </span>
-            <span class="badge" id="memberBadge" style="background: rgba(229, 9, 20, 0.15); color: var(--accent); border: 1px solid rgba(229, 9, 20, 0.3);">
-              成员 <span id="memberSince">-</span>
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="action-buttons" id="bannerActions" style="display: none;">
-        <button class="btn btn-primary" onclick="window.location.href='/freesub'">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-          更新 VIP
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">账户</div>
+        <button class="sidebar-item active" onclick="switchSection('dashboard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          控制面板
+        </button>
+        <button class="sidebar-item" onclick="switchSection('subscription')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h12"/></svg>
+          订阅管理
+        </button>
+        <button class="sidebar-item" onclick="switchSection('orders')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          订单历史
         </button>
       </div>
-    </div>
 
-    <!-- Tab Navigation -->
-    <div class="tab-nav">
-      <button class="tab-btn active" onclick="switchTab('overview')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        账户概览
-      </button>
-      <button class="tab-btn" onclick="switchTab('orders')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        订单历史
-      </button>
-      <button class="tab-btn" onclick="switchTab('tickets')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-        工单支持
-      </button>
-    </div>
-
-    <!-- Tab Panel: Overview -->
-    <div id="overviewTab" class="tab-panel active">
-      <div class="cards-grid">
-
-        <!-- Subscription Card -->
-        <div class="card" id="subscriptionCard">
-          <div class="card-header">
-            <span class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h12"/></svg>
-              订阅状态
-            </span>
-            <span class="order-status" id="subscriptionStatus" style="display: none;">
-              <span class="status-dot" id="statusDot"></span>
-              <span id="statusText">Active</span>
-            </span>
-          </div>
-          <div id="subscriptionContent" style="display: none;">
-            <div class="format-toggle">
-              <button class="format-btn active" onclick="setSubFormat('m3u')">M3U</button>
-              <button class="format-btn" onclick="setSubFormat('txt')">TXT</button>
-            </div>
-            <div class="sub-url">
-              <span id="vipCode">-</span>
-              <button class="sub-url-copy" onclick="copyVipCode()">复制</button>
-            </div>
-            <div class="sub-detail">
-              <span class="sub-detail-label">到期时间</span>
-              <span class="sub-detail-value" id="vipExpiry">-</span>
-            </div>
-            <div class="sub-detail">
-              <span class="sub-detail-label">持续时间</span>
-              <span class="sub-detail-value" id="vipDuration">-</span>
-            </div>
-            <div class="sub-detail">
-              <span class="sub-detail-label">最大 IP 数</span>
-              <span class="sub-detail-value" id="vipMaxIps">-</span>
-            </div>
-          </div>
-          <div id="noSubscription" class="empty-state" style="display: none;">
-            <p>暂无活跃订阅</p>
-          </div>
-        </div>
-
-        <!-- Scheme Card -->
-        <div class="card" id="schemeCard">
-          <div class="card-header">
-            <span class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-              线路方案
-            </span>
-          </div>
-          <div class="scheme-chips" id="schemeSwitcher">
-            <span style="color: var(--text-muted); font-size: 13px;">加载中...</span>
-          </div>
-          <div class="scheme-hint" id="schemeHint"></div>
-        </div>
-
-        <!-- Perks Card -->
-        <div class="card" id="perksCard">
-          <div class="card-header">
-            <span class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              VIP 福利
-            </span>
-          </div>
-          <div class="perks-list" id="perksList" style="display: none;">
-            <div class="perk-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-              无广告观看
-            </div>
-            <div class="perk-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-              无限频道
-            </div>
-            <div class="perk-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-              优先支持
-            </div>
-            <div class="perk-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-              云同步
-            </div>
-          </div>
-          <div id="noPerks" class="empty-state" style="display: none;">
-            <p>开通 VIP 解锁专属福利</p>
-            <button class="btn btn-primary" style="margin-top: 12px;" onclick="window.location.href='/freesub'">查看方案</button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Tab Panel: Orders -->
-    <div id="ordersTab" class="tab-panel">
-      <div class="order-list" id="ordersList">
-        <div class="loading active"><div class="spinner"></div></div>
-      </div>
-    </div>
-
-    <!-- Tab Panel: Tickets -->
-    <div id="ticketsTab" class="tab-panel">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary);">支持工单</h3>
-        <button class="btn btn-primary" onclick="showCreateTicketModal()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          新建工单
+      <div class="sidebar-section">
+        <div class="sidebar-label">支持</div>
+        <button class="sidebar-item" onclick="switchSection('tickets')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+          工单支持
+          <span class="badge" id="ticketBadge" style="display: none;">0</span>
+        </button>
+        <button class="sidebar-item" onclick="window.location.href='/favorites'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          我的收藏
         </button>
       </div>
-      <div class="ticket-list" id="ticketsList">
-        <div class="loading active"><div class="spinner"></div></div>
-      </div>
-    </div>
 
+      <div class="sidebar-section" style="margin-top: auto;">
+        <button class="sidebar-item sidebar-logout" onclick="logout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          登出
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+
+      <!-- Section: Dashboard -->
+      <div id="dashboardSection" class="section active">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">控制面板</h1>
+            <p class="page-subtitle">管理您的账户和订阅</p>
+          </div>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="profile-card">
+          <div class="profile-avatar" id="userAvatar">?</div>
+          <div class="profile-info">
+            <h2 class="profile-name">
+              <span id="userName">用户</span>
+              <span class="vip-star" id="vipStar" style="display: none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              </span>
+            </h2>
+            <p class="profile-email" id="userEmail">-</p>
+            <div class="profile-badges">
+              <span class="badge badge-vip" id="vipBadge" style="display: none;">
+                <span id="vipTierName">VIP</span>
+              </span>
+              <span class="badge badge-verified" id="verifiedBadge" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>
+                已验证
+              </span>
+              <span class="badge badge-member" id="memberBadge" style="display: none;">
+                成员 <span id="memberSince">-</span>
+              </span>
+            </div>
+          </div>
+          <div class="profile-actions" id="profileActions" style="display: none;">
+            <button class="btn btn-primary" onclick="window.location.href='/freesub'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+              续费
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">订阅状态</div>
+            <div class="stat-value" id="statStatus">-</div>
+            <div class="stat-change" id="statStatusChange">-</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">剩余天数</div>
+            <div class="stat-value" id="statDays">-</div>
+            <div class="stat-change" id="statDaysChange">-</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">线路方案</div>
+            <div class="stat-value" id="statScheme">全部频道</div>
+            <div class="stat-change">可切换</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">最大 IP 数</div>
+            <div class="stat-value" id="statIPs">-</div>
+            <div class="stat-change">当前设备</div>
+          </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+          <!-- Subscription Card -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h12"/></svg>
+                订阅信息
+              </span>
+              <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="window.location.href='/freesub'">管理订阅</button>
+            </div>
+            <div class="card-body">
+              <div class="sub-status" id="subStatusBox" style="display: none;">
+                <span class="status-dot" id="statusDot"></span>
+                <span class="status-text" id="statusText">Active</span>
+              </div>
+              <div class="sub-url-box" id="subUrlBox" style="display: none;">
+                <span class="sub-url-text" id="subUrlText">-</span>
+                <button class="copy-btn" onclick="copySubUrl()">复制</button>
+              </div>
+              <div class="sub-details" id="subDetails" style="display: none;">
+                <div class="sub-detail">
+                  <div class="sub-detail-label">到期时间</div>
+                  <div class="sub-detail-value" id="subExpiry">-</div>
+                </div>
+                <div class="sub-detail">
+                  <div class="sub-detail-label">时长</div>
+                  <div class="sub-detail-value" id="subDuration">-</div>
+                </div>
+                <div class="sub-detail">
+                  <div class="sub-detail-label">IP 限制</div>
+                  <div class="sub-detail-value" id="subIPs">-</div>
+                </div>
+              </div>
+              <div class="empty-state" id="noSubState">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h12"/></svg>
+                <p>暂无活跃订阅</p>
+                <button class="btn btn-primary" onclick="window.location.href='/freesub'">立即订阅</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions Card -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                快捷操作
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="quick-actions">
+                <button class="action-btn" onclick="switchSection('orders')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                  查看订单历史
+                </button>
+                <button class="action-btn" onclick="switchSection('tickets')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+                  提交工单
+                </button>
+                <a class="action-btn" href="/favorites">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                  我的收藏
+                </a>
+                <a class="action-btn primary" href="/freesub">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                  续费/升级
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Subscription -->
+      <div id="subscriptionSection" class="section" style="display: none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">订阅管理</h1>
+            <p class="page-subtitle">管理您的订阅方案和线路</p>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                线路方案
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="scheme-list" id="schemeList">
+                <div class="loading"><div class="spinner"></div>加载中...</div>
+              </div>
+              <div class="scheme-hint" id="schemeHint"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h12"/></svg>
+                当前订阅
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="sub-status" id="subStatusBox2" style="display: none;">
+                <span class="status-dot" id="statusDot2"></span>
+                <span class="status-text" id="statusText2">Active</span>
+              </div>
+              <div class="sub-url-box" id="subUrlBox2" style="display: none;">
+                <span class="sub-url-text" id="subUrlText2">-</span>
+                <button class="copy-btn" onclick="copySubUrl()">复制</button>
+              </div>
+              <div class="sub-details" id="subDetails2" style="display: none;">
+                <div class="sub-detail">
+                  <div class="sub-detail-label">到期时间</div>
+                  <div class="sub-detail-value" id="subExpiry2">-</div>
+                </div>
+                <div class="sub-detail">
+                  <div class="sub-detail-label">时长</div>
+                  <div class="sub-detail-value" id="subDuration2">-</div>
+                </div>
+                <div class="sub-detail">
+                  <div class="sub-detail-label">IP 限制</div>
+                  <div class="sub-detail-value" id="subIPs2">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Orders -->
+      <div id="ordersSection" class="section" style="display: none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">订单历史</h1>
+            <p class="page-subtitle">查看您的所有订阅记录</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">所有订单</span>
+          </div>
+          <div class="card-body">
+            <div class="orders-list" id="ordersList">
+              <div class="loading"><div class="spinner"></div>加载中...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Tickets -->
+      <div id="ticketsSection" class="section" style="display: none;">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">工单支持</h1>
+            <p class="page-subtitle">获取帮助和支持</p>
+          </div>
+          <button class="btn btn-primary" onclick="showCreateTicketModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            新建工单
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="orders-list" id="ticketsList">
+              <div class="loading"><div class="spinner"></div>加载中...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </main>
 
+<!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Success Modal -->
-<div id="successModal" class="modal">
-  <div class="modal-content">
-    <button class="modal-close" onclick="closeSuccessModal()">×</button>
-    <div style="text-align: center;">
-      <div style="font-size: 48px; margin-bottom: 16px;">🎉</div>
-      <h2 style="margin: 0 0 8px 0; font-size: 20px; color: var(--text-primary);">订阅激活成功</h2>
-      <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px;">您的订阅链接已生成</p>
-      <div class="sub-url" id="generatedCode" style="margin-bottom: 16px;">-</div>
-      <button class="btn btn-primary" style="width: 100%;" onclick="copyCode()">复制订阅链接</button>
-    </div>
-  </div>
-</div>
-
-<!-- Ticket Modal -->
+<!-- Create Ticket Modal -->
 <div id="ticketModal" class="modal">
-  <div class="modal-content" style="max-width: 560px;">
-    <button class="modal-close" onclick="closeTicketModal()">×</button>
-    <h3 style="margin: 0 0 20px 0; font-size: 18px; color: var(--text-primary);">新建工单</h3>
-    <form id="ticketForm" style="display: flex; flex-direction: column; gap: 16px;">
-      <div>
-        <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">关联订单</label>
-        <select id="ticketOrderId" style="width: 100%; padding: 10px; background: var(--bg-hover); border: 1px solid var(--border); color: var(--text-primary); font-size: 13px;">
-          <option value="">无关联订单</option>
-        </select>
-      </div>
-      <div>
-        <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">工单类型</label>
-        <select id="ticketType" style="width: 100%; padding: 10px; background: var(--bg-hover); border: 1px solid var(--border); color: var(--text-primary); font-size: 13px;">
-          <option value="payment">支付问题</option>
-          <option value="order">订单咨询</option>
-          <option value="technical">技术问题</option>
-          <option value="other">其他</option>
-        </select>
-      </div>
-      <div>
-        <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">标题</label>
-        <input type="text" id="ticketSubject" maxlength="200" placeholder="简要描述问题" style="width: 100%; padding: 10px; background: var(--bg-hover); border: 1px solid var(--border); color: var(--text-primary); font-size: 13px;">
-      </div>
-      <div>
-        <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">描述</label>
-        <textarea id="ticketDescription" placeholder="请详细描述您的问题..." style="width: 100%; padding: 10px; background: var(--bg-hover); border: 1px solid var(--border); color: var(--text-primary); font-size: 13px; min-height: 100px; resize: vertical;"></textarea>
-      </div>
-      <div style="display: flex; gap: 12px; justify-content: flex-end;">
-        <button type="button" class="btn btn-secondary" onclick="closeTicketModal()">取消</button>
-        <button type="submit" class="btn btn-primary">提交工单</button>
-      </div>
-    </form>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">新建工单</h3>
+      <button class="modal-close" onclick="closeTicketModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="ticketForm">
+        <div class="form-group">
+          <label class="form-label">关联订单（可选）</label>
+          <select class="form-select" id="ticketOrderId">
+            <option value="">无关联订单</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">工单类型</label>
+          <select class="form-select" id="ticketType">
+            <option value="payment">支付问题</option>
+            <option value="order">订单咨询</option>
+            <option value="technical">技术问题</option>
+            <option value="other">其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">标题</label>
+          <input type="text" class="form-input" id="ticketSubject" maxlength="200" placeholder="简要描述问题">
+        </div>
+        <div class="form-group">
+          <label class="form-label">详细描述</label>
+          <textarea class="form-textarea" id="ticketDescription" placeholder="请详细描述您的问题..."></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeTicketModal()">取消</button>
+      <button class="btn btn-primary" onclick="submitTicket()">提交工单</button>
+    </div>
   </div>
 </div>
 
@@ -840,16 +1291,16 @@ if (!getToken()) {
   window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
 }
 
-// Tab switching
-function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
-    btn.classList.toggle('active', ['overview', 'orders', 'tickets'][i] === tab);
-  });
-  document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
-  document.getElementById(tab + 'Tab').classList.add('active');
+// Section switching
+function switchSection(section) {
+  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
 
-  if (tab === 'orders') loadOrderHistory();
-  if (tab === 'tickets') loadTickets();
+  document.getElementById(section + 'Section').style.display = 'block';
+  event.target.closest('.sidebar-item').classList.add('active');
+
+  if (section === 'orders') loadOrders();
+  if (section === 'tickets') loadTickets();
 }
 
 // Toast
@@ -896,16 +1347,16 @@ async function loadVipStatus() {
       const expiredAt = latest.expired_at ? new Date(latest.expired_at) : null;
       const isExpired = expiredAt && expiredAt < now;
       const isPermanent = latest.code_duration_days === -1;
-      const isVip = !isExpired;
-
-      isVipActive = isVipActive;
+      isVipActive = !isExpired;
       latestActiveCode = latest.code;
 
-      // Show VIP badge
-      if (isVip) {
+      // Show VIP elements
+      if (isVipActive) {
         document.getElementById('vipBadge').style.display = 'inline-flex';
         document.getElementById('vipStar').style.display = 'inline-flex';
-        document.getElementById('bannerActions').style.display = 'flex';
+        document.getElementById('memberBadge').style.display = 'inline-flex';
+        document.getElementById('profileActions').style.display = 'flex';
+        document.getElementById('userAvatar').classList.add('vip');
 
         let tierName = 'VIP';
         let remainingDays = isPermanent ? 999 : Math.ceil((expiredAt - now) / 86400000);
@@ -916,51 +1367,55 @@ async function loadVipStatus() {
         else tierName = 'Bronze VIP';
         document.getElementById('vipTierName').textContent = tierName;
 
-        // Show subscription
-        document.getElementById('subscriptionContent').style.display = 'block';
-        document.getElementById('noSubscription').style.display = 'none';
-        document.getElementById('subscriptionStatus').style.display = 'flex';
+        // Update stats
+        const statusEl = document.getElementById('statStatus');
+        statusEl.textContent = isExpired ? '已过期' : '活跃';
+        statusEl.className = 'stat-value ' + (isExpired ? 'expired' : 'active');
+        document.getElementById('statStatusChange').textContent = isExpired ? '请续费' : '持续服务中';
+
+        if (isPermanent) {
+          document.getElementById('statDays').textContent = '永久';
+          document.getElementById('statDaysChange').textContent = '无限期';
+        } else {
+          document.getElementById('statDays').textContent = remainingDays;
+          document.getElementById('statDaysChange').textContent = '天后到期';
+        }
+
+        document.getElementById('statIPs').textContent = latest.max_ips || 3;
+
+        // Show subscription info
+        document.getElementById('subStatusBox').style.display = 'flex';
+        document.getElementById('subUrlBox').style.display = 'flex';
+        document.getElementById('subDetails').style.display = 'grid';
+        document.getElementById('noSubState').style.display = 'none';
+
         document.getElementById('statusDot').className = 'status-dot' + (isExpired ? ' expired' : '');
-        document.getElementById('statusText').textContent = isExpired ? 'Expired' : 'Active';
+        document.getElementById('statusText').textContent = isExpired ? '已过期' : '活跃';
         document.getElementById('statusText').style.color = isExpired ? 'var(--error)' : 'var(--success)';
 
         const baseUrl = window.location.origin;
         window._vipCodeBase = baseUrl + '/sub/' + latest.code;
         updateSubUrl();
 
-        if (isExpired) {
-          document.getElementById('vipExpiry').textContent = expiredAt?.toLocaleDateString() || 'Expired';
-        } else {
-          document.getElementById('vipExpiry').textContent = expiredAt?.toLocaleDateString() || 'Permanent';
-        }
-        document.getElementById('vipDuration').textContent = latest.duration_days ? latest.duration_days + (currentLang === 'zh-CN' ? ' 天' : ' days') : '-';
-        document.getElementById('vipMaxIps').textContent = latest.max_ips || 3;
-
-        // Show perks
-        document.getElementById('perksList').style.display = 'flex';
-        document.getElementById('noPerks').style.display = 'none';
+        document.getElementById('subExpiry').textContent = expiredAt?.toLocaleDateString() || '永久';
+        document.getElementById('subDuration').textContent = latest.duration_days ? latest.duration_days + '天' : '永久';
+        document.getElementById('subIPs').textContent = latest.max_ips || 3;
 
         // Init scheme
         if (latest.sub_mode === 'favorites') currentScheme = { type: 'favorites' };
         else if (latest.topic_id) currentScheme = { type: 'topic', id: latest.topic_id };
         else currentScheme = { type: 'all' };
-        loadSchemes();
-      } else {
-        document.getElementById('noSubscription').style.display = 'block';
-        document.getElementById('subscriptionContent').style.display = 'none';
-        document.getElementById('subscriptionStatus').style.display = 'none';
-        document.getElementById('perksList').style.display = 'none';
-        document.getElementById('noPerks').style.display = 'block';
+        document.getElementById('statScheme').textContent = getSchemeName(currentScheme);
         loadSchemes();
       }
-    } else {
-      document.getElementById('noSubscription').style.display = 'block';
-      document.getElementById('subscriptionContent').style.display = 'none';
-      document.getElementById('perksList').style.display = 'none';
-      document.getElementById('noPerks').style.display = 'block';
-      loadSchemes();
     }
   } catch (e) { console.error('Load VIP status error:', e); }
+}
+
+function getSchemeName(scheme) {
+  if (scheme.type === 'all') return currentLang === 'zh-CN' ? '全部频道' : 'All Channels';
+  if (scheme.type === 'favorites') return currentLang === 'zh-CN' ? '我的收藏' : 'My Favorites';
+  return '线路 ' + scheme.id;
 }
 
 // Scheme management
@@ -970,29 +1425,27 @@ async function loadSchemes() {
     const data = await resp.json();
     const topics = (data?.success && Array.isArray(data.topics)) ? data.topics : [];
     availableSchemes = [
-      { type: 'all', id: 'all', name: currentLang === 'zh-CN' ? '全部频道' : 'All Channels' },
-      { type: 'favorites', id: 'favorites', name: currentLang === 'zh-CN' ? '我的收藏' : 'My Favorites' },
+      { type: 'all', id: 'all', name: currentLang === 'zh-CN' ? '全部频道' : 'All Channels', desc: currentLang === 'zh-CN' ? '所有可用频道' : 'All available channels' },
+      { type: 'favorites', id: 'favorites', name: currentLang === 'zh-CN' ? '我的收藏' : 'My Favorites', desc: currentLang === 'zh-CN' ? '仅显示收藏的频道' : 'Only favorited channels' },
     ];
-    topics.forEach(t => availableSchemes.push({ type: 'topic', id: t.id, name: t.name }));
+    topics.forEach(t => availableSchemes.push({ type: 'topic', id: t.id, name: t.name, desc: t.description || '' }));
     renderSchemes();
   } catch (e) { console.error('Load schemes error:', e); }
 }
 
 function renderSchemes() {
-  const container = document.getElementById('schemeSwitcher');
+  const container = document.getElementById('schemeList');
   const hint = document.getElementById('schemeHint');
   if (!container) return;
 
-  const parts = availableSchemes.map(s => {
+  container.innerHTML = availableSchemes.map(s => {
     const selected = isCurrentScheme(s);
-    const disabled = !isVipActive || schemeSwitching ? 'disabled' : '';
-    return '<button class="scheme-chip ' + (selected ? 'selected' : '') + '" data-type="' + s.type + '" data-id="' + s.id + '" ' + disabled + '>' + s.name + '</button>';
+    const disabled = !isVipActive ? 'disabled' : '';
+    return '<div class="scheme-item ' + (selected ? 'selected' : '') + '" data-type="' + s.type + '" data-id="' + s.id + '" ' + disabled + ' onclick="selectScheme(\'' + s.type + '\', \'' + s.id + '\')">' +
+      '<div><div class="scheme-name">' + s.name + '</div><div class="scheme-desc">' + s.desc + '</div></div>' +
+      (selected ? '<svg class="scheme-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : '') +
+    '</div>';
   }).join('');
-  container.innerHTML = parts;
-
-  container.querySelectorAll('.scheme-chip').forEach(chip => {
-    chip.addEventListener('click', () => selectScheme(chip.dataset.type, chip.dataset.id));
-  });
 
   if (hint) {
     if (!isVipActive && !latestActiveCode) {
@@ -1012,9 +1465,8 @@ function isCurrentScheme(s) {
   return false;
 }
 
-let schemeSwitching = false;
 async function selectScheme(type, id) {
-  if (schemeSwitching || !isVipActive || !latestActiveCode) return;
+  if (!isVipActive || !latestActiveCode) return;
   if (isCurrentScheme({ type, id })) return;
 
   if (type === 'favorites') {
@@ -1028,9 +1480,6 @@ async function selectScheme(type, id) {
     } catch (e) {}
   }
 
-  schemeSwitching = true;
-  renderSchemes();
-
   const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() };
   try {
     await fetch('/api/user/change-sub-mode?code=' + encodeURIComponent(latestActiveCode), {
@@ -1040,44 +1489,33 @@ async function selectScheme(type, id) {
       method: 'POST', headers, body: JSON.stringify({ topic_id: type === 'topic' ? Number(id) : null })
     });
     currentScheme = type === 'topic' ? { type, id: Number(id) } : { type };
+    document.getElementById('statScheme').textContent = getSchemeName(currentScheme);
     renderSchemes();
     showToast(currentLang === 'zh-CN' ? '线路方案已更新' : 'Scheme updated');
   } catch (e) {
     showToast(currentLang === 'zh-CN' ? '更新失败' : 'Update failed');
-    renderSchemes();
-  } finally {
-    schemeSwitching = false;
-    renderSchemes();
   }
 }
 
 // Subscription URL
-function setSubFormat(fmt) {
-  currentSubFormat = fmt;
-  document.querySelectorAll('.format-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.textContent.toLowerCase() === fmt);
-  });
-  updateSubUrl();
-}
-
 function updateSubUrl() {
-  const el = document.getElementById('vipCode');
+  const el = document.getElementById('subUrlText');
   if (el && window._vipCodeBase) {
     el.textContent = window._vipCodeBase + '.' + currentSubFormat;
   }
 }
 
-function copyVipCode() {
-  const text = document.getElementById('vipCode')?.textContent;
+function copySubUrl() {
+  const text = document.getElementById('subUrlText')?.textContent;
   if (text) {
     navigator.clipboard.writeText(text).then(() => showToast(currentLang === 'zh-CN' ? '已复制' : 'Copied', 'success'));
   }
 }
 
 // Orders
-async function loadOrderHistory() {
+async function loadOrders() {
   const container = document.getElementById('ordersList');
-  container.innerHTML = '<div class="loading active"><div class="spinner"></div></div>';
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>加载中...</div>';
   try {
     const resp = await fetch(API_BASE + '/orders', { headers: { 'Authorization': 'Bearer ' + getToken() } });
     const data = await resp.json();
@@ -1088,7 +1526,7 @@ async function loadOrderHistory() {
       } else {
         container.innerHTML = orders.map(o => {
           const date = new Date(o.created_at).toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US');
-          return '<div class="order-card"><div class="order-header"><span class="order-id">' + o.order_id + '</span><span class="order-status ' + o.status + '">' + o.status + '</span></div><div class="order-details"><div class="order-detail"><div class="order-detail-label">Code</div><div class="order-detail-value">' + (o.code || '-') + '</div></div><div class="order-detail"><div class="order-detail-label">' + (currentLang === 'zh-CN' ? '金额' : 'Amount') + '</div><div class="order-detail-value">¥' + (o.amount || 0).toFixed(2) + '</div></div><div class="order-detail"><div class="order-detail-label">' + (currentLang === 'zh-CN' ? '时长' : 'Duration') + '</div><div class="order-detail-value">' + (o.duration_days ? o.duration_days + (currentLang === 'zh-CN' ? ' 天' : ' days') : '-') + '</div></div><div class="order-detail"><div class="order-detail-label">' + (currentLang === 'zh-CN' ? '日期' : 'Date') + '</div><div class="order-detail-value">' + date + '</div></div></div></div>';
+          return '<div class="order-item"><div class="order-info"><div class="order-id">' + o.order_id + '</div><div class="order-date">' + date + '</div></div><div class="order-meta"><div class="order-amount">¥' + (o.amount || 0).toFixed(2) + '</div><span class="order-status ' + o.status + '">' + o.status + '</span></div></div>';
         }).join('');
       }
     }
@@ -1098,7 +1536,7 @@ async function loadOrderHistory() {
 // Tickets
 async function loadTickets() {
   const container = document.getElementById('ticketsList');
-  container.innerHTML = '<div class="loading active"><div class="spinner"></div></div>';
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>加载中...</div>';
   try {
     const resp = await fetch('/api/tickets', { headers: { 'Authorization': 'Bearer ' + getToken() } });
     const data = await resp.json();
@@ -1107,7 +1545,7 @@ async function loadTickets() {
       if (tickets.length === 0) {
         container.innerHTML = '<div class="empty-state"><p>暂无工单</p><button class="btn btn-primary" style="margin-top: 12px;" onclick="showCreateTicketModal()">新建工单</button></div>';
       } else {
-        container.innerHTML = tickets.map(t => '<div class="ticket-card ' + t.type + '" onclick="showTicketDetail(' + t.id + ')"><div class="ticket-header"><span class="ticket-type ' + t.type + '">' + t.type + '</span><span class="order-status ' + t.status + '">' + t.status + '</span></div><div class="ticket-subject">' + t.subject + '</div><div class="ticket-meta">' + new Date(t.created_at).toLocaleDateString() + '</div></div>').join('');
+        container.innerHTML = tickets.map(t => '<div class="ticket-item" onclick="showTicketDetail(' + t.id + ')"><div class="ticket-icon ' + t.type + '">' + {payment: '💳', order: '📋', technical: '🔧', other: '❓'}[t.type] + '</div><div class="ticket-info"><div class="ticket-subject">' + t.subject + '</div><div class="ticket-meta"><span>' + new Date(t.created_at).toLocaleDateString() + '</span><span class="ticket-status ' + t.status + '">' + t.status + '</span></div></div></div>').join('');
       }
     }
   } catch (e) { console.error('Load tickets error:', e); }
@@ -1130,8 +1568,7 @@ function closeTicketModal() {
   document.getElementById('ticketModal').classList.remove('show');
 }
 
-document.getElementById('ticketForm')?.addEventListener('submit', async function(e) {
-  e.preventDefault();
+async function submitTicket() {
   try {
     const resp = await fetch('/api/tickets', {
       method: 'POST',
@@ -1152,17 +1589,11 @@ document.getElementById('ticketForm')?.addEventListener('submit', async function
       showToast(data.error || '提交失败');
     }
   } catch (e) { showToast('网络错误'); }
-});
-
-function closeSuccessModal() {
-  document.getElementById('successModal').classList.remove('show');
 }
 
-function copyCode() {
-  const text = document.getElementById('generatedCode')?.textContent;
-  if (text) {
-    navigator.clipboard.writeText(text).then(() => showToast('已复制', 'success'));
-  }
+function logout() {
+  localStorage.removeItem('auth_token');
+  window.location.href = '/';
 }
 
 // Init
