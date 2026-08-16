@@ -296,9 +296,28 @@ export const styles = `
     50% { opacity: 0.5; }
   }
 
-  .subscription-details { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .subscription-details {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
 
-  .subscription-detail { display: flex; flex-direction: column; gap: 4px; }
+  .subscription-detail.url-section {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .subscription-detail.info-section {
+    display: flex;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+
+  .subscription-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
 
   .subscription-detail-label { font-size: 11px; color: var(--text-muted); }
 
@@ -1055,7 +1074,7 @@ export const content = `
                 <span class="subscription-status active" id="subscriptionStatus"><span class="dot"></span> Active</span>
               </div>
               <div class="subscription-details">
-                <div class="subscription-detail">
+                <div class="subscription-detail url-section">
                   <span class="subscription-detail-label">订阅网址</span>
                   <span class="subscription-detail-value code">
                     <div class="sub-format-radios">
@@ -1063,20 +1082,22 @@ export const content = `
                       <label class="format-radio"><input type="radio" name="vipFormat" value="txt" onchange="updateVipCodeFormat()"> TXT</label>
                     </div>
                     <span id="vipCode" data-code="PERMA34VIP">https://iptv-search.com/sub/PERMA34VIP.m3u</span>
-                    <button class="copy-btn" onclick="copyVipCode()">收到</button>
+                    <button class="copy-btn" onclick="copyVipCode()">复制</button>
                   </span>
                 </div>
-                <div class="subscription-detail">
-                  <span class="subscription-detail-label">过期</span>
-                  <span class="subscription-detail-value" id="vipExpiry">Permanent</span>
-                </div>
-                <div class="subscription-detail">
-                  <span class="subscription-detail-label">持续时间</span>
-                  <span class="subscription-detail-value" id="vipDuration">-1 天</span>
-                </div>
-                <div class="subscription-detail">
-                  <span class="subscription-detail-label">最大IP数</span>
-                  <span class="subscription-detail-value" id="vipMaxIps">5</span>
+                <div class="subscription-detail info-section">
+                  <div class="subscription-detail">
+                    <span class="subscription-detail-label">过期</span>
+                    <span class="subscription-detail-value" id="vipExpiry">Permanent</span>
+                  </div>
+                  <div class="subscription-detail">
+                    <span class="subscription-detail-label">持续时间</span>
+                    <span class="subscription-detail-value" id="vipDuration">-1 天</span>
+                  </div>
+                  <div class="subscription-detail">
+                    <span class="subscription-detail-label">最大IP数</span>
+                    <span class="subscription-detail-value" id="vipMaxIps">5</span>
+                  </div>
                 </div>
               </div>
             </div>
