@@ -7,7 +7,7 @@ import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } fro
 import { handleUserActivate, handleUserChangeTopic, handleUserChangeSubMode } from './handlers/user.js';
 import { handlePublicPlay, handleChannelDebug, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings, handleFavoritesM3U, handleChannelsM3U } from './handlers/public.js';
 import { handleGetPlans } from './handlers/plans-api.js';
-import { generateAndCacheSitemap, getAllChannels, getAllGroups } from './utils/channel-cache.js';
+import { generateAndCacheSitemap, getAllChannels, getAllGroups, clearChannelCache } from './utils/channel-cache.js';
 
 // 辅助函数：将字符串转换为 URL 友好的 slug
 function slugify(text) {
@@ -1980,6 +1980,19 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           await syncAllSources(db, env);
           await refreshCache(db, env);
           return new Response(JSON.stringify({ success: true, message: 'Full sync and cache refresh completed' }), {
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        } catch (error) {
+          return new Response(JSON.stringify({ success: false, error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+      } else if (path === '/test/clear-cache') {
+        // 测试路由：清空 KV 频道缓存
+        try {
+          const cleared = await clearChannelCache(env);
+          return new Response(JSON.stringify({ success: cleared, message: cleared ? 'Cache cleared successfully' : 'Failed to clear cache' }), {
             headers: { 'Content-Type': 'application/json; charset=utf-8' }
           });
         } catch (error) {
