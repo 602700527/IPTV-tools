@@ -237,7 +237,7 @@ export const styles = `
   }
 
   .subscription-section {
-    background: var(--bg-hover);
+    background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 18px;
@@ -345,7 +345,13 @@ export const styles = `
 
   .copy-btn:hover { opacity: 0.9; }
 
-  .perks-section { margin-bottom: 20px; }
+  .perks-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 20px;
+  }
 
   .perks-title {
     font-size: 11px;
@@ -384,7 +390,7 @@ export const styles = `
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 20px 24px;
+    padding: 18px 20px;
     margin-bottom: 20px;
   }
   .scheme-section-header {
