@@ -186,16 +186,24 @@ export async function handleSubRequest(request, env, ctx) {
         const favorites = await getUserFavorites(auth.user_id);
         const hashSet = new Set(favorites.map(f => ('00000000' + f.hash).slice(-8)));
         if (hashSet.size > 0) {
-          const placeholders = Array.from(hashSet).map(() => '?').join(',');
-          const favChannels = await db.prepare(
-            `SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash
-             FROM channels c
-             INNER JOIN sources s ON c.source_id = s.id
-             WHERE c.is_active = 1 AND s.is_active = 1
-             AND c.channel_hash IN (${placeholders})`
-          ).bind(...Array.from(hashSet)).all();
-          allChannels = favChannels || [];
-          console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id} (from D1)`);
+          // 限制 IN 列表大小，避免 SQL 错误
+          const hashArr = Array.from(hashSet);
+          let favChannels = [];
+          // 分批查询，每批最多 50 个
+          for (let i = 0; i < hashArr.length; i += 50) {
+            const batch = hashArr.slice(i, i + 50);
+            const placeholders = batch.map(() => '?').join(',');
+            const batchResult = await db.prepare(
+              `SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash
+               FROM channels c
+               INNER JOIN sources s ON c.source_id = s.id
+               WHERE c.is_active = 1 AND s.is_active = 1
+               AND c.channel_hash IN (${placeholders})`
+            ).bind(...batch).all();
+            favChannels = favChannels.concat(batchResult || []);
+          }
+          allChannels = favChannels;
+          console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id} (from D1, ${hashArr.length} hashes)`);
         } else {
           allChannels = [];
         }
@@ -576,16 +584,24 @@ export async function handleSubRequestTxt(request, env, ctx) {
         const favorites = await getUserFavorites(auth.user_id);
         const hashSet = new Set(favorites.map(f => ('00000000' + f.hash).slice(-8)));
         if (hashSet.size > 0) {
-          const placeholders = Array.from(hashSet).map(() => '?').join(',');
-          const favChannels = await db.prepare(
-            `SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash
-             FROM channels c
-             INNER JOIN sources s ON c.source_id = s.id
-             WHERE c.is_active = 1 AND s.is_active = 1
-             AND c.channel_hash IN (${placeholders})`
-          ).bind(...Array.from(hashSet)).all();
-          allChannels = favChannels || [];
-          console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id} (from D1)`);
+          // 限制 IN 列表大小，避免 SQL 错误
+          const hashArr = Array.from(hashSet);
+          let favChannels = [];
+          // 分批查询，每批最多 50 个
+          for (let i = 0; i < hashArr.length; i += 50) {
+            const batch = hashArr.slice(i, i + 50);
+            const placeholders = batch.map(() => '?').join(',');
+            const batchResult = await db.prepare(
+              `SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash
+               FROM channels c
+               INNER JOIN sources s ON c.source_id = s.id
+               WHERE c.is_active = 1 AND s.is_active = 1
+               AND c.channel_hash IN (${placeholders})`
+            ).bind(...batch).all();
+            favChannels = favChannels.concat(batchResult || []);
+          }
+          allChannels = favChannels;
+          console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id} (from D1, ${hashArr.length} hashes)`);
         } else {
           allChannels = [];
         }
