@@ -140,17 +140,6 @@ export const styles = `
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
-    position: relative;
-  }
-
-  .profile-hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--gradient-neon);
   }
 
   .profile-hero-content { padding: 28px; }
@@ -444,8 +433,7 @@ export const styles = `
   .profile-actions { display: flex; gap: 12px; margin-top: 4px; }
 
   .btn-renew {
-    flex: 1;
-    padding: 12px 20px;
+    padding: 10px 24px;
     background: var(--gradient-neon);
     color: #fff;
     border: none;
@@ -454,19 +442,17 @@ export const styles = `
     font-weight: 600;
     cursor: pointer;
     transition: all 0.25s;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
-    box-shadow: 0 4px 12px var(--accent-glow);
+    gap: 6px;
+    box-shadow: 0 2px 8px var(--accent-glow);
   }
 
-  .btn-renew:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--accent-glow); }
-  .btn-renew svg { width: 16px; height: 16px; }
+  .btn-renew:hover { transform: translateY(-1px); box-shadow: 0 4px 12px var(--accent-glow); }
+  .btn-renew svg { width: 14px; height: 14px; }
 
   .btn-plans {
-    flex: 1;
-    padding: 12px 20px;
+    padding: 10px 24px;
     background: transparent;
     color: var(--text-secondary);
     border: 1px solid var(--border);
