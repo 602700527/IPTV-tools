@@ -185,10 +185,23 @@ export async function handleSubRequest(request, env, ctx) {
       try {
         const favorites = await getUserFavorites(auth.user_id);
         const hashSet = new Set(favorites.map(f => ('00000000' + f.hash).slice(-8)));
-        allChannels = allChannels.filter(ch => hashSet.has(ch.channel_hash));
-        console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id}`);
+        if (hashSet.size > 0) {
+          const placeholders = Array.from(hashSet).map(() => '?').join(',');
+          const favChannels = await db.prepare(
+            `SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash
+             FROM channels c
+             INNER JOIN sources s ON c.source_id = s.id
+             WHERE c.is_active = 1 AND s.is_active = 1
+             AND c.channel_hash IN (${placeholders})`
+          ).bind(...Array.from(hashSet)).all();
+          allChannels = favChannels || [];
+          console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id} (from D1)`);
+        } else {
+          allChannels = [];
+        }
       } catch (e) {
         console.error('[Sub] Failed to get favorites:', e);
+        allChannels = [];
       }
     }
     // 否则按 topic 过滤（原有逻辑）
@@ -562,10 +575,23 @@ export async function handleSubRequestTxt(request, env, ctx) {
       try {
         const favorites = await getUserFavorites(auth.user_id);
         const hashSet = new Set(favorites.map(f => ('00000000' + f.hash).slice(-8)));
-        allChannels = allChannels.filter(ch => hashSet.has(ch.channel_hash));
-        console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id}`);
+        if (hashSet.size > 0) {
+          const placeholders = Array.from(hashSet).map(() => '?').join(',');
+          const favChannels = await db.prepare(
+            `SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash
+             FROM channels c
+             INNER JOIN sources s ON c.source_id = s.id
+             WHERE c.is_active = 1 AND s.is_active = 1
+             AND c.channel_hash IN (${placeholders})`
+          ).bind(...Array.from(hashSet)).all();
+          allChannels = favChannels || [];
+          console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id} (from D1)`);
+        } else {
+          allChannels = [];
+        }
       } catch (e) {
         console.error('[Sub] Failed to get favorites:', e);
+        allChannels = [];
       }
     }
     // 否则按 topic 过滤（原有逻辑）
