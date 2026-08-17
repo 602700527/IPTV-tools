@@ -1507,12 +1507,25 @@ async function loadSchemes() {
 async function checkFavoritesCount() {
   try {
     const token = getToken();
+
+    // 测试环境：从 localStorage 读取
+    if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+      try {
+        const localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
+        return localFavs.length;
+      } catch (e) {
+        return 0;
+      }
+    }
+
+    // 生产环境：从云端读取
+    if (!token) return 0;
     const resp = await fetch('/api/favorites', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     if (!resp.ok) return 0;
     const data = await resp.json();
-    return (data && data.success) ? (data.count || 0) : 0;
+    return (data && data.success) ? (data.favorites ? data.favorites.length : 0) : 0;
   } catch (e) {
     return 0;
   }
