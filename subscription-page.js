@@ -920,7 +920,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       transition: all 0.2s;
     }
     .payment-close:hover { background: var(--bg-hover); color: var(--text-primary); }
-    .payment-body { padding: 24px; }
+    .payment-body { padding: 20px 24px; }
     .qrcode-section {
       border: var(--border);
       padding: 20px; text-align: center; margin-bottom: 18px;
@@ -968,7 +968,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .payment-info-value { font-size: 0.9rem; font-weight: 600; }
     .payment-amount { color: var(--accent); font-size: 1.1rem; font-weight: 800; }
-    .payment-footer { padding: 16px 24px 20px; border-top: var(--border); }
+    .payment-footer { padding: 12px 24px 16px; border-top: var(--border); }
     .payment-test-button {
       width: 100%; background: transparent; color: #4CAF50;
       border: 1px solid #4CAF50; padding: 12px;
@@ -1425,7 +1425,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   <div id="paymentModal" class="payment-modal">
     <div class="payment-content">
       <div class="payment-header">
-        <h2 class="payment-title">完成支付</h2>
+        <h2 class="payment-title" id="paymentModalTitle">完成支付</h2>
         <button class="payment-close" onclick="closePaymentModal()">×</button>
       </div>
       <div class="payment-body">
@@ -1710,6 +1710,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
         document.getElementById('paymentStatus').textContent = '等待链上确认（最长 1 分钟）...';
         document.getElementById('paymentStatus').style.color = '';
+        document.getElementById('paymentModalTitle').textContent = '等待支付';
         document.getElementById('paymentModal').classList.add('show');
         currentOrderId = data.order_id;
 
@@ -1747,6 +1748,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             clearInterval(checkPaymentInterval);
             document.getElementById('paymentStatus').textContent = '链上确认成功！';
             document.getElementById('paymentStatus').style.color = '#4CAF50';
+            document.getElementById('paymentModalTitle').textContent = '支付成功';
             setTimeout(() => {
               closePaymentModal();
               const subUrl = window.location.origin + '/sub/' + (j.code || '') + '.m3u';
@@ -1826,6 +1828,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
           document.getElementById('paymentStatus').textContent = '等待支付中...';
           document.getElementById('paymentStatus').style.color = '';
+          document.getElementById('paymentModalTitle').textContent = '完成支付';
           document.getElementById('paymentModal').classList.add('show');
           currentOrderId = result.order_id;
 
@@ -1870,6 +1873,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             clearInterval(checkPaymentInterval);
             document.getElementById('paymentStatus').textContent = '支付成功！';
             document.getElementById('paymentStatus').style.color = '#4CAF50';
+            document.getElementById('paymentModalTitle').textContent = '支付成功';
             setTimeout(function () {
               closePaymentModal();
               const subUrl = window.location.origin + '/sub/' + result.order.code + '.m3u';
@@ -1905,6 +1909,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           clearInterval(checkPaymentInterval);
           document.getElementById('paymentStatus').textContent = '支付成功！';
           document.getElementById('paymentStatus').style.color = '#4CAF50';
+          document.getElementById('paymentModalTitle').textContent = '支付成功';
           setTimeout(function () {
             closePaymentModal();
             const subUrl = window.location.origin + '/sub/' + result.code + '.m3u';
