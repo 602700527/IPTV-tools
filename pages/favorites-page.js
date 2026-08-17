@@ -290,6 +290,54 @@ export function generateFavoritesPage(options = {}) {
     function getFavorites() { try { return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || []; } catch { return []; } }
     function saveFavorites(favorites) { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites)); }
 
+    // Check if user is logged in
+    function isLoggedIn() {
+      return !!localStorage.getItem('auth_token');
+    }
+
+    // Load favorites from cloud if logged in
+    async function loadFavorites() {
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        return getFavorites();
+      }
+
+      try {
+        const response = await fetch('${origin}/api/favorites', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await response.json();
+        if (data.success && Array.isArray(data.favorites)) {
+          // Sync to localStorage
+          saveFavorites(data.favorites);
+          return data.favorites;
+        }
+      } catch (e) {
+        console.error('Failed to load cloud favorites:', e);
+      }
+
+      return getFavorites();
+    }
+
+    // Save favorites to cloud if logged in
+    async function syncFavoritesToCloud(favorites) {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+
+      try {
+        await fetch('${origin}/api/favorites', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ favorites })
+        });
+      } catch (e) {
+        console.error('Failed to sync favorites to cloud:', e);
+      }
+    }
+
     function renderFavorites() {
       const favorites = getFavorites();
       const channelList = document.getElementById('channelList');
@@ -344,8 +392,8 @@ export function generateFavoritesPage(options = {}) {
       const hash = btn.closest('.channel-row').dataset.hash;
       const favorites = getFavorites();
       const newFavorites = favorites.filter(f => f.hash !== hash);
-      saveFavorites(newFavorites);
-      renderFavorites();
+      saveFavorites(newFavorites); syncFavoritesToCloud(newFavorites);
+      loadFavorites().then(favorites => { renderFavorites(); });
     }
 
     function toggleSelectAll() {
@@ -401,9 +449,9 @@ export function generateFavoritesPage(options = {}) {
       const favorites = getFavorites();
       const selectedHashes = selected.map(s => s.hash);
       const newFavorites = favorites.filter(f => !selectedHashes.includes(f.hash));
-      saveFavorites(newFavorites);
+      saveFavorites(newFavorites); syncFavoritesToCloud(newFavorites);
       showToastSuccess('Removed ' + selected.length + ' channel(s) from favorites');
-      renderFavorites();
+      loadFavorites().then(favorites => { renderFavorites(); });
     }
 
     // Check if user is a member
@@ -621,7 +669,7 @@ export function generateFavoritesPage(options = {}) {
     }
 
     // Initialize
-    renderFavorites();
+    loadFavorites().then(favorites => { renderFavorites(); });
   </script>
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
   <script>
