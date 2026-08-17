@@ -1113,14 +1113,6 @@ export const content = `
                 <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>云同步</span>
               </div>
             </div>
-
-            <div class="profile-actions">
-              <button class="btn-renew" id="btnRenew" onclick="window.location.href='/freesub'" style="display: inline-flex;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"></path></svg>
-更新VIP
-              </button>
-              <button class="btn-plans" id="btnViewPlans" onclick="window.location.href='/freesub'" style="display: none;">查看平面图</button>
-            </div>
           </div>
         </div>
       </div>
@@ -1374,8 +1366,6 @@ async function loadVipStatus() {
     if (vipStar) vipStar.style.display = 'none';
     if (subscriptionSection) subscriptionSection.style.display = 'none';
     if (perksSection) perksSection.style.display = 'none';
-    if (btnRenew) btnRenew.style.display = 'none';
-    if (btnViewPlans) btnViewPlans.style.display = 'inline-flex';
     if (avatarRing) avatarRing.classList.remove('vip-ring');
     if (subscriptionStatusEl) subscriptionStatusEl.className = 'subscription-status';
 
@@ -1407,8 +1397,6 @@ async function loadVipStatus() {
       if (vipStar) vipStar.style.display = 'inline-flex';
       if (subscriptionSection) subscriptionSection.style.display = 'block';
       if (perksSection) perksSection.style.display = 'block';
-      if (btnRenew) btnRenew.style.display = 'inline-flex';
-      if (btnViewPlans) btnViewPlans.style.display = 'none';
       if (avatarRing) avatarRing.classList.add('vip-ring');
 
       const baseUrl = window.location.origin;
