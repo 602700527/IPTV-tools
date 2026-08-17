@@ -184,44 +184,18 @@ export async function handleSubRequest(request, env, ctx) {
     if (auth.sub_mode === 'favorites' && auth.user_id) {
       try {
         const favorites = await getUserFavorites(auth.user_id);
-        const hashList = favorites.map(f => ('00000000' + f.hash).slice(-8));
-        if (hashList.length > 0) {
-          // 直接从收藏数据构建频道列表，只查 play_url 和 headers
-          const favMap = new Map();
-          for (const f of favorites) {
-            const h = ('00000000' + f.hash).slice(-8);
-            favMap.set(h, { name: f.name, logo: f.logo, group: f.group, hash: h });
-          }
-          // 分批查 D1 获取 play_url 和 headers
-          let allChannelsTemp = [];
-          for (let i = 0; i < hashList.length; i += 50) {
-            const batch = hashList.slice(i, i + 50);
-            const placeholders = batch.map(() => '?').join(',');
-            const batchResult = await db.prepare(
-              `SELECT play_url, headers, channel_hash FROM channels
-               WHERE is_active = 1 AND channel_hash IN (${placeholders})`
-            ).bind(...batch).all();
-            for (const row of batchResult) {
-              const keys = Object.keys(row);
-              const rowHash = row[keys[2]];
-              const rowPlayUrl = row[keys[0]];
-              const rowHeaders = row[keys[1]] || '{}';
-              const ch = favMap.get(rowHash);
-              if (ch && rowPlayUrl) {
-                allChannelsTemp.push({
-                  channel_name: ch.name,
-                  group_title: ch.group,
-                  logo: ch.logo,
-                  play_url: rowPlayUrl,
-                  headers: rowHeaders,
-                  channel_hash: ch.hash,
-                  original: ''
-                });
-              }
-            }
-          }
-          allChannels = allChannelsTemp;
-          console.log(\`[Sub] Favorites filter applied: \${allChannels.length} channels from D1\`);
+        const hashSet = new Set(favorites.map(f => ('00000000' + f.hash).slice(-8)));
+        if (hashSet.size > 0) {
+          const placeholders = Array.from(hashSet).map(() => '?').join(',');
+          const favChannels = await db.prepare(
+            `SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash
+             FROM channels c
+             INNER JOIN sources s ON c.source_id = s.id
+             WHERE c.is_active = 1 AND s.is_active = 1
+             AND c.channel_hash IN (${placeholders})`
+          ).bind(...Array.from(hashSet)).all();
+          allChannels = favChannels || [];
+          console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id} (from D1)`);
         } else {
           allChannels = [];
         }
@@ -600,44 +574,18 @@ export async function handleSubRequestTxt(request, env, ctx) {
     if (auth.sub_mode === 'favorites' && auth.user_id) {
       try {
         const favorites = await getUserFavorites(auth.user_id);
-        const hashList = favorites.map(f => ('00000000' + f.hash).slice(-8));
-        if (hashList.length > 0) {
-          // 直接从收藏数据构建频道列表，只查 play_url 和 headers
-          const favMap = new Map();
-          for (const f of favorites) {
-            const h = ('00000000' + f.hash).slice(-8);
-            favMap.set(h, { name: f.name, logo: f.logo, group: f.group, hash: h });
-          }
-          // 分批查 D1 获取 play_url 和 headers
-          let allChannelsTemp = [];
-          for (let i = 0; i < hashList.length; i += 50) {
-            const batch = hashList.slice(i, i + 50);
-            const placeholders = batch.map(() => '?').join(',');
-            const batchResult = await db.prepare(
-              `SELECT play_url, headers, channel_hash FROM channels
-               WHERE is_active = 1 AND channel_hash IN (${placeholders})`
-            ).bind(...batch).all();
-            for (const row of batchResult) {
-              const keys = Object.keys(row);
-              const rowHash = row[keys[2]];
-              const rowPlayUrl = row[keys[0]];
-              const rowHeaders = row[keys[1]] || '{}';
-              const ch = favMap.get(rowHash);
-              if (ch && rowPlayUrl) {
-                allChannelsTemp.push({
-                  channel_name: ch.name,
-                  group_title: ch.group,
-                  logo: ch.logo,
-                  play_url: rowPlayUrl,
-                  headers: rowHeaders,
-                  channel_hash: ch.hash,
-                  original: ''
-                });
-              }
-            }
-          }
-          allChannels = allChannelsTemp;
-          console.log(\`[Sub] Favorites filter applied: \${allChannels.length} channels from D1\`);
+        const hashSet = new Set(favorites.map(f => ('00000000' + f.hash).slice(-8)));
+        if (hashSet.size > 0) {
+          const placeholders = Array.from(hashSet).map(() => '?').join(',');
+          const favChannels = await db.prepare(
+            `SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash
+             FROM channels c
+             INNER JOIN sources s ON c.source_id = s.id
+             WHERE c.is_active = 1 AND s.is_active = 1
+             AND c.channel_hash IN (${placeholders})`
+          ).bind(...Array.from(hashSet)).all();
+          allChannels = favChannels || [];
+          console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id} (from D1)`);
         } else {
           allChannels = [];
         }
