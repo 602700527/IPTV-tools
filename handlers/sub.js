@@ -184,26 +184,40 @@ export async function handleSubRequest(request, env, ctx) {
     if (auth.sub_mode === 'favorites' && auth.user_id) {
       try {
         const favorites = await getUserFavorites(auth.user_id);
-        const hashSet = new Set(favorites.map(f => ('00000000' + f.hash).slice(-8)));
-        if (hashSet.size > 0) {
-          // 限制 IN 列表大小，避免 SQL 错误
-          const hashArr = Array.from(hashSet);
-          let favChannels = [];
-          // 分批查询，每批最多 50 个
-          for (let i = 0; i < hashArr.length; i += 50) {
-            const batch = hashArr.slice(i, i + 50);
+        const hashList = favorites.map(f => ('00000000' + f.hash).slice(-8));
+        if (hashList.length > 0) {
+          // 直接从收藏数据构建频道列表，只查 play_url 和 headers
+          const favMap = new Map();
+          for (const f of favorites) {
+            const h = ('00000000' + f.hash).slice(-8);
+            favMap.set(h, { name: f.name, logo: f.logo, group: f.group, hash: h });
+          }
+          // 分批查 D1 获取 play_url 和 headers
+          let allChannelsTemp = [];
+          for (let i = 0; i < hashList.length; i += 50) {
+            const batch = hashList.slice(i, i + 50);
             const placeholders = batch.map(() => '?').join(',');
             const batchResult = await db.prepare(
-              `SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash
-               FROM channels c
-               INNER JOIN sources s ON c.source_id = s.id
-               WHERE c.is_active = 1 AND s.is_active = 1
-               AND c.channel_hash IN (${placeholders})`
+              `SELECT play_url, headers, channel_hash FROM channels
+               WHERE is_active = 1 AND channel_hash IN (${placeholders})`
             ).bind(...batch).all();
-            favChannels = favChannels.concat(batchResult || []);
+            for (const row of batchResult) {
+              const ch = favMap.get(row.channel_hash);
+              if (ch) {
+                allChannelsTemp.push({
+                  channel_name: ch.name,
+                  group_title: ch.group,
+                  logo: ch.logo,
+                  play_url: row.play_url,
+                  headers: row.headers,
+                  channel_hash: ch.hash,
+                  original: ''
+                });
+              }
+            }
           }
-          allChannels = favChannels;
-          console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id} (from D1, ${hashArr.length} hashes)`);
+          allChannels = allChannelsTemp;
+          console.log(\`[Sub] Favorites filter applied: \${allChannels.length} channels from D1\`);
         } else {
           allChannels = [];
         }
@@ -582,26 +596,40 @@ export async function handleSubRequestTxt(request, env, ctx) {
     if (auth.sub_mode === 'favorites' && auth.user_id) {
       try {
         const favorites = await getUserFavorites(auth.user_id);
-        const hashSet = new Set(favorites.map(f => ('00000000' + f.hash).slice(-8)));
-        if (hashSet.size > 0) {
-          // 限制 IN 列表大小，避免 SQL 错误
-          const hashArr = Array.from(hashSet);
-          let favChannels = [];
-          // 分批查询，每批最多 50 个
-          for (let i = 0; i < hashArr.length; i += 50) {
-            const batch = hashArr.slice(i, i + 50);
+        const hashList = favorites.map(f => ('00000000' + f.hash).slice(-8));
+        if (hashList.length > 0) {
+          // 直接从收藏数据构建频道列表，只查 play_url 和 headers
+          const favMap = new Map();
+          for (const f of favorites) {
+            const h = ('00000000' + f.hash).slice(-8);
+            favMap.set(h, { name: f.name, logo: f.logo, group: f.group, hash: h });
+          }
+          // 分批查 D1 获取 play_url 和 headers
+          let allChannelsTemp = [];
+          for (let i = 0; i < hashList.length; i += 50) {
+            const batch = hashList.slice(i, i + 50);
             const placeholders = batch.map(() => '?').join(',');
             const batchResult = await db.prepare(
-              `SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash
-               FROM channels c
-               INNER JOIN sources s ON c.source_id = s.id
-               WHERE c.is_active = 1 AND s.is_active = 1
-               AND c.channel_hash IN (${placeholders})`
+              `SELECT play_url, headers, channel_hash FROM channels
+               WHERE is_active = 1 AND channel_hash IN (${placeholders})`
             ).bind(...batch).all();
-            favChannels = favChannels.concat(batchResult || []);
+            for (const row of batchResult) {
+              const ch = favMap.get(row.channel_hash);
+              if (ch) {
+                allChannelsTemp.push({
+                  channel_name: ch.name,
+                  group_title: ch.group,
+                  logo: ch.logo,
+                  play_url: row.play_url,
+                  headers: row.headers,
+                  channel_hash: ch.hash,
+                  original: ''
+                });
+              }
+            }
           }
-          allChannels = favChannels;
-          console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id} (from D1, ${hashArr.length} hashes)`);
+          allChannels = allChannelsTemp;
+          console.log(\`[Sub] Favorites filter applied: \${allChannels.length} channels from D1\`);
         } else {
           allChannels = [];
         }
