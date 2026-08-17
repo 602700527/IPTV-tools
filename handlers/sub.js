@@ -184,7 +184,7 @@ export async function handleSubRequest(request, env, ctx) {
     if (auth.sub_mode === 'favorites' && auth.user_id) {
       try {
         const favorites = await getUserFavorites(auth.user_id);
-        const hashSet = new Set(favorites.map(f => f.channel_hash));
+        const hashSet = new Set(favorites.map(f => f.hash));
         allChannels = allChannels.filter(ch => hashSet.has(ch.channel_hash));
         console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id}`);
       } catch (e) {
@@ -561,7 +561,7 @@ export async function handleSubRequestTxt(request, env, ctx) {
     if (auth.sub_mode === 'favorites' && auth.user_id) {
       try {
         const favorites = await getUserFavorites(auth.user_id);
-        const hashSet = new Set(favorites.map(f => f.channel_hash));
+        const hashSet = new Set(favorites.map(f => f.hash));
         allChannels = allChannels.filter(ch => hashSet.has(ch.channel_hash));
         console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id}`);
       } catch (e) {
