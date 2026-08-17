@@ -39,9 +39,8 @@ STATIC_SOURCE = "local"
 STATIC_OUTPUT_DIR = "static-output"
 GOOGLE_CLIENT_ID = "1070165774283-e75bs3en213p81iaq3g5dmpt15e6te9l.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET = "GOCSPX-oMHiR_wUYIe85DL0zWEii5Dee9I"
-# USDT (TRC20) 支付占位（生产部署用 wrangler secret put 覆盖）
-USD_WORKER_URL = "http://127.0.0.1:8788/mock-epusdt"
-USD_API_AUTH_TOKEN = "test_token_for_local_dev_only_xyz"
+USD_WORKER_URL = "https://epusdt-workers.602700527.workers.dev"
+USD_API_AUTH_TOKEN = "fc8afe257db9841f2b25a52f7055ef417b06a00c36067a81000ceb6c2d5b2b9d"
 
 # 定时触发器
 [triggers]
