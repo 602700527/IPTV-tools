@@ -455,6 +455,11 @@ import {
   handleSimulatePaymentSuccess
 } from './handlers/xunhupay-api.js';
 import {
+  handleUsdtCreateOrder,
+  handleUsdtCheckStatus,
+  handleUsdtWebhook
+} from './handlers/usdt-payment.js';
+import {
   handleGetPaymentMethods,
   handleCreatePaymentMethod,
   handleUpdatePaymentMethod,
@@ -1475,6 +1480,28 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         });
       }
       return await handleSimulatePaymentSuccess(request, env, ctx);
+    } else if (path === '/api/subscription/usdt/create-order') {
+      // USDT (TRC20) 支付：通过 epusdt-workers 收款
+      if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ success: false, error: 'Method not allowed' }), {
+          status: 405, headers: { 'Content-Type': 'application/json' }
+        });
+      }
+      return await handleUsdtCreateOrder(request, env, ctx);
+    } else if (path === '/api/subscription/usdt/check-status') {
+      // 查询 USDT 订单状态
+      if (request.method !== 'GET') {
+        return new Response(JSON.stringify({ success: false, error: 'Method not allowed' }), {
+          status: 405, headers: { 'Content-Type': 'application/json' }
+        });
+      }
+      return await handleUsdtCheckStatus(request, env, ctx);
+    } else if (path === '/api/subscription/usdt/webhook') {
+      // 接收 epusdt-workers 的链上确认回调
+      if (request.method !== 'POST') {
+        return new Response('method not allowed', { status: 405, headers: { 'Content-Type': 'text/plain' } });
+      }
+      return await handleUsdtWebhook(request, env, ctx);
     } else if (path === '/api/subscription/crypto/coinbase-create-order') {
       // 创建 Coinbase Commerce 支付订单
       if (request.method === 'POST') {

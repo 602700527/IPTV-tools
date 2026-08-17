@@ -1386,6 +1386,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                   <div class="payment-option-icon">💚</div>
                   <div class="payment-option-name">微信支付</div>
                 </div>
+                <div class="payment-option" onclick="selectPayment('usdt')">
+                  <div class="payment-option-icon">💰</div>
+                  <div class="payment-option-name">USDT (TRC20)</div>
+                </div>
               </div>
             </div>
             
@@ -1432,6 +1436,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           <p class="qrcode-tip" id="modalQrcodeTip">请用支付宝/微信扫码支付</p>
           <p class="payment-method-indicator" id="paymentMethodIndicator"></p>
           <p class="payment-status" id="paymentStatus">等待支付中...</p>
+
+          <!-- USDT 专用：钱包地址 + 金额 -->
+          <div id="usdtAddressBox" style="display:none;margin-top:14px;text-align:left;font-size:12px;color:rgba(255,255,255,.85);">
+            <div style="margin-bottom:6px;color:rgba(255,255,255,.6);">收款地址 (TRC20 / Tron)</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <code id="usdtAddressText" style="flex:1;background:rgba(0,0,0,.4);padding:8px 10px;border-radius:6px;word-break:break-all;color:#f0c674;"></code>
+              <button id="usdtCopyBtn" type="button" style="background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">复制</button>
+            </div>
+            <div style="margin-top:10px;color:rgba(255,255,255,.6);">应付金额（精确到 0.0001 USDT）</div>
+            <div id="usdtAmountText" style="font-size:18px;font-weight:700;color:#f0c674;margin-top:4px;">- USDT</div>
+            <div style="margin-top:6px;color:rgba(255,165,0,.85);font-size:11px;">⚠️ 必须按此金额支付，多付/少付都无法识别</div>
+          </div>
         </div>
         <div class="payment-info">
           <div class="payment-info-item">
@@ -1656,6 +1672,94 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     // 页面加载时获取主题列表
     loadThemes();
 
+    async function handleSubscribeUsdt(token, body) {
+      try {
+        const resp = await fetch('/api/subscription/usdt/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify(body)
+        });
+        const data = await resp.json();
+        if (!resp.ok || !data.success) {
+          showToast(data.error || 'USDT 订单创建失败', 'error');
+          showLoading(false);
+          return;
+        }
+
+        // 填充模态框
+        const planLabel = (selectedDuration.days === 30 ? '月度' : selectedDuration.days === 90 ? '季度' : selectedDuration.days === 365 ? '年度' : (selectedDuration.days + '天'));
+        document.getElementById('paymentPlanName').textContent = planLabel;
+        document.getElementById('paymentIPCount').textContent = selectedIPs + ' 台';
+        document.getElementById('paymentAmount').textContent = '¥' + (data.amount_cny != null ? data.amount_cny.toFixed(2) : '-');
+        document.getElementById('paymentMethodIndicator').innerHTML = '正在使用 <strong>USDT (TRC20)</strong>';
+        document.getElementById('modalQrcodeTip').textContent = '请使用支持 TRC20 的钱包扫码 / 转账';
+
+        // 显示 USDT 专属区
+        const addrBox = document.getElementById('usdtAddressBox');
+        addrBox.style.display = 'block';
+        document.getElementById('usdtAddressText').textContent = data.token || '-';
+        document.getElementById('usdtAmountText').textContent = (data.amount_usdt != null ? data.amount_usdt : '-') + ' USDT';
+
+        // 二维码：用钱包地址做内容即可（大部分钱包扫码识别）
+        const qrcodeImg = document.getElementById('modalQrcodeImage');
+        if (data.token) {
+          qrcodeImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent('tron:' + data.token);
+        } else {
+          qrcodeImg.src = '';
+        }
+
+        document.getElementById('paymentStatus').textContent = '等待链上确认（最长 1 分钟）...';
+        document.getElementById('paymentStatus').style.color = '';
+        document.getElementById('paymentModal').classList.add('show');
+        currentOrderId = data.order_id;
+
+        // 复制按钮
+        document.getElementById('usdtCopyBtn').onclick = () => {
+          navigator.clipboard.writeText(data.token || '').then(() => showToast('地址已复制', 'success'));
+        };
+
+        startUsdtOrderCheck(data.order_id, token);
+      } catch (e) {
+        console.error('USDT subscribe error:', e);
+        showToast('网络错误，请重试', 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function startUsdtOrderCheck(orderId, token) {
+      if (checkPaymentInterval) clearInterval(checkPaymentInterval);
+      let checkCount = 0;
+      const maxChecks = 90; // ~7.5 分钟（每 5 秒）
+      checkPaymentInterval = setInterval(async () => {
+        checkCount++;
+        if (checkCount > maxChecks) {
+          clearInterval(checkPaymentInterval);
+          document.getElementById('paymentStatus').textContent = '订单已过期';
+          return;
+        }
+        try {
+          const r = await fetch('/api/subscription/usdt/check-status?order_id=' + encodeURIComponent(orderId), {
+            headers: { 'Authorization': 'Bearer ' + token }
+          });
+          const j = await r.json();
+          if (j.success && j.paid) {
+            clearInterval(checkPaymentInterval);
+            document.getElementById('paymentStatus').textContent = '链上确认成功！';
+            document.getElementById('paymentStatus').style.color = '#4CAF50';
+            setTimeout(() => {
+              closePaymentModal();
+              const subUrl = window.location.origin + '/sub/' + (j.code || '') + '.m3u';
+              // 后端 webhook 完成后激活，code 由 user_orders 查得；这里跳转账户页更稳
+              window.location.href = '/account?payment=success';
+            }, 1500);
+          }
+        } catch (e) {
+          console.error('USDT check error:', e);
+        }
+      }, 5000);
+    }
+
     async function handleSubscribe() {
       if (!selectedDuration) {
         showToast('请选择订阅方案', 'error');
@@ -1674,11 +1778,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const body = {
           duration_days: Number(selectedDuration.days),
           max_ips: Number(selectedIPs),
-          payment_method: selectedPaymentMethod || 'alipay',
           // 新订阅才发送；续费场景由后端保留
           topic_id: (!isRenewalFlow && selectedTheme && selectedTheme !== 'favorites') ? Number(selectedTheme) : null,
           sub_mode: (!isRenewalFlow && selectedTheme === 'favorites') ? 'favorites' : null,
         };
+
+        // USDT 走单独端点
+        if (selectedPaymentMethod === 'usdt') {
+          await handleSubscribeUsdt(token, body);
+          return;
+        }
+
+        body.payment_method = selectedPaymentMethod || 'alipay';
 
         const response = await fetch('/api/subscription/xunhupay/create-order', {
           method: 'POST',
