@@ -2761,10 +2761,18 @@ export function applyTopicFilter(channels, rules) {
 export async function getUserFavorites(userId) {
   const db = getDB();
   try {
-    const favorites = await db.prepare(
-      'SELECT channel_hash, name, logo, \`group\`, created_at FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC'
-    ).bind(userId).all();
-    return favorites || [];
+    const row = await db.prepare(
+      'SELECT favorites FROM user_favorites WHERE user_id = ?'
+    ).bind(userId).first();
+
+    if (!row || !row.favorites) return [];
+
+    try {
+      return JSON.parse(row.favorites);
+    } catch (e) {
+      console.error('[getUserFavorites] Failed to parse favorites JSON:', e);
+      return [];
+    }
   } catch (error) {
     console.error('[getUserFavorites] Error:', error);
     return [];
@@ -2774,19 +2782,23 @@ export async function getUserFavorites(userId) {
 export async function saveUserFavorites(userId, favorites) {
   const db = getDB();
   try {
-    // 删除旧收藏
-    await db.prepare('DELETE FROM user_favorites WHERE user_id = ?').bind(userId).run();
-    
-    // 批量插入新收藏
-    if (favorites.length > 0) {
-      const stmt = db.prepare(
-        'INSERT INTO user_favorites (user_id, channel_hash, name, logo, \`group\`) VALUES (?, ?, ?, ?, ?)'
-      );
-      for (const fav of favorites) {
-        await stmt.bind(userId, fav.hash, fav.name || '', fav.logo || '', fav.group || '').run();
-      }
-      await stmt.finalize();
+    const favoritesJson = JSON.stringify(favorites);
+
+    // Check if row exists
+    const existing = await db.prepare(
+      'SELECT user_id FROM user_favorites WHERE user_id = ?'
+    ).bind(userId).first();
+
+    if (existing) {
+      await db.prepare(
+        "UPDATE user_favorites SET favorites = ?, updated_at = datetime('now') WHERE user_id = ?"
+      ).bind(favoritesJson, userId).run();
+    } else {
+      await db.prepare(
+        "INSERT INTO user_favorites (user_id, favorites, updated_at) VALUES (?, ?, datetime('now'))"
+      ).bind(userId, favoritesJson).run();
     }
+
     console.log(`[saveUserFavorites] Saved ${favorites.length} favorites for user ${userId}`);
   } catch (error) {
     console.error('[saveUserFavorites] Error:', error);

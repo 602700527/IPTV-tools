@@ -1128,3 +1128,99 @@ export async function handleGetMemberStatus(request, env, ctx) {
     });
   }
 }
+
+/**
+ * 获取用户云端收藏
+ */
+export async function handleGetUserFavorites(request, env, ctx) {
+  try {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ success: false, error: '未授权' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const token = authHeader.substring(7);
+    const db = getDB();
+
+    // 验证会话
+    const session = await db.prepare(`
+      SELECT s.user_id
+      FROM user_sessions s
+      WHERE s.token = ? AND s.expires_at > datetime('now')
+    `).bind(token).first();
+
+    if (!session) {
+      return new Response(JSON.stringify({ success: false, error: '会话已过期' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 获取云端收藏
+    const { getUserFavorites } = await import('../database.js');
+    const favorites = await getUserFavorites(session.user_id);
+
+    return new Response(JSON.stringify({ success: true, favorites }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('[handleGetUserFavorites] Error:', error);
+    return new Response(JSON.stringify({ success: false, error: error.message || 'Server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * 保存用户云端收藏
+ */
+export async function handleSaveUserFavorites(request, env, ctx) {
+  try {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ success: false, error: '未授权' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const token = authHeader.substring(7);
+    const db = getDB();
+
+    // 验证会话
+    const session = await db.prepare(`
+      SELECT s.user_id
+      FROM user_sessions s
+      WHERE s.token = ? AND s.expires_at > datetime('now')
+    `).bind(token).first();
+
+    if (!session) {
+      return new Response(JSON.stringify({ success: false, error: '会话已过期' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // 解析请求体
+    const body = await request.json().catch(() => ({}));
+    const favorites = body.favorites || [];
+
+    // 保存到云端
+    const { saveUserFavorites } = await import('../database.js');
+    await saveUserFavorites(session.user_id, favorites);
+
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('[handleSaveUserFavorites] Error:', error);
+    return new Response(JSON.stringify({ success: false, error: error.message || 'Server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}

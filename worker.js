@@ -442,7 +442,9 @@ import {
   handleResetPassword,
   handleGoogleOAuthInit,
   handleGoogleOAuthCallback,
-  handleGetMemberStatus
+  handleGetMemberStatus,
+  handleGetUserFavorites,
+  handleSaveUserFavorites
 } from './handlers/auth.js';
 
 import { handleGoogleAuthDebug } from './handlers/google-auth-debug.js';
@@ -1448,6 +1450,15 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/member/status') {
       // 获取会员状态（用于前端广告显示控制）
       return await handleGetMemberStatus(request, env, ctx);
+    } else if (path === '/api/favorites') {
+      if (request.method === 'GET') {
+        return await handleGetUserFavorites(request, env, ctx);
+      } else if (request.method === 'POST') {
+        return await handleSaveUserFavorites(request, env, ctx);
+      }
+      return new Response(JSON.stringify({ success: false, error: 'Method not allowed' }), {
+        status: 405, headers: { 'Content-Type': 'application/json' }
+      });
     } else if (path === '/api/auth/google/init') {
       // Google OAuth 初始化
       return await handleGoogleOAuthInit(request, env, ctx);
