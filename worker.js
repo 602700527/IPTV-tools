@@ -446,7 +446,7 @@ import {
 } from './handlers/auth.js';
 
 import { handleGoogleAuthDebug } from './handlers/google-auth-debug.js';
-import { handleCreateCode, handleGetTopics } from './handlers/subscription-api.js';
+import { handleGetTopics } from './handlers/subscription-api.js';
 import {
   handleCreateXunhuPayOrder,
   handleXunhuPayNotify,
@@ -1452,9 +1452,6 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/auth/google/debug') {
       // Google OAuth 诊断
       return await handleGoogleAuthDebug(request, env, ctx);
-    } else if (path === '/api/subscription/create-code') {
-      // 创建订阅卡密
-      return await handleCreateCode(request, env, ctx);
     } else if (path === '/api/subscription/topics') {
       // 获取可用主题列表
       return await handleGetTopics(request, env, ctx);
