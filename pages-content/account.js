@@ -430,47 +430,8 @@ export const styles = `
   .scheme-vip-lock a { color: var(--accent); text-decoration: none; font-weight: 600; }
   .scheme-vip-lock a:hover { text-decoration: underline; }
 
-  .profile-actions { display: flex; gap: 12px; margin-top: 4px; }
 
-  .btn-renew {
-    padding: 10px 24px;
-    background: var(--gradient-neon);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.25s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 2px 8px var(--accent-glow);
-  }
 
-  .btn-renew:hover { transform: translateY(-1px); box-shadow: 0 4px 12px var(--accent-glow); }
-  .btn-renew svg { width: 14px; height: 14px; }
-
-  .btn-plans {
-    padding: 10px 24px;
-    background: transparent;
-    color: var(--text-secondary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.25s;
-  }
-
-  .btn-plans:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-hover); }
-
-  .info-panel {
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    border: 1px solid var(--glass-border);
-  }
 
   .info-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 
