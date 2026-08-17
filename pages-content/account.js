@@ -1351,8 +1351,6 @@ async function loadVipStatus() {
   const subscriptionStatusEl = document.getElementById('subscriptionStatus');
   const vipStatusTextEl = document.getElementById('vipStatusText');
   const perksSection = document.getElementById('perksSection');
-  const btnRenew = document.getElementById('btnRenew');
-  const btnViewPlans = document.getElementById('btnViewPlans');
 
   if (!profileHero || !avatarRing) { console.error('Profile hero elements not found'); return; }
 
