@@ -202,14 +202,18 @@ export async function handleSubRequest(request, env, ctx) {
                WHERE is_active = 1 AND channel_hash IN (${placeholders})`
             ).bind(...batch).all();
             for (const row of batchResult) {
-              const ch = favMap.get(row.channel_hash);
-              if (ch) {
+              const keys = Object.keys(row);
+              const rowHash = row[keys[2]];
+              const rowPlayUrl = row[keys[0]];
+              const rowHeaders = row[keys[1]] || '{}';
+              const ch = favMap.get(rowHash);
+              if (ch && rowPlayUrl) {
                 allChannelsTemp.push({
                   channel_name: ch.name,
                   group_title: ch.group,
                   logo: ch.logo,
-                  play_url: row.play_url,
-                  headers: row.headers,
+                  play_url: rowPlayUrl,
+                  headers: rowHeaders,
                   channel_hash: ch.hash,
                   original: ''
                 });
@@ -614,14 +618,18 @@ export async function handleSubRequestTxt(request, env, ctx) {
                WHERE is_active = 1 AND channel_hash IN (${placeholders})`
             ).bind(...batch).all();
             for (const row of batchResult) {
-              const ch = favMap.get(row.channel_hash);
-              if (ch) {
+              const keys = Object.keys(row);
+              const rowHash = row[keys[2]];
+              const rowPlayUrl = row[keys[0]];
+              const rowHeaders = row[keys[1]] || '{}';
+              const ch = favMap.get(rowHash);
+              if (ch && rowPlayUrl) {
                 allChannelsTemp.push({
                   channel_name: ch.name,
                   group_title: ch.group,
                   logo: ch.logo,
-                  play_url: row.play_url,
-                  headers: row.headers,
+                  play_url: rowPlayUrl,
+                  headers: rowHeaders,
                   channel_hash: ch.hash,
                   original: ''
                 });
