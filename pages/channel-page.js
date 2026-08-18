@@ -711,12 +711,73 @@ export function generateChannelPage(options = {}) {
       localStorage.setItem(FAVORITES_KEY + '_update', Date.now().toString());
     }
 
+    // Dedup favorites by channel_name (defensive against client state drift)
+    function dedupFavorites(favs) {
+      const seen = {}; const out = [];
+      for (const f of (favs || [])) {
+        if (!f || !f.name) continue;
+        if (seen[f.name]) continue;
+        seen[f.name] = true;
+        out.push(f);
+      }
+      return out;
+    }
+
+    // Debounced cloud sync: every save schedules a 5-minute timer.
+    // Multiple rapid saves coalesce into a single network request.
+    let _syncTimer = null;
+    function scheduleCloudSync(favorites) {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+      if (_syncTimer) clearTimeout(_syncTimer);
+      _syncTimer = setTimeout(() => syncFavoritesToCloud(dedupFavorites(favorites)), 5 * 60 * 1000);
+    }
+
+    async function syncFavoritesToCloud(favorites) {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+      try {
+        const res = await fetch('${origin}/api/favorites', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ favorites: dedupFavorites(favorites) })
+        });
+        if (!res.ok) console.error('[syncFavoritesToCloud] HTTP', res.status);
+      } catch (e) {
+        console.error('Failed to sync favorites to cloud:', e);
+      }
+    }
+
+    // Best-effort flush on page unload
+    window.addEventListener('beforeunload', () => {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+      const favs = dedupFavorites(JSON.parse(localStorage.getItem('favorites') || '[]'));
+      if (!favs.length) return;
+      try {
+        navigator.sendBeacon('${origin}/api/favorites',
+          new Blob([JSON.stringify({ favorites: favs })], { type: 'application/json' }));
+      } catch (e) { /* ignore */ }
+    });
+
     function toggleChannelStar() {
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        showToast({
+          type: 'warning',
+          title: '请先登录',
+          message: '收藏功能需要登录账号，登录后即可云同步。<br><a href="/login?redirect=/favorites" style="color:var(--accent);font-weight:600;">立即登录 / 注册 →</a>'
+        });
+        return;
+      }
       const favorites = getFavorites();
-      const index = favorites.findIndex(f => f.hash === CURRENT_CHANNEL_HASH);
+      const index = favorites.findIndex(f => f.name === CURRENT_CHANNEL_NAME);
       const starBtn = document.getElementById('detailStarBtn');
       const starText = document.getElementById('starText');
-      
+
       if (index > -1) {
         favorites.splice(index, 1);
         starBtn.classList.remove('btn-favorited');
@@ -725,9 +786,8 @@ export function generateChannelPage(options = {}) {
       } else {
         const logoImg = document.querySelector('.channel-poster-large img');
         const logo = logoImg && logoImg.src ? logoImg.src : '';
-        
+
         favorites.push({
-          hash: CURRENT_CHANNEL_HASH,
           name: CURRENT_CHANNEL_NAME,
           group: CURRENT_CHANNEL_GROUP,
           logo: logo
@@ -736,16 +796,26 @@ export function generateChannelPage(options = {}) {
         starText.textContent = 'Remove from Favorites';
         showToast('Added to favorites');
       }
-      
+
       saveFavorites(favorites);
+      // 同步到云端（异步，不阻塞 UI）
+      scheduleCloudSync(favorites);
     }
 
     function initDetailStarButton() {
-      const favorites = getFavorites();
-      const isFavorited = favorites.some(f => f.hash === CURRENT_CHANNEL_HASH);
+      const token = localStorage.getItem('auth_token');
+      const isFavorited = token ? getFavorites().some(f => f.name === CURRENT_CHANNEL_NAME) : false;
       const starBtn = document.getElementById('detailStarBtn');
       const starText = document.getElementById('starText');
-      
+
+      if (!token) {
+        starText.textContent = 'Login to Favorite';
+        starBtn.disabled = true;
+        starBtn.style.opacity = '0.5';
+        starBtn.style.cursor = 'not-allowed';
+        return;
+      }
+
       if (isFavorited) {
         starBtn.classList.add('btn-favorited');
         starText.textContent = 'Remove from Favorites';

@@ -307,11 +307,16 @@ export function generateFavoritesPage(options = {}) {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         const data = await response.json();
+        // 仅当 API 成功返回时才用云端数据覆盖 localStorage
         if (data.success && Array.isArray(data.favorites)) {
-          // Sync to localStorage
-          saveFavorites(data.favorites);
-          return data.favorites;
+          const localCount = (JSON.parse(localStorage.getItem('favorites') || '[]') || []).length;
+          // 本地数量多于云端时保留本地，避免 5 分钟延迟期间的新增被云端旧数据覆盖
+          if (data.favorites.length >= localCount) {
+            saveFavorites(data.favorites);
+            return data.favorites;
+          }
         }
+        // 401/403 或其他错误：保留 localStorage 数据，不覆盖
       } catch (e) {
         console.error('Failed to load cloud favorites:', e);
       }
@@ -319,24 +324,60 @@ export function generateFavoritesPage(options = {}) {
       return getFavorites();
     }
 
-    // Save favorites to cloud if logged in
-    async function syncFavoritesToCloud(favorites) {
+    // Dedup favorites by channel_name
+    function dedupFavorites(favs) {
+      const seen = {}; const out = [];
+      for (const f of (favs || [])) {
+        if (!f || !f.name) continue;
+        if (seen[f.name]) continue;
+        seen[f.name] = true;
+        out.push(f);
+      }
+      return out;
+    }
+
+    let _syncTimer = null;
+    function scheduleCloudSync(favorites) {
       const token = localStorage.getItem('auth_token');
       if (!token) return;
+      if (_syncTimer) clearTimeout(_syncTimer);
+      _syncTimer = setTimeout(() => syncFavoritesToCloud(dedupFavorites(favorites)), 5 * 60 * 1000);
+    }
 
+    async function syncFavoritesToCloud(favorites, force) {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+      if (!force) {
+        if (_syncTimer) clearTimeout(_syncTimer);
+        _syncTimer = setTimeout(() => syncFavoritesToCloud(dedupFavorites(favorites), true), 5 * 60 * 1000);
+        return;
+      }
       try {
-        await fetch('${origin}/api/favorites', {
+        const res = await fetch('${origin}/api/favorites', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token
           },
-          body: JSON.stringify({ favorites })
+          body: JSON.stringify({ favorites: dedupFavorites(favorites) })
         });
+        if (!res.ok) console.error('[syncFavoritesToCloud] HTTP', res.status);
       } catch (e) {
         console.error('Failed to sync favorites to cloud:', e);
       }
     }
+
+    // Best-effort flush on unload
+    window.addEventListener('beforeunload', () => {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+      const favs = dedupFavorites(JSON.parse(localStorage.getItem('favorites') || '[]'));
+      if (!favs.length) return;
+      try {
+        navigator.sendBeacon('${origin}/api/favorites',
+          new Blob([JSON.stringify({ favorites: favs })], { type: 'application/json' }));
+      } catch (e) { /* ignore */ }
+    });
 
     function renderFavorites() {
       const favorites = getFavorites();
@@ -359,41 +400,43 @@ export function generateFavoritesPage(options = {}) {
       batchBar.style.display = 'flex';
       
       const html = '<div class="channel-list">' + favorites.map(ch => {
-        const hash = escapeHtml(ch.hash);
         const name = escapeHtml(ch.name);
         const logo = escapeHtml(ch.logo || '');
         const group = escapeHtml(ch.group || '');
+        const DQ = String.fromCharCode(34);
+        const SQ = String.fromCharCode(39);
         const logoHtml = ch.logo
-          ? \`<img src="\${logo}" alt="\${name}" class="ch-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-            <div class="ch-logo-placeholder" style="display:none">📺</div>\`
+          ? '<img src=' + DQ + logo + DQ + ' alt=' + DQ + name + DQ + ' class=' + DQ + 'ch-logo' + DQ + ' onerror=' + DQ + 'this.style.display=' + SQ + 'none' + SQ + ';this.nextElementSibling.style.display=' + SQ + 'flex' + SQ + DQ + '>'
+            + '<div class="ch-logo-placeholder" style="display:none">📺</div>'
           : '<div class="ch-logo-placeholder">📺</div>';
         const channelUrl = buildChannelUrl(ch.name);
-        return \`<div class="channel-row" data-hash="\${hash}" data-name="\${name}" data-logo="\${logo}" data-group="\${group}">
-          <label class="channel-checkbox">
-            <input type="checkbox" onchange="updateSelectedCount()">
-            <span class="checkmark"></span>
-          </label>
-          <a href="${origin}\${channelUrl}" class="channel-link">
-            <div class="ch-logo">\${logoHtml}</div>
-            <div class="ch-info">
-              <div class="ch-name">\${name}</div>
-              <div class="ch-group">\${group}</div>
-            </div>
-          </a>
-          <button class="btn-remove active" data-hash="\${hash}" onclick="removeFavorite(this)" title="Remove from favorites">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          </button>
-        </div>\`;
+        return '<div class="channel-row" data-name="' + name + '" data-logo="' + logo + '" data-group="' + group + '">'
+          + '<label class="channel-checkbox">'
+          + '<input type="checkbox" onchange="updateSelectedCount()">'
+          + '<span class="checkmark"></span>'
+          + '</label>'
+          + '<a href="' + origin + channelUrl + '" class="channel-link">'
+          + '<div class="ch-logo">' + logoHtml + '</div>'
+          + '<div class="ch-info">'
+          + '<div class="ch-name">' + name + '</div>'
+          + '<div class="ch-group">' + group + '</div>'
+          + '</div>'
+          + '</a>'
+          + '<button class="btn-remove active" data-name="' + name + '" onclick="removeFavorite(this)" title="Remove from favorites">'
+          + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'
+          + '</button>'
+          + '</div>';
       }).join('') + '</div>';
       channelList.innerHTML = html;
     }
 
     function removeFavorite(btn) {
-      const hash = btn.closest('.channel-row').dataset.hash;
+      const name = btn.closest('.channel-row').dataset.name;
       const favorites = getFavorites();
-      const newFavorites = favorites.filter(f => f.hash !== hash);
-      saveFavorites(newFavorites); syncFavoritesToCloud(newFavorites);
-      loadFavorites().then(favorites => { renderFavorites(); });
+      const newFavorites = favorites.filter(f => f.name !== name);
+      saveFavorites(newFavorites);
+      syncFavoritesToCloud(newFavorites, true);
+      renderFavorites();
     }
 
     function toggleSelectAll() {
@@ -430,7 +473,6 @@ export function generateFavoritesPage(options = {}) {
       document.querySelectorAll('.channel-row input[type="checkbox"]:checked').forEach(cb => {
         const row = cb.closest('.channel-row');
         selected.push({
-          hash: row.dataset.hash,
           name: row.dataset.name,
           logo: row.dataset.logo,
           group: row.dataset.group
@@ -447,11 +489,12 @@ export function generateFavoritesPage(options = {}) {
       }
       
       const favorites = getFavorites();
-      const selectedHashes = selected.map(s => s.hash);
-      const newFavorites = favorites.filter(f => !selectedHashes.includes(f.hash));
-      saveFavorites(newFavorites); syncFavoritesToCloud(newFavorites);
+      const selectedNames = new Set(selected.map(s => s.name));
+      const newFavorites = favorites.filter(f => !selectedNames.has(f.name));
+      saveFavorites(newFavorites);
+      syncFavoritesToCloud(newFavorites, true);
       showToastSuccess('Removed ' + selected.length + ' channel(s) from favorites');
-      loadFavorites().then(favorites => { renderFavorites(); });
+      renderFavorites();
     }
 
     // Check if user is a member

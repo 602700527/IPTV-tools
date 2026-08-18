@@ -931,6 +931,14 @@ export async function checkMemberStatus(userId, db) {
 }
 
 /**
+ * 判断用户是否为 VIP（有效订阅中）
+ */
+export async function isVIPUser(userId) {
+  const db = getDB();
+  return checkMemberStatus(userId, db);
+}
+
+/**
  * Google OAuth 初始化
  */
 export async function handleGoogleOAuthInit(request, env, ctx) {
@@ -1130,7 +1138,8 @@ export async function handleGetMemberStatus(request, env, ctx) {
 }
 
 /**
- * 获取用户云端收藏
+ * 获取用户云端收藏（仅 VIP）
+ * 返回 [{name, logo, group}]，不含 hash（hash 由 sub.js 动态解析）
  */
 export async function handleGetUserFavorites(request, env, ctx) {
   try {
@@ -1145,7 +1154,6 @@ export async function handleGetUserFavorites(request, env, ctx) {
     const token = authHeader.substring(7);
     const db = getDB();
 
-    // 验证会话
     const session = await db.prepare(`
       SELECT s.user_id
       FROM user_sessions s
@@ -1159,10 +1167,16 @@ export async function handleGetUserFavorites(request, env, ctx) {
       });
     }
 
-    // 获取云端收藏
     const { getUserFavorites } = await import('../database.js');
-    const favorites = await getUserFavorites(session.user_id);
+    const vip = await isVIPUser(session.user_id);
+    if (!vip) {
+      return new Response(JSON.stringify({ success: false, error: 'VIP only' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
+    const favorites = await getUserFavorites(session.user_id);
     return new Response(JSON.stringify({ success: true, favorites }), {
       headers: { 'Content-Type': 'application/json' }
     });
@@ -1176,7 +1190,7 @@ export async function handleGetUserFavorites(request, env, ctx) {
 }
 
 /**
- * 保存用户云端收藏
+ * 保存用户云端收藏（仅 VIP）
  */
 export async function handleSaveUserFavorites(request, env, ctx) {
   try {
@@ -1191,7 +1205,6 @@ export async function handleSaveUserFavorites(request, env, ctx) {
     const token = authHeader.substring(7);
     const db = getDB();
 
-    // 验证会话
     const session = await db.prepare(`
       SELECT s.user_id
       FROM user_sessions s
@@ -1205,12 +1218,17 @@ export async function handleSaveUserFavorites(request, env, ctx) {
       });
     }
 
-    // 解析请求体
+    const { saveUserFavorites } = await import('../database.js');
+    const vip = await isVIPUser(session.user_id);
+    if (!vip) {
+      return new Response(JSON.stringify({ success: false, error: 'VIP only' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     const body = await request.json().catch(() => ({}));
     const favorites = body.favorites || [];
-
-    // 保存到云端
-    const { saveUserFavorites } = await import('../database.js');
     await saveUserFavorites(session.user_id, favorites);
 
     return new Response(JSON.stringify({ success: true }), {

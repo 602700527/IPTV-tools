@@ -2758,48 +2758,53 @@ export function applyTopicFilter(channels, rules) {
 
 // ============ 用户收藏相关函数 ============
 
+/**
+ * 返回 [{name, logo, group}]，不含 hash（hash 在生成 M3U 时动态解析）
+ */
 export async function getUserFavorites(userId) {
   const db = getDB();
   try {
-    const row = await db.prepare(
-      'SELECT favorites FROM user_favorites WHERE user_id = ?'
-    ).bind(userId).first();
-
-    if (!row || !row.favorites) return [];
-
-    try {
-      return JSON.parse(row.favorites);
-    } catch (e) {
-      console.error('[getUserFavorites] Failed to parse favorites JSON:', e);
-      return [];
-    }
+    const result = await db.prepare(
+      'SELECT channel_name, logo, `group` FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC'
+    ).bind(userId).all();
+    const rows = result && result.results ? result.results : (result || []);
+    return rows.map(r => ({
+      name: r.channel_name || '',
+      logo: r.logo || '',
+      group: r.group || ''
+    }));
   } catch (error) {
     console.error('[getUserFavorites] Error:', error);
     return [];
   }
 }
 
+/**
+ * 全量替换用户收藏：先删后插，每行存 channel_name / logo / group
+ */
 export async function saveUserFavorites(userId, favorites) {
   const db = getDB();
   try {
-    const favoritesJson = JSON.stringify(favorites);
-
-    // Check if row exists
-    const existing = await db.prepare(
-      'SELECT user_id FROM user_favorites WHERE user_id = ?'
-    ).bind(userId).first();
-
-    if (existing) {
-      await db.prepare(
-        "UPDATE user_favorites SET favorites = ?, updated_at = datetime('now') WHERE user_id = ?"
-      ).bind(favoritesJson, userId).run();
-    } else {
-      await db.prepare(
-        "INSERT INTO user_favorites (user_id, favorites, updated_at) VALUES (?, ?, datetime('now'))"
-      ).bind(userId, favoritesJson).run();
+    // Dedup by channel_name to avoid UNIQUE constraint failures from client state drift
+    const seen = {};
+    const clean = [];
+    for (const fav of (favorites || [])) {
+      if (!fav || !fav.name) continue;
+      if (seen[fav.name]) continue;
+      seen[fav.name] = true;
+      clean.push(fav);
     }
 
-    console.log(`[saveUserFavorites] Saved ${favorites.length} favorites for user ${userId}`);
+    await db.prepare('DELETE FROM user_favorites WHERE user_id = ?').bind(userId).run();
+    if (clean.length > 0) {
+      const stmt = db.prepare(
+        'INSERT INTO user_favorites (user_id, channel_name, logo, `group`) VALUES (?, ?, ?, ?)'
+      );
+      for (const fav of clean) {
+        await stmt.bind(userId, fav.name, fav.logo || '', fav.group || '').run();
+      }
+    }
+    console.log(`[saveUserFavorites] Saved ${clean.length} favorites for user ${userId} (input had ${favorites?.length || 0})`);
   } catch (error) {
     console.error('[saveUserFavorites] Error:', error);
     throw error;
@@ -2810,8 +2815,8 @@ export async function addFavoriteToUser(userId, channelHash, name = '', logo = '
   const db = getDB();
   try {
     await db.prepare(
-      'INSERT OR IGNORE INTO user_favorites (user_id, channel_hash, name, logo, \`group\`) VALUES (?, ?, ?, ?, ?)'
-    ).bind(userId, channelHash, name, logo, group).run();
+      'INSERT OR IGNORE INTO user_favorites (user_id, channel_name, logo, `group`) VALUES (?, ?, ?, ?)'
+    ).bind(userId, name, logo, group).run();
     return getUserFavorites(userId);
   } catch (error) {
     console.error('[addFavoriteToUser] Error:', error);
@@ -2819,12 +2824,12 @@ export async function addFavoriteToUser(userId, channelHash, name = '', logo = '
   }
 }
 
-export async function removeFavoriteFromUser(userId, channelHash) {
+export async function removeFavoriteFromUser(userId, channelName) {
   const db = getDB();
   try {
     await db.prepare(
-      'DELETE FROM user_favorites WHERE user_id = ? AND channel_hash = ?'
-    ).bind(userId, channelHash).run();
+      'DELETE FROM user_favorites WHERE user_id = ? AND channel_name = ?'
+    ).bind(userId, channelName).run();
     return getUserFavorites(userId);
   } catch (error) {
     console.error('[removeFavoriteFromUser] Error:', error);
