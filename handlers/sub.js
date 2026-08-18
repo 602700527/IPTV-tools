@@ -197,11 +197,14 @@ export async function handleSubRequest(request, env, ctx) {
           allChannels = (favChannelsResult && favChannelsResult.results) ? favChannelsResult.results : (favChannelsResult || []);
           console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id} (resolved by name from D1)`);
         } else {
-          allChannels = [];
+          console.warn(`[Sub] No favorites found for user ${auth.user_id}, returning all channels as fallback`);
+          allChannels = cacheResult.channels || allChannels;
+          if (!cacheResult.fromCache) allChannels = allChannels.filter(c => c.is_active && c.source_active);
         }
       } catch (e) {
-        console.error('[Sub] Failed to get favorites:', e);
-        allChannels = [];
+        console.error('[Sub] Failed to get favorites, falling back to all channels:', e.message);
+        allChannels = cacheResult.channels || allChannels;
+        if (!cacheResult.fromCache) allChannels = allChannels.filter(c => c.is_active && c.source_active);
       }
     }
     // 否则按 topic 过滤（原有逻辑）
@@ -587,11 +590,14 @@ export async function handleSubRequestTxt(request, env, ctx) {
           allChannels = (favChannelsResult && favChannelsResult.results) ? favChannelsResult.results : (favChannelsResult || []);
           console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id} (resolved by name from D1)`);
         } else {
-          allChannels = [];
+          console.warn(`[SubTxt] No favorites found for user ${auth.user_id}, returning all channels as fallback`);
+          allChannels = cacheResult.channels || allChannels;
+          if (!cacheResult.fromCache) allChannels = allChannels.filter(c => c.is_active && c.source_active);
         }
       } catch (e) {
-        console.error('[Sub] Failed to get favorites:', e);
-        allChannels = [];
+        console.error('[SubTxt] Failed to get favorites, falling back to all channels:', e.message);
+        allChannels = cacheResult.channels || allChannels;
+        if (!cacheResult.fromCache) allChannels = allChannels.filter(c => c.is_active && c.source_active);
       }
     }
     // 否则按 topic 过滤（原有逻辑）
@@ -601,9 +607,9 @@ export async function handleSubRequestTxt(request, env, ctx) {
         try {
           const rules = JSON.parse(topic.rules);
           allChannels = applyTopicFilter(allChannels, rules);
-          console.log(`[Sub] Topic filter applied: ${allChannels.length} channels remaining (topic: ${topic.name})`);
+          console.log(`[SubTxt] Topic filter applied: ${allChannels.length} channels remaining (topic: ${topic.name})`);
         } catch (e) {
-          console.error('[Sub] Failed to parse topic rules:', e);
+          console.error('[SubTxt] Failed to parse topic rules:', e);
         }
       }
     }
