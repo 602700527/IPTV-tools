@@ -16,9 +16,10 @@ CREATE TABLE IF NOT EXISTS user_favorites_new (
 CREATE INDEX IF NOT EXISTS idx_user_favorites_new_user_id ON user_favorites_new(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_favorites_new_channel_name ON user_favorites_new(channel_name);
 
--- 迁移旧数据：用 name 字段回填（旧的 channel_hash 无法反推 name，直接丢弃）
+-- 迁移旧数据：旧表结构为 (user_id, channel_hash, name, logo, group_name, created_at)
+-- channel_hash 无法反推 channel_name，用 name 字段回填
 INSERT OR IGNORE INTO user_favorites_new (user_id, channel_name, logo, `group`, created_at)
-SELECT user_id, name, logo, `group`, created_at
+SELECT user_id, name, logo, group_name, created_at
 FROM user_favorites;
 
 DROP TABLE user_favorites;
