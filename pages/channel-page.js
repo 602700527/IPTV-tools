@@ -730,7 +730,8 @@ export function generateChannelPage(options = {}) {
       const token = localStorage.getItem('auth_token');
       if (!token) return;
       if (_syncTimer) clearTimeout(_syncTimer);
-      _syncTimer = setTimeout(() => syncFavoritesToCloud(dedupFavorites(favorites)), 5 * 60 * 1000);
+      // 立即同步，不再等待 5 分钟
+      syncFavoritesToCloud(favorites, true);
     }
 
     async function syncFavoritesToCloud(favorites) {
@@ -745,7 +746,10 @@ export function generateChannelPage(options = {}) {
           },
           body: JSON.stringify({ favorites: dedupFavorites(favorites) })
         });
-        if (!res.ok) console.error('[syncFavoritesToCloud] HTTP', res.status);
+        if (!res.ok) {
+          const text = await res.text();
+          console.error('[syncFavoritesToCloud] HTTP', res.status, text);
+        }
       } catch (e) {
         console.error('Failed to sync favorites to cloud:', e);
       }
