@@ -140,7 +140,7 @@ export const styles = `
   .profile-hero { background: transparent; border: none; overflow: visible; }
   .profile-hero-content { padding: 0; }
 
-  /* 账户主内容卡片 */
+  /* Account main card */
   .account-card {
     background: #111111 !important;
     border: 1px solid rgba(255, 255, 255, 0.15);
@@ -153,7 +153,7 @@ export const styles = `
   .account-section { display: flex; flex-direction: column; gap: 5px; padding: 14px 0 !important; }
   .account-section:last-child { padding-bottom: 14px !important; }
 
-  /* 用户头部：紧凑卡片式 */
+  /* User header */
   .profile-hero { background: transparent; border: none; overflow: visible; }
   .profile-hero-content { padding: 0; margin-bottom: 12px; }
 
@@ -191,7 +191,7 @@ export const styles = `
   .profile-meta-value { font-size: 18px; font-weight: 700; color: var(--text-primary); line-height: 1; }
   .profile-meta-label { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
 
-  /* 订阅区域 - 紧凑行式布局 */
+  /* Subscription section */
   .subscription-section { background: transparent; border: none; padding: 0; margin: 0; }
   .subscription-header {
     display: flex; justify-content: space-between; align-items: center;
@@ -233,7 +233,7 @@ export const styles = `
   .copy-btn { padding: 2px 7px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); font-size: 9px; font-weight: 600; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
   .copy-btn:hover { opacity: 0.85; }
 
-  /* Expires / Duration / IP 数 - 横向排列 */
+  /* Expires / Duration / IP 数 - 横layout列 */
   .subscription-detail.info-row {
     display: flex !important; flex-direction: row !important;
     gap: 0; border-top: 1px solid rgba(255, 255, 255, 0.12);
@@ -242,15 +242,14 @@ export const styles = `
   .subscription-detail.info-row > div { flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 0 12px; border-right: 1px solid rgba(255, 255, 255, 0.08); }
   .subscription-detail.info-row > div:last-child { border-right: none; padding-right: 0; }
 
-  /* 福利区域 - 紧凑行式 */
-  .perks-section { background: transparent; border: none; padding: 0; margin: 0; }
+  /* /* perks section */ border: none; padding: 0; margin: 0; }
   .perks-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.12); padding-bottom: 8px; }
   .perks-grid { display: flex; flex-wrap: wrap; gap: 4px; }
   .perk-item { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius); font-size: 11px; color: var(--text-secondary); transition: all 0.2s; }
   .perk-item:hover { border-color: var(--border-hover); color: var(--text-primary); }
   .perk-item svg { width: 12px; height: 12px; color: var(--success); flex-shrink: 0; }
 
-  /* 线路方案切换 - 紧凑行式 */
+  /* Scheme switching */
   .scheme-section { background: transparent; border: none; padding: 0; margin: 0; }
   .scheme-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.12); padding-bottom: 8px; }
   .scheme-section-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
@@ -856,7 +855,7 @@ Member <span id="memberSince">-</span>
               </div>
               <div class="scheme-switcher" id="schemeSwitcher"></div>
               <div class="scheme-vip-lock" id="schemeVipLock" style="display:none;">
-                🔒 切换线路方案为 VIP 专属功能. <a href="/freesub">Upgrade to VIP →</a>
+                🔒 switchroutescheme为 VIP exclusive功能. <a href="/freesub">Upgrade to VIP →</a>
               </div>
             </div>
 
@@ -944,7 +943,7 @@ Member <span id="memberSince">-</span>
     <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">copyUrl</button>
     <div class="modal-tips">
       <p class="modal-tip">直接将此URL添加到你的IPTV播放器中</p>
-      <p class="modal-tip-highlight">关闭后查看账户内的订单详情</p>
+      <p class="modal-tip-highlight">关闭后查看账户内的订singledetails</p>
     </div>
   </div>
 </div>
@@ -990,7 +989,7 @@ Member <span id="memberSince">-</span>
 <div id="ticketDetailModal" class="ticket-modal">
   <div class="ticket-modal-content">
     <div class="ticket-modal-header">
-      <h3 id="ticketDetailTitle">Tickets详情</h3>
+      <h3 id="ticketDetailTitle">Ticketsdetails</h3>
       <button class="ticket-modal-close" onclick="closeTicketDetailModal()">×</button>
     </div>
     <div id="ticketDetailContent"></div>
@@ -1195,7 +1194,7 @@ async function loadVipStatus() {
 
       let expiryText = 'Permanent';
       if (isExpired) {
-        expiryText = codeExpiredAt ? new Date(codeExpiredAt).toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US') : 'Expired';
+        expiryText = codeExpiredAt ? new Date(codeExpiredAt).toLocaleDateString('en-US') : 'Expired';
         if (subscriptionStatusEl) { subscriptionStatusEl.className = 'subscription-status expired'; subscriptionStatusEl.innerHTML = '<span class="dot"></span> Expired'; }
         if (vipStatusTextEl) vipStatusTextEl.textContent = 'Expired';
       } else if (isPermanent) {
@@ -1203,7 +1202,7 @@ async function loadVipStatus() {
         if (subscriptionStatusEl) { subscriptionStatusEl.className = 'subscription-status active'; subscriptionStatusEl.innerHTML = '<span class="dot"></span> Active'; }
         if (vipStatusTextEl) vipStatusTextEl.textContent = 'Active';
       } else {
-        expiryText = codeExpiredAt ? new Date(codeExpiredAt).toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US') : 'Permanent';
+        expiryText = codeExpiredAt ? new Date(codeExpiredAt).toLocaleDateString('en-US') : 'Permanent';
         if (subscriptionStatusEl) { subscriptionStatusEl.className = 'subscription-status active'; subscriptionStatusEl.innerHTML = '<span class="dot"></span> Active'; }
         if (vipStatusTextEl) vipStatusTextEl.textContent = 'Active';
       }
@@ -1213,7 +1212,7 @@ async function loadVipStatus() {
       if (vipDurationEl) vipDurationEl.textContent = latestOrder.duration_days ? latestOrder.duration_days + (' days') : '-';
       if (vipMaxIpsEl) vipMaxIpsEl.textContent = latestOrder.max_ips || 3;
 
-      // 初始化线路方案
+      // 初始化routescheme
       latestActiveCode = latestOrder.code;
       isVipActive = !isExpired;  // VIP 门控：有 active 订阅即可
       if (latestOrder.sub_mode === 'favorites') currentScheme = { type: 'favorites' };
@@ -1233,7 +1232,7 @@ async function loadVipStatus() {
         loadSchemes();
       }
     } else {
-      // 无 completed 订单
+      // none completed 订single
       latestActiveCode = null;
       currentScheme = { type: 'all' };
       const schemeEl = document.getElementById('schemeSection');
@@ -1264,7 +1263,7 @@ function updateVipCodeFormat() {
   if (vipCodeEl) vipCodeEl.textContent = window._vipCodeBase + '.' + getVipFormat();
 }
 
-// ============ 线路方案切换 ============
+// ============ scheme switching ============
 let currentScheme = { type: 'all' }; // {type:'all'|'favorites'|'topic', id?:number|string}
 let availableSchemes = [];
 let latestActiveCode = null;
@@ -1283,7 +1282,7 @@ function renderSchemeSwitcher() {
   if (!container) return;
   if (availableSchemes.length === 0) {
     container.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">' +
-      (currentLang === 'zh-CN' ? '暂无可用方案' : 'No schemes available') + '</span>';
+      (currentLang === 'zh-CN' ? '暂none可用scheme' : 'No schemes available') + '</span>';
     return;
   }
   const parts = [];
@@ -1357,9 +1356,9 @@ async function checkFavoritesCount() {
       }
     }
 
-    // 生产环境：优先从云端读取，失败时回退到 localStorage
+    // 生产环境：优先从cloud读取，失败时回退到 localStorage
     if (!token) {
-      // 无 token，尝试从本地读取
+      // none token，尝试从local读取
       try {
         return JSON.parse(localStorage.getItem('favorites') || '[]').length;
       } catch (e) {
@@ -1377,7 +1376,7 @@ async function checkFavoritesCount() {
     } catch (e) {
       console.warn('Failed to fetch cloud favorites, using local', e.message);
     }
-    // 云端失败，回退到本地
+    // cloud失败，回退到local
     try {
       return JSON.parse(localStorage.getItem('favorites') || '[]').length;
     } catch (e) {
@@ -1407,7 +1406,7 @@ async function selectScheme(type, id) {
     const count = await checkFavoritesCount();
     if (count === 0) {
       showToast((currentLang === 'zh-CN' ?
-        '你还没有任何收藏，请先到<a href="/favorites" style="color:#fff;font-weight:600;text-decoration:underline;">收藏页</a>添加频道' :
+        '你还没有任何收藏，请先到<a href="/favorites" style="color:#fff;font-weight:600;text-decoration:underline;">收藏页</a>添加channels' :
         'No favorites yet. Add some at <a href="/favorites">/favorites</a>'), 'warning', 6000);
       return;
     }
@@ -1488,7 +1487,7 @@ async function loadOrderHistory() {
       }
     }
   } catch (error) {
-    console.error('加载订单历史失败:', error);
+    console.error('加载订single历史失败:', error);
     showToast(t('networkError'), 'error');
   } finally {
     loadingDiv.classList.remove('active');
@@ -1508,7 +1507,7 @@ async function loadTickets() {
     if (response.ok && data.success) {
       const tickets = data.tickets || [];
       if (tickets.length === 0) {
-        ticketsListDiv.innerHTML = '<div class="empty-tickets"><svg class="empty-tickets-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg><h4>还没有工单</h4><p>如果您对订单有任何疑问，欢迎随时联系我们</p><button class="btn-accent" onclick="showCreateTicketModal()">+ 创建您的第一张工单</button></div>';
+        ticketsListDiv.innerHTML = '<div class="empty-tickets"><svg class="empty-tickets-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg><h4>还没有工single</h4><p>如果您对订single有任何疑问，feel free to contact us</p><button class="btn-accent" onclick="showCreateTicketModal()">+ 创建your第一张工single</button></div>';
       } else {
         ticketsListDiv.innerHTML = tickets.map(ticket => {
           const createdDate = new Date(ticket.created_at);
@@ -1748,10 +1747,10 @@ async function loadLatestOrder() {
         const codeBase = window.location.origin + '/sub/' + completedOrder.code;
         showSuccessModal(codeBase);
       } else {
-        showToast(currentLang === 'zh-CN' ? '暂无订阅信息' : 'No subscription info', 'info');
+        showToast('No subscription info', 'info');
       }
     } else {
-      showToast(data.error || (currentLang === 'zh-CN' ? '获取订单失败' : 'Failed to get orders'), 'error');
+      showToast(data.error || (currentLang === 'zh-CN' ? '获取订single失败' : 'Failed to get orders'), 'error');
     }
   } catch (error) {
     console.error('Load latest order error:', error);
