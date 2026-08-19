@@ -9,8 +9,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIP Member - IPTVSearch | ，看遍所Yes频道</title>
-  <meta name="description" content="VIPSubscription link，Yes。Search，Favorites，Multi-device。">
+  <title>VIP - IPTV | ，</title>
+  <meta name="description" content="VIP，。，，。">
   
   <style>
     :root {
@@ -297,7 +297,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: var(--accent-hover);
     }
 
-    /* ========== Yes ========== */
+    /* ==========  ========== */
     .comparison-table tr.shared {
       background: rgba(255, 255, 255, 0.03);
       color: var(--text-muted);
@@ -1051,7 +1051,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       <div class="container">
         <div class="hero-badge-new">⭐ </div>
         <h1 class="hero-title-large">
-          Subscription link，就能看你想看的
+          ，
         </h1>
         <div class="hero-features">
           <div class="hero-feature">
@@ -1060,99 +1060,99 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           </div>
           <div class="hero-feature">
             <span class="feature-icon">🚫</span>
-            <span class="feature-text">Ads限制</span>
+            <span class="feature-text"></span>
           </div>
           <div class="hero-feature">
             <span class="feature-icon">✨</span>
             <span class="feature-text"></span>
           </div>
         </div>
-        <a href="#pricing" class="hero-cta">，首月 ¥20 →</a>
+        <a href="#pricing" class="hero-cta">， ¥20 →</a>
       </div>
     </section>
       <div class="container">
         <div class="section-header">
           <div class="section-tag">⭐ </div>
-          <h2 class="section-title"><span>VIP</span>，Feature</h2>
+          <h2 class="section-title"><span>VIP</span>，</h2>
         </div>
         <table class="comparison-table">
           <thead>
             <tr>
-              <th>Feature</th>
-              <th>Free</th>
+              <th></th>
+              <th></th>
               <th class="vip">VIP </th>
             </tr>
           </thead>
           <tbody>
-            <!-- 共Yes权益 -->
+            <!--  -->
             <tr class="shared">
-              <td>Channel updates</td>
-              <td><span class="check">✓</span> Daily updates</td>
-              <td class="vip"><span class="check">✓</span> Daily updates</td>
+              <td></td>
+              <td><span class="check">✓</span> </td>
+              <td class="vip"><span class="check">✓</span> </td>
             </tr>
             <tr class="shared">
-              <td>HD quality</td>
-              <td><span class="check">✓</span> HD smooth</td>
-              <td class="vip"><span class="check">✓</span> Ultra HD smooth</td>
+              <td></td>
+              <td><span class="check">✓</span> </td>
+              <td class="vip"><span class="check">✓</span> </td>
             </tr>
             <tr class="shared">
-              <td>Stable online</td>
-              <td><span class="check">✓</span> 99% uptime</td>
-              <td class="vip"><span class="check">✓</span> 99.9% uptime</td>
+              <td></td>
+              <td><span class="check">✓</span> 99% </td>
+              <td class="vip"><span class="check">✓</span> 99.9% </td>
             </tr>
-            <!-- 差异权益 -->
+            <!--  -->
             <tr>
-              <td>Search</td>
-              <td><span class="cross">✗</span>  10 个</td>
+              <td></td>
+              <td><span class="cross">✗</span>  10 </td>
               <td class="vip"><span class="check">✓</span> </td>
             </tr>
             <tr>
               <td></td>
               <td><span class="cross">✗</span> 10 </td>
-              <td class="vip"><span class="check">✓</span> Unlimited</td>
-            </tr>
-            <tr>
-              <td>Favorites</td>
-              <td><span class="cross">✗</span> Favorites</td>
-              <td class="vip"><span class="check">✓</span> Cloud sync</td>
-            </tr>
-            <tr>
-              <td></td>
-              <td><span class="cross">✗</span> None</td>
-              <td class="vip"><span class="check">✓</span> Yes</td>
-            </tr>
-            <tr>
-              <td></td>
-              <td><span class="cross">✗</span> None</td>
-              <td class="vip"><span class="check">✓</span> Yes</td>
-            </tr>
-            <tr>
-              <td>Multi-device</td>
-              <td><span class="cross">✗</span> None</td>
               <td class="vip"><span class="check">✓</span> </td>
             </tr>
             <tr>
-              <td>Ads</td>
-              <td><span class="cross">✗</span> Yes</td>
-              <td class="vip"><span class="check">✓</span> None</td>
+              <td></td>
+              <td><span class="cross">✗</span> </td>
+              <td class="vip"><span class="check">✓</span> </td>
             </tr>
             <tr>
-              <td>Fast support</td>
-              <td><span class="cross">✗</span> None</td>
-              <td class="vip"><span class="check">✓</span> Yes</td>
+              <td></td>
+              <td><span class="cross">✗</span> </td>
+              <td class="vip"><span class="check">✓</span> </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td><span class="cross">✗</span> </td>
+              <td class="vip"><span class="check">✓</span> </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td><span class="cross">✗</span> </td>
+              <td class="vip"><span class="check">✓</span> </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td><span class="cross">✗</span> </td>
+              <td class="vip"><span class="check">✓</span> </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td><span class="cross">✗</span> </td>
+              <td class="vip"><span class="check">✓</span> </td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
     
-    <!-- 用户评价区 -->
+    <!--  -->
     <section class="testimonials-section">
       <div class="container">
         <div class="section-header">
           <div class="section-tag">💬 </div>
           <h2 class="section-title"><span></span></h2>
-          <p class="section-desc">，就是你的体验</p>
+          <p class="section-desc">，</p>
         </div>
         <div class="testimonials-scroll">
           <div class="testimonial-card">
@@ -1160,12 +1160,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar"></div>
               <div class="testimonial-info">
                 <div class="testimonial-name"></div>
-                <div class="testimonial-meta">🇺🇸  · 订阅 2 年</div>
+                <div class="testimonial-meta">🇺🇸  ·  2 </div>
                 <div class="testimonial-verified">✓ </div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，每年春节最愁的就是看春晚。以前用VPN看国内APP，不是卡就是黑屏。朋友推荐了这个，用APTV导入就能看，画质比之前流畅多了。今年终于不用躲在房间里刷手机了，客厅电视上看一家人守着，感觉挺好的。</p>
+            <p class="testimonial-text">，。VPNAPP，。，APTV，。，，。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1173,12 +1173,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar"></div>
               <div class="testimonial-info">
                 <div class="testimonial-name"></div>
-                <div class="testimonial-meta">🇬🇧  · 订阅 1 年</div>
+                <div class="testimonial-meta">🇬🇧  ·  1 </div>
                 <div class="testimonial-verified">✓ </div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">、给老人看CCTV，各看各的互不打扰。最满意的是看英超完全不卡，用Tivimate导入很方便。Yes个小问题是Yes时段性卡顿，客服回复挺快的，帮我调了线路就好了。</p>
+            <p class="testimonial-text">、CCTV，。，Tivimate。，，。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1186,12 +1186,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar"></div>
               <div class="testimonial-info">
                 <div class="testimonial-name"></div>
-                <div class="testimonial-meta">🇨🇦  · 订阅 8 个月</div>
+                <div class="testimonial-meta">🇨🇦  ·  8 </div>
                 <div class="testimonial-verified">✓ </div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，用Televizo导入后直接能看。把链接给爸妈发了过去，他们自己导入就能看。现在每天晚饭后全家一起看新闻联播，特别温馨。就是频道Yes点多，找自己想看的还得挑一挑。</p>
+            <p class="testimonial-text">，Televizo。，。，。，。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1199,12 +1199,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar"></div>
               <div class="testimonial-info">
                 <div class="testimonial-name"></div>
-                <div class="testimonial-meta">📍  · 订阅 3 个月</div>
+                <div class="testimonial-meta">📍  ·  3 </div>
                 <div class="testimonial-verified">✓ </div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，现在用APTV能看央视所Yes频道和湖南卫视。周末全家一起看新闻联播，爸妈可高兴了。用CarPlay在车上也能听广播，挺方便的。就是Yes时候频道太多要找一会儿。</p>
+            <p class="testimonial-text">，APTV。，。CarPlay，。。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1212,12 +1212,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar"></div>
               <div class="testimonial-info">
                 <div class="testimonial-name"></div>
-                <div class="testimonial-meta">📍  · 订阅 1 年</div>
+                <div class="testimonial-meta">📍  ·  1 </div>
                 <div class="testimonial-verified">✓ </div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，找了好几个服务都不稳定。这个用Televizo导入就能看，凤凰卫视、阳光卫视都很清晰。偶尔Yes卡顿，客服响应很快，给我换了线路就好了。性价比高，推荐。</p>
+            <p class="testimonial-text">，。Televizo，、。，，。，。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1225,12 +1225,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar"></div>
               <div class="testimonial-info">
                 <div class="testimonial-name"></div>
-                <div class="testimonial-meta">🇯🇵  · 订阅 1 年</div>
+                <div class="testimonial-meta">🇯🇵  ·  1 </div>
                 <div class="testimonial-verified">✓ </div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，平时最喜欢看家乡的新闻和综艺。用GSE Smart IPTV导入后频道很全，连我们省的地面频道都Yes，就像在家里一样。Yes时候网速慢会卡一下，但整体体验不错。</p>
+            <p class="testimonial-text">，。GSE Smart IPTV，，。，。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1238,12 +1238,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar"></div>
               <div class="testimonial-info">
                 <div class="testimonial-name"></div>
-                <div class="testimonial-meta">🇸🇬  · 订阅 3 个月</div>
+                <div class="testimonial-meta">🇸🇬  ·  3 </div>
                 <div class="testimonial-verified">✓ </div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★☆</div>
-            <p class="testimonial-text">，办公室同事一起订阅了。5台Devices够用，用APTV都很顺。偶尔会小卡顿，但客服响应很快，总体满意。就是感觉价格能再便宜点就好了。</p>
+            <p class="testimonial-text">，。5，APTV。，，。。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1251,12 +1251,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar"></div>
               <div class="testimonial-info">
                 <div class="testimonial-name"></div>
-                <div class="testimonial-meta">📍  · 订阅 4 个月</div>
+                <div class="testimonial-meta">📍  ·  4 </div>
                 <div class="testimonial-verified">✓ </div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，以前只能看地方台。现在用GSE Smart IPTV能看到湖南卫视、浙江卫视的直播，还能回看。用Tivimate体验更好，界面简洁，操作方便。唯一不满的是想找老电影频道Yes点难。</p>
+            <p class="testimonial-text">，。GSE Smart IPTV、，。Tivimate，，。。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1264,12 +1264,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar"></div>
               <div class="testimonial-info">
                 <div class="testimonial-name"></div>
-                <div class="testimonial-meta">🇰🇷  · 订阅 5 个月</div>
+                <div class="testimonial-meta">🇰🇷  ·  5 </div>
                 <div class="testimonial-verified">✓ </div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，用Tivimate看国内体育比赛很方便。操作简单，室友都在用，我们群里经常一起聊球赛。画质清晰，基本不卡。</p>
+            <p class="testimonial-text">，Tivimate。，，。，。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1277,25 +1277,25 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="testimonial-avatar"></div>
               <div class="testimonial-info">
                 <div class="testimonial-name"></div>
-                <div class="testimonial-meta">🇫🇷  · 订阅 7 个月</div>
+                <div class="testimonial-meta">🇫🇷  ·  7 </div>
                 <div class="testimonial-verified">✓ </div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，最想念的就是国内春晚和新闻联播。用APTV导入后解决了我的问题，7天None理由退款也让我放心尝试。虽然偶尔Yes卡顿，但客服态度很好，整体体验不错。就是希望频道能再分类清楚一点。</p>
+            <p class="testimonial-text">，。APTV，7。，，。。</p>
           </div>
         </div>
         <p class="testimonials-hint">←  →</p>
       </div>
     </section>
 
-    <!-- 价格区 -->
+    <!--  -->
     <section class="pricing-section" id="pricing">
       <div class="container">
         <div class="section-header">
           <div class="section-tag">💳 </div>
           <h2 class="section-title"><span></span></h2>
-          <p class="section-desc">Yes方案均支持7天None理由退款</p>
+          <p class="section-desc">7</p>
         </div>
         <div class="pricing-wrapper">
           <div class="pricing-left">
@@ -1305,11 +1305,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 <div class="scheme-renewal-icon">🔁</div>
                 <div class="scheme-renewal-content">
                   <div class="scheme-renewal-title"> <strong id="schemeRenewalName">—</strong> </div>
-                  <div class="scheme-renewal-hint">。需要修改请去 <a href="/account"></a>。</div>
+                  <div class="scheme-renewal-hint">。 <a href="/account"></a>。</div>
                 </div>
               </div>
               <div class="theme-grid" id="themeGrid">
-                <!-- 动态加载线路 -->
+                <!--  -->
               </div>
             </div>
 
@@ -1337,7 +1337,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </div>
             
             <div class="selector-group">
-              <div class="selector-label">Devices</div>
+              <div class="selector-label"></div>
               <div class="selector-bar" id="ipGrid">
                 <div class="select-option selected" onclick="selectIP(1)">
                   <span class="value">1</span>
@@ -1366,7 +1366,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 <span id="basePrice">¥20.00</span>
               </div>
               <div class="summary-row">
-                <span>Devices</span>
+                <span></span>
                 <span id="ipPrice">¥0.00</span>
               </div>
               <div class="summary-row total">
@@ -1406,22 +1406,22 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
     </section>
     
-    <!-- 最终CTA -->
+    <!-- CTA -->
     <section class="final-cta">
       <div class="container">
-        <h2>？试试<span style="color: var(--accent)">7FreeVIP</span></h2>
-        <p>，None需信用卡，体验全部Feature后再决定</p>
-        <a href="/login#register" class="final-cta-btn">FreeVIP →</a>
+        <h2>？<span style="color: var(--accent)">7VIP</span></h2>
+        <p>，，</p>
+        <a href="/login#register" class="final-cta-btn">VIP →</a>
       </div>
     </section>
 
-  <!-- 加载遮罩 -->
+  <!--  -->
   <div id="loading" class="loading">
     <div class="spinner"></div>
     <p>...</p>
   </div>
 
-  <!-- 支付模态框 -->
+  <!--  -->
   <div id="paymentModal" class="payment-modal">
     <div class="payment-content">
       <div class="payment-header">
@@ -1433,20 +1433,20 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           <div class="qrcode-wrapper">
             <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="">
           </div>
-          <p class="qrcode-tip" id="modalQrcodeTip">/微信扫码支付</p>
+          <p class="qrcode-tip" id="modalQrcodeTip">/</p>
           <p class="payment-method-indicator" id="paymentMethodIndicator"></p>
           <p class="payment-status" id="paymentStatus">...</p>
 
-          <!-- USDT 专用：钱包地址 + 金额 -->
+          <!-- USDT ： +  -->
           <div id="usdtAddressBox" style="display:none;margin-top:14px;text-align:left;font-size:12px;color:rgba(255,255,255,.85);">
             <div style="margin-bottom:6px;color:rgba(255,255,255,.6);"> (TRC20 / Tron)</div>
             <div style="display:flex;gap:8px;align-items:center;">
               <code id="usdtAddressText" style="flex:1;background:rgba(0,0,0,.4);padding:8px 10px;border-radius:6px;word-break:break-all;color:#f0c674;"></code>
               <button id="usdtCopyBtn" type="button" style="background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;"></button>
             </div>
-            <div style="margin-top:10px;color:rgba(255,255,255,.6);">（精确到 0.0001 USDT）</div>
+            <div style="margin-top:10px;color:rgba(255,255,255,.6);">（ 0.0001 USDT）</div>
             <div id="usdtAmountText" style="font-size:18px;font-weight:700;color:#f0c674;margin-top:4px;">- USDT</div>
-            <div style="margin-top:6px;color:rgba(255,165,0,.85);font-size:11px;">⚠️ ，多付/少付都None法识别</div>
+            <div style="margin-top:6px;color:rgba(255,165,0,.85);font-size:11px;">⚠️ ，/</div>
           </div>
         </div>
         <div class="payment-info">
@@ -1455,7 +1455,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <span class="payment-info-value" id="paymentPlanName">-</span>
           </div>
           <div class="payment-info-item">
-            <span class="payment-info-label">Devices</span>
+            <span class="payment-info-label"></span>
             <span class="payment-info-value" id="paymentIPCount">-</span>
           </div>
           <div class="payment-info-item">
@@ -1465,25 +1465,25 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         </div>
       </div>
       <div class="payment-footer">
-        <button id="simulatePaymentBtn" class="payment-test-button" style="display: none;" onclick="simulatePaymentSuccess()">[] 模拟支付成功</button>
+        <button id="simulatePaymentBtn" class="payment-test-button" style="display: none;" onclick="simulatePaymentSuccess()">[] </button>
       </div>
     </div>
   </div>
 
-  <!-- 成功模态框 -->
+  <!--  -->
   <div id="successModal" class="success-modal">
     <div class="success-content">
       <button class="modal-close" onclick="closeModal()">×</button>
       <div class="success-icon">✓</div>
       <h2 class="success-title">！</h2>
-      <p class="success-message"> VIP 订阅已激活。复制下方Subscription link到播放器即可使用。</p>
+      <p class="success-message"> VIP 。。</p>
       <div class="purchase-details">
         <div class="purchase-detail-item">
           <span class="purchase-detail-label"></span>
           <span class="purchase-detail-value" id="successPlanName">-</span>
         </div>
         <div class="purchase-detail-item">
-          <span class="purchase-detail-label">Devices</span>
+          <span class="purchase-detail-label"></span>
           <span class="purchase-detail-value" id="successIPCount">-</span>
         </div>
         <div class="purchase-detail-item">
@@ -1492,7 +1492,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         </div>
       </div>
       <div class="code-display" id="generatedCode">-</div>
-      <button class="copy-button" onclick="copyCode()">Subscription link</button>
+      <button class="copy-button" onclick="copyCode()"></button>
       <div class="next-steps">
         <p class="next-steps-hint">：</p>
         <a href="/account" class="next-steps-link"> →</a>
@@ -1605,12 +1605,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           });
         }
 
-        // 3. ，"Favorites"
+        // 3. ，""
         if (isLoggedIn) {
           const favCard = document.createElement('div');
           favCard.className = 'theme-card';
           favCard.dataset.theme = 'favorites';
-          favCard.innerHTML = '<div class="theme-card-name">Favorites</div><div class="theme-card-desc">Favorites</div>';
+          favCard.innerHTML = '<div class="theme-card-name"></div><div class="theme-card-desc"></div>';
           favCard.onclick = () => selectTheme('favorites');
           grid.appendChild(favCard);
         }
@@ -1633,7 +1633,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     function paintRenewalBanner(activeOrder, grid, banner) {
       let schemeName = '';
       if (activeOrder.sub_mode === 'favorites') {
-        schemeName = 'Favorites';
+        schemeName = '';
       } else if (activeOrder.topic_id) {
         const t = availableTopics.find(function (x) { return String(x.id) === String(activeOrder.topic_id); });
         schemeName = t ? t.name : ('Topic #' + activeOrder.topic_id);
@@ -1660,7 +1660,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       const hintEl = document.getElementById('themeHint');
       if (hintEl) {
         if (themeId === 'favorites') {
-          hintEl.textContent = 'Favorites';
+          hintEl.textContent = '';
           hintEl.style.display = 'block';
         } else {
           hintEl.textContent = '';
@@ -1895,7 +1895,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     async function simulatePaymentSuccess() {
       if (!currentOrderId) {
-        showToast('Yes', 'error');
+        showToast('', 'error');
         return;
       }
       const token = localStorage.getItem('auth_token');
@@ -1966,7 +1966,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     function copyCode() {
       const code = document.getElementById('generatedCode').textContent;
       navigator.clipboard.writeText(code).then(function () {
-        showToast('Subscription link', 'success');
+        showToast('', 'success');
       }).catch(function (err) {
         console.error('Copy failed:', err);
         showToast('', 'error');

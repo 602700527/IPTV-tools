@@ -1,12 +1,12 @@
 //  - 
-export const pageTitle = 'My Account - IPTV Search';
+export const pageTitle = 'My  - IPTV Search';
 export const pageDescription = 'Manage your IPTV Search account, view subscription status and order history.';
 export const canonical = 'https://iptv-search.com/account';
 export const robots = 'noindex, follow';
 
 export const styles = `
   /* ========================================
-     Account Page Styles
+      Page Styles
      ======================================== */
 
   :root {
@@ -191,7 +191,7 @@ export const styles = `
   .profile-meta-value { font-size: 18px; font-weight: 700; color: var(--text-primary); line-height: 1; }
   .profile-meta-label { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
 
-  /* Subscription -  */
+  /*  -  */
   .subscription-section { background: transparent; border: none; padding: 0; margin: 0; }
   .subscription-header {
     display: flex; justify-content: space-between; align-items: center;
@@ -233,7 +233,7 @@ export const styles = `
   .copy-btn { padding: 2px 7px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); font-size: 9px; font-weight: 600; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
   .copy-btn:hover { opacity: 0.85; }
 
-  /* Expires / Duration / IP  -  */
+  /*  /  / IP  -  */
   .subscription-detail.info-row {
     display: flex !important; flex-direction: row !important;
     gap: 0; border-top: 1px solid rgba(255, 255, 255, 0.12);
@@ -793,20 +793,20 @@ export const content = `
     <nav class="sidebar">
       <button class="sidebar-item active" onclick="switchTab('account')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path></svg>
-Account
+
       </button>
       <button class="sidebar-item" onclick="switchTab('orders')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-Orders
+
       </button>
       <button class="sidebar-item" onclick="switchTab('tickets')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"></path><rect x="9" y="3" width="6" height="4" rx="1"></rect></svg>
-Tickets
+
       </button>
       <div class="sidebar-divider"></div>
       <button class="sidebar-item logout" onclick="logout()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-Logout
+
       </button>
     </nav>
 
@@ -834,10 +834,10 @@ Logout
                   </span>
                   <span class="badge badge-verified" id="verifiedBadge" style="display: none;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="10" height="10"><polyline points="20 6 9 17 4 12"></polyline></svg>
-Verified
+
                   </span>
                   <span class="badge badge-member" id="memberBadge">
-Member <span id="memberSince">-</span>
+ <span id="memberSince">-</span>
                   </span>
                 </div>
               </div>
@@ -851,42 +851,42 @@ Member <span id="memberSince">-</span>
             <div class="account-section">
             <div class="scheme-section" id="schemeSection" style="display:none;">
               <div class="scheme-section-header">
-                <span class="scheme-section-title">Current Scheme</span>
+                <span class="scheme-section-title"></span>
                 <span class="scheme-section-hint" id="schemeSectionHint"></span>
               </div>
               <div class="scheme-switcher" id="schemeSwitcher"></div>
               <div class="scheme-vip-lock" id="schemeVipLock" style="display:none;">
-                🔒  VIP exclusive feature. <a href="/freesub">Upgrade to VIP →</a>
+                🔒  VIP . <a href="/freesub">Upgrade to VIP →</a>
               </div>
             </div>
 
             <div class="account-section">
             <div class="subscription-section" id="subscriptionSection" style="display: block;">
               <div class="subscription-header">
-                <span class="subscription-title">Subscription</span>
+                <span class="subscription-title"></span>
                 <span class="subscription-status active" id="subscriptionStatus"><span class="dot"></span> Active</span>
               </div>
               <div class="subscription-details">
                 <div class="subscription-detail url-row">
-                  <span class="subscription-detail-label">Subscription URL</span>
+                  <span class="subscription-detail-label"> URL</span>
                   <div class="sub-format-radios">
                     <label class="format-radio"><input type="radio" name="vipFormat" value="m3u" checked onchange="updateVipCodeFormat()"> M3U</label>
                     <label class="format-radio"><input type="radio" name="vipFormat" value="txt" onchange="updateVipCodeFormat()"> TXT</label>
                   </div>
                   <span class="subscription-detail-value code" id="vipCode" data-code="PERMA34VIP">https://iptv-search.com/sub/PERMA34VIP.m3u</span>
-                  <button class="copy-btn" onclick="copyVipCode()">Copy</button>
+                  <button class="copy-btn" onclick="copyVipCode()"></button>
                 </div>
                 <div class="subscription-detail info-row">
                   <div>
-                    <span class="subscription-detail-label">Expires</span>
+                    <span class="subscription-detail-label"></span>
                     <span class="subscription-detail-value" id="vipExpiry">Permanent</span>
                   </div>
                   <div>
-                    <span class="subscription-detail-label">Duration</span>
-                    <span class="subscription-detail-value" id="vipDuration">-1 days</span>
+                    <span class="subscription-detail-label"></span>
+                    <span class="subscription-detail-value" id="vip">-1 </span>
                   </div>
                   <div>
-                    <span class="subscription-detail-label">Max IPs</span>
+                    <span class="subscription-detail-label">IP</span>
                     <span class="subscription-detail-value" id="vipMaxIps">5</span>
                   </div>
                 </div>
@@ -895,12 +895,12 @@ Member <span id="memberSince">-</span>
 
             <div class="account-section">
             <div class="perks-section" id="perksSection" style="display: block;">
-              <div class="perks-title">Your Benefits</div>
+              <div class="perks-title"></div>
               <div class="perks-grid">
-                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>No Ads</span>
-                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>Unlimited Channels</span>
-                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>Priority Support</span>
-                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>Cloud Sync</span>
+                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
               </div>
             </div>
             </div>
@@ -943,8 +943,8 @@ Member <span id="memberSince">-</span>
     <div class="code-display" id="generatedCode">-</div>
     <button class="copy-button" onclick="copyCode()" data-i18n="copyUrl">copyUrl</button>
     <div class="modal-tips">
-      <p class="modal-tip">Add this URL to your IPTV player</p>
-      <p class="modal-tip-highlight">View order details after closing</p>
+      <p class="modal-tip">URLIPTV</p>
+      <p class="modal-tip-highlight"></p>
     </div>
   </div>
 </div>
@@ -977,7 +977,7 @@ Member <span id="memberSince">-</span>
       </div>
       <div class="form-group">
         <label data-i18n="ticketDescription">ticketDescription</label>
-        <textarea id="ticketDescription" required placeholder="Describe your issue in detail......"></textarea>
+        <textarea id="ticketDescription" required placeholder="......"></textarea>
       </div>
       <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
         <button type="button" class="btn btn-secondary" onclick="closeCreateTicketModal()" data-i18n="cancel">cancel</button>
@@ -990,12 +990,12 @@ Member <span id="memberSince">-</span>
 <div id="ticketDetailModal" class="ticket-modal">
   <div class="ticket-modal-content">
     <div class="ticket-modal-header">
-      <h3 id="ticketDetailTitle">Tickets</h3>
+      <h3 id="ticketDetailTitle"></h3>
       <button class="ticket-modal-close" onclick="closeTicketDetailModal()">×</button>
     </div>
     <div id="ticketDetailContent"></div>
     <div class="ticket-reply-form" id="ticketReplyForm">
-      <textarea id="replyContent" placeholder="Enter your reply here......"></textarea>
+      <textarea id="replyContent" placeholder="......"></textarea>
       <div style="display: flex; gap: 12px; justify-content: flex-end;">
         <button type="button" class="btn btn-danger" onclick="closeTicketAction()" data-i18n="closeTicket">closeTicket</button>
         <button type="button" class="btn btn-primary" onclick="submitTicketReply()" data-i18n="sendReply">sendReply</button>
@@ -1060,7 +1060,7 @@ async function validateToken() {
     }
     return response.ok;
   } catch (error) {
-    console.error('Token validation failed:', error);
+    console.error('token:', error);
     return false;
   }
 }
@@ -1084,7 +1084,7 @@ function switchTab(tab) {
 
   if (tab === 'account') loadUserInfo();
   else if (tab === 'orders') loadOrderHistory();
-  else if (tab === 'tickets') loadTickets();
+  else if (tab === 'tickets') load();
 }
 
 async function loadUserInfo() {
@@ -1110,7 +1110,7 @@ async function loadUserInfo() {
       }
     }
   } catch (error) {
-    console.error('Failed to load user info:', error);
+    console.error(':', error);
     showToast(t('networkError'), 'error');
   }
 }
@@ -1124,7 +1124,7 @@ async function loadVipStatus() {
   const subscriptionSection = document.getElementById('subscriptionSection');
   const vipCodeEl = document.getElementById('vipCode');
   const vipExpiryEl = document.getElementById('vipExpiry');
-  const vipDurationEl = document.getElementById('vipDuration');
+  const vipEl = document.getElementById('vip');
   const vipMaxIpsEl = document.getElementById('vipMaxIps');
   const subscriptionStatusEl = document.getElementById('subscriptionStatus');
   const vipStatusTextEl = document.getElementById('vipStatusText');
@@ -1146,10 +1146,10 @@ async function loadVipStatus() {
     if (subscriptionStatusEl) subscriptionStatusEl.className = 'subscription-status';
 
     if (response.ok && data.success && data.orders && data.orders.length > 0) {
-      const completedOrders = data.orders.filter(order => order.status === 'completed');
-      if (completedOrders.length === 0) return;
+      const completed = data.orders.filter(order => order.status === 'completed');
+      if (completed.length === 0) return;
 
-      const latestOrder = completedOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+      const latestOrder = completed.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
       const now = new Date();
       const codeExpiredAt = latestOrder.expired_at;
       const isExpired = codeExpiredAt && new Date(codeExpiredAt) < now;
@@ -1209,13 +1209,13 @@ async function loadVipStatus() {
       }
       if (vipExpiryEl) vipExpiryEl.textContent = expiryText;
 
-      const dayUnit = currentLang === 'zh-CN' ? ' days' : ' days';
-      if (vipDurationEl) vipDurationEl.textContent = latestOrder.duration_days ? latestOrder.duration_days + (currentLang === 'zh-CN' ? ' days' : ' days') : '-';
+      const dayUnit = currentLang === 'zh-CN' ? ' ' : ' days';
+      if (vipEl) vipEl.textContent = latestOrder.duration_days ? latestOrder.duration_days + (currentLang === 'zh-CN' ? ' ' : ' days') : '-';
       if (vipMaxIpsEl) vipMaxIpsEl.textContent = latestOrder.max_ips || 3;
 
       // 
       latestActiveCode = latestOrder.code;
-      isVipActive = !isExpired;  // VIP ： active Subscription
+      isVipActive = !isExpired;  // VIP ： active 
       if (latestOrder.sub_mode === 'favorites') currentScheme = { type: 'favorites' };
       else if (latestOrder.topic_id) currentScheme = { type: 'topic', id: latestOrder.topic_id };
       else currentScheme = { type: 'all' };
@@ -1225,9 +1225,9 @@ async function loadVipStatus() {
         schemeEl.style.display = 'block';
         if (hintEl) {
           if (isExpired) {
-            hintEl.textContent = currentLang === 'zh-CN' ? 'SubscriptionExpires，' : 'Subscription expired';
+            hintEl.textContent = currentLang === 'zh-CN' ? '，' : ' expired';
           } else {
-            hintEl.innerHTML = (currentLang === 'zh-CN' ? 'Takes effect immediately · Subscription URL unchanged · Current:' : 'Takes effect immediately · Current: ');
+            hintEl.innerHTML = (currentLang === 'zh-CN' ? 'Takes effect immediately ·  URL unchanged · Current:' : 'Takes effect immediately · Current: ');
           }
         }
         loadSchemes();
@@ -1240,7 +1240,7 @@ async function loadVipStatus() {
       if (schemeEl) {
         schemeEl.style.display = 'block';
         const hintEl = document.getElementById('schemeSectionHint');
-        if (hintEl) hintEl.textContent = currentLang === 'zh-CN' ? 'Subscription' : 'Activate subscription to switch';
+        if (hintEl) hintEl.textContent = currentLang === 'zh-CN' ? '' : 'Activate subscription to switch';
         loadSchemes();
       }
     }
@@ -1269,7 +1269,7 @@ let currentScheme = { type: 'all' }; // {type:'all'|'favorites'|'topic', id?:num
 let availableSchemes = [];
 let latestActiveCode = null;
 let schemeSwitching = false;
-let isVipActive = false; //  loadVipStatus  active Subscription
+let isVipActive = false; //  loadVipStatus  active 
 
 function isCurrentScheme(s) {
   if (currentScheme.type === 'all') return s.type === 'all';
@@ -1283,7 +1283,7 @@ function renderSchemeSwitcher() {
   if (!container) return;
   if (availableSchemes.length === 0) {
     container.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">' +
-      (currentLang === 'zh-CN' ? 'No schemes available' : 'No schemes available') + '</span>';
+      (currentLang === 'zh-CN' ? '' : 'No schemes available') + '</span>';
     return;
   }
   const parts = [];
@@ -1320,16 +1320,16 @@ async function loadSchemes() {
     ];
     // Translate Chinese scheme names to English
     const schemeTranslations = {
-      'All Channels': 'All Channels',
-      'My Favorites': 'My Favorites',
-      'China Telecom': 'China Telecom',
-      'China Unicom': 'China Unicom',
+      '': 'All Channels',
+      '': 'My Favorites',
+      '': 'China Telecom',
       '': 'China Unicom',
-      'China Mobile/Broadcasting': 'China Mobile',
-      'International & HK/MO/TW': 'International',
-      'Apple': 'Apple',
-      'Android': 'Android',
-      'Universal': 'Universal',
+      '': 'China Unicom',
+      '/': 'China Mobile',
+      '': 'International',
+      '': 'Apple',
+      '': 'Android',
+      '/': 'Universal',
     };
     topics.forEach(function (t) {
       availableSchemes.push({ type: 'topic', id: t.id, name: schemeTranslations[t.name] || t.name });
@@ -1339,7 +1339,7 @@ async function loadSchemes() {
     console.error('Failed to load schemes:', err);
     const c = document.getElementById('schemeSwitcher');
     if (c) c.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">' +
-      (currentLang === 'zh-CN' ? 'Load failed' : 'Load failed') + '</span>';
+      (currentLang === 'zh-CN' ? '' : 'Load failed') + '</span>';
   }
 }
 
@@ -1347,7 +1347,7 @@ async function checkFavoritesCount() {
   try {
     const token = getToken();
 
-    // Test env: read from localStorage
+    // ： localStorage 
     if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
       try {
         const localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
@@ -1357,9 +1357,9 @@ async function checkFavoritesCount() {
       }
     }
 
-    // Prod env: prefer cloud, fallback to localStorage
+    // ：， localStorage
     if (!token) {
-      //  token，Try reading from local
+      //  token，
       try {
         return JSON.parse(localStorage.getItem('favorites') || '[]').length;
       } catch (e) {
@@ -1397,7 +1397,7 @@ async function selectScheme(type, id) {
     return;
   }
   if (!latestActiveCode) {
-    showToast(currentLang === 'zh-CN' ? 'Subscription' : 'No active subscription', 'error');
+    showToast(currentLang === 'zh-CN' ? '' : 'No active subscription', 'error');
     return;
   }
   if (isCurrentScheme({ type: type, id: id })) return;
@@ -1440,7 +1440,7 @@ async function selectScheme(type, id) {
     showToast(currentLang === 'zh-CN' ? 'Scheme updated' : 'Scheme updated', 'success', 3000);
   } catch (err) {
     console.error('Scheme change failed:', err);
-    showToast(currentLang === 'zh-CN' ? 'Update failed：' + err.message : 'Update failed: ' + err.message, 'error', 5000);
+    showToast(currentLang === 'zh-CN' ? '：' + err.message : 'Update failed: ' + err.message, 'error', 5000);
     renderSchemeSwitcher();
   } finally {
     schemeSwitching = false;
@@ -1452,8 +1452,8 @@ function copyVipCode() {
   if (!vipCodeEl) { console.error('vipCode element not found'); return; }
   const codeText = vipCodeEl.textContent;
   navigator.clipboard.writeText(codeText).then(() => {
-    showToast(currentLang === 'zh-CN' ? 'SubscriptionCopy！' : 'Subscription URL copied!', 'success');
-  }).catch(err => { console.error('Copy failed:', err); });
+    showToast(currentLang === 'zh-CN' ? '！' : ' URL copied!', 'success');
+  }).catch(err => { console.error(' failed:', err); });
 }
 
 async function loadOrderHistory() {
@@ -1469,16 +1469,16 @@ async function loadOrderHistory() {
     if (response.ok && data.success) {
       const orders = data.orders || [];
       if (orders.length === 0) {
-        ordersListDiv.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><p>' + t('noOrders') + '</p></div>';
+        ordersListDiv.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><p>' + t('no') + '</p></div>';
       } else {
         ordersListDiv.innerHTML = orders.map(order => {
           const createdDate = new Date(order.created_at);
           const statusClass = order.status.toLowerCase();
           const statusText = { completed: t('statusCompleted'), pending: t('statusPending'), cancelled: t('statusCancelled') }[order.status] || order.status;
-          const dayUnit = currentLang === 'zh-CN' ? ' days' : ' days';
+          const dayUnit = currentLang === 'zh-CN' ? ' ' : ' days';
           const baseUrl = window.location.origin;
           const subUrl = order.code ? (baseUrl + '/sub/' + order.code + '.m3u') : '-';
-          return '<div class="order-card"><div class="order-header"><span class="order-id">Order ID：' + order.order_id + '</span><span class="order-status ' + statusClass + '">' + statusText + '</span></div><div class="order-details"><div class="order-detail-item"><div class="order-detail-label">Code</div><div class="order-detail-value">' + (order.code || '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">Subscription</div><div class="order-detail-value">' + subUrl + '</div></div><div class="order-detail-item"><div class="order-detail-label">Validity</div><div class="order-detail-value">' + (order.duration_days ? order.duration_days + dayUnit : '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">IPs</div><div class="order-detail-value">' + (order.max_ips || 3) + '</div></div><div class="order-detail-item"><div class="order-detail-label">Amount</div><div class="order-detail-value">' + (order.amount ? '¥' + order.amount.toFixed(2) : '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">Order Date</div><div class="order-detail-value">' + createdDate.toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US') + '</div></div></div></div>';
+          return '<div class="order-card"><div class="order-header"><span class="order-id">：' + order.order_id + '</span><span class="order-status ' + statusClass + '">' + statusText + '</span></div><div class="order-details"><div class="order-detail-item"><div class="order-detail-label">Code</div><div class="order-detail-value">' + (order.code || '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label"></div><div class="order-detail-value">' + subUrl + '</div></div><div class="order-detail-item"><div class="order-detail-label"></div><div class="order-detail-value">' + (order.duration_days ? order.duration_days + dayUnit : '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">IP</div><div class="order-detail-value">' + (order.max_ips || 3) + '</div></div><div class="order-detail-item"><div class="order-detail-label"></div><div class="order-detail-value">' + (order.amount ? '¥' + order.amount.toFixed(2) : '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label"></div><div class="order-detail-value">' + createdDate.toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US') + '</div></div></div></div>';
         }).join('');
       }
     } else {
@@ -1488,14 +1488,14 @@ async function loadOrderHistory() {
       }
     }
   } catch (error) {
-    console.error('Failed to load order history:', error);
+    console.error(':', error);
     showToast(t('networkError'), 'error');
   } finally {
     loadingDiv.classList.remove('active');
   }
 }
 
-async function loadTickets() {
+async function load() {
   const ticketsListDiv = document.getElementById('ticketsList');
   const loadingDiv = document.getElementById('ticketsLoading');
   ticketsListDiv.innerHTML = '';
@@ -1508,7 +1508,7 @@ async function loadTickets() {
     if (response.ok && data.success) {
       const tickets = data.tickets || [];
       if (tickets.length === 0) {
-        ticketsListDiv.innerHTML = '<div class="empty-tickets"><svg class="empty-tickets-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg><h4>No tickets yet</h4><p>，</p><button class="btn-accent" onclick="showCreateTicketModal()">+ </button></div>';
+        ticketsListDiv.innerHTML = '<div class="empty-tickets"><svg class="empty-tickets-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg><h4></h4><p>，</p><button class="btn-accent" onclick="showCreateTicketModal()">+ </button></div>';
       } else {
         ticketsListDiv.innerHTML = tickets.map(ticket => {
           const createdDate = new Date(ticket.created_at);
@@ -1566,7 +1566,7 @@ document.getElementById('createTicketForm').addEventListener('submit', async fun
     if (data.success) {
       showToast('Ticket created successfully', 'success');
       closeCreateTicketModal();
-      loadTickets();
+      load();
     } else {
       showToast(data.error || 'Failed to create ticket', 'error');
     }
@@ -1658,7 +1658,7 @@ async function closeTicketAction() {
     if (data.success) {
       showToast('Ticket closed successfully', 'success');
       closeTicketDetailModal();
-      loadTickets();
+      load();
     } else {
       showToast(data.error || 'Failed to close ticket', 'error');
     }
@@ -1675,10 +1675,10 @@ async function logout() {
       headers: { 'Authorization': 'Bearer ' + getToken() }
     });
   } catch (error) {
-    console.error('Logout:', error);
+    console.error(':', error);
   } finally {
     localStorage.removeItem('auth_token');
-    showToast(currentLang === 'zh-CN' ? 'Logged out securely' : 'Logged out successfully', 'success');
+    showToast(currentLang === 'zh-CN' ? '' : 'Logged out successfully', 'success');
     setTimeout(() => { window.location.href = '/'; }, 500);
   }
 }
@@ -1722,8 +1722,8 @@ function closeSuccessModal() {
 function copyCode() {
   const subUrl = document.getElementById('generatedCode').textContent;
   navigator.clipboard.writeText(subUrl).then(() => {
-    showToast(currentLang === 'zh-CN' ? 'SubscriptionCopy！' : 'Subscription URL copied to clipboard!', 'success');
-  }).catch(err => { console.error('Copy failed:', err); });
+    showToast(currentLang === 'zh-CN' ? '！' : ' URL copied to clipboard!', 'success');
+  }).catch(err => { console.error(' failed:', err); });
 }
 
 function checkPaymentStatus() {
@@ -1731,7 +1731,7 @@ function checkPaymentStatus() {
   const paymentStatus = urlParams.get('payment');
   if (paymentStatus === 'success') loadLatestOrder();
   else if (paymentStatus === 'cancelled') {
-    showToast(currentLang === 'zh-CN' ? 'Payment cancelled' : 'Payment cancelled', 'warning');
+    showToast(currentLang === 'zh-CN' ? '' : 'Payment cancelled', 'warning');
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 }
@@ -1748,14 +1748,14 @@ async function loadLatestOrder() {
         const codeBase = window.location.origin + '/sub/' + completedOrder.code;
         showSuccessModal(codeBase);
       } else {
-        showToast(currentLang === 'zh-CN' ? 'Subscription' : 'No subscription info', 'info');
+        showToast(currentLang === 'zh-CN' ? '' : 'No subscription info', 'info');
       }
     } else {
       showToast(data.error || (currentLang === 'zh-CN' ? '' : 'Failed to get orders'), 'error');
     }
   } catch (error) {
     console.error('Load latest order error:', error);
-    showToast(currentLang === 'zh-CN' ? 'Network error' : 'Network error', 'error');
+    showToast(currentLang === 'zh-CN' ? '' : 'Network error', 'error');
   }
   window.history.replaceState({}, document.title, window.location.pathname);
 }
