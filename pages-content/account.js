@@ -1,12 +1,12 @@
 // 静态页面内容模块 - 账户中心
-export const pageTitle = 'My 账号 - IPTV Search';
+export const pageTitle = 'My Account - IPTV Search';
 export const pageDescription = 'Manage your IPTV Search account, view subscription status and order history.';
 export const canonical = 'https://iptv-search.com/account';
 export const robots = 'noindex, follow';
 
 export const styles = `
   /* ========================================
-     账号 Page Styles
+     Account Page Styles
      ======================================== */
 
   :root {
@@ -233,7 +233,7 @@ export const styles = `
   .copy-btn { padding: 2px 7px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); font-size: 9px; font-weight: 600; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
   .copy-btn:hover { opacity: 0.85; }
 
-  /* 过期 / 持续时间 / IP 数 - 横向排列 */
+  /* Expires / Duration / IP 数 - 横向排列 */
   .subscription-detail.info-row {
     display: flex !important; flex-direction: row !important;
     gap: 0; border-top: 1px solid rgba(255, 255, 255, 0.12);
@@ -793,20 +793,20 @@ export const content = `
     <nav class="sidebar">
       <button class="sidebar-item active" onclick="switchTab('account')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path></svg>
-账号
+Account
       </button>
       <button class="sidebar-item" onclick="switchTab('orders')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-命令
+Orders
       </button>
       <button class="sidebar-item" onclick="switchTab('tickets')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"></path><rect x="9" y="3" width="6" height="4" rx="1"></rect></svg>
-门票
+Tickets
       </button>
       <div class="sidebar-divider"></div>
       <button class="sidebar-item logout" onclick="logout()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-登出
+Logout
       </button>
     </nav>
 
@@ -834,10 +834,10 @@ export const content = `
                   </span>
                   <span class="badge badge-verified" id="verifiedBadge" style="display: none;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="10" height="10"><polyline points="20 6 9 17 4 12"></polyline></svg>
-已验证
+Verified
                   </span>
                   <span class="badge badge-member" id="memberBadge">
-成员 <span id="memberSince">-</span>
+Member <span id="memberSince">-</span>
                   </span>
                 </div>
               </div>
@@ -851,7 +851,7 @@ export const content = `
             <div class="account-section">
             <div class="scheme-section" id="schemeSection" style="display:none;">
               <div class="scheme-section-header">
-                <span class="scheme-section-title">当前线路</span>
+                <span class="scheme-section-title">Current Scheme</span>
                 <span class="scheme-section-hint" id="schemeSectionHint"></span>
               </div>
               <div class="scheme-switcher" id="schemeSwitcher"></div>
@@ -868,25 +868,25 @@ export const content = `
               </div>
               <div class="subscription-details">
                 <div class="subscription-detail url-row">
-                  <span class="subscription-detail-label">订阅 URL</span>
+                  <span class="subscription-detail-label">Subscription URL</span>
                   <div class="sub-format-radios">
                     <label class="format-radio"><input type="radio" name="vipFormat" value="m3u" checked onchange="updateVipCodeFormat()"> M3U</label>
                     <label class="format-radio"><input type="radio" name="vipFormat" value="txt" onchange="updateVipCodeFormat()"> TXT</label>
                   </div>
                   <span class="subscription-detail-value code" id="vipCode" data-code="PERMA34VIP">https://iptv-search.com/sub/PERMA34VIP.m3u</span>
-                  <button class="copy-btn" onclick="copyVipCode()">复制</button>
+                  <button class="copy-btn" onclick="copyVipCode()">Copy</button>
                 </div>
                 <div class="subscription-detail info-row">
                   <div>
-                    <span class="subscription-detail-label">过期</span>
+                    <span class="subscription-detail-label">Expires</span>
                     <span class="subscription-detail-value" id="vipExpiry">Permanent</span>
                   </div>
                   <div>
-                    <span class="subscription-detail-label">持续时间</span>
-                    <span class="subscription-detail-value" id="vip持续时间">-1 天</span>
+                    <span class="subscription-detail-label">Duration</span>
+                    <span class="subscription-detail-value" id="vipDuration">-1 天</span>
                   </div>
                   <div>
-                    <span class="subscription-detail-label">最大IP数</span>
+                    <span class="subscription-detail-label">Max IPs</span>
                     <span class="subscription-detail-value" id="vipMaxIps">5</span>
                   </div>
                 </div>
@@ -895,12 +895,12 @@ export const content = `
 
             <div class="account-section">
             <div class="perks-section" id="perksSection" style="display: block;">
-              <div class="perks-title">您的福利</div>
+              <div class="perks-title">Your Benefits</div>
               <div class="perks-grid">
-                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>没有广告</span>
-                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>无限频道</span>
-                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>优先支持</span>
-                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>云同步</span>
+                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>No Ads</span>
+                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>Unlimited Channels</span>
+                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>Priority Support</span>
+                <span class="perk-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>Cloud Sync</span>
               </div>
             </div>
             </div>
@@ -990,7 +990,7 @@ export const content = `
 <div id="ticketDetailModal" class="ticket-modal">
   <div class="ticket-modal-content">
     <div class="ticket-modal-header">
-      <h3 id="ticketDetailTitle">门票详情</h3>
+      <h3 id="ticketDetailTitle">Tickets详情</h3>
       <button class="ticket-modal-close" onclick="closeTicketDetailModal()">×</button>
     </div>
     <div id="ticketDetailContent"></div>
@@ -1084,7 +1084,7 @@ function switchTab(tab) {
 
   if (tab === 'account') loadUserInfo();
   else if (tab === 'orders') loadOrderHistory();
-  else if (tab === 'tickets') load门票();
+  else if (tab === 'tickets') loadTickets();
 }
 
 async function loadUserInfo() {
@@ -1124,7 +1124,7 @@ async function loadVipStatus() {
   const subscriptionSection = document.getElementById('subscriptionSection');
   const vipCodeEl = document.getElementById('vipCode');
   const vipExpiryEl = document.getElementById('vipExpiry');
-  const vip持续时间El = document.getElementById('vip持续时间');
+  const vipDurationEl = document.getElementById('vipDuration');
   const vipMaxIpsEl = document.getElementById('vipMaxIps');
   const subscriptionStatusEl = document.getElementById('subscriptionStatus');
   const vipStatusTextEl = document.getElementById('vipStatusText');
@@ -1146,10 +1146,10 @@ async function loadVipStatus() {
     if (subscriptionStatusEl) subscriptionStatusEl.className = 'subscription-status';
 
     if (response.ok && data.success && data.orders && data.orders.length > 0) {
-      const completed命令 = data.orders.filter(order => order.status === 'completed');
-      if (completed命令.length === 0) return;
+      const completedOrders = data.orders.filter(order => order.status === 'completed');
+      if (completedOrders.length === 0) return;
 
-      const latestOrder = completed命令.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+      const latestOrder = completedOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
       const now = new Date();
       const codeExpiredAt = latestOrder.expired_at;
       const isExpired = codeExpiredAt && new Date(codeExpiredAt) < now;
@@ -1210,7 +1210,7 @@ async function loadVipStatus() {
       if (vipExpiryEl) vipExpiryEl.textContent = expiryText;
 
       const dayUnit = currentLang === 'zh-CN' ? ' 天' : ' days';
-      if (vip持续时间El) vip持续时间El.textContent = latestOrder.duration_days ? latestOrder.duration_days + (currentLang === 'zh-CN' ? ' 天' : ' days') : '-';
+      if (vipDurationEl) vipDurationEl.textContent = latestOrder.duration_days ? latestOrder.duration_days + (currentLang === 'zh-CN' ? ' 天' : ' days') : '-';
       if (vipMaxIpsEl) vipMaxIpsEl.textContent = latestOrder.max_ips || 3;
 
       // 初始化线路方案
@@ -1225,9 +1225,9 @@ async function loadVipStatus() {
         schemeEl.style.display = 'block';
         if (hintEl) {
           if (isExpired) {
-            hintEl.textContent = currentLang === 'zh-CN' ? '订阅已过期，无法切换' : '订阅 expired';
+            hintEl.textContent = currentLang === 'zh-CN' ? '订阅已Expires，无法切换' : '订阅 expired';
           } else {
-            hintEl.innerHTML = (currentLang === 'zh-CN' ? 'Takes effect immediately · 订阅 URL unchanged · Current:' : 'Takes effect immediately · Current: ');
+            hintEl.innerHTML = (currentLang === 'zh-CN' ? 'Takes effect immediately · Subscription URL unchanged · Current:' : 'Takes effect immediately · Current: ');
           }
         }
         loadSchemes();
@@ -1320,8 +1320,8 @@ async function loadSchemes() {
     ];
     // Translate Chinese scheme names to English
     const schemeTranslations = {
-      '全部频道': 'All Channels',
-      '我的收藏': 'My Favorites',
+      'All Channels': 'All Channels',
+      'My Favorites': 'My Favorites',
       '电信适用': 'China Telecom',
       '联通专用': 'China Unicom',
       '联通适用': 'China Unicom',
@@ -1452,8 +1452,8 @@ function copyVipCode() {
   if (!vipCodeEl) { console.error('vipCode element not found'); return; }
   const codeText = vipCodeEl.textContent;
   navigator.clipboard.writeText(codeText).then(() => {
-    showToast(currentLang === 'zh-CN' ? '订阅地址已复制！' : '订阅 URL copied!', 'success');
-  }).catch(err => { console.error('复制 failed:', err); });
+    showToast(currentLang === 'zh-CN' ? '订阅地址已Copy！' : 'Subscription URL copied!', 'success');
+  }).catch(err => { console.error('Copy failed:', err); });
 }
 
 async function loadOrderHistory() {
@@ -1469,7 +1469,7 @@ async function loadOrderHistory() {
     if (response.ok && data.success) {
       const orders = data.orders || [];
       if (orders.length === 0) {
-        ordersListDiv.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><p>' + t('no命令') + '</p></div>';
+        ordersListDiv.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><p>' + t('noOrders') + '</p></div>';
       } else {
         ordersListDiv.innerHTML = orders.map(order => {
           const createdDate = new Date(order.created_at);
@@ -1495,7 +1495,7 @@ async function loadOrderHistory() {
   }
 }
 
-async function load门票() {
+async function loadTickets() {
   const ticketsListDiv = document.getElementById('ticketsList');
   const loadingDiv = document.getElementById('ticketsLoading');
   ticketsListDiv.innerHTML = '';
@@ -1566,7 +1566,7 @@ document.getElementById('createTicketForm').addEventListener('submit', async fun
     if (data.success) {
       showToast('Ticket created successfully', 'success');
       closeCreateTicketModal();
-      load门票();
+      loadTickets();
     } else {
       showToast(data.error || 'Failed to create ticket', 'error');
     }
@@ -1658,7 +1658,7 @@ async function closeTicketAction() {
     if (data.success) {
       showToast('Ticket closed successfully', 'success');
       closeTicketDetailModal();
-      load门票();
+      loadTickets();
     } else {
       showToast(data.error || 'Failed to close ticket', 'error');
     }
@@ -1675,7 +1675,7 @@ async function logout() {
       headers: { 'Authorization': 'Bearer ' + getToken() }
     });
   } catch (error) {
-    console.error('登出失败:', error);
+    console.error('Logout失败:', error);
   } finally {
     localStorage.removeItem('auth_token');
     showToast(currentLang === 'zh-CN' ? '已安全退出' : 'Logged out successfully', 'success');
@@ -1722,8 +1722,8 @@ function closeSuccessModal() {
 function copyCode() {
   const subUrl = document.getElementById('generatedCode').textContent;
   navigator.clipboard.writeText(subUrl).then(() => {
-    showToast(currentLang === 'zh-CN' ? '订阅地址已复制到剪贴板！' : '订阅 URL copied to clipboard!', 'success');
-  }).catch(err => { console.error('复制 failed:', err); });
+    showToast(currentLang === 'zh-CN' ? '订阅地址已Copy到剪贴板！' : 'Subscription URL copied to clipboard!', 'success');
+  }).catch(err => { console.error('Copy failed:', err); });
 }
 
 function checkPaymentStatus() {
