@@ -1103,7 +1103,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <!-- 差异权益 -->
             <tr>
               <td>搜索</td>
-              <td><span class="cross">✗</span> 10条封顶</td>
+              <td><span class="cross">✗</span> 10条封顶 <span class="limited">有限</span> <span class="limited">有限</span></td>
               <td class="vip"><span class="check">✓</span> 无限</td>
             </tr>
             <tr>
@@ -1132,9 +1132,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td class="vip"><span class="check">✓</span> 无</td>
             </tr>
             <tr>
-              <td>广告</td>
-              <td><span class="cross">✗</span> 有</td>
-              <td class="vip"><span class="check">✓</span> 无</td>
             </tr>
             <tr>
               <td>客服极速响应</td>
