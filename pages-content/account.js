@@ -863,7 +863,7 @@ Member <span id="memberSince">-</span>
             <div class="account-section">
             <div class="subscription-section" id="subscriptionSection" style="display: block;">
               <div class="subscription-header">
-                <span class="subscription-title">订阅</span>
+                <span class="subscription-title">Subscription</span>
                 <span class="subscription-status active" id="subscriptionStatus"><span class="dot"></span> Active</span>
               </div>
               <div class="subscription-details">
@@ -883,7 +883,7 @@ Member <span id="memberSince">-</span>
                   </div>
                   <div>
                     <span class="subscription-detail-label">Duration</span>
-                    <span class="subscription-detail-value" id="vipDuration">-1 天</span>
+                    <span class="subscription-detail-value" id="vipDuration">- days</span>
                   </div>
                   <div>
                     <span class="subscription-detail-label">Max IPs</span>
@@ -1209,8 +1209,8 @@ async function loadVipStatus() {
       }
       if (vipExpiryEl) vipExpiryEl.textContent = expiryText;
 
-      const dayUnit = currentLang === 'zh-CN' ? ' 天' : ' days';
-      if (vipDurationEl) vipDurationEl.textContent = latestOrder.duration_days ? latestOrder.duration_days + (currentLang === 'zh-CN' ? ' 天' : ' days') : '-';
+      const dayUnit = ' days';
+      if (vipDurationEl) vipDurationEl.textContent = latestOrder.duration_days ? latestOrder.duration_days + (' days') : '-';
       if (vipMaxIpsEl) vipMaxIpsEl.textContent = latestOrder.max_ips || 3;
 
       // 初始化线路方案
@@ -1225,7 +1225,7 @@ async function loadVipStatus() {
         schemeEl.style.display = 'block';
         if (hintEl) {
           if (isExpired) {
-            hintEl.textContent = currentLang === 'zh-CN' ? '订阅已Expires，无法切换' : '订阅 expired';
+            hintEl.textContent = 'Subscription expired';
           } else {
             hintEl.innerHTML = (currentLang === 'zh-CN' ? 'Takes effect immediately · Subscription URL unchanged · Current:' : 'Takes effect immediately · Current: ');
           }
@@ -1240,7 +1240,7 @@ async function loadVipStatus() {
       if (schemeEl) {
         schemeEl.style.display = 'block';
         const hintEl = document.getElementById('schemeSectionHint');
-        if (hintEl) hintEl.textContent = currentLang === 'zh-CN' ? '激活订阅后可切换方案' : 'Activate subscription to switch';
+        if (hintEl) hintEl.textContent = currentLang === 'zh-CN' ? 'Activate subscription to switch' : 'Activate subscription to switch';
         loadSchemes();
       }
     }
@@ -1397,7 +1397,7 @@ async function selectScheme(type, id) {
     return;
   }
   if (!latestActiveCode) {
-    showToast(currentLang === 'zh-CN' ? '暂未激活订阅' : 'No active subscription', 'error');
+    showToast(currentLang === 'zh-CN' ? 'No active subscription' : 'No active subscription', 'error');
     return;
   }
   if (isCurrentScheme({ type: type, id: id })) return;
@@ -1452,7 +1452,7 @@ function copyVipCode() {
   if (!vipCodeEl) { console.error('vipCode element not found'); return; }
   const codeText = vipCodeEl.textContent;
   navigator.clipboard.writeText(codeText).then(() => {
-    showToast(currentLang === 'zh-CN' ? '订阅地址已Copy！' : 'Subscription URL copied!', 'success');
+    showToast(currentLang === 'zh-CN' ? 'Subscription URL copied！' : 'Subscription URL copied!', 'success');
   }).catch(err => { console.error('Copy failed:', err); });
 }
 
@@ -1475,10 +1475,10 @@ async function loadOrderHistory() {
           const createdDate = new Date(order.created_at);
           const statusClass = order.status.toLowerCase();
           const statusText = { completed: t('statusCompleted'), pending: t('statusPending'), cancelled: t('statusCancelled') }[order.status] || order.status;
-          const dayUnit = currentLang === 'zh-CN' ? ' 天' : ' days';
+          const dayUnit = ' days';
           const baseUrl = window.location.origin;
           const subUrl = order.code ? (baseUrl + '/sub/' + order.code + '.m3u') : '-';
-          return '<div class="order-card"><div class="order-header"><span class="order-id">订单号：' + order.order_id + '</span><span class="order-status ' + statusClass + '">' + statusText + '</span></div><div class="order-details"><div class="order-detail-item"><div class="order-detail-label">Code</div><div class="order-detail-value">' + (order.code || '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">订阅地址</div><div class="order-detail-value">' + subUrl + '</div></div><div class="order-detail-item"><div class="order-detail-label">有效期</div><div class="order-detail-value">' + (order.duration_days ? order.duration_days + dayUnit : '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">IP数</div><div class="order-detail-value">' + (order.max_ips || 3) + '</div></div><div class="order-detail-item"><div class="order-detail-label">金额</div><div class="order-detail-value">' + (order.amount ? '¥' + order.amount.toFixed(2) : '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">下单时间</div><div class="order-detail-value">' + createdDate.toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US') + '</div></div></div></div>';
+          return '<div class="order-card"><div class="order-header"><span class="order-id">Order ID:' + order.order_id + '</span><span class="order-status ' + statusClass + '">' + statusText + '</span></div><div class="order-details"><div class="order-detail-item"><div class="order-detail-label">Code</div><div class="order-detail-value">' + (order.code || '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">Subscription URL</div><div class="order-detail-value">' + subUrl + '</div></div><div class="order-detail-item"><div class="order-detail-label">Validity</div><div class="order-detail-value">' + (order.duration_days ? order.duration_days + dayUnit : '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">IP数</div><div class="order-detail-value">' + (order.max_ips || 3) + '</div></div><div class="order-detail-item"><div class="order-detail-label">Amount</div><div class="order-detail-value">' + (order.amount ? '¥' + order.amount.toFixed(2) : '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">Order Date</div><div class="order-detail-value">' + createdDate.toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US') + '</div></div></div></div>';
         }).join('');
       }
     } else {
@@ -1722,7 +1722,7 @@ function closeSuccessModal() {
 function copyCode() {
   const subUrl = document.getElementById('generatedCode').textContent;
   navigator.clipboard.writeText(subUrl).then(() => {
-    showToast(currentLang === 'zh-CN' ? '订阅地址已Copy到剪贴板！' : 'Subscription URL copied to clipboard!', 'success');
+    showToast(currentLang === 'zh-CN' ? 'Subscription URL copied到剪贴板！' : 'Subscription URL copied to clipboard!', 'success');
   }).catch(err => { console.error('Copy failed:', err); });
 }
 
