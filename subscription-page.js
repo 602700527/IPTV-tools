@@ -1102,34 +1102,34 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </tr>
             <!-- 差异权益 -->
             <tr>
-              <td>搜索结果显示</td>
-              <td><span class="cross">✗</span> 前 10 个</td>
-              <td class="vip"><span class="check">✓</span> 不限数量</td>
+              <td>搜索</td>
+              <td><span class="cross">✗</span> 10条封顶</td>
+              <td class="vip"><span class="check">✓</span> 无限</td>
             </tr>
             <tr>
-              <td>下载数量</td>
-              <td><span class="cross">✗</span> 10 个</td>
-              <td class="vip"><span class="check">✓</span> 无限制</td>
-            </tr>
-            <tr>
-              <td>频道收藏</td>
-              <td><span class="cross">✗</span> 本地收藏</td>
+              <td>收藏</td>
+              <td><span class="cross">✗</span> 本地有效</td>
               <td class="vip"><span class="check">✓</span> 云端同步</td>
             </tr>
             <tr>
-              <td>线路地区匹配</td>
+              <td>线路匹配</td>
               <td><span class="cross">✗</span> 无</td>
-              <td class="vip"><span class="check">✓</span> 有</td>
+              <td class="vip"><span class="check">✓</span> 运营商直连</td>
             </tr>
             <tr>
-              <td>专属订阅地址</td>
-              <td><span class="cross">✗</span> 无</td>
-              <td class="vip"><span class="check">✓</span> 有</td>
+              <td>设备</td>
+              <td><span class="cross">✗</span> 单设备</td>
+              <td class="vip"><span class="check">✓</span> 多设备</td>
             </tr>
             <tr>
-              <td>多设备支持</td>
+              <td>订阅链接</td>
               <td><span class="cross">✗</span> 无</td>
-              <td class="vip"><span class="check">✓</span> 支持</td>
+              <td class="vip"><span class="check">✓</span> 专属M3U</td>
+            </tr>
+            <tr>
+              <td>广告</td>
+              <td><span class="cross">✗</span> 有</td>
+              <td class="vip"><span class="check">✓</span> 无</td>
             </tr>
             <tr>
               <td>广告</td>
