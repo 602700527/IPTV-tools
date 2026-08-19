@@ -856,7 +856,7 @@ export const content = `
               </div>
               <div class="scheme-switcher" id="schemeSwitcher"></div>
               <div class="scheme-vip-lock" id="schemeVipLock" style="display:none;">
-                🔒 切换线路方案为 VIP 专属功能。<a href="/freesub">开通 VIP →</a>
+                🔒 Switching scheme requires VIP. <a href="/freesub">Upgrade to VIP →</a>
               </div>
             </div>
 

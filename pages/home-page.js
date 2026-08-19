@@ -578,7 +578,7 @@ export function generateHomePage(options = {}) {
         <div class="sub-value-eyebrow" id="bannerEyebrow">New User Special</div>
         <h2 class="sub-value-title" id="bannerTitle">Your Full Channel<br><span>Playlist</span> Awaits</h2>
         <p class="sub-value-desc" id="bannerDesc">Register now and get instant access to 5000+ IPTV channels. One click to your personal M3U subscription link.</p>
-        <div class="sub-value-player-hint" id="bannerPlayerHint">VLC • APTV • TVBox • Tivimate • Televizo • GSE Smart IPTV • 途播</div>
+        <div class="sub-value-player-hint" id="bannerPlayerHint">VLC • APTV • TVBox • Tivimate • Televizo • GSE Smart IPTV</div>
       </div>
       <a href="/login#register" class="sub-value-cta" id="bannerCta">Get Free VIP →</a>
     </div>
@@ -594,11 +594,11 @@ export function generateHomePage(options = {}) {
       
       if (isLoggedIn) {
         // 已登录用户：显示VIP升级横幅
-        document.getElementById('bannerEyebrow').textContent = '🔥 VIP限时特惠';
-        document.getElementById('bannerTitle').innerHTML = '解锁全部功能<br><span>畅享5000+频道</span>';
-        document.getElementById('bannerDesc').textContent = '升级VIP会员，无限搜索、无限制下载、多设备同步、专属客服，稳定流畅不卡顿。';
+        document.getElementById('bannerEyebrow').textContent = '🔥 VIP Exclusive Offer';
+        document.getElementById('bannerTitle').innerHTML = 'Unlock All Features<br><span>Enjoy 5000+ Channels</span>';
+        document.getElementById('bannerDesc').textContent = 'Upgrade to VIP for unlimited searches, downloads, multi-device sync, and priority support.';
         document.getElementById('bannerCta').href = '/subscription';
-        document.getElementById('bannerCta').textContent = '立即升级VIP →';
+        document.getElementById('bannerCta').textContent = 'Upgrade to VIP Now →';
       }
     })();
   </script>
