@@ -2759,7 +2759,7 @@ export function applyTopicFilter(channels, rules) {
 // ============ 用户收藏相关函数 ============
 
 /**
- * 返回 [{name, logo, group}]，不含 hash（hash 在生成 M3U 时动态解析）
+ * 返回 [{name, hash, logo, group}]，hash 用于精确匹配频道记录
  */
 export async function getUserFavorites(userId) {
   const db = getDB();

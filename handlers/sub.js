@@ -181,21 +181,27 @@ export async function handleSubRequest(request, env, ctx) {
   // 3.1.2 应用专题过滤或收藏夹过滤
   if (auth) {
     // 如果设置了 sub_mode = 'favorites'，只返回用户的收藏夹
-    // favorites 存的是 channel_name，通过 JOIN channels 动态解析 hash + play_url
+    // favorites 存的是 channel_hash，直接精确匹配 channel_hash 避免同名频道混淆
     if (auth.sub_mode === 'favorites' && auth.user_id) {
       try {
         const favorites = await getUserFavorites(auth.user_id);
         if (favorites.length > 0) {
-          const favNames = new Set(favorites.map(f => f.name));
-          const favChannelsResult = await db.prepare(
-            `SELECT c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash
-             FROM channels c
-             INNER JOIN sources s ON c.source_id = s.id
-             WHERE c.is_active = 1 AND s.is_active = 1
-             AND c.channel_name IN (${Array.from(favNames).map(() => '?').join(', ')})`
-          ).bind(...Array.from(favNames)).all();
-          allChannels = (favChannelsResult && favChannelsResult.results) ? favChannelsResult.results : (favChannelsResult || []);
-          console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id} (resolved by name from D1)`);
+          const favHashes = new Set(favorites.map(f => f.hash).filter(Boolean));
+          if (favHashes.size > 0) {
+            const placeholders = Array.from(favHashes).map(() => '?').join(', ');
+            const favChannelsResult = await db.prepare(
+              `SELECT c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash
+               FROM channels c
+               INNER JOIN sources s ON c.source_id = s.id
+               WHERE c.is_active = 1 AND s.is_active = 1
+               AND c.channel_hash IN (${placeholders})`
+            ).bind(...Array.from(favHashes)).all();
+            allChannels = (favChannelsResult && favChannelsResult.results) ? favChannelsResult.results : (favChannelsResult || []);
+            console.log(`[Sub] Favorites filter applied: ${allChannels.length} channels for user ${auth.user_id} (matched by channel_hash)`);
+          } else {
+            console.warn(`[Sub] No valid hashes found in favorites for user ${auth.user_id}`);
+            allChannels = [];
+          }
         } else {
           console.warn(`[Sub] No favorites found for user ${auth.user_id} (sub_mode=favorites), returning empty M3U`);
           allChannels = [];

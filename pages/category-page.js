@@ -6837,25 +6837,17 @@ export function generateCategoryPage(options = {}) {
       }
 
       const row = btn.closest('.channel-row');
-
       const name = row.dataset.name;
-
+      const hash = row.dataset.hash;
       const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-
-      const index = favorites.findIndex(f => f.name === name);
-
-
+      const index = favorites.findIndex(f => f.hash === hash);
 
       if (index === -1) {
-
         favorites.push({
-
           name: name,
-
+          hash: hash,
           logo: row.dataset.logo,
-
           group: row.dataset.group
-
         });
 
         btn.classList.add('active');

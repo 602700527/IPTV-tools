@@ -774,7 +774,7 @@ export function generateChannelPage(options = {}) {
         return;
       }
       const favorites = getFavorites();
-      const index = favorites.findIndex(f => f.name === CURRENT_CHANNEL_NAME);
+      const index = favorites.findIndex(f => f.hash === CURRENT_CHANNEL_HASH);
       const starBtn = document.getElementById('detailStarBtn');
       const starText = document.getElementById('starText');
 
@@ -789,6 +789,7 @@ export function generateChannelPage(options = {}) {
 
         favorites.push({
           name: CURRENT_CHANNEL_NAME,
+          hash: CURRENT_CHANNEL_HASH,
           group: CURRENT_CHANNEL_GROUP,
           logo: logo
         });
