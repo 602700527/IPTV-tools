@@ -421,7 +421,7 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
 
     // 自定义下拉框状态
     let _topicMenuOpen = false;
-    let _selectedTopicId = null;
+    let _selectedTopicId = 5; // 默认选中"所有频道"
 
     function toggleTopicMenu() {
       const menu = document.getElementById('topicMenu');
@@ -452,12 +452,12 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
         const menu = document.getElementById('topicMenu');
         menu.innerHTML = '';
 
-        // 未选择选项（默认：All Channels）
+        // 默认选中"所有频道"（topic_id=5）
         const emptyItem = document.createElement('div');
         emptyItem.className = 'topic-item selected';
-        emptyItem.dataset.id = '';
-        emptyItem.textContent = 'All Channels';
-        emptyItem.onclick = () => selectTopic('', 'All Channels');
+        emptyItem.dataset.id = '5';
+        emptyItem.textContent = '所有频道';
+        emptyItem.onclick = () => selectTopic(5, '所有频道');
         menu.appendChild(emptyItem);
 
         if (topics && Array.isArray(topics)) {
