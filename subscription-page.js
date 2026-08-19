@@ -1,4 +1,4 @@
-//  - ×
+// 订阅页面 - 营销专家×设计专家联合设计版
 import { PAGE_HEADER } from './components/page-header.js';
 import { PAGE_FOOTER } from './components/page-footer.js';
 import { HEAD_SCRIPTS } from './components/head-scripts.js';
@@ -9,8 +9,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIP - IPTV | ，</title>
-  <meta name="description" content="VIP，。，，。">
+  <title>VIP会员 - IPTV搜索 | 一个链接，看遍所有频道</title>
+  <meta name="description" content="VIP订阅链接导入播放器，一次性搞定所有频道。不再每次手动搜索，收藏的云同步，多设备随意切换。">
   
   <style>
     :root {
@@ -34,7 +34,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; }
     
-    /* ========== Hero ========== */
+    /* ========== Hero区 ========== */
     .hero-section {
       padding: 80px 20px 60px;
       background: var(--gradient-hero);
@@ -297,7 +297,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: var(--accent-hover);
     }
 
-    /* ==========  ========== */
+    /* ========== 对比表共有权益样式 ========== */
     .comparison-table tr.shared {
       background: rgba(255, 255, 255, 0.03);
       color: var(--text-muted);
@@ -316,7 +316,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       opacity: 0.6;
     }
 
-    /* ==========  ========== */
+    /* ========== 通用区块样式 ========== */
     .section-header {
       text-align: center;
       margin-bottom: 60px;
@@ -354,7 +354,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       margin: 0 auto;
     }
 
-    /* ==========  ========== */
+    /* ========== 方案区 ========== */
     .solution-section {
       padding: 100px 20px;
       background: linear-gradient(180deg, #0d0d0d 0%, var(--bg) 100%);
@@ -397,7 +397,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       line-height: 1.6;
     }
     
-    /* ==========  ========== */
+    /* ========== 对比表 ========== */
     .comparison-section {
       padding: 100px 20px;
     }
@@ -448,7 +448,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .check { color: var(--success); }
     .cross { color: #ef4444; }
     
-    /* ==========  ========== */
+    /* ========== 用户评价区 ========== */
     .testimonials-section {
       padding: 100px 20px;
       background: linear-gradient(180deg, var(--bg) 0%, #0d0d0d 100%);
@@ -558,7 +558,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       margin-top: 24px;
     }
     
-    /* ==========  ========== */
+    /* ========== 价格区 ========== */
     .pricing-section {
       padding: 100px 20px;
       background: linear-gradient(180deg, #0d0d0d 0%, var(--bg) 100%);
@@ -649,14 +649,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       margin-top: 4px;
     }
 
-    /* ==========  ========== */
+    /* ========== 主题选择器 ========== */
     .theme-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 12px;
     }
 
-    /*  */
+    /* 续费场景的方案保留提示 */
     .scheme-renewal-banner {
       display: flex;
       align-items: flex-start;
@@ -806,7 +806,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       gap: 4px;
     }
     
-    /* ========== CTA ========== */
+    /* ========== 最终CTA ========== */
     .final-cta {
       padding: 100px 20px;
       text-align: center;
@@ -845,7 +845,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       .testimonial-card { flex: 0 0 280px; }
     }
 
-    /* ==========  ========== */
+    /* ========== 加载遮罩 ========== */
     .loading {
       display: none;
       position: fixed;
@@ -869,7 +869,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ==========  ========== */
+    /* ========== 支付模态框 ========== */
     .payment-modal {
       display: none;
       position: fixed;
@@ -975,7 +975,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-size: 0.85rem; font-weight: 600; cursor: pointer;
     }
 
-    /* ==========  ========== */
+    /* ========== 成功模态框 ========== */
     .success-modal {
       display: none;
       position: fixed;
@@ -1049,310 +1049,310 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="container">
-        <div class="hero-badge-new">⭐ </div>
+        <div class="hero-badge-new">⭐ 专为华人打造</div>
         <h1 class="hero-title-large">
-          ，
+          一个订阅链接，就能看你想看的
         </h1>
         <div class="hero-features">
           <div class="hero-feature">
             <span class="feature-icon">🚀</span>
-            <span class="feature-text"></span>
+            <span class="feature-text">告别卡顿失效</span>
           </div>
           <div class="hero-feature">
             <span class="feature-icon">🚫</span>
-            <span class="feature-text"></span>
+            <span class="feature-text">告别广告限制</span>
           </div>
           <div class="hero-feature">
             <span class="feature-icon">✨</span>
-            <span class="feature-text"></span>
+            <span class="feature-text">告别麻烦复杂</span>
           </div>
         </div>
-        <a href="#pricing" class="hero-cta">， ¥20 →</a>
+        <a href="#pricing" class="hero-cta">立即订阅，首月 ¥20 →</a>
       </div>
     </section>
       <div class="container">
         <div class="section-header">
-          <div class="section-tag">⭐ </div>
-          <h2 class="section-title"><span>VIP</span>，</h2>
+          <div class="section-tag">⭐ 会员权益</div>
+          <h2 class="section-title">升级<span>VIP</span>，解锁全部功能</h2>
         </div>
         <table class="comparison-table">
           <thead>
             <tr>
-              <th></th>
-              <th></th>
-              <th class="vip">VIP </th>
+              <th>功能</th>
+              <th>免费版</th>
+              <th class="vip">VIP 会员</th>
             </tr>
           </thead>
           <tbody>
-            <!--  -->
+            <!-- 共有权益 -->
             <tr class="shared">
-              <td></td>
-              <td><span class="check">✓</span> </td>
-              <td class="vip"><span class="check">✓</span> </td>
-            </tr>
-            <tr class="shared">
-              <td></td>
-              <td><span class="check">✓</span> </td>
-              <td class="vip"><span class="check">✓</span> </td>
+              <td>频道更新</td>
+              <td><span class="check">✓</span> 每日更新</td>
+              <td class="vip"><span class="check">✓</span> 每日更新</td>
             </tr>
             <tr class="shared">
-              <td></td>
-              <td><span class="check">✓</span> 99% </td>
-              <td class="vip"><span class="check">✓</span> 99.9% </td>
+              <td>高清画质</td>
+              <td><span class="check">✓</span> 高清流畅</td>
+              <td class="vip"><span class="check">✓</span> 超清流畅</td>
             </tr>
-            <!--  -->
-            <tr>
-              <td></td>
-              <td><span class="cross">✗</span>  10 </td>
-              <td class="vip"><span class="check">✓</span> </td>
+            <tr class="shared">
+              <td>稳定在线</td>
+              <td><span class="check">✓</span> 99% 在线率</td>
+              <td class="vip"><span class="check">✓</span> 99.9% 在线率</td>
             </tr>
+            <!-- 差异权益 -->
             <tr>
-              <td></td>
-              <td><span class="cross">✗</span> 10 </td>
-              <td class="vip"><span class="check">✓</span> </td>
-            </tr>
-            <tr>
-              <td></td>
-              <td><span class="cross">✗</span> </td>
-              <td class="vip"><span class="check">✓</span> </td>
+              <td>搜索</td>
+              <td><span class="cross">✗</span> 10 limit</td>
+              <td class="vip"><span class="check">✓</span> Unlimited</td>
             </tr>
             <tr>
-              <td></td>
-              <td><span class="cross">✗</span> </td>
-              <td class="vip"><span class="check">✓</span> </td>
+              <td>收藏</td>
+              <td><span class="cross">✗</span> Local only</td>
+              <td class="vip"><span class="check">✓</span> Cloud sync</td>
             </tr>
             <tr>
-              <td></td>
-              <td><span class="cross">✗</span> </td>
-              <td class="vip"><span class="check">✓</span> </td>
+              <td>收藏</td>
+              <td><span class="cross">✗</span> Local only</td>
+              <td class="vip"><span class="check">✓</span> Cloud sync</td>
             </tr>
             <tr>
-              <td></td>
-              <td><span class="cross">✗</span> </td>
-              <td class="vip"><span class="check">✓</span> </td>
+              <td>线路匹配</td>
+              <td><span class="cross">✗</span> 无</td>
+              <td class="vip"><span class="check">✓</span> 有</td>
             </tr>
             <tr>
-              <td></td>
-              <td><span class="cross">✗</span> </td>
-              <td class="vip"><span class="check">✓</span> </td>
+              <td>订阅链接</td>
+              <td><span class="cross">✗</span> 无</td>
+              <td class="vip"><span class="check">✓</span> 有</td>
             </tr>
             <tr>
-              <td></td>
-              <td><span class="cross">✗</span> </td>
-              <td class="vip"><span class="check">✓</span> </td>
+              <td>设备</td>
+              <td><span class="cross">✗</span> 无</td>
+              <td class="vip"><span class="check">✓</span> 支持</td>
+            </tr>
+            <tr>
+              <td>广告</td>
+              <td><span class="cross">✗</span> 有</td>
+              <td class="vip"><span class="check">✓</span> 无</td>
+            </tr>
+            <tr>
+              <td>客服极速响应</td>
+              <td><span class="cross">✗</span> 无</td>
+              <td class="vip"><span class="check">✓</span> 有</td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
     
-    <!--  -->
+    <!-- 用户评价区 -->
     <section class="testimonials-section">
       <div class="container">
         <div class="section-header">
-          <div class="section-tag">💬 </div>
-          <h2 class="section-title"><span></span></h2>
-          <p class="section-desc">，</p>
+          <div class="section-tag">💬 真实评价</div>
+          <h2 class="section-title">来自全球华人的<span>真实反馈</span></h2>
+          <p class="section-desc">他们的故事，就是你的体验</p>
         </div>
         <div class="testimonials-scroll">
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar"></div>
+              <div class="testimonial-avatar">张</div>
               <div class="testimonial-info">
-                <div class="testimonial-name"></div>
-                <div class="testimonial-meta">🇺🇸  ·  2 </div>
-                <div class="testimonial-verified">✓ </div>
+                <div class="testimonial-name">张先生</div>
+                <div class="testimonial-meta">🇺🇸 美国 · 订阅 2 年</div>
+                <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，。VPNAPP，。，APTV，。，，。</p>
+            <p class="testimonial-text">在美国待了快十年，每年春节最愁的就是看春晚。以前用VPN看国内APP，不是卡就是黑屏。朋友推荐了这个，用APTV导入就能看，画质比之前流畅多了。今年终于不用躲在房间里刷手机了，客厅电视上看一家人守着，感觉挺好的。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar"></div>
+              <div class="testimonial-avatar">李</div>
               <div class="testimonial-info">
-                <div class="testimonial-name"></div>
-                <div class="testimonial-meta">🇬🇧  ·  1 </div>
-                <div class="testimonial-verified">✓ </div>
+                <div class="testimonial-name">李女士</div>
+                <div class="testimonial-meta">🇬🇧 英国 · 订阅 1 年</div>
+                <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">、CCTV，。，Tivimate。，，。</p>
+            <p class="testimonial-text">给孩子看湖南卫视、给老人看CCTV，各看各的互不打扰。最满意的是看英超完全不卡，用Tivimate导入很方便。有个小问题是有时段性卡顿，客服回复挺快的，帮我调了线路就好了。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar"></div>
+              <div class="testimonial-avatar">王</div>
               <div class="testimonial-info">
-                <div class="testimonial-name"></div>
-                <div class="testimonial-meta">🇨🇦  ·  8 </div>
-                <div class="testimonial-verified">✓ </div>
+                <div class="testimonial-name">王先生</div>
+                <div class="testimonial-meta">🇨🇦 加拿大 · 订阅 8 个月</div>
+                <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，Televizo。，。，。，。</p>
+            <p class="testimonial-text">配置真的超简单，用Televizo导入后直接能看。把链接给爸妈发了过去，他们自己导入就能看。现在每天晚饭后全家一起看新闻联播，特别温馨。就是频道有点多，找自己想看的还得挑一挑。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar"></div>
+              <div class="testimonial-avatar">陈</div>
               <div class="testimonial-info">
-                <div class="testimonial-name"></div>
-                <div class="testimonial-meta">📍  ·  3 </div>
-                <div class="testimonial-verified">✓ </div>
+                <div class="testimonial-name">陈女士</div>
+                <div class="testimonial-meta">📍 北京 · 订阅 3 个月</div>
+                <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，APTV。，。CarPlay，。。</p>
+            <p class="testimonial-text">以前在家只能看地方台，现在用APTV能看央视所有频道和湖南卫视。周末全家一起看新闻联播，爸妈可高兴了。用CarPlay在车上也能听广播，挺方便的。就是有时候频道太多要找一会儿。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar"></div>
+              <div class="testimonial-avatar">刘</div>
               <div class="testimonial-info">
-                <div class="testimonial-name"></div>
-                <div class="testimonial-meta">📍  ·  1 </div>
-                <div class="testimonial-verified">✓ </div>
+                <div class="testimonial-name">刘先生</div>
+                <div class="testimonial-meta">📍 上海 · 订阅 1 年</div>
+                <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，。Televizo，、。，，。，。</p>
+            <p class="testimonial-text">在家想看港澳台频道，找了好几个服务都不稳定。这个用Televizo导入就能看，凤凰卫视、阳光卫视都很清晰。偶尔有卡顿，客服响应很快，给我换了线路就好了。性价比高，推荐。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar"></div>
+              <div class="testimonial-avatar">赵</div>
               <div class="testimonial-info">
-                <div class="testimonial-name"></div>
-                <div class="testimonial-meta">🇯🇵  ·  1 </div>
-                <div class="testimonial-verified">✓ </div>
+                <div class="testimonial-name">赵女士</div>
+                <div class="testimonial-meta">🇯🇵 日本 · 订阅 1 年</div>
+                <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，。GSE Smart IPTV，，。，。</p>
+            <p class="testimonial-text">在日本工作，平时最喜欢看家乡的新闻和综艺。用GSE Smart IPTV导入后频道很全，连我们省的地面频道都有，就像在家里一样。有时候网速慢会卡一下，但整体体验不错。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar"></div>
+              <div class="testimonial-avatar">周</div>
               <div class="testimonial-info">
-                <div class="testimonial-name"></div>
-                <div class="testimonial-meta">🇸🇬  ·  3 </div>
-                <div class="testimonial-verified">✓ </div>
+                <div class="testimonial-name">周先生</div>
+                <div class="testimonial-meta">🇸🇬 新加坡 · 订阅 3 个月</div>
+                <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★☆</div>
-            <p class="testimonial-text">，。5，APTV。，，。。</p>
+            <p class="testimonial-text">新加坡华人多，办公室同事一起订阅了。5台设备够用，用APTV都很顺。偶尔会小卡顿，但客服响应很快，总体满意。就是感觉价格能再便宜点就好了。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar"></div>
+              <div class="testimonial-avatar">吴</div>
               <div class="testimonial-info">
-                <div class="testimonial-name"></div>
-                <div class="testimonial-meta">📍  ·  4 </div>
-                <div class="testimonial-verified">✓ </div>
+                <div class="testimonial-name">吴女士</div>
+                <div class="testimonial-meta">📍 成都 · 订阅 4 个月</div>
+                <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，。GSE Smart IPTV、，。Tivimate，，。。</p>
+            <p class="testimonial-text">四川人喜欢晚上刷剧看综艺，以前只能看地方台。现在用GSE Smart IPTV能看到湖南卫视、浙江卫视的直播，还能回看。用Tivimate体验更好，界面简洁，操作方便。唯一不满的是想找老电影频道有点难。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar"></div>
+              <div class="testimonial-avatar">郑</div>
               <div class="testimonial-info">
-                <div class="testimonial-name"></div>
-                <div class="testimonial-meta">🇰🇷  ·  5 </div>
-                <div class="testimonial-verified">✓ </div>
+                <div class="testimonial-name">郑先生</div>
+                <div class="testimonial-meta">🇰🇷 韩国 · 订阅 5 个月</div>
+                <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，Tivimate。，，。，。</p>
+            <p class="testimonial-text">在韩国留学，用Tivimate看国内体育比赛很方便。操作简单，室友都在用，我们群里经常一起聊球赛。画质清晰，基本不卡。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar"></div>
+              <div class="testimonial-avatar">孙</div>
               <div class="testimonial-info">
-                <div class="testimonial-name"></div>
-                <div class="testimonial-meta">🇫🇷  ·  7 </div>
-                <div class="testimonial-verified">✓ </div>
+                <div class="testimonial-name">孙女士</div>
+                <div class="testimonial-meta">🇫🇷 法国 · 订阅 7 个月</div>
+                <div class="testimonial-verified">✓ 已验证用户</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">，。APTV，7。，，。。</p>
+            <p class="testimonial-text">在欧洲生活多年，最想念的就是国内春晚和新闻联播。用APTV导入后解决了我的问题，7天无理由退款也让我放心尝试。虽然偶尔有卡顿，但客服态度很好，整体体验不错。就是希望频道能再分类清楚一点。</p>
           </div>
         </div>
-        <p class="testimonials-hint">←  →</p>
+        <p class="testimonials-hint">← 左右滑动查看更多评价 →</p>
       </div>
     </section>
 
-    <!--  -->
+    <!-- 价格区 -->
     <section class="pricing-section" id="pricing">
       <div class="container">
         <div class="section-header">
-          <div class="section-tag">💳 </div>
-          <h2 class="section-title"><span></span></h2>
-          <p class="section-desc">7</p>
+          <div class="section-tag">💳 选择方案</div>
+          <h2 class="section-title">选一个适合你的<span>会员计划</span></h2>
+          <p class="section-desc">所有方案均支持7天无理由退款</p>
         </div>
         <div class="pricing-wrapper">
           <div class="pricing-left">
             <div class="selector-group">
-              <div class="selector-label"></div>
+              <div class="selector-label">线路选择</div>
               <div class="scheme-renewal-banner" id="schemeRenewalBanner" style="display:none;">
                 <div class="scheme-renewal-icon">🔁</div>
                 <div class="scheme-renewal-content">
-                  <div class="scheme-renewal-title"> <strong id="schemeRenewalName">—</strong> </div>
-                  <div class="scheme-renewal-hint">。 <a href="/account"></a>。</div>
+                  <div class="scheme-renewal-title">你当前是 <strong id="schemeRenewalName">—</strong> 方案</div>
+                  <div class="scheme-renewal-hint">续费后保持不变。需要修改请去 <a href="/account">账户页</a>。</div>
                 </div>
               </div>
               <div class="theme-grid" id="themeGrid">
-                <!--  -->
+                <!-- 动态加载线路 -->
               </div>
             </div>
 
             <div class="selector-group">
-              <div class="selector-label"></div>
+              <div class="selector-label">订阅时长</div>
               <div class="selector-bar" id="durationGrid">
                 <div class="select-option selected" onclick="selectDuration(30)">
-                  <span class="value"></span>
-                  <span class="label">30</span>
+                  <span class="value">月度</span>
+                  <span class="label">30天</span>
                   <span class="price-tag">¥20</span>
                 </div>
                 <div class="select-option" onclick="selectDuration(90)">
-                  <span class="value"></span>
-                  <span class="label">90</span>
-                  <span class="badge"> 25%</span>
+                  <span class="value">季度</span>
+                  <span class="label">90天</span>
+                  <span class="badge">立省 25%</span>
                   <span class="price-tag">¥45</span>
                 </div>
                 <div class="select-option" onclick="selectDuration(365)">
-                  <span class="value"></span>
-                  <span class="label">365</span>
-                  <span class="badge"></span>
+                  <span class="value">年度</span>
+                  <span class="label">365天</span>
+                  <span class="badge">最划算</span>
                   <span class="price-tag">¥168</span>
                 </div>
               </div>
             </div>
             
             <div class="selector-group">
-              <div class="selector-label"></div>
+              <div class="selector-label">设备数量</div>
               <div class="selector-bar" id="ipGrid">
                 <div class="select-option selected" onclick="selectIP(1)">
-                  <span class="value">1</span>
+                  <span class="value">1台</span>
                 </div>
                 <div class="select-option" onclick="selectIP(2)">
-                  <span class="value">2</span>
-                  <span class="label">+¥10/</span>
+                  <span class="value">2台</span>
+                  <span class="label">+¥10/期</span>
                 </div>
                 <div class="select-option" onclick="selectIP(3)">
-                  <span class="value">3</span>
-                  <span class="label">+¥20/</span>
+                  <span class="value">3台</span>
+                  <span class="label">+¥20/期</span>
                 </div>
                 <div class="select-option" onclick="selectIP(5)">
-                  <span class="value">5</span>
-                  <span class="label">+¥30/</span>
+                  <span class="value">5台</span>
+                  <span class="label">+¥30/期</span>
                 </div>
               </div>
             </div>
@@ -1360,31 +1360,31 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           
           <div class="pricing-right">
             <div class="order-summary">
-              <h3>📋 </h3>
+              <h3>📋 订单摘要</h3>
               <div class="summary-row">
-                <span></span>
+                <span>基础价格</span>
                 <span id="basePrice">¥20.00</span>
               </div>
               <div class="summary-row">
-                <span></span>
+                <span>设备扩展费</span>
                 <span id="ipPrice">¥0.00</span>
               </div>
               <div class="summary-row total">
-                <span></span>
+                <span>总计</span>
                 <span id="totalPrice">¥20.00</span>
               </div>
             </div>
             
             <div class="payment-methods">
-              <label></label>
+              <label>选择付款方式</label>
               <div class="payment-options">
                 <div class="payment-option selected" onclick="selectPayment('alipay')">
                   <div class="payment-option-icon">💳</div>
-                  <div class="payment-option-name"></div>
+                  <div class="payment-option-name">支付宝</div>
                 </div>
                 <div class="payment-option" onclick="selectPayment('wechat')">
                   <div class="payment-option-icon">💚</div>
-                  <div class="payment-option-name"></div>
+                  <div class="payment-option-name">微信支付</div>
                 </div>
                 <div class="payment-option" onclick="selectPayment('usdt')">
                   <div class="payment-option-icon">💰</div>
@@ -1394,108 +1394,108 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </div>
             
             <p class="theme-hint" id="themeHint" style="display:none;color:var(--accent);font-size:12px;margin-top:8px;"></p>
-            <button class="subscribe-btn" onclick="handleSubscribe()"></button>
+            <button class="subscribe-btn" onclick="handleSubscribe()">立即订阅</button>
             
             <div class="guarantee-badges">
-              <span>🔒 </span>
-              <span>⚡ </span>
-              <span>↩️ 7</span>
+              <span>🔒 安全支付</span>
+              <span>⚡ 即时开通</span>
+              <span>↩️ 7天退款</span>
             </div>
           </div>
         </div>
       </div>
     </section>
     
-    <!-- CTA -->
+    <!-- 最终CTA -->
     <section class="final-cta">
       <div class="container">
-        <h2>？<span style="color: var(--accent)">7VIP</span></h2>
-        <p>，，</p>
-        <a href="/login#register" class="final-cta-btn">VIP →</a>
+        <h2>还在犹豫？试试<span style="color: var(--accent)">7天免费VIP</span></h2>
+        <p>注册即送，无需信用卡，体验全部功能后再决定</p>
+        <a href="/login#register" class="final-cta-btn">立即注册获取免费VIP →</a>
       </div>
     </section>
 
-  <!--  -->
+  <!-- 加载遮罩 -->
   <div id="loading" class="loading">
     <div class="spinner"></div>
-    <p>...</p>
+    <p>处理中...</p>
   </div>
 
-  <!--  -->
+  <!-- 支付模态框 -->
   <div id="paymentModal" class="payment-modal">
     <div class="payment-content">
       <div class="payment-header">
-        <h2 class="payment-title" id="paymentModalTitle"></h2>
+        <h2 class="payment-title" id="paymentModalTitle">完成支付</h2>
         <button class="payment-close" onclick="closePaymentModal()">×</button>
       </div>
       <div class="payment-body">
         <div class="qrcode-section">
           <div class="qrcode-wrapper">
-            <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="">
+            <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="支付二维码">
           </div>
-          <p class="qrcode-tip" id="modalQrcodeTip">/</p>
+          <p class="qrcode-tip" id="modalQrcodeTip">请用支付宝/微信扫码支付</p>
           <p class="payment-method-indicator" id="paymentMethodIndicator"></p>
-          <p class="payment-status" id="paymentStatus">...</p>
+          <p class="payment-status" id="paymentStatus">等待支付中...</p>
 
-          <!-- USDT ： +  -->
+          <!-- USDT 专用：钱包地址 + 金额 -->
           <div id="usdtAddressBox" style="display:none;margin-top:14px;text-align:left;font-size:12px;color:rgba(255,255,255,.85);">
-            <div style="margin-bottom:6px;color:rgba(255,255,255,.6);"> (TRC20 / Tron)</div>
+            <div style="margin-bottom:6px;color:rgba(255,255,255,.6);">收款地址 (TRC20 / Tron)</div>
             <div style="display:flex;gap:8px;align-items:center;">
               <code id="usdtAddressText" style="flex:1;background:rgba(0,0,0,.4);padding:8px 10px;border-radius:6px;word-break:break-all;color:#f0c674;"></code>
-              <button id="usdtCopyBtn" type="button" style="background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;"></button>
+              <button id="usdtCopyBtn" type="button" style="background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">复制</button>
             </div>
-            <div style="margin-top:10px;color:rgba(255,255,255,.6);">（ 0.0001 USDT）</div>
+            <div style="margin-top:10px;color:rgba(255,255,255,.6);">应付金额（精确到 0.0001 USDT）</div>
             <div id="usdtAmountText" style="font-size:18px;font-weight:700;color:#f0c674;margin-top:4px;">- USDT</div>
-            <div style="margin-top:6px;color:rgba(255,165,0,.85);font-size:11px;">⚠️ ，/</div>
+            <div style="margin-top:6px;color:rgba(255,165,0,.85);font-size:11px;">⚠️ 必须按此金额支付，多付/少付都无法识别</div>
           </div>
         </div>
         <div class="payment-info">
           <div class="payment-info-item">
-            <span class="payment-info-label"></span>
+            <span class="payment-info-label">订阅方案</span>
             <span class="payment-info-value" id="paymentPlanName">-</span>
           </div>
           <div class="payment-info-item">
-            <span class="payment-info-label"></span>
+            <span class="payment-info-label">设备数</span>
             <span class="payment-info-value" id="paymentIPCount">-</span>
           </div>
           <div class="payment-info-item">
-            <span class="payment-info-label"></span>
+            <span class="payment-info-label">应付金额</span>
             <span class="payment-info-value payment-amount" id="paymentAmount">-</span>
           </div>
         </div>
       </div>
       <div class="payment-footer">
-        <button id="simulatePaymentBtn" class="payment-test-button" style="display: none;" onclick="simulatePaymentSuccess()">[] </button>
+        <button id="simulatePaymentBtn" class="payment-test-button" style="display: none;" onclick="simulatePaymentSuccess()">[仅测试] 模拟支付成功</button>
       </div>
     </div>
   </div>
 
-  <!--  -->
+  <!-- 成功模态框 -->
   <div id="successModal" class="success-modal">
     <div class="success-content">
       <button class="modal-close" onclick="closeModal()">×</button>
       <div class="success-icon">✓</div>
-      <h2 class="success-title">！</h2>
-      <p class="success-message"> VIP 。。</p>
+      <h2 class="success-title">支付成功！</h2>
+      <p class="success-message">您的 VIP 订阅已激活。复制下方订阅链接到播放器即可使用。</p>
       <div class="purchase-details">
         <div class="purchase-detail-item">
-          <span class="purchase-detail-label"></span>
+          <span class="purchase-detail-label">订阅方案</span>
           <span class="purchase-detail-value" id="successPlanName">-</span>
         </div>
         <div class="purchase-detail-item">
-          <span class="purchase-detail-label"></span>
+          <span class="purchase-detail-label">设备数</span>
           <span class="purchase-detail-value" id="successIPCount">-</span>
         </div>
         <div class="purchase-detail-item">
-          <span class="purchase-detail-label"></span>
+          <span class="purchase-detail-label">实付金额</span>
           <span class="purchase-detail-value" id="successAmount">-</span>
         </div>
       </div>
       <div class="code-display" id="generatedCode">-</div>
-      <button class="copy-button" onclick="copyCode()"></button>
+      <button class="copy-button" onclick="copyCode()">复制订阅链接</button>
       <div class="next-steps">
-        <p class="next-steps-hint">：</p>
-        <a href="/account" class="next-steps-link"> →</a>
+        <p class="next-steps-hint">下一步：</p>
+        <a href="/account" class="next-steps-link">前往账户页查看订阅 →</a>
       </div>
     </div>
   </div>
@@ -1504,7 +1504,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${PAGE_FOOTER}
   
   <script>
-    // 
+    // 价格计算逻辑
     let selectedDuration = { days: 30, basePrice: 20 };
     let selectedIPs = 1;
     let selectedPaymentMethod = 'alipay';
@@ -1551,8 +1551,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     
     let selectedTheme = null;
-    let isRenewalFlow = false;       // ：true = ，
-    let availableTopics = [];        //  topic （ id + name）
+    let isRenewalFlow = false;       // 续费场景：true = 隐藏选择器，方案保持不变
+    let availableTopics = [];        // 当前可用的 topic 列表（含 id + name）
 
     let checkPaymentInterval = null;
     let currentOrderId = null;
@@ -1563,7 +1563,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const isLoggedIn = localStorage.getItem('auth_token');
         const banner = document.getElementById('schemeRenewalBanner');
 
-        // 1. ： /api/auth/orders  active code 
+        // 1. 检测续费场景：调 /api/auth/orders 拿当前 active code 的方案
         if (isLoggedIn) {
           try {
             const ordersResp = await fetch('/api/auth/orders', {
@@ -1588,7 +1588,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           }
         }
 
-        // 2. ：
+        // 2. 新订阅场景：从后台加载线路列表
         const response = await fetch('/api/subscription/topics');
         const data = await response.json();
         availableTopics = (data.success && Array.isArray(data.topics)) ? data.topics : [];
@@ -1599,18 +1599,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             card.className = 'theme-card' + (index === 0 ? ' selected' : '');
             card.onclick = () => selectTheme(topic.id);
             card.dataset.theme = topic.id;
-            const desc = topic.description || '';
+            const desc = topic.description || '精选频道';
             card.innerHTML = '<div class="theme-card-name">' + topic.name + '</div><div class="theme-card-desc">' + desc + '</div>';
             grid.appendChild(card);
           });
         }
 
-        // 3. ，""
+        // 3. 如果登录，添加"我的收藏"
         if (isLoggedIn) {
           const favCard = document.createElement('div');
           favCard.className = 'theme-card';
           favCard.dataset.theme = 'favorites';
-          favCard.innerHTML = '<div class="theme-card-name"></div><div class="theme-card-desc"></div>';
+          favCard.innerHTML = '<div class="theme-card-name">我的收藏</div><div class="theme-card-desc">仅返回您收藏的频道</div>';
           favCard.onclick = () => selectTheme('favorites');
           grid.appendChild(favCard);
         }
@@ -1620,7 +1620,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     function showRenewalBanner(activeOrder, grid, banner) {
-      //  topics ， topic_id → name
+      // 先把 topics 也拉一份，用于解析 topic_id → name
       if (availableTopics.length === 0) {
         fetch('/api/subscription/topics').then(function (r) { return r.json(); }).then(function (d) {
           if (d && d.success && Array.isArray(d.topics)) availableTopics = d.topics;
@@ -1631,9 +1631,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
     function paintRenewalBanner(activeOrder, grid, banner) {
-      let schemeName = '';
+      let schemeName = '全部频道';
       if (activeOrder.sub_mode === 'favorites') {
-        schemeName = '';
+        schemeName = '我的收藏';
       } else if (activeOrder.topic_id) {
         const t = availableTopics.find(function (x) { return String(x.id) === String(activeOrder.topic_id); });
         schemeName = t ? t.name : ('Topic #' + activeOrder.topic_id);
@@ -1650,17 +1650,17 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
       document.querySelectorAll('.theme-card').forEach(card => {
         card.classList.remove('selected');
-        // （）
+        // 确保类型一致（都是字符串）
         if (card.dataset.theme === themeId.toString()) {
           card.classList.add('selected');
         }
       });
 
-      //  favorites，
+      // 如果是 favorites，添加提示
       const hintEl = document.getElementById('themeHint');
       if (hintEl) {
         if (themeId === 'favorites') {
-          hintEl.textContent = '';
+          hintEl.textContent = '订阅后将只返回您收藏的频道';
           hintEl.style.display = 'block';
         } else {
           hintEl.textContent = '';
@@ -1669,7 +1669,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
 
-    // 
+    // 页面加载时获取主题列表
     loadThemes();
 
     async function handleSubscribeUsdt(token, body) {
@@ -1681,26 +1681,26 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         });
         const data = await resp.json();
         if (!resp.ok || !data.success) {
-          showToast(data.error || 'USDT ', 'error');
+          showToast(data.error || 'USDT 订单创建失败', 'error');
           showLoading(false);
           return;
         }
 
-        // 
-        const planLabel = (selectedDuration.days === 30 ? '' : selectedDuration.days === 90 ? '' : selectedDuration.days === 365 ? '' : (selectedDuration.days + ''));
+        // 填充模态框
+        const planLabel = (selectedDuration.days === 30 ? '月度' : selectedDuration.days === 90 ? '季度' : selectedDuration.days === 365 ? '年度' : (selectedDuration.days + '天'));
         document.getElementById('paymentPlanName').textContent = planLabel;
-        document.getElementById('paymentIPCount').textContent = selectedIPs + ' ';
+        document.getElementById('paymentIPCount').textContent = selectedIPs + ' 台';
         document.getElementById('paymentAmount').textContent = '¥' + (data.amount_cny != null ? data.amount_cny.toFixed(2) : '-');
-        document.getElementById('paymentMethodIndicator').innerHTML = ' <strong>USDT (TRC20)</strong>';
-        document.getElementById('modalQrcodeTip').textContent = ' TRC20  / ';
+        document.getElementById('paymentMethodIndicator').innerHTML = '正在使用 <strong>USDT (TRC20)</strong>';
+        document.getElementById('modalQrcodeTip').textContent = '请使用支持 TRC20 的钱包扫码 / 转账';
 
-        //  USDT 
+        // 显示 USDT 专属区
         const addrBox = document.getElementById('usdtAddressBox');
         addrBox.style.display = 'block';
         document.getElementById('usdtAddressText').textContent = data.token || '-';
         document.getElementById('usdtAmountText').textContent = (data.amount_usdt != null ? data.amount_usdt : '-') + ' USDT';
 
-        // ：（）
+        // 二维码：用钱包地址做内容即可（大部分钱包扫码识别）
         const qrcodeImg = document.getElementById('modalQrcodeImage');
         if (data.token) {
           qrcodeImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent('tron:' + data.token);
@@ -1708,21 +1708,21 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           qrcodeImg.src = '';
         }
 
-        document.getElementById('paymentStatus').textContent = '（ 1 ）...';
+        document.getElementById('paymentStatus').textContent = '等待链上确认（最长 1 分钟）...';
         document.getElementById('paymentStatus').style.color = '';
-        document.getElementById('paymentModalTitle').textContent = '';
+        document.getElementById('paymentModalTitle').textContent = '等待支付';
         document.getElementById('paymentModal').classList.add('show');
         currentOrderId = data.order_id;
 
-        // 
+        // 复制按钮
         document.getElementById('usdtCopyBtn').onclick = () => {
-          navigator.clipboard.writeText(data.token || '').then(() => showToast('', 'success'));
+          navigator.clipboard.writeText(data.token || '').then(() => showToast('地址已复制', 'success'));
         };
 
         startUsdtOrderCheck(data.order_id, token);
       } catch (e) {
         console.error('USDT subscribe error:', e);
-        showToast('，', 'error');
+        showToast('网络错误，请重试', 'error');
       } finally {
         showLoading(false);
       }
@@ -1731,12 +1731,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     function startUsdtOrderCheck(orderId, token) {
       if (checkPaymentInterval) clearInterval(checkPaymentInterval);
       let checkCount = 0;
-      const maxChecks = 90; // ~7.5 （ 5 ）
+      const maxChecks = 90; // ~7.5 分钟（每 5 秒）
       checkPaymentInterval = setInterval(async () => {
         checkCount++;
         if (checkCount > maxChecks) {
           clearInterval(checkPaymentInterval);
-          document.getElementById('paymentStatus').textContent = '';
+          document.getElementById('paymentStatus').textContent = '订单已过期';
           return;
         }
         try {
@@ -1746,13 +1746,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           const j = await r.json();
           if (j.success && j.paid) {
             clearInterval(checkPaymentInterval);
-            document.getElementById('paymentStatus').textContent = '！';
+            document.getElementById('paymentStatus').textContent = '链上确认成功！';
             document.getElementById('paymentStatus').style.color = '#4CAF50';
-            document.getElementById('paymentModalTitle').textContent = '';
+            document.getElementById('paymentModalTitle').textContent = '支付成功';
             setTimeout(() => {
               closePaymentModal();
               const subUrl = window.location.origin + '/sub/' + (j.code || '') + '.m3u';
-              //  webhook ，code  user_orders ；
+              // 后端 webhook 完成后激活，code 由 user_orders 查得；这里跳转账户页更稳
               window.location.href = '/account?payment=success';
             }, 1500);
           }
@@ -1764,12 +1764,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     async function handleSubscribe() {
       if (!selectedDuration) {
-        showToast('', 'error');
+        showToast('请选择订阅方案', 'error');
         return;
       }
       const token = localStorage.getItem('auth_token');
       if (!token) {
-        showToast('', 'error');
+        showToast('请先登录', 'error');
         window.location.href = '/login?redirect=/subscription';
         return;
       }
@@ -1780,12 +1780,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const body = {
           duration_days: Number(selectedDuration.days),
           max_ips: Number(selectedIPs),
-          // ；
+          // 新订阅才发送；续费场景由后端保留
           topic_id: (!isRenewalFlow && selectedTheme && selectedTheme !== 'favorites') ? Number(selectedTheme) : null,
           sub_mode: (!isRenewalFlow && selectedTheme === 'favorites') ? 'favorites' : null,
         };
 
-        // USDT 
+        // USDT 走单独端点
         if (selectedPaymentMethod === 'usdt') {
           await handleSubscribeUsdt(token, body);
           return;
@@ -1806,18 +1806,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
         if (result.success && result.payment_data) {
           const price = calculatePrice();
-          const planLabel = (selectedDuration.days === 30 ? '' : selectedDuration.days === 90 ? '' : selectedDuration.days === 365 ? '' : (selectedDuration.days + ''));
+          const planLabel = (selectedDuration.days === 30 ? '月度' : selectedDuration.days === 90 ? '季度' : selectedDuration.days === 365 ? '年度' : (selectedDuration.days + '天'));
 
           document.getElementById('paymentPlanName').textContent = planLabel;
-          document.getElementById('paymentIPCount').textContent = selectedIPs + ' ';
+          document.getElementById('paymentIPCount').textContent = selectedIPs + ' 台';
           document.getElementById('paymentAmount').textContent = '¥' + price.discounted.toFixed(2);
 
           const methodIndicator = document.getElementById('paymentMethodIndicator');
-          const methodName = selectedPaymentMethod === 'wechat' ? '' : '';
-          methodIndicator.innerHTML = ' <strong>' + methodName + '</strong>';
+          const methodName = selectedPaymentMethod === 'wechat' ? '微信支付' : '支付宝';
+          methodIndicator.innerHTML = '正在使用 <strong>' + methodName + '</strong>';
 
           const qrcodeTip = document.getElementById('modalQrcodeTip');
-          qrcodeTip.textContent = selectedPaymentMethod === 'wechat' ? '' : '';
+          qrcodeTip.textContent = selectedPaymentMethod === 'wechat' ? '请用微信扫码支付' : '请用支付宝扫码支付';
 
           const qrcodeImage = document.getElementById('modalQrcodeImage');
           if (result.payment_data.url_qrcode) {
@@ -1826,13 +1826,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             qrcodeImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(result.payment_data.url || '');
           }
 
-          document.getElementById('paymentStatus').textContent = '...';
+          document.getElementById('paymentStatus').textContent = '等待支付中...';
           document.getElementById('paymentStatus').style.color = '';
-          document.getElementById('paymentModalTitle').textContent = '';
+          document.getElementById('paymentModalTitle').textContent = '完成支付';
           document.getElementById('paymentModal').classList.add('show');
           currentOrderId = result.order_id;
 
-          // 
+          // 本地环境显示测试按钮
           if (isLocalhost()) {
             const simBtn = document.getElementById('simulatePaymentBtn');
             if (simBtn) simBtn.style.display = 'block';
@@ -1840,11 +1840,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
           startOrderCheck(result.order_id);
         } else {
-          showToast(result.error || '', 'error');
+          showToast(result.error || '支付订单创建失败', 'error');
         }
       } catch (error) {
         console.error('Subscription error:', error);
-        showToast('，', 'error');
+        showToast('网络错误，请重试', 'error');
       } finally {
         showLoading(false);
       }
@@ -1860,7 +1860,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         checkCount++;
         if (checkCount > maxChecks) {
           clearInterval(checkPaymentInterval);
-          document.getElementById('paymentStatus').textContent = '';
+          document.getElementById('paymentStatus').textContent = '支付超时';
           return;
         }
         try {
@@ -1871,17 +1871,17 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
           if (result.success && result.order && result.order.status === 'completed') {
             clearInterval(checkPaymentInterval);
-            document.getElementById('paymentStatus').textContent = '！';
+            document.getElementById('paymentStatus').textContent = '支付成功！';
             document.getElementById('paymentStatus').style.color = '#4CAF50';
-            document.getElementById('paymentModalTitle').textContent = '';
+            document.getElementById('paymentModalTitle').textContent = '支付成功';
             setTimeout(function () {
               closePaymentModal();
               const subUrl = window.location.origin + '/sub/' + result.order.code + '.m3u';
               const price = calculatePrice();
-              const planLabel = (selectedDuration.days === 30 ? '' : selectedDuration.days === 90 ? '' : selectedDuration.days === 365 ? '' : (selectedDuration.days + ''));
+              const planLabel = (selectedDuration.days === 30 ? '月度' : selectedDuration.days === 90 ? '季度' : selectedDuration.days === 365 ? '年度' : (selectedDuration.days + '天'));
               const purchaseDetails = {
                 plan: planLabel,
-                ips: selectedIPs + ' ',
+                ips: selectedIPs + ' 台',
                 amount: '¥' + price.discounted.toFixed(2)
               };
               showSuccess(subUrl, purchaseDetails);
@@ -1895,7 +1895,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     async function simulatePaymentSuccess() {
       if (!currentOrderId) {
-        showToast('', 'error');
+        showToast('没有待支付的订单', 'error');
         return;
       }
       const token = localStorage.getItem('auth_token');
@@ -1907,27 +1907,27 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const result = await response.json();
         if (result.success) {
           clearInterval(checkPaymentInterval);
-          document.getElementById('paymentStatus').textContent = '！';
+          document.getElementById('paymentStatus').textContent = '支付成功！';
           document.getElementById('paymentStatus').style.color = '#4CAF50';
-          document.getElementById('paymentModalTitle').textContent = '';
+          document.getElementById('paymentModalTitle').textContent = '支付成功';
           setTimeout(function () {
             closePaymentModal();
             const subUrl = window.location.origin + '/sub/' + result.code + '.m3u';
             const price = calculatePrice();
-            const planLabel = (selectedDuration.days === 30 ? '' : selectedDuration.days === 90 ? '' : selectedDuration.days === 365 ? '' : (selectedDuration.days + ''));
+            const planLabel = (selectedDuration.days === 30 ? '月度' : selectedDuration.days === 90 ? '季度' : selectedDuration.days === 365 ? '年度' : (selectedDuration.days + '天'));
             const purchaseDetails = {
               plan: planLabel,
-              ips: selectedIPs + ' ',
+              ips: selectedIPs + ' 台',
               amount: '¥' + price.discounted.toFixed(2)
             };
             showSuccess(subUrl, purchaseDetails);
           }, 1500);
         } else {
-          showToast(result.error || '', 'error');
+          showToast(result.error || '模拟失败', 'error');
         }
       } catch (error) {
         console.error('Simulate payment error:', error);
-        showToast('', 'error');
+        showToast('模拟失败', 'error');
       }
     }
 
@@ -1966,10 +1966,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     function copyCode() {
       const code = document.getElementById('generatedCode').textContent;
       navigator.clipboard.writeText(code).then(function () {
-        showToast('', 'success');
+        showToast('订阅链接已复制到剪贴板', 'success');
       }).catch(function (err) {
         console.error('Copy failed:', err);
-        showToast('', 'error');
+        showToast('复制失败', 'error');
       });
     }
 
@@ -1978,7 +1978,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       return h === 'localhost' || h === '127.0.0.1' || h.startsWith('192.168.') || h.startsWith('10.');
     }
     
-    // 
+    // 初始化
     updateOrderSummary();
 
     function showToast(message, type = 'info') {
