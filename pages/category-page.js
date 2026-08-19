@@ -6803,7 +6803,10 @@ export function generateCategoryPage(options = {}) {
           },
           body: JSON.stringify({ favorites: dedupFavorites(favorites) })
         });
-        if (!res.ok) console.error('[syncFavoritesToCloud] HTTP', res.status);
+        if (!res.ok) {
+          const text = await res.text();
+          console.error('[syncFavoritesToCloud] HTTP', res.status, text);
+        }
       } catch (e) {
         console.error('Failed to sync favorites to cloud:', e);
       }
@@ -6871,7 +6874,7 @@ export function generateCategoryPage(options = {}) {
       }
 
       localStorage.setItem('favorites', JSON.stringify(favorites));
-      scheduleCloudSync(favorites);
+      syncFavoritesToCloud(favorites, true);
 
     }
 
@@ -8373,8 +8376,7 @@ export function generateCategoryPage(options = {}) {
       });
 
       localStorage.setItem('favorites', JSON.stringify(favorites));
-
-      scheduleCloudSync(favorites);
+      syncFavoritesToCloud(favorites, true);
 
       // Update button states: mark added rows as favorited, and uncheck +
 

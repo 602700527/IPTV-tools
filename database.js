@@ -2765,14 +2765,15 @@ export async function getUserFavorites(userId) {
   const db = getDB();
   try {
     const result = await db.prepare(
-      'SELECT channel_name, logo, `group` FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC'
-    ).bind(userId).all();
-    const rows = result && result.results ? result.results : (result || []);
-    return rows.map(r => ({
-      name: r.channel_name || '',
-      logo: r.logo || '',
-      group: r.group || ''
-    }));
+      'SELECT favorites FROM user_favorites WHERE user_id = ?'
+    ).bind(userId).first();
+    if (!result || !result.favorites) return [];
+    try {
+      return JSON.parse(result.favorites);
+    } catch (e) {
+      console.error('[getUserFavorites] JSON parse error:', e.message);
+      return [];
+    }
   } catch (error) {
     console.error('[getUserFavorites] Error:', error);
     return [];
@@ -2780,12 +2781,12 @@ export async function getUserFavorites(userId) {
 }
 
 /**
- * 全量替换用户收藏：先删后插，每行存 channel_name / logo / group
+ * 全量替换用户收藏：UPSERT 一个 JSON 字符串（每用户一行，节省 D1 写额度）
  */
 export async function saveUserFavorites(userId, favorites) {
   const db = getDB();
   try {
-    // Dedup by channel_name to avoid UNIQUE constraint failures from client state drift
+    // Dedup by channel_name
     const seen = {};
     const clean = [];
     for (const fav of (favorites || [])) {
@@ -2795,16 +2796,11 @@ export async function saveUserFavorites(userId, favorites) {
       clean.push(fav);
     }
 
-    await db.prepare('DELETE FROM user_favorites WHERE user_id = ?').bind(userId).run();
-    if (clean.length > 0) {
-      const stmt = db.prepare(
-        'INSERT INTO user_favorites (user_id, channel_name, logo, `group`) VALUES (?, ?, ?, ?)'
-      );
-      for (const fav of clean) {
-        await stmt.bind(userId, fav.name, fav.logo || '', fav.group || '').run();
-      }
-    }
-    console.log(`[saveUserFavorites] Saved ${clean.length} favorites for user ${userId} (input had ${favorites?.length || 0})`);
+    const json = JSON.stringify(clean);
+    await db.prepare(
+      'INSERT INTO user_favorites (user_id, favorites) VALUES (?, ?) ON CONFLICT(user_id) DO UPDATE SET favorites = ?, updated_at = CURRENT_TIMESTAMP'
+    ).bind(userId, json, json).run();
+    console.log(`[saveUserFavorites] Saved ${clean.length} favorites for user ${userId}`);
   } catch (error) {
     console.error('[saveUserFavorites] Error:', error);
     throw error;

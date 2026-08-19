@@ -288,16 +288,10 @@ CREATE INDEX IF NOT EXISTS idx_ip_play_links_link_id ON ip_play_links(link_id);
 CREATE INDEX IF NOT EXISTS idx_ip_play_links_creator_ip ON ip_play_links(creator_ip);
 CREATE INDEX IF NOT EXISTS idx_ip_play_links_channel_hash ON ip_play_links(channel_hash);
 
--- 用户收藏表（服务端存储，按频道名存，M3U 生成时动态解析 channel_hash）
+-- 用户收藏表（服务端存储，JSON blob 方案，每用户一行）
 CREATE TABLE IF NOT EXISTS user_favorites (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  channel_name TEXT NOT NULL,
-  logo TEXT,
-  `group` TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id, channel_name),
+  user_id INTEGER PRIMARY KEY,
+  favorites TEXT,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-CREATE INDEX IF NOT EXISTS idx_user_favorites_user_id ON user_favorites(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_favorites_channel_name ON user_favorites(channel_name);

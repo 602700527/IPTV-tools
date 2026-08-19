@@ -1229,6 +1229,12 @@ export async function handleSaveUserFavorites(request, env, ctx) {
 
     const body = await request.json().catch(() => ({}));
     const favorites = body.favorites || [];
+    if (favorites.length === 0) {
+      return new Response(JSON.stringify({ success: false, error: '收藏列表不能为空' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
     await saveUserFavorites(session.user_id, favorites);
 
     return new Response(JSON.stringify({ success: true }), {
