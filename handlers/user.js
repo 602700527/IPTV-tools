@@ -78,11 +78,7 @@ export async function handleUserActivate(request, env, ctx) {
       // 获取请求体中的 topic_id
       let body = null;
       try { body = await request.json(); } catch(e) {}
-      let topicId = body ? body.topic_id : null;
-      // 默认选中"所有频道"（topic_id=5）
-      if (topicId === null || topicId === undefined || topicId === '') {
-        topicId = 5;
-      }
+      const topicId = body ? body.topic_id : null;
       
       // 验证 topic_id 是否存在（如果提供了）
       if (topicId !== null && topicId !== undefined && topicId !== '') {
