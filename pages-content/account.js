@@ -1518,14 +1518,32 @@ async function checkFavoritesCount() {
       }
     }
 
-    // 生产环境：从云端读取
-    if (!token) return 0;
-    const resp = await fetch('/api/favorites', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    if (!resp.ok) return 0;
-    const data = await resp.json();
-    return (data && data.success) ? (data.favorites ? data.favorites.length : 0) : 0;
+    // 生产环境：优先从云端读取，失败时回退到 localStorage
+    if (!token) {
+      // 无 token，尝试从本地读取
+      try {
+        return JSON.parse(localStorage.getItem('favorites') || '[]').length;
+      } catch (e) {
+        return 0;
+      }
+    }
+    try {
+      const resp = await fetch('/api/favorites', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.success && data.favorites) return data.favorites.length;
+      }
+    } catch (e) {
+      console.warn('Failed to fetch cloud favorites, using local', e.message);
+    }
+    // 云端失败，回退到本地
+    try {
+      return JSON.parse(localStorage.getItem('favorites') || '[]').length;
+    } catch (e) {
+      return 0;
+    }
   } catch (e) {
     return 0;
   }
