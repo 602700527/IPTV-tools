@@ -2,7 +2,7 @@
 // This page is rendered on the client side via JavaScript
 import { HEAD_SCRIPTS } from '../components/head-scripts.js';
 
-// HTML 转义函数
+// HTML 
 function escapeHtml(text) {
   if (!text) return '';
   return String(text)
@@ -24,7 +24,7 @@ export function generateHomePage(options = {}) {
     totalGroups = 0
   } = options;
 
-  // 如果传入了header和footer，直接使用；否则使用内嵌的
+  // headerfooter，；
   const pageHeader = header || `<header class="header">...</header>`;
   const pageFooter = footer || `<footer class="page-footer">...</footer>`;
 
@@ -157,7 +157,7 @@ export function generateHomePage(options = {}) {
     a { color: inherit; text-decoration: none; }
     button { cursor: pointer; font-family: inherit; }
 
-    /* 极简线条风格 - 无圆角、无阴影 */
+    /*  - 、 */
     .header {
       background: var(--bg-primary);
       border-bottom: var(--border);
@@ -212,7 +212,7 @@ export function generateHomePage(options = {}) {
     }
     #translateSelectLanguage:focus, #translateSelectLanguage:hover { color: var(--accent); }
 
-    /* Hero - 极简线条 */
+    /* Hero -  */
     .hero {
       position: relative;
       padding: 80px 0 60px;
@@ -406,7 +406,7 @@ export function generateHomePage(options = {}) {
     }
     .promo-cta:hover { background: rgba(255,255,255,0.9); }
 
-    /* Section Headers - 几何线条 */
+    /* Section Headers -  */
     .section-header {
       display: flex; align-items: center; gap: 1rem;
       margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: var(--border);
@@ -418,7 +418,7 @@ export function generateHomePage(options = {}) {
     }
     .section-header::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-    /* Category Showcase - 极简网格 */
+    /* Category Showcase -  */
     .category-showcase { max-width: 1400px; margin: 0 auto; padding: 3rem 0; }
     .showcase-header { text-align: center; margin-bottom: 2rem; }
     .showcase-header h2 { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-primary); }
@@ -439,7 +439,7 @@ export function generateHomePage(options = {}) {
     .view-toggle-btn:hover { color: var(--text-primary); }
     .view-toggle-btn svg { width: 14px; height: 14px; vertical-align: middle; margin-right: 0.25rem; }
 
-    /* Category & Type Grids - 几何网格 */
+    /* Category & Type Grids -  */
     .category-grid, .type-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0; }
     .category-card, .type-card {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -467,7 +467,7 @@ export function generateHomePage(options = {}) {
 
     .loading { text-align: center; padding: 4rem; color: var(--text-secondary); }
 
-    /* Hot Topics & Regional - 极简 */
+    /* Hot Topics & Regional -  */
     .hot-topics, .regional-topics { max-width: 1400px; margin: 0 auto; padding: 2rem 0; }
     .hot-topics-header, .regional-topics-header { text-align: center; margin-bottom: 1.5rem; }
     .hot-topics-header h2, .regional-topics-header h2 {
@@ -585,15 +585,15 @@ export function generateHomePage(options = {}) {
   </div>
 
   <script>
-    // 根据登录状态动态更新横幅内容
+    // 
     (function() {
-      // 同时检查 Cookie 和 localStorage（Cookie 是 HttpOnly，需用 localStorage）
+      //  Cookie  localStorage（Cookie  HttpOnly， localStorage）
       var cookieCheck = document.cookie.split('; ').find(function(row) { return row.startsWith('auth_token='); });
       var localStorageCheck = localStorage.getItem('auth_token');
       var isLoggedIn = !!cookieCheck || !!localStorageCheck;
       
       if (isLoggedIn) {
-        // 已登录用户：显示VIP升级横幅
+        // ：VIP
         document.getElementById('bannerEyebrow').textContent = '🔥 VIP Exclusive Offer';
         document.getElementById('bannerTitle').innerHTML = 'Unlock All Features<br><span>Enjoy 5000+ Channels</span>';
         document.getElementById('bannerDesc').textContent = 'Upgrade to VIP for unlimited searches, downloads, multi-device sync, and priority support.';
