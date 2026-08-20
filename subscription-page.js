@@ -171,14 +171,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       height: 16px;
       color: var(--accent);
       flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
     .hero-feature .feature-icon svg {
       width: 100%;
       height: 100%;
-      display: block;
+      vertical-align: middle;
     }
     .hero-feature .feature-text {
       font-size: 0.875rem;
