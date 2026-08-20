@@ -36,7 +36,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     
     /* ========== Hero区 ========== */
     .hero-section {
-      padding: 80px 20px 60px;
+      padding: 50px 20px 40px;
       background: var(--gradient-hero);
       text-align: center;
       position: relative;
@@ -66,7 +66,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-size: 13px;
       font-weight: 700;
       border-radius: 0;
-      margin-bottom: 24px;
+      margin-bottom: 8px;
       animation: pulse 2s infinite;
     }
     @keyframes pulse {
@@ -74,7 +74,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       50% { box-shadow: 0 0 0 10px rgba(229,9,9,0); }
     }
 
-    .hero-badge-new {
+    .hero-badge-new { padding: 6px 14px; font-size: 11px; margin-bottom: 16px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -85,14 +85,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-size: 12px;
       font-weight: 600;
       border-radius: 0;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
 
     .hero-title {
       font-size: clamp(2rem, 5vw, 3.2rem);
       font-weight: 900;
       line-height: 1.2;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
       background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.9) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -109,14 +109,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-size: clamp(2.5rem, 6vw, 3.8rem);
       font-weight: 900;
       line-height: 1.1;
-      margin-bottom: 24px;
+      margin-bottom: 8px;
       letter-spacing: -1px;
     }
 
     .hero-subtitle {
       font-size: 1.15rem;
       color: var(--text-secondary);
-      margin-bottom: 32px;
+      margin-bottom: 12px;
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
@@ -132,33 +132,56 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       line-height: 1.6;
     }
 
-    .hero-subtitle-hero {
+    .hero-subtitle-hero { margin-bottom: 20px;
       font-size: 1rem;
       color: var(--text-secondary);
-      margin-bottom: 32px;
+      margin-bottom: 12px;
       line-height: 2;
     }
 
     /* ========== Hero Features ========== */
     .hero-features {
       display: flex;
-      gap: 24px;
+      gap: 12px;
       justify-content: center;
       flex-wrap: wrap;
       margin-bottom: 44px;
     }
 
-    .hero-feature {
+        .hero-feature {
       display: flex;
       align-items: center;
-      gap: 14px;
-      background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(229, 9, 20, 0.05) 100%);
-      border: 1px solid rgba(229, 9, 20, 0.4);
-      padding: 16px 28px;
-      border-radius: 0;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(229,9,20,0.06);
+      border: 1px solid rgba(229,9,20,0.15);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .hero-feature .feature-icon {
+      width: 14px;
+      height: 14px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .hero-feature .feature-text {
+      font-size: 0.85rem;
+    }
+    .hero-feature:hover {
+      background: rgba(229,9,20,0.15);
+      border-color: rgba(229,9,20,0.4);
+      transform: translateY(-1px);
+    }
+    .hero-feature .feature-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .hero-feature .feature-text {
+      font-size: 0.875rem;
     }
 
     .hero-feature::before {
@@ -209,7 +232,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .feature-text {
-      font-size: 1.05rem;
+      font-size: 0.85rem;
       font-weight: 600;
       color: var(--text);
       letter-spacing: 0.8px;
@@ -219,8 +242,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: var(--gradient-card);
       border: 1px solid var(--border-accent);
       border-radius: 0;
-      padding: 24px 32px;
-      margin-bottom: 32px;
+      padding: 18px 24px;
+      margin-bottom: 12px;
       text-align: left;
       max-width: 700px;
       margin-left: auto;
@@ -258,7 +281,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .hero-stats {
       display: flex;
       justify-content: center;
-      gap: 40px;
+      gap: 12px;
       flex-wrap: wrap;
       margin-bottom: 40px;
     }
@@ -277,7 +300,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       letter-spacing: 1px;
     }
     
-    .hero-cta {
+    .hero-cta { padding: 12px 32px; font-size: 1rem;
       display: inline-flex;
       align-items: center;
       gap: 10px;
@@ -299,18 +322,67 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     
     /* ========== 场景展示区 ========== */
     .scene-section {
-      padding: 100px 20px;
+      padding: 60px 20px;
       background: linear-gradient(180deg, #0d0d0d 0%, var(--bg) 100%);
     }
     .scene-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
+      gap: 20px;
       max-width: 1200px;
       margin: 0 auto;
     }
     @media (max-width: 900px) {
-      .scene-grid { grid-template-columns: 1fr; gap: 24px; }
+      .scene-grid { grid-template-columns: 1fr; gap: 16px; }
+    }
+    @media (max-width: 768px) {
+      /* Compact hero for mobile */
+      .hero-section { padding: 40px 16px 30px; }
+      .hero-title-large { font-size: 1.8rem; }
+      .hero-subtitle-hero { margin-bottom: 20px; font-size: 0.85rem; margin-bottom: 20px; }
+      .hero-features { flex-direction: column; gap: 10px; }
+      .hero-feature { padding: 5px 10px; font-size: 0.8rem; gap: 5px; }
+      .hero-cta { padding: 12px 32px; font-size: 1rem; padding: 12px 24px; font-size: 1rem; width: 100%; justify-content: center; }
+      
+      /* Compact scene section */
+      .scene-section { padding: 50px 16px; }
+      .scene-card-img { height: 180px; }
+      .scene-card-body { padding: 14px 12px; }
+      .scene-card-title { font-size: 1rem; }
+      .scene-card-desc { font-size: 0.8rem; }
+      
+      /* Compact comparison table */
+      .comparison-table { font-size: 0.85rem; }
+      .comparison-table th, .comparison-table td { padding: 10px 8px; }
+      
+      /* Compact pricing */
+      .pricing-wrapper { gap: 16px; }
+      .pricing-left { padding: 18px; }
+      .pricing-right { padding: 16px; position: static; }
+      .selector-group { margin-bottom: 14px; }
+      .selector-label { margin-bottom: 8px; font-size: 0.9rem; }
+      .select-option { padding: 10px 8px; }
+      .select-option .value { font-size: 0.9rem; }
+      .select-option .label { font-size: 0.7rem; }
+      .select-option .price-tag { font-size: 0.95rem; }
+      .select-option .badge { font-size: 0.65rem; padding: 1px 6px; }
+      
+      /* Compact payment */
+      .payment-options { gap: 8px; }
+      .payment-option { padding: 10px 12px; }
+      .payment-option-icon img { height: 20px; }
+      
+      /* Compact testimonials */
+      .testimonials-section { padding: 50px 16px; }
+      .testimonial-card { padding: 14px; }
+      .testimonial-avatar { width: 36px; height: 36px; font-size: 16px; }
+      .testimonial-name { font-size: 0.9rem; }
+      .testimonial-meta { font-size: 0.75rem; }
+      .testimonial-text { font-size: 0.85rem; }
+      
+      /* Compact subscribe button */
+      .subscribe-btn { padding: 14px; font-size: 1rem; }
+    }
     }
     .scene-card {
       background: var(--gradient-card);
@@ -365,7 +437,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       pointer-events: none;
     }
     .scene-card-body {
-      padding: 28px 24px;
+      padding: 18px 16px;
     }
     .scene-card-tag {
       display: inline-flex;
@@ -379,7 +451,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 14px;
+      margin-bottom: 8px;
     }
     .scene-card-title {
       font-size: 1.25rem;
@@ -416,7 +488,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     /* ========== 通用区块样式 ========== */
     .section-header {
       text-align: center;
-      margin-bottom: 60px;
+      margin-bottom: 12px;
     }
     .section-tag {
       display: inline-flex;
@@ -431,12 +503,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       text-transform: uppercase;
       letter-spacing: 1.5px;
       border-radius: 0;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
     }
     .section-title {
       font-size: clamp(1.6rem, 4vw, 2.4rem);
       font-weight: 800;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
     .section-title span {
       background: linear-gradient(135deg, var(--accent) 0%, #ff4757 100%);
@@ -453,21 +525,21 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     /* ========== 方案区 ========== */
     .solution-section {
-      padding: 100px 20px;
+      padding: 60px 20px;
       background: linear-gradient(180deg, #0d0d0d 0%, var(--bg) 100%);
     }
     
     .solution-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 24px;
+      gap: 12px;
     }
     
     .solution-card {
       background: var(--gradient-card);
       border: var(--border);
       border-radius: 0;
-      padding: 36px 28px;
+      padding: 20px 18px;
       text-align: center;
       transition: all 0.3s ease;
       position: relative;
@@ -480,7 +552,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .solution-icon {
       font-size: 3rem;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
       display: block;
     }
     .solution-card-title {
@@ -496,7 +568,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     
     /* ========== 对比表 ========== */
     .comparison-section {
-      padding: 100px 20px;
+      padding: 60px 20px;
     }
     
     .comparison-table {
@@ -547,7 +619,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     
     /* ========== 用户评价区 ========== */
     .testimonials-section {
-      padding: 100px 20px;
+      padding: 60px 20px;
       background: linear-gradient(180deg, var(--bg) 0%, #0d0d0d 100%);
     }
     
@@ -557,7 +629,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .testimonials-scroll {
       display: flex;
-      gap: 24px;
+      gap: 12px;
       overflow: hidden;
       scroll-snap-type: none;
       scroll-behavior: auto;
@@ -566,7 +638,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .testimonials-track {
       display: flex;
-      gap: 24px;
+      gap: 12px;
       animation: scrollTestimonials 80s linear infinite;
       width: max-content;
     }
@@ -580,7 +652,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: var(--gradient-card);
       border: var(--border);
       border-radius: 0;
-      padding: 28px;
+      padding: 18px;
       transition: all 0.3s ease;
     }
     .testimonial-card:hover {
@@ -593,7 +665,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       display: flex;
       align-items: center;
       gap: 14px;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
     .testimonial-avatar {
       width: 48px;
@@ -656,14 +728,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     
     /* ========== 价格区 ========== */
     .pricing-section {
-      padding: 100px 20px;
+      padding: 60px 20px;
       background: linear-gradient(180deg, #0d0d0d 0%, var(--bg) 100%);
     }
     
     .pricing-wrapper {
       display: grid;
       grid-template-columns: 1fr 380px;
-      gap: 40px;
+      gap: 12px;
       align-items: start;
     }
     @media (max-width: 900px) {
@@ -674,7 +746,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: var(--gradient-card);
       border: var(--border);
       border-radius: 0;
-      padding: 40px;
+      padding: 18px;
     }
     
     .pricing-header h2 {
@@ -684,11 +756,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .pricing-header p {
       color: var(--text-secondary);
-      margin-bottom: 32px;
+      margin-bottom: 12px;
     }
     
     .selector-group {
-      margin-bottom: 28px;
+      margin-bottom: 10px;
     }
     .selector-label {
       font-weight: 600;
@@ -761,7 +833,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: rgba(229, 9, 20, 0.08);
       border: 1px solid rgba(229, 9, 20, 0.25);
       border-radius: 0;
-      margin-bottom: 14px;
+      margin-bottom: 8px;
     }
     .scheme-renewal-icon { font-size: 22px; line-height: 1; flex-shrink: 0; }
     .scheme-renewal-content { flex: 1; min-width: 0; }
@@ -801,7 +873,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: var(--gradient-card);
       border: var(--border-accent);
       border-radius: 0;
-      padding: 32px;
+      padding: 16px;
       position: sticky;
       top: 100px;
     }
@@ -809,7 +881,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .order-summary h3 {
       font-size: 1.2rem;
       font-weight: 700;
-      margin-bottom: 24px;
+      margin-bottom: 8px;
       padding-bottom: 16px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
     }
@@ -817,7 +889,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .summary-row {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 8px;
       color: var(--text-secondary);
     }
     .summary-row.total {
@@ -887,7 +959,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-weight: 700;
       cursor: pointer;
       transition: all 0.3s;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
     .subscribe-btn:hover {
       background: var(--accent-hover);
@@ -898,7 +970,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .guarantee-badges {
       display: flex;
       justify-content: center;
-      gap: 16px;
+      gap: 12px;
       flex-wrap: wrap;
       font-size: 0.8rem;
       color: var(--text-muted);
@@ -911,18 +983,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     
     /* ========== 最终CTA ========== */
     .final-cta {
-      padding: 100px 20px;
+      padding: 60px 20px;
       text-align: center;
       background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, transparent 100%);
     }
     .final-cta h2 {
       font-size: clamp(1.6rem, 4vw, 2.2rem);
       font-weight: 800;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
     .final-cta p {
       color: var(--text-secondary);
-      margin-bottom: 32px;
+      margin-bottom: 12px;
     }
     .final-cta-btn {
       display: inline-flex;
@@ -959,7 +1031,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       align-items: center;
       justify-content: center;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
     .loading.show { display: flex; }
     .loading p { color: #fff; font-size: 14px; }
@@ -1002,7 +1074,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 20px 24px;
+      padding: 16px 20px;
       border-bottom: var(--border);
     }
     .payment-title {
@@ -1032,14 +1104,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       transition: all 0.2s;
     }
     .payment-close:hover { background: var(--bg-hover); color: var(--text-primary); }
-    .payment-body { padding: 20px 24px; }
+    .payment-body { padding: 16px 20px; }
     .qrcode-section {
       border: var(--border);
-      padding: 20px; text-align: center; margin-bottom: 18px;
+      padding: 20px; text-align: center; margin-bottom: 12px;
     }
     .qrcode-wrapper {
       background: #fff; padding: 12px;
-      display: inline-block; margin-bottom: 14px;
+      display: inline-block; margin-bottom: 8px;
     }
     .modal-qrcode-image { width: 200px; height: 200px; display: block; }
     .qrcode-tip {
@@ -1071,7 +1143,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .payment-info {
       border: var(--border);
-      padding: 16px 20px; margin-bottom: 18px;
+      padding: 16px 20px; margin-bottom: 12px;
     }
     .payment-info-item {
       display: flex; justify-content: space-between; align-items: center;
@@ -1106,17 +1178,17 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .success-content {
       background: var(--bg-secondary);
       border: 1px solid var(--accent);
-      padding: 40px; max-width: 420px; text-align: center;
+      padding: 24px; max-width: 420px; text-align: center;
       position: relative;
     }
-    .success-icon { font-size: 60px; margin-bottom: 20px; }
+    .success-icon { font-size: 60px; margin-bottom: 12px; }
     .success-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 10px; }
     .success-message {
-      color: var(--text-secondary); margin-bottom: 24px;
+      color: var(--text-secondary); margin-bottom: 8px;
       line-height: 1.6; font-size: 0.95rem;
     }
     .purchase-details {
-      border: var(--border); padding: 16px; margin-bottom: 16px;
+      border: var(--border); padding: 16px; margin-bottom: 10px;
     }
     .purchase-detail-item {
       display: flex; justify-content: space-between;
@@ -1129,7 +1201,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       border: 1px solid var(--border); padding: 14px;
       font-family: 'SF Mono', 'Courier New', monospace;
       font-size: 0.85rem; word-break: break-all;
-      margin-bottom: 16px; color: var(--accent);
+      margin-bottom: 10px; color: var(--accent);
     }
     .copy-button {
       background: var(--accent); color: #fff; border: none;
@@ -1527,7 +1599,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <div class="selector-group">
               <div class="selector-label">线路选择</div>
               <div class="scheme-renewal-banner" id="schemeRenewalBanner" style="display:none;">
-                <div class="scheme-renewal-icon">🔁</div>
+                <div class="scheme-renewal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
                 <div class="scheme-renewal-content">
                   <div class="scheme-renewal-title">你当前是 <strong id="schemeRenewalName">—</strong> 方案</div>
                   <div class="scheme-renewal-hint">续费后保持不变。需要修改请去 <a href="/account">账户页</a>。</div>
