@@ -1334,7 +1334,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <span class="feature-text">高清稳定</span>
           </div>
         </div>
-        <a href="#pricing" class="hero-cta">立即订阅，首月 ¥20 →</a>
+        <a href="#pricing" class="hero-cta">立即订阅</a>
       </div>
     </section>
     
