@@ -1314,7 +1314,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="container">
-        <div class="hero-badge-new"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.1L12 16.5 5.7 20.9 8 13.8 2 9.4h7.6L12 2z"/></svg>专为华人打造</div>
         <h1 class="hero-title-large">
           全站频道<span class="title-highlight">一键订阅</span>
           <br>告别手动搜索烦恼
@@ -1342,7 +1341,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <section class="scene-section">
       <div class="container">
         <div class="section-header" style="text-align:center;margin-bottom:48px;">
-          <div class="section-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>使用场景</div>
           <h2 class="section-title">随时随地，<span>想看就看</span></h2>
           <p class="section-desc">无论在家、外出还是旅行，都能享受极致观剧体验</p>
         </div>
