@@ -1055,20 +1055,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               margin-left: 6px;
               position: relative;
             }
-            .help-icon {
-              display: inline-block;
-              width: 16px;
-              height: 16px;
-              line-height: 16px;
-              text-align: center;
-              border-radius: 50%;
-              background: rgba(255,255,255,0.1);
-              color: var(--text-muted);
-              font-size: 12px;
-              cursor: help;
-              margin-left: 6px;
-              position: relative;
-            }
             .help-text {
               display: none;
               position: absolute;
@@ -1082,12 +1068,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               font-size: 12px;
               color: var(--text-secondary);
               white-space: normal;
-              width: 280px;
+              width: 320px;
               z-index: 100;
               box-shadow: 0 8px 24px rgba(0,0,0,0.4);
               line-height: 1.5;
             }
-            td:hover .help-text {
+            tr:hover .help-text {
               display: block;
             }
   </style>
