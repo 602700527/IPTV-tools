@@ -14,14 +14,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   
   <style>
     :root {
-      --accent: #e50914;
-      --accent-hover: #f7262c;
-      --accent-glow: rgba(229, 9, 20, 0.3);
+      --accent: #d4af37;
+      --accent-hover: #c9a227;
+      --accent-glow: rgba(212, 175, 55, 0.3);
       --bg: #0a0a0a;
       --bg-card: #141414;
       --bg-elevated: #1a1a1a;
       --border: 1px solid rgba(255,255,255,0.08);
-      --border-accent: 1px solid rgba(229,9,20,0.3);
+      --border-accent: 1px solid rgba(212,175,55,0.3);
       --text: #fff;
       --text-secondary: rgba(255,255,255,0.7);
       --text-muted: rgba(255,255,255,0.4);
@@ -54,7 +54,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       transform: translateX(-50%);
       width: 800px;
       height: 800px;
-      background: radial-gradient(circle, rgba(229,9,20,0.15) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%);
       pointer-events: none;
     }
     .container { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
@@ -103,7 +103,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background-clip: text;
     }
     .hero-title span {
-      background: linear-gradient(135deg, var(--accent) 0%, #ff6b6b 100%);
+      background: linear-gradient(135deg, #d4af37 0%, #c9a227 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -155,10 +155,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .hero-feature {
       display: inline-flex;
       align-items: center;
+      vertical-align: middle;
       gap: 8px;
       padding: 10px 16px;
-      background: rgba(229,9,20,0.06);
-      border: 1px solid rgba(229,9,20,0.15);
+      background: rgba(212,175,55,0.06);
+      border: 1px solid rgba(212,175,55,0.15);
       color: var(--text-primary);
       font-size: 0.875rem;
       font-weight: 600;
@@ -171,20 +172,21 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       height: 16px;
       color: var(--accent);
       flex-shrink: 0;
-      display: inline-flex;
-      align-items: center;
+      display: inline-block;
+      vertical-align: middle;
     }
     .hero-feature .feature-icon svg {
       width: 100%;
       height: 100%;
+      display: block;
     }
     .hero-feature .feature-text {
       font-size: 0.875rem;
       line-height: 1;
     }
     .hero-feature:hover {
-      background: rgba(229,9,20,0.15);
-      border-color: rgba(229,9,20,0.4);
+      background: rgba(212,175,55,0.15);
+      border-color: rgba(212,175,55,0.4);
       transform: translateY(-2px);
     }
 
@@ -222,8 +224,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     .hero-feature:hover {
       transform: translateY(-3px);
-      border-color: rgba(229, 9, 20, 0.7);
-      box-shadow: 0 12px 32px rgba(229, 9, 20, 0.25), 0 0 0 1px rgba(229, 9, 20, 0.1);
+      border-color: rgba(212, 175, 55, 0.7);
+      box-shadow: 0 12px 32px rgba(212, 175, 55, 0.25), 0 0 0 1px rgba(229, 9, 20, 0.1);
     }
 
 
@@ -312,11 +314,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-weight: 700;
       text-decoration: none;
       transition: all 0.3s;
-      box-shadow: 0 8px 32px rgba(229,9,20,0.4);
+      box-shadow: 0 8px 32px rgba(212,175,55,0.4);
     }
     .hero-cta:hover {
       transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(229,9,20,0.5);
+      box-shadow: 0 12px 40px rgba(212,175,55,0.5);
       background: var(--accent-hover);
     }
     
@@ -342,7 +344,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       .hero-title-large { font-size: 1.8rem; }
       .hero-subtitle-hero { font-size: 0.85rem; margin-bottom: 20px; }
       .hero-features { flex-direction: column; gap: 10px; }
-      .hero-feature { padding: 5px 10px; font-size: 0.8rem; gap: 5px; }
+      .hero-feature { padding: 5px 10px; font-size: 0.8rem; gap: 5px; align-items: center; }
       .hero-cta { padding: 12px 24px; font-size: 1rem; width: 100%; justify-content: center; }
       
       /* Compact scene section */
@@ -406,9 +408,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       transition: opacity 0.3s;
     }
     .scene-card:hover {
-      border-color: rgba(229,9,20,0.4);
+      border-color: rgba(212,175,55,0.4);
       transform: translateY(-6px);
-      box-shadow: 0 20px 60px rgba(229,9,20,0.15), 0 0 0 1px rgba(229,9,20,0.2);
+      box-shadow: 0 20px 60px rgba(212,175,55,0.15), 0 0 0 1px rgba(212,175,55,0.2);
     }
     .scene-card:hover::before {
       opacity: 1;
@@ -447,7 +449,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       gap: 6px;
       padding: 6px 14px;
       background: rgba(229,9,20,0.12);
-      border: 1px solid rgba(229,9,20,0.25);
+      border: 1px solid rgba(212,175,55,0.25);
       color: var(--accent);
       font-size: 11px;
       font-weight: 700;
@@ -496,8 +498,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(229,9,20,0.1);
-      border: 1px solid rgba(229,9,20,0.2);
+      background: rgba(212,175,55,0.1);
+      border: 1px solid rgba(212,175,55,0.2);
       color: var(--accent);
       padding: 8px 16px;
       font-size: 12px;
@@ -513,7 +515,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       margin-bottom: 10px;
     }
     .section-title span {
-      background: linear-gradient(135deg, var(--accent) 0%, #ff4757 100%);
+      background: linear-gradient(135deg, var(--accent) 0%, #c9a227 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -549,7 +551,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .solution-card:hover {
       transform: translateY(-4px);
-      border-color: rgba(229,9,20,0.3);
+      border-color: rgba(212,175,55,0.3);
       box-shadow: 0 16px 48px rgba(229,9,20,0.12);
     }
     .solution-icon {
@@ -588,7 +590,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     .comparison-table th {
-      background: rgba(229,9,20,0.1);
+      background: rgba(212,175,55,0.1);
       font-weight: 700;
       font-size: 0.9rem;
       text-transform: uppercase;
@@ -596,7 +598,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       color: var(--text-secondary);
     }
     .comparison-table th.vip {
-      background: rgba(229,9,20,0.2);
+      background: rgba(212,175,55,0.2);
       color: var(--accent);
     }
     .comparison-table td {
@@ -614,7 +616,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: rgba(255,255,255,0.02);
     }
     .comparison-table tr:hover td.vip {
-      background: rgba(229,9,20,0.08);
+      background: rgba(212,175,55,0.08);
     }
     .check { color: var(--success); }
     .cross { color: #ef4444; }
@@ -658,7 +660,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       transition: all 0.3s ease;
     }
     .testimonial-card:hover {
-      border-color: rgba(229,9,20,0.3);
+      border-color: rgba(212,175,55,0.3);
       transform: translateY(-4px);
       box-shadow: 0 16px 48px rgba(229,9,20,0.12);
     }
@@ -672,7 +674,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .testimonial-avatar {
       width: 48px;
       height: 48px;
-      background: linear-gradient(135deg, var(--accent) 0%, #ff4757 100%);
+      background: linear-gradient(135deg, var(--accent) 0%, #c9a227 100%);
       border-radius: 0;
       display: flex;
       align-items: center;
@@ -784,12 +786,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       transition: all 0.2s;
     }
     .select-option:hover {
-      border-color: rgba(229,9,20,0.4);
+      border-color: rgba(212,175,55,0.4);
       background: rgba(229,9,20,0.05);
     }
     .select-option.selected {
       border-color: var(--accent);
-      background: rgba(229,9,20,0.15);
+      background: rgba(212,175,55,0.15);
     }
     .select-option .value {
       font-weight: 700;
@@ -833,7 +835,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       gap: 12px;
       padding: 14px 16px;
       background: rgba(229, 9, 20, 0.08);
-      border: 1px solid rgba(229, 9, 20, 0.25);
+      border: 1px solid rgba(212, 175, 55, 0.25);
       border-radius: 0;
       margin-bottom: 8px;
     }
@@ -854,12 +856,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       transition: all 0.2s;
     }
     .theme-card:hover {
-      border-color: rgba(229,9,20,0.4);
+      border-color: rgba(212,175,55,0.4);
       background: rgba(229,9,20,0.05);
     }
     .theme-card.selected {
       border-color: var(--accent);
-      background: rgba(229,9,20,0.15);
+      background: rgba(212,175,55,0.15);
     }
     .theme-card-name {
       font-weight: 700;
@@ -933,7 +935,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .payment-option:hover,
     .payment-option.selected {
       border-color: var(--accent);
-      background: rgba(229,9,20,0.1);
+      background: rgba(212,175,55,0.1);
     }
     .payment-option-icon {
       display: flex;
@@ -966,7 +968,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .subscribe-btn:hover {
       background: var(--accent-hover);
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(229,9,20,0.4);
+      box-shadow: 0 8px 24px rgba(212,175,55,0.4);
     }
     
     .guarantee-badges {
@@ -987,7 +989,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .final-cta {
       padding: 60px 20px;
       text-align: center;
-      background: linear-gradient(135deg, rgba(229,9,20,0.1) 0%, transparent 100%);
+      background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, transparent 100%);
     }
     .final-cta h2 {
       font-size: clamp(1.6rem, 4vw, 2.2rem);
@@ -1013,7 +1015,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .final-cta-btn:hover {
       transform: scale(1.05);
-      box-shadow: 0 12px 40px rgba(229,9,20,0.5);
+      box-shadow: 0 12px 40px rgba(212,175,55,0.5);
     }
     
     @media (max-width: 768px) {
@@ -1092,7 +1094,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       content: ''; 
       width: 4px; 
       height: 20px;
-      background: linear-gradient(180deg, var(--accent) 0%, #ff6b6b 100%);
+      background: linear-gradient(180deg, var(--accent) 0%, #c9a227 100%);
       border-radius: 2px;
       flex-shrink: 0;
     }
@@ -1241,7 +1243,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               height: 18px;
               min-width: 18px;
               border-radius: 50%;
-              background: rgba(229,9,20,0.25);
+              background: rgba(212,175,55,0.25);
               color: var(--accent);
               font-size: 11px;
               font-weight: 700;
@@ -1251,7 +1253,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               position: relative;
             }
             .help-icon:hover {
-              background: rgba(229,9,20,0.5);
+              background: rgba(212,175,55,0.5);
               transform: scale(1.15);
             }
             .help-text {
@@ -1269,7 +1271,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               white-space: normal;
               width: 260px;
               z-index: 10000;
-              box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(229,9,20,0.3);
+              box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(212,175,55,0.3);
               line-height: 1.6;
               pointer-events: auto;
             }
@@ -1738,7 +1740,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <div style="margin-bottom:6px;color:rgba(255,255,255,.6);">收款地址 (TRC20 / Tron)</div>
             <div style="display:flex;gap:8px;align-items:center;">
               <code id="usdtAddressText" style="flex:1;background:rgba(0,0,0,.4);padding:8px 10px;border-radius:6px;word-break:break-all;color:#f0c674;"></code>
-              <button id="usdtCopyBtn" type="button" style="background:#e50914;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">复制</button>
+              <button id="usdtCopyBtn" type="button" style="background:#d4af37;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">复制</button>
             </div>
             <div style="margin-top:10px;color:rgba(255,255,255,.6);">应付金额（精确到 0.0001 USDT）</div>
             <div id="usdtAmountText" style="font-size:18px;font-weight:700;color:#f0c674;margin-top:4px;">- USDT</div>
