@@ -155,21 +155,20 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .hero-feature {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
+      gap: 8px;
+      padding: 10px 16px;
       background: rgba(229,9,20,0.06);
       border: 1px solid rgba(229,9,20,0.15);
       color: var(--text-primary);
-      font-size: 0.85rem;
+      font-size: 0.875rem;
       font-weight: 600;
       transition: all 0.3s;
       position: relative;
       overflow: hidden;
-      line-height: 1;
     }
     .hero-feature .feature-icon {
-      width: 12px;
-      height: 12px;
+      width: 16px;
+      height: 16px;
       color: var(--accent);
       flex-shrink: 0;
       display: flex;
@@ -182,7 +181,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       display: block;
     }
     .hero-feature .feature-text {
-      font-size: 0.85rem;
+      font-size: 0.875rem;
+      line-height: 1;
     }
     .hero-feature:hover {
       background: rgba(229,9,20,0.15);
@@ -229,15 +229,15 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .feature-icon {
-      width: 12px;
-      height: 12px;
-      flex-shrink: 0;
-      filter: drop-shadow(0 2px 6px rgba(229, 9, 20, 0.4));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
       transition: transform 0.3s ease;
     }
 
     .hero-feature:hover .feature-icon {
-      transform: scale(1.15);
+      transform: scale(1.1);
     }
 
     .feature-text {
