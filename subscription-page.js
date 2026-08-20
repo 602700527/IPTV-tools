@@ -378,8 +378,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       /* Compact testimonials */
       .testimonials-section { padding: 50px 16px; }
       .testimonial-card { padding: 14px; }
-      .testimonial-avatar { width: 36px; height: 36px; font-size: 16px; }
-      .testimonial-name { font-size: 0.9rem; }
+        .testimonial-name { font-size: 0.9rem; }
       .testimonial-meta { font-size: 0.75rem; }
       .testimonial-text { font-size: 0.85rem; }
       
@@ -670,18 +669,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       align-items: center;
       gap: 14px;
       margin-bottom: 10px;
-    }
-    .testimonial-avatar {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, var(--accent) 0%, #c9a227 100%);
-      border-radius: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 20px;
-      flex-shrink: 0;
     }
     .testimonial-info {
       flex: 1;
@@ -1453,8 +1440,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           <div class="testimonials-track">
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar">张</div>
-              <div class="testimonial-info">
+                <div class="testimonial-info">
                 <div class="testimonial-name">张先生</div>
                 <div class="testimonial-meta">🇺🇸 美国 · 订阅 2 年</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
@@ -1466,8 +1452,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar">李</div>
-              <div class="testimonial-info">
+                <div class="testimonial-info">
                 <div class="testimonial-name">李女士</div>
                 <div class="testimonial-meta">🇬🇧 英国 · 订阅 1 年</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
@@ -1479,8 +1464,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar">王</div>
-              <div class="testimonial-info">
+                <div class="testimonial-info">
                 <div class="testimonial-name">王先生</div>
                 <div class="testimonial-meta">🇨🇦 加拿大 · 订阅 8 个月</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
@@ -1492,8 +1476,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar">陈</div>
-              <div class="testimonial-info">
+                <div class="testimonial-info">
                 <div class="testimonial-name">陈女士</div>
                 <div class="testimonial-meta">📍 北京 · 订阅 3 个月</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
@@ -1505,8 +1488,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar">刘</div>
-              <div class="testimonial-info">
+                <div class="testimonial-info">
                 <div class="testimonial-name">刘先生</div>
                 <div class="testimonial-meta">📍 上海 · 订阅 1 年</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
@@ -1518,8 +1500,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar">赵</div>
-              <div class="testimonial-info">
+                <div class="testimonial-info">
                 <div class="testimonial-name">赵女士</div>
                 <div class="testimonial-meta">🇯🇵 日本 · 订阅 1 年</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
@@ -1531,8 +1512,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar">周</div>
-              <div class="testimonial-info">
+                <div class="testimonial-info">
                 <div class="testimonial-name">周先生</div>
                 <div class="testimonial-meta">🇸🇬 新加坡 · 订阅 3 个月</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
@@ -1544,8 +1524,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar">吴</div>
-              <div class="testimonial-info">
+                <div class="testimonial-info">
                 <div class="testimonial-name">吴女士</div>
                 <div class="testimonial-meta">📍 成都 · 订阅 4 个月</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
@@ -1557,8 +1536,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar">郑</div>
-              <div class="testimonial-info">
+                <div class="testimonial-info">
                 <div class="testimonial-name">郑先生</div>
                 <div class="testimonial-meta">🇰🇷 韩国 · 订阅 5 个月</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
@@ -1570,8 +1548,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar">孙</div>
-              <div class="testimonial-info">
+                <div class="testimonial-info">
                 <div class="testimonial-name">孙女士</div>
                 <div class="testimonial-meta">🇫🇷 法国 · 订阅 7 个月</div>
                 <div class="testimonial-verified">✓ 已验证用户</div>
