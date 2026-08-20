@@ -869,6 +869,36 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <tbody id="paymentMethodsTableBody"></tbody>
         </table>
       </div>
+
+      <!-- 优惠码管理 -->
+      <div class="card">
+        <div class="toolbar">
+          <h3>优惠码管理</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="showDiscountCodeModal()">生成优惠码</button>
+            <button class="btn" onclick="loadDiscountCodes()">刷新</button>
+          </div>
+        </div>
+        <div style="padding:16px;background:#f9f9fb;border-radius:0;margin-bottom:20px;">
+          <p style="color:#86868b;font-size:13px;">支持百分比折扣和固定金额减免，可用于推广活动或会员福利。</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>优惠码</th>
+              <th>类型</th>
+              <th>值</th>
+              <th>已用/上限</th>
+              <th>最低金额</th>
+              <th>过期时间</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="discountCodesTableBody"></tbody>
+        </table>
+        <div id="discountCodesPagination" style="margin-top:16px;text-align:center;display:flex;justify-content:center;gap:8px;"></div>
+      </div>
     </div>
     <div id="system-settings" class="tab-content">
       <div class="card">
@@ -1574,6 +1604,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
         loadMallSettings();
         loadPlans();
         loadPaymentMethods();
+        loadDiscountCodes();
       }
       else if (tabName === 'tickets') {
         loadTickets();
