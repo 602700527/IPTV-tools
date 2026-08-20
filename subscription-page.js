@@ -171,11 +171,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       height: 16px;
       color: var(--accent);
       flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
     }
     .hero-feature .feature-icon svg {
       width: 100%;
       height: 100%;
-      vertical-align: middle;
     }
     .hero-feature .feature-text {
       font-size: 0.875rem;
@@ -225,13 +226,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       box-shadow: 0 12px 32px rgba(229, 9, 20, 0.25), 0 0 0 1px rgba(229, 9, 20, 0.1);
     }
 
-    .feature-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-      transition: transform 0.3s ease;
-    }
+
 
     .hero-feature:hover .feature-icon {
       transform: scale(1.1);
