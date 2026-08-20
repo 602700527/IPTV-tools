@@ -395,17 +395,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       cursor: pointer;
       position: relative;
     }
-    .scene-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
     .scene-card:hover {
       border-color: rgba(212,175,55,0.4);
       transform: translateY(-6px);
