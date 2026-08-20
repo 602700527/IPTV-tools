@@ -1040,6 +1040,39 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-size: 20px; transition: all 0.2s;
     }
     .modal-close:hover { background: var(--bg-hover); color: var(--text-primary); }
+  
+            .help-icon {
+              display: inline-block;
+              width: 16px;
+              height: 16px;
+              line-height: 16px;
+              text-align: center;
+              border-radius: 50%;
+              background: rgba(255,255,255,0.1);
+              color: var(--text-muted);
+              font-size: 12px;
+              cursor: help;
+              margin-left: 6px;
+              position: relative;
+            }
+            .help-icon:hover::after {
+              content: attr(title);
+              position: absolute;
+              bottom: 20px;
+              left: 50%;
+              transform: translateX(-50%);
+              background: #1a1a1a;
+              border: 1px solid rgba(255,255,255,0.1);
+              padding: 8px 12px;
+              border-radius: 4px;
+              font-size: 11px;
+              color: var(--text-secondary);
+              white-space: nowrap;
+              max-width: 300px;
+              white-space: normal;
+              z-index: 100;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            }
   </style>
 </head>
 <body>
@@ -1131,10 +1164,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td><span class="cross">✗</span> 不支持</td>
               <td class="vip"><span class="check">✓</span> 支持</td>
             </tr>
-            <tr class="feature-note" style="display:none;transition:all 0.3s;">
-              <td colspan="3" style="padding:8px 16px;font-size:12px;color:var(--text-muted);border-top:1px solid var(--border);">
-                💡 支持将用户收藏夹作为云端播放列表，在【账户中心】-【线路选择】设置为【我的收藏】
-              </td>
+            <tr>
+              <td>播放列表定制 <span class="help-icon" title="支持将用户收藏夹作为云端播放列表，在【账户中心】-【线路选择】设置为【我的收藏】">?</span></td>
+              <td><span class="cross">✗</span> 不支持</td>
+              <td class="vip"><span class="check">✓</span> 支持</td>
             </tr>
             <tr>
               <td>广告</td>
