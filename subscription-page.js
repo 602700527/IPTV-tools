@@ -1103,18 +1103,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <!-- 差异权益 -->
             <tr>
               <td>搜索</td>
-              <td><span class="cross">✗</span> 10 limit</td>
+              <td><span class="cross">✗</span> 有限</td>
               <td class="vip"><span class="check">✓</span> Unlimited</td>
             </tr>
             <tr>
               <td>收藏</td>
-              <td><span class="cross">✗</span> Local only</td>
-              <td class="vip"><span class="check">✓</span> Cloud sync</td>
-            </tr>
-            <tr>
-              <td>收藏</td>
-              <td><span class="cross">✗</span> Local only</td>
-              <td class="vip"><span class="check">✓</span> Cloud sync</td>
+              <td><span class="cross">✗</span> 本地有效</td>
+              <td class="vip"><span class="check">✓</span> 云端同步</td>
             </tr>
             <tr>
               <td>线路匹配</td>
@@ -1128,8 +1123,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </tr>
             <tr>
               <td>设备</td>
-              <td><span class="cross">✗</span> 无</td>
-              <td class="vip"><span class="check">✓</span> 支持</td>
+              <td><span class="cross">✗</span> 单设备</td>
+              <td class="vip"><span class="check">✓</span> 多设备</td>
             </tr>
             <tr>
               <td>广告</td>
