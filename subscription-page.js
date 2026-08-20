@@ -1117,7 +1117,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td class="vip"><span class="check">✓</span> 有</td>
             </tr>
             <tr>
-              <td>订阅链接</td>
+              <td>VIP专属订阅</td>
               <td><span class="cross">✗</span> 无</td>
               <td class="vip"><span class="check">✓</span> 有</td>
             </tr>
@@ -1127,9 +1127,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td class="vip"><span class="check">✓</span> 多设备</td>
             </tr>
             <tr>
-              <td>播放列表定制</td>
+              <td onmouseover="this.nextElementSibling.style.display='table-row'" onmouseout="this.parentElement.nextElementSibling.style.display='none'">播放列表定制</td>
               <td><span class="cross">✗</span> 不支持</td>
-              <td class="vip"><span class="check">✓</span> 支持选择收藏夹成功为订阅播放列表</td>
+              <td class="vip"><span class="check">✓</span> 支持</td>
+            </tr>
+            <tr class="feature-note" style="display:none;transition:all 0.3s;">
+              <td colspan="3" style="padding:8px 16px;font-size:12px;color:var(--text-muted);border-top:1px solid var(--border);">
+                💡 支持将用户收藏夹作为云端播放列表，在【账户中心】-【线路选择】设置为【我的收藏】
+              </td>
             </tr>
             <tr>
               <td>广告</td>
