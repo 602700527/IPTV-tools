@@ -1102,7 +1102,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </tr>
             <!-- 差异权益 -->
             <tr>
-              <td>搜索</td>
+              <td>搜索结果</td>
               <td><span class="cross">✗</span> 有限</td>
               <td class="vip"><span class="check">✓</span> Unlimited</td>
             </tr>
@@ -1112,7 +1112,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td class="vip"><span class="check">✓</span> 云端同步</td>
             </tr>
             <tr>
-              <td>线路匹配</td>
+              <td>运营商线路匹配</td>
               <td><span class="cross">✗</span> 无</td>
               <td class="vip"><span class="check">✓</span> 有</td>
             </tr>
@@ -1122,9 +1122,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td class="vip"><span class="check">✓</span> 有</td>
             </tr>
             <tr>
-              <td>设备</td>
+              <td>多设备支持</td>
               <td><span class="cross">✗</span> 单设备</td>
               <td class="vip"><span class="check">✓</span> 多设备</td>
+            </tr>
+            <tr>
+              <td>播放列表定制</td>
+              <td><span class="cross">✗</span> 不支持</td>
+              <td class="vip"><span class="check">✓</span> 支持选择收藏夹成功为订阅播放列表</td>
             </tr>
             <tr>
               <td>广告</td>
