@@ -1055,22 +1055,40 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               margin-left: 6px;
               position: relative;
             }
-            .help-icon:hover::after {
-              content: attr(title);
+            .help-icon {
+              display: inline-block;
+              width: 16px;
+              height: 16px;
+              line-height: 16px;
+              text-align: center;
+              border-radius: 50%;
+              background: rgba(255,255,255,0.1);
+              color: var(--text-muted);
+              font-size: 12px;
+              cursor: help;
+              margin-left: 6px;
+              position: relative;
+            }
+            .help-text {
+              display: none;
               position: absolute;
-              bottom: 20px;
+              bottom: 24px;
               left: 50%;
               transform: translateX(-50%);
               background: #1a1a1a;
-              border: 1px solid rgba(255,255,255,0.1);
-              padding: 8px 12px;
-              border-radius: 4px;
-              font-size: 11px;
+              border: 1px solid rgba(255,255,255,0.15);
+              padding: 10px 14px;
+              border-radius: 6px;
+              font-size: 12px;
               color: var(--text-secondary);
               white-space: normal;
-              max-width: 300px;
+              width: 280px;
               z-index: 100;
-              box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+              box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+              line-height: 1.5;
+            }
+            td:hover .help-text {
+              display: block;
             }
   </style>
 </head>
@@ -1139,11 +1157,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td class="vip"><span class="check">✓</span> Unlimited</td>
             </tr>
             <tr>
-              <td>下载数量</td>
-              <td><span class="cross">✗</span> 10 个</td>
-              <td class="vip"><span class="check">✓</span> 无限制</td>
-            </tr>
-            <tr>
               <td>收藏</td>
               <td><span class="cross">✗</span> 本地有效</td>
               <td class="vip"><span class="check">✓</span> 云端同步</td>
@@ -1164,7 +1177,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td class="vip"><span class="check">✓</span> 多设备</td>
             </tr>
             <tr>
-              <td>播放列表定制 <span class="help-icon" title="支持将用户收藏夹作为云端播放列表，在【账户中心】-【线路选择】设置为【我的收藏】">?</span></td>
+              <td>播放列表定制 <span class="help-icon">?</span><span class="help-text">支持将用户收藏夹作为云端播放列表，在【账户中心】-【线路选择】设置为【我的收藏】</span></td>
               <td><span class="cross">✗</span> 不支持</td>
               <td class="vip"><span class="check">✓</span> 支持</td>
             </tr>
