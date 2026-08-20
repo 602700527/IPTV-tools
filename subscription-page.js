@@ -1138,13 +1138,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </tr>
             <!-- 差异权益 -->
             <tr>
-              <td>搜索结果</td>
-              <td><span class="cross">✗</span> 有限</td>
-              <td class="vip"><span class="check">✓</span> Unlimited</td>
-            </tr>
-            <tr>
-              <td>收藏</td>
-              <td><span class="cross">✗</span> 本地有效</td>
+              <td>收藏夹</td>
+              <td><span class="cross">✗</span> 本地储存</td>
               <td class="vip"><span class="check">✓</span> 云端同步</td>
             </tr>
             <tr>
