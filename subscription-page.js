@@ -1374,7 +1374,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     </section>
       <div class="container">
         <div class="section-header">
-          <div class="section-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>会员权益</div>
           <h2 class="section-title">升级<span>VIP</span>，畅享所有权益</h2>
         </div>
         <table class="comparison-table">
@@ -1447,7 +1446,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <section class="testimonials-section">
       <div class="container">
         <div class="section-header">
-          <div class="section-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>真实评价</div>
           <h2 class="section-title">来自全球华人的<span>真实反馈</span></h2>
           <p class="section-desc">他们的故事，就是你的体验</p>
         </div>
@@ -1592,7 +1590,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <section class="pricing-section" id="pricing">
       <div class="container">
         <div class="section-header">
-          <div class="section-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>选择方案</div>
           <h2 class="section-title">选一个适合你的<span>会员计划</span></h2>
           <p class="section-desc">所有方案均支持7天无理由退款</p>
         </div>
