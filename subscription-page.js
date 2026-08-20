@@ -1067,9 +1067,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               border-radius: 4px;
               font-size: 11px;
               color: var(--text-secondary);
-              white-space: nowrap;
-              max-width: 300px;
               white-space: normal;
+              max-width: 300px;
               z-index: 100;
               box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             }
@@ -1140,6 +1139,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td class="vip"><span class="check">✓</span> Unlimited</td>
             </tr>
             <tr>
+              <td>下载数量</td>
+              <td><span class="cross">✗</span> 10 个</td>
+              <td class="vip"><span class="check">✓</span> 无限制</td>
+            </tr>
+            <tr>
               <td>收藏</td>
               <td><span class="cross">✗</span> 本地有效</td>
               <td class="vip"><span class="check">✓</span> 云端同步</td>
@@ -1158,11 +1162,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td>多设备支持</td>
               <td><span class="cross">✗</span> 单设备</td>
               <td class="vip"><span class="check">✓</span> 多设备</td>
-            </tr>
-            <tr>
-              <td onmouseover="this.nextElementSibling.style.display='table-row'" onmouseout="this.parentElement.nextElementSibling.style.display='none'">播放列表定制</td>
-              <td><span class="cross">✗</span> 不支持</td>
-              <td class="vip"><span class="check">✓</span> 支持</td>
             </tr>
             <tr>
               <td>播放列表定制 <span class="help-icon" title="支持将用户收藏夹作为云端播放列表，在【账户中心】-【线路选择】设置为【我的收藏】">?</span></td>
