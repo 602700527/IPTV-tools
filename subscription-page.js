@@ -296,6 +296,103 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       box-shadow: 0 12px 40px rgba(229,9,20,0.5);
       background: var(--accent-hover);
     }
+    
+    /* ========== 场景展示区 ========== */
+    .scene-section {
+      padding: 100px 20px;
+      background: linear-gradient(180deg, #0d0d0d 0%, var(--bg) 100%);
+    }
+    .scene-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    @media (max-width: 900px) {
+      .scene-grid { grid-template-columns: 1fr; gap: 24px; }
+    }
+    .scene-card {
+      background: var(--gradient-card);
+      border: var(--border);
+      border-radius: 0;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .scene-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .scene-card:hover {
+      border-color: rgba(229,9,20,0.4);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(229,9,20,0.15), 0 0 0 1px rgba(229,9,20,0.2);
+    }
+    .scene-card:hover::before {
+      opacity: 1;
+    }
+    .scene-card-img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    .scene-card:hover .scene-card-img {
+      transform: scale(1.05);
+    }
+    .scene-card-img-wrapper {
+      overflow: hidden;
+      position: relative;
+    }
+    .scene-card-img-wrapper::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60%;
+      background: linear-gradient(to top, var(--bg-card), transparent);
+      pointer-events: none;
+    }
+    .scene-card-body {
+      padding: 28px 24px;
+    }
+    .scene-card-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(229,9,20,0.12);
+      border: 1px solid rgba(229,9,20,0.25);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+    }
+    .scene-card-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+    .scene-card-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
 
     /* ========== 对比表共有权益样式 ========== */
     .comparison-table tr.shared {
@@ -454,28 +551,27 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: linear-gradient(180deg, var(--bg) 0%, #0d0d0d 100%);
     }
     
+    @keyframes scrollTestimonials {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
     .testimonials-scroll {
       display: flex;
       gap: 24px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      scroll-behavior: smooth;
+      overflow: hidden;
+      scroll-snap-type: none;
+      scroll-behavior: auto;
       padding: 20px 0 30px;
-      -webkit-overflow-scrolling: touch;
+      position: relative;
     }
-    .testimonials-scroll::-webkit-scrollbar {
-      height: 6px;
+    .testimonials-track {
+      display: flex;
+      gap: 24px;
+      animation: scrollTestimonials 80s linear infinite;
+      width: max-content;
     }
-    .testimonials-scroll::-webkit-scrollbar-track {
-      background: rgba(255,255,255,0.05);
-      border-radius: 0;
-    }
-    .testimonials-scroll::-webkit-scrollbar-thumb {
-      background: rgba(229,9,20,0.4);
-      border-radius: 0;
-    }
-    .testimonials-scroll::-webkit-scrollbar-thumb:hover {
-      background: rgba(229,9,20,0.7);
+    .testimonials-track:hover {
+      animation-play-state: paused;
     }
     
     .testimonial-card {
@@ -750,14 +846,15 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       gap: 12px;
     }
     .payment-option {
-      flex: 1;
-      padding: 14px;
+      padding: 8px 16px;
       background: rgba(255,255,255,0.03);
       border: 2px solid rgba(255,255,255,0.08);
       border-radius: 0;
-      text-align: center;
       cursor: pointer;
       transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .payment-option:hover,
     .payment-option.selected {
@@ -765,8 +862,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       background: rgba(229,9,20,0.1);
     }
     .payment-option-icon {
-      font-size: 1.5rem;
-      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .payment-option-icon img {
+      height: 24px;
+      width: auto;
+      object-fit: contain;
     }
     .payment-option-name {
       font-size: 0.85rem;
@@ -903,12 +1006,21 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       border-bottom: var(--border);
     }
     .payment-title {
-      font-size: 1.1rem; font-weight: 800; margin: 0;
-      display: flex; align-items: center; gap: 10px;
+      font-size: 1.2rem; 
+      font-weight: 800; 
+      margin: 0;
+      display: flex; 
+      align-items: center; 
+      gap: 12px;
+      color: var(--text-primary);
     }
     .payment-title::before {
-      content: ''; width: 4px; height: 18px;
-      background: var(--accent); border-radius: 0;
+      content: ''; 
+      width: 4px; 
+      height: 20px;
+      background: linear-gradient(180deg, var(--accent) 0%, #ff6b6b 100%);
+      border-radius: 2px;
+      flex-shrink: 0;
     }
     .payment-close {
       background: transparent;
@@ -939,9 +1051,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       color: var(--text-secondary); font-size: 0.85rem; margin: 0 0 10px 0;
     }
     .payment-status {
-      display: inline-flex; align-items: center; gap: 6px;
-      color: var(--accent); font-size: 0.8rem; font-weight: 700;
-      padding: 6px 14px; border: 1px solid var(--accent);
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      background: rgba(255,215,0,0.1);
+      border: 1px solid rgba(255,215,0,0.3);
+      border-radius: 4px;
+      display: inline-block;
     }
     .payment-status::before {
       content: ''; width: 8px; height: 8px;
@@ -1041,19 +1158,27 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .modal-close:hover { background: var(--bg-hover); color: var(--text-primary); }
   
+            /* Help tooltip */
             .help-icon {
-              display: inline-block;
-              width: 16px;
-              height: 16px;
-              line-height: 16px;
-              text-align: center;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              width: 18px;
+              height: 18px;
+              min-width: 18px;
               border-radius: 50%;
-              background: rgba(255,255,255,0.1);
-              color: var(--text-muted);
-              font-size: 12px;
+              background: rgba(229,9,20,0.25);
+              color: var(--accent);
+              font-size: 11px;
+              font-weight: 700;
               cursor: help;
-              margin-left: 6px;
+              transition: all 0.2s;
+              flex-shrink: 0;
               position: relative;
+            }
+            .help-icon:hover {
+              background: rgba(229,9,20,0.5);
+              transform: scale(1.15);
             }
             .help-text {
               display: none;
@@ -1061,34 +1186,43 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               bottom: 24px;
               left: 50%;
               transform: translateX(-50%);
-              background: #1a1a1a;
-              border: 1px solid rgba(255,255,255,0.15);
+              background: linear-gradient(135deg, #1e1e1e 0%, #141414 100%);
+              border: 1px solid rgba(229,9,20,0.6);
               padding: 10px 14px;
               border-radius: 6px;
               font-size: 12px;
               color: var(--text-secondary);
               white-space: normal;
-              width: 320px;
-              z-index: 100;
-              box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-              line-height: 1.5;
+              width: 260px;
+              z-index: 10000;
+              box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(229,9,20,0.3);
+              line-height: 1.6;
+              pointer-events: auto;
             }
-            tr:hover .help-text {
+            .help-text::after {
+              content: '';
+              position: absolute;
+              top: 100%;
+              left: 50%;
+              transform: translateX(-50%);
+              border: 6px solid transparent;
+              border-top-color: rgba(229,9,20,0.6);
+            }
+            .help-text::before {
+              content: '';
+              position: absolute;
+              top: 100%;
+              left: 50%;
+              transform: translateX(-50%);
+              border: 5px solid transparent;
+              border-top-color: #141414;
+              margin-top: -1px;
+            }
+            .help-icon:hover .help-text {
               display: block;
             }
 
-            .payment-option-icon {
-              width: 32px;
-              height: 32px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            }
-            .payment-option-icon img {
-              width: 100%;
-              height: 100%;
-              object-fit: contain;
-            }
+
             .feature-icon svg, .section-tag svg, .guarantee-badges svg, .order-summary h3 svg {
               width: 1em;
               height: 1em;
@@ -1106,29 +1240,68 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       <div class="container">
         <div class="hero-badge-new"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.1L12 16.5 5.7 20.9 8 13.8 2 9.4h7.6L12 2z"/></svg>专为华人打造</div>
         <h1 class="hero-title-large">
-          一个订阅链接，就能看你想看的
+          万条频道<span class="title-highlight">一键订阅</span>
+          <br>告别手动搜索烦恼
         </h1>
+        <p class="hero-subtitle-hero">海外华人必备 · 直播回看都有 · 支持所有主流播放器</p>
         <div class="hero-features">
           <div class="hero-feature">
-            <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
-            <span class="feature-text">告别卡顿失效</span>
+            <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
+            <span class="feature-text">自动更新</span>
           </div>
           <div class="hero-feature">
-            <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></span>
-            <span class="feature-text">告别广告限制</span>
+            <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span>
+            <span class="feature-text">去除广告</span>
           </div>
           <div class="hero-feature">
-            <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.1L12 16.5 5.7 20.9 8 13.8 2 9.4h7.6L12 2z"/></svg></span>
-            <span class="feature-text">告别麻烦复杂</span>
+            <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+            <span class="feature-text">高清稳定</span>
           </div>
         </div>
         <a href="#pricing" class="hero-cta">立即订阅，首月 ¥20 →</a>
       </div>
     </section>
+    
+    <!-- 场景展示区 -->
+    <section class="scene-section">
+      <div class="container">
+        <div class="section-header" style="text-align:center;margin-bottom:48px;">
+          <div class="section-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>使用场景</div>
+          <h2 class="section-title">随时随地，<span>想看就看</span></h2>
+          <p class="section-desc">无论在家、外出还是旅行，都能享受极致观剧体验</p>
+        </div>
+        <div class="scene-grid">
+          <div class="scene-card">
+            <div class="scene-card-img-wrapper"><img src="/asset_scene_1.png" alt="家庭影院" class="scene-card-img"></div>
+            <div class="scene-card-body">
+              <span class="scene-card-tag">家庭时光</span>
+              <h3 class="scene-card-title">客厅变身私人影院</h3>
+              <p class="scene-card-desc">週末一家人围坐客厅，电视大屏看春晚、追热播剧，享受温馨团圆时光</p>
+            </div>
+          </div>
+          <div class="scene-card">
+            <div class="scene-card-img-wrapper"><img src="/asset_scene_2.png" alt="外出观看" class="scene-card-img"></div>
+            <div class="scene-card-body">
+              <span class="scene-card-tag">移动观看</span>
+              <h3 class="scene-card-title">通勤路上不无聊</h3>
+              <p class="scene-card-desc">地铁上、火车里，手机平板随时看，直播回看都能用，旅途不再枯燥</p>
+            </div>
+          </div>
+          <div class="scene-card">
+            <div class="scene-card-img-wrapper"><img src="/asset_scene_3.png" alt="海外生活" class="scene-card-img"></div>
+            <div class="scene-card-body">
+              <span class="scene-card-tag">海外华人</span>
+              <h3 class="scene-card-title">身在海外，心系祖国</h3>
+              <p class="scene-card-desc">看央视新闻了解国家大事，看家乡卫视解乡愁，春节晚会一个都不落</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
       <div class="container">
         <div class="section-header">
           <div class="section-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>会员权益</div>
-          <h2 class="section-title">升级<span>VIP</span>，解锁全部功能</h2>
+          <h2 class="section-title">升级<span>VIP</span>，畅享所有权益</h2>
         </div>
         <table class="comparison-table">
           <thead>
@@ -1177,7 +1350,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td class="vip"><span class="check">✓</span> 支持</td>
             </tr>
             <tr>
-              <td>播放列表定制 <span class="help-icon">?</span><span class="help-text">支持将用户收藏夹作为云端播放列表，在【账户中心】-【线路选择】设置为【我的收藏】</span></td>
+              <td>播放列表定制 <span class="help-icon">?<span class="help-text">支持将用户收藏夹作为云端播放列表，在【账户中心】-【线路选择】设置为【我的收藏】</span></span></td>
               <td><span class="cross">✗</span> 不支持</td>
               <td class="vip"><span class="check">✓</span> 支持</td>
             </tr>
@@ -1205,6 +1378,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           <p class="section-desc">他们的故事，就是你的体验</p>
         </div>
         <div class="testimonials-scroll">
+          <div class="testimonials-track">
           <div class="testimonial-card">
             <div class="testimonial-header">
               <div class="testimonial-avatar">张</div>
@@ -1335,7 +1509,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <p class="testimonial-text">在欧洲生活多年，最想念的就是国内春晚和新闻联播。用APTV导入后解决了我的问题，7天无理由退款也让我放心尝试。虽然偶尔有卡顿，但客服态度很好，整体体验不错。就是希望频道能再分类清楚一点。</p>
           </div>
         </div>
-        <p class="testimonials-hint">← 左右滑动查看更多评价 →</p>
+          </div>
+        <p class="testimonials-hint">自动滚动中 · 悬停暂停</p>
       </div>
     </section>
 
@@ -1430,15 +1605,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="payment-options">
                 <div class="payment-option selected" onclick="selectPayment('alipay')">
                   <div class="payment-option-icon"><img src="/zhifubao.png" alt="支付宝"></div>
-                  <div class="payment-option-name">支付宝</div>
                 </div>
                 <div class="payment-option" id="wechatOption" onclick="selectPayment('wechat')">
                   <div class="payment-option-icon"><img src="/weixin.png" alt="微信支付"></div>
-                  <div class="payment-option-name">微信支付</div>
                 </div>
                 <div class="payment-option" onclick="selectPayment('usdt')">
-                  <div class="payment-option-icon"><img src="/usdt.svg" alt="USDT"></div>
-                  <div class="payment-option-name">USDT (TRC20)</div>
+                  <div class="payment-option-icon"><img src="/usdt.png" alt="USDT"></div>
                 </div>
               </div>
             </div>
@@ -1786,7 +1958,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         checkCount++;
         if (checkCount > maxChecks) {
           clearInterval(checkPaymentInterval);
-          document.getElementById('paymentStatus').textContent = '订单已过期';
+          document.getElementById('paymentStatus').textContent = '订单已超时，请重新下单';
           return;
         }
         try {
@@ -1796,7 +1968,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           const j = await r.json();
           if (j.success && j.paid) {
             clearInterval(checkPaymentInterval);
-            document.getElementById('paymentStatus').textContent = '链上确认成功！';
+            document.getElementById('paymentStatus').textContent = '✓ 支付成功！';
             document.getElementById('paymentStatus').style.color = '#4CAF50';
             document.getElementById('paymentModalTitle').textContent = '支付成功';
             setTimeout(() => {
@@ -1876,9 +2048,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             qrcodeImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(result.payment_data.url || '');
           }
 
-          document.getElementById('paymentStatus').textContent = '等待支付中...';
-          document.getElementById('paymentStatus').style.color = '';
-          document.getElementById('paymentModalTitle').textContent = '完成支付';
+          document.getElementById('paymentStatus').textContent = '⏳ 等待扫码支付...';
+          document.getElementById('paymentStatus').style.color = '#ffd700';
+          document.getElementById('paymentModalTitle').textContent = '扫码支付';
           document.getElementById('paymentModal').classList.add('show');
           currentOrderId = result.order_id;
 
