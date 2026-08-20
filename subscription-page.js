@@ -1148,11 +1148,6 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td class="vip"><span class="check">✓</span> 云端同步</td>
             </tr>
             <tr>
-              <td>收藏</td>
-              <td><span class="cross">✗</span> 本地有效</td>
-              <td class="vip"><span class="check">✓</span> 云端同步</td>
-            </tr>
-            <tr>
               <td>运营商线路匹配</td>
               <td><span class="cross">✗</span> 无</td>
               <td class="vip"><span class="check">✓</span> 有</td>
