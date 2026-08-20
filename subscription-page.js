@@ -167,8 +167,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       overflow: hidden;
     }
     .hero-feature .feature-icon {
-      width: 14px;
-      height: 14px;
+      width: 10px;
+      height: 10px;
       color: var(--accent);
       flex-shrink: 0;
     }
@@ -220,7 +220,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     .feature-icon {
-      font-size: 1.5rem;
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
       filter: drop-shadow(0 2px 6px rgba(229, 9, 20, 0.4));
       transition: transform 0.3s ease;
     }
