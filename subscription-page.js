@@ -457,6 +457,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       color: var(--text-secondary);
       line-height: 1.7;
     }
+    .scene-note {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      opacity: 0.8;
+    }
 
     /* ========== 对比表共有权益样式 ========== */
     .comparison-table tr.shared {
@@ -1334,7 +1341,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <div class="scene-card-body">
               <span class="scene-card-tag">移动观看</span>
               <h3 class="scene-card-title">通勤路上不无聊</h3>
-              <p class="scene-card-desc">地铁上、火车里，手机平板随时看，直播回看都能用，旅途不再枯燥</p>
+              <p class="scene-card-desc">地铁上、火车里，手机平板随时看，直播回看都能用，旅途不再枯燥<span class="scene-note">*仅部分源支持回看，需播放器支持</span></p>
             </div>
           </div>
           <div class="scene-card">
