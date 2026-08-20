@@ -38,11 +38,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .hero-section {
       min-height: 400px;
       padding: 50px 20px 40px;
-      width: 100%;
       background: var(--gradient-hero);
       text-align: center;
       position: relative;
-      overflow: hidden;
     }
     .hero-section::before {
       content: '';
@@ -184,6 +182,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       position: absolute;
       top: 0;
       left: -100%;
+      width: 200%;
       width: 100%;
       height: 100%;
       background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
