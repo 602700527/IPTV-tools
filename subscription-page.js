@@ -1316,7 +1316,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       <div class="container">
         <div class="hero-badge-new"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.1L12 16.5 5.7 20.9 8 13.8 2 9.4h7.6L12 2z"/></svg>专为华人打造</div>
         <h1 class="hero-title-large">
-          万条频道<span class="title-highlight">一键订阅</span>
+          全站频道<span class="title-highlight">一键订阅</span>
           <br>告别手动搜索烦恼
         </h1>
         <p class="hero-subtitle-hero">海外华人必备 · 直播回看都有 · 支持所有主流播放器</p>
