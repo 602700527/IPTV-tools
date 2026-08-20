@@ -1163,11 +1163,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .success-modal.show { display: flex; }
     .success-content {
-      background: linear-gradient(145deg, #1a2f1a 0%, #0f1f0f 100%);
+      background: var(--bg-secondary);
       border: 1px solid rgba(34, 197, 94, 0.4);
       padding: 32px; max-width: 420px; text-align: center;
       position: relative;
-      box-shadow: 0 0 60px rgba(34, 197, 94, 0.2);
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.15);
     }
     .success-icon { 
       font-size: 64px; 
