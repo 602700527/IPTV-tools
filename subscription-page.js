@@ -895,6 +895,44 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .payment-methods {
       margin: 24px 0;
     }
+    .discount-code-box {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .discount-code-box input {
+      flex: 1;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--text);
+      font-size: 0.9rem;
+      border-radius: 0;
+    }
+    .discount-code-box input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .discount-code-box button {
+      padding: 10px 18px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 0;
+    }
+    .discount-code-box button:hover {
+      background: var(--accent-hover);
+    }
+    #discountStatus {
+      font-size: 0.85rem;
+      margin-top: 6px;
+    }
+    #discountStatus.success { color: #22c55e; }
+    #discountStatus.error { color: #ef4444; }
+    
     .payment-methods label {
       font-size: 0.9rem;
       color: var(--text-secondary);
@@ -1660,6 +1698,16 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 <span>总计</span>
                 <span id="totalPrice">¥20.00</span>
               </div>
+              <div class="summary-row" id="discountRow" style="display:none;color:var(--success);">
+                <span>优惠码折扣</span>
+                <span id="discountAmount">-¥0.00</span>
+              </div>
+            </div>
+            
+            <div class="discount-code-box">
+              <input type="text" id="discountCodeInput" placeholder="输入优惠码">
+              <button onclick="validateDiscountCode()">应用</button>
+              <span id="discountStatus"></span>
             </div>
             
             <div class="payment-methods">
@@ -1790,6 +1838,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   <script>
     // 价格计算逻辑
     let selectedDuration = { days: 30, basePrice: 20 };
+    let appliedDiscount = null;  // { discountAmount, finalAmount }
     let selectedIPs = 1;
     let selectedPaymentMethod = 'alipay';
     
@@ -1825,9 +1874,53 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       event.currentTarget.classList.add('selected');
     }
     
+    async function validateDiscountCode() {
+      const input = document.getElementById('discountCodeInput');
+      const status = document.getElementById('discountStatus');
+      const code = input.value.trim().toUpperCase();
+      
+      if (!code) {
+        status.textContent = '请输入优惠码';
+        status.className = 'error';
+        return;
+      }
+      
+      const ipPrice = Math.max(0, (selectedIPs - 1) * 10);
+      const orderAmount = selectedDuration.basePrice + ipPrice;
+      
+      try {
+        const resp = await fetch('/api/subscription/validate-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, amount: orderAmount })
+        });
+        const result = await resp.json();
+        
+        if (result.success) {
+          appliedDiscount = result;
+          status.textContent = '✓ 优惠码已应用';
+          status.className = 'success';
+          document.getElementById('discountRow').style.display = 'flex';
+          document.getElementById('discountAmount').textContent = '-¥' + result.discountAmount.toFixed(2);
+          updateOrderSummary();
+        } else {
+          appliedDiscount = null;
+          status.textContent = result.error || '优惠码无效';
+          status.className = 'error';
+          document.getElementById('discountRow').style.display = 'none';
+        }
+      } catch (e) {
+        status.textContent = '验证失败，请重试';
+        status.className = 'error';
+      }
+    }
+    
     function updateOrderSummary() {
       const ipPrice = Math.max(0, (selectedIPs - 1) * 10);
-      const totalPrice = selectedDuration.basePrice + ipPrice;
+      let totalPrice = selectedDuration.basePrice + ipPrice;
+      if (appliedDiscount) {
+        totalPrice = appliedDiscount.finalAmount;
+      }
       
       document.getElementById('basePrice').textContent = '¥' + selectedDuration.basePrice.toFixed(2);
       document.getElementById('ipPrice').textContent = '¥' + ipPrice.toFixed(2);

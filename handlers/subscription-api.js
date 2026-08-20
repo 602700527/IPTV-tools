@@ -1,7 +1,7 @@
-// 订阅支付相关 API 处理
+//  API 
 import { getTopics, getTopic, applyTopicFilter } from '../database.js';
 
-// 生成随机卡密
+// 
 function generateCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let code = '';
@@ -11,7 +11,7 @@ function generateCode() {
   return code;
 }
 
-// 计算叠加后的过期时间
+// 
 function calculateStackedExpiry(existingExpiry, newDurationDays) {
   const now = new Date();
   
@@ -26,7 +26,7 @@ function calculateStackedExpiry(existingExpiry, newDurationDays) {
   return new Date(baseDate.getTime() + newDurationDays * 24 * 60 * 60 * 1000);
 }
 
-// 获取用户最新的有效订阅code
+// code
 async function getUserActiveCode(userId, db) {
   const now = new Date().toISOString();
   
@@ -44,7 +44,7 @@ async function getUserActiveCode(userId, db) {
   return result || null;
 }
 
-// 获取所有可用主题
+// 
 export async function handleGetTopics(request, env, ctx) {
   try {
     const topics = await getTopics();
@@ -55,7 +55,7 @@ export async function handleGetTopics(request, env, ctx) {
         id: t.id,
         name: t.name,
         description: t.description || '',
-        channelCount: 0 // 可以在这里计算实际频道数
+        channelCount: 0 // 
       }))
     }), {
       headers: { 'Content-Type': 'application/json' }
@@ -69,7 +69,7 @@ export async function handleGetTopics(request, env, ctx) {
   }
 }
 
-// 生成订阅卡密
+// 
 export async function generateActivationCode(env, durationDays, maxIPs, userId, topicId, isTestMode = false, baseUrl = '', subMode = null) {
   const now = new Date();
   let code;
@@ -84,8 +84,8 @@ export async function generateActivationCode(env, durationDays, maxIPs, userId, 
       expiredAt = calculateStackedExpiry(existingCode.expired_at, durationDays);
       isStacked = true;
 
-      // 续费场景：只延长过期时间和更新 duration_days
-      // 保留 topic_id / sub_mode（前端在续费时已隐藏选择器，方案变更请走账户页）
+      // ： duration_days
+      //  topic_id / sub_mode（，）
       await env.DB.prepare(`
         UPDATE codes
         SET expired_at = ?, duration_days = ?
@@ -129,7 +129,7 @@ export async function generateActivationCode(env, durationDays, maxIPs, userId, 
   }
 }
 
-// 根据天数获取套餐配置
+// 
 async function getPlanFromDB(days, env) {
   const plan = await env.DB.prepare(`
     SELECT days, base_price, price_per_ip, discount
@@ -148,7 +148,7 @@ async function getPlanFromDB(days, env) {
   };
 }
 
-// 计算价格
+// 
 function calculatePrice(plan, ipCount) {
   const price = plan.basePrice + (plan.pricePerIP * ipCount);
   const discountedPrice = price * (1 - plan.discount / 100);
@@ -156,5 +156,59 @@ function calculatePrice(plan, ipCount) {
     original: price,
     discounted: discountedPrice,
     discount: plan.discount
+  };
+}
+
+
+// 优惠码验证
+export async function validateDiscountCode(code, orderAmount, env) {
+  if (!code || !code.trim()) {
+    return { success: false, error: '请输入优惠码' };
+  }
+  
+  const codeStr = code.trim().toUpperCase();
+  const now = new Date().toISOString();
+  
+  const db = env.DB;
+  const record = await db.prepare(
+    'SELECT * FROM discount_codes WHERE code = ?'
+  ).bind(codeStr).first();
+  
+  if (!record) {
+    return { success: false, error: '优惠码不存在' };
+  }
+  
+  if (record.status !== 'active') {
+    return { success: false, error: '优惠码已停用' };
+  }
+  
+  if (record.expires_at && record.expires_at < now) {
+    return { success: false, error: '优惠码已过期' };
+  }
+  
+  if (record.usage_limit > 0 && record.used_count >= record.usage_limit) {
+    return { success: false, error: '优惠码已达使用上限' };
+  }
+  
+  if (record.min_amount > 0 && orderAmount < record.min_amount) {
+    return { success: false, error: '订单金额需满¥' + record.min_amount + '才能使用此优惠码' };
+  }
+  
+  let discountAmount = 0;
+  if (record.type === 'percent') {
+    discountAmount = orderAmount * (record.value / 100);
+  } else {
+    discountAmount = record.value;
+  }
+  
+  discountAmount = Math.min(discountAmount, orderAmount);
+  
+  return {
+    success: true,
+    code: record.code,
+    type: record.type,
+    value: record.value,
+    discountAmount: Number(discountAmount.toFixed(2)),
+    finalAmount: Number((orderAmount - discountAmount).toFixed(2))
   };
 }

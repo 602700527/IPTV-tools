@@ -449,7 +449,7 @@ import {
 } from './handlers/auth.js';
 
 import { handleGoogleAuthDebug } from './handlers/google-auth-debug.js';
-import { handleGetTopics } from './handlers/subscription-api.js';
+import { handleGetTopics, validateDiscountCode } from './handlers/subscription-api.js';
 import {
   handleCreateXunhuPayOrder,
   handleXunhuPayNotify,
@@ -1499,6 +1499,25 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/subscription/topics') {
       // 
       return await handleGetTopics(request, env, ctx);
+    } else if (path === '/api/subscription/validate-code') {
+      // 优惠码验证
+      if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ success: false, error: 'Method not allowed' }), {
+          status: 405, headers: { 'Content-Type': 'application/json' }
+        });
+      }
+      try {
+        const body = await request.json();
+        const { code, amount } = body;
+        const result = await validateDiscountCode(code, amount || 20, env);
+        return new Response(JSON.stringify(result), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ success: false, error: e.message }), {
+          status: 500, headers: { 'Content-Type': 'application/json' }
+        });
+      }
     } else if (path === '/api/subscription/xunhupay/create-order') {
       // 
       return await handleCreateXunhuPayOrder(request, env, ctx);

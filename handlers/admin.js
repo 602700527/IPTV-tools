@@ -1,4 +1,4 @@
-// 管理后台API处理器
+// API
 import { getDB, initDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, getSyncFilterConfig, updateSyncFilterConfig, getTypeMappingConfig, updateTypeMappingConfig, getDomainBlacklist, addDomainToBlacklist, removeDomainFromBlacklist, addMultipleDomainsToBlacklist, getTopics, getTopic, createTopic, updateTopic, deleteTopic, applyTopicFilter } from '../database.js';
 import {
   handleGetPaymentMethods,
@@ -19,28 +19,28 @@ import { getAllTokens, generateTokenAndAddresses, invalidateToken, extendToken }
 export async function handleAdminRequest(request, env, ctx) {
   const url = new URL(request.url);
   const pathParts = url.pathname.split('/');
-  const action = pathParts[2] || ''; // 获取操作类型，如 /admin/init
+  const action = pathParts[2] || ''; // ， /admin/init
 
-  // 验证是否为管理请求（这里可以添加更复杂的认证逻辑）
+  // （）
   const adminKey = request.headers.get('X-Admin-Key');
   if (adminKey !== env.ADMIN_KEY) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  // 初始化数据库
+  // 
   await initDB(env);
 
   try {
     switch (action) {
       case 'init':
-        // 初始化数据库表
+        // 
         await createTables(env);
         return new Response(JSON.stringify({ success: true, message: 'Database tables initialized' }), {
           headers: { 'Content-Type': 'application/json' }
         });
 
       case 'migrate':
-        // 执行数据库迁移
+        // 
         try {
           await createTables(env);
           return new Response(JSON.stringify({ success: true, message: 'Database migration completed' }), {
@@ -55,15 +55,15 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'sources':
-        // 处理源管理
+        // 
         if (request.method === 'GET') {
-          // 获取所有源
+          // 
           const sources = await getDB().prepare('SELECT * FROM sources ORDER BY id').all();
           return new Response(JSON.stringify(sources), {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST') {
-          // 添加新源
+          // 
           const data = await request.json();
           const result = await getDB().prepare(`
             INSERT INTO sources (name, url, type, parse_mode) 
@@ -79,7 +79,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'PUT') {
-          // 更新源
+          // 
           const data = await request.json();
           await getDB().prepare(`
             UPDATE sources SET name = ?, url = ?, type = ?, parse_mode = ? 
@@ -96,7 +96,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'PATCH' && pathParts[3] === 'toggle') {
-          // 切换源的启用/禁用状态
+          // /
           const sourceId = pathParts[4];
           if (!sourceId) {
             return new Response('Missing source ID', { status: 400 });
@@ -106,7 +106,7 @@ export async function handleAdminRequest(request, env, ctx) {
           const isActive = data.is_active !== undefined ? (data.is_active ? 1 : 0) : null;
           
           if (isActive === null) {
-            // 如果没有指定状态，则切换状态
+            // ，
             const source = await getDB().prepare('SELECT is_active FROM sources WHERE id = ?').bind(sourceId).first();
             if (!source) {
               return new Response('Source not found', { status: 404 });
@@ -117,24 +117,24 @@ export async function handleAdminRequest(request, env, ctx) {
             return new Response(JSON.stringify({ 
               success: true, 
               is_active: newStatus === 1,
-              message: newStatus === 1 ? '源已启用' : '源已禁用'
+              message: newStatus === 1 ? '' : ''
             }), {
               headers: { 'Content-Type': 'application/json' }
             });
           } else {
-            // 设置指定状态
+            // 
             await getDB().prepare('UPDATE sources SET is_active = ? WHERE id = ?').bind(isActive, sourceId).run();
             
             return new Response(JSON.stringify({ 
               success: true, 
               is_active: isActive === 1,
-              message: isActive === 1 ? '源已启用' : '源已禁用'
+              message: isActive === 1 ? '' : ''
             }), {
               headers: { 'Content-Type': 'application/json' }
             });
           }
         } else if (request.method === 'DELETE') {
-          // 删除源
+          // 
           const sourceId = pathParts[3];
           if (!sourceId) {
             return new Response('Missing source ID', { status: 400 });
@@ -142,11 +142,11 @@ export async function handleAdminRequest(request, env, ctx) {
 
           const db = getDB();
 
-          // 先获取该源关联的频道数量
+          // 
           const countResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(sourceId).first();
           const channelCount = countResult?.count || 0;
 
-          // 使用事务删除，确保数据一致性
+          // ，
           const stmts = [
             db.prepare('DELETE FROM channels WHERE source_id = ?').bind(sourceId),
             db.prepare('DELETE FROM sources WHERE id = ?').bind(sourceId)
@@ -155,7 +155,7 @@ export async function handleAdminRequest(request, env, ctx) {
 
           return new Response(JSON.stringify({
             success: true,
-            message: `已删除源及其关联的 ${channelCount} 个频道`
+            message: ` ${channelCount} `
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
@@ -163,10 +163,10 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'sync':
-        // 同步源数据
+        // 
         const syncSubAction = pathParts[3];
 
-        // 获取同步过滤规则配置
+        // 
         if (syncSubAction === 'filter' && request.method === 'GET') {
           const config = await getSyncFilterConfig();
           return new Response(JSON.stringify({
@@ -177,11 +177,11 @@ export async function handleAdminRequest(request, env, ctx) {
           });
         }
 
-        // 保存同步过滤规则配置
+        // 
         if (syncSubAction === 'filter' && request.method === 'POST') {
           const data = await request.json();
 
-          // 验证配置格式
+          // 
           const validConfig = {
             excludeGroups: Array.isArray(data.excludeGroups) ? data.excludeGroups : [],
             excludeUrls: Array.isArray(data.excludeUrls) ? data.excludeUrls : [],
@@ -195,14 +195,14 @@ export async function handleAdminRequest(request, env, ctx) {
 
           return new Response(JSON.stringify({
             success: true,
-            message: '同步过滤规则已更新',
+            message: '',
             config: validConfig
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
         }
 
-        // 获取同步状态
+        // 
         if (syncSubAction === 'status' && request.method === 'GET') {
           const syncLock = await env.KV.get('lock:sync');
           const syncResult = await env.KV.get('sync:last_result', { type: 'json' });
@@ -217,7 +217,7 @@ export async function handleAdminRequest(request, env, ctx) {
           });
         }
 
-        // 同步所有启用的源
+        // 
         if (syncSubAction === 'all' && request.method === 'POST') {
           const data = await request.json();
           const asyncMode = data.async === true;
@@ -225,7 +225,7 @@ export async function handleAdminRequest(request, env, ctx) {
           console.log('[Admin] Sync all requested, async:', asyncMode);
           
           if (asyncMode) {
-            // 异步模式：立即返回，后台处理
+            // ：，
             ctx.waitUntil((async () => {
               try {
                 const result = await manualSyncAll(env, data.filter || data);
@@ -237,13 +237,13 @@ export async function handleAdminRequest(request, env, ctx) {
             
             return new Response(JSON.stringify({
               success: true,
-              message: '同步已在后台启动'
+              message: ''
             }), {
               status: 202,
               headers: { 'Content-Type': 'application/json' }
             });
           } else {
-            // 同步模式：等待完成
+            // ：
             const result = await manualSyncAll(env, data.filter || data);
             return new Response(JSON.stringify(result), {
               headers: { 'Content-Type': 'application/json' }
@@ -251,7 +251,7 @@ export async function handleAdminRequest(request, env, ctx) {
           }
         }
 
-        // 同步单个源
+        // 
         const sourceId = syncSubAction;
         if (!sourceId) {
           return new Response('Missing source ID', { status: 400 });
@@ -259,20 +259,20 @@ export async function handleAdminRequest(request, env, ctx) {
 
         const db = getDB();
 
-        // 先获取该源关联的频道数量（用于返回统计信息）
+        // （）
         const oldCountResult = await db.prepare('SELECT COUNT(*) as count FROM channels WHERE source_id = ?').bind(sourceId).first();
         const oldChannelCount = oldCountResult?.count || 0;
 
-        // 删除该源的旧频道
+        // 
         await db.prepare('DELETE FROM channels WHERE source_id = ?').bind(sourceId).run();
 
-        // 获取源信息
+        // 
         const source = await db.prepare('SELECT url FROM sources WHERE id = ?').bind(sourceId).first();
         if (!source) {
           return new Response('Source not found', { status: 404 });
         }
 
-        // 获取过滤参数（从请求体中读取）
+        // （）
         let filter = null;
         if (request.method === 'POST') {
           try {
@@ -283,12 +283,12 @@ export async function handleAdminRequest(request, env, ctx) {
           }
         }
 
-        // 如果filter为空，使用空对象
+        // filter，
         if (!filter) {
           filter = {};
         }
 
-        // 加载 typeMappingConfig
+        //  typeMappingConfig
         try {
           const typeMappingConfig = await getTypeMappingConfig();
           filter.typeMappingConfig = typeMappingConfig;
@@ -297,14 +297,14 @@ export async function handleAdminRequest(request, env, ctx) {
           console.error('[Admin] Failed to load typeMappingConfig:', e);
         }
 
-        // 先更新源的同步时间（使用 JavaScript 生成当前时间）
+        // （ JavaScript ）
         const now = new Date().toISOString();
         await db.prepare(`UPDATE sources SET last_updated = ? WHERE id = ?`).bind(now, sourceId).run();
 
-        // 获取并解析M3U内容
+        // M3U
         const result = await fetchAndParseM3U(source.url, sourceId, filter);
 
-        // 添加删除统计信息
+        // 
         result.deletedChannels = oldChannelCount;
 
         return new Response(JSON.stringify(result), {
@@ -312,9 +312,9 @@ export async function handleAdminRequest(request, env, ctx) {
         });
 
       case 'codes':
-        // 处理卡密管理
+        // 
         if (request.method === 'POST' && url.searchParams.get('action') === 'batch_delete') {
-          // 批量删除卡密
+          // 
           const data = await request.json();
           const { codes } = data;
 
@@ -344,19 +344,19 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'GET') {
-          // 导出CSV功能
+          // CSV
           if (url.searchParams.get('action') === 'export') {
             const codes = await getCodesForExport(url.searchParams);
             
-            // 生成CSV内容
-            let csv = '卡密,状态,有效期(天),最大IP数,激活时间,过期时间,备注\n';
+            // CSV
+            let csv = ',,(),IP,,,\n';
             codes.forEach(code => {
-              const statusMap = { 'unused': '未使用', 'active': '活跃', 'disabled': '禁用' };
+              const statusMap = { 'unused': '', 'active': '', 'disabled': '' };
               const status = statusMap[code.status] || code.status;
               const activatedAt = code.activated_at ? formatDateTime(code.activated_at) : '-';
               const expiredAt = code.expired_at ? formatDateTime(code.expired_at) : '-';
               const remark = code.remark || '-';
-              // 处理CSV中的特殊字符
+              // CSV
               const cleanCode = escapeCsvField(code.code);
               const cleanRemark = escapeCsvField(remark);
               csv += `${cleanCode},${status},${code.duration_days},${code.max_ips || 3},${activatedAt},${expiredAt},${cleanRemark}\n`;
@@ -371,7 +371,7 @@ export async function handleAdminRequest(request, env, ctx) {
           }
           
           const codeQuery = url.searchParams.get('code');
-          // 如果指定了code参数，返回单个卡密
+          // code，
           if (codeQuery) {
             const code = await getDB().prepare('SELECT * FROM codes WHERE code = ?').bind(codeQuery).first();
             if (!code) {
@@ -385,7 +385,7 @@ export async function handleAdminRequest(request, env, ctx) {
             });
           }
 
-          // 获取卡密列表（支持分页和查询）
+          // （）
           const page = parseInt(url.searchParams.get('page')) || 1;
           const pageSize = Math.min(parseInt(url.searchParams.get('page_size')) || 100, 100);
           const statusFilter = url.searchParams.get('status') || '';
@@ -445,11 +445,11 @@ export async function handleAdminRequest(request, env, ctx) {
             codesQuery += whereClause;
           }
 
-          // 获取总数
+          // 
           const totalResult = await getDB().prepare(countQuery + (whereConditions.length > 0 ? ' WHERE ' + whereConditions.join(' AND ') : '')).bind(...params).first();
           const total = totalResult.total;
 
-          // 获取分页数据
+          // 
           const offset = (page - 1) * pageSize;
           codesQuery += ' ORDER BY code DESC LIMIT ? OFFSET ?';
           const codes = await getDB().prepare(codesQuery).bind(...params, pageSize, offset).all();
@@ -466,7 +466,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST' && url.searchParams.get('action') === 'activate') {
-          // 激活卡密
+          // 
           const data = await request.json();
           const now = new Date().toISOString();
           const code = await getDB().prepare('SELECT * FROM codes WHERE code = ?').bind(data.code).first();
@@ -485,16 +485,16 @@ export async function handleAdminRequest(request, env, ctx) {
             });
           }
 
-          // 计算过期时间
+          // 
           let expiredAt = new Date();
-          // 如果 duration_days 为 -1 表示永久卡密
+          //  duration_days  -1 
           if (code.duration_days === -1) {
-            expiredAt = null; // 永久卡密不设置过期时间
+            expiredAt = null; // 
           } else {
             expiredAt.setTime(expiredAt.getTime() + code.duration_days * 24 * 60 * 60 * 1000);
           }
 
-          // 激活卡密
+          // 
           await getDB().prepare(`
             UPDATE codes SET status = 'active', activated_at = ?, expired_at = ?
             WHERE code = ?
@@ -512,7 +512,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST' && url.searchParams.get('action') === 'import') {
-          // 批量导入卡密
+          // 
           const data = await request.json();
           const { codes: importCodes, skip_duplicates, update_existing } = data;
 
@@ -561,7 +561,7 @@ export async function handleAdminRequest(request, env, ctx) {
                     updateParams.push(parseBeijingTime(expired_at));
                   } else if (duration_days === -1) {
                     updateFields.push('expired_at = ?');
-                    updateParams.push(null); // 永久卡密
+                    updateParams.push(null); // 
                   } else {
                     const defaultExpiredAt = new Date();
                     defaultExpiredAt.setTime(defaultExpiredAt.getTime() + duration_days * 24 * 60 * 60 * 1000);
@@ -595,7 +595,7 @@ export async function handleAdminRequest(request, env, ctx) {
                 if (expired_at) {
                   expiredAtISO = parseBeijingTime(expired_at);
                 } else if (duration_days === -1) {
-                  expiredAtISO = null; // 永久卡密
+                  expiredAtISO = null; // 
                 } else {
                   const defaultExpiredAt = new Date();
                   defaultExpiredAt.setTime(defaultExpiredAt.getTime() + duration_days * 24 * 60 * 60 * 1000);
@@ -635,19 +635,19 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST') {
-          // 生成新卡密
+          // 
           const data = await request.json();
           const codes = [];
           const db = getDB();
 
-          // 生成指定数量的卡密
+          // 
           for (let i = 0; i < data.count; i++) {
             let code;
             let isUnique = false;
             let attempts = 0;
             const maxAttempts = 100;
 
-            // 生成唯一卡密，确保不重复
+            // ，
             while (!isUnique && attempts < maxAttempts) {
               code = generateCode();
               const existing = await db.prepare('SELECT code FROM codes WHERE code = ?').bind(code).first();
@@ -664,8 +664,8 @@ export async function handleAdminRequest(request, env, ctx) {
               });
             }
 
-            // 生成卡密时只设置 status='unused' 和 duration_days
-            // activated_at 和 expired_at 在激活时设置
+            //  status='unused'  duration_days
+            // activated_at  expired_at 
             await db.prepare(`
               INSERT INTO codes (code, status, duration_days, max_ips, remark, topic_id)
               VALUES (?, 'unused', ?, ?, ?, ?)
@@ -687,7 +687,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'PUT') {
-          // 更新卡密状态
+          // 
           const data = await request.json();
           await getDB().prepare(`
             UPDATE codes SET status = ?, remark = ?, topic_id = ?
@@ -703,7 +703,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'DELETE') {
-          // 清空所有卡密数据
+          // 
           const db = getDB();
 
           const countResult = await db.prepare('SELECT COUNT(*) as count FROM codes').first();
@@ -721,17 +721,17 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'topics':
-        // 专题管理 API
+        //  API
         const topicAction = url.searchParams.get('action');
         
         if (request.method === 'GET' && !topicAction) {
-          // 获取所有专题
+          // 
           const topics = await getTopics();
           return new Response(JSON.stringify(topics), {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'GET' && topicAction === 'get') {
-          // 获取单个专题
+          // 
           const id = parseInt(url.searchParams.get('id'));
           if (!id) {
             return new Response(JSON.stringify({ success: false, error: 'Missing id' }), { status: 400 });
@@ -744,7 +744,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST' && topicAction === 'create') {
-          // 创建专题
+          // 
           const data = await request.json();
           if (!data.name) {
             return new Response(JSON.stringify({ success: false, error: 'Missing name' }), { status: 400 });
@@ -754,7 +754,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'PUT' && topicAction === 'update') {
-          // 更新专题
+          // 
           const data = await request.json();
           if (!data.id) {
             return new Response(JSON.stringify({ success: false, error: 'Missing id' }), { status: 400 });
@@ -767,7 +767,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'DELETE' && topicAction === 'delete') {
-          // 删除专题
+          // 
           const id = parseInt(url.searchParams.get('id'));
           if (!id) {
             return new Response(JSON.stringify({ success: false, error: 'Missing id' }), { status: 400 });
@@ -780,7 +780,7 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'channels':
-        // 获取频道列表（支持分页）
+        // （）
         const action = url.searchParams.get('action');
         const sourceIdFilter = url.searchParams.get('source_id');
         const groupTitleFilter = url.searchParams.get('group_title');
@@ -789,18 +789,18 @@ export async function handleAdminRequest(request, env, ctx) {
         const pageSize = parseInt(url.searchParams.get('page_size')) || 100;
         const search = url.searchParams.get('search') || '';
 
-        // 获取所有分组列表
+        // 
         if (action === 'get_groups') {
           const db = getDB();
           let query = 'SELECT DISTINCT c.group_title FROM channels c';
           const params = [];
           const conditions = [];
 
-          // 基础条件：分组不为空
+          // ：
           conditions.push('c.group_title IS NOT NULL');
           conditions.push('c.group_title != ""');
 
-          // 如果指定了source_id，添加JOIN和过滤条件
+          // source_id，JOIN
           if (sourceIdFilter) {
             query += ' INNER JOIN sources s ON c.source_id = s.id';
             conditions.push('s.id = ?');
@@ -816,19 +816,19 @@ export async function handleAdminRequest(request, env, ctx) {
         }
 
         if (request.method === 'DELETE') {
-          // 清空所有频道数据
+          // 
           const db = getDB();
 
-          // 获取清空前的频道数量
+          // 
           const countResult = await db.prepare('SELECT COUNT(*) as count FROM channels').first();
           const channelCount = countResult?.count || 0;
 
-          // 清空频道表
+          // 
           await db.prepare('DELETE FROM channels').run();
 
           return new Response(JSON.stringify({
             success: true,
-            message: `已清空 ${channelCount} 个频道数据`
+            message: ` ${channelCount} `
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
@@ -868,16 +868,16 @@ export async function handleAdminRequest(request, env, ctx) {
           channelsQuery += whereClause;
         }
 
-        // 获取总数
+        // 
         const totalResult = await getDB().prepare(countQuery + (whereConditions.length > 0 ? ' WHERE ' + whereConditions.join(' AND ') : '')).bind(...params).first();
         const total = totalResult.total;
 
-        // 获取分页数据
+        // 
         const offset = (page - 1) * pageSize;
         channelsQuery += ' ORDER BY c.group_title, c.channel_name LIMIT ? OFFSET ?';
         const channels = await getDB().prepare(channelsQuery).bind(...params, pageSize, offset).all();
 
-        // 格式化结果，确保所有字段都包含在内
+        // ，
         const formattedResults = channels.results.map(channel => ({
           id: channel.id,
           source_id: channel.source_id,
@@ -893,79 +893,79 @@ export async function handleAdminRequest(request, env, ctx) {
           description: channel.description || ''
         }));
 
-        // 在应用层进行分组内排序（英文 -> 数字 -> 中文）
+        // （ ->  -> ）
         if (formattedResults.length > 0) {
           formattedResults.sort((a, b) => {
             const groupA = a.group_title || '';
             const groupB = b.group_title || '';
-            // 先按分组名排序
+            // 
             if (groupA !== groupB) {
               return groupA.localeCompare(groupB, 'zh-CN', { numeric: true });
             }
 
-            // 同一分组内：英文 -> 数字 -> 中文（数字按数值大小排序）
+            // ： ->  -> （）
             const nameA = a.channel_name || '';
             const nameB = b.channel_name || '';
 
-            // 尝试提取CCTV格式的数字
+            // CCTV
             const cctvMatchA = nameA.match(/^([A-Za-z]+)(\d+)/);
             const cctvMatchB = nameB.match(/^([A-Za-z]+)(\d+)/);
 
-            // 如果都是CCTV格式（字母开头+数字），按数字大小排序
+            // CCTV（+），
             if (cctvMatchA && cctvMatchB && cctvMatchA[1].toUpperCase() === cctvMatchB[1].toUpperCase()) {
               const numA = parseInt(cctvMatchA[2]);
               const numB = parseInt(cctvMatchB[2]);
               if (numA !== numB) {
                 return numA - numB;
               }
-              // 数字相同，继续按后缀排序（无后缀的排前面）
+              // ，（）
               const suffixA = nameA.substring(cctvMatchA[1].length + cctvMatchA[2].length);
               const suffixB = nameB.substring(cctvMatchB[1].length + cctvMatchB[2].length);
 
-              // 如果一个有后缀一个没有，无后缀的排前面
+              // ，
               const hasSuffixA = suffixA.trim().length > 0;
               const hasSuffixB = suffixB.trim().length > 0;
               if (hasSuffixA !== hasSuffixB) {
                 return hasSuffixA ? 1 : -1;
               }
 
-              // 都有后缀或都没有后缀，按后缀内容排序
+              // ，
               return suffixA.localeCompare(suffixB, 'zh-CN', { numeric: true });
             }
 
-            // 普通排序：按字符逐个比较
+            // ：
             for (let i = 0; i < Math.min(nameA.length, nameB.length); i++) {
               const charA = nameA.charCodeAt(i);
               const charB = nameB.charCodeAt(i);
 
-              // 英文字母 (A-Z, a-z: 65-90, 97-122)
+              //  (A-Z, a-z: 65-90, 97-122)
               const isAlphaA = (charA >= 65 && charA <= 90) || (charA >= 97 && charA <= 122);
               const isAlphaB = (charB >= 65 && charB <= 90) || (charB >= 97 && charB <= 122);
 
-              // 数字 (0-9: 48-57)
+              //  (0-9: 48-57)
               const isDigitA = charA >= 48 && charA <= 57;
               const isDigitB = charB >= 48 && charB <= 57;
 
-              // 中文 (\u4e00-\u9fa5: 19968-40869)
+              //  (\u4e00-\u9fa5: 19968-40869)
               const isChineseA = charA >= 19968 && charA <= 40869;
               const isChineseB = charB >= 19968 && charB <= 40869;
 
-              // 确定字符类型优先级：英文=1, 数字=2, 中文=3
+              // ：=1, =2, =3
               const typeA = isAlphaA ? 1 : (isDigitA ? 2 : (isChineseA ? 3 : 4));
               const typeB = isAlphaB ? 1 : (isDigitB ? 2 : (isChineseB ? 3 : 4));
 
-              // 类型不同时，按类型排序
+              // ，
               if (typeA !== typeB) {
                 return typeA - typeB;
               }
 
-              // 类型相同时，按字符值排序
+              // ，
               if (charA !== charB) {
                 return charA - charB;
               }
             }
 
-            // 所有字符都相等，按长度排序
+            // ，
             return nameA.length - nameB.length;
           });
         }
@@ -983,13 +983,13 @@ export async function handleAdminRequest(request, env, ctx) {
         });
 
       case 'channel':
-        // 单独处理频道更新
+        // 
         const channelId = pathParts[3];
         if (channelId && request.method === 'PUT') {
           const data = await request.json();
           const db = getDB();
 
-          // 构建更新字段
+          // 
           const updateFields = [];
           const updateParams = [];
 
@@ -1044,7 +1044,7 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'channels-batch-type':
-        // 批量更新频道类型
+        // 
         if (request.method === 'PUT') {
           const data = await request.json();
           const { ids, type } = data;
@@ -1078,7 +1078,7 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'type-config':
-        // 类型映射配置管理
+        // 
         if (request.method === 'GET') {
           const config = await getTypeMappingConfig();
           return new Response(JSON.stringify({
@@ -1090,7 +1090,7 @@ export async function handleAdminRequest(request, env, ctx) {
         } else if (request.method === 'PUT') {
           const data = await request.json();
 
-          // 验证配置格式（应该是数组 [{channel_name, type}, ...]）
+          // （ [{channel_name, type}, ...]）
           if (!Array.isArray(data)) {
             return new Response(JSON.stringify({ success: false, error: 'Invalid config format: expected array' }), {
               status: 400,
@@ -1111,7 +1111,7 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'ip-blacklist-config':
-        // IP黑名单配置管理
+        // IP
         if (request.method === 'GET') {
           const config = await getIPBlacklistConfig();
           return new Response(JSON.stringify({
@@ -1123,7 +1123,7 @@ export async function handleAdminRequest(request, env, ctx) {
         } else if (request.method === 'POST') {
           const data = await request.json();
 
-          // 验证配置值
+          // 
           const fields = ['sub_rate_min', 'sub_rate_hour', 'sub_rate_day', 'live_rate_min', 'live_rate_hour', 'live_rate_day', 'admin_rate_hour'];
           const validConfig = {};
 
@@ -1137,7 +1137,7 @@ export async function handleAdminRequest(request, env, ctx) {
 
           return new Response(JSON.stringify({
             success: true,
-            message: 'IP黑名单配置已更新',
+            message: 'IP',
             config: validConfig
           }), {
             headers: { 'Content-Type': 'application/json' }
@@ -1146,15 +1146,15 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'homepage-display':
-        // 首页展示配置管理
+        // 
         if (request.method === 'GET') {
           const config = await getHomepageDisplayConfig();
 
-          // 获取所有可用的数据源
+          // 
           const sources = await getDB().prepare('SELECT id, name, url FROM sources WHERE is_active = 1 ORDER BY id').all();
           const sourceList = sources.results || [];
 
-          // 获取所有可用的分类
+          // 
           const groups = await getDB().prepare(`
             SELECT DISTINCT group_title
             FROM channels
@@ -1165,7 +1165,7 @@ export async function handleAdminRequest(request, env, ctx) {
             .map(g => g.group_title)
             .filter(g => g);
 
-          // 获取所有可用的host（从play_url提取）
+          // host（play_url）
           const hostResult = await getDB().prepare(`
             SELECT DISTINCT play_url
             FROM channels
@@ -1179,7 +1179,7 @@ export async function handleAdminRequest(request, env, ctx) {
               const url = new URL(row.play_url);
               hostSet.add(url.hostname);
             } catch (e) {
-              // 忽略无效URL
+              // URL
             }
           });
           const hostList = Array.from(hostSet).sort();
@@ -1201,20 +1201,20 @@ export async function handleAdminRequest(request, env, ctx) {
         } else if (request.method === 'POST') {
           const data = await request.json();
 
-          // 验证配置格式
+          // 
           const validConfig = {
             sources: Array.isArray(data.sources) ? data.sources : [],
             groups: Array.isArray(data.groups) ? data.groups : [],
             hosts: Array.isArray(data.hosts) ? data.hosts : [],
             hasHeaders: data.hasHeaders !== undefined ? data.hasHeaders : null
           };
-          console.log('[admin/homepage-display] 保存配置，hasHeaders:', validConfig.hasHeaders);
+          console.log('[admin/homepage-display] ，hasHeaders:', validConfig.hasHeaders);
 
           await updateHomepageDisplayConfig(validConfig);
 
           return new Response(JSON.stringify({
             success: true,
-            message: '首页展示配置已更新',
+            message: '',
             config: validConfig
           }), {
             headers: {
@@ -1228,7 +1228,7 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'system-config':
-        // 系统配置管理
+        // 
         if (request.method === 'GET') {
           const config = await getSystemConfig();
           return new Response(JSON.stringify({
@@ -1252,7 +1252,7 @@ export async function handleAdminRequest(request, env, ctx) {
 
           return new Response(JSON.stringify({
             success: true,
-            message: '系统配置已更新',
+            message: '',
             config
           }), {
             headers: { 'Content-Type': 'application/json' }
@@ -1261,16 +1261,16 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'security':
-        // 安全监控和管理
+        // 
         const securitySubAction = pathParts[3];
 
         if (request.method === 'GET' && securitySubAction === 'banned-codes') {
-          // 获取所有被封禁的卡密列表 - 优先从KV缓存读取
+          //  - KV
           let codes = [];
           const cacheResult = await getBannedCodesFromCache(env, 100, 0);
           codes = cacheResult.data;
 
-          // 如果KV缓存为空，从数据库同步
+          // KV，
           if (codes.length === 0) {
             const db = getDB();
             await syncBannedCodesToCache(env, db);
@@ -1286,7 +1286,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'GET' && securitySubAction === 'config') {
-          // 获取安全配置
+          // 
           const config = await getSecurityConfig();
           return new Response(JSON.stringify({
             success: true,
@@ -1299,7 +1299,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST' && securitySubAction === 'config') {
-          // 更新安全配置
+          // 
           const data = await request.json();
 
           const config = {};
@@ -1317,24 +1317,24 @@ export async function handleAdminRequest(request, env, ctx) {
 
           return new Response(JSON.stringify({
             success: true,
-            message: '配置已更新',
+            message: '',
             config
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'GET' && securitySubAction === 'quota') {
-          // 查看卡密额度使用情况
+          // 
           const code = url.searchParams.get('code');
           if (!code) {
             return new Response('Missing code parameter', { status: 400 });
           }
 
           const today = new Date().toISOString().split('T')[0];
-          // 列出该卡密今日所有频道的播放记录
+          // 
           const quotaRecords = [];
 
-          // 由于KV不支持通配符查询，这里简化处理
-          // 返回汇总信息
+          // KV，
+          // 
           const quotaKey = `code_quota:${today}:${code}`;
           const quotaData = await env.KV.get(quotaKey, { type: "json" }) || {
             totalPlays: 0,
@@ -1343,11 +1343,11 @@ export async function handleAdminRequest(request, env, ctx) {
             exceededChannels: []
           };
 
-          // 获取频道名称
+          // 
           const channelHashes = Object.keys(quotaData.channelPlays || {});
           const channelNames = {};
           if (channelHashes.length > 0) {
-            // 批量查询频道名称
+            // 
             const channels = await getDB().prepare(
               'SELECT channel_hash, channel_name FROM channels WHERE channel_hash IN (' + channelHashes.map(() => '?').join(',') + ')'
             ).bind(...channelHashes).all();
@@ -1359,7 +1359,7 @@ export async function handleAdminRequest(request, env, ctx) {
             }
           }
 
-          // 获取卡密封禁信息
+          // 
           const codeInfo = await getDB().prepare("SELECT banned_until FROM codes WHERE code = ?").bind(code).first();
           const isBanned = codeInfo?.banned_until && codeInfo.banned_until > new Date().toISOString();
 
@@ -1378,7 +1378,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST' && securitySubAction === 'unban') {
-          // 手动解封卡密
+          // 
           const data = await request.json();
           const code = data.code;
           if (!code) {
@@ -1390,30 +1390,30 @@ export async function handleAdminRequest(request, env, ctx) {
             return new Response('Code not found', { status: 404 });
           }
 
-          // 清除封禁备注
+          // 
           const newRemark = codeInfo.remark
-            ? codeInfo.remark.replace(/系统自动封禁：[^\n]*/g, '').trim()
+            ? codeInfo.remark.replace(/：[^\n]*/g, '').trim()
             : '';
 
           await getDB().prepare("UPDATE codes SET status = 'active', remark = ?, banned_until = NULL WHERE code = ?")
             .bind(newRemark, code)
             .run();
 
-          // 从KV缓存中移除
+          // KV
           await removeBannedCodeFromCache(env, code);
 
-          // 清除额度记录
+          // 
           const today = new Date().toISOString().split('T')[0];
           await env.KV.delete(`code_quota:${today}:${code}`);
 
           return new Response(JSON.stringify({
             success: true,
-            message: '卡密已解封'
+            message: ''
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'GET' && securitySubAction === 'stats') {
-          // 获取安全统计
+          // 
           const code = url.searchParams.get('code');
           if (!code) {
             return new Response('Missing code parameter', { status: 400 });
@@ -1448,13 +1448,13 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'DELETE' && securitySubAction === 'reset') {
-          // 重置安全计数
+          // 
           const code = url.searchParams.get('code');
           if (!code) {
             return new Response('Missing code parameter', { status: 400 });
           }
 
-          // 删除所有安全相关数据
+          // 
           const keysToDelete = [
             `access:${code}:*`,
             `limit:play:*:${code}`,
@@ -1463,30 +1463,30 @@ export async function handleAdminRequest(request, env, ctx) {
             `suspicious:${code}`
           ];
 
-          // KV不支持通配符删除，需要逐个删除已知键
+          // KV，
           const today = new Date().toISOString().split('T')[0];
           await env.KV.delete(`access:${code}:${today}`);
           await env.KV.delete(`abuse:${code}`);
           await env.KV.delete(`abuse_flag:${code}`);
           await env.KV.delete(`suspicious:${code}`);
 
-          // 删除令牌（需要列出所有令牌，这里简化处理）
-          // 实际中可以使用KV list API
+          // （，）
+          // KV list API
 
           return new Response(JSON.stringify({
             success: true,
-            message: '安全计数已重置'
+            message: ''
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
         }
 
       case 'ip-blacklist':
-        // IP黑名单管理
+        // IP
         const blacklistSubAction = pathParts[3];
 
         if (request.method === 'GET' && !blacklistSubAction) {
-          // 获取所有封禁的IP列表（默认返回前100条）
+          // IP（100）
           const result = await getBlacklistedIPs(env, 100, 0);
           return new Response(JSON.stringify({
             success: true,
@@ -1496,7 +1496,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'DELETE' && blacklistSubAction === 'remove') {
-          // 解封IP
+          // IP
           const ip = url.searchParams.get('ip');
           if (!ip) {
             return new Response('Missing IP parameter', { status: 400 });
@@ -1510,7 +1510,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'GET' && blacklistSubAction === 'stats') {
-          // 查看IP访问统计
+          // IP
           const ip = url.searchParams.get('ip');
           if (!ip) {
             return new Response('Missing IP parameter', { status: 400 });
@@ -1525,7 +1525,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST' && blacklistSubAction === 'ban') {
-          // 手动封禁IP
+          // IP
           const data = await request.json();
           if (!data.ip) {
             return new Response('Missing IP parameter', { status: 400 });
@@ -1542,10 +1542,10 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'cache':
-        // 缓存管理
+        // 
         const cacheSubAction = pathParts[3];
 
-        // 获取缓存状态
+        // 
         if (cacheSubAction === 'status' && request.method === 'GET') {
           const status = await getCacheStatus(env);
           return new Response(JSON.stringify({
@@ -1556,12 +1556,12 @@ export async function handleAdminRequest(request, env, ctx) {
           });
         }
 
-        // 刷新缓存
+        // 
         if (cacheSubAction === 'refresh' && request.method === 'POST') {
           const result = await cacheChannelsToKV(env);
           return new Response(JSON.stringify({
             success: result.success,
-            message: result.success ? `缓存刷新成功：${result.channels} 个频道，${result.groups} 个分组` : '缓存刷新失败',
+            message: result.success ? `：${result.channels} ，${result.groups} ` : '',
             channels: result.channels,
             groups: result.groups,
             version: result.version,
@@ -1571,20 +1571,20 @@ export async function handleAdminRequest(request, env, ctx) {
           });
         }
 
-        // 清空缓存并重新生成
+        // 
         if (cacheSubAction === 'clear' && request.method === 'POST') {
           console.log('[Admin] Clearing cache and regenerating...');
           
-          // 先清除旧缓存
+          // 
           const cleared = await clearChannelCache(env);
           
           if (cleared) {
-            // 立即重新生成缓存
+            // 
             const result = await cacheChannelsToKV(env);
             
             return new Response(JSON.stringify({
               success: true,
-              message: '缓存已清空并重新生成',
+              message: '',
               channels: result.channels || 0,
               groups: result.groups || 0,
               version: result.version
@@ -1594,7 +1594,7 @@ export async function handleAdminRequest(request, env, ctx) {
           } else {
             return new Response(JSON.stringify({
               success: false,
-              message: '缓存清空失败'
+              message: ''
             }), {
               headers: { 'Content-Type': 'application/json' }
             });
@@ -1604,7 +1604,7 @@ export async function handleAdminRequest(request, env, ctx) {
         return new Response('Invalid cache action', { status: 400 });
 
       case 'mall':
-        // 商城管理
+        // 
         const mallSubAction = pathParts[3];
 
         if (!mallSubAction) {
@@ -1614,7 +1614,7 @@ export async function handleAdminRequest(request, env, ctx) {
         if (mallSubAction === 'settings') {
           const db = getDB();
           if (request.method === 'GET') {
-            // 获取商城设置
+            // 
             const settings = await db.prepare('SELECT * FROM mall_settings').all();
             const settingsMap = {};
             (settings.results || []).forEach(s => {
@@ -1628,7 +1628,7 @@ export async function handleAdminRequest(request, env, ctx) {
               headers: { 'Content-Type': 'application/json' }
             });
           } else if (request.method === 'PUT') {
-            // 更新商城设置
+            // 
             const data = await request.json();
             const now = new Date().toISOString();
 
@@ -1648,19 +1648,19 @@ export async function handleAdminRequest(request, env, ctx) {
 
             return new Response(JSON.stringify({
               success: true,
-              message: '商城设置已更新'
+              message: ''
             }), {
               headers: { 'Content-Type': 'application/json' }
             });
           }
         } else if (mallSubAction === 'plans') {
-          // 订阅套餐管理
+          // 
           const db = getDB();
           const planId = pathParts[4];
           const isToggleAction = pathParts[5] === 'toggle';
 
           if (request.method === 'GET') {
-            // 获取所有套餐
+            // 
             const plans = await db.prepare('SELECT * FROM subscription_plans ORDER BY sort_order, id').all();
             return new Response(JSON.stringify({
               success: true,
@@ -1669,7 +1669,7 @@ export async function handleAdminRequest(request, env, ctx) {
               headers: { 'Content-Type': 'application/json' }
             });
           } else if (request.method === 'POST') {
-            // 添加套餐
+            // 
             const data = await request.json();
             const now = new Date().toISOString();
 
@@ -1691,13 +1691,13 @@ export async function handleAdminRequest(request, env, ctx) {
 
             return new Response(JSON.stringify({
               success: true,
-              message: '套餐已添加'
+              message: ''
             }), {
               headers: { 'Content-Type': 'application/json' }
             });
           } else if (request.method === 'PUT') {
             if (isToggleAction) {
-              // 切换套餐状态
+              // 
               const data = await request.json();
               const now = new Date().toISOString();
 
@@ -1707,12 +1707,12 @@ export async function handleAdminRequest(request, env, ctx) {
 
               return new Response(JSON.stringify({
                 success: true,
-                message: '套餐状态已更新'
+                message: ''
               }), {
                 headers: { 'Content-Type': 'application/json' }
               });
             } else {
-              // 更新套餐
+              // 
               const data = await request.json();
               const now = new Date().toISOString();
 
@@ -1734,40 +1734,40 @@ export async function handleAdminRequest(request, env, ctx) {
 
               return new Response(JSON.stringify({
                 success: true,
-                message: '套餐已更新'
+                message: ''
               }), {
                 headers: { 'Content-Type': 'application/json' }
               });
             }
           } else if (request.method === 'DELETE' && planId) {
-            // 删除套餐
+            // 
             await db.prepare('DELETE FROM subscription_plans WHERE id = ?').bind(planId).run();
 
             return new Response(JSON.stringify({
               success: true,
-              message: '套餐已删除'
+              message: ''
             }), {
               headers: { 'Content-Type': 'application/json' }
             });
           }
         } else if (mallSubAction === 'payment-methods') {
-          // 支付方式管理
+          // 
           if (request.method === 'GET') {
             return await handleGetPaymentMethods(request, env);
           } else if (request.method === 'POST') {
             return await handleCreatePaymentMethod(request, env);
           } else if (request.method === 'PUT') {
-            // 更新支付方式配置（没有 pathParts[4] 时）或切换状态（有 pathParts[4] 时）
+            // （ pathParts[4] ）（ pathParts[4] ）
             if (pathParts[4]) {
-              // 切换支付方式状态: /admin/mall/payment-methods/{id}
+              // : /admin/mall/payment-methods/{id}
               const id = parseInt(pathParts[4]);
               return await handleTogglePaymentMethod(request, env, ctx, id);
             } else {
-              // 更新支付方式配置: /admin/mall/payment-methods
+              // : /admin/mall/payment-methods
               return await handleUpdatePaymentMethod(request, env);
             }
           } else if (request.method === 'DELETE' && pathParts[4]) {
-            // 删除支付方式（从URL查询参数中获取id）
+            // （URLid）
             const id = pathParts[4];
             const newUrl = new URL(request.url);
             newUrl.searchParams.set('id', id);
@@ -1777,15 +1777,102 @@ export async function handleAdminRequest(request, env, ctx) {
             });
             return await handleDeletePaymentMethod(newRequest, env);
           }
+        } else if (mallSubAction === 'discount-codes') {
+          // 优惠码管理
+          const db = getDB();
+          const codeId = pathParts[4];
+
+          if (request.method === 'GET') {
+            // 列表（分页）
+            const page = parseInt(url.searchParams.get('page')) || 1;
+            const pageSize = Math.min(parseInt(url.searchParams.get('page_size')) || 20, 100);
+            const statusFilter = url.searchParams.get('status') || '';
+
+            let sql = 'SELECT * FROM discount_codes';
+            const params = [];
+            const whereClauses = [];
+
+            if (statusFilter) {
+              whereClauses.push('status = ?');
+              params.push(statusFilter);
+            }
+
+            if (whereClauses.length > 0) {
+              sql += ' WHERE ' + whereClauses.join(' AND ');
+            }
+
+            sql += ' ORDER BY id DESC';
+
+            const countSql = 'SELECT COUNT(*) as total FROM discount_codes' + (whereClauses.length > 0 ? ' WHERE ' + whereClauses.join(' AND ') : '');
+            const countResult = await db.prepare(countSql).bind(...params).first();
+            const total = countResult?.total || 0;
+
+            const offset = (page - 1) * pageSize;
+            sql += ' LIMIT ? OFFSET ?';
+            params.push(pageSize, offset);
+
+            const codes = await db.prepare(sql).bind(...params).all();
+
+            return new Response(JSON.stringify({
+              success: true,
+              data: codes.results || [],
+              pagination: { page, pageSize, total, pages: Math.ceil(total / pageSize) }
+            }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } else if (request.method === 'POST') {
+            // 批量生成
+            const data = await request.json();
+            const { count, type, value, usage_limit, min_amount, expires_at, remark } = data;
+
+            if (!count || count < 1 || count > 100) {
+              return new Response(JSON.stringify({ success: false, error: '数量必须在1-100之间' }), { status: 400 });
+            }
+
+            const createdCodes = [];
+            for (let i = 0; i < count; i++) {
+              const code = generateDiscountCode();
+              await db.prepare(`
+                INSERT INTO discount_codes (code, type, value, usage_limit, min_amount, expires_at, remark, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'active')
+              `).bind(code, type, value, usage_limit || 0, min_amount || 0, expires_at || null, remark || '').run();
+              createdCodes.push(code);
+            }
+
+            return new Response(JSON.stringify({ success: true, codes: createdCodes, count: createdCodes.length }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } else if (request.method === 'PUT' && codeId) {
+            // 更新状态
+            const data = await request.json();
+            const now = new Date().toISOString();
+
+            if (data.status) {
+              await db.prepare('UPDATE discount_codes SET status = ?, updated_at = ? WHERE id = ?').bind(data.status, now, codeId).run();
+            }
+            if (data.remark !== undefined) {
+              await db.prepare('UPDATE discount_codes SET remark = ? WHERE id = ?').bind(data.remark, codeId).run();
+            }
+
+            return new Response(JSON.stringify({ success: true }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } else if (request.method === 'DELETE' && codeId) {
+            // 删除
+            await db.prepare('DELETE FROM discount_codes WHERE id = ?').bind(codeId).run();
+            return new Response(JSON.stringify({ success: true }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
         }
         break;
 
       case 'ad-ts':
-        // 广告TS文件管理
+        // TS
         const adTsSubAction = pathParts[3];
 
         if (request.method === 'GET' && !adTsSubAction) {
-          // 获取所有广告TS文件列表
+          // TS
           const db = getDB();
           const adTsFiles = await db.prepare('SELECT * FROM ad_ts_files ORDER BY created_at DESC').all();
 
@@ -1797,7 +1884,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST' && adTsSubAction === 'upload') {
-          // 上传广告TS文件 或 添加远程广告URL
+          // TS  URL
           const formData = await request.formData();
           const file = formData.get('file');
           const name = formData.get('name');
@@ -1809,24 +1896,24 @@ export async function handleAdminRequest(request, env, ctx) {
           const db = getDB();
           const now = new Date().toISOString();
 
-          // 如果提供了远程URL，则不需要上传文件
+          // URL，
           if (remoteUrl) {
-            // 验证远程URL格式
+            // URL
             try {
               new URL(remoteUrl);
             } catch (e) {
               return new Response(JSON.stringify({
                 success: false,
-                error: '远程URL格式无效'
+                error: 'URL'
               }), { status: 400, headers: { 'Content-Type': 'application/json' } });
             }
 
-            // 保存远程URL
+            // URL
             await db.prepare(`
               INSERT INTO ad_ts_files (name, content, ad_type, description, is_active, remote_url, created_at, updated_at)
               VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             `).bind(
-              name || '远程广告',
+              name || '',
               '',
               adType,
               description,
@@ -1838,19 +1925,19 @@ export async function handleAdminRequest(request, env, ctx) {
 
             return new Response(JSON.stringify({
               success: true,
-              message: '远程广告URL添加成功'
+              message: 'URL'
             }), { headers: { 'Content-Type': 'application/json' } });
           }
 
-          // 如果没有文件也没有远程URL，返回错误
+          // URL，
           if (!file) {
-            return new Response(JSON.stringify({ success: false, error: '请上传TS文件或填写远程广告URL' }), {
+            return new Response(JSON.stringify({ success: false, error: 'TSURL' }), {
               status: 400,
               headers: { 'Content-Type': 'application/json' }
             });
           }
 
-          // 将文件内容转换为Base64
+          // Base64
           const arrayBuffer = await file.arrayBuffer();
           let binary = '';
           const bytes = new Uint8Array(arrayBuffer);
@@ -1860,12 +1947,12 @@ export async function handleAdminRequest(request, env, ctx) {
           }
           const base64 = btoa(binary);
 
-          // 检查 Base64 编码后的大小 (D1 实际限制约 1MB)
-          // Base64 编码后大小约为原始大小的 4/3，我们保留约 800KB 的安全余量
+          //  Base64  (D1  1MB)
+          // Base64  4/3， 800KB 
           if (base64.length > 800 * 1024) {
             return new Response(JSON.stringify({
               success: false,
-              error: `文件大小超出数据库限制 (${(file.size / 1024).toFixed(2)}KB)，编码后 ${(base64.length / 1024).toFixed(2)}KB > 800KB。建议压缩TS文件内容`
+              error: ` (${(file.size / 1024).toFixed(2)}KB)， ${(base64.length / 1024).toFixed(2)}KB > 800KB。TS`
             }), {
               status: 400,
               headers: { 'Content-Type': 'application/json' }
@@ -1894,12 +1981,12 @@ export async function handleAdminRequest(request, env, ctx) {
 
           return new Response(JSON.stringify({
             success: true,
-            message: '广告TS文件上传成功'
+            message: 'TS'
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'DELETE' && adTsSubAction === 'delete') {
-          // 删除广告TS文件
+          // TS
           const id = url.searchParams.get('id');
           if (!id) {
             return new Response('Missing id parameter', { status: 400 });
@@ -1910,12 +1997,12 @@ export async function handleAdminRequest(request, env, ctx) {
 
           return new Response(JSON.stringify({
             success: true,
-            message: '广告TS文件已删除'
+            message: 'TS'
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'PUT' && adTsSubAction === 'update') {
-          // 更新广告TS文件（启用/禁用广告）
+          // TS（/）
           const id = url.searchParams.get('id');
           if (!id) {
             return new Response('Missing id parameter', { status: 400 });
@@ -1930,22 +2017,22 @@ export async function handleAdminRequest(request, env, ctx) {
 
           return new Response(JSON.stringify({
             success: true,
-            message: '广告TS文件已启用'
+            message: 'TS'
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'PUT' && adTsSubAction === 'disable') {
-          // 禁用广告TS文件
+          // TS
           const id = url.searchParams.get('id');
         }
         break;
 
       case 'ad-bindings':
-        // 广告绑定管理
+        // 
         const adBindingsSubAction = pathParts[3];
 
         if (request.method === 'GET' && !adBindingsSubAction) {
-          // 获取所有广告绑定列表
+          // 
           const db = getDB();
           const bindings = await db.prepare(`
             SELECT ab.*, ats.name as ad_name
@@ -1955,18 +2042,18 @@ export async function handleAdminRequest(request, env, ctx) {
           `).all();
 
           const actionTypeLabels = {
-            'vip_expired': 'VIP播放过期',
-            'vip_limit_exceeded': 'VIP播放超限',
-            'free_normal': '非VIP正常播放',
-            'free_expired': '非VIP播放过期',
-            'free_limit_exceeded': '非VIP播放超限',
-            'channel_not_found': '频道不存在'
+            'vip_expired': 'VIP',
+            'vip_limit_exceeded': 'VIP',
+            'free_normal': 'VIP',
+            'free_expired': 'VIP',
+            'free_limit_exceeded': 'VIP',
+            'channel_not_found': ''
           };
 
           const formattedBindings = (bindings.results || []).map(b => ({
             ...b,
             action_type_label: actionTypeLabels[b.action_type] || b.action_type,
-            cooldown_display: b.cooldown_seconds > 0 ? `${b.cooldown_seconds}秒` : '不限制'
+            cooldown_display: b.cooldown_seconds > 0 ? `${b.cooldown_seconds}` : ''
           }));
 
           return new Response(JSON.stringify({
@@ -1977,7 +2064,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST' && adBindingsSubAction === 'create') {
-          // 创建广告绑定
+          // 
           const body = await request.json();
           const { action_type, ad_id, cooldown_seconds, priority } = body;
 
@@ -2001,13 +2088,13 @@ export async function handleAdminRequest(request, env, ctx) {
 
           return new Response(JSON.stringify({
             success: true,
-            message: '广告绑定创建成功',
+            message: '',
             id: result.meta.last_row_id
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'PUT' && adBindingsSubAction === 'update') {
-          // 更新广告绑定
+          // 
           const id = url.searchParams.get('id');
           if (!id) {
             return new Response('Missing id parameter', { status: 400 });
@@ -2033,12 +2120,12 @@ export async function handleAdminRequest(request, env, ctx) {
 
           return new Response(JSON.stringify({
             success: true,
-            message: '广告绑定更新成功'
+            message: ''
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'DELETE' && adBindingsSubAction === 'delete') {
-          // 删除广告绑定
+          // 
           const id = url.searchParams.get('id');
           if (!id) {
             return new Response('Missing id parameter', { status: 400 });
@@ -2049,7 +2136,7 @@ export async function handleAdminRequest(request, env, ctx) {
 
           return new Response(JSON.stringify({
             success: true,
-            message: '广告绑定已删除'
+            message: ''
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
@@ -2057,9 +2144,9 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'users':
-        // 用户管理
+        // 
         if (request.method === 'GET') {
-          // 获取用户列表
+          // 
           const page = parseInt(url.searchParams.get('page') || '1');
           const pageSize = parseInt(url.searchParams.get('pageSize') || '20');
           const search = url.searchParams.get('search') || '';
@@ -2094,12 +2181,12 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'PUT') {
-          // 更新用户状态
+          // 
           const body = await request.json();
           const { id, is_verified } = body;
 
           if (!id) {
-            return new Response(JSON.stringify({ success: false, error: '用户ID不能为空' }), {
+            return new Response(JSON.stringify({ success: false, error: 'ID' }), {
               status: 400,
               headers: { 'Content-Type': 'application/json' }
             });
@@ -2112,16 +2199,16 @@ export async function handleAdminRequest(request, env, ctx) {
 
           return new Response(JSON.stringify({
             success: true,
-            message: '用户状态更新成功'
+            message: ''
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'DELETE') {
-          // 删除用户
+          // 
           const id = url.searchParams.get('id');
 
           if (!id) {
-            return new Response(JSON.stringify({ success: false, error: '用户ID不能为空' }), {
+            return new Response(JSON.stringify({ success: false, error: 'ID' }), {
               status: 400,
               headers: { 'Content-Type': 'application/json' }
             });
@@ -2131,7 +2218,7 @@ export async function handleAdminRequest(request, env, ctx) {
 
           return new Response(JSON.stringify({
             success: true,
-            message: '用户删除成功'
+            message: ''
           }), {
             headers: { 'Content-Type': 'application/json' }
           });
@@ -2139,11 +2226,11 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'orders':
-        // 订单管理
+        // 
         const ordersSubAction = pathParts[3];
 
         if (!ordersSubAction && request.method === 'GET') {
-          // 获取 user_orders 列表
+          //  user_orders 
           const page = parseInt(url.searchParams.get('page') || '1');
           const pageSize = parseInt(url.searchParams.get('pageSize') || '20');
           const userId = url.searchParams.get('userId');
@@ -2183,13 +2270,13 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (ordersSubAction === 'xunhupay' && request.method === 'GET') {
-          // 获取虎皮椒订单列表
+          // 
           return await handleGetXunhuPayOrders(request, env, ctx);
         }
         break;
 
       case 'payment-methods':
-        // 支付方式管理
+        // 
         if (request.method === 'GET') {
           return await handleGetPaymentMethods(request, env, ctx);
         } else if (request.method === 'POST') {
@@ -2198,9 +2285,9 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'domain-blacklist':
-        // 域名黑名单管理
+        // 
         if (request.method === 'GET') {
-          // 获取所有黑名单域名
+          // 
           const domains = await getDomainBlacklist();
           return new Response(JSON.stringify({
             success: true,
@@ -2209,11 +2296,11 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST') {
-          // 添加域名到黑名单
+          // 
           const data = await request.json();
 
           if (data.domains && Array.isArray(data.domains)) {
-            // 批量添加
+            // 
             const results = await addMultipleDomainsToBlacklist(data.domains);
             return new Response(JSON.stringify({
               success: true,
@@ -2222,7 +2309,7 @@ export async function handleAdminRequest(request, env, ctx) {
               headers: { 'Content-Type': 'application/json' }
             });
           } else if (data.domain) {
-            // 单个添加
+            // 
             try {
               const result = await addDomainToBlacklist(data.domain, data.reason || '');
               return new Response(JSON.stringify({
@@ -2234,7 +2321,7 @@ export async function handleAdminRequest(request, env, ctx) {
             } catch (e) {
               return new Response(JSON.stringify({
                 success: false,
-                error: e.message.includes('UNIQUE constraint') ? '域名已存在' : e.message
+                error: e.message.includes('UNIQUE constraint') ? '' : e.message
               }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' }
@@ -2243,14 +2330,14 @@ export async function handleAdminRequest(request, env, ctx) {
           } else {
             return new Response(JSON.stringify({
               success: false,
-              error: '请提供域名'
+              error: ''
             }), {
               status: 400,
               headers: { 'Content-Type': 'application/json' }
             });
           }
         } else if (request.method === 'DELETE') {
-          // 从黑名单删除域名
+          // 
           const domainId = pathParts[3];
           if (!domainId) {
             return new Response('Missing domain ID', { status: 400 });
@@ -2261,14 +2348,14 @@ export async function handleAdminRequest(request, env, ctx) {
             if (success) {
               return new Response(JSON.stringify({
                 success: true,
-                message: '域名已从黑名单中删除'
+                message: ''
               }), {
                 headers: { 'Content-Type': 'application/json' }
               });
             } else {
               return new Response(JSON.stringify({
                 success: false,
-                error: '域名不存在'
+                error: ''
               }), {
                 status: 404,
                 headers: { 'Content-Type': 'application/json' }
@@ -2287,15 +2374,15 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'tickets':
-        // 工单管理
+        // 
         return await handleAdminTickets(request, env, ctx);
 
       case 'tokens':
-        // Token管理
+        // Token
         const tokenSubAction = pathParts[3];
 
         if (request.method === 'GET' && !tokenSubAction) {
-          // 获取所有有效token
+          // token
           const tokens = await getAllTokens(env);
           return new Response(JSON.stringify({
             success: true,
@@ -2304,7 +2391,7 @@ export async function handleAdminRequest(request, env, ctx) {
             headers: { 'Content-Type': 'application/json' }
           });
         } else if (request.method === 'POST' && tokenSubAction === 'refresh') {
-          // 手动生成新token和播放地址
+          // token
           const ttlHours = parseInt(url.searchParams.get('ttl')) || 72;
           try {
             const token = await generateTokenAndAddresses(env, { ttlHours });
@@ -2324,7 +2411,7 @@ export async function handleAdminRequest(request, env, ctx) {
             });
           }
         } else if (request.method === 'POST' && pathParts[4] === 'invalidate') {
-          // 使token失效
+          // token
           const tokenToInvalidate = pathParts[3];
           try {
             await invalidateToken(tokenToInvalidate, env);
@@ -2341,7 +2428,7 @@ export async function handleAdminRequest(request, env, ctx) {
             });
           }
         } else if (request.method === 'POST' && pathParts[4] === 'extend') {
-          // 延长token有效期
+          // token
           const tokenToExtend = pathParts[3];
           const additionalHours = parseInt(url.searchParams.get('hours')) || 72;
           try {
@@ -2362,7 +2449,7 @@ export async function handleAdminRequest(request, env, ctx) {
         break;
 
       case 'classify-channels-ai':
-        // AI 批量分类空类型频道
+        // AI 
         return await handleClassifyChannelsAI(request, env, ctx);
 
       default:
@@ -2377,7 +2464,7 @@ export async function handleAdminRequest(request, env, ctx) {
   }
 }
 
-// 生成随机卡密
+// 
 function generateCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let code = '';
@@ -2387,7 +2474,7 @@ function generateCode() {
   return code;
 }
 
-// 解析北京时间格式的日期字符串
+// 
 function parseBeijingTime(dateStr) {
   if (!dateStr) return null;
 
@@ -2416,7 +2503,7 @@ function parseBeijingTime(dateStr) {
   }
 }
 
-// 获取符合查询条件的卡密用于导出
+// 
 async function getCodesForExport(params) {
   const db = getDB();
   let codesQuery = 'SELECT * FROM codes';
@@ -2474,7 +2561,7 @@ async function getCodesForExport(params) {
   return codes.results || [];
 }
 
-// 格式化日期时间
+// 
 function formatDateTime(dateStr) {
   if (!dateStr) return '-';
   const date = new Date(dateStr);
@@ -2489,11 +2576,11 @@ function formatDateTime(dateStr) {
   });
 }
 
-// 转义CSV字段
+// CSV
 function escapeCsvField(field) {
   if (!field) return '';
   const str = String(field);
-  // 如果包含逗号、引号或换行，需要用引号包裹并转义引号
+  // 、，
   if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
     return '"' + str.replace(/"/g, '""') + '"';
   }
@@ -2501,18 +2588,18 @@ function escapeCsvField(field) {
 }
 
 /**
- * 处理广告TS文件请求
- * @param {Request} request - 请求对象
- * @param {object} env - 环境变量
- * @param {object} ctx - 上下文
- * @returns {Response} 响应对象
+ * TS
+ * @param {Request} request - 
+ * @param {object} env - 
+ * @param {object} ctx - 
+ * @returns {Response} 
  */
 export async function handleAdTsFile(request, env, ctx) {
   const url = new URL(request.url);
   const pathParts = url.pathname.split('/');
-  const filename = pathParts[pathParts.length - 1]; // 获取文件名，如 123.ts
+  const filename = pathParts[pathParts.length - 1]; // ， 123.ts
 
-  // 提取广告ID
+  // ID
   const adId = filename.replace('.ts', '');
   const adIdNum = parseInt(adId);
 
@@ -2522,7 +2609,7 @@ export async function handleAdTsFile(request, env, ctx) {
 
   const db = getDB();
 
-  // 查询广告TS文件
+  // TS
   const adFile = await db.prepare('SELECT * FROM ad_ts_files WHERE id = ?').bind(adIdNum).first();
 
   if (!adFile) {
@@ -2530,7 +2617,7 @@ export async function handleAdTsFile(request, env, ctx) {
     return new Response('Ad not found', { status: 404 });
   }
 
-  // 如果没有本地content，尝试获取远程URL内容
+  // content，URL
   let content = adFile.content;
   if (!content && adFile.remote_url) {
     try {
@@ -2538,7 +2625,7 @@ export async function handleAdTsFile(request, env, ctx) {
       const remoteResponse = await fetch(adFile.remote_url);
       if (remoteResponse.ok) {
         const arrayBuffer = await remoteResponse.arrayBuffer();
-        // 使用chunked方式编码，避免栈溢出
+        // chunked，
         const uint8Array = new Uint8Array(arrayBuffer);
         let binaryString = '';
         const chunkSize = 8192;
@@ -2565,7 +2652,7 @@ export async function handleAdTsFile(request, env, ctx) {
 
   console.log('[AdTS] Serving ad file:', adIdNum, 'name:', adFile.name, 'content length:', content.length);
 
-  // 解码base64内容
+  // base64
   try {
     const binaryString = atob(adFile.content);
     const bytes = new Uint8Array(binaryString.length);
@@ -2575,7 +2662,7 @@ export async function handleAdTsFile(request, env, ctx) {
 
     console.log('[AdTS] Decoded bytes length:', bytes.length, 'First 10 bytes:', Array.from(bytes.slice(0, 10)));
 
-    // 检查TS魔数（TS文件应该以 0x47 开头）
+    // TS（TS 0x47 ）
     if (bytes.length < 188 || bytes[0] !== 0x47) {
       console.error('[AdTS] Invalid TS file format, expected 0x47 at start, got:', bytes[0].toString(16));
     }
@@ -2595,7 +2682,7 @@ export async function handleAdTsFile(request, env, ctx) {
 }
 
 /**
- * 切换支付方式的状态
+ * 
  */
 export async function handleTogglePaymentMethod(request, env, ctx, id) {
   try {
@@ -2651,13 +2738,13 @@ export async function handleTogglePaymentMethod(request, env, ctx, id) {
 export async function handleAdminTickets(request, env, ctx) {
   const url = new URL(request.url);
   const pathParts = url.pathname.split('/');
-  const ticketId = pathParts[3]; // /admin/tickets/:id 中的 :id
-  const subAction = pathParts[4]; // /admin/tickets/:id/:action 中的 action
+  const ticketId = pathParts[3]; // /admin/tickets/:id  :id
+  const subAction = pathParts[4]; // /admin/tickets/:id/:action  action
 
   try {
     const db = getDB();
 
-    // 列表 GET /admin/tickets
+    //  GET /admin/tickets
     if (request.method === 'GET' && !ticketId) {
       const status = url.searchParams.get('status');
       const type = url.searchParams.get('type');
@@ -2702,7 +2789,7 @@ export async function handleAdminTickets(request, env, ctx) {
       });
     }
 
-    // 详情 GET /admin/tickets/:id
+    //  GET /admin/tickets/:id
     if (request.method === 'GET' && ticketId && !subAction) {
       const ticket = await db.prepare(`
         SELECT t.*, u.email as user_email
@@ -2718,12 +2805,12 @@ export async function handleAdminTickets(request, env, ctx) {
         });
       }
 
-      // 获取订单信息
+      // 
       const order = await db.prepare(`
         SELECT * FROM user_orders WHERE order_id = ?
       `).bind(ticket.order_id).first();
 
-      // 获取回复
+      // 
       const replies = await db.prepare(`
         SELECT r.*, u.email as user_email
         FROM ticket_replies r
@@ -2742,7 +2829,7 @@ export async function handleAdminTickets(request, env, ctx) {
       });
     }
 
-    // 回复 POST /admin/tickets/:id/reply
+    //  POST /admin/tickets/:id/reply
     if (request.method === 'POST' && subAction === 'reply') {
       const { content } = await request.json();
 
@@ -2762,22 +2849,22 @@ export async function handleAdminTickets(request, env, ctx) {
         });
       }
 
-      // 添加管理员回复
+      // 
       await db.prepare(`
         INSERT INTO ticket_replies (ticket_id, user_id, is_admin, content)
         VALUES (?, NULL, 1, ?)
       `).bind(ticketId, content.trim()).run();
 
-      // 更新工单状态为 processing
+      //  processing
       await db.prepare(`
         UPDATE tickets SET status = 'processing', updated_at = datetime('now') WHERE id = ?
       `).bind(ticketId).run();
 
-      // 发送邮件通知用户
+      // 
       try {
         const { sendEmail } = await import('../utils/email.js');
         const emailHtml = generateUserNotificationHtml('reply', ticket.subject);
-        await sendEmail(ticket.user_email, `工单回复通知 - ${ticket.subject}`, emailHtml, env);
+        await sendEmail(ticket.user_email, ` - ${ticket.subject}`, emailHtml, env);
       } catch (emailError) {
         console.error('[Admin Ticket] Failed to send user notification email:', emailError);
       }
@@ -2790,7 +2877,7 @@ export async function handleAdminTickets(request, env, ctx) {
       });
     }
 
-    // 标记为已解决 POST /admin/tickets/:id/resolve
+    //  POST /admin/tickets/:id/resolve
     if (request.method === 'POST' && subAction === 'resolve') {
       const ticket = await db.prepare('SELECT * FROM tickets WHERE id = ?').bind(ticketId).first();
 
@@ -2805,11 +2892,11 @@ export async function handleAdminTickets(request, env, ctx) {
         UPDATE tickets SET status = 'resolved', resolved_at = datetime('now'), updated_at = datetime('now') WHERE id = ?
       `).bind(ticketId).run();
 
-      // 发送邮件通知用户
+      // 
       try {
         const { sendEmail } = await import('../utils/email.js');
         const emailHtml = generateUserNotificationHtml('resolved', ticket.subject);
-        await sendEmail(ticket.user_email, `工单已解决 - ${ticket.subject}`, emailHtml, env);
+        await sendEmail(ticket.user_email, ` - ${ticket.subject}`, emailHtml, env);
       } catch (emailError) {
         console.error('[Admin Ticket] Failed to send user notification email:', emailError);
       }
@@ -2822,7 +2909,7 @@ export async function handleAdminTickets(request, env, ctx) {
       });
     }
 
-    // 关闭工单 POST /admin/tickets/:id/close
+    //  POST /admin/tickets/:id/close
     if (request.method === 'POST' && subAction === 'close') {
       const ticket = await db.prepare('SELECT * FROM tickets WHERE id = ?').bind(ticketId).first();
 
@@ -2837,11 +2924,11 @@ export async function handleAdminTickets(request, env, ctx) {
         UPDATE tickets SET status = 'closed', updated_at = datetime('now') WHERE id = ?
       `).bind(ticketId).run();
 
-      // 发送邮件通知用户
+      // 
       try {
         const { sendEmail } = await import('../utils/email.js');
         const emailHtml = generateUserNotificationHtml('closed', ticket.subject);
-        await sendEmail(ticket.user_email, `工单已关闭 - ${ticket.subject}`, emailHtml, env);
+        await sendEmail(ticket.user_email, ` - ${ticket.subject}`, emailHtml, env);
       } catch (emailError) {
         console.error('[Admin Ticket] Failed to send user notification email:', emailError);
       }
@@ -2868,19 +2955,19 @@ export async function handleAdminTickets(request, env, ctx) {
 }
 
 /**
- * 生成用户通知邮件 HTML (Admin用)
+ *  HTML (Admin)
  */
 function generateUserNotificationHtml(action, ticketSubject) {
   const actionLabels = {
-    reply: '工单回复通知',
-    resolved: '工单已解决',
-    closed: '工单已关闭'
+    reply: '',
+    resolved: '',
+    closed: ''
   };
 
   const actionMessages = {
-    reply: '管理员已回复您的工单，请查看。',
-    resolved: '您的工单已标记为已解决。',
-    closed: '您的工单已被关闭。'
+    reply: '，。',
+    resolved: '。',
+    closed: '。'
   };
 
   return `
@@ -2906,13 +2993,13 @@ function generateUserNotificationHtml(action, ticketSubject) {
       </p>
       
       <p style="color: #999; font-size: 12px; margin-top: 30px; text-align: center;">
-        请登录您的账户查看详情
+        
       </p>
     </div>
     
     <div style="background-color: #f5f5f7; padding: 20px; text-align: center; border-top: 1px solid #e5e5e5;">
       <p style="color: #999999; font-size: 12px; margin: 0;">
-        此邮件由系统自动发送，请勿回复。如有疑问，请联系客服。
+        ，。，。
       </p>
     </div>
   </div>
