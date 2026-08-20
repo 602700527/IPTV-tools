@@ -1138,33 +1138,38 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </tr>
             <!-- 差异权益 -->
             <tr>
-              <td>搜索结果显示</td>
-              <td><span class="cross">✗</span> 前 10 个</td>
-              <td class="vip"><span class="check">✓</span> 不限数量</td>
+              <td>搜索结果</td>
+              <td><span class="cross">✗</span> 有限</td>
+              <td class="vip"><span class="check">✓</span> Unlimited</td>
             </tr>
             <tr>
-              <td>下载数量</td>
-              <td><span class="cross">✗</span> 10 个</td>
-              <td class="vip"><span class="check">✓</span> 无限制</td>
-            </tr>
-            <tr>
-              <td>频道收藏</td>
-              <td><span class="cross">✗</span> 本地收藏</td>
+              <td>收藏</td>
+              <td><span class="cross">✗</span> 本地有效</td>
               <td class="vip"><span class="check">✓</span> 云端同步</td>
             </tr>
             <tr>
-              <td>线路地区匹配</td>
+              <td>收藏</td>
+              <td><span class="cross">✗</span> 本地有效</td>
+              <td class="vip"><span class="check">✓</span> 云端同步</td>
+            </tr>
+            <tr>
+              <td>运营商线路匹配</td>
               <td><span class="cross">✗</span> 无</td>
               <td class="vip"><span class="check">✓</span> 有</td>
             </tr>
             <tr>
-              <td>专属订阅地址</td>
+              <td>VIP专属订阅</td>
               <td><span class="cross">✗</span> 无</td>
               <td class="vip"><span class="check">✓</span> 有</td>
             </tr>
             <tr>
               <td>多设备支持</td>
               <td><span class="cross">✗</span> 无</td>
+              <td class="vip"><span class="check">✓</span> 支持</td>
+            </tr>
+            <tr>
+              <td>播放列表定制 <span class="help-icon">?</span><span class="help-text">支持将用户收藏夹作为云端播放列表，在【账户中心】-【线路选择】设置为【我的收藏】</span></td>
+              <td><span class="cross">✗</span> 不支持</td>
               <td class="vip"><span class="check">✓</span> 支持</td>
             </tr>
             <tr>
