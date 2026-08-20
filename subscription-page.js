@@ -1087,8 +1087,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <!-- 共有权益 -->
             <tr class="shared">
               <td>频道更新</td>
-              <td><span class="check">✓</span> 每日更新</td>
-              <td class="vip"><span class="check">✓</span> 每日更新</td>
+              <td><span class="check">✓</span> 手动更新</td>
+              <td class="vip"><span class="check">✓</span> 自动更新</td>
             </tr>
             <tr class="shared">
               <td>高清画质</td>
