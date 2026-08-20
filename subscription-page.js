@@ -1076,6 +1076,25 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             tr:hover .help-text {
               display: block;
             }
+
+            .payment-option-icon {
+              width: 32px;
+              height: 32px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .payment-option-icon img {
+              width: 100%;
+              height: 100%;
+              object-fit: contain;
+            }
+            .feature-icon svg, .section-tag svg, .guarantee-badges svg, .order-summary h3 svg {
+              width: 1em;
+              height: 1em;
+              display: inline-block;
+              vertical-align: middle;
+            }
   </style>
 </head>
 <body>
@@ -1085,21 +1104,21 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="container">
-        <div class="hero-badge-new">⭐ 专为华人打造</div>
+        <div class="hero-badge-new"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.1L12 16.5 5.7 20.9 8 13.8 2 9.4h7.6L12 2z"/></svg>专为华人打造</div>
         <h1 class="hero-title-large">
           一个订阅链接，就能看你想看的
         </h1>
         <div class="hero-features">
           <div class="hero-feature">
-            <span class="feature-icon">🚀</span>
+            <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
             <span class="feature-text">告别卡顿失效</span>
           </div>
           <div class="hero-feature">
-            <span class="feature-icon">🚫</span>
+            <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></span>
             <span class="feature-text">告别广告限制</span>
           </div>
           <div class="hero-feature">
-            <span class="feature-icon">✨</span>
+            <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.1L12 16.5 5.7 20.9 8 13.8 2 9.4h7.6L12 2z"/></svg></span>
             <span class="feature-text">告别麻烦复杂</span>
           </div>
         </div>
@@ -1108,7 +1127,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     </section>
       <div class="container">
         <div class="section-header">
-          <div class="section-tag">⭐ 会员权益</div>
+          <div class="section-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>会员权益</div>
           <h2 class="section-title">升级<span>VIP</span>，解锁全部功能</h2>
         </div>
         <table class="comparison-table">
@@ -1181,7 +1200,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <section class="testimonials-section">
       <div class="container">
         <div class="section-header">
-          <div class="section-tag">💬 真实评价</div>
+          <div class="section-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>真实评价</div>
           <h2 class="section-title">来自全球华人的<span>真实反馈</span></h2>
           <p class="section-desc">他们的故事，就是你的体验</p>
         </div>
@@ -1324,7 +1343,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <section class="pricing-section" id="pricing">
       <div class="container">
         <div class="section-header">
-          <div class="section-tag">💳 选择方案</div>
+          <div class="section-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>选择方案</div>
           <h2 class="section-title">选一个适合你的<span>会员计划</span></h2>
           <p class="section-desc">所有方案均支持7天无理由退款</p>
         </div>
@@ -1391,7 +1410,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           
           <div class="pricing-right">
             <div class="order-summary">
-              <h3>📋 订单摘要</h3>
+              <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;display:inline-block;vertical-align:middle;margin-right:6px;"><path d="M9 11H1l4-4m0 6l-4 4m14-4h8l-4-4m0 6l4 4"/></svg>订单摘要</h3>
               <div class="summary-row">
                 <span>基础价格</span>
                 <span id="basePrice">¥20.00</span>
@@ -1410,15 +1429,15 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <label>选择付款方式</label>
               <div class="payment-options">
                 <div class="payment-option selected" onclick="selectPayment('alipay')">
-                  <div class="payment-option-icon">💳</div>
+                  <div class="payment-option-icon"><img src="/zhifubao.png" alt="支付宝"></div>
                   <div class="payment-option-name">支付宝</div>
                 </div>
-                <div class="payment-option" onclick="selectPayment('wechat')">
-                  <div class="payment-option-icon">💚</div>
+                <div class="payment-option" id="wechatOption" onclick="selectPayment('wechat')">
+                  <div class="payment-option-icon"><img src="/weixin.png" alt="微信支付"></div>
                   <div class="payment-option-name">微信支付</div>
                 </div>
                 <div class="payment-option" onclick="selectPayment('usdt')">
-                  <div class="payment-option-icon">💰</div>
+                  <div class="payment-option-icon"><img src="/usdt.svg" alt="USDT"></div>
                   <div class="payment-option-name">USDT (TRC20)</div>
                 </div>
               </div>
@@ -1428,9 +1447,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <button class="subscribe-btn" onclick="handleSubscribe()">立即订阅</button>
             
             <div class="guarantee-badges">
-              <span>🔒 安全支付</span>
-              <span>⚡ 即时开通</span>
-              <span>↩️ 7天退款</span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>安全支付</span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>即时开通</span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>7天退款</span>
             </div>
           </div>
         </div>
@@ -2022,6 +2041,22 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       document.body.appendChild(toast);
       setTimeout(() => toast.remove(), 3000);
     }
-  </script>
+  
+// 微信支付未配置时隐藏
+(function() {
+  var wechatOption = document.getElementById('wechatOption');
+  if (wechatOption) {
+    // 从后端获取配置状态
+    fetch('/api/payment-methods').then(function(r) { return r.json(); }).then(function(data) {
+      if (!data.wechat) {
+        wechatOption.style.display = 'none';
+      }
+    }).catch(function() {
+      // 如果 API 不可用，假设未配置
+      wechatOption.style.display = 'none';
+    });
+  }
+})();
+</script>
 </body>
 </html>`;
