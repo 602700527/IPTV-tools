@@ -115,6 +115,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       line-height: 1.1;
       margin-bottom: 8px;
       letter-spacing: -1px;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.5), 0 0 40px rgba(212,175,55,0.1);
     }
 
     .hero-subtitle {
