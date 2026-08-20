@@ -225,7 +225,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .hero-feature:hover {
       transform: translateY(-3px);
       border-color: rgba(212, 175, 55, 0.7);
-      box-shadow: 0 12px 32px rgba(212, 175, 55, 0.25), 0 0 0 1px rgba(229, 9, 20, 0.1);
+      box-shadow: 0 12px 32px rgba(212, 175, 55, 0.25), 0 0 0 1px rgba(212, 175, 55, 0.1);
     }
 
 
@@ -448,7 +448,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       align-items: center;
       gap: 6px;
       padding: 6px 14px;
-      background: rgba(229,9,20,0.12);
+      background: rgba(212,175,55,0.12);
       border: 1px solid rgba(212,175,55,0.25);
       color: var(--accent);
       font-size: 11px;
@@ -552,7 +552,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .solution-card:hover {
       transform: translateY(-4px);
       border-color: rgba(212,175,55,0.3);
-      box-shadow: 0 16px 48px rgba(229,9,20,0.12);
+      box-shadow: 0 16px 48px rgba(212,175,55,0.12);
     }
     .solution-icon {
       font-size: 3rem;
@@ -605,7 +605,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       color: var(--text-secondary);
     }
     .comparison-table td.vip {
-      background: rgba(229,9,20,0.05);
+      background: rgba(212,175,55,0.05);
       color: var(--text);
       font-weight: 600;
     }
@@ -662,7 +662,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .testimonial-card:hover {
       border-color: rgba(212,175,55,0.3);
       transform: translateY(-4px);
-      box-shadow: 0 16px 48px rgba(229,9,20,0.12);
+      box-shadow: 0 16px 48px rgba(212,175,55,0.12);
     }
     
     .testimonial-header {
@@ -787,7 +787,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .select-option:hover {
       border-color: rgba(212,175,55,0.4);
-      background: rgba(229,9,20,0.05);
+      background: rgba(212,175,55,0.05);
     }
     .select-option.selected {
       border-color: var(--accent);
@@ -834,7 +834,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       align-items: flex-start;
       gap: 12px;
       padding: 14px 16px;
-      background: rgba(229, 9, 20, 0.08);
+      background: rgba(212, 175, 55, 0.08);
       border: 1px solid rgba(212, 175, 55, 0.25);
       border-radius: 0;
       margin-bottom: 8px;
@@ -857,7 +857,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .theme-card:hover {
       border-color: rgba(212,175,55,0.4);
-      background: rgba(229,9,20,0.05);
+      background: rgba(212,175,55,0.05);
     }
     .theme-card.selected {
       border-color: var(--accent);
@@ -1263,7 +1263,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               left: 50%;
               transform: translateX(-50%);
               background: linear-gradient(135deg, #1e1e1e 0%, #141414 100%);
-              border: 1px solid rgba(229,9,20,0.6);
+              border: 1px solid rgba(212,175,55,0.6);
               padding: 10px 14px;
               border-radius: 6px;
               font-size: 12px;
@@ -1282,7 +1282,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               left: 50%;
               transform: translateX(-50%);
               border: 6px solid transparent;
-              border-top-color: rgba(229,9,20,0.6);
+              border-top-color: rgba(212,175,55,0.6);
             }
             .help-text::before {
               content: '';
