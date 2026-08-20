@@ -32,6 +32,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      overflow-x: hidden;
+    }
     body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; }
     
     /* ========== Hero区 ========== */
@@ -408,8 +412,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .scene-card-img {
       width: 100%;
-      height: 240px;
+      height: 220px;
       object-fit: cover;
+      display: block;
       display: block;
       transition: transform 0.5s ease;
     }
