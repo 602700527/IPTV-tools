@@ -36,7 +36,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     
     /* ========== Hero区 ========== */
     .hero-section {
+      min-height: 400px;
       padding: 50px 20px 40px;
+      width: 100%;
       background: var(--gradient-hero);
       text-align: center;
       position: relative;
@@ -145,10 +147,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       gap: 12px;
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: 44px;
+      margin-bottom: 24px;
     }
 
-        .hero-feature {
+    .hero-feature {
       display: flex;
       align-items: center;
       gap: 6px;
@@ -159,6 +161,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       font-size: 0.85rem;
       font-weight: 600;
       transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
     }
     .hero-feature .feature-icon {
       width: 14px;
@@ -172,16 +176,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     .hero-feature:hover {
       background: rgba(229,9,20,0.15);
       border-color: rgba(229,9,20,0.4);
-      transform: translateY(-1px);
-    }
-    .hero-feature .feature-icon {
-      width: 16px;
-      height: 16px;
-      color: var(--accent);
-      flex-shrink: 0;
-    }
-    .hero-feature .feature-text {
-      font-size: 0.875rem;
+      transform: translateY(-2px);
     }
 
     .hero-feature::before {
@@ -300,15 +295,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       letter-spacing: 1px;
     }
     
-    .hero-cta { padding: 12px 32px; font-size: 1rem;
+    .hero-cta {
       display: inline-flex;
       align-items: center;
       gap: 10px;
+      padding: 12px 32px;
       background: var(--accent);
       color: white;
-      padding: 16px 36px;
-      border-radius: 0;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 700;
       text-decoration: none;
       transition: all 0.3s;
@@ -337,12 +331,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     @media (max-width: 768px) {
       /* Compact hero for mobile */
-      .hero-section { padding: 40px 16px 30px; }
+      .hero-section {
+      min-height: 400px; padding: 40px 16px 30px; }
       .hero-title-large { font-size: 1.8rem; }
-      .hero-subtitle-hero { margin-bottom: 20px; font-size: 0.85rem; margin-bottom: 20px; }
+      .hero-subtitle-hero { font-size: 0.85rem; margin-bottom: 20px; }
       .hero-features { flex-direction: column; gap: 10px; }
       .hero-feature { padding: 5px 10px; font-size: 0.8rem; gap: 5px; }
-      .hero-cta { padding: 12px 32px; font-size: 1rem; padding: 12px 24px; font-size: 1rem; width: 100%; justify-content: center; }
+      .hero-cta { padding: 12px 24px; font-size: 1rem; width: 100%; justify-content: center; }
       
       /* Compact scene section */
       .scene-section { padding: 50px 16px; }
