@@ -1163,15 +1163,26 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     .success-modal.show { display: flex; }
     .success-content {
-      background: var(--bg-secondary);
-      border: 1px solid var(--accent);
-      padding: 24px; max-width: 420px; text-align: center;
+      background: linear-gradient(145deg, #1a2f1a 0%, #0f1f0f 100%);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      padding: 32px; max-width: 420px; text-align: center;
       position: relative;
+      box-shadow: 0 0 60px rgba(34, 197, 94, 0.2);
     }
-    .success-icon { font-size: 60px; margin-bottom: 12px; }
-    .success-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 10px; }
+    .success-icon { 
+      font-size: 64px; 
+      margin-bottom: 16px;
+      color: #22c55e;
+      text-shadow: 0 0 30px rgba(34, 197, 94, 0.5);
+    }
+    .success-title { 
+      font-size: 1.8rem; 
+      font-weight: 800; 
+      margin-bottom: 12px;
+      color: #22c55e;
+    }
     .success-message {
-      color: var(--text-secondary); margin-bottom: 8px;
+      color: rgba(255,255,255,0.7); margin-bottom: 20px;
       line-height: 1.6; font-size: 0.95rem;
     }
     .purchase-details {
@@ -1188,14 +1199,20 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       border: 1px solid var(--border); padding: 14px;
       font-family: 'SF Mono', 'Courier New', monospace;
       font-size: 0.85rem; word-break: break-all;
-      margin-bottom: 10px; color: var(--accent);
+      margin-bottom: 10px; color: #22c55e;
     }
     .copy-button {
-      background: var(--accent); color: #fff; border: none;
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); 
+      color: #fff; border: none;
       padding: 14px 32px; font-size: 1rem; font-weight: 700;
-      cursor: pointer; width: 100%; transition: background 0.2s;
+      cursor: pointer; width: 100%; transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
     }
-    .copy-button:hover { background: var(--accent-hover); }
+    .copy-button:hover { 
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(34, 197, 94, 0.4);
+    }
     .next-steps {
       margin-top: 18px; padding-top: 14px; border-top: var(--border);
     }
