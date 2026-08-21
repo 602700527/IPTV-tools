@@ -2510,6 +2510,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       }
     }
 
+    // Alias for HTML onclick handlers
+    const loadDiscountCodes = loadCodes;
     function resetCodePage() {
       currentCodePage = 1;
       loadCodes();
@@ -2683,6 +2685,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     function closeGenerateCodeModal() {
       document.getElementById('generateCodeModal').classList.remove('active');
     }
+    // Alias for HTML onclick handlers
+    const showDiscountCodeModal = showGenerateCodeModal;
 
     function togglePermanentCode() {
       const durationSelect = document.getElementById('generateDuration');
