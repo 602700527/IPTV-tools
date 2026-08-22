@@ -303,34 +303,43 @@ export const styles = `
 
   .order-list { display: flex; flex-direction: column; gap: 0; }
 
+  .order-list { display: flex; flex-direction: column; gap: 8px; }
+
   .order-card {
-    padding: 14px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 16px;
+    transition: border-color 0.2s;
   }
-  .order-card:last-child { border-bottom: none; }
+  .order-card:hover { border-color: rgba(255, 255, 255, 0.15); }
 
-  .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .order-id { font-size: 13px; font-weight: 700; color: var(--accent); }
-  .order-date { color: var(--text-muted); font-size: 10px; }
+  .order-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .order-date-block { }
+  .order-date-main { font-size: 16px; font-weight: 700; color: var(--text-primary); line-height: 1.3; }
+  .order-date-time { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .order-amount-block { text-align: right; }
+  .order-amount { font-size: 22px; font-weight: 700; color: var(--success); line-height: 1; }
+  .order-amount-small { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .order-amount-old { text-decoration: line-through; color: var(--text-muted); font-size: 13px; margin-right: 6px; }
 
-  .order-details { display: flex; flex-wrap: wrap; gap: 0; }
-
-  .order-detail-item {
-    flex: 1 1 calc(33.333% - 8px);
-    min-width: 120px;
-    padding: 4px 0;
-  }
-  .order-detail-label { color: var(--text-muted); font-size: 10px; margin-bottom: 2px; }
-  .order-detail-value { color: var(--text-primary); font-size: 12px; font-weight: 600; word-break: break-all; }
+  .order-meta { display: flex; flex-wrap: wrap; gap: 16px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+  .order-meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .order-meta-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .order-meta-value { font-size: 12px; color: var(--text-primary); }
+  .order-meta-value a { color: var(--accent); text-decoration: none; word-break: break-all; }
+  .order-meta-value a:hover { text-decoration: underline; }
+  .order-meta-value.code { font-family: monospace; font-size: 11px; color: var(--text-secondary); }
 
   .order-status {
     display: inline-flex;
     align-items: center;
-    padding: 2px 8px;
+    padding: 2px 10px;
     border-radius: var(--radius);
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
+    white-space: nowrap;
   }
 
   .order-status.completed { background: rgba(52, 199, 89, 0.15); color: var(--success); }
@@ -779,9 +788,6 @@ export const styles = `
     .subscription-detail.info-row { flex-wrap: wrap; gap: 8px; }
     .subscription-detail.info-row > div { flex: 1 1 calc(50% - 4px); border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 4px 0 !important; }
     .subscription-detail.info-row > div:last-child { border-bottom: none; }
-
-    .order-detail-item { flex: 1 1 100% !important; min-width: 0; }
-    .order-details { flex-direction: column; gap: 6px; }
 
     .card { padding: 0; }
   }
@@ -1473,13 +1479,36 @@ async function loadOrderHistory() {
       } else {
         ordersListDiv.innerHTML = orders.map(order => {
           const createdDate = new Date(order.created_at);
-          const statusClass = order.status.toLowerCase();
           const statusText = { completed: t('statusCompleted'), pending: t('statusPending'), cancelled: t('statusCancelled') }[order.status] || order.status;
-          const dayUnit = currentLang === 'zh-CN' ? ' days' : ' days';
           const baseUrl = window.location.origin;
           const subUrl = order.code ? (baseUrl + '/sub/' + order.code + '.m3u') : '-';
-          const discountTag = order.discount_code && order.discount_code.trim() ? ' <span style="font-size:11px;color:#4CAF50;margin-left:6px;">(用了优惠码 ' + order.discount_code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + ')</span>' : '';
-          return '<div class="order-card"><div class="order-header"><span class="order-id">Order ID：' + order.order_id + '</span><span class="order-status ' + statusClass + '">' + statusText + '</span></div><div class="order-details"><div class="order-detail-item"><div class="order-detail-label">Code</div><div class="order-detail-value">' + (order.code || '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">Subscription地址</div><div class="order-detail-value">' + subUrl + '</div></div><div class="order-detail-item"><div class="order-detail-label">Validity</div><div class="order-detail-value">' + (order.duration_days ? order.duration_days + dayUnit : '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">IPs</div><div class="order-detail-value">' + (order.max_ips || 3) + '</div></div><div class="order-detail-item"><div class="order-detail-label">Amount</div><div class="order-detail-value">' + (order.amount ? '¥' + order.amount.toFixed(2) + discountTag : '-') + '</div></div><div class="order-detail-item"><div class="order-detail-label">Order Date</div><div class="order-detail-value">' + createdDate.toLocaleString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US') + '</div></div></div></div>';
+          const dateStr = createdDate.toLocaleDateString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US');
+          const timeStr = createdDate.toLocaleTimeString(currentLang === 'zh-CN' ? 'zh-CN' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+          let discountBadge = '';
+          if (order.discount_code && order.discount_code.trim()) {
+            const dc = order.discount_code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            discountBadge = '<span style="font-size:11px;color:#4CAF50;margin-top:4px;display:block;">用优惠码 ' + dc + '</span>';
+          }
+          return '<div class="order-card">' +
+            '<div class="order-top">' +
+              '<div class="order-date-block">' +
+                '<div class="order-date-main">' + dateStr + '</div>' +
+                '<div class="order-date-time">' + timeStr + '</div>' +
+                '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Order #' + order.order_id + '</div>' +
+              '</div>' +
+              '<div class="order-amount-block">' +
+                '<div class="order-amount">¥' + order.amount.toFixed(2) + '</div>' +
+                discountBadge +
+                '<div class="order-amount-small">' + statusText + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="order-meta">' +
+              '<div class="order-meta-item"><span class="order-meta-label">订阅天数</span><span class="order-meta-value">' + (order.duration_days || '-') + ' 天</span></div>' +
+              '<div class="order-meta-item"><span class="order-meta-label">IP 数量</span><span class="order-meta-value">' + (order.max_ips || 3) + '</span></div>' +
+              '<div class="order-meta-item"><span class="order-meta-label">激活码</span><span class="order-meta-value code">' + (order.code || '-').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span></div>' +
+              '<div class="order-meta-item"><span class="order-meta-label">订阅地址</span><span class="order-meta-value"><a href="' + subUrl + '" target="_blank">' + subUrl + '</a></span></div>' +
+            '</div>' +
+          '</div>';
         }).join('');
       }
     } else {
