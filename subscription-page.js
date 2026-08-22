@@ -9,7 +9,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIP Subscription - IPTV Search | 一个链接，看遍所Yes频道</title>
+  <title>VIP Subscription - IPTV Search | one link to all channels</title>
   <meta name="description" content="VIP subscription link for all channels. One-click import to your player — no more manual searching, cloud-synced favorites, seamless multi-device switching.">
   
   <style>
@@ -466,7 +466,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       opacity: 0.8;
     }
 
-    /* ========== 对比表共Yes权益样式 ========== */
+    /* ========== 对比表All Benefits样式 ========== */
     .comparison-table tr.shared {
       background: rgba(255, 255, 255, 0.03);
       color: var(--text-muted);
@@ -1424,7 +1424,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </tr>
           </thead>
           <tbody>
-            <!-- 共Yes权益 -->
+            <!-- All Benefits -->
             <tr class="shared">
               <td>Channel Updates</td>
               <td><span class="check">✓</span> Daily Updates</td>
@@ -1511,7 +1511,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">给孩子看湖南卫视、给老人看CCTV，各看各的互不打扰。最满意的是看英超完全不卡，用Tivimate导入很方便。Yes个小问题是Yes时段性卡顿，客服回复挺快的，帮我调了线路就好了。</p>
+            <p class="testimonial-text">给孩子看湖南卫视、给老人看CCTV，各看各的互不打扰。最满意的是看英超完全不卡，用Tivimate导入很方便。just a小问题是Yes时段性卡顿，客服回复挺快的，帮我调了线路就好了。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1535,7 +1535,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">以前在家只能看地方台，现在用APTV能看央视所Yes频道和湖南卫视。周末全家一起看新闻联播，爸妈可高兴了。用CarPlay在车上也能听广播，挺方便的。就是Yes时候频道太多要找一会儿。</p>
+            <p class="testimonial-text">以前在家只能看地方台，现在用APTV能看 all CCTV channels和湖南卫视。周末全家一起看新闻联播，爸妈可高兴了。用CarPlay在车上也能听广播，挺方便的。就是sometimes频道太多要找一会儿。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1559,7 +1559,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在日本工作，平时最喜欢看家乡的新闻和综艺。用GSE Smart IPTV导入后频道很全，连我们省的地面频道都Yes，就像在家里一样。Yes时候网速慢会卡一下，但整体体验不错。</p>
+            <p class="testimonial-text">在日本工作，平时最喜欢看家乡的新闻和综艺。用GSE Smart IPTV导入后频道很全，连我们省的地面频道都Yes，就像在家里一样。sometimes网速慢会卡一下，但整体体验不错。</p>
           </div>
           
           <div class="testimonial-card">
