@@ -1448,17 +1448,17 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </tr>
             <tr>
               <td>ISP Route Matching</td>
-              <td><span class="cross">✗</span> None</td>
+              <td><span class="cross">✗</span> Not Available</td>
               <td class="vip"><span class="check">✓</span> Yes</td>
             </tr>
             <tr>
               <td>VIP Exclusive Subscription</td>
-              <td><span class="cross">✗</span> None</td>
+              <td><span class="cross">✗</span> Not Available</td>
               <td class="vip"><span class="check">✓</span> Yes</td>
             </tr>
             <tr>
               <td>Multi-Device Support</td>
-              <td><span class="cross">✗</span> None</td>
+              <td><span class="cross">✗</span> Not Available</td>
               <td class="vip"><span class="check">✓</span> Supported</td>
             </tr>
             <tr>
@@ -1473,7 +1473,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </tr>
             <tr>
               <td>24/7 Customer Support</td>
-              <td><span class="cross">✗</span> None</td>
+              <td><span class="cross">✗</span> Not Available</td>
               <td class="vip"><span class="check">✓</span> Yes</td>
             </tr>
           </tbody>
@@ -1511,7 +1511,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">给孩子看湖南卫视、给老人看CCTV，各看各的互不打扰。最满意的是看英超完全不卡，用Tivimate导入很方便。just a小问题是Yes时段性卡顿，客服回复挺快的，帮我调了线路就好了。</p>
+            <p class="testimonial-text">给孩子看湖南卫视、给老人看CCTV，各看各的互不打扰。最满意的是看英超完全不卡，用Tivimate导入很方便。there's just a minor issue with occasional buffering，客服回复挺快的，帮我调了线路就好了。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1523,7 +1523,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">配置真的超简单，用Televizo导入后直接能看。把链接给爸妈发了过去，他们自己导入就能看。现在每天晚饭后全家一起看新闻联播，特别温馨。there are quite a lot of channels，找自己想看的还得挑一挑。</p>
+            <p class="testimonial-text">配置真的超简单，用Televizo导入后直接能看。把链接给爸妈发了过去，他们自己导入就能看。现在每天晚饭后全家一起看新闻联播，特别温馨。there are quite a lot of channels — you need to browse to find what you want还得挑一挑。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1535,7 +1535,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">以前在家只能看地方台，现在用APTV能看 all CCTV channels和湖南卫视。周末全家一起看新闻联播，爸妈可高兴了。用CarPlay在车上也能听广播，挺方便的。就是sometimes频道太多要找一会儿。</p>
+            <p class="testimonial-text">以前在家只能看地方台，现在用APTV能看  all CCTV channels and Hunan TV。周末全家一起看新闻联播，爸妈可高兴了。用CarPlay在车上也能听广播，挺方便的。it's just sometimes that there are too many channels要找一会儿。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1547,7 +1547,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在家想看港澳台频道，找了好几个服务都不稳定。这个用Televizo导入就能看，凤凰卫视、阳光卫视都很清晰。偶尔Yes卡顿，客服响应很快，给我换了线路就好了。性价比高，推荐。</p>
+            <p class="testimonial-text">在家想看港澳台频道，找了好几个服务都不稳定。这个用Televizo导入就能看，凤凰卫视、阳光卫视都很清晰。occasional yes, there are some hiccups，客服响应很快，给我换了线路就好了。性价比高，推荐。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1559,7 +1559,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在日本工作，平时最喜欢看家乡的新闻和综艺。用GSE Smart IPTV导入后频道很全，连我们省的地面频道都Yes，就像在家里一样。sometimes网速慢会卡一下，但整体体验不错。</p>
+            <p class="testimonial-text">在日本工作，平时最喜欢看家乡的新闻和综艺。用GSE Smart IPTV导入后频道很全，连我们省的地面频道 available, just like at home一样。sometimes网速慢会卡一下，但整体体验不错。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1583,7 +1583,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">四川人喜欢晚上刷剧看综艺，以前只能看地方台。现在用GSE Smart IPTV能看到湖南卫视、浙江卫视的直播，还能回看。用Tivimate体验更好，界面简洁，操作方便。唯一不满的是想找老电影频道Yes点难。</p>
+            <p class="testimonial-text">四川人喜欢晚上刷剧看综艺，以前只能看地方台。现在用GSE Smart IPTV能看到湖南卫视、浙江卫视的直播，还能回看。用Tivimate体验更好，界面简洁，操作方便。唯一不满的是想找老电影频道 a bit hard。</p>
           </div>
           
           <div class="testimonial-card">
@@ -2281,7 +2281,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     async function simulatePaymentSuccess() {
       if (!currentOrderId) {
-        showToast('没Yes待支付的订单', 'error');
+        showToast('No pending的订单', 'error');
         return;
       }
       const token = localStorage.getItem('auth_token');
