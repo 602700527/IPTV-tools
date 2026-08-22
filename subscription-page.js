@@ -1,6 +1,6 @@
 // 订阅页面 - 营销专家×设计专家联合设计版
 import { PAGE_HEADER } from './components/page-header.js';
-
+import { PAGE_FOOTER } from './components/page-footer.js';
 import { HEAD_SCRIPTS } from './components/head-scripts.js';
 
 export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
@@ -9,7 +9,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIP Subscription - IPTV Search | One Link to All Channels</title>
+  <title>VIP Subscription - IPTV Search | 一个链接，看遍所Yes频道</title>
   <meta name="description" content="VIP subscription link for all channels. One-click import to your player — no more manual searching, cloud-synced favorites, seamless multi-device switching.">
   
   <style>
@@ -1376,7 +1376,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
     </section>
     
-    <!-- Scene Showcase -->
+    <!-- 场景展示区 -->
     <section class="scene-section">
       <div class="container">
         <div class="section-header" style="text-align:center;margin-bottom:48px;">
@@ -1385,7 +1385,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         </div>
         <div class="scene-grid">
           <div class="scene-card">
-            <div class="scene-card-img-wrapper"><img src="/asset_scene_1.png" alt="Home Theater" class="scene-card-img"></div>
+            <div class="scene-card-img-wrapper"><img src="/asset_scene_1.png" alt="家庭影院" class="scene-card-img"></div>
             <div class="scene-card-body">
               <span class="scene-card-tag">Home Cinema</span>
               <h3 class="scene-card-title">Your Living Room, Your Private Cinema</h3>
@@ -1393,7 +1393,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </div>
           </div>
           <div class="scene-card">
-            <div class="scene-card-img-wrapper"><img src="/asset_scene_2.png" alt="Watch on the Go" class="scene-card-img"></div>
+            <div class="scene-card-img-wrapper"><img src="/asset_scene_2.png" alt="外出观看" class="scene-card-img"></div>
             <div class="scene-card-body">
               <span class="scene-card-tag">On the Go</span>
               <h3 class="scene-card-title">Never Bored on Your Commute</h3>
@@ -1401,7 +1401,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </div>
           </div>
           <div class="scene-card">
-            <div class="scene-card-img-wrapper"><img src="/asset_scene_3.png" alt="Overseas Life" class="scene-card-img"></div>
+            <div class="scene-card-img-wrapper"><img src="/asset_scene_3.png" alt="海外生活" class="scene-card-img"></div>
             <div class="scene-card-body">
               <span class="scene-card-tag">Overseas Chinese</span>
               <h3 class="scene-card-title">Stay Connected to Home, No Matter Where</h3>
@@ -1424,7 +1424,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </tr>
           </thead>
           <tbody>
-            <!-- Exclusive Benefits -->
+            <!-- 共Yes权益 -->
             <tr class="shared">
               <td>Channel Updates</td>
               <td><span class="check">✓</span> Daily Updates</td>
@@ -1440,7 +1440,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td><span class="check">✓</span> 99% Uptime</td>
               <td class="vip"><span class="check">✓</span> 99.9% Uptime</td>
             </tr>
-            <!-- Premium Features -->
+            <!-- 差异权益 -->
             <tr>
               <td>Favorites</td>
               <td><span class="cross">✗</span> Local Storage</td>
@@ -1481,7 +1481,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
     </section>
     
-    <!-- User Reviews -->
+    <!-- 用户评价区 -->
     <section class="testimonials-section">
       <div class="container">
         <div class="section-header">
@@ -1493,121 +1493,121 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">Mr. Zhang</div>
-                <div class="testimonial-meta">🇺🇸 United States · 2-Year Plan</div>
+                <div class="testimonial-name">张先生</div>
+                <div class="testimonial-meta">🇺🇸 美国 · 订阅 2 年</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">Lived in the US for nearly a decade. VPN for Chinese apps was always laggy or buffering. A friend recommended this, imported via APTV and the quality is much smoother now.今年终于不用躲在房间里刷手机了，客厅电视上看一家人守着，感觉挺好的。</p>
+            <p class="testimonial-text">在美国待了快十年，每年春节最愁的就是看春晚。以前用VPN看国内APP，不是卡就是黑屏。朋友推荐了这个，用APTV导入就能看，画质比之前流畅多了。今年终于不用躲在房间里刷手机了，客厅电视上看一家人守着，感觉挺好的。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">Ms. Li</div>
-                <div class="testimonial-meta">🇬🇧 United Kingdom · 1-Year Plan</div>
+                <div class="testimonial-name">李女士</div>
+                <div class="testimonial-meta">🇬🇧 英国 · 订阅 1 年</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">Kids watch Hunan TV, grandparents watch CCTV — everyone happy. Premier League streams are buttery smooth with Tivimate.Yes个小问题是Yes时段性卡顿，客服回复挺快的，帮我调了线路就好了。</p>
+            <p class="testimonial-text">给孩子看湖南卫视、给老人看CCTV，各看各的互不打扰。最满意的是看英超完全不卡，用Tivimate导入很方便。Yes个小问题是Yes时段性卡顿，客服回复挺快的，帮我调了线路就好了。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">Mr. Wang</div>
-                <div class="testimonial-meta">🇨🇦 Canada · 8-Month Plan</div>
+                <div class="testimonial-name">王先生</div>
+                <div class="testimonial-meta">🇨🇦 加拿大 · 订阅 8 个月</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">Setup was super easy with Televizo. Shared the link with my parents and they got it working themselves. Now our whole family watches the news together after dinner.就是频道Yes点多，找自己想看的还得挑一挑。</p>
+            <p class="testimonial-text">配置真的超简单，用Televizo导入后直接能看。把链接给爸妈发了过去，他们自己导入就能看。现在每天晚饭后全家一起看新闻联播，特别温馨。就是频道Yes点多，找自己想看的还得挑一挑。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">Ms. Chen</div>
-                <div class="testimonial-meta">📍 Beijing · 3-Month Plan</div>
+                <div class="testimonial-name">陈女士</div>
+                <div class="testimonial-meta">📍 北京 · 订阅 3 个月</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">Used to only have local channels. Now with APTV I get all CCTV and Hunan TV. Family watches news together on weekends and my parents love it. CarPlay radio is convenient too.</p>
+            <p class="testimonial-text">以前在家只能看地方台，现在用APTV能看央视所Yes频道和湖南卫视。周末全家一起看新闻联播，爸妈可高兴了。用CarPlay在车上也能听广播，挺方便的。就是Yes时候频道太多要找一会儿。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">Mr. Liu</div>
-                <div class="testimonial-meta">📍 Shanghai · 1-Year Plan</div>
+                <div class="testimonial-name">刘先生</div>
+                <div class="testimonial-meta">📍 上海 · 订阅 1 年</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">Was looking for HK/Macau/Taiwan channels everywhere, none were stable. This works with Televizo — Phoenix and Sun TV are both clear. Support switched servers quickly when there was buffering. Great value.</p>
+            <p class="testimonial-text">在家想看港澳台频道，找了好几个服务都不稳定。这个用Televizo导入就能看，凤凰卫视、阳光卫视都很清晰。偶尔Yes卡顿，客服响应很快，给我换了线路就好了。性价比高，推荐。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">Ms. Zhao</div>
-                <div class="testimonial-meta">🇯🇵 Japan · 1-Year Plan</div>
+                <div class="testimonial-name">赵女士</div>
+                <div class="testimonial-meta">🇯🇵 日本 · 订阅 1 年</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">Working in Japan, love watching hometown news and shows. GSE Smart IPTV has all channels including my province's local ones — feels like home. Sometimes buffers on slow networks but overall great.</p>
+            <p class="testimonial-text">在日本工作，平时最喜欢看家乡的新闻和综艺。用GSE Smart IPTV导入后频道很全，连我们省的地面频道都Yes，就像在家里一样。Yes时候网速慢会卡一下，但整体体验不错。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">Mr. Zhou</div>
-                <div class="testimonial-meta">🇸🇬 Singapore · 3-Month Plan</div>
+                <div class="testimonial-name">周先生</div>
+                <div class="testimonial-meta">🇸🇬 新加坡 · 订阅 3 个月</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★☆</div>
-            <p class="testimonial-text">Many Chinese in Singapore, my office colleagues all subscribed. 5 devices is plenty, APTV works smoothly. Occasional small hiccups but responsive support. Just wish the price was a bit lower.</p>
+            <p class="testimonial-text">新加坡华人多，办公室同事一起订阅了。5台设备够用，用APTV都很顺。偶尔会小卡顿，但客服响应很快，总体满意。就是感觉价格能再便宜点就好了。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">Ms. Wu</div>
-                <div class="testimonial-meta">📍 Chengdu · 4-Month Plan</div>
+                <div class="testimonial-name">吴女士</div>
+                <div class="testimonial-meta">📍 成都 · 订阅 4 个月</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">Sichuan people love evening dramas and variety shows. Now I can watch Hunan and Zhejiang TV live with GSE, plus replay. Tivimate has the best interface. Only wish older movie channels were easier to find.</p>
+            <p class="testimonial-text">四川人喜欢晚上刷剧看综艺，以前只能看地方台。现在用GSE Smart IPTV能看到湖南卫视、浙江卫视的直播，还能回看。用Tivimate体验更好，界面简洁，操作方便。唯一不满的是想找老电影频道Yes点难。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">Mr. Zheng</div>
-                <div class="testimonial-meta">🇰🇷 South Korea · 5-Month Plan</div>
+                <div class="testimonial-name">郑先生</div>
+                <div class="testimonial-meta">🇰🇷 韩国 · 订阅 5 个月</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">Studying in Korea, Tivimate makes watching domestic sports convenient. Easy to set up, roommates use it too, we often chat about matches in our group. Clear quality, rarely buffers.</p>
+            <p class="testimonial-text">在韩国留学，用Tivimate看国内体育比赛很方便。操作简单，室友都在用，我们群里经常一起聊球赛。画质清晰，基本不卡。</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">Ms. Sun</div>
-                <div class="testimonial-meta">🇫🇷 France · 7-Month Plan</div>
+                <div class="testimonial-name">孙女士</div>
+                <div class="testimonial-meta">🇫🇷 法国 · 订阅 7 个月</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">Lived in Europe for years, missed Spring Festival Gala and evening news. APTV solved it, and the 7-day refund policy gave me confidence to try. Occasional buffering but great support. Would like better channel categorization.</p>
+            <p class="testimonial-text">在欧洲生活多年，最想念的就是国内春晚和新闻联播。用APTV导入后解决了我的问题，7天None理由退款也让我放心尝试。虽然偶尔Yes卡顿，但客服态度很好，整体体验不错。就是希望频道能再分类清楚一点。</p>
           </div>
         </div>
           </div>
@@ -1615,7 +1615,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
     </section>
 
-    <!-- Pricing Section -->
+    <!-- 价格区 -->
     <section class="pricing-section" id="pricing">
       <div class="container">
         <div class="section-header">
@@ -1634,7 +1634,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 </div>
               </div>
               <div class="theme-grid" id="themeGrid">
-                <!-- Dynamic Channel Loading -->
+                <!-- 动态加载线路 -->
               </div>
             </div>
 
@@ -1643,18 +1643,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="selector-bar" id="durationGrid">
                 <div class="select-option selected" onclick="selectDuration(30)">
                   <span class="value">Monthly</span>
-                  <span class="label">30 days</span>
+                  <span class="label">30天</span>
                   <span class="price-tag">¥20</span>
                 </div>
                 <div class="select-option" onclick="selectDuration(90)">
                   <span class="value">Quarterly</span>
-                  <span class="label">90 days</span>
+                  <span class="label">90天</span>
                   <span class="badge">Save 25%</span>
                   <span class="price-tag">¥45</span>
                 </div>
                 <div class="select-option" onclick="selectDuration(365)">
                   <span class="value">Yearly</span>
-                  <span class="label">365 days</span>
+                  <span class="label">365天</span>
                   <span class="badge">Best Value</span>
                   <span class="price-tag">¥168</span>
                 </div>
@@ -1711,13 +1711,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </div>
             
             <div class="payment-methods">
-              <label>Select Payment Method</label>
+              <label>选择付款方式</label>
               <div class="payment-options">
                 <div class="payment-option selected" onclick="selectPayment('alipay')">
-                  <div class="payment-option-icon"><img src="/zhifubao.png" alt="Alipay"></div>
+                  <div class="payment-option-icon"><img src="/zhifubao.png" alt="支付宝"></div>
                 </div>
                 <div class="payment-option" id="wechatOption" onclick="selectPayment('wechat')">
-                  <div class="payment-option-icon"><img src="/weixin.png" alt="WeChat Pay"></div>
+                  <div class="payment-option-icon"><img src="/weixin.png" alt="微信支付"></div>
                 </div>
                 <div class="payment-option" onclick="selectPayment('usdt')">
                   <div class="payment-option-icon"><img src="/usdt.png" alt="USDT"></div>
@@ -1738,7 +1738,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
     </section>
     
-    <!-- Final CTA -->
+    <!-- 最终CTA -->
     <section class="final-cta">
       <div class="container">
         <h2>Still hesitant? Try <span style="color: var(--accent)">7 Days Free VIP</span></h2>
@@ -1747,38 +1747,38 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
     </section>
 
-  <!-- Loading Overlay -->
+  <!-- 加载遮罩 -->
   <div id="loading" class="loading">
     <div class="spinner"></div>
     <p>Processing...</p>
   </div>
 
-  <!-- Payment Modal -->
+  <!-- 支付模态框 -->
   <div id="paymentModal" class="payment-modal">
     <div class="payment-content">
       <div class="payment-header">
-        <h2 class="payment-title" id="paymentModalTitle">Complete Payment</h2>
+        <h2 class="payment-title" id="paymentModalTitle">完成支付</h2>
         <button class="payment-close" onclick="closePaymentModal()">×</button>
       </div>
       <div class="payment-body">
         <div class="qrcode-section">
           <div class="qrcode-wrapper">
-            <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
+            <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="支付二维码">
           </div>
-          <p class="qrcode-tip" id="modalQrcodeTip">Scan QR code to pay</p>
+          <p class="qrcode-tip" id="modalQrcodeTip">请用支付宝/微信扫码支付</p>
           <p class="payment-method-indicator" id="paymentMethodIndicator"></p>
-          <p class="payment-status" id="paymentStatus">Waiting for payment...</p>
+          <p class="payment-status" id="paymentStatus">等待支付中...</p>
 
-          <!-- USDT: Wallet Address + Amount -->
+          <!-- USDT 专用：钱包地址 + 金额 -->
           <div id="usdtAddressBox" style="display:none;margin-top:14px;text-align:left;font-size:12px;color:rgba(255,255,255,.85);">
-            <div style="margin-bottom:6px;color:rgba(255,255,255,.6);">Payment Address (TRC20 / Tron)</div>
+            <div style="margin-bottom:6px;color:rgba(255,255,255,.6);">收款地址 (TRC20 / Tron)</div>
             <div style="display:flex;gap:8px;align-items:center;">
               <code id="usdtAddressText" style="flex:1;background:rgba(0,0,0,.4);padding:8px 10px;border-radius:6px;word-break:break-all;color:#f0c674;"></code>
-              <button id="usdtCopyBtn" type="button" style="background:#d4af37;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">Copy</button>
+              <button id="usdtCopyBtn" type="button" style="background:#d4af37;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">复制</button>
             </div>
-            <div style="margin-top:10px;color:rgba(255,255,255,.6);">Amount Due (exact to 0.0001 USDT)</div>
+            <div style="margin-top:10px;color:rgba(255,255,255,.6);">Amount Due（精确到 0.0001 USDT）</div>
             <div id="usdtAmountText" style="font-size:18px;font-weight:700;color:#f0c674;margin-top:4px;">- USDT</div>
-            <div style="margin-top:6px;color:rgba(255,165,0,.85);font-size:11px;">⚠️ Pay exact amount only; over/under payment cannot be detected</div>
+            <div style="margin-top:6px;color:rgba(255,165,0,.85);font-size:11px;">⚠️ 必须按此金额支付，多付/少付都None法识别</div>
           </div>
         </div>
         <div class="payment-info">
@@ -1802,7 +1802,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     </div>
   </div>
 
-  <!-- Success Modal -->
+  <!-- 成功模态框 -->
   <div id="successModal" class="success-modal">
     <div class="success-content">
       <button class="modal-close" onclick="closeModal()">×</button>
@@ -1833,398 +1833,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   </div>
   </main>
   
-  // 通用网页页脚组件（极简线条风格）
-
-  <!-- Floating Sidebar - Back to Top Only -->
-  <div class="floating-sidebar">
-    <button class="sidebar-btn back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Back to Top">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="18 15 12 9 6 15"></polyline>
-      </svg>
-      <span class="sidebar-tooltip">Back to Top</span>
-    </button>
-  </div>
-
-  <footer class="page-footer">
-    <div class="footer-inner">
-
-      <!-- Main Footer Grid - 5 columns -->
-      <div class="footer-grid">
-        <!-- Brand Column -->
-        <div class="footer-brand">
-          <a href="/" class="footer-logo">
-            <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
-              <defs>
-                <linearGradient id="footerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" style="stop-color:#e50914"/>
-                  <stop offset="100%" style="stop-color:#ff3b30"/>
-                </linearGradient>
-              </defs>
-              <rect x="0" y="0" width="36" height="36" fill="url(#footerGradient)"/>
-              <rect x="4" y="8" width="28" height="18" fill="#0a0a0a"/>
-              <path d="M14 12 L24 17 L14 22 Z" fill="#fff"/>
-            </svg>
-            <span>IPTV<span>Search</span></span>
-          </a>
-          <p class="footer-tagline">Free IPTV Channel Directory<br>Search & Watch Instantly</p>
-          <div class="footer-brand-bottom">
-            <div class="footer-disclaimer">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-              </svg>
-              <span>This site does not host any IPTV streams. All channels are sourced from publicly available M3U playlists. Channels may go offline at any time.</span>
-            </div>
-            <div class="footer-badges">
-              <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
-                <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
-              </a>
-              <span>Powered by Cloudflare</span>
-            </div>
-          </div>
-          <div class="footer-copyright">&copy; 2026 IPTV Search. All rights reserved.</div>
-        </div>
-
-        <!-- Quick Links -->
-        <div class="footer-col">
-          <h4 class="footer-col-title">Quick Links</h4>
-          <div class="footer-col-links">
-            <a href="/tutorial">How to Watch on TV</a>
-            <a href="/carplay-aptv">APTV & CarPlay Guide</a>
-            <a href="/sitemap.xml">Sitemap</a>
-            <a href="/privacy-policy">Privacy Policy</a>
-            <a href="/terms">Terms of Service</a>
-            <a href="mailto:support@iptv-search.com">Contact Us</a>
-          </div>
-        </div>
-
-        <!-- Support -->
-        <div class="footer-col">
-          <h4 class="footer-col-title">Support</h4>
-          <div class="footer-col-links">
-            <a href="/freesub">Subscription Plans</a>
-            <a href="/favorites">My Favorites</a>
-            <a href="/account">My Account</a>
-            <a href="/search">Search Channels</a>
-          </div>
-        </div>
-
-        <!-- FAQ Column -->
-        <div class="footer-col footer-faq-col">
-          <h4 class="footer-col-title">FAQ</h4>
-          <div class="footer-faq-list">
-            <details class="footer-faq-item">
-              <summary>How to watch for free?</summary>
-              <div class="footer-faq-answer">Browse our directory, select a channel, and start watching instantly. No registration required.</div>
-            </details>
-            <details class="footer-faq-item">
-              <summary>What devices supported?</summary>
-              <div class="footer-faq-answer">Smart TVs, Roku, Firestick, Apple TV, computers, smartphones & tablets.</div>
-            </details>
-            <details class="footer-faq-item">
-              <summary>Is IPTV legal?</summary>
-              <div class="footer-faq-answer">We index public links. Users must comply with local laws in their region.</div>
-            </details>
-            <details class="footer-faq-item">
-              <summary>Channel not playing?</summary>
-              <div class="footer-faq-answer">Try refreshing, different player, or check your internet connection.</div>
-            </details>
-            <details class="footer-faq-item">
-              <summary>How often updated?</summary>
-              <div class="footer-faq-answer">Daily updates - dead links removed & new channels added regularly.</div>
-            </details>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <div id="footer-ad-container"></div>
-
-  <script>
-    // 页脚广告延迟加载：先检查会员状态，是会员则不加载广告
-    (function() {
-      var footerAdContainer = document.getElementById('footer-ad-container');
-      if (!footerAdContainer) return;
-
-      fetch('/api/member/status')
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-          if (data.isMember && data.adFreeEnabled) {
-            return;
-          }
-          var script = document.createElement('script');
-          script.src = 'https://nap5k.com/tag.min.js';
-          script.dataset.zone = '10621634';
-          footerAdContainer.appendChild(script);
-        })
-        .catch(function() {
-          var script = document.createElement('script');
-          script.src = 'https://nap5k.com/tag.min.js';
-          script.dataset.zone = '10621634';
-          footerAdContainer.appendChild(script);
-        });
-    })();
-  </script>
-
-  <style>
-    /* Footer - 极简线条风格 */
-    .page-footer {
-      background: var(--bg-primary);
-      border-top: var(--border);
-      padding: 0;
-      margin-top: 2rem;
-    }
-    .footer-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 2rem;
-    }
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 1.5fr repeat(3, 1fr);
-      gap: 2.5rem;
-      padding: 3rem 0;
-    }
-
-    .footer-brand { }
-    .footer-logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      text-decoration: none;
-      color: var(--text-primary);
-    }
-    .footer-logo svg { width: 32px; height: 32px; }
-    .footer-logo span span { color: var(--accent); }
-    .footer-tagline {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      margin-top: 0.75rem;
-    }
-    .footer-brand-bottom {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-top: 1.25rem;
-    }
-    .footer-brand .footer-disclaimer {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-    .footer-brand .footer-disclaimer svg { flex-shrink: 0; opacity: 0.6; }
-
-    .footer-brand .footer-badges {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .footer-brand .footer-badges img { height: 14px; width: auto; opacity: 0.7; transition: opacity 0.2s; }
-    .footer-brand .footer-badges img:hover { opacity: 1; }
-    .footer-brand .footer-badges span { font-size: 0.75rem; color: var(--text-muted); }
-
-    .footer-brand .footer-copyright {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 0.5rem;
-    }
-
-    .footer-col { }
-    .footer-col-title {
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-primary);
-      margin-bottom: 1rem;
-    }
-    .footer-col-links {
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-    }
-    .footer-col-links a {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .footer-col-links a:hover { color: var(--accent); }
-
-    /* FAQ Column - Compact */
-    .footer-faq-col { }
-    .footer-faq-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
-    .footer-faq-item {
-      background: transparent;
-      border: none;
-      border-radius: 0;
-    }
-    .footer-faq-item summary {
-      padding: 0.4rem 0.5rem;
-      cursor: pointer;
-      color: var(--text-secondary);
-      font-size: 0.85rem;
-      list-style: none;
-    }
-    .footer-faq-item summary::-webkit-details-marker { display: none; }
-    .footer-faq-item summary:hover {
-      color: var(--text-primary);
-      background: var(--bg-hover);
-    }
-    .footer-faq-item[open] summary { color: var(--accent); }
-    .footer-faq-answer {
-      padding: 0.5rem 0.5rem 0.5rem 1rem;
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
-    }
-
-    /* Floating Sidebar - 极简线条 */
-    .floating-sidebar {
-      position: fixed;
-      right: 20px;
-      bottom: 30px;
-      z-index: 9999;
-    }
-    .sidebar-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 0;
-      border: 1px solid var(--border);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      transition: all 0.2s ease;
-      background: transparent;
-    }
-    .sidebar-btn:hover {
-      border-color: var(--accent);
-      background: var(--bg-hover);
-    }
-    .sidebar-btn:active {
-      transform: scale(0.98);
-    }
-    .sidebar-btn svg {
-      width: 20px;
-      height: 20px;
-      color: var(--text-primary);
-      transition: transform 0.2s ease;
-    }
-    .sidebar-btn:hover svg {
-      transform: translateY(-2px);
-    }
-    .sidebar-tooltip {
-      position: absolute;
-      right: 60px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      border: 1px solid var(--border);
-      padding: 8px 12px;
-      font-size: 12px;
-      font-weight: 500;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-    }
-    .sidebar-tooltip::after {
-      content: '';
-      position: absolute;
-      right: -5px;
-      top: 50%;
-      transform: translateY(-50%);
-      border: 5px solid transparent;
-      border-left-color: var(--border);
-    }
-    .sidebar-btn:hover .sidebar-tooltip {
-      opacity: 1;
-      transform: translateY(-50%) translateX(-4px);
-    }
-
-    @media (max-width: 768px) {
-      .page-footer {
-        padding: 0;
-      }
-      .footer-inner { padding: 0 1.5rem; }
-      .footer-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 2rem;
-        padding: 2.5rem 0;
-      }
-      .footer-brand {
-        grid-column: 1 / -1;
-      }
-      .footer-brand-bottom { align-items: center; }
-      .footer-disclaimer { flex-direction: column; text-align: center; gap: 0.75rem; }
-      .footer-badges { justify-content: center; }
-      .floating-sidebar {
-        right: 10px;
-        bottom: 16px;
-      }
-      .sidebar-btn {
-        width: 42px;
-        height: 42px;
-      }
-      .sidebar-tooltip {
-        display: none;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .footer-inner { padding: 0 1rem; }
-      .footer-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-        padding: 2rem 0;
-      }
-      .footer-brand { grid-column: 1; text-align: center; }
-      .footer-logo { justify-content: center; }
-      .footer-brand-bottom { align-items: center; }
-      .footer-disclaimer { flex-direction: column; text-align: center; gap: 0.5rem; }
-      .footer-badges { justify-content: center; }
-      .footer-tagline { text-align: center; }
-      .footer-col-title { text-align: center; }
-      .footer-col-links { align-items: center; }
-    }
-  </style>
-
-  <script>
-    
-  <script>
-    // Floating sidebar back-to-top functionality
-    document.addEventListener('DOMContentLoaded', function() {
-      const backToTopBtn = document.querySelector('.back-to-top');
-      if (backToTopBtn) {
-        const toggleVisibility = () => {
-          if (window.scrollY > 300) {
-            backToTopBtn.style.opacity = '1';
-            backToTopBtn.style.pointerEvents = 'auto';
-          } else {
-            backToTopBtn.style.opacity = '0.35';
-            backToTopBtn.style.pointerEvents = 'none';
-          }
-        };
-        window.addEventListener('scroll', toggleVisibility, { passive: true });
-        toggleVisibility();
-      }
-    });
-  </script>
-
+  ${PAGE_FOOTER}
   
   <script>
     // 价格计算逻辑
@@ -2271,7 +1880,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       const code = input.value.trim().toUpperCase();
       
       if (!code) {
-        status.textContent = 'Please enter promo code';
+        status.textContent = '请Enter promo code';
         status.className = 'error';
         return;
       }
@@ -2364,23 +1973,23 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         if (availableTopics.length > 0) {
           availableTopics.forEach((topic, index) => {
             const card = document.createElement('div');
-            // id === 0 is injected by backend as "All Channels", selected by default
+            // id === 0 是后端注入的"所有频道"，默认选中
             const isSelected = topic.id === 0;
             card.className = 'theme-card' + (isSelected ? ' selected' : '');
             card.onclick = () => selectTheme(topic.id);
             card.dataset.theme = topic.id;
-            const desc = topic.description || 'Featured Channels';
+            const desc = topic.description || '精选频道';
             card.innerHTML = '<div class="theme-card-name">' + topic.name + '</div><div class="theme-card-desc">' + desc + '</div>';
             grid.appendChild(card);
           });
         }
 
-        // 3. If logged in, add "My Favorites"
+        // 3. 如果登录，添加"我的收藏"
         if (isLoggedIn) {
           const favCard = document.createElement('div');
           favCard.className = 'theme-card';
           favCard.dataset.theme = 'favorites';
-          favCard.innerHTML = '<div class="theme-card-name">My Favorites</div><div class="theme-card-desc">Only return your favorited channels</div>'';
+          favCard.innerHTML = '<div class="theme-card-name">我的收藏</div><div class="theme-card-desc">仅返回您收藏的频道</div>';
           favCard.onclick = () => selectTheme('favorites');
           grid.appendChild(favCard);
         }
@@ -2401,9 +2010,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
     function paintRenewalBanner(activeOrder, grid, banner) {
-      let schemeName = 'All Channels';
+      let schemeName = '全部频道';
       if (activeOrder.sub_mode === 'favorites') {
-        schemeName = 'My Favorites';
+        schemeName = '我的收藏';
       } else if (activeOrder.topic_id) {
         const t = availableTopics.find(function (x) { return String(x.id) === String(activeOrder.topic_id); });
         schemeName = t ? t.name : ('Topic #' + activeOrder.topic_id);
@@ -2430,7 +2039,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       const hintEl = document.getElementById('themeHint');
       if (hintEl) {
         if (themeId === 'favorites') {
-          hintEl.textContent = 'Subscription will only return your favorited channels';
+          hintEl.textContent = '订阅后将只返回您收藏的频道';
           hintEl.style.display = 'block';
         } else {
           hintEl.textContent = '';
@@ -2451,18 +2060,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         });
         const data = await resp.json();
         if (!resp.ok || !data.success) {
-          showToast(data.error || 'USDT order creation failed', 'error');
+          showToast(data.error || 'USDT 订单创建失败', 'error');
           showLoading(false);
           return;
         }
 
         // 填充模态框
-        const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + ' days'));
+        const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + '天'));
         document.getElementById('paymentPlanName').textContent = planLabel;
-        document.getElementById('paymentIPCount').textContent = selectedIPs + ' device(s)';
+        document.getElementById('paymentIPCount').textContent = selectedIPs + ' 台';
         document.getElementById('paymentAmount').textContent = '¥' + (data.amount_cny != null ? data.amount_cny.toFixed(2) : '-');
-        document.getElementById('paymentMethodIndicator').innerHTML = 'Using <strong>USDT (TRC20)</strong>';
-        document.getElementById('modalQrcodeTip').textContent = 'Scan with a TRC20-compatible wallet';
+        document.getElementById('paymentMethodIndicator').innerHTML = '正在使用 <strong>USDT (TRC20)</strong>';
+        document.getElementById('modalQrcodeTip').textContent = '请使用支持 TRC20 的钱包扫码 / 转账';
 
         // 显示 USDT 专属区
         const addrBox = document.getElementById('usdtAddressBox');
@@ -2478,9 +2087,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           qrcodeImg.src = '';
         }
 
-        document.getElementById('paymentStatus').textContent = 'Waiting for on-chain confirmation (up to 1 minute)...';
+        document.getElementById('paymentStatus').textContent = '等待链上确认（最长 1 分钟）...';
         document.getElementById('paymentStatus').style.color = '';
-        document.getElementById('paymentModalTitle').textContent = 'Waiting for Payment';
+        document.getElementById('paymentModalTitle').textContent = '等待支付';
         document.getElementById('paymentModal').classList.add('show');
         currentOrderId = data.order_id;
 
@@ -2492,7 +2101,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         startUsdtOrderCheck(data.order_id, token);
       } catch (e) {
         console.error('USDT subscribe error:', e);
-        showToast('Network error, please retry', 'error');
+        showToast('网络错误，请重试', 'error');
       } finally {
         showLoading(false);
       }
@@ -2506,7 +2115,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         checkCount++;
         if (checkCount > maxChecks) {
           clearInterval(checkPaymentInterval);
-          document.getElementById('paymentStatus').textContent = 'Order has timed out, please place a new order';
+          document.getElementById('paymentStatus').textContent = '订单已超时，请重新下单';
           return;
         }
         try {
@@ -2577,18 +2186,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
         if (result.success && result.payment_data) {
           const price = calculatePrice();
-          const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + ' days'));
+          const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + '天'));
 
           document.getElementById('paymentPlanName').textContent = planLabel;
-          document.getElementById('paymentIPCount').textContent = selectedIPs + ' device(s)';
+          document.getElementById('paymentIPCount').textContent = selectedIPs + ' 台';
           document.getElementById('paymentAmount').textContent = '¥' + price.discounted.toFixed(2);
 
           const methodIndicator = document.getElementById('paymentMethodIndicator');
-          const methodName = selectedPaymentMethod === 'wechat' ? 'WeChat Pay' : 'Alipay';
-          methodIndicator.innerHTML = 'Using <strong>' + methodName + '</strong>';
+          const methodName = selectedPaymentMethod === 'wechat' ? '微信支付' : '支付宝';
+          methodIndicator.innerHTML = '正在使用 <strong>' + methodName + '</strong>';
 
           const qrcodeTip = document.getElementById('modalQrcodeTip');
-          qrcodeTip.textContent = selectedPaymentMethod === 'wechat' ? 'Scan with WeChat' : 'Scan with Alipay';
+          qrcodeTip.textContent = selectedPaymentMethod === 'wechat' ? '请用微信扫码支付' : '请用支付宝扫码支付';
 
           const qrcodeImage = document.getElementById('modalQrcodeImage');
           if (result.payment_data.url_qrcode) {
@@ -2597,9 +2206,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             qrcodeImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(result.payment_data.url || '');
           }
 
-          document.getElementById('paymentStatus').textContent = '⏳ Waiting for payment...';
+          document.getElementById('paymentStatus').textContent = '⏳ 等待扫码支付...';
           document.getElementById('paymentStatus').style.color = '#ffd700';
-          document.getElementById('paymentModalTitle').textContent = 'Scan to Pay';
+          document.getElementById('paymentModalTitle').textContent = '扫码支付';
           document.getElementById('paymentModal').classList.add('show');
           currentOrderId = result.order_id;
 
@@ -2611,11 +2220,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
           startOrderCheck(result.order_id);
         } else {
-          showToast(result.error || 'Payment order creation failed', 'error');
+          showToast(result.error || '支付订单创建失败', 'error');
         }
       } catch (error) {
         console.error('Subscription error:', error);
-        showToast('Network error, please retry', 'error');
+        showToast('网络错误，请重试', 'error');
       } finally {
         showLoading(false);
       }
@@ -2631,7 +2240,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         checkCount++;
         if (checkCount > maxChecks) {
           clearInterval(checkPaymentInterval);
-          document.getElementById('paymentStatus').textContent = 'Payment Timed Out';
+          document.getElementById('paymentStatus').textContent = '支付超时';
           return;
         }
         try {
@@ -2649,10 +2258,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               closePaymentModal();
               const subUrl = window.location.origin + '/sub/' + result.order.code + '.m3u';
               const price = calculatePrice();
-              const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + ' days'));
+              const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + '天'));
               const purchaseDetails = {
                 plan: planLabel,
-                ips: selectedIPs + ' device(s)',
+                ips: selectedIPs + ' 台',
                 amount: '¥' + price.discounted.toFixed(2)
               };
               showSuccess(subUrl, purchaseDetails);
@@ -2666,7 +2275,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     async function simulatePaymentSuccess() {
       if (!currentOrderId) {
-        showToast('No pending payment orders', 'error');
+        showToast('没Yes待支付的订单', 'error');
         return;
       }
       const token = localStorage.getItem('auth_token');
@@ -2685,20 +2294,20 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             closePaymentModal();
             const subUrl = window.location.origin + '/sub/' + result.code + '.m3u';
             const price = calculatePrice();
-            const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + ' days'));
+            const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + '天'));
             const purchaseDetails = {
               plan: planLabel,
-              ips: selectedIPs + ' device(s)',
+              ips: selectedIPs + ' 台',
               amount: '¥' + price.discounted.toFixed(2)
             };
             showSuccess(subUrl, purchaseDetails);
           }, 1500);
         } else {
-          showToast(result.error || 'Simulation failed', 'error');
+          showToast(result.error || '模拟失败', 'error');
         }
       } catch (error) {
         console.error('Simulate payment error:', error);
-        showToast('Simulation failed', 'error');
+        showToast('模拟失败', 'error');
       }
     }
 
@@ -2744,7 +2353,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         showToast('Subscription link copied to clipboard', 'success');
       }).catch(function (err) {
         console.error('Copy failed:', err);
-        showToast('Copy failed', 'error');
+        showToast('复制失败', 'error');
       });
     }
 
