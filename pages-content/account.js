@@ -1338,6 +1338,8 @@ async function loadSchemes() {
       '苹果/安卓通用': 'Universal',
     };
     topics.forEach(function (t) {
+      // id:0 是后端注入的默认"All Channels"，account.js 已硬编码，跳过避免重复
+      if (t.id === 0) return;
       availableSchemes.push({ type: 'topic', id: t.id, name: schemeTranslations[t.name] || t.name });
     });
     renderSchemeSwitcher();
