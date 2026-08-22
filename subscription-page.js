@@ -9,7 +9,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIP Subscription - IPTV Search | 一个链接，看遍所Yes频道</title>
+  <title>VIP Subscription - IPTV Search | One Link to All Channels</title>
   <meta name="description" content="VIP subscription link for all channels. One-click import to your player — no more manual searching, cloud-synced favorites, seamless multi-device switching.">
   
   <style>
@@ -1376,7 +1376,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
     </section>
     
-    <!-- 场景展示区 -->
+    <!-- Scene Showcase -->
     <section class="scene-section">
       <div class="container">
         <div class="section-header" style="text-align:center;margin-bottom:48px;">
@@ -1385,7 +1385,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         </div>
         <div class="scene-grid">
           <div class="scene-card">
-            <div class="scene-card-img-wrapper"><img src="/asset_scene_1.png" alt="家庭影院" class="scene-card-img"></div>
+            <div class="scene-card-img-wrapper"><img src="/asset_scene_1.png" alt="Home Theater" class="scene-card-img"></div>
             <div class="scene-card-body">
               <span class="scene-card-tag">Home Cinema</span>
               <h3 class="scene-card-title">Your Living Room, Your Private Cinema</h3>
@@ -1393,7 +1393,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </div>
           </div>
           <div class="scene-card">
-            <div class="scene-card-img-wrapper"><img src="/asset_scene_2.png" alt="外出观看" class="scene-card-img"></div>
+            <div class="scene-card-img-wrapper"><img src="/asset_scene_2.png" alt="Watch on the Go" class="scene-card-img"></div>
             <div class="scene-card-body">
               <span class="scene-card-tag">On the Go</span>
               <h3 class="scene-card-title">Never Bored on Your Commute</h3>
@@ -1401,7 +1401,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </div>
           </div>
           <div class="scene-card">
-            <div class="scene-card-img-wrapper"><img src="/asset_scene_3.png" alt="海外生活" class="scene-card-img"></div>
+            <div class="scene-card-img-wrapper"><img src="/asset_scene_3.png" alt="Overseas Life" class="scene-card-img"></div>
             <div class="scene-card-body">
               <span class="scene-card-tag">Overseas Chinese</span>
               <h3 class="scene-card-title">Stay Connected to Home, No Matter Where</h3>
@@ -1424,7 +1424,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </tr>
           </thead>
           <tbody>
-            <!-- 共Yes权益 -->
+            <!-- Exclusive Benefits -->
             <tr class="shared">
               <td>Channel Updates</td>
               <td><span class="check">✓</span> Daily Updates</td>
@@ -1440,7 +1440,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <td><span class="check">✓</span> 99% Uptime</td>
               <td class="vip"><span class="check">✓</span> 99.9% Uptime</td>
             </tr>
-            <!-- 差异权益 -->
+            <!-- Premium Features -->
             <tr>
               <td>Favorites</td>
               <td><span class="cross">✗</span> Local Storage</td>
@@ -1481,7 +1481,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
     </section>
     
-    <!-- 用户评价区 -->
+    <!-- User Reviews -->
     <section class="testimonials-section">
       <div class="container">
         <div class="section-header">
@@ -1493,121 +1493,121 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">张先生</div>
-                <div class="testimonial-meta">🇺🇸 美国 · 订阅 2 年</div>
+                <div class="testimonial-name">Mr. Zhang</div>
+                <div class="testimonial-meta">🇺🇸 United States · 2-Year Plan</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在美国待了快十年，每年春节最愁的就是看春晚。以前用VPN看国内APP，不是卡就是黑屏。朋友推荐了这个，用APTV导入就能看，画质比之前流畅多了。今年终于不用躲在房间里刷手机了，客厅电视上看一家人守着，感觉挺好的。</p>
+            <p class="testimonial-text">Lived in the US for nearly a decade. VPN for Chinese apps was always laggy or buffering. A friend recommended this, imported via APTV and the quality is much smoother now. Can watch on the living room TV with my whole family, feels great.</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">李女士</div>
-                <div class="testimonial-meta">🇬🇧 英国 · 订阅 1 年</div>
+                <div class="testimonial-name">Ms. Li</div>
+                <div class="testimonial-meta">🇬🇧 United Kingdom · 1-Year Plan</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">给孩子看湖南卫视、给老人看CCTV，各看各的互不打扰。最满意的是看英超完全不卡，用Tivimate导入很方便。Yes个小问题是Yes时段性卡顿，客服回复挺快的，帮我调了线路就好了。</p>
+            <p class="testimonial-text">Kids watch Hunan TV, grandparents watch CCTV — everyone happy. Premier League streams are buttery smooth with Tivimate. Only minor buffering issues but support fixed it quickly by switching servers.</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">王先生</div>
-                <div class="testimonial-meta">🇨🇦 加拿大 · 订阅 8 个月</div>
+                <div class="testimonial-name">Mr. Wang</div>
+                <div class="testimonial-meta">🇨🇦 Canada · 8-Month Plan</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">配置真的超简单，用Televizo导入后直接能看。把链接给爸妈发了过去，他们自己导入就能看。现在每天晚饭后全家一起看新闻联播，特别温馨。就是频道Yes点多，找自己想看的还得挑一挑。</p>
+            <p class="testimonial-text">Setup was super easy with Televizo. Shared the link with my parents and they got it working themselves. Now our whole family watches the news together after dinner. Only wish channel organization was better.</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">陈女士</div>
-                <div class="testimonial-meta">📍 北京 · 订阅 3 个月</div>
+                <div class="testimonial-name">Ms. Chen</div>
+                <div class="testimonial-meta">📍 Beijing · 3-Month Plan</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">以前在家只能看地方台，现在用APTV能看央视所Yes频道和湖南卫视。周末全家一起看新闻联播，爸妈可高兴了。用CarPlay在车上也能听广播，挺方便的。就是Yes时候频道太多要找一会儿。</p>
+            <p class="testimonial-text">Used to only have local channels at home. Now with APTV I get all CCTV channels and Hunan TV. Family watches news together on weekends and my parents love it. CarPlay radio on the go is convenient too.</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">刘先生</div>
-                <div class="testimonial-meta">📍 上海 · 订阅 1 年</div>
+                <div class="testimonial-name">Mr. Liu</div>
+                <div class="testimonial-meta">📍 Shanghai · 1-Year Plan</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在家想看港澳台频道，找了好几个服务都不稳定。这个用Televizo导入就能看，凤凰卫视、阳光卫视都很清晰。偶尔Yes卡顿，客服响应很快，给我换了线路就好了。性价比高，推荐。</p>
+            <p class="testimonial-text">Was looking for HK/Macau/Taiwan channels everywhere, none were stable. This one works with Televizo — Phoenix and Sun TV are both clear. Support switched servers quickly when there was buffering. Great value.</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">赵女士</div>
-                <div class="testimonial-meta">🇯🇵 日本 · 订阅 1 年</div>
+                <div class="testimonial-name">Ms. Zhao</div>
+                <div class="testimonial-meta">🇯🇵 Japan · 1-Year Plan</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在日本工作，平时最喜欢看家乡的新闻和综艺。用GSE Smart IPTV导入后频道很全，连我们省的地面频道都Yes，就像在家里一样。Yes时候网速慢会卡一下，但整体体验不错。</p>
+            <p class="testimonial-text">Working in Japan, love watching hometown news and shows. GSE Smart IPTV has all channels including my province local ones — feels like home. Sometimes buffers on slow networks but overall great.</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">周先生</div>
-                <div class="testimonial-meta">🇸🇬 新加坡 · 订阅 3 个月</div>
+                <div class="testimonial-name">Mr. Zhou</div>
+                <div class="testimonial-meta">🇸🇬 Singapore · 3-Month Plan</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★☆</div>
-            <p class="testimonial-text">新加坡华人多，办公室同事一起订阅了。5台设备够用，用APTV都很顺。偶尔会小卡顿，但客服响应很快，总体满意。就是感觉价格能再便宜点就好了。</p>
+            <p class="testimonial-text">Many Chinese in Singapore, my office colleagues all subscribed. 5 devices is plenty, APTV works smoothly. Occasional small hiccups but responsive support. Just wish the price was a bit lower.</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">吴女士</div>
-                <div class="testimonial-meta">📍 成都 · 订阅 4 个月</div>
+                <div class="testimonial-name">Ms. Wu</div>
+                <div class="testimonial-meta">📍 Chengdu · 4-Month Plan</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">四川人喜欢晚上刷剧看综艺，以前只能看地方台。现在用GSE Smart IPTV能看到湖南卫视、浙江卫视的直播，还能回看。用Tivimate体验更好，界面简洁，操作方便。唯一不满的是想找老电影频道Yes点难。</p>
+            <p class="testimonial-text">Sichuan people love evening dramas and variety shows. Now I can watch Hunan and Zhejiang TV live with GSE, plus replay. Tivimate has the best interface. Only wish older movie channels were easier to find.</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">郑先生</div>
-                <div class="testimonial-meta">🇰🇷 韩国 · 订阅 5 个月</div>
+                <div class="testimonial-name">Mr. Zheng</div>
+                <div class="testimonial-meta">🇰🇷 South Korea · 5-Month Plan</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在韩国留学，用Tivimate看国内体育比赛很方便。操作简单，室友都在用，我们群里经常一起聊球赛。画质清晰，基本不卡。</p>
+            <p class="testimonial-text">Studying in Korea, Tivimate makes watching domestic sports convenient. Easy to set up, roommates use it too, we often chat about matches in our group. Clear quality, rarely buffers.</p>
           </div>
           
           <div class="testimonial-card">
             <div class="testimonial-header">
                 <div class="testimonial-info">
-                <div class="testimonial-name">孙女士</div>
-                <div class="testimonial-meta">🇫🇷 法国 · 订阅 7 个月</div>
+                <div class="testimonial-name">Ms. Sun</div>
+                <div class="testimonial-meta">🇫🇷 France · 7-Month Plan</div>
                 <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在欧洲生活多年，最想念的就是国内春晚和新闻联播。用APTV导入后解决了我的问题，7天None理由退款也让我放心尝试。虽然偶尔Yes卡顿，但客服态度很好，整体体验不错。就是希望频道能再分类清楚一点。</p>
+            <p class="testimonial-text">Lived in Europe for years, missed Spring Festival Gala and evening news. APTV solved it, and the 7-day refund policy gave me confidence to try. Occasional buffering but great support overall.</p>
           </div>
         </div>
           </div>
@@ -1615,7 +1615,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
     </section>
 
-    <!-- 价格区 -->
+    <!-- Pricing Section -->
     <section class="pricing-section" id="pricing">
       <div class="container">
         <div class="section-header">
@@ -1634,7 +1634,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 </div>
               </div>
               <div class="theme-grid" id="themeGrid">
-                <!-- 动态加载线路 -->
+                <!-- Dynamic Channel Loading -->
               </div>
             </div>
 
@@ -1643,18 +1643,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="selector-bar" id="durationGrid">
                 <div class="select-option selected" onclick="selectDuration(30)">
                   <span class="value">Monthly</span>
-                  <span class="label">30天</span>
+                  <span class="label">30 days</span>
                   <span class="price-tag">¥20</span>
                 </div>
                 <div class="select-option" onclick="selectDuration(90)">
                   <span class="value">Quarterly</span>
-                  <span class="label">90天</span>
+                  <span class="label">90 days</span>
                   <span class="badge">Save 25%</span>
                   <span class="price-tag">¥45</span>
                 </div>
                 <div class="select-option" onclick="selectDuration(365)">
                   <span class="value">Yearly</span>
-                  <span class="label">365天</span>
+                  <span class="label">365 days</span>
                   <span class="badge">Best Value</span>
                   <span class="price-tag">¥168</span>
                 </div>
@@ -1711,13 +1711,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </div>
             
             <div class="payment-methods">
-              <label>选择付款方式</label>
+              <label>Select Payment Method</label>
               <div class="payment-options">
                 <div class="payment-option selected" onclick="selectPayment('alipay')">
-                  <div class="payment-option-icon"><img src="/zhifubao.png" alt="支付宝"></div>
+                  <div class="payment-option-icon"><img src="/zhifubao.png" alt="Alipay"></div>
                 </div>
                 <div class="payment-option" id="wechatOption" onclick="selectPayment('wechat')">
-                  <div class="payment-option-icon"><img src="/weixin.png" alt="微信支付"></div>
+                  <div class="payment-option-icon"><img src="/weixin.png" alt="WeChat Pay"></div>
                 </div>
                 <div class="payment-option" onclick="selectPayment('usdt')">
                   <div class="payment-option-icon"><img src="/usdt.png" alt="USDT"></div>
@@ -1738,7 +1738,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
     </section>
     
-    <!-- 最终CTA -->
+    <!-- Final CTA -->
     <section class="final-cta">
       <div class="container">
         <h2>Still hesitant? Try <span style="color: var(--accent)">7 Days Free VIP</span></h2>
@@ -1747,38 +1747,38 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       </div>
     </section>
 
-  <!-- 加载遮罩 -->
+  <!-- Loading Overlay -->
   <div id="loading" class="loading">
     <div class="spinner"></div>
     <p>Processing...</p>
   </div>
 
-  <!-- 支付模态框 -->
+  <!-- Payment Modal -->
   <div id="paymentModal" class="payment-modal">
     <div class="payment-content">
       <div class="payment-header">
-        <h2 class="payment-title" id="paymentModalTitle">完成支付</h2>
+        <h2 class="payment-title" id="paymentModalTitle">Complete Payment</h2>
         <button class="payment-close" onclick="closePaymentModal()">×</button>
       </div>
       <div class="payment-body">
         <div class="qrcode-section">
           <div class="qrcode-wrapper">
-            <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="支付二维码">
+            <img id="modalQrcodeImage" class="modal-qrcode-image" src="" alt="Payment QR Code">
           </div>
-          <p class="qrcode-tip" id="modalQrcodeTip">请用支付宝/微信扫码支付</p>
+          <p class="qrcode-tip" id="modalQrcodeTip">Scan QR code to pay</p>
           <p class="payment-method-indicator" id="paymentMethodIndicator"></p>
-          <p class="payment-status" id="paymentStatus">等待支付中...</p>
+          <p class="payment-status" id="paymentStatus">Waiting for payment...</p>
 
-          <!-- USDT 专用：钱包地址 + 金额 -->
+          <!-- USDT: Wallet Address + Amount -->
           <div id="usdtAddressBox" style="display:none;margin-top:14px;text-align:left;font-size:12px;color:rgba(255,255,255,.85);">
-            <div style="margin-bottom:6px;color:rgba(255,255,255,.6);">收款地址 (TRC20 / Tron)</div>
+            <div style="margin-bottom:6px;color:rgba(255,255,255,.6);">Payment Address (TRC20 / Tron)</div>
             <div style="display:flex;gap:8px;align-items:center;">
               <code id="usdtAddressText" style="flex:1;background:rgba(0,0,0,.4);padding:8px 10px;border-radius:6px;word-break:break-all;color:#f0c674;"></code>
               <button id="usdtCopyBtn" type="button" style="background:#d4af37;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">复制</button>
             </div>
-            <div style="margin-top:10px;color:rgba(255,255,255,.6);">Amount Due（精确到 0.0001 USDT）</div>
+            <div style="margin-top:10px;color:rgba(255,255,255,.6);">Amount Due (exact to 0.0001 USDT)</div>
             <div id="usdtAmountText" style="font-size:18px;font-weight:700;color:#f0c674;margin-top:4px;">- USDT</div>
-            <div style="margin-top:6px;color:rgba(255,165,0,.85);font-size:11px;">⚠️ 必须按此金额支付，多付/少付都None法识别</div>
+            <div style="margin-top:6px;color:rgba(255,165,0,.85);font-size:11px;">⚠️ Pay exact amount only; over/under payment cannot be detected</div>
           </div>
         </div>
         <div class="payment-info">
@@ -1802,7 +1802,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     </div>
   </div>
 
-  <!-- 成功模态框 -->
+  <!-- Success Modal -->
   <div id="successModal" class="success-modal">
     <div class="success-content">
       <button class="modal-close" onclick="closeModal()">×</button>
@@ -1880,7 +1880,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       const code = input.value.trim().toUpperCase();
       
       if (!code) {
-        status.textContent = '请Enter promo code';
+        status.textContent = 'Please enter promo code';
         status.className = 'error';
         return;
       }
@@ -1928,8 +1928,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
     
     let selectedTheme = 0;
-    let isRenewalFlow = false;       // 续费场景：true = 隐藏选择器，方案保持不变
-    let availableTopics = [];        // 当前可用的 topic 列表（含 id + name）
+    let isRenewalFlow = false;       // renewal flow: true = hide selector, keep plan
+    let availableTopics = [];        // currently available topics list (id + name)
 
     let checkPaymentInterval = null;
     let currentOrderId = null;
@@ -1973,18 +1973,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         if (availableTopics.length > 0) {
           availableTopics.forEach((topic, index) => {
             const card = document.createElement('div');
-            // id === 0 是后端注入的"所有频道"，默认选中
+            // id === 0 is injected by backend as All Channels, selected by default
             const isSelected = topic.id === 0;
             card.className = 'theme-card' + (isSelected ? ' selected' : '');
             card.onclick = () => selectTheme(topic.id);
             card.dataset.theme = topic.id;
-            const desc = topic.description || '精选频道';
+            const desc = topic.description || 'Featured Channels';
             card.innerHTML = '<div class="theme-card-name">' + topic.name + '</div><div class="theme-card-desc">' + desc + '</div>';
             grid.appendChild(card);
           });
         }
 
-        // 3. 如果登录，添加"我的收藏"
+        // 3. If logged in, add My Favorites
         if (isLoggedIn) {
           const favCard = document.createElement('div');
           favCard.className = 'theme-card';
@@ -1999,7 +1999,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     }
 
     function showRenewalBanner(activeOrder, grid, banner) {
-      // 先把 topics 也拉一份，用于解析 topic_id → name
+      // Fetch topics list for topic_id to name resolution
       if (availableTopics.length === 0) {
         fetch('/api/subscription/topics').then(function (r) { return r.json(); }).then(function (d) {
           if (d && d.success && Array.isArray(d.topics)) availableTopics = d.topics;
@@ -2010,9 +2010,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
     function paintRenewalBanner(activeOrder, grid, banner) {
-      let schemeName = '全部频道';
+      let schemeName = 'All Channels';
       if (activeOrder.sub_mode === 'favorites') {
-        schemeName = '我的收藏';
+        schemeName = 'My Favorites';
       } else if (activeOrder.topic_id) {
         const t = availableTopics.find(function (x) { return String(x.id) === String(activeOrder.topic_id); });
         schemeName = t ? t.name : ('Topic #' + activeOrder.topic_id);
@@ -2029,17 +2029,17 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
       document.querySelectorAll('.theme-card').forEach(card => {
         card.classList.remove('selected');
-        // 确保类型一致（都是字符串）
+        // Ensure type consistency (all strings)
         if (card.dataset.theme === themeId.toString()) {
           card.classList.add('selected');
         }
       });
 
-      // 如果是 favorites，添加提示
+      // If favorites theme, show hint
       const hintEl = document.getElementById('themeHint');
       if (hintEl) {
         if (themeId === 'favorites') {
-          hintEl.textContent = '订阅后将只返回您收藏的频道';
+          hintEl.textContent = 'Subscription will only return your favorited channels';
           hintEl.style.display = 'block';
         } else {
           hintEl.textContent = '';
@@ -2048,7 +2048,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       }
     }
 
-    // 页面加载时获取主题列表
+    // Fetch topic list on page load
     loadThemes();
 
     async function handleSubscribeUsdt(token, body) {
@@ -2060,26 +2060,26 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         });
         const data = await resp.json();
         if (!resp.ok || !data.success) {
-          showToast(data.error || 'USDT 订单创建失败', 'error');
+          showToast(data.error || 'USDT order creation failed', 'error');
           showLoading(false);
           return;
         }
 
-        // 填充模态框
-        const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + '天'));
+        // Populate modal
+        const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + ' days'));
         document.getElementById('paymentPlanName').textContent = planLabel;
-        document.getElementById('paymentIPCount').textContent = selectedIPs + ' 台';
+        document.getElementById('paymentIPCount').textContent = selectedIPs + ' device(s)';
         document.getElementById('paymentAmount').textContent = '¥' + (data.amount_cny != null ? data.amount_cny.toFixed(2) : '-');
-        document.getElementById('paymentMethodIndicator').innerHTML = '正在使用 <strong>USDT (TRC20)</strong>';
-        document.getElementById('modalQrcodeTip').textContent = '请使用支持 TRC20 的钱包扫码 / 转账';
+        document.getElementById('paymentMethodIndicator').innerHTML = 'Using <strong>USDT (TRC20)</strong>';
+        document.getElementById('modalQrcodeTip').textContent = 'Scan with a TRC20-compatible wallet';
 
-        // 显示 USDT 专属区
+        // Show USDT area
         const addrBox = document.getElementById('usdtAddressBox');
         addrBox.style.display = 'block';
         document.getElementById('usdtAddressText').textContent = data.token || '-';
         document.getElementById('usdtAmountText').textContent = (data.amount_usdt != null ? data.amount_usdt : '-') + ' USDT';
 
-        // 二维码：用钱包地址做内容即可（大部分钱包扫码识别）
+        // QR code: wallet address is sufficient content
         const qrcodeImg = document.getElementById('modalQrcodeImage');
         if (data.token) {
           qrcodeImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent('tron:' + data.token);
@@ -2087,13 +2087,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           qrcodeImg.src = '';
         }
 
-        document.getElementById('paymentStatus').textContent = '等待链上确认（最长 1 分钟）...';
+        document.getElementById('paymentStatus').textContent = 'Waiting for on-chain confirmation (up to 1 minute)...';
         document.getElementById('paymentStatus').style.color = '';
-        document.getElementById('paymentModalTitle').textContent = '等待支付';
+        document.getElementById('paymentModalTitle').textContent = 'Waiting for Payment';
         document.getElementById('paymentModal').classList.add('show');
         currentOrderId = data.order_id;
 
-        // 复制按钮
+        // Copy button
         document.getElementById('usdtCopyBtn').onclick = () => {
           navigator.clipboard.writeText(data.token || '').then(() => showToast('Address copied', 'success'));
         };
@@ -2101,7 +2101,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         startUsdtOrderCheck(data.order_id, token);
       } catch (e) {
         console.error('USDT subscribe error:', e);
-        showToast('网络错误，请重试', 'error');
+        showToast('Network error, please retry', 'error');
       } finally {
         showLoading(false);
       }
@@ -2110,12 +2110,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     function startUsdtOrderCheck(orderId, token) {
       if (checkPaymentInterval) clearInterval(checkPaymentInterval);
       let checkCount = 0;
-      const maxChecks = 90; // ~7.5 分钟（每 5 秒）
+      const maxChecks = 90; // ~7.5 min (every 5 seconds)
       checkPaymentInterval = setInterval(async () => {
         checkCount++;
         if (checkCount > maxChecks) {
           clearInterval(checkPaymentInterval);
-          document.getElementById('paymentStatus').textContent = '订单已超时，请重新下单';
+          document.getElementById('paymentStatus').textContent = 'Order has timed out, please place a new order';
           return;
         }
         try {
@@ -2131,7 +2131,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             setTimeout(() => {
               closePaymentModal();
               const subUrl = window.location.origin + '/sub/' + (j.code || '') + '.m3u';
-              // 后端 webhook 完成后激活，code 由 user_orders 查得；这里跳转账户页更稳
+              // Backend webhook activates; skip to account page is more reliable
               window.location.href = '/account?payment=success';
             }, 1500);
           }
@@ -2159,13 +2159,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const body = {
           duration_days: Number(selectedDuration.days),
           max_ips: Number(selectedIPs),
-          // 新订阅才发送；续费场景由后端保留
+          // Only sent for new subscriptions; renewal kept by backend
           topic_id: (!isRenewalFlow && selectedTheme && selectedTheme !== 'favorites' && selectedTheme !== 0) ? Number(selectedTheme) : null,
           sub_mode: (!isRenewalFlow && selectedTheme === 'favorites') ? 'favorites' : null,
           discount_code: appliedDiscount ? document.getElementById('discountCodeInput').value.trim().toUpperCase() : null,
         };
 
-        // USDT 走单独端点
+        // USDT uses separate endpoint
         if (selectedPaymentMethod === 'usdt') {
           await handleSubscribeUsdt(token, body);
           return;
@@ -2193,11 +2193,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           document.getElementById('paymentAmount').textContent = '¥' + price.discounted.toFixed(2);
 
           const methodIndicator = document.getElementById('paymentMethodIndicator');
-          const methodName = selectedPaymentMethod === 'wechat' ? '微信支付' : '支付宝';
-          methodIndicator.innerHTML = '正在使用 <strong>' + methodName + '</strong>';
+          const methodName = selectedPaymentMethod === 'wechat' ? 'WeChat Pay' : 'Alipay';
+          methodIndicator.innerHTML = 'Using <strong>' + methodName + '</strong>';
 
           const qrcodeTip = document.getElementById('modalQrcodeTip');
-          qrcodeTip.textContent = selectedPaymentMethod === 'wechat' ? '请用微信扫码支付' : '请用支付宝扫码支付';
+          qrcodeTip.textContent = selectedPaymentMethod === 'wechat' ? 'Scan with WeChat' : 'Scan with Alipay';
 
           const qrcodeImage = document.getElementById('modalQrcodeImage');
           if (result.payment_data.url_qrcode) {
@@ -2206,13 +2206,13 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             qrcodeImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(result.payment_data.url || '');
           }
 
-          document.getElementById('paymentStatus').textContent = '⏳ 等待扫码支付...';
+          document.getElementById('paymentStatus').textContent = '⏳ Waiting for payment...';
           document.getElementById('paymentStatus').style.color = '#ffd700';
-          document.getElementById('paymentModalTitle').textContent = '扫码支付';
+          document.getElementById('paymentModalTitle').textContent = 'Scan to Pay';
           document.getElementById('paymentModal').classList.add('show');
           currentOrderId = result.order_id;
 
-          // 本地环境显示测试按钮
+          // Show test button in local environment
           if (isLocalhost()) {
             const simBtn = document.getElementById('simulatePaymentBtn');
             if (simBtn) simBtn.style.display = 'block';
@@ -2220,7 +2220,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
           startOrderCheck(result.order_id);
         } else {
-          showToast(result.error || '支付订单创建失败', 'error');
+          showToast(result.error || 'Payment order creation failed', 'error');
         }
       } catch (error) {
         console.error('Subscription error:', error);
@@ -2240,7 +2240,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         checkCount++;
         if (checkCount > maxChecks) {
           clearInterval(checkPaymentInterval);
-          document.getElementById('paymentStatus').textContent = '支付超时';
+          document.getElementById('paymentStatus').textContent = 'Payment Timed Out';
           return;
         }
         try {
@@ -2261,7 +2261,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + '天'));
               const purchaseDetails = {
                 plan: planLabel,
-                ips: selectedIPs + ' 台',
+                ips: selectedIPs + ' device(s)',
                 amount: '¥' + price.discounted.toFixed(2)
               };
               showSuccess(subUrl, purchaseDetails);
@@ -2275,7 +2275,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     async function simulatePaymentSuccess() {
       if (!currentOrderId) {
-        showToast('没Yes待支付的订单', 'error');
+        showToast('No pending payment orders', 'error');
         return;
       }
       const token = localStorage.getItem('auth_token');
@@ -2303,11 +2303,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             showSuccess(subUrl, purchaseDetails);
           }, 1500);
         } else {
-          showToast(result.error || '模拟失败', 'error');
+          showToast(result.error || 'Simulation failed', 'error');
         }
       } catch (error) {
         console.error('Simulate payment error:', error);
-        showToast('模拟失败', 'error');
+        showToast('Simulation failed', 'error');
       }
     }
 
@@ -2353,7 +2353,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         showToast('Subscription link copied to clipboard', 'success');
       }).catch(function (err) {
         console.error('Copy failed:', err);
-        showToast('复制失败', 'error');
+        showToast('Copy failed', 'error');
       });
     }
 
@@ -2362,7 +2362,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       return h === 'localhost' || h === '127.0.0.1' || h.startsWith('192.168.') || h.startsWith('10.');
     }
     
-    // 初始化
+    // Initialize
     updateOrderSummary();
 
     function showToast(message, type = 'info') {
@@ -2376,17 +2376,17 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       setTimeout(() => toast.remove(), 3000);
     }
   
-// 微信支付未配置时隐藏
+// Hide WeChat Pay when not configured
 (function() {
   var wechatOption = document.getElementById('wechatOption');
   if (wechatOption) {
-    // 从后端获取配置状态
+    // Fetch config status from backend
     fetch('/api/payment-methods').then(function(r) { return r.json(); }).then(function(data) {
       if (!data.wechat) {
         wechatOption.style.display = 'none';
       }
     }).catch(function() {
-      // 如果 API 不可用，假设未配置
+      // Assume not configured if API unavailable
       wechatOption.style.display = 'none';
     });
   }
