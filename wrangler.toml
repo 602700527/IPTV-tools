@@ -68,6 +68,12 @@ APP_URL = "https://iptv-search.com"
 XUNHUPAY_GATEWAY = "https://api.xunhuweb.com/payment/do.html"
 STATIC_SOURCE = "local"
 STATIC_OUTPUT_DIR = "static-output"
+USD_WORKER_URL = "https://你的-usdt-worker.workers.dev"  # ⚠️ 需要替换为实际 USDT Worker 地址
+USD_API_AUTH_TOKEN = "your-usdt-api-token-here"          # ⚠️ 需要替换为实际的认证 Token
+
+# 以下敏感变量建议通过 Dashboard Secrets 或 wrangler secret put 设置：
+# ADMIN_KEY, RESEND_API_KEY, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+# XUNHUPAY_ALIPAY_APP_ID, XUNHUPAY_ALIPAY_APP_SECRET
 
 # 生产 cron
 [env.production.triggers]
