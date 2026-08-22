@@ -23,14 +23,35 @@
     "XUNHUPAY_GATEWAY": "https://api.xunhuweb.com/payment/do.html",
     "STATIC_SOURCE": "local",
     "STATIC_OUTPUT_DIR": "static-output",
-    "USD_WORKER_URL": "http://127.0.0.1:9788",
-    "USD_API_AUTH_TOKEN": "test_token_for_local_dev_only_xyz"
+    "USD_WORKER_URL": "https://epusdt.iptv-search.com",
+    "USD_API_AUTH_TOKEN": "fc8afe257db9841f2b25a52f7055ef417b06a00c36067a81000ceb6c2d5b2b9d"
   },
-  "triggers": {
-    "crons": [
-      "0 3 * * *",
-      "0 9 * * *",
-      "0 21 * * *"
-    ]
+  "env": {
+    "production": {
+      "kv_namespaces": [
+        {
+          "binding": "KV",
+          "id": "d5e943d023d0474382b04b3c15c47ffb",
+          "preview_id": "d5e943d023d0474382b04b3c15c47ffb"
+        }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "tv-service-db",
+          "database_id": "9c7c22f1-fa0e-48da-8874-19731483c550"
+        }
+      ],
+      "vars": {
+        "TIMEZONE": "Asia/Shanghai",
+        "FROM_EMAIL": "support@iptv-search.com",
+        "APP_URL": "https://iptv-search.com",
+        "XUNHUPAY_GATEWAY": "https://api.xunhuweb.com/payment/do.html",
+        "STATIC_SOURCE": "local",
+        "STATIC_OUTPUT_DIR": "static-output",
+        "USD_WORKER_URL": "https://epusdt.iptv-search.com",
+        "USD_API_AUTH_TOKEN": "fc8afe257db9841f2b25a52f7055ef417b06a00c36067a81000ceb6c2d5b2b9d"
+      }
+    }
   }
 }
