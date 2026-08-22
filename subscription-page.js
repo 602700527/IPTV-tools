@@ -1523,7 +1523,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">配置真的超简单，用Televizo导入后直接能看。把链接给爸妈发了过去，他们自己导入就能看。现在每天晚饭后全家一起看新闻联播，特别温馨。就是频道Yes点多，找自己想看的还得挑一挑。</p>
+            <p class="testimonial-text">配置真的超简单，用Televizo导入后直接能看。把链接给爸妈发了过去，他们自己导入就能看。现在每天晚饭后全家一起看新闻联播，特别温馨。there are quite a lot of channels，找自己想看的还得挑一挑。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1607,7 +1607,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在欧洲生活多年，最想念的就是国内春晚和新闻联播。用APTV导入后解决了我的问题，7天None理由退款也让我放心尝试。虽然偶尔Yes卡顿，但客服态度很好，整体体验不错。就是希望频道能再分类清楚一点。</p>
+            <p class="testimonial-text">在欧洲生活多年，最想念的就是国内春晚和新闻联播。用APTV导入后解决了我的问题，7-day no-reason refund也让我放心尝试。although there are occasional yes hiccups，但客服态度很好，整体体验不错。就是希望频道能再分类清楚一点。</p>
           </div>
         </div>
           </div>
@@ -1643,18 +1643,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="selector-bar" id="durationGrid">
                 <div class="select-option selected" onclick="selectDuration(30)">
                   <span class="value">Monthly</span>
-                  <span class="label">30天</span>
+                  <span class="label">30 Days</span>
                   <span class="price-tag">¥20</span>
                 </div>
                 <div class="select-option" onclick="selectDuration(90)">
                   <span class="value">Quarterly</span>
-                  <span class="label">90天</span>
+                  <span class="label">90 Days</span>
                   <span class="badge">Save 25%</span>
                   <span class="price-tag">¥45</span>
                 </div>
                 <div class="select-option" onclick="selectDuration(365)">
                   <span class="value">Yearly</span>
-                  <span class="label">365天</span>
+                  <span class="label">365 Days</span>
                   <span class="badge">Best Value</span>
                   <span class="price-tag">¥168</span>
                 </div>
@@ -1711,7 +1711,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </div>
             
             <div class="payment-methods">
-              <label>选择付款方式</label>
+              <label>Payment Method</label>
               <div class="payment-options">
                 <div class="payment-option selected" onclick="selectPayment('alipay')">
                   <div class="payment-option-icon"><img src="/zhifubao.png" alt="支付宝"></div>
