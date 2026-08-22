@@ -50,7 +50,7 @@ export async function handleGetTopics(request, env, ctx) {
     const topics = await getTopics();
 
     // 在列表最前面插入"所有频道"默认选项（id=0 是约定的特殊值，前端渲染时默认选中）
-    const allTopic = { id: 0, name: 'All Channels', description: 'Includes all channel resources' };
+    const allTopic = { id: 0, name: '所有频道', description: '包含全部线路资源' };
     const topicsWithAll = [allTopic, ...topics.map(t => ({
       id: t.id,
       name: t.name,
