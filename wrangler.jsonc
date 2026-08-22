@@ -26,6 +26,9 @@
     "USD_WORKER_URL": "https://epusdt.iptv-search.com",
     "USD_API_AUTH_TOKEN": "fc8afe257db9841f2b25a52f7055ef417b06a00c36067a81000ceb6c2d5b2b9d"
   },
+  "triggers": {
+    "crons": ["0 3 * * *", "0 9 * * *", "0 21 * * *"]
+  },
   "env": {
     "production": {
       "kv_namespaces": [
@@ -51,6 +54,9 @@
         "STATIC_OUTPUT_DIR": "static-output",
         "USD_WORKER_URL": "https://epusdt.iptv-search.com",
         "USD_API_AUTH_TOKEN": "fc8afe257db9841f2b25a52f7055ef417b06a00c36067a81000ceb6c2d5b2b9d"
+      },
+      "triggers": {
+        "crons": ["0 3 * * *", "0 9 * * *", "0 21 * * *"]
       }
     }
   }
