@@ -9,7 +9,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIP会员 - IPTV搜索 | 一个链接，看遍所有频道</title>
+  <title>VIP Subscription - IPTV Search | 一个链接，看遍所Yes频道</title>
   <meta name="description" content="VIP subscription link for all channels. One-click import to your player — no more manual searching, cloud-synced favorites, seamless multi-device switching.">
   
   <style>
@@ -466,7 +466,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       opacity: 0.8;
     }
 
-    /* ========== 对比表共有权益样式 ========== */
+    /* ========== 对比表共Yes权益样式 ========== */
     .comparison-table tr.shared {
       background: rgba(255, 255, 255, 0.03);
       color: var(--text-muted);
@@ -1418,63 +1418,63 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         <table class="comparison-table">
           <thead>
             <tr>
-              <th>功能</th>
-              <th>免费版</th>
-              <th class="vip">VIP 会员</th>
+              <th>Feature</th>
+              <th>Free</th>
+              <th class="vip">VIP Member</th>
             </tr>
           </thead>
           <tbody>
-            <!-- 共有权益 -->
+            <!-- 共Yes权益 -->
             <tr class="shared">
-              <td>频道更新</td>
-              <td><span class="check">✓</span> 每日更新</td>
-              <td class="vip"><span class="check">✓</span> 每日更新</td>
+              <td>Channel Updates</td>
+              <td><span class="check">✓</span> Daily Updates</td>
+              <td class="vip"><span class="check">✓</span> Daily Updates</td>
             </tr>
             <tr class="shared">
-              <td>高清画质</td>
-              <td><span class="check">✓</span> 高清流畅</td>
-              <td class="vip"><span class="check">✓</span> 超清流畅</td>
+              <td>HD Quality</td>
+              <td><span class="check">✓</span> HD Smooth</td>
+              <td class="vip"><span class="check">✓</span> Ultra HD Smooth</td>
             </tr>
             <tr class="shared">
-              <td>稳定在线</td>
-              <td><span class="check">✓</span> 99% 在线率</td>
-              <td class="vip"><span class="check">✓</span> 99.9% 在线率</td>
+              <td>Online Stability</td>
+              <td><span class="check">✓</span> 99% Uptime</td>
+              <td class="vip"><span class="check">✓</span> 99.9% Uptime</td>
             </tr>
             <!-- 差异权益 -->
             <tr>
-              <td>收藏夹</td>
-              <td><span class="cross">✗</span> 本地储存</td>
-              <td class="vip"><span class="check">✓</span> 云端同步</td>
+              <td>Favorites</td>
+              <td><span class="cross">✗</span> Local Storage</td>
+              <td class="vip"><span class="check">✓</span> Cloud Sync</td>
             </tr>
             <tr>
-              <td>运营商线路匹配</td>
-              <td><span class="cross">✗</span> 无</td>
-              <td class="vip"><span class="check">✓</span> 有</td>
+              <td>ISP Route Matching</td>
+              <td><span class="cross">✗</span> None</td>
+              <td class="vip"><span class="check">✓</span> Yes</td>
             </tr>
             <tr>
-              <td>VIP专属订阅</td>
-              <td><span class="cross">✗</span> 无</td>
-              <td class="vip"><span class="check">✓</span> 有</td>
+              <td>VIP Exclusive Subscription</td>
+              <td><span class="cross">✗</span> None</td>
+              <td class="vip"><span class="check">✓</span> Yes</td>
             </tr>
             <tr>
-              <td>多设备支持</td>
-              <td><span class="cross">✗</span> 无</td>
+              <td>Multi-Device Support</td>
+              <td><span class="cross">✗</span> None</td>
               <td class="vip"><span class="check">✓</span> 支持</td>
             </tr>
             <tr>
-              <td>播放列表定制 <span class="help-icon">?<span class="help-text">支持将用户收藏夹作为云端播放列表，在【账户中心】-【线路选择】设置为【我的收藏】</span></span></td>
+              <td>Playlist Customization <span class="help-icon">?<span class="help-text">Set your favorites as cloud playlists via Account Center > Channel Selection > My Favorites</span></span></td>
               <td><span class="cross">✗</span> 不支持</td>
               <td class="vip"><span class="check">✓</span> 支持</td>
             </tr>
             <tr>
-              <td>广告</td>
-              <td><span class="cross">✗</span> 有</td>
-              <td class="vip"><span class="check">✓</span> 无</td>
+              <td>Ads</td>
+              <td><span class="cross">✗</span> Yes</td>
+              <td class="vip"><span class="check">✓</span> None</td>
             </tr>
             <tr>
-              <td>客服极速响应</td>
-              <td><span class="cross">✗</span> 无</td>
-              <td class="vip"><span class="check">✓</span> 有</td>
+              <td>24/7 Customer Support</td>
+              <td><span class="cross">✗</span> None</td>
+              <td class="vip"><span class="check">✓</span> Yes</td>
             </tr>
           </tbody>
         </table>
@@ -1511,7 +1511,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">给孩子看湖南卫视、给老人看CCTV，各看各的互不打扰。最满意的是看英超完全不卡，用Tivimate导入很方便。有个小问题是有时段性卡顿，客服回复挺快的，帮我调了线路就好了。</p>
+            <p class="testimonial-text">给孩子看湖南卫视、给老人看CCTV，各看各的互不打扰。最满意的是看英超完全不卡，用Tivimate导入很方便。Yes个小问题是Yes时段性卡顿，客服回复挺快的，帮我调了线路就好了。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1523,7 +1523,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">配置真的超简单，用Televizo导入后直接能看。把链接给爸妈发了过去，他们自己导入就能看。现在每天晚饭后全家一起看新闻联播，特别温馨。就是频道有点多，找自己想看的还得挑一挑。</p>
+            <p class="testimonial-text">配置真的超简单，用Televizo导入后直接能看。把链接给爸妈发了过去，他们自己导入就能看。现在每天晚饭后全家一起看新闻联播，特别温馨。就是频道Yes点多，找自己想看的还得挑一挑。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1535,7 +1535,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">以前在家只能看地方台，现在用APTV能看央视所有频道和湖南卫视。周末全家一起看新闻联播，爸妈可高兴了。用CarPlay在车上也能听广播，挺方便的。就是有时候频道太多要找一会儿。</p>
+            <p class="testimonial-text">以前在家只能看地方台，现在用APTV能看央视所Yes频道和湖南卫视。周末全家一起看新闻联播，爸妈可高兴了。用CarPlay在车上也能听广播，挺方便的。就是Yes时候频道太多要找一会儿。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1547,7 +1547,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在家想看港澳台频道，找了好几个服务都不稳定。这个用Televizo导入就能看，凤凰卫视、阳光卫视都很清晰。偶尔有卡顿，客服响应很快，给我换了线路就好了。性价比高，推荐。</p>
+            <p class="testimonial-text">在家想看港澳台频道，找了好几个服务都不稳定。这个用Televizo导入就能看，凤凰卫视、阳光卫视都很清晰。偶尔Yes卡顿，客服响应很快，给我换了线路就好了。性价比高，推荐。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1559,7 +1559,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在日本工作，平时最喜欢看家乡的新闻和综艺。用GSE Smart IPTV导入后频道很全，连我们省的地面频道都有，就像在家里一样。有时候网速慢会卡一下，但整体体验不错。</p>
+            <p class="testimonial-text">在日本工作，平时最喜欢看家乡的新闻和综艺。用GSE Smart IPTV导入后频道很全，连我们省的地面频道都Yes，就像在家里一样。Yes时候网速慢会卡一下，但整体体验不错。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1583,7 +1583,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">四川人喜欢晚上刷剧看综艺，以前只能看地方台。现在用GSE Smart IPTV能看到湖南卫视、浙江卫视的直播，还能回看。用Tivimate体验更好，界面简洁，操作方便。唯一不满的是想找老电影频道有点难。</p>
+            <p class="testimonial-text">四川人喜欢晚上刷剧看综艺，以前只能看地方台。现在用GSE Smart IPTV能看到湖南卫视、浙江卫视的直播，还能回看。用Tivimate体验更好，界面简洁，操作方便。唯一不满的是想找老电影频道Yes点难。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1607,7 +1607,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在欧洲生活多年，最想念的就是国内春晚和新闻联播。用APTV导入后解决了我的问题，7天无理由退款也让我放心尝试。虽然偶尔有卡顿，但客服态度很好，整体体验不错。就是希望频道能再分类清楚一点。</p>
+            <p class="testimonial-text">在欧洲生活多年，最想念的就是国内春晚和新闻联播。用APTV导入后解决了我的问题，7天None理由退款也让我放心尝试。虽然偶尔Yes卡顿，但客服态度很好，整体体验不错。就是希望频道能再分类清楚一点。</p>
           </div>
         </div>
           </div>
@@ -1619,18 +1619,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <section class="pricing-section" id="pricing">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title">选一个适合你的<span>会员计划</span></h2>
+          <h2 class="section-title">Pick Your <span>Membership Plan</span></h2>
           <p class="section-desc">All plans include a 7-day money-back guarantee</p>
         </div>
         <div class="pricing-wrapper">
           <div class="pricing-left">
             <div class="selector-group">
-              <div class="selector-label">线路选择</div>
+              <div class="selector-label">Channel Selection</div>
               <div class="scheme-renewal-banner" id="schemeRenewalBanner" style="display:none;">
                 <div class="scheme-renewal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
                 <div class="scheme-renewal-content">
                   <div class="scheme-renewal-title">你当前是 <strong id="schemeRenewalName">—</strong> 方案</div>
-                  <div class="scheme-renewal-hint">续费后保持不变。需要修改请去 <a href="/account">账户页</a>。</div>
+                  <div class="scheme-renewal-hint">Stays the same after renewal. To change, visit <a href="/account">Account Page</a>.</div>
                 </div>
               </div>
               <div class="theme-grid" id="themeGrid">
@@ -1778,7 +1778,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </div>
             <div style="margin-top:10px;color:rgba(255,255,255,.6);">Amount Due（精确到 0.0001 USDT）</div>
             <div id="usdtAmountText" style="font-size:18px;font-weight:700;color:#f0c674;margin-top:4px;">- USDT</div>
-            <div style="margin-top:6px;color:rgba(255,165,0,.85);font-size:11px;">⚠️ 必须按此金额支付，多付/少付都无法识别</div>
+            <div style="margin-top:6px;color:rgba(255,165,0,.85);font-size:11px;">⚠️ 必须按此金额支付，多付/少付都None法识别</div>
           </div>
         </div>
         <div class="payment-info">
@@ -2273,7 +2273,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     async function simulatePaymentSuccess() {
       if (!currentOrderId) {
-        showToast('没有待支付的订单', 'error');
+        showToast('没Yes待支付的订单', 'error');
         return;
       }
       const token = localStorage.getItem('auth_token');
