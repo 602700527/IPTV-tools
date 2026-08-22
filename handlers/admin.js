@@ -2474,6 +2474,15 @@ function generateCode() {
   return code;
 }
 
+// 生成优惠码（6位字母数字+短横线格式，如 ABCD-1234）
+function generateDiscountCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 去掉易混淆字符 0/O/1/I
+  let part1 = '', part2 = '';
+  for (let i = 0; i < 4; i++) part1 += chars.charAt(Math.floor(Math.random() * chars.length));
+  for (let i = 0; i < 4; i++) part2 += chars.charAt(Math.floor(Math.random() * chars.length));
+  return part1 + '-' + part2;
+}
+
 // 
 function parseBeijingTime(dateStr) {
   if (!dateStr) return null;

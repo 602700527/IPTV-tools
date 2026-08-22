@@ -150,7 +150,8 @@ async function getPlanFromDB(days, env) {
 
 // 
 function calculatePrice(plan, ipCount) {
-  const price = plan.basePrice + (plan.pricePerIP * ipCount);
+  const extraIps = Math.max(0, ipCount - 1);
+  const price = plan.basePrice + (plan.pricePerIP * extraIps);
   const discountedPrice = price * (1 - plan.discount / 100);
   return {
     original: price,

@@ -675,6 +675,7 @@ export async function createTables(env) {
         code TEXT,
         duration_days INTEGER,
         amount REAL,
+        discount_code TEXT DEFAULT '',
         status TEXT DEFAULT 'completed',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
@@ -685,6 +686,12 @@ export async function createTables(env) {
     console.log('Database: user_orders table created or already exists');
   } catch (e) {
     console.error('Database: Failed to create user_orders table:', e);
+  }
+  // Migrate: 老版本没有 discount_code 列，安全添加
+  try {
+    await db.prepare('ALTER TABLE user_orders ADD COLUMN discount_code TEXT DEFAULT ""').run();
+  } catch (e) {
+    // column already exists — no-op
   }
 
   // ょ?
@@ -809,10 +816,12 @@ export async function createTables(env) {
         notify_received BOOLEAN DEFAULT 0,
         topic_id INTEGER,
         sub_mode TEXT,
+        discount_code TEXT DEFAULT '',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `).run();
+    await db.prepare('ALTER TABLE xunhupay_orders ADD COLUMN discount_code TEXT DEFAULT ""').run();
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_xunhupay_orders_order_id ON xunhupay_orders(order_id)').run();
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_xunhupay_orders_trade_order_id ON xunhupay_orders(trade_order_id)').run();
     await db.prepare('CREATE INDEX IF NOT EXISTS idx_xunhupay_orders_user_id ON xunhupay_orders(user_id)').run();

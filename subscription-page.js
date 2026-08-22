@@ -2160,6 +2160,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           // 新订阅才发送；续费场景由后端保留
           topic_id: (!isRenewalFlow && selectedTheme && selectedTheme !== 'favorites') ? Number(selectedTheme) : null,
           sub_mode: (!isRenewalFlow && selectedTheme === 'favorites') ? 'favorites' : null,
+          discount_code: appliedDiscount ? document.getElementById('discountCodeInput').value.trim().toUpperCase() : null,
         };
 
         // USDT 走单独端点
@@ -2310,7 +2311,11 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     function calculatePrice() {
       const ipPrice = Math.max(0, (selectedIPs - 1) * 10);
-      return { base: selectedDuration.basePrice, ip: ipPrice, discounted: selectedDuration.basePrice + ipPrice };
+      let discounted = selectedDuration.basePrice + ipPrice;
+      if (appliedDiscount) {
+        discounted = appliedDiscount.finalAmount;
+      }
+      return { base: selectedDuration.basePrice, ip: ipPrice, discounted };
     }
 
     function showLoading(show) {

@@ -712,7 +712,8 @@ async function calculatePriceForSubscription(durationDays, maxIPs, env) {
       return 0; // 
     }
 
-    const price = plan.base_price + (plan.price_per_ip * maxIPs);
+    const extraIps = Math.max(0, maxIPs - 1);
+    const price = plan.base_price + (plan.price_per_ip * extraIps);
     const discountedPrice = price * (1 - plan.discount / 100);
 
     return discountedPrice;

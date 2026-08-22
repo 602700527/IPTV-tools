@@ -1,5 +1,5 @@
 // 虎皮椒支付 API 处理
-import { generateActivationCode } from './subscription-api.js';
+import { generateActivationCode, validateDiscountCode } from './subscription-api.js';
 
 /**
  * 生成虎皮椒签名
@@ -75,7 +75,7 @@ export async function handleCreateXunhuPayOrder(request, env, ctx) {
     }
 
     const body = await request.json();
-    const { duration_days, max_ips, payment_method, topic_id = null, sub_mode = null } = body;
+    const { duration_days, max_ips, payment_method, topic_id = null, sub_mode = null, discount_code = null } = body;
 
     // 验证参数
     if (!duration_days || (duration_days !== -1 && (duration_days < 1 || duration_days > 365))) {
@@ -120,6 +120,18 @@ export async function handleCreateXunhuPayOrder(request, env, ctx) {
       });
     }
     const price = calculatePrice(plan, max_ips);
+
+    // 应用优惠码
+    if (discount_code) {
+      const discountResult = await validateDiscountCode(discount_code, price.discounted, env);
+      if (!discountResult.success) {
+        return new Response(JSON.stringify({ success: false, error: discountResult.error }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+      price.discounted = discountResult.finalAmount;
+    }
 
     // 根据支付方式获取对应的配置
     const paymentMethodConfig = await env.DB.prepare(`
@@ -244,9 +256,9 @@ export async function handleCreateXunhuPayOrder(request, env, ctx) {
 
     // 保存订单信息到数据库
     await env.DB.prepare(`
-      INSERT INTO xunhupay_orders (order_id, user_id, trade_order_id, payment_method, amount, duration_days, max_ips, status, xunhupay_order_id, topic_id, sub_mode)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)
-    `).bind(tradeOrderId, user.id, tradeOrderId, payment_method, price.discounted, duration_days, max_ips, standardizedPaymentData.openid || '', topic_id || null, sub_mode).run();
+      INSERT INTO xunhupay_orders (order_id, user_id, trade_order_id, payment_method, amount, duration_days, max_ips, status, xunhupay_order_id, topic_id, sub_mode, discount_code)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?)
+    `).bind(tradeOrderId, user.id, tradeOrderId, payment_method, price.discounted, duration_days, max_ips, standardizedPaymentData.openid || '', topic_id || null, sub_mode, discount_code || '').run();
 
     console.log('[XunhuPay] Order created:', tradeOrderId, 'for user:', user.id);
 
@@ -387,9 +399,9 @@ export async function handleXunhuPayNotify(request, env, ctx) {
 
       // 记录到user_orders
       await env.DB.prepare(`
-        INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, status)
-        VALUES (?, ?, ?, ?, ?, 'completed')
-      `).bind(order.user_id, order.order_id, result.code, order.duration_days, order.amount).run();
+        INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, discount_code, status)
+        VALUES (?, ?, ?, ?, ?, ?, 'completed')
+      `).bind(order.user_id, order.order_id, result.code, order.duration_days, order.amount, order.discount_code || '').run();
 
       console.log('[XunhuPay] Order completed and code generated:', result.code);
     }
@@ -523,7 +535,8 @@ async function getPlanFromDB(days, env) {
  * 计算价格
  */
 function calculatePrice(plan, ipCount) {
-  const price = plan.basePrice + (plan.pricePerIP * ipCount);
+  const extraIps = Math.max(0, ipCount - 1);
+  const price = plan.basePrice + (plan.pricePerIP * extraIps);
   const discountedPrice = price * (1 - plan.discount / 100);
   return {
     original: price,
@@ -873,9 +886,9 @@ export async function handleSimulatePaymentSuccess(request, env, ctx) {
 
       // 记录到 user_orders
       await env.DB.prepare(`
-        INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, status)
-        VALUES (?, ?, ?, ?, ?, 'completed')
-      `).bind(order.user_id, order.order_id, result.code, order.duration_days, order.amount).run();
+        INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, discount_code, status)
+        VALUES (?, ?, ?, ?, ?, ?, 'completed')
+      `).bind(order.user_id, order.order_id, result.code, order.duration_days, order.amount, order.discount_code || '').run();
 
       console.log('[SimulatePayment] Order completed and code generated:', result.code);
     }

@@ -12,6 +12,8 @@
 //   4. 末尾追加 API_AUTH_TOKEN
 //   5. MD5 小写
 
+import { validateDiscountCode } from './subscription-api.js';
+
 // ============ 签名工具 ============
 
 function generateSignature(data, bizKey) {
@@ -149,7 +151,7 @@ async function getCnyPrice(env, durationDays, maxIps) {
 
   if (!plan) throw new Error('套餐不存在或已禁用');
 
-  const base = plan.base_price + plan.price_per_ip * maxIps;
+  const base = plan.base_price + plan.price_per_ip * Math.max(0, maxIps - 1);
   const discounted = base * (1 - (plan.discount || 0) / 100);
   return Number(discounted.toFixed(2));
 }
@@ -172,6 +174,7 @@ export async function handleUsdtCreateOrder(request, env, ctx) {
     const maxIps = Number(body.max_ips);
     const topicId = body.topic_id ? Number(body.topic_id) : null;
     const subMode = body.sub_mode || null;
+    const discountCode = body.discount_code || null;
 
     if (!durationDays || durationDays < 1 || durationDays > 365) {
       return jsonResp({ success: false, error: 'Invalid duration_days' }, 400);
@@ -184,7 +187,16 @@ export async function handleUsdtCreateOrder(request, env, ctx) {
     }
 
     // 3. 计算 CNY 价格
-    const cnyAmount = await getCnyPrice(env, durationDays, maxIps);
+    let cnyAmount = await getCnyPrice(env, durationDays, maxIps);
+
+    // 4. 应用优惠码
+    if (discountCode) {
+      const discountResult = await validateDiscountCode(discountCode, cnyAmount, env);
+      if (!discountResult.success) {
+        return jsonResp({ success: false, error: discountResult.error }, 400);
+      }
+      cnyAmount = discountResult.finalAmount;
+    }
 
     // 4. 生成本地订单号
     const orderId = `USDT${Date.now()}${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
@@ -193,8 +205,8 @@ export async function handleUsdtCreateOrder(request, env, ctx) {
     await env.DB.prepare(`
       INSERT INTO usdt_orders (
         order_id, user_id, duration_days, max_ips, amount, currency, status,
-        notify_url, redirect_url, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, 'CNY', 1, ?, ?, datetime('now'), datetime('now'))
+        notify_url, redirect_url, discount_code, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, 'CNY', 1, ?, ?, ?, datetime('now'), datetime('now'))
     `).bind(
       orderId,
       user.id,
@@ -202,7 +214,8 @@ export async function handleUsdtCreateOrder(request, env, ctx) {
       maxIps,
       cnyAmount,
       `${env.APP_URL || ''}/api/subscription/usdt/webhook`,
-      `${env.APP_URL || ''}/account?payment=success`
+      `${env.APP_URL || ''}/account?payment=success`,
+      discountCode || ''
     ).run();
 
     // 6. 调 epusdt-workers 创建交易
@@ -374,9 +387,9 @@ export async function handleUsdtWebhook(request, env, ctx) {
     // 5. 写 user_orders
     const codeFromResult = result.code;
     await env.DB.prepare(`
-      INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, status)
-      VALUES (?, ?, ?, ?, ?, 'completed')
-    `).bind(localOrder.user_id, localOrder.order_id, codeFromResult, localOrder.duration_days, localOrder.amount).run();
+      INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, discount_code, status)
+      VALUES (?, ?, ?, ?, ?, ?, 'completed')
+    `).bind(localOrder.user_id, localOrder.order_id, codeFromResult, localOrder.duration_days, localOrder.amount, localOrder.discount_code || '').run();
 
     // 6. 更新 usdt_orders 标记成功
     await env.DB.prepare(`

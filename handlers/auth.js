@@ -856,7 +856,9 @@ export async function handleGetOrderHistory(request, env, ctx) {
     `).bind(session.user_id).all();
 
     // D1 返回结果在 results 字段中
-    const orders = ordersResult.results || [];
+    const orders = (ordersResult.results || []).map(order => {
+      return order;
+    });
 
     return new Response(JSON.stringify({
       success: true,

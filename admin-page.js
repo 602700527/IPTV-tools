@@ -1005,6 +1005,22 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <div class="modal-footer"><button class="btn" onclick="closeGenerateCodeModal()">取消</button><button class="btn btn-primary" onclick="generateCodes()">生成</button></div>
     </div>
   </div>
+  <div id="discountCodeModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>生成优惠码</h3><button class="close-btn" onclick="closeDiscountCodeModal()">&times;</button></div>
+      <div class="form-row"><div class="form-group"><label>生成数量</label><input type="number" id="discountCount" value="1" min="1" max="100"></div><div class="form-group">
+        <label>类型</label>
+        <select id="discountType">
+          <option value="percent">百分比折扣（%）</option>
+          <option value="fixed">固定金额减免（元）</option>
+        </select>
+      </div></div>
+      <div class="form-row"><div class="form-group"><label>值</label><input type="number" id="discountValue" value="10" min="1" step="0.01"></div><div class="form-group"><label>使用次数限制</label><input type="number" id="discountUsageLimit" value="0" min="0" placeholder="0=不限"></div></div>
+      <div class="form-row"><div class="form-group"><label>最低金额（元）</label><input type="number" id="discountMinAmount" value="0" min="0" step="0.01"></div><div class="form-group"><label>过期时间</label><input type="datetime-local" id="discountExpiresAt"></div></div>
+      <div class="form-group"><label>备注</label><input type="text" id="discountRemark" placeholder="可选备注"></div>
+      <div class="modal-footer"><button class="btn" onclick="closeDiscountCodeModal()">取消</button><button class="btn btn-primary" onclick="generateDiscountCodes()">生成</button></div>
+    </div>
+  </div>
   <div id="codeResultModal" class="modal">
     <div class="modal-content" style="max-width:600px">
       <div class="modal-header"><h3>生成的卡密</h3><button class="close-btn" onclick="closeCodeResultModal()">&times;</button></div>
@@ -2511,7 +2527,99 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     }
 
     // Alias for HTML onclick handlers
-    const loadDiscountCodes = loadCodes;
+    async function loadDiscountCodes() {
+      try {
+        showLoading();
+        const page = currentCodePage;
+        const data = await apiRequest('/mall/discount-codes?page=' + page + '&page_size=20');
+        const list = data.data || [];
+        const pagination = data.pagination || {};
+        totalCodePages = pagination.pages || 1;
+        totalCodes = pagination.total || 0;
+        const tbody = document.getElementById('discountCodesTableBody');
+        if (!list.length) {
+          tbody.innerHTML = '<tr><td colspan="8" class="empty-state">暂无优惠码</td></tr>';
+        } else {
+          const typeMap = { 'percent': { text: '百分比', class: 'badge-info' }, 'fixed': { text: '固定减免', class: 'badge-success' } };
+          tbody.innerHTML = list.map(code => {
+            const type = typeMap[code.type] || { text: code.type, class: 'badge-warning' };
+            const statusBadge = code.status === 'active' ? '<span class=\"badge badge-success\">启用</span>' : '<span class=\"badge badge-danger\">禁用</span>';
+            const valueDisplay = code.type === 'percent' ? code.value + '%' : '¥' + parseFloat(code.value).toFixed(2);
+            const used = code.used_count || 0;
+            const limit = code.usage_limit || 0;
+            const limitText = limit ? used + '/' + limit : (used ? used + '/∞' : '-');
+            return \`
+              <tr>
+                <td><span class="code-display">\${escapeHtml(code.code)}</span></td>
+                <td><span class="badge \${type.class}">\${type.text}</span></td>
+                <td>\${escapeHtml(valueDisplay)}</td>
+                <td>\${limitText}</td>
+                <td>\${parseFloat(code.min_amount || 0).toFixed(2)}</td>
+                <td>\${code.expires_at ? new Date(code.expires_at).toLocaleString('zh-CN', { timeZone: window.TIMEZONE || 'Asia/Shanghai' }) : '-'}</td>
+                <td>\${statusBadge}</td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn btn-sm \${code.status === 'active' ? 'btn-danger' : 'btn-success'}" onclick="toggleDiscountCode(\${code.id}, '\${code.status === 'active' ? 'disabled' : 'active'}')">\${code.status === 'active' ? '禁用' : '启用'}</button>
+                    <button class="btn btn-sm" onclick="editDiscountCodeRemark(\${code.id}, '\${escapeHtml(code.remark || '')}')">备注</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteDiscountCode(\${code.id})">删除</button>
+                  </div>
+                </td>
+              </tr>
+            \`;
+          }).join('');
+        }
+        renderDiscountCodePagination();
+      } catch (error) {
+        console.error('加载优惠码失败:', error);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function renderDiscountCodePagination() {
+      const container = document.getElementById('discountCodesPagination');
+      if (totalCodePages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+      let html = \`<span class="pagination-info">共 \${totalCodes} 个优惠码，第 \${currentCodePage}/\${totalCodePages} 页</span>\`;
+      html += \`<button onclick="goToDiscountCodePage(1)" \${currentCodePage === 1 ? 'disabled' : ''}>首页</button>\`;
+      html += \`<button onclick="goToDiscountCodePage(\${Math.max(1, currentCodePage - 1)})" \${currentCodePage === 1 ? 'disabled' : ''}>上一页</button>\`;
+      html += \`<button onclick="goToDiscountCodePage(\${Math.min(totalCodePages, currentCodePage + 1)})" \${currentCodePage === totalCodePages ? 'disabled' : ''}>下一页</button>\`;
+      html += \`<button onclick="goToDiscountCodePage(\${totalCodePages})" \${currentCodePage === totalCodePages ? 'disabled' : ''}>尾页</button>\`;
+      container.innerHTML = html;
+    }
+
+    function goToDiscountCodePage(page) {
+      if (page >= 1 && page <= totalCodePages) {
+        currentCodePage = page;
+        loadDiscountCodes();
+      }
+    }
+
+    async function toggleDiscountCode(id, status) {
+      await apiRequest('/mall/discount-codes/' + id, {
+        method: 'PUT',
+        body: JSON.stringify({ status })
+      });
+      loadDiscountCodes();
+    }
+
+    async function editDiscountCodeRemark(id, currentRemark) {
+      const newRemark = prompt('编辑备注:', currentRemark);
+      if (newRemark === null) return;
+      await apiRequest('/mall/discount-codes/' + id, {
+        method: 'PUT',
+        body: JSON.stringify({ remark: newRemark })
+      });
+      loadDiscountCodes();
+    }
+
+    async function deleteDiscountCode(id) {
+      if (!confirm('确定要删除这个优惠码吗？')) return;
+      await apiRequest('/mall/discount-codes/' + id, { method: 'DELETE' });
+      loadDiscountCodes();
+    }
     function resetCodePage() {
       currentCodePage = 1;
       loadCodes();
@@ -2685,8 +2793,59 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     function closeGenerateCodeModal() {
       document.getElementById('generateCodeModal').classList.remove('active');
     }
-    // Alias for HTML onclick handlers
-    const showDiscountCodeModal = showGenerateCodeModal;
+    function showDiscountCodeModal() {
+      document.getElementById('discountCount').value = 1;
+      document.getElementById('discountType').value = 'percent';
+      document.getElementById('discountValue').value = 10;
+      document.getElementById('discountUsageLimit').value = 0;
+      document.getElementById('discountMinAmount').value = 0;
+      document.getElementById('discountExpiresAt').value = '';
+      document.getElementById('discountRemark').value = '';
+      document.getElementById('discountCodeModal').classList.add('active');
+    }
+
+    function closeDiscountCodeModal() {
+      document.getElementById('discountCodeModal').classList.remove('active');
+    }
+
+    async function generateDiscountCodes() {
+      const count = parseInt(document.getElementById('discountCount').value);
+      const type = document.getElementById('discountType').value;
+      const value = parseFloat(document.getElementById('discountValue').value);
+      const usageLimit = parseInt(document.getElementById('discountUsageLimit').value) || 0;
+      const minAmount = parseFloat(document.getElementById('discountMinAmount').value) || 0;
+      const expiresAt = document.getElementById('discountExpiresAt').value || null;
+      const remark = document.getElementById('discountRemark').value.trim();
+
+      if (!count || count < 1 || count > 100) {
+        showToast('生成数量必须在1-100之间', 'error');
+        return;
+      }
+      if (!value || value <= 0) {
+        showToast('值必须大于0', 'error');
+        return;
+      }
+      if (type === 'percent' && value > 100) {
+        showToast('百分比折扣不能超过100%', 'error');
+        return;
+      }
+
+      try {
+        const result = await apiRequest('/mall/discount-codes', {
+          method: 'POST',
+          body: JSON.stringify({ count, type, value, usage_limit: usageLimit, min_amount: minAmount, expires_at: expiresAt, remark })
+        });
+        if (result.success) {
+          closeDiscountCodeModal();
+          loadDiscountCodes();
+          showToast('成功生成 ' + result.count + ' 个优惠码', 'success');
+        } else {
+          showToast(result.error || '生成失败', 'error');
+        }
+      } catch (error) {
+        showToast('生成优惠码失败: ' + (error.error || error.message), 'error');
+      }
+    }
 
     function togglePermanentCode() {
       const durationSelect = document.getElementById('generateDuration');
@@ -5171,7 +5330,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
             <td style="padding:12px;">\${order.code ? escapeHtml(order.code) : '-'}</td>
             <td style="padding:12px;font-size:12px;word-break:break-all;max-width:250px;">\${subUrl}</td>
             <td style="padding:12px;">\${order.duration_days ? order.duration_days + ' 天' : '-'}</td>
-            <td style="padding:12px;">\${order.amount ? '$' + order.amount.toFixed(2) : '-'}</td>
+            <td style="padding:12px;">\${order.amount ? '¥' + order.amount.toFixed(2) : '-'}</td>
             <td style="padding:12px;">
               <span style="padding:4px 12px;border-radius: 0;font-size:12px;font-weight:600;background:\${statusClass};">
                 \${statusText}
