@@ -4,13 +4,13 @@ import { PAGE_FOOTER } from './components/page-footer.js';
 import { HEAD_SCRIPTS } from './components/head-scripts.js';
 
 export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VIP会员 - IPTV搜索 | 一个链接，看遍所有频道</title>
-  <meta name="description" content="VIP订阅链接导入播放器，一次性搞定所有频道。不再每次手动搜索，收藏的云同步，多设备随意切换。">
+  <meta name="description" content="VIP subscription link for all channels. One-click import to your player — no more manual searching, cloud-synced favorites, seamless multi-device switching.">
   
   <style>
     :root {
@@ -1354,25 +1354,25 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <section class="hero-section">
       <div class="container">
         <h1 class="hero-title-large">
-          全站频道<span class="title-highlight">一键订阅</span>
-          <br>告别手动搜索烦恼
+          One-Click Subscribe<br>
+          <span class="title-highlight">All Channels</span>
         </h1>
-        <p class="hero-subtitle-hero">海外华人必备 · 直播回看都有 · 支持所有主流播放器</p>
+        <p class="hero-subtitle-hero">For Overseas Chinese · Live & VOD · Works with All Major Players</p>
         <div class="hero-features">
           <div class="hero-feature">
             <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
-            <span class="feature-text">自动更新</span>
+            <span class="feature-text">Auto Updates</span>
           </div>
           <div class="hero-feature">
             <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span>
-            <span class="feature-text">去除广告</span>
+            <span class="feature-text">Ad-Free</span>
           </div>
           <div class="hero-feature">
             <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-            <span class="feature-text">高清稳定</span>
+            <span class="feature-text">HD & Stable</span>
           </div>
         </div>
-        <a href="#pricing" class="hero-cta">立即订阅</a>
+        <a href="#pricing" class="hero-cta">Subscribe Now</a>
       </div>
     </section>
     
@@ -1380,32 +1380,32 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <section class="scene-section">
       <div class="container">
         <div class="section-header" style="text-align:center;margin-bottom:48px;">
-          <h2 class="section-title">随时随地，<span>想看就看</span></h2>
-          <p class="section-desc">无论在家、外出还是旅行，都能享受极致观剧体验</p>
+          <h2 class="section-title">Watch Anywhere,<span>Anytime</span></h2>
+          <p class="section-desc">Enjoy premium viewing at home, on the go, or while traveling</p>
         </div>
         <div class="scene-grid">
           <div class="scene-card">
             <div class="scene-card-img-wrapper"><img src="/asset_scene_1.png" alt="家庭影院" class="scene-card-img"></div>
             <div class="scene-card-body">
-              <span class="scene-card-tag">家庭时光</span>
-              <h3 class="scene-card-title">客厅变身私人影院</h3>
-              <p class="scene-card-desc">週末一家人围坐客厅，电视大屏看春晚、追热播剧，享受温馨团圆时光</p>
+              <span class="scene-card-tag">Home Cinema</span>
+              <h3 class="scene-card-title">Your Living Room, Your Private Cinema</h3>
+              <p class="scene-card-desc">Gather around the big screen for Spring Festival Gala, binge-watch hits, and enjoy quality time together</p>
             </div>
           </div>
           <div class="scene-card">
             <div class="scene-card-img-wrapper"><img src="/asset_scene_2.png" alt="外出观看" class="scene-card-img"></div>
             <div class="scene-card-body">
-              <span class="scene-card-tag">移动观看</span>
-              <h3 class="scene-card-title">通勤路上不无聊</h3>
+              <span class="scene-card-tag">On the Go</span>
+              <h3 class="scene-card-title">Never Bored on Your Commute</h3>
               <p class="scene-card-desc">地铁上、火车里，手机平板随时看，直播回看都能用，旅途不再枯燥<span class="scene-note">*仅部分源支持回看，需播放器支持</span></p>
             </div>
           </div>
           <div class="scene-card">
             <div class="scene-card-img-wrapper"><img src="/asset_scene_3.png" alt="海外生活" class="scene-card-img"></div>
             <div class="scene-card-body">
-              <span class="scene-card-tag">海外华人</span>
-              <h3 class="scene-card-title">身在海外，心系祖国</h3>
-              <p class="scene-card-desc">看央视新闻了解国家大事，看家乡卫视解乡愁，春节晚会一个都不落</p>
+              <span class="scene-card-tag">Overseas Chinese</span>
+              <h3 class="scene-card-title">Stay Connected to Home, No Matter Where</h3>
+              <p class="scene-card-desc">Watch CCTV news to stay informed, regional channels for a taste of home, and never miss the Spring Festival Gala</p>
             </div>
           </div>
         </div>
@@ -1413,7 +1413,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     </section>
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title">升级<span>VIP</span>，畅享所有权益</h2>
+          <h2 class="section-title">Upgrade to <span>VIP</span> for Full Access</h2>
         </div>
         <table class="comparison-table">
           <thead>
@@ -1485,8 +1485,8 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <section class="testimonials-section">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title">来自全球华人的<span>真实反馈</span></h2>
-          <p class="section-desc">他们的故事，就是你的体验</p>
+          <h2 class="section-title">What Our Subscribers Say</h2>
+          <p class="section-desc">Real stories from real subscribers around the world</p>
         </div>
         <div class="testimonials-scroll">
           <div class="testimonials-track">
@@ -1495,7 +1495,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 <div class="testimonial-info">
                 <div class="testimonial-name">张先生</div>
                 <div class="testimonial-meta">🇺🇸 美国 · 订阅 2 年</div>
-                <div class="testimonial-verified">✓ 已验证用户</div>
+                <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
@@ -1507,7 +1507,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 <div class="testimonial-info">
                 <div class="testimonial-name">李女士</div>
                 <div class="testimonial-meta">🇬🇧 英国 · 订阅 1 年</div>
-                <div class="testimonial-verified">✓ 已验证用户</div>
+                <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
@@ -1519,7 +1519,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 <div class="testimonial-info">
                 <div class="testimonial-name">王先生</div>
                 <div class="testimonial-meta">🇨🇦 加拿大 · 订阅 8 个月</div>
-                <div class="testimonial-verified">✓ 已验证用户</div>
+                <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
@@ -1531,7 +1531,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 <div class="testimonial-info">
                 <div class="testimonial-name">陈女士</div>
                 <div class="testimonial-meta">📍 北京 · 订阅 3 个月</div>
-                <div class="testimonial-verified">✓ 已验证用户</div>
+                <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
@@ -1543,7 +1543,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 <div class="testimonial-info">
                 <div class="testimonial-name">刘先生</div>
                 <div class="testimonial-meta">📍 上海 · 订阅 1 年</div>
-                <div class="testimonial-verified">✓ 已验证用户</div>
+                <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
@@ -1555,7 +1555,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 <div class="testimonial-info">
                 <div class="testimonial-name">赵女士</div>
                 <div class="testimonial-meta">🇯🇵 日本 · 订阅 1 年</div>
-                <div class="testimonial-verified">✓ 已验证用户</div>
+                <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
@@ -1567,7 +1567,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 <div class="testimonial-info">
                 <div class="testimonial-name">周先生</div>
                 <div class="testimonial-meta">🇸🇬 新加坡 · 订阅 3 个月</div>
-                <div class="testimonial-verified">✓ 已验证用户</div>
+                <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★☆</div>
@@ -1579,7 +1579,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 <div class="testimonial-info">
                 <div class="testimonial-name">吴女士</div>
                 <div class="testimonial-meta">📍 成都 · 订阅 4 个月</div>
-                <div class="testimonial-verified">✓ 已验证用户</div>
+                <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
@@ -1591,7 +1591,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 <div class="testimonial-info">
                 <div class="testimonial-name">郑先生</div>
                 <div class="testimonial-meta">🇰🇷 韩国 · 订阅 5 个月</div>
-                <div class="testimonial-verified">✓ 已验证用户</div>
+                <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
@@ -1603,7 +1603,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
                 <div class="testimonial-info">
                 <div class="testimonial-name">孙女士</div>
                 <div class="testimonial-meta">🇫🇷 法国 · 订阅 7 个月</div>
-                <div class="testimonial-verified">✓ 已验证用户</div>
+                <div class="testimonial-verified">✓ Verified Subscriber</div>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
@@ -1611,7 +1611,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           </div>
         </div>
           </div>
-        <p class="testimonials-hint">自动滚动中 · 悬停暂停</p>
+        <p class="testimonials-hint">Auto-scrolling · Hover to pause</p>
       </div>
     </section>
 
@@ -1620,7 +1620,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       <div class="container">
         <div class="section-header">
           <h2 class="section-title">选一个适合你的<span>会员计划</span></h2>
-          <p class="section-desc">所有方案均支持7天无理由退款</p>
+          <p class="section-desc">All plans include a 7-day money-back guarantee</p>
         </div>
         <div class="pricing-wrapper">
           <div class="pricing-left">
@@ -1639,30 +1639,30 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </div>
 
             <div class="selector-group">
-              <div class="selector-label">订阅时长</div>
+              <div class="selector-label">Subscription Length</div>
               <div class="selector-bar" id="durationGrid">
                 <div class="select-option selected" onclick="selectDuration(30)">
-                  <span class="value">月度</span>
+                  <span class="value">Monthly</span>
                   <span class="label">30天</span>
                   <span class="price-tag">¥20</span>
                 </div>
                 <div class="select-option" onclick="selectDuration(90)">
-                  <span class="value">季度</span>
+                  <span class="value">Quarterly</span>
                   <span class="label">90天</span>
-                  <span class="badge">立省 25%</span>
+                  <span class="badge">Save 25%</span>
                   <span class="price-tag">¥45</span>
                 </div>
                 <div class="select-option" onclick="selectDuration(365)">
-                  <span class="value">年度</span>
+                  <span class="value">Yearly</span>
                   <span class="label">365天</span>
-                  <span class="badge">最划算</span>
+                  <span class="badge">Best Value</span>
                   <span class="price-tag">¥168</span>
                 </div>
               </div>
             </div>
             
             <div class="selector-group">
-              <div class="selector-label">设备数量</div>
+              <div class="selector-label">Number of Devices</div>
               <div class="selector-bar" id="ipGrid">
                 <div class="select-option selected" onclick="selectIP(1)">
                   <span class="value">1台</span>
@@ -1687,26 +1687,26 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <div class="order-summary">
               <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;display:inline-block;vertical-align:middle;margin-right:6px;"><path d="M9 11H1l4-4m0 6l-4 4m14-4h8l-4-4m0 6l4 4"/></svg>订单摘要</h3>
               <div class="summary-row">
-                <span>基础价格</span>
+                <span>Base Price</span>
                 <span id="basePrice">¥20.00</span>
               </div>
               <div class="summary-row">
-                <span>设备扩展费</span>
+                <span>Additional Devices</span>
                 <span id="ipPrice">¥0.00</span>
               </div>
               <div class="summary-row total">
-                <span>总计</span>
+                <span>Total</span>
                 <span id="totalPrice">¥20.00</span>
               </div>
               <div class="summary-row" id="discountRow" style="display:none;color:var(--success);">
-                <span>优惠码折扣</span>
+                <span>Discount Code</span>
                 <span id="discountAmount">-¥0.00</span>
               </div>
             </div>
             
             <div class="discount-code-box">
-              <input type="text" id="discountCodeInput" placeholder="输入优惠码">
-              <button onclick="validateDiscountCode()">应用</button>
+              <input type="text" id="discountCodeInput" placeholder="Enter promo code">
+              <button onclick="validateDiscountCode()">Apply</button>
               <span id="discountStatus"></span>
             </div>
             
@@ -1726,12 +1726,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </div>
             
             <p class="theme-hint" id="themeHint" style="display:none;color:var(--accent);font-size:12px;margin-top:8px;"></p>
-            <button class="subscribe-btn" onclick="handleSubscribe()">立即订阅</button>
+            <button class="subscribe-btn" onclick="handleSubscribe()">Subscribe Now</button>
             
             <div class="guarantee-badges">
-              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>安全支付</span>
-              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>即时开通</span>
-              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>7天退款</span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Secure Payment</span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Instant Activation</span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>7-Day Refund</span>
             </div>
           </div>
         </div>
@@ -1741,16 +1741,16 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <!-- 最终CTA -->
     <section class="final-cta">
       <div class="container">
-        <h2>还在犹豫？试试<span style="color: var(--accent)">7天免费VIP</span></h2>
-        <p>注册即送，无需信用卡，体验全部功能后再决定</p>
-        <a href="/login#register" class="final-cta-btn">立即注册获取免费VIP →</a>
+        <h2>Still hesitant? Try <span style="color: var(--accent)">7 Days Free VIP</span></h2>
+        <p>Free with registration — no credit card required. Try all features before you decide.</p>
+        <a href="/login#register" class="final-cta-btn">Sign Up for Free VIP →</a>
       </div>
     </section>
 
   <!-- 加载遮罩 -->
   <div id="loading" class="loading">
     <div class="spinner"></div>
-    <p>处理中...</p>
+    <p>Processing...</p>
   </div>
 
   <!-- 支付模态框 -->
@@ -1776,28 +1776,28 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <code id="usdtAddressText" style="flex:1;background:rgba(0,0,0,.4);padding:8px 10px;border-radius:6px;word-break:break-all;color:#f0c674;"></code>
               <button id="usdtCopyBtn" type="button" style="background:#d4af37;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">复制</button>
             </div>
-            <div style="margin-top:10px;color:rgba(255,255,255,.6);">应付金额（精确到 0.0001 USDT）</div>
+            <div style="margin-top:10px;color:rgba(255,255,255,.6);">Amount Due（精确到 0.0001 USDT）</div>
             <div id="usdtAmountText" style="font-size:18px;font-weight:700;color:#f0c674;margin-top:4px;">- USDT</div>
             <div style="margin-top:6px;color:rgba(255,165,0,.85);font-size:11px;">⚠️ 必须按此金额支付，多付/少付都无法识别</div>
           </div>
         </div>
         <div class="payment-info">
           <div class="payment-info-item">
-            <span class="payment-info-label">订阅方案</span>
+            <span class="payment-info-label">Plan</span>
             <span class="payment-info-value" id="paymentPlanName">-</span>
           </div>
           <div class="payment-info-item">
-            <span class="payment-info-label">设备数</span>
+            <span class="payment-info-label">Devices</span>
             <span class="payment-info-value" id="paymentIPCount">-</span>
           </div>
           <div class="payment-info-item">
-            <span class="payment-info-label">应付金额</span>
+            <span class="payment-info-label">Amount Due</span>
             <span class="payment-info-value payment-amount" id="paymentAmount">-</span>
           </div>
         </div>
       </div>
       <div class="payment-footer">
-        <button id="simulatePaymentBtn" class="payment-test-button" style="display: none;" onclick="simulatePaymentSuccess()">[仅测试] 模拟支付成功</button>
+        <button id="simulatePaymentBtn" class="payment-test-button" style="display: none;" onclick="simulatePaymentSuccess()">[Test Only] Simulate Payment</button>
       </div>
     </div>
   </div>
@@ -1807,27 +1807,27 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     <div class="success-content">
       <button class="modal-close" onclick="closeModal()">×</button>
       <div class="success-icon">✓</div>
-      <h2 class="success-title">支付成功！</h2>
-      <p class="success-message">您的 VIP 订阅已激活。复制下方订阅链接到播放器即可使用。</p>
+      <h2 class="success-title">Payment Successful!</h2>
+      <p class="success-message">Your VIP subscription is activated. Copy the link below into your player to start watching.</p>
       <div class="purchase-details">
         <div class="purchase-detail-item">
-          <span class="purchase-detail-label">订阅方案</span>
+          <span class="purchase-detail-label">Plan</span>
           <span class="purchase-detail-value" id="successPlanName">-</span>
         </div>
         <div class="purchase-detail-item">
-          <span class="purchase-detail-label">设备数</span>
+          <span class="purchase-detail-label">Devices</span>
           <span class="purchase-detail-value" id="successIPCount">-</span>
         </div>
         <div class="purchase-detail-item">
-          <span class="purchase-detail-label">实付金额</span>
+          <span class="purchase-detail-label">Amount Paid</span>
           <span class="purchase-detail-value" id="successAmount">-</span>
         </div>
       </div>
       <div class="code-display" id="generatedCode">-</div>
-      <button class="copy-button" onclick="copyCode()">复制订阅链接</button>
+      <button class="copy-button" onclick="copyCode()">Copy Subscription Link</button>
       <div class="next-steps">
-        <p class="next-steps-hint">下一步：</p>
-        <a href="/account" class="next-steps-link">前往账户页查看订阅 →</a>
+        <p class="next-steps-hint">Next step:</p>
+        <a href="/account" class="next-steps-link">View subscription in your account →</a>
       </div>
     </div>
   </div>
@@ -1880,7 +1880,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       const code = input.value.trim().toUpperCase();
       
       if (!code) {
-        status.textContent = '请输入优惠码';
+        status.textContent = '请Enter promo code';
         status.className = 'error';
         return;
       }
@@ -1898,19 +1898,19 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         
         if (result.success) {
           appliedDiscount = result;
-          status.textContent = '✓ 优惠码已应用';
+          status.textContent = '✓ Promo code applied';
           status.className = 'success';
           document.getElementById('discountRow').style.display = 'flex';
           document.getElementById('discountAmount').textContent = '-¥' + result.discountAmount.toFixed(2);
           updateOrderSummary();
         } else {
           appliedDiscount = null;
-          status.textContent = result.error || '优惠码无效';
+          status.textContent = result.error || 'Invalid promo code';
           status.className = 'error';
           document.getElementById('discountRow').style.display = 'none';
         }
       } catch (e) {
-        status.textContent = '验证失败，请重试';
+        status.textContent = 'Validation failed, please retry';
         status.className = 'error';
       }
     }
@@ -2064,7 +2064,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         }
 
         // 填充模态框
-        const planLabel = (selectedDuration.days === 30 ? '月度' : selectedDuration.days === 90 ? '季度' : selectedDuration.days === 365 ? '年度' : (selectedDuration.days + '天'));
+        const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + '天'));
         document.getElementById('paymentPlanName').textContent = planLabel;
         document.getElementById('paymentIPCount').textContent = selectedIPs + ' 台';
         document.getElementById('paymentAmount').textContent = '¥' + (data.amount_cny != null ? data.amount_cny.toFixed(2) : '-');
@@ -2093,7 +2093,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
         // 复制按钮
         document.getElementById('usdtCopyBtn').onclick = () => {
-          navigator.clipboard.writeText(data.token || '').then(() => showToast('地址已复制', 'success'));
+          navigator.clipboard.writeText(data.token || '').then(() => showToast('Address copied', 'success'));
         };
 
         startUsdtOrderCheck(data.order_id, token);
@@ -2123,9 +2123,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           const j = await r.json();
           if (j.success && j.paid) {
             clearInterval(checkPaymentInterval);
-            document.getElementById('paymentStatus').textContent = '✓ 支付成功！';
+            document.getElementById('paymentStatus').textContent = '✓ Payment Successful!';
             document.getElementById('paymentStatus').style.color = '#4CAF50';
-            document.getElementById('paymentModalTitle').textContent = '支付成功';
+            document.getElementById('paymentModalTitle').textContent =  'Payment Successful';
             setTimeout(() => {
               closePaymentModal();
               const subUrl = window.location.origin + '/sub/' + (j.code || '') + '.m3u';
@@ -2141,12 +2141,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     async function handleSubscribe() {
       if (!selectedDuration) {
-        showToast('请选择订阅方案', 'error');
+        showToast('Please select a subscription plan', 'error');
         return;
       }
       const token = localStorage.getItem('auth_token');
       if (!token) {
-        showToast('请先登录', 'error');
+        showToast('Please log in first', 'error');
         window.location.href = '/login?redirect=/subscription';
         return;
       }
@@ -2184,7 +2184,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
         if (result.success && result.payment_data) {
           const price = calculatePrice();
-          const planLabel = (selectedDuration.days === 30 ? '月度' : selectedDuration.days === 90 ? '季度' : selectedDuration.days === 365 ? '年度' : (selectedDuration.days + '天'));
+          const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + '天'));
 
           document.getElementById('paymentPlanName').textContent = planLabel;
           document.getElementById('paymentIPCount').textContent = selectedIPs + ' 台';
@@ -2249,14 +2249,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
           if (result.success && result.order && result.order.status === 'completed') {
             clearInterval(checkPaymentInterval);
-            document.getElementById('paymentStatus').textContent = '支付成功！';
+            document.getElementById('paymentStatus').textContent = 'Payment Successful!';
             document.getElementById('paymentStatus').style.color = '#4CAF50';
-            document.getElementById('paymentModalTitle').textContent = '支付成功';
+            document.getElementById('paymentModalTitle').textContent =  'Payment Successful';
             setTimeout(function () {
               closePaymentModal();
               const subUrl = window.location.origin + '/sub/' + result.order.code + '.m3u';
               const price = calculatePrice();
-              const planLabel = (selectedDuration.days === 30 ? '月度' : selectedDuration.days === 90 ? '季度' : selectedDuration.days === 365 ? '年度' : (selectedDuration.days + '天'));
+              const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + '天'));
               const purchaseDetails = {
                 plan: planLabel,
                 ips: selectedIPs + ' 台',
@@ -2285,14 +2285,14 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const result = await response.json();
         if (result.success) {
           clearInterval(checkPaymentInterval);
-          document.getElementById('paymentStatus').textContent = '支付成功！';
+          document.getElementById('paymentStatus').textContent = 'Payment Successful!';
           document.getElementById('paymentStatus').style.color = '#4CAF50';
-          document.getElementById('paymentModalTitle').textContent = '支付成功';
+          document.getElementById('paymentModalTitle').textContent =  'Payment Successful';
           setTimeout(function () {
             closePaymentModal();
             const subUrl = window.location.origin + '/sub/' + result.code + '.m3u';
             const price = calculatePrice();
-            const planLabel = (selectedDuration.days === 30 ? '月度' : selectedDuration.days === 90 ? '季度' : selectedDuration.days === 365 ? '年度' : (selectedDuration.days + '天'));
+            const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + '天'));
             const purchaseDetails = {
               plan: planLabel,
               ips: selectedIPs + ' 台',
@@ -2348,7 +2348,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     function copyCode() {
       const code = document.getElementById('generatedCode').textContent;
       navigator.clipboard.writeText(code).then(function () {
-        showToast('订阅链接已复制到剪贴板', 'success');
+        showToast('Subscription link copied to clipboard', 'success');
       }).catch(function (err) {
         console.error('Copy failed:', err);
         showToast('复制失败', 'error');
