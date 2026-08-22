@@ -1774,7 +1774,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <div style="margin-bottom:6px;color:rgba(255,255,255,.6);">Payment Address (TRC20 / Tron)</div>
             <div style="display:flex;gap:8px;align-items:center;">
               <code id="usdtAddressText" style="flex:1;background:rgba(0,0,0,.4);padding:8px 10px;border-radius:6px;word-break:break-all;color:#f0c674;"></code>
-              <button id="usdtCopyBtn" type="button" style="background:#d4af37;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">复制</button>
+              <button id="usdtCopyBtn" type="button" style="background:#d4af37;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">Copy</button>
             </div>
             <div style="margin-top:10px;color:rgba(255,255,255,.6);">Amount Due (exact to 0.0001 USDT)</div>
             <div id="usdtAmountText" style="font-size:18px;font-weight:700;color:#f0c674;margin-top:4px;">- USDT</div>
@@ -1989,7 +1989,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           const favCard = document.createElement('div');
           favCard.className = 'theme-card';
           favCard.dataset.theme = 'favorites';
-          favCard.innerHTML = '<div class="theme-card-name">我的收藏</div><div class="theme-card-desc">仅返回您收藏的频道</div>';
+          favCard.innerHTML = '<div class="theme-card-name">My Favorites</div><div class="theme-card-desc">Only return your favorited channels</div>';
           favCard.onclick = () => selectTheme('favorites');
           grid.appendChild(favCard);
         }
@@ -2186,10 +2186,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
         if (result.success && result.payment_data) {
           const price = calculatePrice();
-          const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + '天'));
+          const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + ' days'));
 
           document.getElementById('paymentPlanName').textContent = planLabel;
-          document.getElementById('paymentIPCount').textContent = selectedIPs + ' 台';
+          document.getElementById('paymentIPCount').textContent = selectedIPs + ' device(s)';
           document.getElementById('paymentAmount').textContent = '¥' + price.discounted.toFixed(2);
 
           const methodIndicator = document.getElementById('paymentMethodIndicator');
@@ -2224,7 +2224,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         }
       } catch (error) {
         console.error('Subscription error:', error);
-        showToast('网络错误，请重试', 'error');
+        showToast('Network error, please retry', 'error');
       } finally {
         showLoading(false);
       }
@@ -2258,7 +2258,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               closePaymentModal();
               const subUrl = window.location.origin + '/sub/' + result.order.code + '.m3u';
               const price = calculatePrice();
-              const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + '天'));
+              const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + ' days'));
               const purchaseDetails = {
                 plan: planLabel,
                 ips: selectedIPs + ' device(s)',
@@ -2294,10 +2294,10 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             closePaymentModal();
             const subUrl = window.location.origin + '/sub/' + result.code + '.m3u';
             const price = calculatePrice();
-            const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + '天'));
+            const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + ' days'));
             const purchaseDetails = {
               plan: planLabel,
-              ips: selectedIPs + ' 台',
+              ips: selectedIPs + ' device(s)',
               amount: '¥' + price.discounted.toFixed(2)
             };
             showSuccess(subUrl, purchaseDetails);
