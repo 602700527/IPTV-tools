@@ -1665,19 +1665,19 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="selector-label">Number of Devices</div>
               <div class="selector-bar" id="ipGrid">
                 <div class="select-option selected" onclick="selectIP(1)">
-                  <span class="value">1台</span>
+                  <span class="value">1 Device</span>
                 </div>
                 <div class="select-option" onclick="selectIP(2)">
-                  <span class="value">2台</span>
-                  <span class="label">+¥10/期</span>
+                  <span class="value">2 Devices</span>
+                  <span class="label">+¥10/period</span>
                 </div>
                 <div class="select-option" onclick="selectIP(3)">
-                  <span class="value">3台</span>
-                  <span class="label">+¥20/期</span>
+                  <span class="value">3 Devices</span>
+                  <span class="label">+¥20/period</span>
                 </div>
                 <div class="select-option" onclick="selectIP(5)">
-                  <span class="value">5台</span>
-                  <span class="label">+¥30/期</span>
+                  <span class="value">5 Devices</span>
+                  <span class="label">+¥30/period</span>
                 </div>
               </div>
             </div>
