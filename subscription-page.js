@@ -9,7 +9,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIP Subscription - IPTV Search | one link to all channels</title>
+  <title>VIP Subscription - IPTV Search | 一个链接，看遍所Yes频道</title>
   <meta name="description" content="VIP subscription link for all channels. One-click import to your player — no more manual searching, cloud-synced favorites, seamless multi-device switching.">
   
   <style>
@@ -466,7 +466,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       opacity: 0.8;
     }
 
-    /* ========== 对比表All Benefits样式 ========== */
+    /* ========== 对比表共Yes权益样式 ========== */
     .comparison-table tr.shared {
       background: rgba(255, 255, 255, 0.03);
       color: var(--text-muted);
@@ -1424,7 +1424,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </tr>
           </thead>
           <tbody>
-            <!-- All Benefits -->
+            <!-- 共Yes权益 -->
             <tr class="shared">
               <td>Channel Updates</td>
               <td><span class="check">✓</span> Daily Updates</td>
@@ -1448,17 +1448,17 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </tr>
             <tr>
               <td>ISP Route Matching</td>
-              <td><span class="cross">✗</span> Not Available</td>
+              <td><span class="cross">✗</span> None</td>
               <td class="vip"><span class="check">✓</span> Yes</td>
             </tr>
             <tr>
               <td>VIP Exclusive Subscription</td>
-              <td><span class="cross">✗</span> Not Available</td>
+              <td><span class="cross">✗</span> None</td>
               <td class="vip"><span class="check">✓</span> Yes</td>
             </tr>
             <tr>
               <td>Multi-Device Support</td>
-              <td><span class="cross">✗</span> Not Available</td>
+              <td><span class="cross">✗</span> None</td>
               <td class="vip"><span class="check">✓</span> Supported</td>
             </tr>
             <tr>
@@ -1473,7 +1473,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </tr>
             <tr>
               <td>24/7 Customer Support</td>
-              <td><span class="cross">✗</span> Not Available</td>
+              <td><span class="cross">✗</span> None</td>
               <td class="vip"><span class="check">✓</span> Yes</td>
             </tr>
           </tbody>
@@ -1511,7 +1511,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">给孩子看湖南卫视、给老人看CCTV，各看各的互不打扰。最满意的是看英超完全不卡，用Tivimate导入很方便。there's just a minor issue with occasional buffering，客服回复挺快的，帮我调了线路就好了。</p>
+            <p class="testimonial-text">给孩子看湖南卫视、给老人看CCTV，各看各的互不打扰。最满意的是看英超完全不卡，用Tivimate导入很方便。Yes个小问题是Yes时段性卡顿，客服回复挺快的，帮我调了线路就好了。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1523,7 +1523,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">配置真的超简单，用Televizo导入后直接能看。把链接给爸妈发了过去，他们自己导入就能看。现在每天晚饭后全家一起看新闻联播，特别温馨。there are quite a lot of channels — you need to browse to find what you want还得挑一挑。</p>
+            <p class="testimonial-text">配置真的超简单，用Televizo导入后直接能看。把链接给爸妈发了过去，他们自己导入就能看。现在每天晚饭后全家一起看新闻联播，特别温馨。就是频道Yes点多，找自己想看的还得挑一挑。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1535,7 +1535,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">以前在家只能看地方台，现在用APTV能看  all CCTV channels and Hunan TV。周末全家一起看新闻联播，爸妈可高兴了。用CarPlay在车上也能听广播，挺方便的。it's just sometimes that there are too many channels要找一会儿。</p>
+            <p class="testimonial-text">以前在家只能看地方台，现在用APTV能看央视所Yes频道和湖南卫视。周末全家一起看新闻联播，爸妈可高兴了。用CarPlay在车上也能听广播，挺方便的。就是Yes时候频道太多要找一会儿。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1547,7 +1547,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在家想看港澳台频道，找了好几个服务都不稳定。这个用Televizo导入就能看，凤凰卫视、阳光卫视都很清晰。occasional yes, there are some hiccups，客服响应很快，给我换了线路就好了。性价比高，推荐。</p>
+            <p class="testimonial-text">在家想看港澳台频道，找了好几个服务都不稳定。这个用Televizo导入就能看，凤凰卫视、阳光卫视都很清晰。偶尔Yes卡顿，客服响应很快，给我换了线路就好了。性价比高，推荐。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1559,7 +1559,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在日本工作，平时最喜欢看家乡的新闻和综艺。用GSE Smart IPTV导入后频道很全，连我们省的地面频道 available, just like at home一样。sometimes网速慢会卡一下，但整体体验不错。</p>
+            <p class="testimonial-text">在日本工作，平时最喜欢看家乡的新闻和综艺。用GSE Smart IPTV导入后频道很全，连我们省的地面频道都Yes，就像在家里一样。Yes时候网速慢会卡一下，但整体体验不错。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1583,7 +1583,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">四川人喜欢晚上刷剧看综艺，以前只能看地方台。现在用GSE Smart IPTV能看到湖南卫视、浙江卫视的直播，还能回看。用Tivimate体验更好，界面简洁，操作方便。唯一不满的是想找老电影频道 a bit hard。</p>
+            <p class="testimonial-text">四川人喜欢晚上刷剧看综艺，以前只能看地方台。现在用GSE Smart IPTV能看到湖南卫视、浙江卫视的直播，还能回看。用Tivimate体验更好，界面简洁，操作方便。唯一不满的是想找老电影频道Yes点难。</p>
           </div>
           
           <div class="testimonial-card">
@@ -1607,7 +1607,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               </div>
             </div>
             <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-text">在欧洲生活多年，最想念的就是国内春晚和新闻联播。用APTV导入后解决了我的问题，7-day no-reason refund也让我放心尝试。although there are occasional yes hiccups，但客服态度很好，整体体验不错。就是希望频道能再分类清楚一点。</p>
+            <p class="testimonial-text">在欧洲生活多年，最想念的就是国内春晚和新闻联播。用APTV导入后解决了我的问题，7天None理由退款也让我放心尝试。虽然偶尔Yes卡顿，但客服态度很好，整体体验不错。就是希望频道能再分类清楚一点。</p>
           </div>
         </div>
           </div>
@@ -1643,18 +1643,18 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="selector-bar" id="durationGrid">
                 <div class="select-option selected" onclick="selectDuration(30)">
                   <span class="value">Monthly</span>
-                  <span class="label">30 Days</span>
+                  <span class="label">30天</span>
                   <span class="price-tag">¥20</span>
                 </div>
                 <div class="select-option" onclick="selectDuration(90)">
                   <span class="value">Quarterly</span>
-                  <span class="label">90 Days</span>
+                  <span class="label">90天</span>
                   <span class="badge">Save 25%</span>
                   <span class="price-tag">¥45</span>
                 </div>
                 <div class="select-option" onclick="selectDuration(365)">
                   <span class="value">Yearly</span>
-                  <span class="label">365 Days</span>
+                  <span class="label">365天</span>
                   <span class="badge">Best Value</span>
                   <span class="price-tag">¥168</span>
                 </div>
@@ -1711,7 +1711,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             </div>
             
             <div class="payment-methods">
-              <label>Payment Method</label>
+              <label>选择付款方式</label>
               <div class="payment-options">
                 <div class="payment-option selected" onclick="selectPayment('alipay')">
                   <div class="payment-option-icon"><img src="/zhifubao.png" alt="支付宝"></div>
@@ -1970,32 +1970,24 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const data = await response.json();
         availableTopics = (data.success && Array.isArray(data.topics)) ? data.topics : [];
 
-        // Add default "All Channels" option
-        const allChannelsCard = document.createElement('div');
-        allChannelsCard.className = 'theme-card selected';
-        allChannelsCard.dataset.theme = '';
-        allChannelsCard.innerHTML = '<div class="theme-card-name">All Channels</div><div class="theme-card-desc">Full channel library, no restrictions</div>';
-        allChannelsCard.onclick = () => selectTheme('');
-        grid.appendChild(allChannelsCard);
-
         if (availableTopics.length > 0) {
           availableTopics.forEach((topic, index) => {
             const card = document.createElement('div');
-            card.className = 'theme-card';
+            card.className = 'theme-card' + (index === 0 ? ' selected' : '');
             card.onclick = () => selectTheme(topic.id);
             card.dataset.theme = topic.id;
-            const desc = topic.description || 'Curated channels';
+            const desc = topic.description || '精选频道';
             card.innerHTML = '<div class="theme-card-name">' + topic.name + '</div><div class="theme-card-desc">' + desc + '</div>';
             grid.appendChild(card);
           });
         }
 
-        // 3. If logged in, add "My Favorites"
+        // 3. 如果登录，添加"我的收藏"
         if (isLoggedIn) {
           const favCard = document.createElement('div');
           favCard.className = 'theme-card';
           favCard.dataset.theme = 'favorites';
-          favCard.innerHTML = '<div class="theme-card-name">My Favorites</div><div class="theme-card-desc">Only your saved channels</div>';
+          favCard.innerHTML = '<div class="theme-card-name">我的收藏</div><div class="theme-card-desc">仅返回您收藏的频道</div>';
           favCard.onclick = () => selectTheme('favorites');
           grid.appendChild(favCard);
         }
@@ -2281,7 +2273,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
 
     async function simulatePaymentSuccess() {
       if (!currentOrderId) {
-        showToast('No pending的订单', 'error');
+        showToast('没Yes待支付的订单', 'error');
         return;
       }
       const token = localStorage.getItem('auth_token');
