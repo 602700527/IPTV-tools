@@ -1397,7 +1397,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <div class="scene-card-body">
               <span class="scene-card-tag">On the Go</span>
               <h3 class="scene-card-title">Never Bored on Your Commute</h3>
-              <p class="scene-card-desc">地铁上、火车里，手机平板随时看，直播回看都能用，旅途不再枯燥<span class="scene-note">*仅部分源支持回看，需播放器支持</span></p>
+              <p class="scene-card-desc">Watch live TV and catch-up on your phone or tablet during your commute — no more boring trips<span class="scene-note">*Catch-up depends on source and player support</span></p>
             </div>
           </div>
           <div class="scene-card">
@@ -1459,12 +1459,12 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
             <tr>
               <td>Multi-Device Support</td>
               <td><span class="cross">✗</span> None</td>
-              <td class="vip"><span class="check">✓</span> 支持</td>
+              <td class="vip"><span class="check">✓</span> Supported</td>
             </tr>
             <tr>
               <td>Playlist Customization <span class="help-icon">?<span class="help-text">Set your favorites as cloud playlists via Account Center > Channel Selection > My Favorites</span></span></td>
-              <td><span class="cross">✗</span> 不支持</td>
-              <td class="vip"><span class="check">✓</span> 支持</td>
+              <td><span class="cross">✗</span> Not Available</td>
+              <td class="vip"><span class="check">✓</span> Supported</td>
             </tr>
             <tr>
               <td>Ads</td>
@@ -1629,7 +1629,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               <div class="scheme-renewal-banner" id="schemeRenewalBanner" style="display:none;">
                 <div class="scheme-renewal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
                 <div class="scheme-renewal-content">
-                  <div class="scheme-renewal-title">你当前是 <strong id="schemeRenewalName">—</strong> 方案</div>
+                  <div class="scheme-renewal-title">Your current plan: <strong id="schemeRenewalName">—</strong></div>
                   <div class="scheme-renewal-hint">Stays the same after renewal. To change, visit <a href="/account">Account Page</a>.</div>
                 </div>
               </div>
@@ -1685,7 +1685,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           
           <div class="pricing-right">
             <div class="order-summary">
-              <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;display:inline-block;vertical-align:middle;margin-right:6px;"><path d="M9 11H1l4-4m0 6l-4 4m14-4h8l-4-4m0 6l4 4"/></svg>订单摘要</h3>
+              <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;display:inline-block;vertical-align:middle;margin-right:6px;"><path d="M9 11H1l4-4m0 6l-4 4m14-4h8l-4-4m0 6l4 4"/></svg>Order Summary</h3>
               <div class="summary-row">
                 <span>Base Price</span>
                 <span id="basePrice">¥20.00</span>
