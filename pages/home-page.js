@@ -62,6 +62,9 @@ export function generateHomePage(options = {}) {
   <meta name="description" content="Search 8000+ free IPTV channels from 150+ countries. Browse live TV by region including USA, UK, China, Brazil. No registration. Updated daily.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="${origin}/">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <meta name="theme-color" content="#e50914">
   <meta property="og:title" content="iptvsearch - Free IPTV Search Engine | 8000+ Live TV Channels">
   <meta property="og:description" content="Find any IPTV channel instantly. Search live sports, movies, news. Updated daily. No signup required.">
   <meta property="og:type" content="website">
@@ -134,7 +137,7 @@ export function generateHomePage(options = {}) {
       --bg-hover: transparent;
       --text-primary: #ffffff;
       --text-secondary: #888888;
-      --text-muted: #555555;
+      --text-muted: #666666;
       --border: 1px solid rgba(255,255,255,0.08);
       --border-hover: 1px solid rgba(229,9,20,0.4);
     }
@@ -146,8 +149,8 @@ export function generateHomePage(options = {}) {
       --bg-hover: transparent;
       --text-primary: #0a0a0a;
       --text-secondary: #666666;
-      --text-muted: #999999;
-      --border: 1px solid rgba(0,0,0,0.1);
+      --text-muted: #666666;
+      --border: 1px solid rgba(0,0,0,0.15);
       --border-hover: 1px solid rgba(229,9,20,0.5);
     }
 
@@ -519,6 +522,7 @@ export function generateHomePage(options = {}) {
   </style>
 </head>
 <body>
+  <a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;z-index:99999;">Skip to main content</a>
   <script>
     // Make switchView globally accessible BEFORE any other scripts
     window.switchView = function(view) {
@@ -551,7 +555,7 @@ export function generateHomePage(options = {}) {
 
   ${pageHeader}
 
-  <section class="hero">
+  <section class="hero" id="main-content">
     <div class="hero-inner">
       <div class="hero-content">
         <h1>Free IPTV Channel Search - 5000+ Live TV Channels from 150+ Countries</h1>
@@ -946,7 +950,11 @@ export function generateHomePage(options = {}) {
       .fav-modal-content { padding: 1rem; }
       .fav-modal-actions { flex-direction: column; }
     }
-  </style>
+  
+    @media (prefers-reduced-motion: reduce) {
+      .guest-gift, .gift-icon { animation: none !important; }
+      * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }</style>
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
   <script>
     function initTranslate() {

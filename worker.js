@@ -22,6 +22,17 @@ function slugify(text) {
 }
 
 //  404 
+
+// 安全响应头助手
+function securityHeaders(extra = {}) {
+  return Object.assign({
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+  }, extra);
+}
+
 async function generate404Page(request, env) {
   const url = new URL(request.url);
   const origin = url.protocol + '//' + url.host;
@@ -977,7 +988,8 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'public, max-age=60'
-        }
+        },
+        ...securityHeaders()
       });
     }
 
@@ -1086,7 +1098,8 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'public, max-age=60'
-        }
+        },
+        ...securityHeaders()
       });
     }
 
@@ -1191,7 +1204,8 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'public, max-age=60'
-        }
+        },
+        ...securityHeaders()
       });
     } else if (path.startsWith('/channel/')) {
       // : /channel/{slug}
@@ -1290,7 +1304,8 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'public, max-age=600'
-        }
+        },
+        ...securityHeaders()
       });
     } else if (path === '/login') {
       //  - 
@@ -1310,8 +1325,10 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       return new Response(html, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'public, max-age=60'
-        }
+          'Cache-Control': 'public, max-age=60',
+          'X-Robots-Tag': 'noindex'
+        },
+        ...securityHeaders()
       });
     } else if (path.startsWith('/search') || path.startsWith('/zh-hant/search') || path.startsWith('/zh-cn/search')) {
       // ， 410 Gone
@@ -1339,7 +1356,8 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'public, max-age=60',
           'X-Robots-Tag': 'noindex'
-        }
+        },
+        ...securityHeaders()
       });
     } else if (path === '/forgot-password') {
       //  - 

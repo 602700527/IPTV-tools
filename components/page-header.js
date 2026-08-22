@@ -39,13 +39,13 @@ export const PAGE_HEADER = `
         </form>
       </div>
       <div class="header-actions">
-        <a href="/favorites" class="pill-btn" title="Favorites">
+        <a href="/favorites" class="pill-btn" aria-label="Favorites">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         </a>
-        <a href="/subscription" class="pill-btn" title="Plans">
+        <a href="/subscription" class="pill-btn" aria-label="Subscription Plans">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         </a>
-        <a href="/account" class="account-btn guest-gift" title="Get 7 Days Free VIP" id="giftAccountBtn">
+        <a href="/account" class="account-btn guest-gift" aria-label="Get 7 Days Free VIP" id="giftAccountBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </a>
         <div id="translate"></div>
@@ -130,7 +130,7 @@ export const PAGE_HEADER = `
       /* 文字层次 */
       --text-primary: #ffffff;
       --text-secondary: #888888;
-      --text-muted: #555555;
+      --text-muted: #666666;
 
       /* 主色调 - 纯红强调 */
       --accent: #e50914;
@@ -158,8 +158,8 @@ export const PAGE_HEADER = `
       --bg-hover: transparent;
       --text-primary: #0a0a0a;
       --text-secondary: #666666;
-      --text-muted: #999999;
-      --border: 1px solid rgba(0,0,0,0.1);
+      --text-muted: #666666;
+      --border: 1px solid rgba(0,0,0,0.15);
       --border-hover: 1px solid rgba(229,9,20,0.5);
     }
 
@@ -369,6 +369,25 @@ export const PAGE_HEADER = `
       .header-search-type { min-width: 40px; }
       .header-search-input { padding: 0.4rem 0.5rem; }
     }
-  </style>
 
+    /* 平板尺寸断点（768px-1024px） */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .header-inner { gap: 1rem; padding: 0.5rem 1rem; }
+      .header-search-wrapper { max-width: 360px; }
+    }
+
+    /* 减少动画偏好：尊重用户系统设置，禁用脉冲/弹跳动画 */
+    @media (prefers-reduced-motion: reduce) {
+      .guest-gift,
+      .gift-icon {
+        animation: none !important;
+      }
+    }
+
+    /* 翻译下拉菜单触摸目标优化 */
+    #translateSelectLanguage {
+      padding: 0.3rem 0.5rem;
+      min-height: 32px;
+    }
+  </style>
 `;

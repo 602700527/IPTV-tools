@@ -13,14 +13,16 @@ export function generateSearchPage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <meta name="theme-color" content="#e50914">
   <title>${query ? `Search ${escapeHtml(query)} IPTV Channels - Free ${escapeHtml(query)} M3U M3U8 Stream Online` : 'IPTV Channel Search - Free M3U M3U8 TV Channels'}</title>
-  <meta name="description" content="${query ? `Find free ${escapeHtml(query)} live TV channels online. Search results for ${escapeHtml(query)} - watch IPTV with M3U M3U8 links. No signup required. Compatible with IPTV Smarters Pro, VLC, GSE Smart IPTV, and all players.` : 'Search free IPTV live TV channels online. M3U M3U8 sources for VLC, IPTV Smarters - no signup required.'}">
-  <meta name="keywords" content="${query ? `${escapeHtml(query)} IPTV search, search ${escapeHtml(query)} TV channels, find ${escapeHtml(query)} M3U, ${escapeHtml(query)} M3U8, free ${escapeHtml(query)} IPTV, ${escapeHtml(query)} streaming, watch ${escapeHtml(query)} online, IPTV ${escapeHtml(query)} channels` : 'IPTV search, free IPTV search, M3U search, M3U8 search, TV channel search, live streaming search'}">
+  <meta name="description" content="${query ? `Find free ${escapeHtml(query)} live TV channels online. No signup required.` : 'Search free IPTV live TV channels online. M3U M3U8 sources for VLC, IPTV Smarters - no signup required.'}">
   <meta name="robots" content="index, follow">
   <meta property="og:title" content="${query ? `Search ${escapeHtml(query)} IPTV Channels - Free ${escapeHtml(query)} Stream` : 'IPTV Channel Search - Free TV Channels'}">
   <meta property="og:description" content="${query ? `Stream free ${escapeHtml(query)} live TV channels. Instant M3U M3U8 links - works with all IPTV players. No registration.` : 'Find free IPTV channels online. Instant M3U M3U8 links for VLC and all IPTV players.'}">
   <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${query ? `Search ${escapeHtml(query)} IPTV Channels Free Online` : 'IPTV Channel Search - Free TV Streams'}">
   <meta name="twitter:description" content="${query ? `Stream free ${escapeHtml(query)} live TV. M3U M3U8 links for all IPTV players.` : 'Find and watch free IPTV channels. M3U M3U8 links for VLC and more.'}">
 
@@ -58,7 +60,7 @@ export function generateSearchPage(options = {}) {
       --bg-hover: #f0f0f0;
       --text-primary: #1a1a1a;
       --text-secondary: #666666;
-      --text-muted: #999999;
+      --text-muted: #666666;
       --border: rgba(0,0,0,0.08);
       --border-hover: rgba(0,0,0,0.15);
       --shadow: 0 4px 20px rgba(0,0,0,0.1);
@@ -242,11 +244,17 @@ export function generateSearchPage(options = {}) {
       .channel-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
     }
   </style>
+  <a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;z-index:99999;">Skip to main content</a>
+  <style>.skip-link:focus{position:fixed;left:0;top:0;width:auto;height:auto;padding:0.5rem 1rem;background:#e50914;color:#fff;z-index:99999;font-weight:600;}
+    @media (prefers-reduced-motion: reduce) {
+      .guest-gift, .gift-icon { animation: none !important; }
+      * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }</style>
 </head>
 <body>
   ${pageHeader}
 
-  <main class="main-container">
+  <main class="main-container" id="main-content">
     <div class="search-results-header">
       <h1>🔍 Search Results</h1>
       <p id="resultText">Loading...</p>

@@ -17,18 +17,14 @@
     }
   ],
   "vars": {
-    "ADMIN_KEY": "admin-key-please-change-in-production",
     "TIMEZONE": "Asia/Shanghai",
-    "RESEND_API_KEY": "re_SV65wtWn_6zDFiwGvPFRRv3gbcLDACDKe",
     "FROM_EMAIL": "support@iptv-search.com",
     "APP_URL": "https://iptv-search.com",
-    "XUNHUPAY_ALIPAY_APP_ID": "202303140161",
-    "XUNHUPAY_ALIPAY_APP_SECRET": "9265ede6d1d85a9ecb7cbf2b97ca0cbd",
-    "XUNHUPAY_WECHAT_APP_ID": "",
-    "XUNHUPAY_WECHAT_APP_SECRET": "",
     "XUNHUPAY_GATEWAY": "https://api.xunhuweb.com/payment/do.html",
-    "GOOGLE_CLIENT_ID": "1070165774283-e75bs3en213p81iaq3g5dmpt15e6te9l.apps.googleusercontent.com",
-    "GOOGLE_CLIENT_SECRET": "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"
+    "STATIC_SOURCE": "local",
+    "STATIC_OUTPUT_DIR": "static-output",
+    "USD_WORKER_URL": "http://127.0.0.1:9788",
+    "USD_API_AUTH_TOKEN": "test_token_for_local_dev_only_xyz"
   },
   "triggers": {
     "crons": [

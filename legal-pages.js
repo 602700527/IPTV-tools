@@ -135,7 +135,7 @@ ${PAGE_HEADER}
         <ul>
           <li><strong>Browsing information:</strong> Your IP address, browser type, device information, access time, and page view records</li>
           <li><strong>Usage information:</strong> Channels you watch, search history, favorites, and playback history (stored locally)</li>
-          <li><strong>Technical information:</strong> Cookies, web beacons, and other tracking technologies</li>
+          <li><strong>Technical information:</strong> Cookies, web beacons, and other tracking technologies. We also use browser fingerprinting (FingerprintJS) for rate limiting purposes - this generates an anonymous identifier, not a personal profile.</li>
         </ul>
 
         <h3>1.2 How we collect information:</h3>

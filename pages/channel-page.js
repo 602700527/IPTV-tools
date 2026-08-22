@@ -50,7 +50,7 @@ export function generateChannelPage(options = {}) {
 
   // Build logo HTML
   const logoHtml = channel.logo 
-    ? '<img src="' + escapeHtml(channel.logo) + '" alt="' + escapeHtml(channel.name) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';this.nextElementSibling.textContent=this.alt.charAt(0)">' +
+    ? '<img src="' + escapeHtml(channel.logo) + '" alt="' + escapeHtml(channel.name) + '" loading="lazy" decoding="async" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';this.nextElementSibling.textContent=this.alt.charAt(0)">' +
       '<div class="placeholder" style="display:none"></div>'
     : '<div class="placeholder">' + escapeHtml(channel.name.charAt(0)) + '</div>';
 
@@ -115,7 +115,7 @@ export function generateChannelPage(options = {}) {
       '<div class="related-grid">' +
       relatedChannels.map(ch => {
         const chLogo = ch.logo 
-          ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '" onerror="this.style.display=\'none\'">' +
+          ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">' +
             '<div class="placeholder" style="display:none">📺</div>'
           : '<div class="placeholder">📺</div>';
         return '<div class="related-card" onclick="location.href=\'' + origin + '/channel/' + buildChannelSlug(ch.name) + '\'">' +
@@ -170,6 +170,9 @@ export function generateChannelPage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <meta name="theme-color" content="#e50914">
   <title>${escapeHtml(channel.name)} - Free IPTV Live Stream | ${escapeHtml(channel.group || 'Live TV')}</title>
   <meta name="description" content="Watch ${escapeHtml(channel.name)} live online free. ${escapeHtml(channel.group)} IPTV streaming with M3U M3U8 download. No signup required.">
   <meta name="robots" content="index, follow">
@@ -245,7 +248,7 @@ export function generateChannelPage(options = {}) {
       --bg-hover: #f0f0f0;
       --text-primary: #1a1a1a;
       --text-secondary: #666666;
-      --text-muted: #999999;
+      --text-muted: #666666;
       --border: rgba(0,0,0,0.08);
       --border-hover: rgba(0,0,0,0.15);
       --shadow: 0 4px 20px rgba(0,0,0,0.1);
@@ -438,6 +441,12 @@ export function generateChannelPage(options = {}) {
       .related-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
     }
   </style>
+  <a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;z-index:99999;">Skip to main content</a>
+  <style>.skip-link:focus{position:fixed;left:0;top:0;width:auto;height:auto;padding:0.5rem 1rem;background:#e50914;color:#fff;z-index:99999;font-weight:600;}
+    @media (prefers-reduced-motion: reduce) {
+      .guest-gift, .gift-icon { animation: none !important; }
+      * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }</style>
 </head>
 <body>
   ${header}
@@ -453,7 +462,7 @@ export function generateChannelPage(options = {}) {
     <span class="breadcrumb-current">${escapeHtml(channel.name)}</span>
   </nav>
 
-  <main class="main-container">
+  <main class="main-container" id="main-content">
     <!-- Channel Hero -->
     <div class="channel-hero">
       <div class="channel-poster-large">

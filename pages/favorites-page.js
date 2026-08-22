@@ -12,9 +12,14 @@ export function generateFavoritesPage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <meta name="theme-color" content="#e50914">
   <title>My Favorites | IPTV Search</title>
   <meta name="description" content="Your favorite IPTV channels">
   <link rel="canonical" href="${origin}/favorites">
+  <!-- 收藏夹页面：仅登录用户可见，禁止搜索引擎索引 -->
+  <meta name="robots" content="noindex, follow">
 
   <script>
     (function() {
@@ -48,7 +53,7 @@ export function generateFavoritesPage(options = {}) {
       --bg-hover: transparent;
       --text-primary: #0a0a0a;
       --text-secondary: #666666;
-      --text-muted: #999999;
+      --text-muted: #666666;
       --border: 1px solid rgba(0,0,0,0.1);
       --border-hover: 1px solid rgba(229,9,20,0.5);
     }
@@ -159,10 +164,12 @@ export function generateFavoritesPage(options = {}) {
     }
   </style>
 </head>
+  <a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;z-index:99999;">Skip to main content</a>
+  <style>.skip-link:focus{position:fixed;left:0;top:0;width:auto;height:auto;padding:0.5rem 1rem;background:#e50914;color:#fff;z-index:99999;font-weight:600;}</style>
 <body>
   ${header}
 
-  <main class="page-container">
+  <main class="page-container" id="main-content">
     <div class="page-header">
       <h1><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" width="28" height="28" style="vertical-align:middle;margin-right:0.3em;color:var(--accent)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>My Favorites</h1>
       <p>Your saved channels. Select channels to download M3U or remove from favorites.</p>
@@ -218,7 +225,11 @@ export function generateFavoritesPage(options = {}) {
   @keyframes toastSlideIn { from { transform: translateX(120%) scale(0.8); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
   @keyframes toastSlideOut { from { transform: translateX(0) scale(1); opacity: 1; } to { transform: translateX(120%) scale(0.8); opacity: 0; } }
   @media (max-width: 480px) { .toast-container { top: auto; bottom: 24px; left: 16px; right: 16px; } .toast { min-width: auto; width: 100%; } }
-  </style>
+  
+    @media (prefers-reduced-motion: reduce) {
+      .guest-gift, .gift-icon { animation: none !important; }
+      * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }</style>
 
   <script defer src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"
             onerror="window.__fpLoadFailed=true"></script>

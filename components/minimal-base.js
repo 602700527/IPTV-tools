@@ -13,7 +13,7 @@ export const MINIMAL_STYLE_BASE = `
       --bg-hover: transparent;
       --text-primary: #ffffff;
       --text-secondary: #888888;
-      --text-muted: #555555;
+      --text-muted: #666666;
       --border: 1px solid rgba(255,255,255,0.08);
       --border-hover: 1px solid rgba(229,9,20,0.4);
     }
@@ -25,8 +25,8 @@ export const MINIMAL_STYLE_BASE = `
       --bg-hover: transparent;
       --text-primary: #0a0a0a;
       --text-secondary: #666666;
-      --text-muted: #999999;
-      --border: 1px solid rgba(0,0,0,0.1);
+      --text-muted: #666666;
+      --border: 1px solid rgba(0,0,0,0.15);
       --border-hover: 1px solid rgba(229,9,20,0.5);
     }
 

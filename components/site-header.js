@@ -96,7 +96,7 @@ export const SITE_HEADER_STYLES = `
     --bg-hover: #f0f0f0;
     --text-primary: #1a1a1a;
     --text-secondary: #666666;
-    --text-muted: #999999;
+    --text-muted: #666666;
     --border: rgba(0,0,0,0.08);
     --border-hover: rgba(0,0,0,0.15);
     --shadow: 0 4px 20px rgba(0,0,0,0.1);

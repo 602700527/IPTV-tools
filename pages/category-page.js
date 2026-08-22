@@ -1619,6 +1619,9 @@ export function generateCategoryPage(options = {}) {
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <meta name="theme-color" content="#e50914">
 
 
 
@@ -2350,7 +2353,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-      --text-muted: #999999;
+      --text-muted: #666666;
 
 
 
@@ -5124,16 +5127,8 @@ export function generateCategoryPage(options = {}) {
 
 </head>
 
-
-
-
-
-
-
-
-
-
-
+  <a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;z-index:99999;">Skip to main content</a>
+  <style>.skip-link:focus{position:fixed;left:0;top:0;width:auto;height:auto;padding:0.5rem 1rem;background:#e50914;color:#fff;z-index:99999;font-weight:600;}</style>
 <body>
 
 
@@ -5386,7 +5381,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-  <main class="page-layout">
+  <main class="page-layout" id="main-content">
 
 
 
@@ -7274,7 +7269,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-            ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '" class="ch-logo">' 
+            ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '" class="ch-logo" loading="lazy" decoding="async">' 
 
 
 
