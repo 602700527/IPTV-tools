@@ -1324,23 +1324,10 @@ async function loadSchemes() {
       { type: 'all', id: 'all', name: 'All Channels' },
       { type: 'favorites', id: 'favorites', name: 'My Favorites' },
     ];
-    // Translate Chinese scheme names to English
-    const schemeTranslations = {
-      'All Channels': 'All Channels',
-      'My Favorites': 'My Favorites',
-      'China Telecom': 'China Telecom',
-      'China Unicom': 'China Unicom',
-      '联通适用': 'China Unicom',
-      '移动/广电适用': 'China Mobile',
-      '国外和港澳台适用': 'International',
-      '苹果适用': 'Apple',
-      '安卓适用': 'Android',
-      '苹果/安卓通用': 'Universal',
-    };
     topics.forEach(function (t) {
       // id:0 是后端注入的默认"All Channels"，account.js 已硬编码，跳过避免重复
       if (t.id === 0) return;
-      availableSchemes.push({ type: 'topic', id: t.id, name: schemeTranslations[t.name] || t.name });
+      availableSchemes.push({ type: 'topic', id: t.id, name: t.name });
     });
     renderSchemeSwitcher();
   } catch (err) {
