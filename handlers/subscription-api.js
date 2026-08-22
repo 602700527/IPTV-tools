@@ -48,15 +48,19 @@ async function getUserActiveCode(userId, db) {
 export async function handleGetTopics(request, env, ctx) {
   try {
     const topics = await getTopics();
-    
+
+    // 在列表最前面插入"所有频道"默认选项（id=0 是约定的特殊值，前端渲染时默认选中）
+    const allTopic = { id: 0, name: 'All Channels', description: 'Includes all channel resources' };
+    const topicsWithAll = [allTopic, ...topics.map(t => ({
+      id: t.id,
+      name: t.name,
+      description: t.description || '',
+      channelCount: 0
+    }))];
+
     return new Response(JSON.stringify({
       success: true,
-      topics: topics.map(t => ({
-        id: t.id,
-        name: t.name,
-        description: t.description || '',
-        channelCount: 0 // 
-      }))
+      topics: topicsWithAll
     }), {
       headers: { 'Content-Type': 'application/json' }
     });

@@ -1927,7 +1927,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       document.getElementById('totalPrice').textContent = '¥' + totalPrice.toFixed(2);
     }
     
-    let selectedTheme = null;
+    let selectedTheme = 0;
     let isRenewalFlow = false;       // 续费场景：true = 隐藏选择器，方案保持不变
     let availableTopics = [];        // 当前可用的 topic 列表（含 id + name）
 
@@ -1973,7 +1973,9 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         if (availableTopics.length > 0) {
           availableTopics.forEach((topic, index) => {
             const card = document.createElement('div');
-            card.className = 'theme-card' + (index === 0 ? ' selected' : '');
+            // id === 0 是后端注入的"所有频道"，默认选中
+            const isSelected = topic.id === 0;
+            card.className = 'theme-card' + (isSelected ? ' selected' : '');
             card.onclick = () => selectTheme(topic.id);
             card.dataset.theme = topic.id;
             const desc = topic.description || '精选频道';
@@ -2019,7 +2021,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
       if (nameEl) nameEl.textContent = schemeName;
       if (banner) banner.style.display = '';
       if (grid) grid.style.display = 'none';
-      selectedTheme = null;
+      selectedTheme = 0;
     }
 
     function selectTheme(themeId) {
@@ -2158,7 +2160,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
           duration_days: Number(selectedDuration.days),
           max_ips: Number(selectedIPs),
           // 新订阅才发送；续费场景由后端保留
-          topic_id: (!isRenewalFlow && selectedTheme && selectedTheme !== 'favorites') ? Number(selectedTheme) : null,
+          topic_id: (!isRenewalFlow && selectedTheme && selectedTheme !== 'favorites' && selectedTheme !== 0) ? Number(selectedTheme) : null,
           sub_mode: (!isRenewalFlow && selectedTheme === 'favorites') ? 'favorites' : null,
           discount_code: appliedDiscount ? document.getElementById('discountCodeInput').value.trim().toUpperCase() : null,
         };
