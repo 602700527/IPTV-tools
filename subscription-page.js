@@ -1970,24 +1970,32 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const data = await response.json();
         availableTopics = (data.success && Array.isArray(data.topics)) ? data.topics : [];
 
+        // Add default "All Channels" option
+        const allChannelsCard = document.createElement('div');
+        allChannelsCard.className = 'theme-card selected';
+        allChannelsCard.dataset.theme = '';
+        allChannelsCard.innerHTML = '<div class="theme-card-name">All Channels</div><div class="theme-card-desc">Full channel library, no restrictions</div>';
+        allChannelsCard.onclick = () => selectTheme('');
+        grid.appendChild(allChannelsCard);
+
         if (availableTopics.length > 0) {
           availableTopics.forEach((topic, index) => {
             const card = document.createElement('div');
             card.className = 'theme-card' + (index === 0 ? ' selected' : '');
             card.onclick = () => selectTheme(topic.id);
             card.dataset.theme = topic.id;
-            const desc = topic.description || '精选频道';
+            const desc = topic.description || 'Curated channels';
             card.innerHTML = '<div class="theme-card-name">' + topic.name + '</div><div class="theme-card-desc">' + desc + '</div>';
             grid.appendChild(card);
           });
         }
 
-        // 3. 如果登录，添加"我的收藏"
+        // 3. If logged in, add "My Favorites"
         if (isLoggedIn) {
           const favCard = document.createElement('div');
           favCard.className = 'theme-card';
           favCard.dataset.theme = 'favorites';
-          favCard.innerHTML = '<div class="theme-card-name">我的收藏</div><div class="theme-card-desc">仅返回您收藏的频道</div>';
+          favCard.innerHTML = '<div class="theme-card-name">My Favorites</div><div class="theme-card-desc">Only your saved channels</div>';
           favCard.onclick = () => selectTheme('favorites');
           grid.appendChild(favCard);
         }
