@@ -1981,7 +1981,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         if (availableTopics.length > 0) {
           availableTopics.forEach((topic, index) => {
             const card = document.createElement('div');
-            card.className = 'theme-card' + (index === 0 ? ' selected' : '');
+            card.className = 'theme-card';
             card.onclick = () => selectTheme(topic.id);
             card.dataset.theme = topic.id;
             const desc = topic.description || 'Curated channels';
