@@ -331,7 +331,14 @@ export const PAGE_HEADER = `
     #translateSelectLanguage:focus { color: var(--accent); }
     #translateSelectLanguage:hover { color: var(--accent); }
 
+    #ad-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 8px 0;
+    }
+
     @media (max-width: 768px) {
+      #ad-container { padding: 4px 1rem; }
       .header-inner {
         flex-wrap: wrap;
         padding: 0.5rem 1rem;
@@ -356,6 +363,7 @@ export const PAGE_HEADER = `
     }
 
     @media (max-width: 480px) {
+      #ad-container { padding: 4px 1rem; }
       .header-search-type-wrap { padding: 0 0.5rem; }
       .header-search-divider { display: none; }
       .header-search-type { min-width: 40px; }
