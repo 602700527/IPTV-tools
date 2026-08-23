@@ -987,7 +987,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       return new Response(html, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'public, max-age=60'
+          'Cache-Control': 'public, max-age=3600'
         },
         ...securityHeaders()
       });
@@ -1097,7 +1097,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       return new Response(html, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'public, max-age=60'
+          'Cache-Control': 'public, max-age=3600'
         },
         ...securityHeaders()
       });
@@ -1203,7 +1203,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       return new Response(html, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'public, max-age=60'
+          'Cache-Control': 'public, max-age=3600'
         },
         ...securityHeaders()
       });
@@ -1325,7 +1325,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       return new Response(html, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'public, max-age=60',
+          'Cache-Control': 'public, max-age=3600',
           'X-Robots-Tag': 'noindex'
         },
         ...securityHeaders()
@@ -1354,7 +1354,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       return new Response(html, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'public, max-age=60',
+          'Cache-Control': 'public, max-age=3600',
           'X-Robots-Tag': 'noindex'
         },
         ...securityHeaders()
