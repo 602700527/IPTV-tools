@@ -50,6 +50,11 @@ export const VIP_STRIP_STYLES = `
     font-size: 0.78rem;
     color: rgba(255,255,255,0.6);
   }
+  .vip-strip-check {
+    color: #22c55e;
+    font-weight: 700;
+    margin-right: 0.2rem;
+  }
   .vip-strip-cta {
     flex-shrink: 0;
     padding: 0.6rem 1.5rem;
@@ -95,7 +100,7 @@ export const VIP_STRIP_HTML = `
     <div class="vip-strip-icon notranslate" aria-hidden="true" translate="no">★</div>
     <div class="vip-strip-text notranslate" translate="no">
       <strong class="notranslate" translate="no">7 days free VIP</strong>
-      <span class="vip-strip-meta notranslate" translate="no">[OK] No credit card · from &yen;20/mo · [OK] 7-day refund · [OK] Cancel anytime</span>
+      <span class="vip-strip-meta notranslate" translate="no"><span class="vip-strip-check">&check;</span> No credit card · <span class="vip-strip-check">&check;</span> 7-day refund · <span class="vip-strip-check">&check;</span> Cancel anytime</span>
     </div>
     <a href="/subscription" class="vip-strip-cta notranslate" id="vipStripCta" translate="no">Get Free VIP &rarr;</a>
     <button class="vip-strip-close notranslate" aria-label="Dismiss offer" type="button" translate="no">&times;</button>
