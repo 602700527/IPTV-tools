@@ -2143,6 +2143,51 @@ export async function handleAdminRequest(request, env, ctx) {
         }
         break;
 
+      case 'at-risk-vips':
+        // CSM dashboard — at-risk VIPs (lapsed or expiring soon)
+        if (request.method === 'GET') {
+          try {
+            const db = getDB();
+            const rows = await db.prepare(`
+              SELECT
+                u.id AS user_id,
+                u.email,
+                u.last_seen_at,
+                c.code,
+                c.expired_at,
+                c.max_ips,
+                CAST((julianday(c.expired_at) - julianday('now')) AS INTEGER) AS days_to_expiry,
+                CASE
+                  WHEN u.last_seen_at IS NULL THEN NULL
+                  ELSE CAST((julianday('now') - julianday(u.last_seen_at)) AS INTEGER)
+                END AS days_since_seen
+              FROM users u
+              JOIN user_orders o ON o.user_id = u.id AND o.status = 'completed'
+              JOIN codes c ON c.code = o.code
+              WHERE c.status = 'active'
+                AND c.expired_at > datetime('now')
+                AND (
+                  c.expired_at < datetime('now', '+7 days')
+                  OR u.last_seen_at IS NULL
+                  OR u.last_seen_at < datetime('now', '-14 days')
+                )
+              ORDER BY c.expired_at ASC
+              LIMIT 200
+            `).all();
+
+            return new Response(JSON.stringify({ success: true, count: rows.length, vips: rows }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } catch (error) {
+            console.error('[admin/at-risk-vips] error:', error);
+            return new Response(JSON.stringify({ success: false, error: error.message }), {
+              status: 500,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+        }
+        break;
+
       case 'users':
         // 
         if (request.method === 'GET') {

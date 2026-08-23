@@ -200,6 +200,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       <button class="nav-tab" onclick="showTab('orders')">订单管理</button>
       <button class="nav-tab" onclick="showTab('mall')">商城管理</button>
       <button class="nav-tab" onclick="showTab('tickets')">工单管理</button>
+      <button class="nav-tab" onclick="showTab('at-risk-vips')">At-Risk VIPs</button>
       <button class="nav-tab" onclick="showTab('security')">安全监控</button>
       <button class="nav-tab" onclick="showTab('ip-blacklist')">IP黑名单</button>
       <button class="nav-tab" onclick="showTab('domain-blacklist')">域名黑名单</button>
@@ -363,6 +364,38 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           <tbody id="ticketsTable"></tbody>
         </table>
         <div id="noTickets" class="empty-state">No tickets found</div>
+      </div>
+    </div>
+    <div id="at-risk-vips" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <h3>At-Risk VIPs</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="loadAtRiskVips()">刷新</button>
+          </div>
+        </div>
+        <p style="color:#86868b;font-size:13px;padding:0 16px;">
+          VIP临到期（7 天内）或 14 天未活跃（last_seen_at）。
+          需要 PR-B 接入邮件触达才能主动干预；现在先做可视。
+        </p>
+        <div id="atRiskVipsList" style="margin-top:20px;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr style="background:#f5f5f7;text-align:left;">
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">用户</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">临到期天数</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">未活跃天数</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">到期时间</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">卡密</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">IP上限</th>
+              </tr>
+            </thead>
+            <tbody id="atRiskVipsTableBody"></tbody>
+          </table>
+          <div id="atRiskVipsEmpty" style="display:none;text-align:center;padding:40px;color:#86868b;">
+            暂无 at-risk VIP — 说明临到期和失活用户都为 0，或 last_seen_at 还没开始采集（部署 PR-A 后需要等用户活跃）。
+          </div>
+        </div>
       </div>
     </div>
     <div id="security" class="tab-content">
@@ -1624,6 +1657,9 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       }
       else if (tabName === 'tickets') {
         loadTickets();
+      }
+      else if (tabName === 'at-risk-vips') {
+        loadAtRiskVips();
       }
       else if (tabName === 'security') {
         loadSecurityConfig();
@@ -5921,6 +5957,37 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       const response = await fetch(url, { headers: { 'X-Admin-Key': adminKey } });
       const data = await response.json();
       if (data.success) renderTickets(data.tickets || []);
+    }
+
+    async function loadAtRiskVips() {
+      const response = await fetch(API_BASE + '/at-risk-vips', { headers: { 'X-Admin-Key': adminKey } });
+      const data = await response.json();
+      if (data.success) renderAtRiskVips(data.vips || []);
+    }
+
+    function renderAtRiskVips(vips) {
+      const tbody = document.getElementById('atRiskVipsTableBody');
+      const empty = document.getElementById('atRiskVipsEmpty');
+      if (vips.length === 0) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      tbody.innerHTML = vips.map(v => {
+        const expiryColor = v.days_to_expiry <= 3 ? '#c62828' : v.days_to_expiry <= 7 ? '#e65100' : '#1b5e20';
+        const lapsedColor = v.days_since_seen === null ? '#c62828' : v.days_since_seen >= 30 ? '#c62828' : v.days_since_seen >= 14 ? '#e65100' : '#86868b';
+        return `
+          <tr style="border-bottom:1px solid #e5e5ea;">
+            <td style="padding:12px;">${escapeHtml(v.email)}</td>
+            <td style="padding:12px;color:${expiryColor};font-weight:600;">${v.days_to_expiry}</td>
+            <td style="padding:12px;color:${lapsedColor};">${v.days_since_seen === null ? '从未' : v.days_since_seen}</td>
+            <td style="padding:12px;">${new Date(v.expired_at).toLocaleDateString()}</td>
+            <td style="padding:12px;font-family:monospace;font-size:12px;">${escapeHtml(v.code)}</td>
+            <td style="padding:12px;">${v.max_ips}</td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function renderTickets(tickets) {

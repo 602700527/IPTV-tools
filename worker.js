@@ -1377,6 +1377,9 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path === '/api/admin/mall/payment-methods') {
       //  API（ admin.js ）
       return await handleAdminRequest(request, env, ctx);
+    } else if (path === '/api/admin/at-risk-vips') {
+      // CSM at-risk VIPs dashboard (admin.js)
+      return await handleAdminRequest(request, env, ctx);
     } else if (path === '/api/debug') {
       //  - headers
       return await handleChannelDebug(request, env, ctx);

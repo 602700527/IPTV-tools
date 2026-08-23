@@ -494,14 +494,10 @@ export async function handleGetUserInfo(request, env, ctx) {
 
     const token = authHeader.substring(7);
     const db = getDB();
+    const clientIP = request.headers.get('CF-Connecting-IP');
 
-    // 验证会话
-    const session = await db.prepare(`
-      SELECT s.*, u.email, u.is_verified, u.created_at, u.updated_at
-      FROM user_sessions s
-      JOIN users u ON s.user_id = u.id
-      WHERE s.token = ? AND s.expires_at > datetime('now')
-    `).bind(token).first();
+    // 验证会话 (同时 touch users.last_seen_at)
+    const session = await verifySession(token, db, clientIP);
 
     if (!session) {
       return new Response(JSON.stringify({ success: false, error: '会话已过期' }), {
@@ -516,7 +512,7 @@ export async function handleGetUserInfo(request, env, ctx) {
         id: session.user_id,
         email: session.email,
         is_verified: session.is_verified,
-        created_at: session.created_at,
+        created_at: session.user_created_at,
         updated_at: session.updated_at
       }
     }), {
@@ -888,13 +884,22 @@ async function generateSessionToken() {
 /**
  * 验证会话（供其他处理器使用）
  */
-export async function verifySession(token, db) {
+export async function verifySession(token, db, clientIP) {
   const session = await db.prepare(`
-    SELECT s.*, u.email, u.is_verified
+    SELECT s.id AS session_id, s.user_id, s.token, s.created_at AS session_created_at, s.expires_at,
+           u.email, u.is_verified, u.created_at AS user_created_at, u.updated_at
     FROM user_sessions s
     JOIN users u ON s.user_id = u.id
     WHERE s.token = ? AND s.expires_at > datetime('now')
   `).bind(token).first();
+
+  // Touch last_seen_at (fire-and-forget; failure不影响鉴权)
+  if (session?.user_id) {
+    db.prepare('UPDATE users SET last_seen_at = datetime("now"), last_login_ip = ? WHERE id = ?')
+      .bind(clientIP || null, session.user_id).run().catch(err => {
+        console.error('[verifySession] touch last_seen_at failed:', err.message);
+      });
+  }
 
   return session;
 }

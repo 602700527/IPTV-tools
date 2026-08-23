@@ -120,7 +120,9 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash TEXT NOT NULL,
   is_verified BOOLEAN DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_seen_at DATETIME,
+  last_login_ip TEXT
 );
 
 -- 创建邮箱索引
@@ -166,6 +168,7 @@ CREATE TABLE IF NOT EXISTS user_orders (
   amount REAL,
   status TEXT DEFAULT 'completed',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  expiry_reminded_at DATETIME,
   FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -184,6 +187,20 @@ CREATE TABLE IF NOT EXISTS used_tokens (
 
 -- 创建已使用token索引
 CREATE INDEX IF NOT EXISTS idx_used_tokens_token ON used_tokens(token);
+
+-- 用户活跃信号 + 生命周期邮件审计（migration 013）
+CREATE INDEX IF NOT EXISTS idx_users_last_seen ON users(last_seen_at);
+CREATE INDEX IF NOT EXISTS idx_codes_status_expired ON codes(status, expired_at);
+CREATE INDEX IF NOT EXISTS idx_user_orders_expiry_reminded ON user_orders(expiry_reminded_at);
+
+CREATE TABLE IF NOT EXISTS lifecycle_emails (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  email_type TEXT NOT NULL,
+  sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  channel TEXT DEFAULT 'email',
+  UNIQUE(user_id, email_type)
+);
 
 -- 创建公告表
 CREATE TABLE IF NOT EXISTS announcements (
