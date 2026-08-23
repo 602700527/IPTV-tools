@@ -347,7 +347,36 @@ export const styles = `
   .trial-modal .trial-cta.primary:hover { background: var(--accent-hover, #ff1a1a); }
   .trial-modal .trial-cta.secondary { background: transparent; color: var(--text-muted); border: 1px solid var(--glass-border, rgba(255,255,255,0.08)); }
   .trial-modal .trial-cta.secondary:hover { color: var(--text-primary); }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .trial-modal-trust-box {
+      margin: -4px 0 16px;
+      padding: 12px 14px;
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      background: rgba(34, 197, 94, 0.04);
+      border-radius: 6px;
+      text-align: left;
+    }
+    .trial-modal-trust {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .trial-trust-check {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(34, 197, 94, 0.18);
+      color: #22c55e;
+      font-size: 0.7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 
 
@@ -699,6 +728,11 @@ export const content = `
   <div class="trial-modal">
     <h2 id="trialModalTitle">🎉 7 Days of Free VIP!</h2>
     <p>Your trial VIP code is active. Use it on any device with ad-free streaming, HD quality, and 3 simultaneous connections.</p>
+    <div class="trial-modal-trust-box">
+      <div class="trial-modal-trust"><span class="trial-trust-check" aria-hidden="true">✓</span> No credit card required</div>
+      <div class="trial-modal-trust"><span class="trial-trust-check" aria-hidden="true">✓</span> 7 days free, then from $9.99/mo</div>
+      <div class="trial-modal-trust"><span class="trial-trust-check" aria-hidden="true">✓</span> 5,000+ channels · 4K · no ads</div>
+    </div>
     <div class="trial-countdown">
       <span id="trialDaysLeft">7</span>
       <small>days remaining</small>

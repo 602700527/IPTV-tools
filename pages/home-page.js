@@ -348,6 +348,45 @@ export function generateHomePage(options = {}) {
       background: var(--accent);
       color: #fff;
     }
+
+    /* Trust badges inside sub-value-banner */
+    .sub-value-trust-box {
+      margin-top: 1.25rem;
+      padding: 0.875rem 1rem;
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      background: rgba(34, 197, 94, 0.04);
+      border-radius: 6px;
+      max-width: 480px;
+    }
+    .sub-value-trust {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .sub-value-trust li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      line-height: 1.4;
+    }
+    .trust-check {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(34, 197, 94, 0.18);
+      color: #22c55e;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
     @media (max-width: 768px) {
       .sub-value-inner {
         flex-direction: column;
@@ -570,6 +609,13 @@ export function generateHomePage(options = {}) {
         <h2 class="sub-value-title" id="bannerTitle">Your Full Channel<br><span>Playlist</span> Awaits</h2>
         <p class="sub-value-desc" id="bannerDesc">Register now and get instant access to 5000+ IPTV channels. One click to your personal M3U subscription link.</p>
         <div class="sub-value-player-hint" id="bannerPlayerHint">VLC • APTV • TVBox • Tivimate • Televizo • GSE Smart IPTV</div>
+        <div class="sub-value-trust-box">
+          <ul class="sub-value-trust" aria-label="Why try it">
+            <li><span class="trust-check" aria-hidden="true">✓</span> No credit card required</li>
+            <li><span class="trust-check" aria-hidden="true">✓</span> 7 days free, then from $9.99/mo</li>
+            <li><span class="trust-check" aria-hidden="true">✓</span> 5,000+ channels · 4K · no ads</li>
+          </ul>
+        </div>
       </div>
       <a href="/login#register" class="sub-value-cta" id="bannerCta">Get Free VIP →</a>
     </div>
