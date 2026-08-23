@@ -261,13 +261,14 @@ export function generateCategoryPage(options = {}) {
 
 
 
-
-  function buildChannelUrl(name) {
-
   function escapeJs(str) {
     if (!str) return '';
     return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
   }
+
+
+  function buildChannelUrl(name) {
+
 
 
 
