@@ -10,7 +10,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VIP Subscription - IPTV Search | One Link to All Channels</title>
-  <meta name="description" content="VIP subscription link for all channels. One-click import to your player — no more manual searching, cloud-synced favorites, seamless multi-device switching.">
+  <meta name="description" content="IPTV VIP subscription: unlock all 8,000+ IPTV channels with a single link. Cloud-synced favorites, multi-device switching, ad-free HD streaming. From ¥20/mo.">
   
   <style>
     :root {
