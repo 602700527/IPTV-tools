@@ -1821,7 +1821,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         });
 
         // （ 5000 ）
-        const channelsToInclude = allChannels.slice(0, 5000);
+        const channelsToInclude = allChannels.slice(0, 8000);
         channelsToInclude.forEach(ch => {
           const channelSlug = slugify(ch.channel_name || '');
           sitemap += '  <url>\n';
