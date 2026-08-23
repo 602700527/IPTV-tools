@@ -36,7 +36,7 @@ USD_API_AUTH_TOKEN = "test_token_for_local_dev_only_xyz"
 
 # 定时触发器
 [triggers]
-crons = ["0 3 * * *", "0 4 * * *", "0 9 * * *", "0 21 * * *"]
+crons = ["0 3 * * *", "0 4 * * *", "0 9 * * *", "0 10 * * *", "0 21 * * *"]
 
 # =====================================================
 # 生产环境（wrangler deploy --env production）

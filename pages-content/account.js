@@ -837,6 +837,7 @@ Member <span id="memberSince">-</span>
               <div class="profile-meta" id="profileMeta" style="display:none;">
                 <div class="profile-meta-value" id="metaValue">-</div>
                 <div class="profile-meta-label">Days Left</div>
+                <a href="/subscription" class="profile-meta-renew" id="metaRenew" style="display:none;font-size:12px;color:var(--accent);text-decoration:none;font-weight:600;margin-top:6px;">Renew now →</a>
               </div>
             </div>
 
@@ -1171,6 +1172,7 @@ async function loadVipStatus() {
       // 右侧Days Left
       const metaEl = document.getElementById('profileMeta');
       const metaValueEl = document.getElementById('metaValue');
+      const metaRenewEl = document.getElementById('metaRenew');
       if (metaEl && metaValueEl) {
         if (isExpired) {
           metaEl.style.display = 'none';
@@ -1178,6 +1180,15 @@ async function loadVipStatus() {
           metaEl.style.display = 'block';
           metaValueEl.textContent = isPermanent ? '∞' : String(remainingDays);
           metaValueEl.style.color = isPermanent ? 'var(--tier-gold)' : (remainingDays <= 7 ? 'var(--error)' : 'var(--text-primary)');
+          // 临到期 7 天内显示 "Renew now →" CTA
+          if (metaRenewEl) {
+            if (!isPermanent && remainingDays > 0 && remainingDays <= 7 && latestOrder.code) {
+              metaRenewEl.href = '/subscription?renew=' + encodeURIComponent(latestOrder.code);
+              metaRenewEl.style.display = 'inline-block';
+            } else {
+              metaRenewEl.style.display = 'none';
+            }
+          }
         }
       }
 

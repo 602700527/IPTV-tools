@@ -4,6 +4,7 @@ import { cacheChannelsToKV, generateAndCacheSitemap } from '../utils/channel-cac
 import { saveStaticFile } from '../utils/static-storage.js';
 import { generateTokenAndAddresses } from '../utils/token-manager.js';
 import { classifyEmptyTypeChannels } from './ai-classify.js';
+import { sendEmail, generateVipExpiringHtml, generateVipExpiredHtml, generateReEngagementHtml } from '../utils/email.js';
 
 // KV 分布式锁配置
 const LOCK_TTL_SECONDS = 7200; // 锁自动过期时间 2小时
@@ -172,6 +173,14 @@ export async function handleScheduledEvent(event, env, ctx) {
       } finally {
         await releaseKVLock(env, LOCK_KEY_CACHE_REFRESH);
         console.log('[Scheduler] Cache refresh lock released');
+      }
+    } else if (hour === 10 && minute === 0) {
+      // 每天10:00 — 客户成功 lifecycle 邮件（VIP 临到期 / 失活挽留）
+      console.log('[Scheduler] [Lifecycle] Starting daily lifecycle email scan');
+      try {
+        await sendLifecycleEmails(db, env);
+      } catch (error) {
+        console.error('[Scheduler] [Lifecycle] Failed:', error);
       }
     } else {
       console.log(`[Scheduler] No task scheduled for this time (${hour}:${minute})`);
@@ -878,4 +887,77 @@ async function refreshStaticPages(env) {
   } catch (error) {
     console.error('[Scheduler] refreshStaticPages failed:', error);
   }
+}
+
+/**
+ * 客户成功 lifecycle 邮件（每日10:00 由 cron 调用）
+ * - VIP 临到期 T-3 提醒（每个 user/code 仅发一次，由 lifecycle_emails UNIQUE 去重）
+ * - 14+ 天未活跃的 VIP re-engagement
+ * - email 发送失败不抛错；记录到 lifecycle_emails 表 + user_orders.expiry_reminded_at
+ */
+export async function sendLifecycleEmails(db, env) {
+  const renewUrl = (env.APP_URL || 'https://iptv-search.com') + '/subscription';
+  const browseUrl = env.APP_URL || 'https://iptv-search.com';
+
+  // (a) VIP 临到期 T-3
+  const expiring = await db.prepare(`
+    SELECT u.id AS user_id, u.email, c.code, c.expired_at,
+           CAST((julianday(c.expired_at) - julianday('now')) AS INTEGER) AS days_left
+    FROM users u
+    JOIN user_orders o ON o.user_id = u.id AND o.status = 'completed'
+    JOIN codes c ON c.code = o.code
+    WHERE c.status = 'active'
+      AND c.expired_at > datetime('now')
+      AND c.expired_at < datetime('now', '+3 days')
+      AND o.expiry_reminded_at IS NULL
+  `).all();
+
+  let sentExpiring = 0;
+  for (const row of expiring.results || []) {
+    try {
+      const html = generateVipExpiringHtml(row.email, row.days_left, renewUrl);
+      await sendEmail(row.email, '您的 VIP 还有 ' + row.days_left + ' 天到期 — 续费保留现有设置', html, env);
+      await db.prepare('INSERT OR IGNORE INTO lifecycle_emails (user_id, email_type, sent_at) VALUES (?, ?, datetime("now"))')
+        .bind(row.user_id, 'vip_expiring_3d').run();
+      await db.prepare('UPDATE user_orders SET expiry_reminded_at = datetime("now") WHERE user_id = ? AND code = ?')
+        .bind(row.user_id, row.code).run();
+      sentExpiring++;
+    } catch (error) {
+      console.error('[Lifecycle] expiring email failed for', row.email, ':', error.message);
+    }
+  }
+
+  // (b) 失活 VIP（14+ 天未活跃）
+  const lapsed = await db.prepare(`
+    SELECT u.id AS user_id, u.email,
+           CAST((julianday('now') - julianday(u.last_seen_at)) AS INTEGER) AS days_since
+    FROM users u
+    JOIN user_orders o ON o.user_id = u.id AND o.status = 'completed'
+    JOIN codes c ON c.code = o.code
+    WHERE c.status = 'active'
+      AND c.expired_at > datetime('now')
+      AND u.last_seen_at IS NOT NULL
+      AND u.last_seen_at < datetime('now', '-14 days')
+      AND NOT EXISTS (
+        SELECT 1 FROM lifecycle_emails le
+        WHERE le.user_id = u.id AND le.email_type = 're_engagement'
+          AND le.sent_at > datetime('now', '-7 days')
+      )
+    LIMIT 50
+  `).all();
+
+  let sentLapsed = 0;
+  for (const row of lapsed.results || []) {
+    try {
+      const html = generateReEngagementHtml(row.email, row.days_since, browseUrl);
+      await sendEmail(row.email, row.days_since + ' 天没见您了 — 来看看新频道', html, env);
+      await db.prepare('INSERT OR IGNORE INTO lifecycle_emails (user_id, email_type, sent_at) VALUES (?, ?, datetime("now"))')
+        .bind(row.user_id, 're_engagement').run();
+      sentLapsed++;
+    } catch (error) {
+      console.error('[Lifecycle] re-engagement failed for', row.email, ':', error.message);
+    }
+  }
+
+  console.log(`[Lifecycle] Sent ${sentExpiring} expiring + ${sentLapsed} re-engagement emails`);
 }
