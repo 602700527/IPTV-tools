@@ -1344,6 +1344,137 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
               display: inline-block;
               vertical-align: middle;
             }
+
+    /* ============================================================
+       Mobile responsive — comprehensive (complements existing rules)
+       ============================================================ */
+    @media (max-width: 768px) {
+      /* Generic sections */
+      .section-header { margin-bottom: 24px !important; }
+      .section-title { font-size: 1.4rem !important; }
+      .section-desc { font-size: 0.85rem; }
+
+      /* Hero */
+      .hero-section { min-height: 380px; padding: 32px 16px 24px; }
+      .hero-badge { font-size: 10px; padding: 4px 12px; }
+      .hero-title-large { font-size: 1.65rem; line-height: 1.15; }
+      .hero-subtitle-hero { font-size: 0.85rem; margin-bottom: 18px; }
+      .hero-features { flex-direction: column; gap: 8px; align-items: stretch; }
+      .hero-feature { padding: 8px 12px; font-size: 0.8rem; gap: 6px; }
+      .hero-feature .feature-icon svg { width: 14px; height: 14px; }
+      .hero-stats { gap: 14px; flex-wrap: wrap; }
+      .hero-stat-value { font-size: 1.6rem; }
+      .hero-stat-label { font-size: 0.65rem; }
+      .hero-value-box { padding: 14px; }
+      .hero-value-title { font-size: 0.95rem; }
+      .hero-value-items { font-size: 0.82rem; }
+      .hero-cta { padding: 12px 24px; font-size: 0.95rem; width: 100%; justify-content: center; }
+
+      /* Scene */
+      .scene-section { padding: 40px 16px; }
+      .scene-card-img { height: 180px; }
+      .scene-card-body { padding: 14px; }
+      .scene-card-title { font-size: 1rem; }
+      .scene-card-desc { font-size: 0.82rem; }
+
+      /* Pain + Solution */
+      .pain-grid, .solution-grid { grid-template-columns: 1fr; }
+      .solution-card { padding: 14px; }
+
+      /* Comparison — KEY FIX: hide 'Free' column on mobile.
+         Users decide VIP vs free; the alternative column is
+         redundant noise on narrow screens. */
+      .comparison-section { padding: 40px 16px; }
+      .comparison-table { font-size: 0.82rem; }
+      .comparison-table th,
+      .comparison-table td { padding: 8px 6px; }
+      .comparison-table th:nth-child(2),
+      .comparison-table td:nth-child(2) { display: none; }
+      .comparison-table th:first-child,
+      .comparison-table td:first-child { padding-left: 12px; font-weight: 600; }
+
+      /* Testimonials */
+      .testimonials-section { padding: 40px 16px; }
+      .testimonial-card { padding: 14px; flex: 0 0 280px; }
+      .testimonial-name { font-size: 0.88rem; }
+      .testimonial-meta { font-size: 0.72rem; }
+      .testimonial-text { font-size: 0.82rem; }
+      .testimonials-hint { font-size: 0.7rem; }
+
+      /* Pricing */
+      .pricing-section { padding: 40px 16px; }
+      .pricing-wrapper { grid-template-columns: 1fr; gap: 14px; }
+      .pricing-left,
+      .pricing-right { padding: 16px; position: static; }
+      .pricing-header h2 { font-size: 1.4rem; }
+      .pricing-header p { font-size: 0.85rem; }
+      .selector-group { margin-bottom: 12px; }
+      .selector-bar { gap: 8px; }
+      .select-option { padding: 10px 6px; }
+      .select-option .value { font-size: 0.85rem; }
+      .select-option .label { font-size: 0.68rem; }
+      .select-option .price-tag { font-size: 0.9rem; }
+      .select-option .badge { font-size: 0.62rem; padding: 1px 5px; }
+      .scheme-renewal-banner { padding: 12px 14px; gap: 10px; }
+      .scheme-renewal-title { font-size: 0.85rem; }
+      .scheme-renewal-hint { font-size: 0.72rem; }
+
+      /* Theme cards: 2-col on tablet, 1-col on tiny phones (in 480 block) */
+      .theme-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .theme-card { padding: 12px 8px; }
+      .theme-card-name { font-size: 0.82rem; }
+      .theme-card-desc { font-size: 0.7rem; }
+
+      /* Order summary */
+      .order-summary h3 { font-size: 1rem; }
+      .summary-row { font-size: 0.82rem; padding: 6px 0; }
+      .discount-code-box input { font-size: 0.82rem; padding: 10px 12px; }
+      .discount-code-box button { padding: 10px 14px; font-size: 0.78rem; }
+      .payment-options { gap: 8px; }
+      .payment-option { padding: 10px 12px; }
+      .payment-option-name { font-size: 0.82rem; }
+      .payment-option-icon img { height: 20px; }
+      .subscribe-btn { padding: 14px; font-size: 1rem; width: 100%; }
+      .guarantee-badges { gap: 8px; flex-wrap: wrap; }
+      .guarantee-badges span { font-size: 0.7rem; }
+
+      /* Final CTA */
+      .final-cta { padding: 40px 16px; }
+      .final-cta h2 { font-size: 1.5rem; }
+      .final-cta p { font-size: 0.85rem; margin-bottom: 18px; }
+      .final-cta-btn { padding: 12px 28px; font-size: 0.95rem; width: 100%; justify-content: center; }
+    }
+
+    /* Extra-small phones (iPhone SE 1st gen, etc.) */
+    @media (max-width: 480px) {
+      .hero-section { min-height: 340px; padding: 24px 14px 18px; }
+      .hero-title-large { font-size: 1.4rem; }
+      .hero-subtitle-hero { font-size: 0.78rem; }
+      .hero-stats { gap: 10px; }
+      .hero-stat-value { font-size: 1.4rem; }
+      .hero-features { gap: 6px; }
+      .hero-feature { padding: 6px 10px; font-size: 0.75rem; }
+
+      .scene-section,
+      .testimonials-section,
+      .comparison-section,
+      .pricing-section,
+      .final-cta { padding: 32px 14px; }
+
+      /* Selector options stack vertically on tiny phones —
+         3-col side-by-side is too cramped at 360px */
+      .selector-bar { flex-direction: column; gap: 6px; }
+      .select-option { padding: 12px; }
+
+      .theme-grid { grid-template-columns: 1fr; }
+      .pricing-left,
+      .pricing-right { padding: 14px; }
+
+      .section-title { font-size: 1.2rem !important; }
+      .hero-cta,
+      .subscribe-btn,
+      .final-cta-btn { font-size: 0.95rem; }
+    }
   </style>
 </head>
 <body>
