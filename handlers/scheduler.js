@@ -927,22 +927,28 @@ export async function sendLifecycleEmails(db, env) {
     }
   }
 
-  // (b) 失活 VIP（14+ 天未活跃）
+  // (b) 失活 VIP（14+ 天未活跃，按 codes.last_fetched_at）
+  // 多 code 用户按 MAX(last_fetched_at) 判定：任一 code 仍在拉 = 用户活跃
+  // 同时覆盖"已购买但从未加载 M3U"的用户（IS NULL）
   const lapsed = await db.prepare(`
-    SELECT u.id AS user_id, u.email,
-           CAST((julianday('now') - julianday(u.last_seen_at)) AS INTEGER) AS days_since
-    FROM users u
-    JOIN user_orders o ON o.user_id = u.id AND o.status = 'completed'
-    JOIN codes c ON c.code = o.code
-    WHERE c.status = 'active'
-      AND c.expired_at > datetime('now')
-      AND u.last_seen_at IS NOT NULL
-      AND u.last_seen_at < datetime('now', '-14 days')
-      AND NOT EXISTS (
-        SELECT 1 FROM lifecycle_emails le
-        WHERE le.user_id = u.id AND le.email_type = 're_engagement'
-          AND le.sent_at > datetime('now', '-7 days')
-      )
+    SELECT user_id, email, days_since
+    FROM (
+      SELECT u.id AS user_id, u.email,
+             CAST((julianday('now') - julianday(MAX(c.last_fetched_at))) AS INTEGER) AS days_since
+      FROM users u
+      JOIN user_orders o ON o.user_id = u.id AND o.status = 'completed'
+      JOIN codes c ON c.code = o.code
+      WHERE c.status = 'active'
+        AND c.expired_at > datetime('now')
+      GROUP BY u.id, u.email
+      HAVING MAX(c.last_fetched_at) IS NULL
+          OR MAX(c.last_fetched_at) < datetime('now', '-14 days')
+    )
+    WHERE NOT EXISTS (
+      SELECT 1 FROM lifecycle_emails le
+      WHERE le.user_id = user_id AND le.email_type = 're_engagement'
+        AND le.sent_at > datetime('now', '-7 days')
+    )
     LIMIT 50
   `).all();
 

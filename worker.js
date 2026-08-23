@@ -1720,6 +1720,29 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
     } else if (path.startsWith('/sub/') && path.endsWith('.m3u')) {
       // : /sub/{code}.m3u
       return await handleSubRequest(request, env, ctx);
+    } else if (path.startsWith('/ad-ts/') && path.endsWith('.ts')) {
+      // ：仅服务 is_renewal_video = 1 的 TS（公开，其他广告 TS 不外露）
+      const id = parseInt(path.replace('/ad-ts/', '').replace('.ts', ''), 10);
+      if (!id) return new Response('Invalid id', { status: 400 });
+      try {
+        const row = await getDB().prepare(
+          'SELECT content, remote_url FROM ad_ts_files WHERE id = ? AND is_active = 1 AND is_renewal_video = 1'
+        ).bind(id).first();
+        if (!row) return new Response('Not found', { status: 404 });
+        if (row.remote_url) {
+          return Response.redirect(row.remote_url, 302);
+        }
+        const bytes = Uint8Array.from(atob(row.content), c => c.charCodeAt(0));
+        return new Response(bytes, {
+          headers: {
+            'Content-Type': 'video/mp2t',
+            'Cache-Control': 'public, max-age=300'
+          }
+        });
+      } catch (err) {
+        console.error('[ad-ts] serve failed:', err.message);
+        return new Response('Server error', { status: 500 });
+      }
     } else if (path === '/favorites.m3u' || path === '/favorites') {
       // M3U（）
       return await handleFavoritesM3U(env);

@@ -375,7 +375,7 @@ export const ADMIN_HTML = `<!DOCTYPE html>
           </div>
         </div>
         <p style="color:#86868b;font-size:13px;padding:0 16px;">
-          VIP临到期（7 天内）或 14 天未活跃（last_seen_at）。
+          VIP临到期（7 天内）或 14 天未拉取订阅 URL（codes.last_fetched_at — 真实活跃信号）。
           需要 PR-B 接入邮件触达才能主动干预；现在先做可视。
         </p>
         <div id="atRiskVipsList" style="margin-top:20px;">
@@ -384,16 +384,17 @@ export const ADMIN_HTML = `<!DOCTYPE html>
               <tr style="background:#f5f5f7;text-align:left;">
                 <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">用户</th>
                 <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">临到期天数</th>
-                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">未活跃天数</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">未拉取订阅天数</th>
                 <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">到期时间</th>
                 <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">卡密</th>
                 <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">IP上限</th>
+                <th style="padding:12px;border-bottom:2px solid #e5e5ea;font-weight:600;">备注</th>
               </tr>
             </thead>
             <tbody id="atRiskVipsTableBody"></tbody>
           </table>
           <div id="atRiskVipsEmpty" style="display:none;text-align:center;padding:40px;color:#86868b;">
-            暂无 at-risk VIP — 说明临到期和失活用户都为 0，或 last_seen_at 还没开始采集（部署 PR-A 后需要等用户活跃）。
+            暂无 at-risk VIP — 说明临到期和失活用户都为 0，或 codes.last_fetched_at 还没开始采集（部署 PR-C 后需要 TV 应用拉过 M3U）。
           </div>
         </div>
       </div>
@@ -5976,17 +5977,23 @@ export const ADMIN_HTML = `<!DOCTYPE html>
       empty.style.display = 'none';
       tbody.innerHTML = vips.map(v => {
         const expiryColor = v.days_to_expiry <= 3 ? '#c62828' : v.days_to_expiry <= 7 ? '#e65100' : '#1b5e20';
-        const lapsedColor = v.days_since_seen === null ? '#c62828' : v.days_since_seen >= 30 ? '#c62828' : v.days_since_seen >= 14 ? '#e65100' : '#86868b';
-        return `
+        const lapsedColor = v.days_since_fetch === null ? '#c62828' : v.days_since_fetch >= 30 ? '#c62828' : v.days_since_fetch >= 14 ? '#e65100' : '#86868b';
+        // 管理员手工发放的卡密：邮箱为 NULL，remark 通常标记"手动发放"或客户备注
+        const userCell = v.email
+          ? escapeHtml(v.email)
+          : '<span style="color:#86868b;font-style:italic;">管理员发放</span>';
+        const remarkCell = v.remark ? escapeHtml(v.remark) : '<span style="color:#86868b;">—</span>';
+        return \`
           <tr style="border-bottom:1px solid #e5e5ea;">
-            <td style="padding:12px;">${escapeHtml(v.email)}</td>
-            <td style="padding:12px;color:${expiryColor};font-weight:600;">${v.days_to_expiry}</td>
-            <td style="padding:12px;color:${lapsedColor};">${v.days_since_seen === null ? '从未' : v.days_since_seen}</td>
-            <td style="padding:12px;">${new Date(v.expired_at).toLocaleDateString()}</td>
-            <td style="padding:12px;font-family:monospace;font-size:12px;">${escapeHtml(v.code)}</td>
-            <td style="padding:12px;">${v.max_ips}</td>
+            <td style="padding:12px;">\${userCell}</td>
+            <td style="padding:12px;color:\${expiryColor};font-weight:600;">\${v.days_to_expiry}</td>
+            <td style="padding:12px;color:\${lapsedColor};">\${v.days_since_fetch === null ? '从未' : v.days_since_fetch}</td>
+            <td style="padding:12px;">\${new Date(v.expired_at).toLocaleDateString()}</td>
+            <td style="padding:12px;font-family:monospace;font-size:12px;">\${escapeHtml(v.code)}</td>
+            <td style="padding:12px;">\${v.max_ips}</td>
+            <td style="padding:12px;font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;">\${remarkCell}</td>
           </tr>
-        `;
+        \`;
       }).join('');
     }
 

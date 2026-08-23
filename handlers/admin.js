@@ -2145,31 +2145,34 @@ export async function handleAdminRequest(request, env, ctx) {
 
       case 'at-risk-vips':
         // CSM dashboard — at-risk VIPs (lapsed or expiring soon)
+        // 信号源：codes.last_fetched_at（/sub/{code}.m3u 被 TV 应用拉取的真实时间）
+        // LEFT JOIN：包含管理员手工发放的卡密（无 user_orders 关联，邮箱为 NULL）
         if (request.method === 'GET') {
           try {
             const db = getDB();
             const rows = await db.prepare(`
               SELECT
-                u.id AS user_id,
-                u.email,
-                u.last_seen_at,
                 c.code,
                 c.expired_at,
                 c.max_ips,
+                c.last_fetched_at,
+                c.remark,
+                u.id AS user_id,
+                u.email,
                 CAST((julianday(c.expired_at) - julianday('now')) AS INTEGER) AS days_to_expiry,
                 CASE
-                  WHEN u.last_seen_at IS NULL THEN NULL
-                  ELSE CAST((julianday('now') - julianday(u.last_seen_at)) AS INTEGER)
-                END AS days_since_seen
-              FROM users u
-              JOIN user_orders o ON o.user_id = u.id AND o.status = 'completed'
-              JOIN codes c ON c.code = o.code
+                  WHEN c.last_fetched_at IS NULL THEN NULL
+                  ELSE CAST((julianday('now') - julianday(c.last_fetched_at)) AS INTEGER)
+                END AS days_since_fetch
+              FROM codes c
+              LEFT JOIN user_orders o ON o.code = c.code AND o.status = 'completed'
+              LEFT JOIN users u ON u.id = o.user_id
               WHERE c.status = 'active'
                 AND c.expired_at > datetime('now')
                 AND (
                   c.expired_at < datetime('now', '+7 days')
-                  OR u.last_seen_at IS NULL
-                  OR u.last_seen_at < datetime('now', '-14 days')
+                  OR c.last_fetched_at IS NULL
+                  OR c.last_fetched_at < datetime('now', '-14 days')
                 )
               ORDER BY c.expired_at ASC
               LIMIT 200

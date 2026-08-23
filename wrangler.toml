@@ -77,4 +77,4 @@ USD_API_AUTH_TOKEN = "fc8afe257db9841f2b25a52f7055ef417b06a00c36067a81000ceb6c2d
 
 # 生产 cron
 [env.production.triggers]
-crons = ["0 3 * * *", "0 9 * * *", "0 21 * * *"]
+crons = ["0 3 * * *", "0 9 * * *", "0 10 * * *", "0 21 * * *"]

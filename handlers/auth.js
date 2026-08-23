@@ -496,7 +496,7 @@ export async function handleGetUserInfo(request, env, ctx) {
     const db = getDB();
     const clientIP = request.headers.get('CF-Connecting-IP');
 
-    // 验证会话 (同时 touch users.last_seen_at)
+    // 验证会话（IPTV 活跃信号改由 handleSubRequest 写入 codes.last_fetched_at）
     const session = await verifySession(token, db, clientIP);
 
     if (!session) {
@@ -883,6 +883,9 @@ async function generateSessionToken() {
 
 /**
  * 验证会话（供其他处理器使用）
+ *
+ * 注：不再 touch users.last_seen_at — 那个字段从 IPTV 业务角度看是错误信号。
+ * 真实的活跃信号在 codes.last_fetched_at，由 handleSubRequest 写入。
  */
 export async function verifySession(token, db, clientIP) {
   const session = await db.prepare(`
@@ -892,14 +895,6 @@ export async function verifySession(token, db, clientIP) {
     JOIN users u ON s.user_id = u.id
     WHERE s.token = ? AND s.expires_at > datetime('now')
   `).bind(token).first();
-
-  // Touch last_seen_at (fire-and-forget; failure不影响鉴权)
-  if (session?.user_id) {
-    db.prepare('UPDATE users SET last_seen_at = datetime("now"), last_login_ip = ? WHERE id = ?')
-      .bind(clientIP || null, session.user_id).run().catch(err => {
-        console.error('[verifySession] touch last_seen_at failed:', err.message);
-      });
-  }
 
   return session;
 }

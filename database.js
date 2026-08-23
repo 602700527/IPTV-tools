@@ -471,6 +471,8 @@ export async function createTables(env) {
         ad_type TEXT DEFAULT 'normal',
         description TEXT,
         is_active BOOLEAN DEFAULT 0,
+        remote_url TEXT,
+        is_renewal_video INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )

@@ -43,14 +43,17 @@ CREATE INDEX IF NOT EXISTS idx_sources_is_active ON sources(is_active);
 
 -- 创建卡密表
 CREATE TABLE IF NOT EXISTS codes (
-  code TEXT PRIMARY KEY, 
+  code TEXT PRIMARY KEY,
   status TEXT DEFAULT 'unused',
-  duration_days INTEGER, 
-  activated_at DATETIME, 
+  duration_days INTEGER,
+  activated_at DATETIME,
   expired_at DATETIME,
   max_ips INTEGER DEFAULT 3,
   sub_mode TEXT DEFAULT NULL,
-  remark TEXT
+  remark TEXT,
+  -- IPTV 真实活跃信号：/sub/{code}.m3u 被 TV 应用拉取时更新
+  last_fetched_at DATETIME,
+  last_fetch_ip TEXT
 );
 
 -- 创建卡密状态索引

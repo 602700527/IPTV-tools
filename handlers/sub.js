@@ -12,6 +12,48 @@ import { getCurrentToken } from '../utils/token-manager.js';
 
 
 
+/**
+ * 生成续费营销 M3U — 订阅 URL 过期/失效时返回（非 403）
+ * 设计：marketing-email-strategist 框架
+ *   - 单一 segment：所有非 active 订阅
+ *   - 退出条件：用户续费 → code 重新 active → 自动恢复真实 M3U
+ *   - CTA：具体 URL（iptv-search.com/subscription）+ 价值陈述（HD/4K、no ads、multi-device）
+ * 视频源：ad_ts_files 中 is_renewal_video = 1 且 is_active = 1 的记录
+ *   - 若设了 remote_url → 用远程 TS（推荐，CDN 友好）
+ *   - 否则用 /ad-ts/{id}.ts 路由服务本地 base64 content
+ *   - 都没设置 → 频道条目仍可见，但点击会 404（CTA 由频道名承载）
+ */
+async function generateRenewalM3U(db, env, host) {
+  const appUrl = env.APP_URL || 'https://iptv-search.com';
+  const renewUrl = `${appUrl}/subscription`;
+  const logoUrl = `${appUrl}/og-homepage.png`;
+  const channelName = `Your VIP Expired — ${renewUrl}`;
+  const groupTitle = 'Renewal';
+
+  let streamUrl = '';
+  try {
+    const row = await db.prepare(
+      'SELECT id, remote_url FROM ad_ts_files WHERE is_renewal_video = 1 AND is_active = 1 LIMIT 1'
+    ).first();
+    if (row) {
+      streamUrl = row.remote_url || `${host}/ad-ts/${row.id}.ts`;
+    }
+  } catch (err) {
+    console.error('[Renewal] query ad_ts_files failed:', err.message);
+  }
+
+  let m3u = '#EXTM3U\n';
+  if (streamUrl) {
+    m3u += `#EXTINF:-1 tvg-logo="${logoUrl}" group-title="${groupTitle}",${channelName}\n${streamUrl}\n`;
+  } else {
+    // 无续费视频时仍返回频道条目：CTA 由 channelName 承载，点击会 404
+    m3u += `#EXTINF:-1 tvg-logo="${logoUrl}" group-title="${groupTitle}",${channelName}\nhttp://example.invalid/renew\n`;
+  }
+  return m3u;
+}
+
+
+
 export async function handleSubRequest(request, env, ctx) {
 
   const url = new URL(request.url);
@@ -122,13 +164,22 @@ export async function handleSubRequest(request, env, ctx) {
 
       }
 
-      const errorResponse = new Response('Forbidden: Invalid or Expired Code', { status: 403 });
+      // 续费营销触达：URL 仍返回有效 M3U，TV 应用列表里看到一条续费提醒频道
+      const renewalM3u = await generateRenewalM3U(db, env, url.origin);
+      return new Response(renewalM3u, {
+        headers: {
+          'Content-Type': 'application/vnd.apple.mpegurl; charset=utf-8',
+          'Cache-Control': 'public, max-age=60'  // 60s — 续费完成后尽快看到真实 M3U
+        }
+      });
 
-      errorResponse.headers.set("Cache-Control", "public, max-age=600");
+  }
 
-      return errorResponse;
-
-    }
+  // IPTV 真实活跃信号：TV 应用拉到订阅 URL（无论是否被 IP 限流）— fire-and-forget
+  db.prepare('UPDATE codes SET last_fetched_at = datetime("now"), last_fetch_ip = ? WHERE code = ?')
+    .bind(clientIP, code).run().catch(err => {
+      console.error('[Sub] touch last_fetched_at failed:', err.message);
+    });
 
 
 
@@ -535,13 +586,22 @@ export async function handleSubRequestTxt(request, env, ctx) {
 
     }
 
-    const errorResponse = new Response('Forbidden: Invalid or Expired Code', { status: 403 });
-
-    errorResponse.headers.set('Cache-Control', 'public, max-age=600');
-
-    return errorResponse;
+    // 续费营销触达：URL 仍返回有效 M3U
+    const renewalM3u = await generateRenewalM3U(db, env, url.origin);
+    return new Response(renewalM3u, {
+      headers: {
+        'Content-Type': 'application/vnd.apple.mpegurl; charset=utf-8',
+        'Cache-Control': 'public, max-age=60'
+      }
+    });
 
   }
+
+  // IPTV 真实活跃信号：TV 应用拉到订阅 URL — fire-and-forget
+  db.prepare('UPDATE codes SET last_fetched_at = datetime("now"), last_fetch_ip = ? WHERE code = ?')
+    .bind(clientIP, code).run().catch(err => {
+      console.error('[SubTxt] touch last_fetched_at failed:', err.message);
+    });
 
 
 
