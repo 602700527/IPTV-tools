@@ -58,23 +58,23 @@ export function generateHomePage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free IPTV Search - 8000+ Channels from 150+ Countries</title>
-  <meta name="description" content="Search 8000+ free IPTV channels from 150+ countries. Browse live TV by region including USA, UK, China, Brazil. No registration. Updated daily.">
+  <title>IPTV Search &mdash; Free IPTV Channels from 150+ Countries (2026)</title>
+  <meta name="description" content="Browse 8,000+ free IPTV channels from 150+ countries. Search live sports, news, movies in HD &mdash; no signup, updated daily. Start streaming now.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="${origin}/">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" href="/favicon.svg">
   <meta name="theme-color" content="#e50914">
-  <meta property="og:title" content="iptvsearch - Free IPTV Search Engine | 8000+ Live TV Channels">
-  <meta property="og:description" content="Find any IPTV channel instantly. Search live sports, movies, news. Updated daily. No signup required.">
+  <meta property="og:title" content="IPTV Search &mdash; Free IPTV Channels from 150+ Countries (2026)">
+  <meta property="og:description" content="Browse 8,000+ free IPTV channels from 150+ countries. Search live sports, news, movies in HD &mdash; no signup, updated daily. Start streaming now.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${origin}/">
   <meta property="og:locale" content="en">
   <meta property="og:image" content="${origin}/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="${origin}/og-image.svg">
-  <meta name="twitter:title" content="iptvsearch - Free IPTV Search Engine | 8000+ Live TV Channels">
-  <meta name="twitter:description" content="Find any IPTV channel instantly. Search live sports, movies, news. Updated daily.">
+  <meta name="twitter:title" content="IPTV Search &mdash; Free IPTV Channels from 150+ Countries (2026)">
+  <meta name="twitter:description" content="Browse 8,000+ free IPTV channels from 150+ countries. Search live sports, news, movies in HD &mdash; no signup, updated daily. Start streaming now.">
 
 
 
@@ -135,12 +135,12 @@ export function generateHomePage(options = {}) {
     "@type": "ItemList",
     "name": "Popular IPTV Topics",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "USA IPTV", "url": "${origin}/usa-iptv" },
-      { "@type": "ListItem", "position": 2, "name": "UK IPTV", "url": "${origin}/uk-iptv-plans" },
-      { "@type": "ListItem", "position": 3, "name": "Smart TV Setup", "url": "${origin}/tutorial" },
-      { "@type": "ListItem", "position": 4, "name": "Android IPTV Apps", "url": "${origin}/android-iptv-app" },
-      { "@type": "ListItem", "position": 5, "name": "Free IPTV App Reviews", "url": "${origin}/free-iptv-app-review" },
-      { "@type": "ListItem", "position": 6, "name": "APTV & CarPlay", "url": "${origin}/carplay-aptv" }
+      { "@type": "ListItem", "position": 1, "name": "USA IPTV Channels", "description": "800+ American live TV channels including CNN, ESPN, HBO, NBC, Fox", "url": "${origin}/usa-iptv" },
+      { "@type": "ListItem", "position": 2, "name": "UK IPTV Channels", "description": "British live TV including BBC, ITV, Sky Sports, Channel 4", "url": "${origin}/uk-iptv-plans" },
+      { "@type": "ListItem", "position": 3, "name": "Smart TV IPTV Setup", "description": "How to watch IPTV on Samsung, LG, Sony Smart TVs step by step", "url": "${origin}/tutorial" },
+      { "@type": "ListItem", "position": 4, "name": "Android IPTV Apps", "description": "Best IPTV player apps for Android phones, tablets, and TV boxes", "url": "${origin}/android-iptv-app" },
+      { "@type": "ListItem", "position": 5, "name": "Free IPTV App Reviews", "description": "Reviewed free IPTV apps for Firestick, Android, iOS, and Smart TV", "url": "${origin}/free-iptv-app-review" },
+      { "@type": "ListItem", "position": 6, "name": "APTV & CarPlay IPTV", "description": "Watch IPTV on Apple TV and CarPlay while driving", "url": "${origin}/carplay-aptv" }
     ]
   }
   </script>
@@ -698,7 +698,7 @@ export function generateHomePage(options = {}) {
         <span class="status-feed"><span class="accent">&gt;</span> live-feed: active</span>
       </div>
       <div class="hero-headline reveal stagger-1">
-        <h1>8,000+ Live Channels<br><span class="accent">Worldwide</span></h1>
+        <h1>8,000+ IPTV Channels<br><span class="accent">Worldwide</span></h1>
       </div>
       <p class="hero-sub reveal stagger-2">
         Real-time IPTV directory. Search, filter, and stream from 150+ countries. Updated daily. No signup required.
