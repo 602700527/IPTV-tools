@@ -11,28 +11,36 @@
 
 ## 项目结构
 
+完整且权威的文件清单见 [`AGENTS.md`](./AGENTS.md)。以下是按职责分组的概览：
+
 ```
 cfworker2/
-├── worker.js             # Worker 主入口文件（路由分发）
-├── database.js           # 数据库初始化、表结构管理、M3U解析
-├── admin-page.js         # 管理后台页面（包含完整HTML和JavaScript）
-├── admin.html            # 管理后台静态页面
-├── handlers/
-│   ├── live.js           # 播放请求处理器（/live/{code}/{hash}）
-│   ├── sub.js            # 订阅请求处理器（/sub/{code}.m3u）
-│   ├── admin.js          # 管理后台API处理器
-│   ├── scheduler.js      # 定时任务处理器
-│   ├── public.js         # 公共API处理器
-│   └── freesub-api.js    # 免费订阅API处理器
-├── security/
-│   ├── ip-blacklist.js   # IP黑名单安全系统
-│   └── code-ban-cache.js # 卡密封禁缓存
-├── utils/
-│   ├── cache.js         # 缓存管理（内存+KV）
-│   └── channel-cache.js # 频道KV缓存
-├── wrangler.toml         # Cloudflare Workers 配置文件
-├── package.json          # 项目依赖配置
-└── README.md             # 项目说明文档
+├── worker.js              # 主入口 — 路由分发 + 中间件
+├── database.js            # D1 schema / migrations / M3U 解析
+├── admin-page.js          # 管理后台（自包含 HTML+JS）
+├── wrangler.toml          # Workers 配置（KV / D1 / 定时触发器）
+│
+├── handlers/              # 请求处理器（18 个文件 + api/ 子目录）
+│   ├── auth.js            # 注册 / 登录 / 验证码 / Google OAuth
+│   ├── live.js / sub.js   # 播放 + M3U 订阅生成
+│   ├── public.js          # 公开 API（频道列表、配置、播放）
+│   ├── admin.js / user.js # 管理后台 + 用户管理
+│   ├── favorites-api.js   # 收藏夹同步（登录/未登录）
+│   ├── subscription-api.js # 卡密生成 / 支付集成
+│   ├── mall-api.js / plans-api.js / ticket-api.js
+│   ├── xunhupay-api.js / usdt-payment.js / crypto-payment.js
+│   ├── ai-classify.js / scheduler.js / google-auth-debug.js
+│   └── api/               # 公共 JSON API（home/search/category/type/channel）
+│
+├── components/            # 可复用 HTML 片段（page-header / page-footer / 等）
+├── pages/                 # 动态页面（home/category/channel/search/favorites/showcase）
+├── pages-content/         # 静态 SEO 内容页（区域落地页 / 教程 / 条款 / llms.txt）
+├── security/              # IP 黑名单 / 卡密封禁
+├── utils/                 # 缓存 / 邮件 / 指纹 / OAuth / HTML escape / 等
+├── migrations/            # 001-012.sql — 按编号追加的迁移
+├── schema.sql             # 合并的全量 schema（npm run init-db）
+├── tests/                 # Playwright 集成测试
+└── assets.js / static-assets.js / image-data.js / sw.js
 ```
 
 ## 已实现功能
@@ -866,4 +874,4 @@ npm run deploy
 
 ## 许可证
 
-MIT
+[MIT](./LICENSE) — 见 [`LICENSE`](./LICENSE) 完整文本。
