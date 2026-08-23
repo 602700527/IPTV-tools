@@ -281,11 +281,6 @@ export function generateHomePage(options = {}) {
       gap: 0.75rem;
       margin-bottom: 0.75rem;
     }
-    .hero-headline-prefix {
-      font-family: var(--mono);
-      font-size: 0.95rem;
-      color: var(--text-muted);
-    }
     .hero h1 {
       font-size: clamp(2rem, 4.5vw, 3.5rem);
       font-weight: 800;
@@ -703,7 +698,6 @@ export function generateHomePage(options = {}) {
         <span class="status-feed"><span class="accent">&gt;</span> live-feed: active</span>
       </div>
       <div class="hero-headline reveal stagger-1">
-        <span class="hero-headline-prefix">$</span>
         <h1>8,000+ Live Channels<br><span class="accent">Worldwide</span></h1>
       </div>
       <p class="hero-sub reveal stagger-2">
