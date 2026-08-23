@@ -107,24 +107,36 @@ export const VIP_STRIP_SCRIPTS = `
   if (window.__vipStripInited) return;
   window.__vipStripInited = true;
 
+  var DEBUG = /[?&]vipdebug=1\b/.test(window.location.search);
+
   // Path denylist
   var DENY = ['/subscription', '/plans', '/login', '/account', '/admin'];
   var path = window.location.pathname;
   for (var i = 0; i < DENY.length; i++) {
-    if (path.indexOf(DENY[i]) === 0) return;
+    if (path.indexOf(DENY[i]) === 0) {
+      console.info('[vip-strip] skipped: path=' + path);
+      return;
+    }
   }
 
   // Logged-in user: skip (already converted or higher funnel)
   try {
     var hasAuth = !!localStorage.getItem('auth_token') ||
                   document.cookie.indexOf('auth_token=') !== -1;
-    if (hasAuth) return;
+    if (hasAuth && !DEBUG) {
+      console.info('[vip-strip] skipped: logged in (add ?vipdebug=1 to force)');
+      return;
+    }
   } catch (e) {}
 
   // 7-day suppression after × close
   try {
     var lastClose = parseInt(localStorage.getItem('vip_strip_last_close') || '0', 10);
-    if (lastClose && (Date.now() - lastClose) < 7 * 24 * 60 * 60 * 1000) return;
+    if (lastClose && (Date.now() - lastClose) < 7 * 24 * 60 * 60 * 1000 && !DEBUG) {
+      var hoursAgo = Math.round((Date.now() - lastClose) / 3600000);
+      console.info('[vip-strip] skipped: closed ' + hoursAgo + 'h ago (add ?vipdebug=1 to force)');
+      return;
+    }
   } catch (e) {}
 
   var strip    = document.getElementById('vipStrip');
@@ -159,7 +171,10 @@ export const VIP_STRIP_SCRIPTS = `
   if (closeBtn) closeBtn.addEventListener('click', function() { dismiss('close'); });
   if (cta) cta.addEventListener('click', function() { dismiss('cta'); });
 
-  // First show after 30s (let page settle, hero gets the spotlight first)
-  setTimeout(show, 30000);
+  // First show after 30s (let page settle, hero gets the spotlight first).
+  // In debug mode (?), show after 5s.
+  var firstDelay = DEBUG ? 5000 : 30000;
+  console.info('[vip-strip] init OK; first show in ' + (firstDelay/1000) + 's' + (DEBUG ? ' [DEBUG]' : ''));
+  setTimeout(show, firstDelay);
 })();
 `;
