@@ -122,241 +122,406 @@ export function generateHomePage(options = {}) {
   </script>
   
   <style>
+    /* ============================================================
+       Design tokens (Proposal A — immersive / cinematic)
+       ============================================================ */
     :root {
       --accent: #e50914;
       --accent-hover: #ff1a1a;
-      --transition: 0.2s ease;
+      --accent-glow: rgba(229, 9, 20, 0.6);
+      --accent-subtle: rgba(229, 9, 20, 0.08);
+      --accent-mid: rgba(229, 9, 20, 0.3);
       --bg-primary: #0a0a0a;
+      --bg-deep: #050505;
       --bg-secondary: #0f0f0f;
-      --bg-card: transparent;
-      --bg-hover: transparent;
+      --bg-card: rgba(255, 255, 255, 0.03);
+      --bg-card-hover: rgba(255, 255, 255, 0.06);
       --text-primary: #ffffff;
-      --text-secondary: #888888;
-      --text-muted: #8b8b8b;
-      --border: 1px solid rgba(255,255,255,0.08);
-      --border-hover: 1px solid rgba(229,9,20,0.4);
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.4);
+      --border: 1px solid rgba(255, 255, 255, 0.08);
+      --border-glow: 1px solid rgba(229, 9, 20, 0.3);
+      --radius-lg: 12px;
+      --radius-md: 8px;
+      --radius-sm: 4px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-padding-top: 60px; }
-    body { font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
+    html { scroll-padding-top: 70px; scroll-behavior: smooth; }
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
     a { color: inherit; text-decoration: none; }
     button { cursor: pointer; font-family: inherit; }
 
-    /* 极简线条风格 - 无圆角、无阴影 */
-    .header {
-      background: var(--bg-primary);
-      border-bottom: var(--border);
-      padding: 0;
-      position: sticky;
-      top: 0;
-      z-index: 10000;
+    /* ============================================================
+       Scroll-reveal system
+       ============================================================ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .header-inner {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 2rem;
-      padding: 0.75rem 0;
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-60px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
     }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      flex-shrink: 0;
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.92);
+      transition: opacity 0.7s ease, transform 0.7s ease;
     }
-    .logo-icon svg { width: 28px; height: 28px; }
-    .logo-text span { color: var(--accent); }
-    .header-actions { display: flex; align-items: center; gap: 1.5rem; }
+    .reveal-scale.visible { opacity: 1; transform: scale(1); }
 
-    .search-box { position: relative; }
-    .search-box form { display: flex; }
-    .search-box input {
-      width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem; background: transparent;
-      border: var(--border); color: var(--text-primary); font-size: 0.9rem;
-      outline: none; transition: border-color var(--transition);
-    }
-    .search-box input:focus { border-color: var(--accent); }
-    .search-box input::placeholder { color: var(--text-muted); }
-    .search-box::before { display: none; }
-    .pill-btn { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
-    .pill-btn:hover { color: var(--accent); }
-    .account-btn { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
-    .account-btn:hover { color: var(--accent); }
-    .account-btn svg, .pill-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
-    #translate { position: relative; display: inline-flex; align-items: center; }
-    #translateSelectLanguage {
-      appearance: none; -webkit-appearance: none; padding: 0 0.5rem;
-      background: transparent; border: none; color: var(--text-secondary);
-      font-size: 0.75rem; cursor: pointer; outline: none; transition: color var(--transition);
-      min-width: 50px;
-    }
-    #translateSelectLanguage:focus, #translateSelectLanguage:hover { color: var(--accent); }
+    .stagger-1 { transition-delay: 0.05s !important; }
+    .stagger-2 { transition-delay: 0.10s !important; }
+    .stagger-3 { transition-delay: 0.15s !important; }
+    .stagger-4 { transition-delay: 0.20s !important; }
+    .stagger-5 { transition-delay: 0.25s !important; }
+    .stagger-6 { transition-delay: 0.30s !important; }
+    .stagger-7 { transition-delay: 0.35s !important; }
+    .stagger-8 { transition-delay: 0.40s !important; }
 
-    /* Hero - 极简线条 */
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .reveal-left, .reveal-scale { transition-duration: 0.01ms !important; }
+    }
+
+    /* ============================================================
+       HERO — full-bleed cinematic
+       ============================================================ */
     .hero {
       position: relative;
-      padding: 80px 0 60px;
-      text-align: center;
-      border-bottom: var(--border);
+      min-height: 82vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 0;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 40%, rgba(229, 9, 20, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 20% 80%, rgba(229, 9, 20, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse 40% 30% at 80% 20%, rgba(200, 8, 18, 0.05) 0%, transparent 50%),
+        linear-gradient(180deg, #080808 0%, #0a0a0a 50%, #050505 100%);
+    }
+    .hero-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,0.008) 2px,
+        rgba(255,255,255,0.008) 4px
+      );
+      pointer-events: none;
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(229,9,20,0.15) 0%, transparent 70%);
+      animation: ambientPulse 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes ambientPulse {
+      0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+      50% { opacity: 1; transform: translateX(-50%) scale(1.15); }
+    }
+    .hero-particles {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 50%;
+      opacity: 0;
+      animation: floatParticle linear infinite;
+    }
+    @keyframes floatParticle {
+      0% { opacity: 0; transform: translateY(100vh) scale(0); }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      100% { opacity: 0; transform: translateY(-20px) scale(1); }
     }
     .hero-inner {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 2rem;
       position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      z-index: 2;
       text-align: center;
-      gap: 2rem;
+      padding: 0 2rem;
+      max-width: 900px;
     }
-    .hero-content { text-align: center; }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      background: rgba(229, 9, 20, 0.1);
+      border: 1px solid rgba(229, 9, 20, 0.25);
+      border-radius: 0;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      margin-bottom: 2rem;
+      backdrop-filter: blur(10px);
+    }
+    .hero-eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: dotPulse 2s ease-in-out infinite;
+    }
+    @keyframes dotPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
     .hero h1 {
-      font-size: 4rem;
-      font-weight: 800;
-      line-height: 1;
-      margin-bottom: 1rem;
-      letter-spacing: -0.03em;
-      color: var(--text-primary);
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 900;
+      line-height: 1.02;
+      letter-spacing: -0.035em;
+      color: #fff;
+      margin-bottom: 1.25rem;
+      text-shadow: 0 0 80px rgba(229, 9, 20, 0.3);
     }
-    .hero p {
-      font-size: 1rem;
+    .hero h1 .accent-line {
+      background: linear-gradient(135deg, var(--accent) 0%, #ff6b6b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
       color: var(--text-secondary);
-      max-width: 500px;
-      line-height: 1.6;
-      margin: 0 auto;
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+      font-weight: 300;
     }
     .hero-stats {
       display: flex;
       justify-content: center;
-      gap: 4rem;
-      flex-shrink: 0;
+      gap: 0;
+      flex-wrap: wrap;
     }
-    .hero-stat { text-align: center; }
+    .hero-stat { text-align: center; padding: 0 3rem; position: relative; }
+    .hero-stat:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 20%;
+      height: 60%;
+      width: 1px;
+      background: rgba(255,255,255,0.08);
+    }
     .hero-stat-value {
-      font-size: 3rem;
-      font-weight: 800;
-      color: var(--text-primary);
-      display: block;
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: #fff;
       line-height: 1;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.03em;
+      text-shadow: 0 0 60px rgba(255,255,255,0.1);
     }
     .hero-stat-label {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-top: 0.5rem;
+      letter-spacing: 0.2em;
+      margin-top: 0.6rem;
+      font-weight: 500;
+    }
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      animation: scrollBounce 2.5s ease-in-out infinite;
+    }
+    .scroll-indicator-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollLine 2s ease-in-out infinite;
+    }
+    @keyframes scrollBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(6px); }
+    }
+    @keyframes scrollLine {
+      0% { opacity: 0; height: 0; }
+      50% { opacity: 1; height: 40px; }
+      100% { opacity: 0; height: 40px; }
     }
 
-    /* Promo Banner */
-    .promo-banner {
-      display: none;
-      background: var(--accent);
-      margin: 0 auto;
-      max-width: 1400px;
-      position: relative;
-    }
-    .promo-banner.show { display: block; }
-    /* Subscription Value Banner - V3 Editorial */
-    .sub-value-banner {
-      background: var(--bg-primary);
-      border-top: 3px solid var(--accent);
-      padding: 2.5rem 0;
-      margin-top: 2rem;
-    }
-    .sub-value-inner {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 2rem;
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 3rem;
-    }
-    .sub-value-left {
-      flex: 1;
-    }
-    .sub-value-eyebrow {
-      font-size: 0.7rem;
+    /* ============================================================
+       Section common
+       ============================================================ */
+    .section { padding: 5rem 0; position: relative; }
+    .section-inner { max-width: 1280px; margin: 0 auto; padding: 0 2rem; }
+    .section-label {
+      font-size: 0.65rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.25em;
       color: var(--accent);
       margin-bottom: 0.75rem;
     }
-    .sub-value-title {
-      font-size: 2.5rem;
+    .section-title {
+      font-size: clamp(1.75rem, 3vw, 2.5rem);
       font-weight: 800;
-      color: var(--text-primary);
+      letter-spacing: -0.025em;
       line-height: 1.1;
-      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+    .section-desc {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      max-width: 500px;
+      line-height: 1.6;
+    }
+
+    /* ============================================================
+       Subscription Value Banner — cinematic horizontal band
+       ============================================================ */
+    .sub-value-banner {
+      background: linear-gradient(135deg, #0d0000 0%, #1a0000 50%, #0a0a0a 100%);
+      border-top: 1px solid rgba(229, 9, 20, 0.2);
+      border-bottom: 1px solid rgba(229, 9, 20, 0.1);
+      padding: 4rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .sub-value-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -10%;
+      width: 60%;
+      height: 200%;
+      background: radial-gradient(ellipse, rgba(229,9,20,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .sub-value-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 3rem;
+      position: relative;
+      z-index: 1;
+    }
+    .sub-value-left { flex: 1; }
+    .sub-value-eyebrow {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sub-value-eyebrow::before {
+      content: '';
+      width: 20px;
+      height: 1px;
+      background: var(--accent);
+    }
+    .sub-value-title {
+      font-size: clamp(2rem, 4vw, 3.25rem);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
       margin: 0;
     }
     .sub-value-title span {
-      color: var(--accent);
+      background: linear-gradient(135deg, var(--accent) 0%, #ff4444 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     .sub-value-desc {
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: var(--text-secondary);
-      margin-top: 1rem;
-      max-width: 480px;
-      line-height: 1.6;
-    }
-    .sub-value-copy-btn {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      cursor: pointer;
-      font-size: 0.8rem;
-      padding: 0.375rem 0.75rem;
-      transition: all 0.2s;
-    }
-    .sub-value-copy-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
+      margin-top: 1.25rem;
+      max-width: 440px;
+      line-height: 1.7;
     }
     .sub-value-player-hint {
       font-size: 0.75rem;
       color: var(--text-muted);
-      margin-top: 0.5rem;
+      margin-top: 0.75rem;
     }
     .sub-value-cta {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.625rem 1.5rem;
-      background: transparent;
-      color: var(--accent);
-      font-weight: 600;
-      font-size: 0.95rem;
-      text-decoration: none;
-      border: 1px solid var(--accent);
-      transition: all 0.2s;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .sub-value-cta:hover {
+      gap: 0.6rem;
+      padding: 1rem 2.25rem;
       background: var(--accent);
       color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border-radius: 0;
+      transition: all var(--transition);
+      white-space: nowrap;
+      flex-shrink: 0;
+      box-shadow: 0 0 40px rgba(229, 9, 20, 0.35), 0 4px 20px rgba(0,0,0,0.5);
     }
-
-    /* Trust badges inside sub-value-banner */
+    .sub-value-cta:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 0 60px rgba(229, 9, 20, 0.5), 0 8px 30px rgba(0,0,0,0.5);
+    }
+    .sub-value-cta-arrow { transition: transform 0.2s; }
+    .sub-value-cta:hover .sub-value-cta-arrow { transform: translateX(4px); }
     .sub-value-trust-box {
-      margin-top: 1.25rem;
-      padding: 0.875rem 1rem;
-      border: 1px solid rgba(34, 197, 94, 0.25);
-      background: rgba(34, 197, 94, 0.04);
-      border-radius: 6px;
-      max-width: 480px;
+      margin-top: 1.5rem;
+      padding: 1rem 1.25rem;
+      background: rgba(229, 9, 20, 0.04);
+      border: 1px solid rgba(229, 9, 20, 0.15);
+      border-radius: var(--radius-md);
+      max-width: 440px;
     }
     .sub-value-trust {
       list-style: none;
@@ -364,182 +529,304 @@ export function generateHomePage(options = {}) {
       margin: 0;
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.5rem;
       font-size: 0.85rem;
       color: var(--text-secondary);
     }
-    .sub-value-trust li {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      line-height: 1.4;
-    }
+    .sub-value-trust li { display: flex; align-items: center; gap: 0.6rem; }
     .trust-check {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: rgba(34, 197, 94, 0.18);
-      color: #22c55e;
-      font-size: 0.75rem;
+      background: rgba(229, 9, 20, 0.15);
+      color: var(--accent);
+      font-size: 0.65rem;
       font-weight: 700;
-      flex-shrink: 0;
-    }
-    @media (max-width: 768px) {
-      .sub-value-inner {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 2rem;
-      }
-      .sub-value-title {
-        font-size: 1.75rem;
-      }
-      .sub-value-cta {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-
-    .promo-banner-inner {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 2rem;
-      padding: 0.75rem 2rem;
-      max-width: 1400px;
-      margin: 0 auto;
+      flex-shrink: 0;
     }
-    .promo-countdown-box { display: flex; align-items: center; gap: 4px; }
-    .promo-countdown-numbers {
-      display: flex; gap: 4px;
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 0.85rem; font-weight: 600; color: #fff;
-    }
-    .promo-countdown-numbers .time-unit {
-      display: inline-flex; align-items: center; justify-content: center;
-      background: rgba(0,0,0,0.2); padding: 4px 8px; min-width: 32px;
-    }
-    .promo-countdown-numbers .time-sep { color: rgba(255,255,255,0.5); line-height: 1; }
-    .promo-banner-content { text-align: center; }
-    .promo-headline { color: #fff; font-size: 0.9rem; font-weight: 500; }
-    .promo-cta {
-      background: #fff; color: var(--accent);
-      font-weight: 600; padding: 0.4rem 1rem; font-size: 0.8rem;
-      text-decoration: none; transition: all 0.2s; white-space: nowrap;
-    }
-    .promo-cta:hover { background: rgba(255,255,255,0.9); }
 
-    /* Section Headers - 几何线条 */
-    .section-header {
-      display: flex; align-items: center; gap: 1rem;
-      margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: var(--border);
+    /* ============================================================
+       Hot Topics — cinematic cards with hover glow
+       ============================================================ */
+    .hot-topics {
+      background: linear-gradient(180deg, var(--bg-deep) 0%, #0c0000 50%, var(--bg-deep) 100%);
     }
-    .section-header h2 {
-      font-size: 0.75rem; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.15em;
-      color: var(--text-primary);
+    .hot-topics-header { margin-bottom: 2.5rem; }
+    .hot-topics-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1px;
     }
-    .section-header::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .topic-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      background: rgba(255,255,255,0.02);
+      text-decoration: none;
+      overflow: hidden;
+      transition: all var(--transition);
+      cursor: pointer;
+    }
+    .topic-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      transition: width 0.4s ease;
+    }
+    .topic-card:hover::before { width: 80%; }
+    .topic-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(229,9,20,0.08) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .topic-card:hover::after { opacity: 1; }
+    .topic-card:hover { background: rgba(255,255,255,0.04); }
+    .topic-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 0 20px rgba(229,9,20,0.3));
+      transition: transform 0.3s ease;
+    }
+    .topic-card:hover .topic-icon { transform: scale(1.1); }
+    .topic-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.3rem;
+      position: relative;
+      z-index: 1;
+      letter-spacing: -0.01em;
+    }
+    .topic-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
 
-    /* Category Showcase - 极简网格 */
-    .category-showcase { max-width: 1400px; margin: 0 auto; padding: 3rem 0; }
-    .showcase-header { text-align: center; margin-bottom: 2rem; }
-    .showcase-header h2 { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-primary); }
-    .showcase-header p { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem; }
+    /* ============================================================
+       Regional — map-inspired cards with ambient glow
+       ============================================================ */
+    .regional-topics { padding: 5rem 0; }
+    .regional-topics-header { margin-bottom: 2.5rem; }
+    .regional-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1px;
+    }
+    .regional-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      background: rgba(255,255,255,0.015);
+      text-decoration: none;
+      overflow: hidden;
+      transition: all var(--transition);
+      cursor: pointer;
+      min-height: 200px;
+    }
+    .regional-card::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      transform: scaleX(0);
+      transition: transform 0.4s ease;
+    }
+    .regional-card:hover::before { transform: scaleX(1); }
+    .regional-card:hover { background: rgba(255,255,255,0.04); }
+    .regional-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+      transition: transform 0.4s ease;
+    }
+    .regional-card:hover .regional-icon { transform: scale(1.15) translateY(-4px); }
+    .regional-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.25rem;
+      position: relative;
+      z-index: 1;
+    }
+    .regional-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
 
-    .view-toggle { display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem; justify-content: center; }
+    /* ============================================================
+       Category Showcase — cinematic grid
+       ============================================================ */
+    .category-showcase {
+      background: linear-gradient(180deg, var(--bg-deep) 0%, #0c0000 30%, var(--bg-deep) 100%);
+      padding: 5rem 0;
+    }
+    .showcase-header { text-align: center; margin-bottom: 3rem; }
+    .showcase-header .section-desc { margin: 0.75rem auto 0; }
+    .view-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 2.5rem;
+    }
     .view-toggle-btn {
-      padding: 0.5rem 0; background: transparent; border: none;
-      color: var(--text-muted); font-size: 0.75rem; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.1em;
-      cursor: pointer; transition: all 0.2s; position: relative;
+      padding: 0.6rem 1.5rem;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      transition: all var(--transition);
     }
-    .view-toggle-btn.active { color: var(--accent); }
-    .view-toggle-btn.active::after {
-      content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
-      height: 2px; background: var(--accent);
+    .view-toggle-btn:first-child { border-radius: 0; }
+    .view-toggle-btn:last-child { border-radius: 0; border-left: none; }
+    .view-toggle-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
     }
-    .view-toggle-btn:hover { color: var(--text-primary); }
-    .view-toggle-btn svg { width: 14px; height: 14px; vertical-align: middle; margin-right: 0.25rem; }
+    .view-toggle-btn:hover:not(.active) {
+      color: var(--text-primary);
+      border-color: rgba(255,255,255,0.2);
+    }
+    .view-toggle-btn svg { width: 14px; height: 14px; vertical-align: middle; margin-right: 0.4rem; }
 
-    /* Category & Type Grids - 几何网格 */
-    .category-grid, .type-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0; }
+    .category-grid, .type-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,0.03);
+    }
     .category-card, .type-card {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 1.5rem 0.75rem; background: transparent;
-      border: none; border-right: var(--border); border-bottom: var(--border);
-      text-decoration: none; transition: all 0.2s; cursor: pointer; position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 0.75rem;
+      background: rgba(5, 5, 5, 0.9);
+      text-decoration: none;
+      transition: all var(--transition);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      min-height: 140px;
     }
-    .category-card:hover, .type-card:hover { background: var(--bg-secondary); }
-    .category-card::after, .type-card::after {
-      content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px;
-      background: var(--accent); transition: width 0.3s ease;
+    .category-card::before, .type-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
     }
-    .category-card:hover::after, .type-card:hover::after { width: 100%; }
+    .category-card:hover::before, .type-card:hover::before { transform: scaleX(1); }
+    .category-card:hover, .type-card:hover { background: rgba(229, 9, 20, 0.06); }
     .category-icon, .type-icon {
-      width: 40px; height: 40px; margin-bottom: 0.75rem;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--accent); font-size: 1.5rem;
+      width: 44px;
+      height: 44px;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 1.5rem;
+      transition: all var(--transition);
+      filter: drop-shadow(0 0 8px rgba(229,9,20,0.3));
+    }
+    .category-card:hover .category-icon,
+    .type-card:hover .type-icon {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 16px rgba(229,9,20,0.6));
     }
     .category-icon svg, .type-icon svg { width: 100%; height: 100%; }
     .category-name, .type-name {
-      font-size: 0.9rem; font-weight: 600; color: var(--text-primary);
-      text-align: center; margin-bottom: 0.25rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-align: center;
+      margin-bottom: 0.2rem;
     }
-    .category-count, .type-count { font-size: 0.8rem; color: var(--text-muted); }
-
+    .category-count, .type-count { font-size: 0.7rem; color: var(--text-muted); }
     .loading { text-align: center; padding: 4rem; color: var(--text-secondary); }
 
-    /* Hot Topics & Regional - 极简 */
-    .hot-topics, .regional-topics { max-width: 1400px; margin: 0 auto; padding: 2rem 0; }
-    .hot-topics-header, .regional-topics-header { text-align: center; margin-bottom: 1.5rem; }
-    .hot-topics-header h2, .regional-topics-header h2 {
-      font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.15em; color: var(--text-primary);
-    }
-    .hot-topics-header p, .regional-topics-header p { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem; }
-    .hot-topics-grid, .regional-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; }
-    .topic-card, .regional-card {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 2rem 1rem; background: transparent;
-      border: none; border-right: var(--border);
-      text-decoration: none; transition: all 0.2s; cursor: pointer;
-    }
-    .topic-card:hover, .regional-card:hover { background: var(--bg-secondary); }
-    .topic-icon { font-size: 1.75rem; margin-bottom: 0.75rem; }
-    .regional-icon { font-size: 1.75rem; margin-bottom: 0.75rem; }
-    .topic-title, .regional-title {
-      font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;
-    }
-    .topic-desc, .regional-desc { font-size: 0.8rem; color: var(--text-muted); text-align: center; }
+    /* ============================================================
+       Promo Banner (hidden by default; pre-existing dead code path)
+       ============================================================ */
+    .promo-banner { display: none; background: var(--accent); margin: 0 auto; max-width: 1400px; position: relative; }
+    .promo-banner.show { display: block; }
+    .promo-banner-inner { display: flex; align-items: center; justify-content: center; gap: 2rem; padding: 0.75rem 2rem; max-width: 1400px; margin: 0 auto; }
+    .promo-countdown-box { display: flex; align-items: center; gap: 4px; }
+    .promo-countdown-numbers { display: flex; gap: 4px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.85rem; font-weight: 600; color: #fff; }
+    .promo-countdown-numbers .time-unit { display: inline-flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); padding: 4px 8px; min-width: 32px; }
+    .promo-countdown-numbers .time-sep { color: rgba(255,255,255,0.5); line-height: 1; }
+    .promo-banner-content { text-align: center; }
+    .promo-headline { color: #fff; font-size: 0.9rem; font-weight: 500; }
+    .promo-cta { background: #fff; color: var(--accent); font-weight: 600; padding: 0.4rem 1rem; font-size: 0.8rem; text-decoration: none; transition: all 0.2s; white-space: nowrap; }
+    .promo-cta:hover { background: rgba(255,255,255,0.9); }
 
-    @media (max-width: 768px) {
-      .header-inner { flex-wrap: wrap; padding: 0.5rem 1rem; gap: 0.75rem; }
-      .logo { flex-shrink: 0; }
-      .logo-text { display: none; }
-      .header-actions { flex-shrink: 0; gap: 0.75rem; }
-      .pill-btn, .account-btn { width: 24px; height: 24px; }
-      .account-btn svg, .pill-btn svg { width: 14px; height: 14px; }
-      #translateSelectLanguage { min-width: 40px; font-size: 0.7rem; }
-      .hero { padding: 60px 0 40px; }
-      .hero-inner { flex-direction: column; gap: 2rem; padding: 0 1rem; }
-      .hero h1 { font-size: 2rem; }
-      .hero-stats { gap: 2rem; }
-      .hero-stat-value { font-size: 1.75rem; }
-      .category-showcase { padding: 2rem 1rem; }
+    /* ============================================================
+       Responsive
+       ============================================================ */
+    @media (max-width: 1024px) {
+      .hot-topics-grid { grid-template-columns: repeat(3, 1fr); }
       .category-grid, .type-grid { grid-template-columns: repeat(4, 1fr); }
-      .topic-card, .regional-card { padding: 1.5rem 0.5rem; }
-      .hot-topics, .regional-topics { padding: 1.5rem 1rem; }
-      .hot-topics-grid, .regional-grid { grid-template-columns: repeat(3, 1fr); gap: 0; }
     }
-
-    @media (max-width: 480px) {
-      .hero h1 { font-size: 1.75rem; }
+    @media (max-width: 768px) {
+      .hero { min-height: 70vh; }
+      .hero-inner { padding: 0 1.5rem; }
       .hero-stats { gap: 1.5rem; }
+      .hero-stat-value { font-size: 2.5rem; }
+      .hero-stat { padding: 0 1.5rem; }
+      .section { padding: 3.5rem 0; }
+      .section-inner { padding: 0 1.5rem; }
+      .sub-value-inner { flex-direction: column; align-items: flex-start; }
+      .sub-value-title { font-size: 1.75rem; }
+      .sub-value-cta { width: 100%; justify-content: center; }
+      .hero-stat:not(:last-child)::after { display: none; }
+      .hot-topics-grid { grid-template-columns: repeat(3, 1fr); }
+      .regional-grid { grid-template-columns: repeat(3, 1fr); }
+      .category-grid, .type-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 2rem; }
+      .hero-stats { flex-direction: column; gap: 1.5rem; }
+      .hero-stat-value { font-size: 2rem; }
+      .hot-topics-grid { grid-template-columns: repeat(2, 1fr); }
+      .regional-grid { grid-template-columns: repeat(2, 1fr); }
       .category-grid, .type-grid { grid-template-columns: repeat(2, 1fr); }
-      .hot-topics-grid, .regional-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -578,12 +865,21 @@ export function generateHomePage(options = {}) {
   ${pageHeader}
 
   <section class="hero" id="main-content">
+    <div class="hero-bg"></div>
+    <div class="hero-particles" id="heroParticles"></div>
     <div class="hero-inner">
-      <div class="hero-content">
-        <h1>Free IPTV Channel Search - 5000+ Live TV Channels from 150+ Countries</h1>
-        <p>Overseas Chinese' no.1 Choice | Works with VLC, APTV, Smarters & all platforms</p>
+      <div class="hero-eyebrow reveal stagger-1">
+        <span class="hero-eyebrow-dot"></span>
+        Live TV &middot; No Signup Required
       </div>
-      <div class="hero-stats">
+      <h1 class="reveal stagger-2">
+        The World's Largest<br>
+        <span class="accent-line">Free IPTV Search</span>
+      </h1>
+      <p class="hero-sub reveal stagger-3">
+        Stream 5,000+ live channels from 150+ countries. Sports, movies, news &amp; entertainment &mdash; all in one place.
+      </p>
+      <div class="hero-stats reveal stagger-4">
         <div class="hero-stat">
           <div class="hero-stat-value" id="totalChannels">${totalChannels >= 10000 ? '10,000+' : (totalChannels || 0).toLocaleString()}</div>
           <div class="hero-stat-label">Channels</div>
@@ -598,11 +894,15 @@ export function generateHomePage(options = {}) {
         </div>
       </div>
     </div>
+    <div class="scroll-indicator">
+      <div class="scroll-indicator-line"></div>
+      <span>Scroll</span>
+    </div>
   </section>
 
 
     <!-- Subscription Value Banner - V3 Editorial -->
-  <div class="sub-value-banner" id="subValueBanner">
+  <div class="sub-value-banner reveal" id="subValueBanner">
     <div class="sub-value-inner">
       <div class="sub-value-left">
         <div class="sub-value-eyebrow" id="bannerEyebrow">New User Special</div>
@@ -617,7 +917,7 @@ export function generateHomePage(options = {}) {
           </ul>
         </div>
       </div>
-      <a href="/login#register" class="sub-value-cta" id="bannerCta">Get Free VIP →</a>
+      <a href="/login#register" class="sub-value-cta" id="bannerCta">Get Free VIP<span class="sub-value-cta-arrow">→</span></a>
     </div>
   </div>
 
@@ -634,8 +934,9 @@ export function generateHomePage(options = {}) {
         document.getElementById('bannerEyebrow').textContent = '🔥 VIP Exclusive Offer';
         document.getElementById('bannerTitle').innerHTML = 'Unlock All Features<br><span>Enjoy 5000+ Channels</span>';
         document.getElementById('bannerDesc').textContent = 'Upgrade to VIP for unlimited searches, downloads, multi-device sync, and priority support.';
-        document.getElementById('bannerCta').href = '/subscription';
-        document.getElementById('bannerCta').textContent = 'Upgrade to VIP Now →';
+        const cta = document.getElementById('bannerCta');
+        cta.href = '/subscription';
+        cta.innerHTML = 'Upgrade to VIP Now<span class="sub-value-cta-arrow">→</span>';
       }
     })();
   </script>
@@ -653,123 +954,189 @@ export function generateHomePage(options = {}) {
     </div>
   </div>
 
-  <section class="hot-topics">
-    <div class="hot-topics-header">
-      <h2>Popular Topics</h2>
-      <p>Explore curated content by category</p>
-    </div>
-    <div class="hot-topics-grid">
-      <a href="/usa-iptv" class="topic-card">
-        <span class="topic-icon">🇺🇸</span>
-        <span class="topic-title">USA IPTV</span>
-        <span class="topic-desc">US Live TV</span>
-      </a>
-      <a href="/uk-iptv-plans" class="topic-card">
-        <span class="topic-icon">🇬🇧</span>
-        <span class="topic-title">UK IPTV</span>
-        <span class="topic-desc">British Channels</span>
-      </a>
-      <a href="/tutorial" class="topic-card">
-        <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
-        <span class="topic-title">Smart TV</span>
-        <span class="topic-desc">Setup Guide</span>
-      </a>
-      <a href="/android-iptv-app" class="topic-card">
-        <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/><path d="M8 6h.01"/><path d="M16 6h.01"/></svg></span>
-        <span class="topic-title">Android</span>
-        <span class="topic-desc">IPTV Apps</span>
-      </a>
-      <a href="/free-iptv-app-review" class="topic-card">
-        <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg></span>
-        <span class="topic-title">Free IPTV</span>
-        <span class="topic-desc">App Reviews</span>
-      </a>
-      <a href="/carplay-aptv" class="topic-card">
-        <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/><path d="M7 2h10"/><circle cx="12" cy="12" r="3"/></svg></span>
-        <span class="topic-title">APTV & CarPlay</span>
-        <span class="topic-desc">iOS CarPlay TV</span>
-      </a>
-    </div>
-  </section>
-
-  <section class="regional-topics">
-    <div class="regional-topics-header">
-      <h2>Explore by Region</h2>
-      <p>Free IPTV channels from around the world</p>
-    </div>
-    <div class="regional-grid">
-      <a href="/americas-iptv" class="regional-card">
-        <span class="regional-icon">🌎</span>
-        <span class="regional-title">Americas</span>
-        <span class="regional-desc">USA, Canada, Brazil</span>
-      </a>
-      <a href="/europe-iptv" class="regional-card">
-        <span class="regional-icon">🌍</span>
-        <span class="regional-title">Europe</span>
-        <span class="regional-desc">UK, France, Germany</span>
-      </a>
-      <a href="/asia-iptv" class="regional-card">
-        <span class="regional-icon">🌏</span>
-        <span class="regional-title">Asia</span>
-        <span class="regional-desc">China, Japan, Korea</span>
-      </a>
-      <a href="/middle-east-iptv" class="regional-card">
-        <span class="regional-icon">🌍</span>
-        <span class="regional-title">Middle East</span>
-        <span class="regional-desc">Arabic, Turkish</span>
-      </a>
-      <a href="/oceania-iptv" class="regional-card">
-        <span class="regional-icon">🌏</span>
-        <span class="regional-title">Oceania</span>
-        <span class="regional-desc">Australia, NZ</span>
-      </a>
+  <section class="section hot-topics">
+    <div class="section-inner">
+      <div class="hot-topics-header">
+        <div class="section-label reveal">Featured</div>
+        <h2 class="section-title reveal stagger-1">Popular Topics</h2>
+        <p class="section-desc reveal stagger-2">Explore curated content by category</p>
+      </div>
+      <div class="hot-topics-grid">
+        <a href="/usa-iptv" class="topic-card reveal stagger-1">
+          <span class="topic-icon">🇺🇸</span>
+          <span class="topic-title">USA IPTV</span>
+          <span class="topic-desc">US Live TV</span>
+        </a>
+        <a href="/uk-iptv-plans" class="topic-card reveal stagger-2">
+          <span class="topic-icon">🇬🇧</span>
+          <span class="topic-title">UK IPTV</span>
+          <span class="topic-desc">British Channels</span>
+        </a>
+        <a href="/tutorial" class="topic-card reveal stagger-3">
+          <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
+          <span class="topic-title">Smart TV</span>
+          <span class="topic-desc">Setup Guide</span>
+        </a>
+        <a href="/android-iptv-app" class="topic-card reveal stagger-4">
+          <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/><path d="M8 6h.01"/><path d="M16 6h.01"/></svg></span>
+          <span class="topic-title">Android</span>
+          <span class="topic-desc">IPTV Apps</span>
+        </a>
+        <a href="/free-iptv-app-review" class="topic-card reveal stagger-5">
+          <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg></span>
+          <span class="topic-title">Free IPTV</span>
+          <span class="topic-desc">App Reviews</span>
+        </a>
+        <a href="/carplay-aptv" class="topic-card reveal stagger-6">
+          <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/><path d="M7 2h10"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <span class="topic-title">APTV & CarPlay</span>
+          <span class="topic-desc">iOS CarPlay TV</span>
+        </a>
+      </div>
     </div>
   </section>
 
-  <section class="category-showcase">
-    <div class="showcase-header">
-      <h2>Browse by Category</h2>
-      <p>Discover thousands of free live TV channels across all categories - CCTV, Sports, Movies, News and more</p>
+  <section class="section regional-topics">
+    <div class="section-inner">
+      <div class="regional-topics-header">
+        <div class="section-label reveal">Geography</div>
+        <h2 class="section-title reveal stagger-1">Explore by Region</h2>
+        <p class="section-desc reveal stagger-2">Free IPTV channels from around the world</p>
+      </div>
+      <div class="regional-grid">
+        <a href="/americas-iptv" class="regional-card reveal stagger-1">
+          <span class="regional-icon">🌎</span>
+          <span class="regional-title">Americas</span>
+          <span class="regional-desc">USA, Canada, Brazil</span>
+        </a>
+        <a href="/europe-iptv" class="regional-card reveal stagger-2">
+          <span class="regional-icon">🌍</span>
+          <span class="regional-title">Europe</span>
+          <span class="regional-desc">UK, France, Germany</span>
+        </a>
+        <a href="/asia-iptv" class="regional-card reveal stagger-3">
+          <span class="regional-icon">🌏</span>
+          <span class="regional-title">Asia</span>
+          <span class="regional-desc">China, Japan, Korea</span>
+        </a>
+        <a href="/middle-east-iptv" class="regional-card reveal stagger-4">
+          <span class="regional-icon">🌍</span>
+          <span class="regional-title">Middle East</span>
+          <span class="regional-desc">Arabic, Turkish</span>
+        </a>
+        <a href="/oceania-iptv" class="regional-card reveal stagger-5">
+          <span class="regional-icon">🌏</span>
+          <span class="regional-title">Oceania</span>
+          <span class="regional-desc">Australia, NZ</span>
+        </a>
+      </div>
     </div>
+  </section>
 
-    <!-- View Mode Toggle -->
-    <div class="view-toggle">
-      <button class="view-toggle-btn active" data-view="region" onclick="window.switchView('region')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-        By Region
-      </button>
-      <button class="view-toggle-btn" data-view="type" onclick="window.switchView('type')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        By Type
-      </button>
-    </div>
+  <section class="section category-showcase">
+    <div class="section-inner">
+      <div class="showcase-header">
+        <div class="section-label reveal" style="text-align:center">Directory</div>
+        <h2 class="section-title reveal stagger-1" style="text-align:center">Browse by Category</h2>
+        <p class="section-desc reveal stagger-2" style="text-align:center;margin:0.75rem auto 0">Discover thousands of free live TV channels &mdash; CCTV, Sports, Movies, News and more</p>
+      </div>
 
-    <script>
-      // Attach click handlers after DOM is ready
-      document.addEventListener('DOMContentLoaded', function() {
-        const btns = document.querySelectorAll('.view-toggle-btn');
-        btns.forEach(btn => {
-          btn.addEventListener('click', function() {
-            if (window.switchView) {
-              window.switchView(this.dataset.view);
-            }
+      <!-- View Mode Toggle -->
+      <div class="view-toggle reveal stagger-3">
+        <button class="view-toggle-btn active" data-view="region" onclick="window.switchView('region')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          By Region
+        </button>
+        <button class="view-toggle-btn" data-view="type" onclick="window.switchView('type')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          By Type
+        </button>
+      </div>
+
+      <script>
+        // Attach click handlers after DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+          const btns = document.querySelectorAll('.view-toggle-btn');
+          btns.forEach(btn => {
+            btn.addEventListener('click', function() {
+              if (window.switchView) {
+                window.switchView(this.dataset.view);
+              }
+            });
           });
         });
-      });
-    </script>
+      </script>
 
-    <!-- Region-based Categories (default view) -->
-    <div class="category-grid" id="regionGrid">
-      ${regionGridHtml}
-    </div>
+      <!-- Region-based Categories (default view) -->
+      <div class="category-grid" id="regionGrid">
+        ${regionGridHtml}
+      </div>
 
-    <!-- Type-based Categories (hidden by default) -->
-    <div class="type-grid" id="typeGrid" style="display: none;">
-      ${typeGridHtml}
+      <!-- Type-based Categories (hidden by default) -->
+      <div class="type-grid" id="typeGrid" style="display: none;">
+        ${typeGridHtml}
+      </div>
     </div>
   </section>
 
   ${pageFooter}
+
+  <script>
+    // ============================================================
+    // Scroll-reveal observer + hero particle generator
+    // (Proposal A — immersive)
+    // ============================================================
+    (function setupRevealAndParticles() {
+      // Scroll reveal
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+      const revealTargets = document.querySelectorAll('.reveal, .reveal-left, .reveal-scale');
+      revealTargets.forEach(el => revealObserver.observe(el));
+
+      // Staggered reveal for SSR-rendered category / type cards
+      const cardRevealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const grid = entry.target;
+          const cards = grid.querySelectorAll('.category-card, .type-card');
+          cards.forEach((card, i) => {
+            card.style.transitionDelay = (0.04 * Math.min(i, 12)) + 's';
+            card.classList.add('reveal');
+          });
+          requestAnimationFrame(() => {
+            cards.forEach(card => card.classList.add('visible'));
+          });
+          cardRevealObserver.unobserve(grid);
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+      document.querySelectorAll('.category-grid, .type-grid').forEach(grid => {
+        cardRevealObserver.observe(grid);
+      });
+
+      // Hero particle generator
+      const particleContainer = document.getElementById('heroParticles');
+      if (particleContainer) {
+        for (let i = 0; i < 20; i++) {
+          const p = document.createElement('div');
+          p.className = 'particle';
+          p.style.left = Math.random() * 100 + '%';
+          p.style.animationDuration = (8 + Math.random() * 12) + 's';
+          p.style.animationDelay = (Math.random() * 10) + 's';
+          const size = 1 + Math.random() * 2;
+          p.style.width = size + 'px';
+          p.style.height = size + 'px';
+          particleContainer.appendChild(p);
+        }
+      }
+    })();
+  </script>
 
   <script>
     // Theme toggle with icon update
