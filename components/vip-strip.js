@@ -27,16 +27,12 @@ export const VIP_STRIP_STYLES = `
   .vip-strip.vip-strip-visible { transform: translateY(0); opacity: 1; }
   .vip-strip-icon {
     flex-shrink: 0;
-    width: 32px;
-    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #e50914, #b81d24);
-    font-size: 1rem;
-    color: #fff;
-    box-shadow: 0 0 12px rgba(229, 9, 20, 0.45);
+    width: 18px;
+    height: 18px;
+    color: #ff5566;
   }
   .vip-strip-text { flex: 1; min-width: 0; line-height: 1.3; }
   .vip-strip-text strong {
@@ -85,7 +81,6 @@ export const VIP_STRIP_STYLES = `
   }
   @media (max-width: 768px) {
     .vip-strip { padding: 10px 12px; gap: 10px; }
-    .vip-strip-icon { width: 28px; height: 28px; font-size: 0.9rem; }
     .vip-strip-text strong { font-size: 0.85rem; }
     .vip-strip-meta { font-size: 0.7rem; }
     .vip-strip-cta { padding: 0.5rem 1rem; font-size: 0.78rem; }
@@ -97,7 +92,7 @@ export const VIP_STRIP_STYLES = `
 
 export const VIP_STRIP_HTML = `
   <div class="vip-strip notranslate" id="vipStrip" role="region" aria-label="VIP offer" translate="no" hidden>
-    <div class="vip-strip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2.2 L4 4.8 V12 C4 16.8 7 20.4 12 22 C17 20.4 20 16.8 20 12 V4.8 Z M7.5 11 H16.5 V12.2 H7.5 Z"/></svg></div>
+    <div class="vip-strip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2.2 L4 4.8 V12 C4 16.8 7 20.4 12 22 C17 20.4 20 16.8 20 12 V4.8 Z M7.5 11 H16.5 V12.2 H7.5 Z"/></svg></div>
     <div class="vip-strip-text notranslate" translate="no">
       <strong class="notranslate" translate="no">7 days free VIP</strong>
       <span class="vip-strip-meta notranslate" translate="no"><span class="vip-strip-check">&check;</span> No credit card · <span class="vip-strip-check">&check;</span> 7-day refund · <span class="vip-strip-check">&check;</span> Cancel anytime · <span class="vip-strip-check">&check;</span> Secure pay</span>
