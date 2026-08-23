@@ -149,516 +149,538 @@ export function generateHomePage(options = {}) {
     
   </script>
   
-  <style>
+<style>
     /* ============================================================
-       Design tokens (Proposal A — immersive / cinematic)
+       DESIGN PROPOSAL B — DATA / TECH
+       "Information density meets precision"
+       Aesthetic: Linear / Vercel / Stripe dashboard
        ============================================================ */
     :root {
       --accent: #e50914;
-      --accent-hover: #ff1a1a;
-      --accent-glow: rgba(229, 9, 20, 0.6);
-      --accent-subtle: rgba(229, 9, 20, 0.08);
-      --accent-mid: rgba(229, 9, 20, 0.3);
+      --accent-dim: rgba(229, 9, 20, 0.08);
+      --accent-border: rgba(229, 9, 20, 0.25);
       --bg-primary: #0a0a0a;
-      --bg-deep: #050505;
       --bg-secondary: #0f0f0f;
-      --bg-card: rgba(255, 255, 255, 0.03);
-      --bg-card-hover: rgba(255, 255, 255, 0.06);
+      --bg-elevated: #141414;
       --text-primary: #ffffff;
-      --text-secondary: rgba(255, 255, 255, 0.7);
-      --text-muted: rgba(255, 255, 255, 0.4);
-      --border: 1px solid rgba(255, 255, 255, 0.08);
-      --border-glow: 1px solid rgba(229, 9, 20, 0.3);
-      --radius-lg: 12px;
-      --radius-md: 8px;
-      --radius-sm: 4px;
-      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      --transition-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      --text-secondary: #a0a0a0;
+      --text-muted: #555555;
+      --text-label: #71717a;
+      --border: 1px solid rgba(255, 255, 255, 0.06);
+      --border-strong: 1px solid rgba(255, 255, 255, 0.12);
+      --mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      --sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --transition: 0.15s ease;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-padding-top: 70px; scroll-behavior: smooth; }
     body {
-      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg-deep);
+      font-family: var(--sans);
+      background: var(--bg-primary);
       color: var(--text-primary);
       line-height: 1.6;
-      overflow-x: hidden;
     }
     a { color: inherit; text-decoration: none; }
     button { cursor: pointer; font-family: inherit; }
 
-    /* ============================================================
-       Scroll-reveal system
-       ============================================================ */
+    /* Scroll-reveal (motion-safe so crawlers see content) */
+    .reveal { opacity: 1; transform: none; transition: opacity 0.5s ease, transform 0.5s ease; }
     @media (prefers-reduced-motion: no-preference) {
-      .reveal {
-        opacity: 0;
-        transform: translateY(40px);
-        transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-      }
+      .reveal { opacity: 0; transform: translateY(20px); }
+      .reveal.visible { opacity: 1; transform: translateY(0); }
     }
-    /* Default: visible (crawlers + reduced-motion users see content immediately) */
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-    .reveal-left {
-      opacity: 0;
-      transform: translateX(-60px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-    .reveal-left.visible { opacity: 1; transform: translateX(0); }
-    .reveal-scale {
-      opacity: 0;
-      transform: scale(0.92);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-    .reveal-scale.visible { opacity: 1; transform: scale(1); }
-
-    .stagger-1 { transition-delay: 0.05s !important; }
-    .stagger-2 { transition-delay: 0.10s !important; }
-    .stagger-3 { transition-delay: 0.15s !important; }
-    .stagger-4 { transition-delay: 0.20s !important; }
-    .stagger-5 { transition-delay: 0.25s !important; }
-    .stagger-6 { transition-delay: 0.30s !important; }
-    .stagger-7 { transition-delay: 0.35s !important; }
-    .stagger-8 { transition-delay: 0.40s !important; }
-
-    @media (prefers-reduced-motion: reduce) {
-      .reveal, .reveal-left, .reveal-scale { transition-duration: 0.01ms !important; }
-    }
+    .stagger-1 { transition-delay: 0.04s !important; }
+    .stagger-2 { transition-delay: 0.08s !important; }
+    .stagger-3 { transition-delay: 0.12s !important; }
+    .stagger-4 { transition-delay: 0.16s !important; }
+    .stagger-5 { transition-delay: 0.20s !important; }
+    .stagger-6 { transition-delay: 0.24s !important; }
+    .stagger-7 { transition-delay: 0.28s !important; }
+    .stagger-8 { transition-delay: 0.32s !important; }
 
     /* ============================================================
-       HERO — full-bleed cinematic
+       HERO — Data dashboard
        ============================================================ */
     .hero {
       position: relative;
-      min-height: 82vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      padding: 2.5rem 0 2rem;
+      border-bottom: var(--border);
       overflow: hidden;
-      padding: 0;
     }
-    .hero-bg {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      background:
-        radial-gradient(ellipse 80% 60% at 50% 40%, rgba(229, 9, 20, 0.12) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 20% 80%, rgba(229, 9, 20, 0.06) 0%, transparent 50%),
-        radial-gradient(ellipse 40% 30% at 80% 20%, rgba(200, 8, 18, 0.05) 0%, transparent 50%),
-        linear-gradient(180deg, #080808 0%, #0a0a0a 50%, #050505 100%);
-    }
-    .hero-bg::before {
+    .hero::before {
       content: '';
       position: absolute;
       inset: 0;
-      background-image: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(255,255,255,0.008) 2px,
-        rgba(255,255,255,0.008) 4px
-      );
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
       pointer-events: none;
     }
-    .hero-bg::after {
+    .hero::after {
       content: '';
       position: absolute;
-      top: 30%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 600px;
-      height: 400px;
-      background: radial-gradient(ellipse, rgba(229,9,20,0.15) 0%, transparent 70%);
-      animation: ambientPulse 6s ease-in-out infinite;
+      top: -50%;
+      right: -10%;
+      width: 50%;
+      height: 200%;
+      background: linear-gradient(135deg, transparent 40%, rgba(229,9,20,0.04) 50%, transparent 60%);
       pointer-events: none;
-    }
-    @keyframes ambientPulse {
-      0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
-      50% { opacity: 1; transform: translateX(-50%) scale(1.15); }
-    }
-    .hero-particles {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      overflow: hidden;
-      pointer-events: none;
-    }
-    .particle {
-      position: absolute;
-      width: 2px;
-      height: 2px;
-      background: var(--accent);
-      border-radius: 50%;
-      opacity: 0;
-      animation: floatParticle linear infinite;
-    }
-    @keyframes floatParticle {
-      0% { opacity: 0; transform: translateY(100vh) scale(0); }
-      10% { opacity: 0.6; }
-      90% { opacity: 0.6; }
-      100% { opacity: 0; transform: translateY(-20px) scale(1); }
     }
     .hero-inner {
-      position: relative;
-      z-index: 2;
-      text-align: center;
+      max-width: 1280px;
+      margin: 0 auto;
       padding: 0 2rem;
-      max-width: 900px;
+      position: relative;
+      z-index: 1;
     }
-    .hero-eyebrow {
+    .hero-statusbar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.25rem;
+      border-bottom: var(--border);
+      flex-wrap: wrap;
+    }
+    .status-badge {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.4rem 1rem;
-      background: rgba(229, 9, 20, 0.1);
-      border: 1px solid rgba(229, 9, 20, 0.25);
+      gap: 0.4rem;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-label);
+      padding: 0.3rem 0.6rem;
+      background: var(--bg-secondary);
+      border: var(--border);
       border-radius: 0;
-      font-size: 0.7rem;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: statusPulse 2s ease-in-out infinite;
+    }
+    @keyframes statusPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .status-feed {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+    .status-feed .accent { color: var(--accent); }
+
+    .hero-headline {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .hero-headline-prefix {
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 4.5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.035em;
+      color: var(--text-primary);
+    }
+    .hero h1 .accent { color: var(--accent); }
+    .hero-sub {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      max-width: 520px;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .hero-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: var(--border);
+      border-radius: 0;
+      overflow: hidden;
+      margin-bottom: 1.75rem;
+    }
+    .stat-card {
+      background: var(--bg-secondary);
+      padding: 1.25rem 1.1rem;
+      transition: background var(--transition);
+    }
+    .stat-card:hover { background: var(--bg-elevated); }
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 0.6rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.15em;
-      color: var(--accent);
-      margin-bottom: 2rem;
-      backdrop-filter: blur(10px);
-    }
-    .hero-eyebrow-dot {
-      width: 6px;
-      height: 6px;
-      background: var(--accent);
-      border-radius: 50%;
-      animation: dotPulse 2s ease-in-out infinite;
-    }
-    @keyframes dotPulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.7); }
-    }
-    .hero h1 {
-      font-size: clamp(2.5rem, 6vw, 5rem);
-      font-weight: 900;
-      line-height: 1.02;
-      letter-spacing: -0.035em;
-      color: #fff;
-      margin-bottom: 1.25rem;
-      text-shadow: 0 0 80px rgba(229, 9, 20, 0.3);
-    }
-    .hero h1 .accent-line {
-      background: linear-gradient(135deg, var(--accent) 0%, #ff6b6b 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero-sub {
-      font-size: clamp(1rem, 1.8vw, 1.2rem);
-      color: var(--text-secondary);
-      max-width: 560px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.7;
-      font-weight: 300;
-    }
-    .hero-stats {
-      display: flex;
-      justify-content: center;
-      gap: 0;
-      flex-wrap: wrap;
-    }
-    .hero-stat { text-align: center; padding: 0 3rem; position: relative; }
-    .hero-stat:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      right: 0;
-      top: 20%;
-      height: 60%;
-      width: 1px;
-      background: rgba(255,255,255,0.08);
-    }
-    .hero-stat-value {
-      font-size: 3.5rem;
-      font-weight: 900;
-      color: #fff;
-      line-height: 1;
-      letter-spacing: -0.03em;
-      text-shadow: 0 0 60px rgba(255,255,255,0.1);
-    }
-    .hero-stat-label {
-      font-size: 0.65rem;
       color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.2em;
-      margin-top: 0.6rem;
-      font-weight: 500;
+      margin-bottom: 0.5rem;
     }
-    .hero-social-proof {
-      display: inline-block;
+    .stat-value {
+      font-family: var(--mono);
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .stat-value .unit {
       font-size: 0.85rem;
-      color: var(--text-secondary);
-      margin-bottom: 1.5rem;
-      padding: 0.4rem 1rem;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 0;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-left: 0.1rem;
     }
-    .hero-cta-wrap {
+    .stat-change {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: #22c55e;
+      margin-top: 0.4rem;
+    }
+    .stat-change.neutral { color: var(--text-muted); }
+
+    .hero-cta-row {
       display: flex;
-      justify-content: center;
+      align-items: center;
       gap: 1rem;
-      margin-top: 2.5rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
       flex-wrap: wrap;
     }
     .hero-cta {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.85rem 2rem;
+      padding: 0.55rem 1.1rem;
       background: var(--accent);
       color: #fff;
-      font-weight: 700;
-      font-size: 0.95rem;
-      text-decoration: none;
-      border-radius: 0;
-      box-shadow: 0 0 40px rgba(229, 9, 20, 0.4), 0 4px 20px rgba(0,0,0,0.4);
-      transition: all var(--transition);
-    }
-    .hero-cta:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 0 60px rgba(229, 9, 20, 0.5); }
-    .hero-cta-arrow { transition: transform 0.2s; }
-    .hero-cta:hover .hero-cta-arrow { transform: translateX(4px); }
-    .hero-cta-secondary {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.85rem 2rem;
-      background: transparent;
-      color: #fff;
+      font-family: var(--mono);
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 0.78rem;
       text-decoration: none;
       border-radius: 0;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      transition: all var(--transition);
+      letter-spacing: 0.02em;
+      transition: background var(--transition);
     }
-    .hero-cta-secondary:hover { border-color: #fff; background: rgba(255, 255, 255, 0.06); }
-    .scroll-indicator {
-      position: absolute;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 2;
+    .hero-cta:hover { background: #ff1a1a; }
+    .hero-cta-secondary {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+    .hero-cta-secondary:hover { color: var(--text-primary); }
+
+    /* ============================================================
+       SUBSCRIPTION VALUE BANNER — Data panel
+       ============================================================ */
+    .sub-value-banner {
+      background: var(--bg-secondary);
+      border-bottom: var(--border);
+      padding: 1.75rem 0;
+    }
+    .sub-value-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+    .sub-value-left { flex: 1; min-width: 0; }
+    .sub-value-eyebrow {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .sub-value-eyebrow::before {
+      content: '//';
+      opacity: 0.5;
+    }
+    .sub-value-title {
+      font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+    .sub-value-title span { color: var(--accent); }
+    .sub-value-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.4rem;
+      max-width: 480px;
+      line-height: 1.6;
+    }
+    .sub-value-trust-box {
+      margin-top: 0.85rem;
+      padding: 0.7rem 0.9rem;
+      background: var(--bg-primary);
+      border: var(--border);
+      border-left: 2px solid #22c55e;
+      border-radius: 0;
+      max-width: 480px;
+    }
+    .sub-value-trust {
+      list-style: none;
+      padding: 0;
+      margin: 0;
       display: flex;
       flex-direction: column;
+      gap: 0.3rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+    .sub-value-trust li { display: flex; align-items: center; gap: 0.5rem; }
+    .trust-check {
+      color: #22c55e;
+      font-size: 0.7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      font-family: var(--mono);
+    }
+    .sub-value-anchor {
+      margin-top: 0.65rem;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    .sub-value-anchor strong { color: #22c55e; font-weight: 600; }
+    .sub-value-cta {
+      display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      color: var(--text-muted);
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      animation: scrollBounce 2.5s ease-in-out infinite;
+      padding: 0.6rem 1.25rem;
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--mono);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-decoration: none;
+      border-radius: 0;
+      letter-spacing: 0.04em;
+      transition: all var(--transition);
+      white-space: nowrap;
+      flex-shrink: 0;
     }
-    .scroll-indicator-line {
-      width: 1px;
-      height: 40px;
-      background: linear-gradient(to bottom, var(--accent), transparent);
-      animation: scrollLine 2s ease-in-out infinite;
+    .sub-value-cta:hover {
+      background: #ff1a1a;
+      box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
     }
-    @keyframes scrollBounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(6px); }
-    }
-    @keyframes scrollLine {
-      0% { opacity: 0; height: 0; }
-      50% { opacity: 1; height: 40px; }
-      100% { opacity: 0; height: 40px; }
+    .sub-value-cta-arrow { transition: transform 0.2s; }
+    .sub-value-cta:hover .sub-value-cta-arrow { transform: translateX(3px); }
+    @media (max-width: 768px) {
+      .sub-value-inner { flex-direction: column; align-items: flex-start; }
+      .sub-value-cta { width: 100%; justify-content: center; }
     }
 
     /* ============================================================
        Section common
        ============================================================ */
-    .section { padding: 5rem 0; position: relative; }
-    .section-inner { max-width: 1280px; margin: 0 auto; padding: 0 2rem; }
+    .section {
+      padding: 3rem 0;
+      border-bottom: var(--border);
+    }
+    .section-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    .section-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.85rem;
+      border-bottom: var(--border);
+    }
     .section-label {
-      font-size: 0.65rem;
-      font-weight: 700;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.25em;
+      letter-spacing: 0.18em;
       color: var(--accent);
-      margin-bottom: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-border);
+      border-radius: 0;
     }
     .section-title {
-      font-size: clamp(1.75rem, 3vw, 2.5rem);
+      font-size: clamp(1.1rem, 1.8vw, 1.35rem);
       font-weight: 800;
-      letter-spacing: -0.025em;
-      line-height: 1.1;
-      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
     }
     .section-desc {
-      font-size: 0.95rem;
+      font-size: 0.8rem;
       color: var(--text-secondary);
-      max-width: 500px;
-      line-height: 1.6;
+      margin-top: 0.5rem;
+      max-width: 520px;
     }
-
+    .section-count {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-left: auto;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
 
     /* ============================================================
-       Hot Topics — cinematic cards with hover glow
+       Hot topics
        ============================================================ */
-    .hot-topics {
-      background: linear-gradient(180deg, var(--bg-deep) 0%, #0c0000 50%, var(--bg-deep) 100%);
-    }
-    .hot-topics-header { margin-bottom: 2.5rem; }
     .hot-topics-grid {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 1px;
+      background: var(--border);
+      border: var(--border);
+      border-radius: 0;
+      overflow: hidden;
     }
     .topic-card {
-      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 3rem 1.5rem;
-      background: rgba(255,255,255,0.02);
+      padding: 1.75rem 0.75rem;
+      background: var(--bg-primary);
       text-decoration: none;
-      overflow: hidden;
-      transition: all var(--transition);
+      transition: background var(--transition);
       cursor: pointer;
+      position: relative;
+      min-height: 140px;
     }
     .topic-card::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
+      top: 0; left: 0; right: 0;
       height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      transition: width 0.4s ease;
+      background: var(--accent);
+      transform: scaleX(0);
+      transition: transform 0.2s ease;
     }
-    .topic-card:hover::before { width: 80%; }
-    .topic-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at center, rgba(229,9,20,0.08) 0%, transparent 70%);
-      opacity: 0;
-      transition: opacity var(--transition);
-    }
-    .topic-card:hover::after { opacity: 1; }
-    .topic-card:hover { background: rgba(255,255,255,0.04); }
+    .topic-card:hover::before { transform: scaleX(1); }
+    .topic-card:hover { background: var(--bg-secondary); }
     .topic-icon {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      position: relative;
-      z-index: 1;
-      filter: drop-shadow(0 0 20px rgba(229,9,20,0.3));
-      transition: transform 0.3s ease;
+      font-size: 1.6rem;
+      margin-bottom: 0.65rem;
+      transition: transform 0.2s ease;
     }
-    .topic-card:hover .topic-icon { transform: scale(1.1); }
+    .topic-card:hover .topic-icon { transform: scale(1.08); }
     .topic-title {
-      font-size: 1rem;
+      font-size: 0.85rem;
       font-weight: 700;
-      color: #fff;
-      margin-bottom: 0.3rem;
-      position: relative;
-      z-index: 1;
+      color: var(--text-primary);
+      margin-bottom: 0.2rem;
       letter-spacing: -0.01em;
     }
     .topic-desc {
-      font-size: 0.75rem;
+      font-family: var(--mono);
+      font-size: 0.62rem;
       color: var(--text-muted);
       text-align: center;
-      position: relative;
-      z-index: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
+    @media (max-width: 768px) { .hot-topics-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 480px) { .hot-topics-grid { grid-template-columns: repeat(2, 1fr); } }
 
     /* ============================================================
-       Regional — map-inspired cards with ambient glow
+       Regional
        ============================================================ */
-    .regional-topics { padding: 5rem 0; }
-    .regional-topics-header { margin-bottom: 2.5rem; }
     .regional-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 1px;
+      background: var(--border);
+      border: var(--border);
+      border-radius: 0;
+      overflow: hidden;
     }
     .regional-card {
-      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 3rem 1.5rem;
-      background: rgba(255,255,255,0.015);
+      padding: 2rem 1rem;
+      background: var(--bg-primary);
       text-decoration: none;
-      overflow: hidden;
-      transition: all var(--transition);
+      transition: background var(--transition);
       cursor: pointer;
-      min-height: 200px;
+      min-height: 160px;
     }
-    .regional-card::before {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      transform: scaleX(0);
-      transition: transform 0.4s ease;
-    }
-    .regional-card:hover::before { transform: scaleX(1); }
-    .regional-card:hover { background: rgba(255,255,255,0.04); }
+    .regional-card:hover { background: var(--bg-secondary); }
+    .regional-card:hover .regional-icon { transform: translateY(-3px); }
     .regional-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      position: relative;
-      z-index: 1;
-      transition: transform 0.4s ease;
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+      transition: transform 0.2s ease;
     }
-    .regional-card:hover .regional-icon { transform: scale(1.15) translateY(-4px); }
     .regional-title {
-      font-size: 1.05rem;
+      font-size: 0.85rem;
       font-weight: 700;
-      color: #fff;
-      margin-bottom: 0.25rem;
-      position: relative;
-      z-index: 1;
+      color: var(--text-primary);
+      margin-bottom: 0.2rem;
     }
     .regional-desc {
-      font-size: 0.75rem;
+      font-family: var(--mono);
+      font-size: 0.62rem;
       color: var(--text-muted);
       text-align: center;
-      position: relative;
-      z-index: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
+    @media (max-width: 768px) { .regional-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 480px) { .regional-grid { grid-template-columns: repeat(2, 1fr); } }
 
     /* ============================================================
-       Category Showcase — cinematic grid
+       Category showcase
        ============================================================ */
-    .category-showcase {
-      background: linear-gradient(180deg, var(--bg-deep) 0%, #0c0000 30%, var(--bg-deep) 100%);
-      padding: 5rem 0;
-    }
-    .showcase-header { text-align: center; margin-bottom: 3rem; }
-    .showcase-header .section-desc { margin: 0.75rem auto 0; }
     .view-toggle {
       display: flex;
-      justify-content: center;
-      gap: 0;
-      margin-bottom: 2.5rem;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+    }
+    .view-toggle-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
     .view-toggle-btn {
-      padding: 0.6rem 1.5rem;
+      padding: 0.4rem 0.9rem;
       background: transparent;
-      border: 1px solid rgba(255,255,255,0.08);
+      border: var(--border);
       color: var(--text-muted);
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 500;
       cursor: pointer;
       transition: all var(--transition);
+      border-radius: 0;
     }
-    .view-toggle-btn:first-child { border-radius: 0; }
-    .view-toggle-btn:last-child { border-radius: 0; border-left: none; }
     .view-toggle-btn.active {
       background: var(--accent);
       border-color: var(--accent);
@@ -666,70 +688,58 @@ export function generateHomePage(options = {}) {
     }
     .view-toggle-btn:hover:not(.active) {
       color: var(--text-primary);
-      border-color: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.15);
     }
-    .view-toggle-btn svg { width: 14px; height: 14px; vertical-align: middle; margin-right: 0.4rem; }
-
+    .view-toggle-btn svg { width: 13px; height: 13px; vertical-align: middle; margin-right: 0.35rem; }
     .category-grid, .type-grid {
       display: grid;
       grid-template-columns: repeat(8, 1fr);
       gap: 1px;
-      background: rgba(255,255,255,0.03);
+      background: var(--border);
+      border: var(--border);
+      border-radius: 0;
+      overflow: hidden;
     }
     .category-card, .type-card {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 2rem 0.75rem;
-      background: rgba(5, 5, 5, 0.9);
+      padding: 1.4rem 0.5rem;
+      background: var(--bg-primary);
       text-decoration: none;
-      transition: all var(--transition);
+      transition: background var(--transition);
       cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      min-height: 140px;
+      min-height: 105px;
     }
-    .category-card::before, .type-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: var(--accent);
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.3s ease;
-    }
-    .category-card:hover::before, .type-card:hover::before { transform: scaleX(1); }
-    .category-card:hover, .type-card:hover { background: rgba(229, 9, 20, 0.06); }
+    .category-card:hover, .type-card:hover { background: var(--bg-secondary); }
     .category-icon, .type-icon {
-      width: 44px;
-      height: 44px;
-      margin-bottom: 0.75rem;
+      width: 28px;
+      height: 28px;
+      margin-bottom: 0.5rem;
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--accent);
-      font-size: 1.5rem;
-      transition: all var(--transition);
-      filter: drop-shadow(0 0 8px rgba(229,9,20,0.3));
+      font-size: 1rem;
+      transition: transform 0.2s ease;
     }
     .category-card:hover .category-icon,
-    .type-card:hover .type-icon {
-      transform: scale(1.1);
-      filter: drop-shadow(0 0 16px rgba(229,9,20,0.6));
-    }
+    .type-card:hover .type-icon { transform: scale(1.12); }
     .category-icon svg, .type-icon svg { width: 100%; height: 100%; }
     .category-name, .type-name {
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       font-weight: 600;
       color: var(--text-primary);
       text-align: center;
-      margin-bottom: 0.2rem;
+      margin-bottom: 0.15rem;
     }
-    .category-count, .type-count { font-size: 0.7rem; color: var(--text-muted); }
-    .loading { text-align: center; padding: 4rem; color: var(--text-secondary); }
-
+    .category-count, .type-count {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      color: var(--text-muted);
+    }
+    .loading { text-align: center; padding: 3rem; color: var(--text-secondary); font-family: var(--mono); }
 
     /* ============================================================
        Responsive
@@ -739,22 +749,17 @@ export function generateHomePage(options = {}) {
       .category-grid, .type-grid { grid-template-columns: repeat(4, 1fr); }
     }
     @media (max-width: 768px) {
-      .hero { min-height: 70vh; }
-      .hero-inner { padding: 0 1.5rem; }
-      .hero-stats { gap: 1.5rem; }
-      .hero-stat-value { font-size: 2.5rem; }
-      .hero-stat { padding: 0 1.5rem; }
-      .section { padding: 3.5rem 0; }
-      .section-inner { padding: 0 1.5rem; }
-      .hero-stat:not(:last-child)::after { display: none; }
-      .hot-topics-grid { grid-template-columns: repeat(3, 1fr); }
-      .regional-grid { grid-template-columns: repeat(3, 1fr); }
-      .category-grid, .type-grid { grid-template-columns: repeat(4, 1fr); }
+      .hero { padding: 2rem 0 1.5rem; }
+      .hero-inner { padding: 0 1rem; }
+      .hero-stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-statusbar { gap: 0.5rem; }
+      .section { padding: 2.25rem 0; }
+      .section-inner { padding: 0 1rem; }
+      .sub-value-inner { flex-direction: column; align-items: flex-start; }
+      .sub-value-cta { width: 100%; justify-content: center; }
     }
     @media (max-width: 480px) {
-      .hero h1 { font-size: 2rem; }
-      .hero-stats { flex-direction: column; gap: 1.5rem; }
-      .hero-stat-value { font-size: 2rem; }
+      .hero-stats-grid { grid-template-columns: 1fr; }
       .hot-topics-grid { grid-template-columns: repeat(2, 1fr); }
       .regional-grid { grid-template-columns: repeat(2, 1fr); }
       .category-grid, .type-grid { grid-template-columns: repeat(2, 1fr); }
@@ -796,43 +801,47 @@ export function generateHomePage(options = {}) {
   ${pageHeader}
 
   <section class="hero" id="main-content">
-    <div class="hero-bg"></div>
-    <div class="hero-particles" id="heroParticles"></div>
     <div class="hero-inner">
-      <div class="hero-eyebrow reveal stagger-1">
-        <span class="hero-eyebrow-dot"></span>
-        Live TV &middot; No Signup Required
+      <div class="hero-statusbar reveal">
+        <span class="status-badge"><span class="status-dot"></span> System Online</span>
+        <span class="status-badge">Last updated: today</span>
+        <span class="status-badge">150+ countries indexed</span>
+        <span class="status-badge">Trusted by 240,000+ viewers</span>
+        <span class="status-feed"><span class="accent">&gt;</span> live-feed: active</span>
       </div>
-      <h1 class="reveal stagger-2">
-        The Largest<br>
-        <span class="accent-line">Free IPTV Search</span>
-      </h1>
-      <p class="hero-social-proof reveal stagger-3">⭐⭐⭐⭐⭐ Trusted by 240,000+ viewers across 150 countries</p>
-      <p class="hero-sub reveal stagger-3" style="transition-delay:0.18s">
-        Stream 8,000+ live channels from 150+ countries. Sports, movies, news & entertainment. Sports, movies, news &amp; entertainment &mdash; all in one place.
+      <div class="hero-headline reveal stagger-1">
+        <span class="hero-headline-prefix">$</span>
+        <h1>8,000+ Live Channels<br><span class="accent">Worldwide</span></h1>
+      </div>
+      <p class="hero-sub reveal stagger-2">
+        Real-time IPTV directory. Search, filter, and stream from 150+ countries. Updated daily. No signup required.
       </p>
-      <div class="hero-stats reveal stagger-4">
-        <div class="hero-stat">
-          <div class="hero-stat-value" id="totalChannels">${totalChannels >= 10000 ? '10,000+' : (totalChannels || 0).toLocaleString()}</div>
-          <div class="hero-stat-label">Channels</div>
+      <div class="hero-stats-grid reveal stagger-3">
+        <div class="stat-card">
+          <div class="stat-label">Total Channels</div>
+          <div class="stat-value">${totalChannels >= 10000 ? '10,000+' : (totalChannels || 8).toLocaleString()}<span class="unit">+</span></div>
+          <div class="stat-change">▲ +120 this week</div>
         </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value" id="totalGroups">${totalGroups >= 100 ? '100+' : totalGroups}</div>
-          <div class="hero-stat-label">Categories</div>
+        <div class="stat-card">
+          <div class="stat-label">Countries</div>
+          <div class="stat-value">150<span class="unit">+</span></div>
+          <div class="stat-change neutral">global coverage</div>
         </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value">4K</div>
-          <div class="hero-stat-label">4K Quality</div>
+        <div class="stat-card">
+          <div class="stat-label">Categories</div>
+          <div class="stat-value" id="totalGroups">${totalGroups >= 100 ? '100+' : totalGroups}<span class="unit">+</span></div>
+          <div class="stat-change">▲ organized</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Quality</div>
+          <div class="stat-value">4K<span class="unit"></span></div>
+          <div class="stat-change neutral">● no ads · daily refresh</div>
         </div>
       </div>
-      <div class="hero-cta-wrap reveal stagger-5">
-        <a href="/subscription" class="hero-cta">Get Free VIP<span class="hero-cta-arrow">→</span></a>
-        <a href="#popular-topics" class="hero-cta-secondary">Browse Channels</a>
+      <div class="hero-cta-row reveal stagger-4">
+        <a href="/subscription" class="hero-cta">GET_VIP_ACCESS &rarr;</a>
+        <a href="#popular-topics" class="hero-cta-secondary">$ browse channels</a>
       </div>
-    </div>
-    <div class="scroll-indicator">
-      <div class="scroll-indicator-line"></div>
-      <span>Scroll</span>
     </div>
   </section>
 
@@ -840,13 +849,51 @@ export function generateHomePage(options = {}) {
 
 
 
+  <div class="sub-value-banner reveal" id="subValueBanner">
+    <div class="sub-value-inner">
+      <div class="sub-value-left">
+        <div class="sub-value-eyebrow" id="bannerEyebrow">api/v1/premium</div>
+        <h2 class="sub-value-title" id="bannerTitle">Your Full Channel<br><span>Playlist Awaits</span></h2>
+        <p class="sub-value-desc" id="bannerDesc">Register now and get instant access to 8,000+ IPTV channels. One click to your personal M3U subscription link.</p>
+        <div class="sub-value-trust-box">
+          <ul class="sub-value-trust" aria-label="Why try it">
+            <li><span class="trust-check" aria-hidden="true">[OK]</span> No credit card required</li>
+            <li><span class="trust-check" aria-hidden="true">[OK]</span> 7 days free, then from &yen;20/mo</li>
+            <li><span class="trust-check" aria-hidden="true">[OK]</span> 7-day money-back &middot; cancel anytime</li>
+            <li><span class="trust-check" aria-hidden="true">[OK]</span> Secure payment: Alipay / WeChat / USDT</li>
+          </ul>
+        </div>
+        <div class="sub-value-anchor">Yearly plan <strong>saves 40%</strong> &mdash; only &yen;9.9/mo</div>
+      </div>
+      <a href="/subscription" class="sub-value-cta" id="bannerCta">GET_ACCESS<span class="sub-value-cta-arrow"> &rarr;</span></a>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var hasAuth = false;
+      try {
+        hasAuth = !!localStorage.getItem('auth_token') ||
+                  document.cookie.indexOf('auth_token=') !== -1;
+      } catch (e) {}
+      if (!hasAuth) return;
+      var el;
+      if ((el = document.getElementById('bannerEyebrow'))) el.textContent = 'api/v1/upgrade';
+      if ((el = document.getElementById('bannerTitle'))) el.innerHTML = 'Unlock All Features<br><span>VIP Access</span>';
+      if ((el = document.getElementById('bannerDesc'))) el.textContent = 'Upgrade to VIP for unlimited searches, downloads, multi-device sync, and priority support.';
+      var cta = document.getElementById('bannerCta');
+      if (cta) { cta.href = '/subscription'; cta.innerHTML = 'UPGRADE_NOW<span class="sub-value-cta-arrow"> &rarr;</span>'; }
+    })();
+  </script>
+
   <section class="section hot-topics" id="popular-topics">
     <div class="section-inner">
-      <div class="hot-topics-header">
-        <p class="section-label reveal">Featured</p>
-        <h2 class="section-title reveal stagger-1">Popular Topics</h2>
-        <p class="section-desc reveal stagger-2">Explore curated content by category</p>
+      <div class="section-meta reveal">
+        <span class="section-label">endpoint: popular</span>
+        <h2 class="section-title">Popular Topics</h2>
+        <span class="section-count">6 endpoints</span>
       </div>
+      <p class="section-desc reveal" style="margin-bottom:1.5rem">Explore curated content by category</p>
       <div class="hot-topics-grid">
         <a href="/usa-iptv" class="topic-card reveal stagger-1">
           <span class="topic-icon">🇺🇸</span>
@@ -884,11 +931,12 @@ export function generateHomePage(options = {}) {
 
   <section class="section regional-topics">
     <div class="section-inner">
-      <div class="regional-topics-header">
-        <p class="section-label reveal">Geography</p>
-        <h2 class="section-title reveal stagger-1">Explore by Region</h2>
-        <p class="section-desc reveal stagger-2">Free IPTV channels from around the world</p>
+      <div class="section-meta reveal">
+        <span class="section-label">endpoint: regions</span>
+        <h2 class="section-title">Explore by Region</h2>
+        <span class="section-count">5 regions</span>
       </div>
+      <p class="section-desc reveal" style="margin-bottom:1.5rem">Free IPTV channels from around the world</p>
       <div class="regional-grid">
         <a href="/americas-iptv" class="regional-card reveal stagger-1">
           <span class="regional-icon">🌎</span>
@@ -921,14 +969,16 @@ export function generateHomePage(options = {}) {
 
   <section class="section category-showcase">
     <div class="section-inner">
-      <div class="showcase-header">
-        <p class="section-label reveal" style="text-align:center">Directory</p>
-        <h2 class="section-title reveal stagger-1" style="text-align:center">Browse by Category</h2>
-        <p class="section-desc reveal stagger-2" style="text-align:center;margin:0.75rem auto 0">Discover thousands of free live TV channels &mdash; CCTV, Sports, Movies, News and more</p>
+      <div class="section-meta reveal">
+        <span class="section-label">endpoint: categories</span>
+        <h2 class="section-title">Browse by Category</h2>
+        <span class="section-count">8 types loaded</span>
       </div>
+      <p class="section-desc reveal" style="margin-bottom:1.25rem">Discover thousands of free live TV channels &mdash; CCTV, Sports, Movies, News and more</p>
 
       <!-- View Mode Toggle -->
-      <div class="view-toggle reveal stagger-3">
+      <div class="view-toggle reveal">
+        <span class="view-toggle-label">view mode:</span>
         <button class="view-toggle-btn active" data-view="region" onclick="window.switchView('region')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
           By Region
@@ -1006,21 +1056,6 @@ export function generateHomePage(options = {}) {
         cardRevealObserver.observe(grid);
       });
 
-      // Hero particle generator
-      const particleContainer = document.getElementById('heroParticles');
-      if (particleContainer) {
-        for (let i = 0; i < 8; i++) {
-          const p = document.createElement('div');
-          p.className = 'particle';
-          p.style.left = Math.random() * 100 + '%';
-          p.style.animationDuration = (8 + Math.random() * 12) + 's';
-          p.style.animationDelay = (Math.random() * 10) + 's';
-          const size = 1 + Math.random() * 2;
-          p.style.width = size + 'px';
-          p.style.height = size + 'px';
-          particleContainer.appendChild(p);
-        }
-      }
     })();
   </script>
 
