@@ -563,6 +563,10 @@ export function generateHomePage(options = {}) {
       </div>
       <div class="hero-stats">
         <div class="hero-stat">
+          <div class="hero-stat-value" id="totalChannels">${totalChannels >= 10000 ? '10,000+' : (totalChannels || 0).toLocaleString()}</div>
+          <div class="hero-stat-label">Channels</div>
+        </div>
+        <div class="hero-stat">
           <div class="hero-stat-value" id="totalGroups">${totalGroups >= 100 ? '100+' : totalGroups}</div>
           <div class="hero-stat-label">Categories</div>
         </div>
@@ -832,8 +836,10 @@ export function generateHomePage(options = {}) {
 
       } catch (error) {
         console.error('Failed to load home data:', error);
-        document.getElementById('categoryGrid').innerHTML = 
-          '<p class="loading">Failed to load categories. Please refresh the page.</p>';
+        const regionGrid = document.getElementById('regionGrid');
+        if (regionGrid) {
+          regionGrid.innerHTML = '<p class="loading">Failed to load categories. Please refresh the page.</p>';
+        }
       }
     }
 
