@@ -204,6 +204,11 @@ export const VIP_NOTIFICATION_SCRIPTS = `
   function showToast() {
     if (!toast || !toast.isConnected) return;
     if (shown >= SESSION_CAP) return;
+    // Defer if vip-strip is currently visible (mutual exclusion)
+    if (window.__vipStripVisible) {
+      setTimeout(showToast, 60000);
+      return;
+    }
     var t = pickTemplate();
     nameEl.textContent = t.name;
     msgEl.textContent  = t.msg;
@@ -211,6 +216,7 @@ export const VIP_NOTIFICATION_SCRIPTS = `
     toast.hidden = false;
     void toast.offsetWidth; // force reflow for transition
     toast.classList.add('vip-toast-visible');
+    window.__vipToastVisible = true;
     shown++;
     try { sessionStorage.setItem('vip_toasts_shown', String(shown)); } catch (e) {}
     // Display ~15s (slight variation for natural feel)
@@ -221,6 +227,7 @@ export const VIP_NOTIFICATION_SCRIPTS = `
   function hideToast() {
     if (!toast) return;
     toast.classList.remove('vip-toast-visible');
+    window.__vipToastVisible = false;
     setTimeout(function() {
       if (toast) toast.hidden = true;
     }, 550);

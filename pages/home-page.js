@@ -495,143 +495,6 @@ export function generateHomePage(options = {}) {
       line-height: 1.6;
     }
 
-    /* ============================================================
-       Subscription Value Banner — cinematic horizontal band
-       ============================================================ */
-    .sub-value-banner {
-      background: linear-gradient(135deg, #0d0000 0%, #1a0000 50%, #0a0a0a 100%);
-      border-top: 1px solid rgba(229, 9, 20, 0.2);
-      border-bottom: 1px solid rgba(229, 9, 20, 0.1);
-      padding: 4rem 0;
-      position: relative;
-      overflow: hidden;
-    }
-    .sub-value-banner::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -10%;
-      width: 60%;
-      height: 200%;
-      background: radial-gradient(ellipse, rgba(229,9,20,0.08) 0%, transparent 60%);
-      pointer-events: none;
-    }
-    .sub-value-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 3rem;
-      position: relative;
-      z-index: 1;
-    }
-    .sub-value-left { flex: 1; }
-    .sub-value-eyebrow {
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.25em;
-      color: var(--accent);
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .sub-value-eyebrow::before {
-      content: '';
-      width: 20px;
-      height: 1px;
-      background: var(--accent);
-    }
-    .sub-value-title {
-      font-size: clamp(2rem, 4vw, 3.25rem);
-      font-weight: 900;
-      color: #fff;
-      line-height: 1.05;
-      letter-spacing: -0.03em;
-      margin: 0;
-    }
-    .sub-value-title span {
-      background: linear-gradient(135deg, var(--accent) 0%, #ff4444 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .sub-value-desc {
-      font-size: 0.95rem;
-      color: var(--text-secondary);
-      margin-top: 1.25rem;
-      max-width: 440px;
-      line-height: 1.7;
-    }
-    .sub-value-player-hint {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 0.75rem;
-    }
-    .sub-value-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding: 1rem 2.25rem;
-      background: var(--accent);
-      color: #fff;
-      font-weight: 700;
-      font-size: 0.95rem;
-      text-decoration: none;
-      border-radius: 0;
-      transition: all var(--transition);
-      white-space: nowrap;
-      flex-shrink: 0;
-      box-shadow: 0 0 40px rgba(229, 9, 20, 0.35), 0 4px 20px rgba(0,0,0,0.5);
-    }
-    .sub-value-cta:hover {
-      background: var(--accent-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 0 60px rgba(229, 9, 20, 0.5), 0 8px 30px rgba(0,0,0,0.5);
-    }
-    .sub-value-cta-arrow { transition: transform 0.2s; }
-    .sub-value-cta:hover .sub-value-cta-arrow { transform: translateX(4px); }
-    .sub-value-trust-box {
-      margin-top: 1.5rem;
-      padding: 1rem 1.25rem;
-      background: rgba(34, 197, 94, 0.05);
-      border: 1px solid rgba(34, 197, 94, 0.25);
-      border-radius: var(--radius-md);
-      max-width: 440px;
-    }
-    .sub-value-trust {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-    .sub-value-trust li { display: flex; align-items: center; gap: 0.6rem; }
-    .trust-check {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: rgba(34, 197, 94, 0.18);
-      color: #22c55e;
-      font-size: 0.65rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .sub-value-anchor {
-      margin-top: 1rem;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-    .sub-value-anchor strong { color: #22c55e; font-weight: 600; }
 
     /* ============================================================
        Hot Topics — cinematic cards with hover glow
@@ -883,9 +746,6 @@ export function generateHomePage(options = {}) {
       .hero-stat { padding: 0 1.5rem; }
       .section { padding: 3.5rem 0; }
       .section-inner { padding: 0 1.5rem; }
-      .sub-value-inner { flex-direction: column; align-items: flex-start; }
-      .sub-value-title { font-size: 1.75rem; }
-      .sub-value-cta { width: 100%; justify-content: center; }
       .hero-stat:not(:last-child)::after { display: none; }
       .hot-topics-grid { grid-template-columns: repeat(3, 1fr); }
       .regional-grid { grid-template-columns: repeat(3, 1fr); }
@@ -977,47 +837,7 @@ export function generateHomePage(options = {}) {
   </section>
 
 
-    <!-- Subscription Value Banner - V3 Editorial -->
-  <div class="sub-value-banner reveal" id="subValueBanner">
-    <div class="sub-value-inner">
-      <div class="sub-value-left">
-        <div class="sub-value-eyebrow" id="bannerEyebrow">New User Special</div>
-        <h2 class="sub-value-title" id="bannerTitle">Your Full Channel<br><span>Playlist</span> Awaits</h2>
-        <p class="sub-value-desc" id="bannerDesc">Register now and get instant access to 8,000+ IPTV channels. One click to your personal M3U subscription link.</p>
-        <div class="sub-value-player-hint" id="bannerPlayerHint">VLC • APTV • TVBox • Tivimate • Televizo • GSE Smart IPTV</div>
-        <div class="sub-value-trust-box">
-          <ul class="sub-value-trust" aria-label="Why try it">
-            <li><span class="trust-check" aria-hidden="true">✓</span> No credit card required</li>
-            <li><span class="trust-check" aria-hidden="true">✓</span> Secure payment: Alipay / WeChat / USDT</li>
-            <li><span class="trust-check" aria-hidden="true">✓</span> 7 days free, then from ¥20/mo</li>
-            <li><span class="trust-check" aria-hidden="true">✓</span> 7-day money-back · cancel anytime</li>
-          </ul>
-        </div>
-        <div class="sub-value-anchor">Yearly plan <strong>saves 40%</strong> — only ¥9.9/mo</div>
-      </div>
-      <a href="/subscription" class="sub-value-cta" id="bannerCta">Get Free VIP<span class="sub-value-cta-arrow">→</span></a>
-    </div>
-  </div>
 
-  <script>
-    // 根据登录状态动态更新横幅内容
-    (function() {
-      // 同时检查 Cookie 和 localStorage（Cookie 是 HttpOnly，需用 localStorage）
-      var cookieCheck = document.cookie.split('; ').find(function(row) { return row.startsWith('auth_token='); });
-      var localStorageCheck = localStorage.getItem('auth_token');
-      var isLoggedIn = !!cookieCheck || !!localStorageCheck;
-      
-      if (isLoggedIn) {
-        // 已登录用户：显示VIP升级横幅
-        document.getElementById('bannerEyebrow').textContent = '🔥 VIP Exclusive Offer';
-        document.getElementById('bannerTitle').innerHTML = 'Unlock All Features<br><span>Enjoy 5000+ Channels</span>';
-        document.getElementById('bannerDesc').textContent = 'Upgrade to VIP for unlimited searches, downloads, multi-device sync, and priority support.';
-        const cta = document.getElementById('bannerCta');
-        cta.href = '/subscription';
-        cta.innerHTML = 'Upgrade to VIP Now<span class="sub-value-cta-arrow">→</span>';
-      }
-    })();
-  </script>
 
 
   <section class="section hot-topics" id="popular-topics">

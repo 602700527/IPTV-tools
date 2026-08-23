@@ -4,6 +4,11 @@ import {
   VIP_NOTIFICATION_HTML,
   VIP_NOTIFICATION_SCRIPTS
 } from './vip-notification.js';
+import {
+  VIP_STRIP_STYLES,
+  VIP_STRIP_HTML,
+  VIP_STRIP_SCRIPTS
+} from './vip-strip.js';
 
 export const PAGE_FOOTER = `
   <!-- Floating Sidebar - Back to Top Only -->
@@ -373,6 +378,8 @@ export const PAGE_FOOTER = `
       .footer-col-links { align-items: center; }
     }
 
+    /* VIP Sticky Strip — persistent bottom offer */
+    ${VIP_STRIP_STYLES}
     /* VIP Notification Toast — FOMO nudge */
     ${VIP_NOTIFICATION_STYLES}
   </style>
@@ -435,5 +442,11 @@ export const PAGE_FOOTER = `
   ${VIP_NOTIFICATION_HTML}
   <script>
     ${VIP_NOTIFICATION_SCRIPTS}
+  </script>
+
+  <!-- VIP Sticky Strip — persistent bottom offer (deconflicted from FOMO) -->
+  ${VIP_STRIP_HTML}
+  <script>
+    ${VIP_STRIP_SCRIPTS}
   </script>
 `;
