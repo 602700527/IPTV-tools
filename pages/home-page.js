@@ -69,9 +69,10 @@ export function generateHomePage(options = {}) {
   <meta property="og:description" content="Find any IPTV channel instantly. Search live sports, movies, news. Updated daily. No signup required.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${origin}/">
-  <meta property="og:locale" content="en_US">
+  <meta property="og:locale" content="en">
   <meta property="og:image" content="${origin}/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="${origin}/og-image.svg">
   <meta name="twitter:title" content="iptvsearch - Free IPTV Search Engine | 8000+ Live TV Channels">
   <meta name="twitter:description" content="Find any IPTV channel instantly. Search live sports, movies, news. Updated daily.">
 
@@ -98,6 +99,18 @@ export function generateHomePage(options = {}) {
     }
   }
   </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "IPTV Search",
+    "url": "${origin}",
+    "logo": "${origin}/favicon.svg",
+    "description": "Free IPTV Channel Directory and Search Engine with 8,000+ live TV channels from 150+ countries."
+  }
+  </script>
+
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -113,6 +126,21 @@ export function generateHomePage(options = {}) {
       {"@type": "Question", "name": "How often are channels updated?", "acceptedAnswer": {"@type": "Answer", "text": "We update our channel database daily. Dead links are removed and new channels are added regularly to maintain quality."}},
       {"@type": "Question", "name": "Can I record live TV?", "acceptedAnswer": {"@type": "Answer", "text": "Recording functionality is not available on our free service. Some third-party players support DVR features for IPTV streams."}},
       {"@type": "Question", "name": "What countries channels are available?", "acceptedAnswer": {"@type": "Answer", "text": "We have channels from 150+ countries including USA, UK, Canada, Australia, India, China, Brazil, and many more. Browse by category or country on our homepage."}}
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Popular IPTV Topics",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "USA IPTV", "url": "${origin}/usa-iptv" },
+      { "@type": "ListItem", "position": 2, "name": "UK IPTV", "url": "${origin}/uk-iptv-plans" },
+      { "@type": "ListItem", "position": 3, "name": "Smart TV Setup", "url": "${origin}/tutorial" },
+      { "@type": "ListItem", "position": 4, "name": "Android IPTV Apps", "url": "${origin}/android-iptv-app" },
+      { "@type": "ListItem", "position": 5, "name": "Free IPTV App Reviews", "url": "${origin}/free-iptv-app-review" },
+      { "@type": "ListItem", "position": 6, "name": "APTV & CarPlay", "url": "${origin}/carplay-aptv" }
     ]
   }
   </script>
@@ -163,11 +191,14 @@ export function generateHomePage(options = {}) {
     /* ============================================================
        Scroll-reveal system
        ============================================================ */
-    .reveal {
-      opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      }
     }
+    /* Default: visible (crawlers + reduced-motion users see content immediately) */
     .reveal.visible { opacity: 1; transform: translateY(0); }
     .reveal-left {
       opacity: 0;
@@ -357,6 +388,54 @@ export function generateHomePage(options = {}) {
       margin-top: 0.6rem;
       font-weight: 500;
     }
+    .hero-social-proof {
+      display: inline-block;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      padding: 0.4rem 1rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0;
+    }
+    .hero-cta-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2.5rem;
+      flex-wrap: wrap;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 2rem;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border-radius: 0;
+      box-shadow: 0 0 40px rgba(229, 9, 20, 0.4), 0 4px 20px rgba(0,0,0,0.4);
+      transition: all var(--transition);
+    }
+    .hero-cta:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 0 60px rgba(229, 9, 20, 0.5); }
+    .hero-cta-arrow { transition: transform 0.2s; }
+    .hero-cta:hover .hero-cta-arrow { transform: translateX(4px); }
+    .hero-cta-secondary {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.85rem 2rem;
+      background: transparent;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border-radius: 0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all var(--transition);
+    }
+    .hero-cta-secondary:hover { border-color: #fff; background: rgba(255, 255, 255, 0.06); }
     .scroll-indicator {
       position: absolute;
       bottom: 2rem;
@@ -518,8 +597,8 @@ export function generateHomePage(options = {}) {
     .sub-value-trust-box {
       margin-top: 1.5rem;
       padding: 1rem 1.25rem;
-      background: rgba(229, 9, 20, 0.04);
-      border: 1px solid rgba(229, 9, 20, 0.15);
+      background: rgba(34, 197, 94, 0.05);
+      border: 1px solid rgba(34, 197, 94, 0.25);
       border-radius: var(--radius-md);
       max-width: 440px;
     }
@@ -538,8 +617,8 @@ export function generateHomePage(options = {}) {
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: rgba(229, 9, 20, 0.15);
-      color: var(--accent);
+      background: rgba(34, 197, 94, 0.18);
+      color: #22c55e;
       font-size: 0.65rem;
       font-weight: 700;
       display: flex;
@@ -547,6 +626,12 @@ export function generateHomePage(options = {}) {
       justify-content: center;
       flex-shrink: 0;
     }
+    .sub-value-anchor {
+      margin-top: 1rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .sub-value-anchor strong { color: #22c55e; font-weight: 600; }
 
     /* ============================================================
        Hot Topics — cinematic cards with hover glow
@@ -782,20 +867,6 @@ export function generateHomePage(options = {}) {
     .category-count, .type-count { font-size: 0.7rem; color: var(--text-muted); }
     .loading { text-align: center; padding: 4rem; color: var(--text-secondary); }
 
-    /* ============================================================
-       Promo Banner (hidden by default; pre-existing dead code path)
-       ============================================================ */
-    .promo-banner { display: none; background: var(--accent); margin: 0 auto; max-width: 1400px; position: relative; }
-    .promo-banner.show { display: block; }
-    .promo-banner-inner { display: flex; align-items: center; justify-content: center; gap: 2rem; padding: 0.75rem 2rem; max-width: 1400px; margin: 0 auto; }
-    .promo-countdown-box { display: flex; align-items: center; gap: 4px; }
-    .promo-countdown-numbers { display: flex; gap: 4px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.85rem; font-weight: 600; color: #fff; }
-    .promo-countdown-numbers .time-unit { display: inline-flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); padding: 4px 8px; min-width: 32px; }
-    .promo-countdown-numbers .time-sep { color: rgba(255,255,255,0.5); line-height: 1; }
-    .promo-banner-content { text-align: center; }
-    .promo-headline { color: #fff; font-size: 0.9rem; font-weight: 500; }
-    .promo-cta { background: #fff; color: var(--accent); font-weight: 600; padding: 0.4rem 1rem; font-size: 0.8rem; text-decoration: none; transition: all 0.2s; white-space: nowrap; }
-    .promo-cta:hover { background: rgba(255,255,255,0.9); }
 
     /* ============================================================
        Responsive
@@ -873,11 +944,12 @@ export function generateHomePage(options = {}) {
         Live TV &middot; No Signup Required
       </div>
       <h1 class="reveal stagger-2">
-        The World's Largest<br>
+        The Largest<br>
         <span class="accent-line">Free IPTV Search</span>
       </h1>
-      <p class="hero-sub reveal stagger-3">
-        Stream 5,000+ live channels from 150+ countries. Sports, movies, news &amp; entertainment &mdash; all in one place.
+      <p class="hero-social-proof reveal stagger-3">⭐⭐⭐⭐⭐ Trusted by 240,000+ viewers across 150 countries</p>
+      <p class="hero-sub reveal stagger-3" style="transition-delay:0.18s">
+        Stream 8,000+ live channels from 150+ countries. Sports, movies, news & entertainment. Sports, movies, news &amp; entertainment &mdash; all in one place.
       </p>
       <div class="hero-stats reveal stagger-4">
         <div class="hero-stat">
@@ -890,8 +962,12 @@ export function generateHomePage(options = {}) {
         </div>
         <div class="hero-stat">
           <div class="hero-stat-value">4K</div>
-          <div class="hero-stat-label">HD Quality</div>
+          <div class="hero-stat-label">4K Quality</div>
         </div>
+      </div>
+      <div class="hero-cta-wrap reveal stagger-5">
+        <a href="/subscription" class="hero-cta">Get Free VIP<span class="hero-cta-arrow">→</span></a>
+        <a href="#popular-topics" class="hero-cta-secondary">Browse Channels</a>
       </div>
     </div>
     <div class="scroll-indicator">
@@ -907,17 +983,19 @@ export function generateHomePage(options = {}) {
       <div class="sub-value-left">
         <div class="sub-value-eyebrow" id="bannerEyebrow">New User Special</div>
         <h2 class="sub-value-title" id="bannerTitle">Your Full Channel<br><span>Playlist</span> Awaits</h2>
-        <p class="sub-value-desc" id="bannerDesc">Register now and get instant access to 5000+ IPTV channels. One click to your personal M3U subscription link.</p>
+        <p class="sub-value-desc" id="bannerDesc">Register now and get instant access to 8,000+ IPTV channels. One click to your personal M3U subscription link.</p>
         <div class="sub-value-player-hint" id="bannerPlayerHint">VLC • APTV • TVBox • Tivimate • Televizo • GSE Smart IPTV</div>
         <div class="sub-value-trust-box">
           <ul class="sub-value-trust" aria-label="Why try it">
             <li><span class="trust-check" aria-hidden="true">✓</span> No credit card required</li>
-            <li><span class="trust-check" aria-hidden="true">✓</span> 7 days free, then from $9.99/mo</li>
-            <li><span class="trust-check" aria-hidden="true">✓</span> 5,000+ channels · 4K · no ads</li>
+            <li><span class="trust-check" aria-hidden="true">✓</span> Secure payment: Alipay / WeChat / USDT</li>
+            <li><span class="trust-check" aria-hidden="true">✓</span> 7 days free, then from ¥20/mo</li>
+            <li><span class="trust-check" aria-hidden="true">✓</span> 7-day money-back · cancel anytime</li>
           </ul>
         </div>
+        <div class="sub-value-anchor">Yearly plan <strong>saves 40%</strong> — only ¥9.9/mo</div>
       </div>
-      <a href="/login#register" class="sub-value-cta" id="bannerCta">Get Free VIP<span class="sub-value-cta-arrow">→</span></a>
+      <a href="/subscription" class="sub-value-cta" id="bannerCta">Get Free VIP<span class="sub-value-cta-arrow">→</span></a>
     </div>
   </div>
 
@@ -941,23 +1019,11 @@ export function generateHomePage(options = {}) {
     })();
   </script>
 
-  <!-- Promo Banner - Clean minimalist style -->
-  <div class="promo-banner" id="promoBanner">
-    <div class="promo-banner-inner">
-      <div class="promo-countdown-box">
-        <div class="promo-countdown-numbers" id="promoCountdown">00 : 00 : 00 : 00</div>
-      </div>
-      <div class="promo-banner-content">
-        <span class="promo-headline" id="promoTitle">Premium service, limited time offer!</span>
-      </div>
-      <a href="/subscription" class="promo-cta">Learn More</a>
-    </div>
-  </div>
 
-  <section class="section hot-topics">
+  <section class="section hot-topics" id="popular-topics">
     <div class="section-inner">
       <div class="hot-topics-header">
-        <div class="section-label reveal">Featured</div>
+        <p class="section-label reveal">Featured</p>
         <h2 class="section-title reveal stagger-1">Popular Topics</h2>
         <p class="section-desc reveal stagger-2">Explore curated content by category</p>
       </div>
@@ -999,7 +1065,7 @@ export function generateHomePage(options = {}) {
   <section class="section regional-topics">
     <div class="section-inner">
       <div class="regional-topics-header">
-        <div class="section-label reveal">Geography</div>
+        <p class="section-label reveal">Geography</p>
         <h2 class="section-title reveal stagger-1">Explore by Region</h2>
         <p class="section-desc reveal stagger-2">Free IPTV channels from around the world</p>
       </div>
@@ -1020,12 +1086,12 @@ export function generateHomePage(options = {}) {
           <span class="regional-desc">China, Japan, Korea</span>
         </a>
         <a href="/middle-east-iptv" class="regional-card reveal stagger-4">
-          <span class="regional-icon">🌍</span>
+          <span class="regional-icon">🕌</span>
           <span class="regional-title">Middle East</span>
           <span class="regional-desc">Arabic, Turkish</span>
         </a>
         <a href="/oceania-iptv" class="regional-card reveal stagger-5">
-          <span class="regional-icon">🌏</span>
+          <span class="regional-icon">🦘</span>
           <span class="regional-title">Oceania</span>
           <span class="regional-desc">Australia, NZ</span>
         </a>
@@ -1036,7 +1102,7 @@ export function generateHomePage(options = {}) {
   <section class="section category-showcase">
     <div class="section-inner">
       <div class="showcase-header">
-        <div class="section-label reveal" style="text-align:center">Directory</div>
+        <p class="section-label reveal" style="text-align:center">Directory</p>
         <h2 class="section-title reveal stagger-1" style="text-align:center">Browse by Category</h2>
         <p class="section-desc reveal stagger-2" style="text-align:center;margin:0.75rem auto 0">Discover thousands of free live TV channels &mdash; CCTV, Sports, Movies, News and more</p>
       </div>
@@ -1123,7 +1189,7 @@ export function generateHomePage(options = {}) {
       // Hero particle generator
       const particleContainer = document.getElementById('heroParticles');
       if (particleContainer) {
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 8; i++) {
           const p = document.createElement('div');
           p.className = 'particle';
           p.style.left = Math.random() * 100 + '%';
