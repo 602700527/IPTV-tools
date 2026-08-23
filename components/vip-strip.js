@@ -95,7 +95,7 @@ export const VIP_STRIP_HTML = `
     <div class="vip-strip-icon notranslate" aria-hidden="true" translate="no">★</div>
     <div class="vip-strip-text notranslate" translate="no">
       <strong class="notranslate" translate="no">7 days free VIP</strong>
-      <span class="vip-strip-meta notranslate" translate="no">&yen;20/mo · 8,000+ channels · 4K · no ads</span>
+      <span class="vip-strip-meta notranslate" translate="no">[OK] No credit card · from &yen;20/mo · [OK] 7-day refund · [OK] Cancel anytime</span>
     </div>
     <a href="/subscription" class="vip-strip-cta notranslate" id="vipStripCta" translate="no">Get Free VIP &rarr;</a>
     <button class="vip-strip-close notranslate" aria-label="Dismiss offer" type="button" translate="no">&times;</button>
