@@ -1,6 +1,7 @@
 // VIP Notification Toast — FOMO / social-proof nudge
 // Shows "🎉 X just unlocked VIP" notifications to drive conversions.
-// Random interval 30s – 5min. Self-injects on init.
+// Locale-aware pools, context-aware gating, session-capped.
+// Self-injects on init.
 
 export const VIP_NOTIFICATION_STYLES = `
   /* VIP Notification Toast — fixed bottom-right, slides up over sidebar */
@@ -97,18 +98,18 @@ export const VIP_NOTIFICATION_STYLES = `
 `;
 
 export const VIP_NOTIFICATION_HTML = `
-  <div class="vip-toast" id="vipToast" role="status" aria-live="polite" hidden>
-    <button class="vip-toast-close" aria-label="Close notification" type="button">×</button>
+  <div class="vip-toast notranslate" id="vipToast" role="status" aria-live="polite" translate="no" hidden>
+    <button class="vip-toast-close notranslate" aria-label="Close notification" type="button" translate="no">×</button>
     <div class="vip-toast-icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm0 2h14v2H5v-2z"/>
       </svg>
     </div>
-    <div class="vip-toast-body">
-      <div class="vip-toast-title"><span class="vip-toast-name" id="vipToastName"></span></div>
-      <div class="vip-toast-msg" id="vipToastMsg"></div>
-      <div class="vip-toast-meta" id="vipToastMeta"></div>
-      <a href="/subscription" class="vip-toast-cta" id="vipToastCta">View VIP Plans →</a>
+    <div class="vip-toast-body notranslate" translate="no">
+      <div class="vip-toast-title"><span class="vip-toast-name notranslate" id="vipToastName" translate="no"></span></div>
+      <div class="vip-toast-msg notranslate" id="vipToastMsg" translate="no"></div>
+      <div class="vip-toast-meta notranslate" id="vipToastMeta" translate="no"></div>
+      <a href="/subscription" class="vip-toast-cta notranslate" id="vipToastCta" translate="no">View VIP Plans →</a>
     </div>
   </div>
 `;
@@ -118,24 +119,71 @@ export const VIP_NOTIFICATION_SCRIPTS = `
   if (window.__vipToastInited) return;
   window.__vipToastInited = true;
 
-  // Pools — all PII-masked (no real users). Names use English-style city+salutation, masked emails.
-  var TEMPLATES = [
-    { name: 'Mr. Zhang from Beijing',    msg: '🎉 just unlocked VIP',           meta: '5,000+ channels · 4K · no ads' },
-    { name: 'j***8@gmail.com',           msg: '🎉 activated VIP access',         meta: 'now watching Premier League live' },
-    { name: 'Ms. Li from Shanghai',      msg: '🎉 renewed yearly VIP',           meta: 'saved 40% · multi-device sync' },
-    { name: 'Mr. Wang from Shenzhen',    msg: '🎉 just unlocked VIP',           meta: '4K quality · ad-free streaming' },
-    { name: 'Ms. Chen from Guangzhou',   msg: '🎉 upgraded to VIP',             meta: 'now watching CCTV Spring Festival Gala' },
-    { name: 'z***9@qq.com',              msg: '🎉 started monthly VIP',          meta: 'can now download all channels' },
-    { name: 'Mr. Zhou from Hangzhou',    msg: '🎉 activated all VIP benefits',   meta: 'now watching NBA Finals live' },
-    { name: 'Ms. Huang from Chengdu',    msg: '🎉 just renewed VIP',            meta: '7-day free VIP · new user special' },
-    { name: "Mr. Liu from Xi'an",        msg: '🎉 signed up for yearly VIP',     meta: 'priority support · dedicated 4K source' },
-    { name: 'Ms. Wu from Nanjing',       msg: '🎉 just unlocked VIP',           meta: 'now watching CCTV-1 Spring Gala replay' },
-    { name: 'Mr. Xu from Wuhan',         msg: '🎉 activated all VIP benefits',   meta: 'now watching UEFA Champions Final live' },
-    { name: 'u***@163.com',              msg: '🎉 just renewed VIP',            meta: 'multi-device sync · 7-day refund' },
-    { name: 'c***2@outlook.com',         msg: '🎉 signed up for yearly VIP',     meta: '5,000+ channels · lifetime priority support' },
-    { name: 'Mr. Zheng from Kunming',    msg: '🎉 upgraded to VIP',             meta: 'now watching World Cup Final live' },
-    { name: 'l***7@gmail.com',           msg: '🎉 just unlocked VIP',           meta: '4K quality · multi-device sync' }
-  ];
+  // Locale-aware pools — real-sounding personas, no fake-looking ***N@domain pattern.
+  var POOLS = {
+    en: [
+      { name: 'James from Manchester',    msg: '🎉 just unlocked VIP',          meta: '5,000+ channels · 4K · no ads' },
+      { name: 'Sarah from New York',      msg: '🎉 activated VIP access',       meta: 'now watching Premier League live' },
+      { name: 'Priya from Mumbai',        msg: '🎉 just unlocked VIP',          meta: '5,000+ channels · multi-device sync' },
+      { name: 'Lukas from Berlin',        msg: '🎉 signed up for yearly VIP',   meta: 'saving 40% · priority support' },
+      { name: 'Carlos from Toronto',      msg: '🎉 renewed VIP membership',     meta: '4K quality · 7-day refund' },
+      { name: 'Yuki from Sydney',         msg: '🎉 upgraded to VIP',            meta: 'now watching Australian Open live' },
+      { name: 'Aisha from Dubai',         msg: '🎉 just unlocked VIP',          meta: '8,000+ channels · no ads · 4K' }
+    ],
+    zh: [
+      { name: '北京 张先生',   msg: '🎉 刚刚开通了 VIP',     meta: '8,000+ 频道 · 4K · 无广告' },
+      { name: '上海 李女士',   msg: '🎉 解锁了全部 VIP 权益', meta: '正在观看英超直播' },
+      { name: '深圳 王先生',   msg: '🎉 续费了年度 VIP',     meta: '享 6 折优惠 · 多设备同步' },
+      { name: '广州 陈女士',   msg: '🎉 刚刚开通了 VIP',     meta: '正在观看央视春晚' },
+      { name: '杭州 周先生',   msg: '🎉 升级到了 VIP',       meta: '正在观看 NBA 总决赛' },
+      { name: '成都 黄女士',   msg: '🎉 刚刚续费了 VIP',     meta: '7 天免费 · 享终身客服' },
+      { name: '武汉 徐先生',   msg: '🎉 解锁了全部 VIP 权益', meta: '正在观看欧冠决赛' }
+    ],
+    pt: [
+      { name: 'Carlos de São Paulo',   msg: '🎉 acabou de liberar VIP',         meta: '5.000+ canais · 4K · sem anúncios' },
+      { name: 'Ana do Rio de Janeiro', msg: '🎉 ativou acesso VIP',            meta: 'sincronização em vários dispositivos' },
+      { name: 'Pedro de Lisboa',       msg: '🎉 acabou de assinar VIP anual',  meta: 'economize 40% · suporte prioritário' },
+      { name: 'Luís do Porto',         msg: '🎉 renovou o VIP',                meta: 'reembolso em 7 dias · cancele a qualquer momento' }
+    ],
+    es: [
+      { name: 'Miguel de Madrid',      msg: '🎉 acaba de activar VIP',         meta: '5.000+ canales · 4K · sin anuncios' },
+      { name: 'Sofía de Buenos Aires', msg: '🎉 renovó el VIP anual',          meta: 'ahorra 40% · soporte prioritario' },
+      { name: 'Pablo de Barcelona',    msg: '🎉 acaba de desbloquear VIP',     meta: 'sincronización multi-dispositivo' }
+    ]
+  };
+
+  function pickPool() {
+    var lang = (navigator.language || 'en').toLowerCase();
+    if (lang.indexOf('zh') === 0) return POOLS.zh;
+    if (lang.indexOf('pt') === 0) return POOLS.pt;
+    if (lang.indexOf('es') === 0) return POOLS.es;
+    return POOLS.en;
+  }
+
+  // --- Context guards ------------------------------------------------------
+  var path = window.location.pathname;
+  var DENY_PATHS = ['/subscription', '/plans', '/login', '/account', '/admin'];
+  for (var i = 0; i < DENY_PATHS.length; i++) {
+    if (path.indexOf(DENY_PATHS[i]) === 0) return;
+  }
+
+  // Logged-in user: skip nudge entirely
+  try {
+    var hasAuth = !!localStorage.getItem('auth_token') ||
+                  document.cookie.indexOf('auth_token=') !== -1;
+    if (hasAuth) return;
+  } catch (e) { /* localStorage may be blocked */ }
+
+  // 24h suppression after × close
+  try {
+    var lastClose = parseInt(localStorage.getItem('vip_toast_last_close') || '0', 10);
+    if (lastClose && (Date.now() - lastClose) < 24 * 60 * 60 * 1000) return;
+  } catch (e) { /* ignore */ }
+
+  // Session cap (3 per session)
+  var SESSION_CAP = 3;
+  var shown = parseInt(sessionStorage.getItem('vip_toasts_shown') || '0', 10);
+  if (shown >= SESSION_CAP) return;
 
   var toast      = document.getElementById('vipToast');
   var nameEl     = document.getElementById('vipToastName');
@@ -147,12 +195,15 @@ export const VIP_NOTIFICATION_SCRIPTS = `
 
   if (!toast) return;
 
+  var pool = pickPool();
+
   function pickTemplate() {
-    return TEMPLATES[Math.floor(Math.random() * TEMPLATES.length)];
+    return pool[Math.floor(Math.random() * pool.length)];
   }
 
   function showToast() {
     if (!toast || !toast.isConnected) return;
+    if (shown >= SESSION_CAP) return;
     var t = pickTemplate();
     nameEl.textContent = t.name;
     msgEl.textContent  = t.msg;
@@ -160,6 +211,8 @@ export const VIP_NOTIFICATION_SCRIPTS = `
     toast.hidden = false;
     void toast.offsetWidth; // force reflow for transition
     toast.classList.add('vip-toast-visible');
+    shown++;
+    try { sessionStorage.setItem('vip_toasts_shown', String(shown)); } catch (e) {}
     // Display ~15s (slight variation for natural feel)
     var displayMs = 14000 + Math.floor(Math.random() * 2000);
     hideTimer = setTimeout(hideToast, displayMs);
@@ -171,20 +224,24 @@ export const VIP_NOTIFICATION_SCRIPTS = `
     setTimeout(function() {
       if (toast) toast.hidden = true;
     }, 550);
-    scheduleNext();
+    if (shown < SESSION_CAP) scheduleNext();
   }
 
   function scheduleNext() {
-    // Random 30s – 5min (30,000 – 300,000 ms)
-    var ms = 30000 + Math.floor(Math.random() * 270000);
+    // 90s – 5min after dismissal (was 30s – 5min; 30s trained users to ignore)
+    var ms = 90000 + Math.floor(Math.random() * 210000);
     nextTimer = setTimeout(showToast, ms);
   }
 
+  function userClose() {
+    try { localStorage.setItem('vip_toast_last_close', String(Date.now())); } catch (e) {}
+    if (hideTimer) clearTimeout(hideTimer);
+    if (nextTimer) clearTimeout(nextTimer);
+    hideToast();
+  }
+
   if (closeBtn) {
-    closeBtn.addEventListener('click', function() {
-      if (hideTimer) clearTimeout(hideTimer);
-      hideToast();
-    });
+    closeBtn.addEventListener('click', userClose);
   }
 
   // Pause auto-hide while user is reading / about to click CTA
@@ -193,7 +250,6 @@ export const VIP_NOTIFICATION_SCRIPTS = `
   });
   toast.addEventListener('mouseleave', function() {
     if (!toast.classList.contains('vip-toast-visible')) return;
-    // Give 7s buffer after user moves cursor away (was 3s for shorter display)
     hideTimer = setTimeout(hideToast, 7000);
   });
 
