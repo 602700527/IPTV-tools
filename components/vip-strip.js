@@ -92,7 +92,7 @@ export const VIP_STRIP_STYLES = `
 
 export const VIP_STRIP_HTML = `
   <div class="vip-strip notranslate" id="vipStrip" role="region" aria-label="VIP offer" translate="no" hidden>
-    <div class="vip-strip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2.2 L4 4.8 V12 C4 16.8 7 20.4 12 22 C17 20.4 20 16.8 20 12 V4.8 Z M7.5 11 H16.5 V12.2 H7.5 Z"/></svg></div>
+    <div class="vip-strip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M5 18 L3 7 L7 11 L12 4 L17 11 L21 7 L19 18 Z M5 19 H19 V21 H5 Z"/></svg></div>
     <div class="vip-strip-text notranslate" translate="no">
       <strong class="notranslate" translate="no">7 days free VIP</strong>
       <span class="vip-strip-meta notranslate" translate="no"><span class="vip-strip-check">&check;</span> No credit card · <span class="vip-strip-check">&check;</span> 7-day refund · <span class="vip-strip-check">&check;</span> Cancel anytime · <span class="vip-strip-check">&check;</span> Secure pay</span>
