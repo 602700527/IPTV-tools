@@ -368,8 +368,7 @@ export const PAGE_FOOTER = `
     }
   </style>
 
-  <!-- Translate.js 自动翻译 -->
-  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <!-- Translate.js 自动翻译 (仅非英文浏览器加载，避免隐私外发 + ~80KB) -->
   <script>
     function initTranslate() {
       if (typeof translate !== 'undefined' && !window.translate) {
@@ -385,7 +384,16 @@ export const PAGE_FOOTER = `
         setTimeout(initTranslate, 100);
       }
     }
-    initTranslate();
+
+    // 仅在浏览器语言非英文时加载 translate.js（页面本身就是英文）
+    (function() {
+      var lang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+      if (lang.indexOf('en') === 0) return;
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js';
+      s.onload = initTranslate;
+      document.head.appendChild(s);
+    })();
 
     function changeLanguage(lang) {
       var t = window.translate || translate;
@@ -404,7 +412,7 @@ export const PAGE_FOOTER = `
             backToTopBtn.style.opacity = '1';
             backToTopBtn.style.pointerEvents = 'auto';
           } else {
-            backToTopBtn.style.opacity = '0.35';
+            backToTopBtn.style.opacity = '0';
             backToTopBtn.style.pointerEvents = 'none';
           }
         };

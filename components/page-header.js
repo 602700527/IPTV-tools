@@ -130,7 +130,7 @@ export const PAGE_HEADER = `
       /* 文字层次 */
       --text-primary: #ffffff;
       --text-secondary: #888888;
-      --text-muted: #666666;
+      --text-muted: #8b8b8b;
 
       /* 主色调 - 纯红强调 */
       --accent: #e50914;
@@ -151,18 +151,6 @@ export const PAGE_HEADER = `
       --transition: 0.2s ease;
     }
 
-    [data-theme="light"] {
-      --bg-primary: #ffffff;
-      --bg-secondary: #fafafa;
-      --bg-card: transparent;
-      --bg-hover: transparent;
-      --text-primary: #0a0a0a;
-      --text-secondary: #666666;
-      --text-muted: #666666;
-      --border: 1px solid rgba(0,0,0,0.15);
-      --border-hover: 1px solid rgba(229,9,20,0.5);
-    }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-padding-top: 60px; }
     body { font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
@@ -175,7 +163,7 @@ export const PAGE_HEADER = `
       padding: 0;
       position: sticky;
       top: 0;
-      z-index: 10000;
+      z-index: 100;
     }
     .header-inner {
       max-width: 1400px;
@@ -274,8 +262,8 @@ export const PAGE_HEADER = `
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 28px;
-      height: 28px;
+      width: 44px;
+      height: 44px;
       color: var(--text-secondary);
       text-decoration: none;
       transition: color 0.2s;
@@ -347,7 +335,7 @@ export const PAGE_HEADER = `
       .logo { flex-shrink: 0; }
       .logo-text { display: none; }
       .header-actions { flex-shrink: 0; gap: 0.75rem; }
-      .pill-btn, .account-btn { width: 24px; height: 24px; }
+      .pill-btn, .account-btn { width: 44px; height: 44px; }
       .account-btn svg, .pill-btn svg { width: 14px; height: 14px; }
       #translateSelectLanguage { min-width: 40px; font-size: 0.7rem; }
       /* 搜索栏下移到第二行 */

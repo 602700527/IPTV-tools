@@ -237,13 +237,7 @@ ${PAGE_HEADER}
 
 ${PAGE_FOOTER}
   <script>
-    document.getElementById('themeToggle')?.addEventListener('click', function() {
-      const html = document.documentElement;
-      const current = html.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      html.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-    });
+    
   </script>
 </body>
 </html>
@@ -476,13 +470,7 @@ ${PAGE_HEADER}
 
   ${PAGE_FOOTER}
   <script>
-    document.getElementById('themeToggle')?.addEventListener('click', function() {
-      const html = document.documentElement;
-      const current = html.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      html.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-    });
+    
   </script>
 </body>
 </html>`;

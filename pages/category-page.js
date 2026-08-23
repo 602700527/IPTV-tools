@@ -1854,67 +1854,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-     (function() {
-
-
-
-
-
-
-
-
-
-
-
-       const saved = localStorage.getItem('theme');
-
-
-
-
-
-
-
-
-
-
-
-       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-
-
-
-
-
-
-
-
-
-
-       const theme = saved || (prefersDark ? 'dark' : 'light');
-
-
-
-
-
-
-
-
-
-
-
-       document.documentElement.setAttribute('data-theme', theme);
-
-
-
-
-
-
-
-
-
-
-
-     })();
+     
 
 
 
@@ -2154,7 +2094,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-      --text-muted: #666666;
+      --text-muted: #8b8b8b;
 
 
 
@@ -2274,139 +2214,6 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    [data-theme="light"] {
-
-
-
-
-
-
-
-
-
-
-
-      --bg-primary: #f5f5f5;
-
-
-
-
-
-
-
-
-
-
-
-      --bg-secondary: #ffffff;
-
-
-
-
-
-
-
-
-
-
-
-      --bg-card: #ffffff;
-
-
-
-
-
-
-
-
-
-
-
-      --bg-hover: #f0f0f0;
-
-
-
-
-
-
-
-
-
-
-
-      --text-primary: #1a1a1a;
-
-
-
-
-
-
-
-
-
-
-
-      --text-secondary: #666666;
-
-
-
-
-
-
-
-
-
-
-
-      --text-muted: #666666;
-
-
-
-
-
-
-
-
-
-
-
-      --border: rgba(0,0,0,0.08);
-
-
-
-
-
-
-
-
-
-
-
-      --border-hover: rgba(0,0,0,0.15);
-
-
-
-
-
-
-
-
-
-
-
-      --shadow: 0 4px 20px rgba(0,0,0,0.1);
-
-
-
-
-
-
-
-
-
-
-
-    }
 
 
 
@@ -6027,91 +5834,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    function updateThemeIcons(isDark) {
-
-
-
-
-
-
-
-
-
-
-
-      const sun = document.querySelector('.sun-icon');
-
-
-
-
-
-
-
-
-
-
-
-      const moon = document.querySelector('.moon-icon');
-
-
-
-
-
-
-
-
-
-
-
-      if (sun && moon) {
-
-
-
-
-
-
-
-
-
-
-
-        sun.style.display = isDark ? 'none' : 'block';
-
-
-
-
-
-
-
-
-
-
-
-        moon.style.display = isDark ? 'block' : 'none';
-
-
-
-
-
-
-
-
-
-
-
-      }
-
-
-
-
-
-
-
-
-
-
-
-    }
+    
 
 
 
@@ -6148,29 +5871,6 @@ export function generateCategoryPage(options = {}) {
 
 
     (function() {
-
-
-
-
-
-
-
-
-
-
-
-      const saved = localStorage.getItem('theme');
-
-
-
-
-
-
-
-
-
-
-
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
 
@@ -6184,29 +5884,6 @@ export function generateCategoryPage(options = {}) {
 
 
       const isDark = saved ? saved === 'dark' : prefersDark;
-
-
-
-
-
-
-
-
-
-
-
-      updateThemeIcons(isDark);
-
-
-
-
-
-
-
-
-
-
-
     })();
 
 
@@ -6231,91 +5908,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    document.getElementById('themeToggle')?.addEventListener('click', function() {
-
-
-
-
-
-
-
-
-
-
-
-      const html = document.documentElement;
-
-
-
-
-
-
-
-
-
-
-
-      const current = html.getAttribute('data-theme');
-
-
-
-
-
-
-
-
-
-
-
-      const next = current === 'dark' ? 'light' : 'dark';
-
-
-
-
-
-
-
-
-
-
-
-      html.setAttribute('data-theme', next);
-
-
-
-
-
-
-
-
-
-
-
-      localStorage.setItem('theme', next);
-
-
-
-
-
-
-
-
-
-
-
-      updateThemeIcons(next === 'dark');
-
-
-
-
-
-
-
-
-
-
-
-    });
+    
 
 
 

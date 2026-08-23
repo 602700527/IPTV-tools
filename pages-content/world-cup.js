@@ -15,14 +15,11 @@ export const styles = `
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-padding-top:70px}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;color:var(--text)}
-[data-theme="light"] body{background:#ffffff;color:#0a0a0a}
 .main-content{flex:1;width:100%;margin-top:70px;padding:20px 0}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .page-header{text-align:center;padding:3rem 0 2rem}
 .page-header h1{font-size:2.5rem;font-weight:800;margin-bottom:1rem;color:var(--text)}
-[data-theme="light"] .page-header h1{color:#0a0a0a}
 .page-header p{font-size:1.1rem;color:var(--text-secondary);max-width:600px;margin:0 auto}
-[data-theme="light"] .page-header p{color:#666}
 .section{margin-bottom:3rem}
 .section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem;padding-bottom:0.75rem;border-bottom:var(--border)}
 .match-banner{background:linear-gradient(135deg,#1a4f3a 0%,#0d2818 100%);border:2px solid #ff6b35;border-radius:var(--radius);padding:2rem;margin-bottom:2rem;text-align:center}
@@ -33,33 +30,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .countdown-item{text-align:center}
 .countdown-item .number{font-size:2.5rem;font-weight:800;color:#ff6b35}
 .countdown-item .label{font-size:0.85rem;color:var(--text-secondary);text-transform:uppercase}
-[data-theme="light"] .countdown-item .label{color:#666}
 .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0}
 .feature-card{background:transparent;border:var(--border);border-radius:var(--radius);padding:1.5rem}
 .feature-card h3{font-size:1.1rem;font-weight:600;margin-bottom:0.75rem;color:#ff6b35}
 .feature-card p{color:var(--text-secondary);font-size:0.95rem;line-height:1.6}
-[data-theme="light"] .feature-card p{color:#666}
 .channel-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0}
 .channel-item{background:transparent;border:var(--border);border-radius:var(--radius);padding:1rem;display:flex;align-items:center;gap:0.75rem;text-decoration:none}
 .channel-item:hover{border-color:#ff6b35}
 .channel-item span{font-size:0.9rem;color:var(--text)}
-[data-theme="light"] .channel-item span{color:#0a0a0a}
 .faq-list{max-width:800px;margin:0 auto}
 .faq-item{background:transparent;border:var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:0}
 .faq-item h3{font-size:1.1rem;font-weight:600;margin-bottom:0.75rem;color:var(--text)}
-[data-theme="light"] .faq-item h3{color:#0a0a0a}
 .faq-item p{color:var(--text-secondary);line-height:1.7}
-[data-theme="light"] .faq-item p{color:#666}
 .cta-section{background:transparent;border:var(--border);border-radius:var(--radius);padding:3rem;text-align:center;margin:2rem 0}
 .cta-section h2{font-size:1.75rem;font-weight:700;margin-bottom:1rem;color:var(--text)}
-[data-theme="light"] .cta-section h2{color:#0a0a0a}
 .cta-section p{font-size:1.1rem;opacity:0.9;margin-bottom:1.5rem;color:var(--text-secondary)}
-[data-theme="light"] .cta-section p{color:#666}
 .cta-btn{display:inline-block;background:#ff6b35;color:#fff;padding:14px 32px;border-radius:var(--radius);font-weight:600;text-decoration:none;transition:transform 0.2s}
 .cta-btn:hover{transform:scale(1.02)}
 .teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;margin-top:1.5rem}
 .team-badge{background:var(--bg-card);border:var(--border);border-radius:var(--radius);padding:1rem;text-align:center;font-size:0.9rem;color:var(--text-secondary)}
-[data-theme="light"] .team-badge{background:#f5f5f5;color:#666}
 @media(max-width:768px){
 .main-content{margin-top:80px}
 .container{padding:0 16px}

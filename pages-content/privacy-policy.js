@@ -12,14 +12,6 @@ export const styles = `
     --border: rgba(255,255,255,0.1);
     --accent: #e50914;
   }
-  [data-theme="light"] {
-    --bg-primary: #f5f5f5;
-    --bg-card: #ffffff;
-    --text-primary: #1a1a1a;
-    --text-secondary: #333333;
-    --text-muted: #666666;
-    --border: rgba(0,0,0,0.1);
-  }
   .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
   h1 { font-size: 28px; margin-bottom: 20px; color: var(--accent); }
   h2 { font-size: 22px; margin: 30px 0 15px; color: var(--text-primary); }

@@ -118,12 +118,7 @@ export function generateHomePage(options = {}) {
   </script>
 
   <script>
-    (function() {
-      const saved = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const theme = saved || (prefersDark ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', theme);
-    })();
+    
   </script>
   
   <style>
@@ -137,22 +132,11 @@ export function generateHomePage(options = {}) {
       --bg-hover: transparent;
       --text-primary: #ffffff;
       --text-secondary: #888888;
-      --text-muted: #666666;
+      --text-muted: #8b8b8b;
       --border: 1px solid rgba(255,255,255,0.08);
       --border-hover: 1px solid rgba(229,9,20,0.4);
     }
 
-    [data-theme="light"] {
-      --bg-primary: #ffffff;
-      --bg-secondary: #fafafa;
-      --bg-card: transparent;
-      --bg-hover: transparent;
-      --text-primary: #0a0a0a;
-      --text-secondary: #666666;
-      --text-muted: #666666;
-      --border: 1px solid rgba(0,0,0,0.15);
-      --border-hover: 1px solid rgba(229,9,20,0.5);
-    }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-padding-top: 60px; }
@@ -243,7 +227,6 @@ export function generateHomePage(options = {}) {
       letter-spacing: -0.03em;
       color: var(--text-primary);
     }
-    [data-theme="light"] .hero h1 { color: var(--text-primary); }
     .hero p {
       font-size: 1rem;
       color: var(--text-secondary);
@@ -744,31 +727,11 @@ export function generateHomePage(options = {}) {
 
   <script>
     // Theme toggle with icon update
-    (function() {
-      const saved = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const isDark = saved ? saved === 'dark' : prefersDark;
-      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-      updateThemeIcons(isDark);
-    })();
     
-    function updateThemeIcons(isDark) {
-      const sun = document.querySelector('.sun-icon');
-      const moon = document.querySelector('.moon-icon');
-      if (sun && moon) {
-        sun.style.display = isDark ? 'none' : 'block';
-        moon.style.display = isDark ? 'block' : 'none';
-      }
-    }
+    
+    
 
-    document.getElementById('themeToggle')?.addEventListener('click', function() {
-      const html = document.documentElement;
-      const current = html.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      html.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      updateThemeIcons(next === 'dark');
-    });
+    
 
     // Store home data globally for view switching
     let homeData = null;

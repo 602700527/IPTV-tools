@@ -206,12 +206,7 @@ export function generateChannelPage(options = {}) {
    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
 
    <script>
-    (function() {
-      const saved = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const theme = saved || (prefersDark ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', theme);
-    })();
+    
 
     // 初始化 fingerprintJS
     let fpPromise = null;
@@ -231,7 +226,7 @@ export function generateChannelPage(options = {}) {
       --bg-hover: #252525;
       --text-primary: #ffffff;
       --text-secondary: #a0a0a0;
-      --text-muted: #666666;
+      --text-muted: #8b8b8b;
       --accent: #e50914;
       --accent-hover: #f6121d;
       --border: rgba(255,255,255,0.08);
@@ -241,18 +236,6 @@ export function generateChannelPage(options = {}) {
       --transition: 0.2s ease;
     }
 
-    [data-theme="light"] {
-      --bg-primary: #f5f5f5;
-      --bg-secondary: #ffffff;
-      --bg-card: #ffffff;
-      --bg-hover: #f0f0f0;
-      --text-primary: #1a1a1a;
-      --text-secondary: #666666;
-      --text-muted: #666666;
-      --border: rgba(0,0,0,0.08);
-      --border-hover: rgba(0,0,0,0.15);
-      --shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-padding-top: 60px; }
@@ -887,20 +870,7 @@ export function generateChannelPage(options = {}) {
       }
     }
 
-    const themeToggle = document.getElementById('themeToggle');
-    const sunSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
-    const moonSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
     
-    themeToggle.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      themeToggle.innerHTML = next === 'dark' ? moonSVG : sunSVG;
-    });
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    themeToggle.innerHTML = savedTheme === 'dark' ? moonSVG : sunSVG;
 
     // Initialize star button state
     initDetailStarButton();

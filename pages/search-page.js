@@ -27,12 +27,7 @@ export function generateSearchPage(options = {}) {
   <meta name="twitter:description" content="${query ? `Stream free ${escapeHtml(query)} live TV. M3U M3U8 links for all IPTV players.` : 'Find and watch free IPTV channels. M3U M3U8 links for VLC and more.'}">
 
   <script>
-    (function() {
-      const saved = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const theme = saved || (prefersDark ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', theme);
-    })();
+    
   </script>
   
   <style>
@@ -43,7 +38,7 @@ export function generateSearchPage(options = {}) {
       --bg-hover: #252525;
       --text-primary: #ffffff;
       --text-secondary: #a0a0a0;
-      --text-muted: #666666;
+      --text-muted: #8b8b8b;
       --accent: #e50914;
       --accent-hover: #f6121d;
       --border: rgba(255,255,255,0.08);
@@ -53,18 +48,6 @@ export function generateSearchPage(options = {}) {
       --transition: 0.2s ease;
     }
 
-    [data-theme="light"] {
-      --bg-primary: #f5f5f5;
-      --bg-secondary: #ffffff;
-      --bg-card: #ffffff;
-      --bg-hover: #f0f0f0;
-      --text-primary: #1a1a1a;
-      --text-secondary: #666666;
-      --text-muted: #666666;
-      --border: rgba(0,0,0,0.08);
-      --border-hover: rgba(0,0,0,0.15);
-      --shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-padding-top: 60px; }
@@ -319,31 +302,15 @@ export function generateSearchPage(options = {}) {
     }
 
     // Theme toggle with icon update
-    function updateThemeIcons(isDark) {
-      const sun = document.querySelector('.sun-icon');
-      const moon = document.querySelector('.moon-icon');
-      if (sun && moon) {
-        sun.style.display = isDark ? 'none' : 'block';
-        moon.style.display = isDark ? 'block' : 'none';
-      }
-    }
+    
     
     // Initialize theme icons on page load
     (function() {
-      const saved = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const isDark = saved ? saved === 'dark' : prefersDark;
-      updateThemeIcons(isDark);
     })();
     
-    document.getElementById('themeToggle')?.addEventListener('click', function() {
-      const html = document.documentElement;
-      const current = html.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      html.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      updateThemeIcons(next === 'dark');
-    });
+    
 
     // Load search results from API
     async function loadSearchResults() {

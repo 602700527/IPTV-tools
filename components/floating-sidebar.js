@@ -136,39 +136,6 @@ export const FLOATING_SIDEBAR_STYLES = `
       display: none;
     }
   }
-
-  /* Light theme adjustments */
-  [data-theme="light"] .back-to-top {
-    background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-  }
-  [data-theme="light"] .back-to-top svg {
-    color: #333;
-  }
-  [data-theme="light"] .sidebar-tooltip {
-    background: #fff;
-    color: #333;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-  }
-  [data-theme="light"] .sidebar-tooltip::after {
-    border-left-color: #fff;
-  }
-  [data-theme="light"] .vip-sidebar-btn {
-    background: linear-gradient(145deg, #f0f0f0 0%, #e0e0e0 100%);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-  }
-
-  [data-theme="light"] .vip-sidebar-btn .vip-icon {
-    color: #dc2626;
-  }
-
-  [data-theme="light"] .vip-sidebar-btn:hover {
-    border-color: rgba(220, 38, 38, 0.4);
-  }
-
-  [data-theme="light"] .vip-sidebar-btn:hover .vip-icon {
-    color: #ef4444;
-  }
 `;
 
 export const FLOATING_SIDEBAR_HTML = `

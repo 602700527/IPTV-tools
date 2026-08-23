@@ -41,7 +41,7 @@ export function generateShowcasePage(options = {}) {
       --bg-card: #141414;
       --text-primary: #ffffff;
       --text-secondary: #888888;
-      --text-muted: #555555;
+      --text-muted: #8b8b8b;
       --border: 1px solid rgba(255,255,255,0.08);
       --radius: 12px;
     }

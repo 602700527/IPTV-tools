@@ -14,22 +14,10 @@ export const styles = `
     --bg-hover: #252525;
     --text-primary: #ffffff;
     --text-secondary: #a0a0a0;
-    --text-muted: #666666;
+    --text-muted: #8b8b8b;
     --border: rgba(255,255,255,0.08);
     --border-hover: rgba(255,255,255,0.15);
     --shadow: 0 4px 20px rgba(0,0,0,0.5);
-  }
-  [data-theme="light"] {
-    --bg-primary: #f5f5f5;
-    --bg-secondary: #ffffff;
-    --bg-card: #ffffff;
-    --bg-hover: #f0f0f0;
-    --text-primary: #1a1a1a;
-    --text-secondary: #666666;
-    --text-muted: #999999;
-    --border: rgba(0,0,0,0.08);
-    --border-hover: rgba(0,0,0,0.15);
-    --shadow: 0 4px 20px rgba(0,0,0,0.1);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; transition: background var(--transition), color var(--transition); }
