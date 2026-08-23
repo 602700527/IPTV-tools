@@ -335,6 +335,20 @@ export const styles = `
 
   @media (max-width: 480px) { .main { padding: 1rem; } .login-container { padding: 1.5rem; } }
 
+  /* Trial welcome modal (post-registration) */
+  .trial-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.2s ease; }
+  .trial-modal { background: var(--bg-secondary, #0f0f0f); border: 1px solid var(--glass-border, rgba(255,255,255,0.08)); border-radius: 12px; padding: 32px; max-width: 420px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .trial-modal h2 { margin: 0 0 12px; font-size: 1.5rem; color: var(--text-primary); }
+  .trial-modal p { margin: 0 0 20px; color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; }
+  .trial-modal .trial-countdown { font-size: 2.5rem; font-weight: 700; color: var(--accent, #e50914); margin: 8px 0 20px; }
+  .trial-modal .trial-countdown small { display: block; font-size: 0.85rem; font-weight: 400; color: var(--text-muted); margin-top: 4px; }
+  .trial-modal .trial-cta { display: block; padding: 14px 20px; margin-bottom: 8px; border-radius: 8px; font-weight: 600; text-decoration: none; transition: all 0.2s; cursor: pointer; border: none; font-size: 1rem; width: 100%; }
+  .trial-modal .trial-cta.primary { background: var(--accent, #e50914); color: #fff; }
+  .trial-modal .trial-cta.primary:hover { background: var(--accent-hover, #ff1a1a); }
+  .trial-modal .trial-cta.secondary { background: transparent; color: var(--text-muted); border: 1px solid var(--glass-border, rgba(255,255,255,0.08)); }
+  .trial-modal .trial-cta.secondary:hover { color: var(--text-primary); }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
 
 
 
@@ -679,6 +693,20 @@ export const content = `
 
 
 <div class="toast-container" id="toastContainer"></div>
+
+<!-- Trial welcome modal (popped after successful registration) -->
+<div class="trial-modal-overlay" id="trialModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="trialModalTitle">
+  <div class="trial-modal">
+    <h2 id="trialModalTitle">🎉 7 Days of Free VIP!</h2>
+    <p>Your trial VIP code is active. Use it on any device with ad-free streaming, HD quality, and 3 simultaneous connections.</p>
+    <div class="trial-countdown">
+      <span id="trialDaysLeft">7</span>
+      <small>days remaining</small>
+    </div>
+    <a href="/account" class="trial-cta primary">Open My M3U URL →</a>
+    <button type="button" class="trial-cta secondary" id="trialModalDismiss">Browse channels first</button>
+  </div>
+</div>
 
 
 
@@ -1514,10 +1542,12 @@ async function handleRegister(event) {
 
       showToast('Account created!', 'success');
 
-
-
-
-      setTimeout(() => { window.location.href = '/'; }, 1000);
+      // 新用户自动获得 7 天 VIP 试用 — 弹 modal 告知用户
+      if (data.trialCode && data.trialExpiredAt) {
+        showTrialModal(data.trialCode, data.trialExpiredAt);
+      } else {
+        setTimeout(() => { window.location.href = '/'; }, 1000);
+      }
 
 
 
@@ -1575,6 +1605,25 @@ async function handleRegister(event) {
 }
 
 
+
+
+function showTrialModal(trialCode, trialExpiredAt) {
+  const modal = document.getElementById('trialModal');
+  const daysEl = document.getElementById('trialDaysLeft');
+  const dismiss = document.getElementById('trialModalDismiss');
+  if (!modal || !daysEl) return;
+
+  const ms = new Date(trialExpiredAt).getTime() - Date.now();
+  const days = ms > 0 ? Math.max(1, Math.ceil(ms / (24 * 60 * 60 * 1000))) : 0;
+  daysEl.textContent = days;
+
+  modal.style.display = 'flex';
+  const close = () => { modal.style.display = 'none'; window.location.href = '/'; };
+  if (dismiss && !dismiss.dataset.bound) {
+    dismiss.addEventListener('click', close);
+    dismiss.dataset.bound = '1';
+  }
+}
 
 
 </script>`;

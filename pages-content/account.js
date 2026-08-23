@@ -849,7 +849,7 @@ Member <span id="memberSince">-</span>
               </div>
               <div class="scheme-switcher" id="schemeSwitcher"></div>
               <div class="scheme-vip-lock" id="schemeVipLock" style="display:none;">
-                🔒 切换线路方案为 VIP exclusive feature. <a href="/freesub">Upgrade to VIP →</a>
+                🔒 切换线路方案为 VIP exclusive feature. <a href="/subscription">Upgrade to VIP →</a>
               </div>
             </div>
 
@@ -1374,7 +1374,7 @@ async function selectScheme(type, id) {
   if (schemeSwitching) return;
   if (!isVipActive) {
     showToast((currentLang === 'zh-CN' ? 'Switching schemes requires VIP. Please' : 'VIP only. Please ') +
-      '<a href="/freesub" style="color:#fff;font-weight:600;text-decoration:underline;">' +
+      '<a href="/subscription" style="color:#fff;font-weight:600;text-decoration:underline;">' +
       (currentLang === 'zh-CN' ? 'upgrade VIP' : 'subscribe') + ' →</a>', 'error', 6000);
     return;
   }

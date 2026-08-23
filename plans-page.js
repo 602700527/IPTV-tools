@@ -21,14 +21,14 @@ export const PLANS_HTML = `<!DOCTYPE html>
   <meta property="og:description" content="Looking for cheap IPTV? Get budget-friendly IPTV plans with 8000+ live channels starting from $9.99/month.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com/plans">
-  <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
+  <meta property="og:image" content="https://iptv-search.com/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="TV Live Service">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="订阅计划 - TV Live Service">
   <meta name="twitter:description" content="查看TV Live Service订阅计划，价格实惠，付费方式多样。立即订阅畅享高清直播电视。">
-  <meta name="twitter:image" content="https://iptv-search.com/og-homepage.png">
+  <meta name="twitter:image" content="https://iptv-search.com/og-image.jpg">
   <style>
     * {
       margin: 0;
@@ -582,7 +582,7 @@ export const PLANS_HTML = `<!DOCTYPE html>
             </li>
           </ul>
 
-          <a href="/freesub" class="plan-button free" data-i18n="freeButton">开始免费订阅</a>
+          <a href="/subscription" class="plan-button free" data-i18n="freeButton">开始免费订阅</a>
         </div>
 
         <!-- 会员计划 -->

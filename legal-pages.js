@@ -78,14 +78,14 @@ export function generatePrivacyPolicy(origin = 'https://iptv-search.com') {
   <meta property="og:description" content="${metaDescription}">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${pageUrl}">
-  <meta property="og:image" content="${origin}/og-homepage.png">
+  <meta property="og:image" content="${origin}/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="IPTV Live">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${pageTitle}">
   <meta name="twitter:description" content="${metaDescription}">
-  <meta name="twitter:image" content="${origin}/og-homepage.png">
+  <meta name="twitter:image" content="${origin}/og-image.jpg">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff;line-height:1.6;padding:0;display:flex;flex-direction:column;min-height:100vh}
@@ -264,14 +264,14 @@ ${PAGE_FOOTER}
   <meta property="og:description" content="${metaDescription}">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${pageUrl}">
-  <meta property="og:image" content="${origin}/og-homepage.png">
+  <meta property="og:image" content="${origin}/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="IPTV Live">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${pageTitle}">
   <meta name="twitter:description" content="${metaDescription}">
-  <meta name="twitter:image" content="${origin}/og-homepage.png">
+  <meta name="twitter:image" content="${origin}/og-image.jpg">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;color:#fff;line-height:1.6;padding:0;display:flex;flex-direction:column;min-height:100vh}

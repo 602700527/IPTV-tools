@@ -15,14 +15,14 @@ export const USER_ACTIVATE_HTML = `<!DOCTYPE html>
   <meta property="og:description" content="Activate your TV Live Service account with your card number. Get started with live TV streaming.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com/activate">
-  <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
+  <meta property="og:image" content="https://iptv-search.com/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="TV Live Service">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Activation - TV Live Service">
   <meta name="twitter:description" content="Activate your TV Live Service account with your card number. Get started with live TV streaming.">
-  <meta name="twitter:image" content="https://iptv-search.com/og-homepage.png">
+  <meta name="twitter:image" content="https://iptv-search.com/og-image.jpg">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0a0a0a;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:15px}

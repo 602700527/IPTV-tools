@@ -243,62 +243,21 @@ https://your-domain.com/live/{卡密}/{频道hash}
 
 ## 数据库设计
 
-### 表结构
+Schema 维护在 `migrations/001-012.sql`（按编号顺序追加，命名格式 `NNN_描述.sql`），由 `schema.sql` 合并为最新全量。首次部署或重置：
 
-#### sources（直播源表）
-
-```sql
-CREATE TABLE sources (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT,              -- 源名称
-  url TEXT,               -- M3U文件URL
-  type TEXT DEFAULT 'm3u',-- 类型（m3u/m3u8）
-  parse_mode TEXT DEFAULT 'strict',-- 解析模式（strict/loose）
-  last_updated DATETIME,   -- 最后更新时间
-  is_active BOOLEAN DEFAULT 1-- 是否启用
-)
+```bash
+npm run init-db   # = wrangler d1 execute tv-service-db --file=./schema.sql
 ```
 
-#### channels（频道表）
+Schema 概览（不在此详列，详见 `migrations/` 与 `schema.sql`）：
 
-```sql
-CREATE TABLE channels (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  source_id INTEGER,      -- 关联的源ID
-  channel_name TEXT,      -- 频道名称
-  group_title TEXT,       -- 分组名称
-  logo TEXT,              -- 频道logo地址
-  play_url TEXT,          -- 播放地址
-  headers TEXT,           -- 请求头（JSON格式）
-  channel_hash TEXT,      -- 频道hash（SHA-256前8位）
-  is_active BOOLEAN DEFAULT 1-- 是否启用
-)
-```
-
-#### codes（卡密表）
-
-```sql
-CREATE TABLE codes (
-  code TEXT PRIMARY KEY,  -- 卡密（唯一）
-  status TEXT DEFAULT 'unused',-- 状态（unused/active/disabled）
-  duration_days INTEGER,  -- 有效期（天数）
-  activated_at DATETIME,  -- 激活时间
-  expired_at DATETIME,    -- 过期时间
-  max_ips INTEGER DEFAULT 3,-- 最大IP数限制
-  remark TEXT,            -- 备注信息
-  banned_until DATETIME   -- 封禁到期时间
-)
-```
-
-### 索引
-
-```sql
--- 频道hash索引（加速播放请求）
-CREATE INDEX idx_channel_hash ON channels(channel_hash);
-
--- 卡密状态索引（加速查询）
-CREATE INDEX idx_code_status ON codes(status);
-```
+| 表 | 用途 |
+|---|---|
+| `sources` / `channels` | 直播源 + 频道元数据 |
+| `users` / `user_sessions` / `user_orders` | 注册用户与认证、订单 |
+| `favorites` | 用户收藏 |
+| `codes` / `free_subscriptions` / `subscription_plans` / `discount_codes` | 订阅与付费码 |
+| `support_tickets` / `mall_settings` / `domain_blacklist` | 客服/商城/反爬 |
 
 ## 系统流程图
 
@@ -791,12 +750,17 @@ database_id = "your-database-id"
 
 #### 配置管理员密钥
 
-在 `wrangler.toml` 中添加：
+管理员密钥属于**敏感变量**，必须通过 Cloudflare secrets 设置（不要写入 `wrangler.toml` 以免被提交到 git）：
 
-```toml
-[vars]
-ADMIN_KEY = "your-secure-admin-key"
+```bash
+# 生产环境
+wrangler secret put ADMIN_KEY
+
+# 本地开发（写入 .dev.vars，文件已在 .gitignore 中）
+echo 'ADMIN_KEY=your-local-dev-key' >> .dev.vars
 ```
+
+完整敏感变量清单见项目根目录的 `.dev.vars.example`。
 
 ### 4. 初始化数据库
 

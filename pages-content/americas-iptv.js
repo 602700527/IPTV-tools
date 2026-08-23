@@ -112,7 +112,7 @@ export const content = `
     <div class="cta-section">
       <h2>Start Watching American TV Now</h2>
       <p>Get instant access to all Americas IPTV channels for free</p>
-      <a href="/freesub" class="cta-btn">Free IPTV Trial</a>
+      <a href="/subscription" class="cta-btn">Free IPTV Trial</a>
     </div>
   </div>
 </div>

@@ -17,7 +17,7 @@ export const ABOUT_HTML = `
   <meta property="og:title" content="About IPTV Search">
   <meta property="og:description" content="Free online directory and search engine for live TV channels worldwide. 10,000+ channels across 150+ countries.">
   <meta property="og:url" content="https://iptv-search.com/about">
-  <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
+  <meta property="og:image" content="https://iptv-search.com/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="IPTV Search">

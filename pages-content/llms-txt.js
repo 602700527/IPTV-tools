@@ -28,7 +28,7 @@ IPTV Search is a free IPTV channel directory and search engine that indexes live
 - /tutorial - Setup guide for Smart TV, Android, iOS, Desktop
 - /account - User account dashboard
 - /login - Sign in
-- /freesub - Free subscription trial
+- /subscription - VIP subscription plans and trial signup
 
 ### Category Pages (164 countries)
 Browse channels by country:

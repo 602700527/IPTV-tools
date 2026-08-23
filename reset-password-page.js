@@ -18,14 +18,14 @@ export const RESET_PASSWORD_HTML = `
   <meta property="og:description" content="Reset your IPTV Live password. Enter your email to receive a password reset link.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com/reset-password">
-  <meta property="og:image" content="https://iptv-search.com/og-homepage.png">
+  <meta property="og:image" content="https://iptv-search.com/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="IPTV Live">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Reset Password - IPTV Live">
   <meta name="twitter:description" content="Reset your IPTV Live password. Enter your email to receive a password reset link.">
-  <meta name="twitter:image" content="https://iptv-search.com/og-homepage.png">
+  <meta name="twitter:image" content="https://iptv-search.com/og-image.jpg">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {

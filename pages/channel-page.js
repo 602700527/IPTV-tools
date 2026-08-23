@@ -70,7 +70,7 @@ export function generateChannelPage(options = {}) {
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>' +
       'Get VIP Subscription' +
     '</a>' +
-    '<a href="' + origin + '/freesub" class="btn btn-secondary" style="margin-left:10px;">' +
+    '<a href="' + origin + '/subscription" class="btn btn-secondary" style="margin-left:10px;">' +
       'Try Free' +
     '</a>' +
     '<button class="btn btn-secondary" id="detailStarBtn" onclick="toggleChannelStar()">' +
@@ -609,7 +609,7 @@ export function generateChannelPage(options = {}) {
     function playChannel() {
       showToast('Opening player...');
       setTimeout(() => {
-        window.location.href = '${origin}/freesub';
+        window.location.href = '${origin}/subscription';
       }, 500);
     }
 
