@@ -1,4 +1,10 @@
 // 通用网页页脚组件（极简线条风格）
+import {
+  VIP_NOTIFICATION_STYLES,
+  VIP_NOTIFICATION_HTML,
+  VIP_NOTIFICATION_SCRIPTS
+} from './vip-notification.js';
+
 export const PAGE_FOOTER = `
   <!-- Floating Sidebar - Back to Top Only -->
   <div class="floating-sidebar">
@@ -366,6 +372,9 @@ export const PAGE_FOOTER = `
       .footer-col-title { text-align: center; }
       .footer-col-links { align-items: center; }
     }
+
+    /* VIP Notification Toast — FOMO nudge */
+    ${VIP_NOTIFICATION_STYLES}
   </style>
 
   <!-- Translate.js 自动翻译 (仅非英文浏览器加载，避免隐私外发 + ~80KB) -->
@@ -420,5 +429,11 @@ export const PAGE_FOOTER = `
         toggleVisibility();
       }
     });
+  </script>
+
+  <!-- VIP Notification Toast — FOMO social-proof nudge -->
+  ${VIP_NOTIFICATION_HTML}
+  <script>
+    ${VIP_NOTIFICATION_SCRIPTS}
   </script>
 `;
