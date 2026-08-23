@@ -1,6 +1,7 @@
 // 定时任务处理器：自动同步已启用的数据源和刷新缓存
 import { getDB, fetchAndParseM3U, fetchAndParseM3UOnly, initDB, getSyncFilterConfig, getTypeMappingConfig } from '../database.js';
 import { cacheChannelsToKV, generateAndCacheSitemap } from '../utils/channel-cache.js';
+import { saveStaticFile } from '../utils/static-storage.js';
 import { generateTokenAndAddresses } from '../utils/token-manager.js';
 import { classifyEmptyTypeChannels } from './ai-classify.js';
 
@@ -86,7 +87,7 @@ async function waitForSyncLockRelease(env, maxRetries = 5, baseDelayMs = 60000) 
 }
 
 // 导出内部函数供测试使用
-export { syncAllSources, refreshCache, generateAndCacheSitemap };
+export { syncAllSources, refreshCache, generateAndCacheSitemap, refreshStaticPages };
 
 export async function handleScheduledEvent(event, env, ctx) {
   try {
@@ -166,6 +167,8 @@ export async function handleScheduledEvent(event, env, ctx) {
 
       try {
         await refreshCache(db, env);
+        // Regenerate static pages so R2/KV has fresh content for bots
+        await refreshStaticPages(env);
       } finally {
         await releaseKVLock(env, LOCK_KEY_CACHE_REFRESH);
         console.log('[Scheduler] Cache refresh lock released');
@@ -752,5 +755,127 @@ async function cleanupExpiredFreeSubscriptions(db) {
     console.log(`[Cleanup] Cleanup completed: deleted ${expiredSubs.results.length} expired subscriptions`);
   } catch (error) {
     console.error('[Cleanup] Error cleaning up expired subscriptions:', error);
+  }
+}
+
+// 刷新静态页面（在缓存刷新后执行，确保 R2/KV 有最新内容）
+async function refreshStaticPages(env) {
+  try {
+    console.log('[Scheduler] Refreshing static pages...');
+
+    const { getChannelsFromCache, getAllGroups } = await import('../utils/channel-cache.js');
+    const { slugify: slugifyUtils } = await import('../utils/search-utils.js');
+
+    // 获取已缓存的频道和分组（KV 内存缓存，秒级响应）
+    const cacheData = await getChannelsFromCache(env);
+    if (!cacheData || !cacheData.channels || cacheData.channels.length === 0) {
+      console.warn('[Scheduler] No cached channels available for static page generation');
+      return;
+    }
+
+    const origin = env.APP_URL || 'https://iptv-search.com';
+    const channels = cacheData.channels;
+    const groups = cacheData.groups || [];
+
+    // Slugify 函数（与页面模板一致）
+    function slugify(str) {
+      if (!str) return '';
+      return str.trim()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u2000-\u206f\u2600-\u26ff\u3000-\u303f\ufe30-\ufe4f-]/g, '')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+
+    function escapeHtml(s) {
+      if (!s) return '';
+      return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    // 按分组聚合频道
+    const grouped = {};
+    for (const ch of channels) {
+      const g = ch.group_title || 'Other';
+      if (!grouped[g]) grouped[g] = [];
+      grouped[g].push(ch);
+    }
+
+    // ── 1. Homepage ──────────────────────────────────────────────────────────
+    try {
+      const { generateHomePage } = await import('../pages/home-page.js');
+      const regionCats = Object.keys(grouped).sort((a, b) => grouped[b].length - grouped[a].length).map(g => ({
+        name: g, slug: slugify(g), count: grouped[g].length
+      }));
+      const html = generateHomePage({
+        origin,
+        regionCategories: regionCats.slice(0, 50),
+        typeCategories: [],
+        totalChannels: channels.length,
+        totalGroups: groups.length
+      });
+      await saveStaticFile(env, '/index.html', html);
+      console.log(`[StaticPages] Homepage: ${channels.length} channels`);
+    } catch (e) {
+      console.error('[StaticPages] Homepage failed:', e.message);
+    }
+
+    // ── 2. Top 20 category pages ────────────────────────────────────────────
+    const topGroups = Object.keys(grouped)
+      .sort((a, b) => grouped[b].length - grouped[a].length)
+      .slice(0, 20);
+
+    for (const group of topGroups) {
+      try {
+        const catChannels = grouped[group];
+        const { generateCategoryPage } = await import('../pages/category-page.js');
+        const html = generateCategoryPage({
+          origin,
+          slug: slugify(group),
+          category: group,
+          channels: catChannels.map(ch => ({
+            name: ch.channel_name, hash: ch.channel_hash, logo: ch.logo, group: ch.group_title
+          })),
+          totalChannels: catChannels.length
+        });
+        await saveStaticFile(env, `/category/${slugify(group)}.html`, html);
+      } catch (e) {
+        console.error(`[StaticPages] Category ${group} failed:`, e.message);
+      }
+    }
+
+    // ── 3. Top 100 channel pages (by group size) ────────────────────────────
+    const topChannelGroups = Object.keys(grouped)
+      .sort((a, b) => grouped[b].length - grouped[a].length)
+      .slice(0, 20);
+
+    let channelCount = 0;
+    for (const group of topChannelGroups) {
+      const catChannels = grouped[group].slice(0, 5); // 5 per group = up to 100
+      for (const ch of catChannels) {
+        try {
+          const { generateChannelPage } = await import('../pages/channel-page.js');
+          const html = generateChannelPage({
+            origin,
+            hash: ch.channel_hash,
+            channel: {
+              name: ch.channel_name,
+              group: ch.group_title,
+              description: ch.description || '',
+              logo: ch.logo,
+              sourceName: ch.source_name || ''
+            },
+            relatedChannels: []
+          });
+          await saveStaticFile(env, `/channel/${slugify(ch.channel_name)}.html`, html);
+          channelCount++;
+        } catch (e) {
+          console.error(`[StaticPages] Channel ${ch.channel_name} failed:`, e.message);
+        }
+      }
+    }
+
+    console.log(`[StaticPages] Done: ${channelCount} channel pages + ${topGroups.length} category pages`);
+  } catch (error) {
+    console.error('[Scheduler] refreshStaticPages failed:', error);
   }
 }

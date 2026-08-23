@@ -264,6 +264,10 @@ export function generateCategoryPage(options = {}) {
 
   function buildChannelUrl(name) {
 
+  function escapeJs(str) {
+    if (!str) return '';
+    return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+  }
 
 
 
@@ -5836,6 +5840,47 @@ export function generateCategoryPage(options = {}) {
 
 
 
+    <!-- SEO Content Section -->
+    <section class="seo-content">
+      <h2>About ${escapeHtml(category)} IPTV Channels</h2>
+      <p>Watch free ${escapeHtml(category)} IPTV channels live online on IPTV Search. Browse ${escapeHtml(category)} live TV streams in HD quality with M3U and M3U8 playlist support. No registration or subscription required for basic access. Our ${escapeHtml(category)} channel directory is updated daily to ensure reliable playback.</p>
+      <p>Access all ${escapeHtml(category)} channels via direct stream links, or download the M3U playlist for use in VLC, IPTV Smarters, TiviMate, GSE Smart IPTV, and other popular IPTV players.</p>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+      <h2>Frequently Asked Questions about ${escapeHtml(category)} Channels</h2>
+      <div class="faq-item">
+        <h3>How do I watch ${escapeHtml(category)} channels?</h3>
+        <p>Browse the channel list above, click on any channel to get its stream link, or copy the M3U playlist URL to import into your preferred IPTV player.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Are ${escapeHtml(category)} channels free to watch?</h3>
+        <p>Yes, you can watch ${escapeHtml(category)} channels for free with basic access. For ad-free HD streaming and multiple simultaneous connections, consider upgrading to a VIP subscription.</p>
+      </div>
+      <div class="faq-item">
+        <h3>What IPTV players work with ${escapeHtml(category)} streams?</h3>
+        <p>Our ${escapeHtml(category)} streams are compatible with VLC Media Player, IPTV Smarters Pro, TiviMate, GSE Smart IPTV, Kodi, and any player that supports M3U8 playlist URLs.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Why is a ${escapeHtml(category)} stream not loading?</h3>
+        <p>Free streams may occasionally be unavailable due to source changes. Try refreshing the page, switching to a different player, or checking our ${escapeHtml(category)} channel list for alternative streams.</p>
+      </div>
+    </section>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {"@type": "Question", "name": "How do I watch ${escapeJs(category)} channels?", "acceptedAnswer": {"@type": "Answer", "text": "Browse the channel list, click on any channel to get its stream link, or copy the M3U playlist URL to import into your preferred IPTV player."}},
+        {"@type": "Question", "name": "Are ${escapeJs(category)} channels free to watch?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, you can watch ${escapeJs(category)} channels for free with basic access. For ad-free HD streaming and multiple simultaneous connections, upgrade to a VIP subscription."}},
+        {"@type": "Question", "name": "What IPTV players work with ${escapeJs(category)} streams?", "acceptedAnswer": {"@type": "Answer", "text": "Our ${escapeJs(category)} streams are compatible with VLC Media Player, IPTV Smarters Pro, TiviMate, GSE Smart IPTV, Kodi, and any player that supports M3U8 playlist URLs."}},
+        {"@type": "Question", "name": "Why is a ${escapeJs(category)} stream not loading?", "acceptedAnswer": {"@type": "Answer", "text": "Free streams may occasionally be unavailable due to source changes. Try refreshing the page, switching to a different player, or checking our ${escapeJs(category)} channel list for alternative streams."}}
+      ]
+    }
+    </script>
+
 
 
 
@@ -10464,6 +10509,16 @@ export function generateCategoryPage(options = {}) {
 
 
 
+
+    /* SEO Content & FAQ */
+    .seo-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; }
+    .seo-content h2 { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.75rem; }
+    .seo-content p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 0.5rem; }
+    .faq-section { margin-bottom: 2rem; }
+    .faq-section h2 { font-size: 1.15rem; font-weight: 600; margin-bottom: 1rem; }
+    .faq-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 0.75rem; }
+    .faq-item h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent); }
+    .faq-item p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
   </style>
 
 

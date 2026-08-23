@@ -10,7 +10,9 @@
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
     "init-db": "wrangler d1 execute tv-service-db --file=./schema.sql",
-    "db:console": "wrangler d1 execute tv-service-db --command"
+    "db:console": "wrangler d1 execute tv-service-db --command",
+    "gen-static": "node scripts/generate-static-site.js --origin https://iptv-search.com",
+    "gen-static:local": "node scripts/generate-static-site.js --local"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",

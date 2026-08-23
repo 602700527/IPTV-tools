@@ -425,6 +425,16 @@ export function generateChannelPage(options = {}) {
       .footer-links { font-size: 0.7rem; gap: 0.75rem; }
     }
 
+    /* SEO Content & FAQ */
+    .seo-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; }
+    .seo-content h2 { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.75rem; }
+    .seo-content p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 0.5rem; }
+    .faq-section { margin-bottom: 2rem; }
+    .faq-section h2 { font-size: 1.15rem; font-weight: 600; margin-bottom: 1rem; }
+    .faq-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 0.75rem; }
+    .faq-item h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent); }
+    .faq-item p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+
     @media (max-width: 480px) {
       .logo-text { display: none; }
       .search-box { width: 100%; order: 3; margin-top: 0; }
@@ -551,6 +561,47 @@ export function generateChannelPage(options = {}) {
         </div>
       </div>
     </div>
+
+    <!-- SEO Content Section -->
+    <section class="seo-content">
+      <h2>About ${escapeHtml(channel.name)}</h2>
+      <p>${escapeHtml(channel.description || 'Watch ' + channel.name + ' live online for free on IPTV Search. ' + (channel.group || 'This channel') + ' streaming is available in HD quality with M3U and M3U8 playlist support. No registration or subscription required for free access.')}</p>
+      <p>Access ${escapeHtml(channel.name)} via our direct stream link, or download the M3U playlist for use in VLC, IPTV Smarters, TiviMate, and other IPTV players. Updated daily to ensure reliable playback.</p>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <h3>How do I watch ${escapeHtml(channel.name)}?</h3>
+        <p>Click the "Try Free" button above to get instant access, or copy the play link and paste it into any IPTV player like VLC, GSE Smart IPTV, or TiviMate.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Is ${escapeHtml(channel.name)} free to watch?</h3>
+        <p>Yes. You can watch ${escapeHtml(channel.name)} for free using our basic access. For ad-free HD streaming and simultaneous connections, upgrade to a VIP plan.</p>
+      </div>
+      <div class="faq-item">
+        <h3>What players support this stream?</h3>
+        <p>This stream works with VLC Media Player, IPTV Smarters Pro, TiviMate, GSE Smart IPTV, Kodi, and any player that supports M3U8 playlist URLs.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Why is the stream buffering or not loading?</h3>
+        <p>Free streams may experience intermittent connectivity. Try refreshing the page, switching to a different player, or using the VIP subscription for a more stable HD connection.</p>
+      </div>
+    </section>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {"@type": "Question", "name": "How do I watch ${escapeJs(channel.name)}?", "acceptedAnswer": {"@type": "Answer", "text": "Click the Try Free button to get instant access, or copy the play link and paste it into any IPTV player like VLC, IPTV Smarters, or TiviMate."}},
+        {"@type": "Question", "name": "Is ${escapeJs(channel.name)} free to watch?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. You can watch ${escapeJs(channel.name)} for free using our basic access. For ad-free HD streaming and simultaneous connections, upgrade to a VIP plan."}},
+        {"@type": "Question", "name": "What players support this stream?", "acceptedAnswer": {"@type": "Answer", "text": "This stream works with VLC Media Player, IPTV Smarters Pro, TiviMate, GSE Smart IPTV, Kodi, and any player that supports M3U8 playlist URLs."}},
+        {"@type": "Question", "name": "Why is the stream buffering or not loading?", "acceptedAnswer": {"@type": "Answer", "text": "Free streams may experience intermittent connectivity. Try refreshing the page, switching to a different player, or using the VIP subscription for a more stable HD connection."}}
+      ]
+    }
+    </script>
 
     <!-- Related Channels -->
     ${relatedChannelsHtml}
