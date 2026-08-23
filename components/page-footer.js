@@ -247,13 +247,34 @@ export const PAGE_FOOTER = `
       border-radius: 0;
     }
     .footer-faq-item summary {
+      display: block;
       padding: 0.4rem 0.5rem;
       cursor: pointer;
       color: var(--text-secondary);
       font-size: 0.85rem;
       list-style: none;
+      text-align: center;
+      position: relative;
     }
     .footer-faq-item summary::-webkit-details-marker { display: none; }
+    .footer-faq-item summary::marker { display: none; content: ''; }
+    /* Custom open/close indicator (the default browser triangle
+       is suppressed above so we provide our own) */
+    .footer-faq-item summary::after {
+      content: '+';
+      display: inline-block;
+      margin-left: 0.4rem;
+      font-size: 0.9em;
+      opacity: 0.5;
+      transition: transform 0.2s, opacity 0.2s;
+      vertical-align: middle;
+    }
+    .footer-faq-item summary:hover::after { opacity: 1; }
+    .footer-faq-item[open] summary::after {
+      content: '2'; /* minus sign */
+      transform: rotate(0);
+    }
+    .footer-faq-answer { text-align: center; }
     .footer-faq-item summary:hover {
       color: var(--text-primary);
       background: var(--bg-hover);
@@ -348,6 +369,11 @@ export const PAGE_FOOTER = `
       .footer-brand-bottom { align-items: center; }
       .footer-disclaimer { flex-direction: column; text-align: center; gap: 0.75rem; }
       .footer-badges { justify-content: center; }
+      /* Center column content at this breakpoint too — was only at 480 */
+      .footer-tagline,
+      .footer-col-title,
+      .footer-col-links { text-align: center; align-items: center; }
+      .footer-col-links a { text-align: center; }
       .floating-sidebar {
         right: 10px;
         bottom: 16px;
@@ -373,9 +399,9 @@ export const PAGE_FOOTER = `
       .footer-brand-bottom { align-items: center; }
       .footer-disclaimer { flex-direction: column; text-align: center; gap: 0.5rem; }
       .footer-badges { justify-content: center; }
-      .footer-tagline { text-align: center; }
-      .footer-col-title { text-align: center; }
-      .footer-col-links { align-items: center; }
+      /* FAQ items: tighter padding on tiny phones */
+      .footer-faq-item summary { padding: 0.5rem 0.25rem; font-size: 0.82rem; }
+      .footer-faq-answer { font-size: 0.78rem; padding: 0.4rem 0.5rem 0.5rem; }
     }
 
     /* VIP Sticky Strip — persistent bottom offer */
