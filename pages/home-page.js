@@ -379,118 +379,12 @@ export function generateHomePage(options = {}) {
       transition: color var(--transition);
     }
     .hero-cta-secondary:hover { color: var(--text-primary); }
-
-    /* ============================================================
-       SUBSCRIPTION VALUE BANNER — Data panel
-       ============================================================ */
-    .sub-value-banner {
-      background: var(--bg-secondary);
-      border-bottom: var(--border);
-      padding: 1.75rem 0;
-    }
-    .sub-value-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 2rem;
-    }
-    .sub-value-left { flex: 1; min-width: 0; }
-    .sub-value-eyebrow {
-      font-family: var(--mono);
-      font-size: 0.6rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: var(--accent);
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-    .sub-value-eyebrow::before {
-      content: '//';
-      opacity: 0.5;
-    }
-    .sub-value-title {
-      font-size: clamp(1.1rem, 2.2vw, 1.5rem);
-      font-weight: 800;
-      color: var(--text-primary);
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-    }
-    .sub-value-title span { color: var(--accent); }
-    .sub-value-desc {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      margin-top: 0.4rem;
-      max-width: 480px;
-      line-height: 1.6;
-    }
-    .sub-value-trust-box {
-      margin-top: 0.85rem;
-      padding: 0.7rem 0.9rem;
-      background: var(--bg-primary);
-      border: var(--border);
-      border-left: 2px solid #22c55e;
-      border-radius: 0;
-      max-width: 480px;
-    }
-    .sub-value-trust {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--text-secondary);
-    }
-    .sub-value-trust li { display: flex; align-items: center; gap: 0.5rem; }
-    .trust-check {
-      color: #22c55e;
-      font-size: 0.7rem;
-      font-weight: 700;
-      flex-shrink: 0;
-      font-family: var(--mono);
-    }
-    .sub-value-anchor {
-      margin-top: 0.65rem;
-      font-family: var(--mono);
-      font-size: 0.7rem;
+    .hero-cta-meta {
       color: var(--text-muted);
-    }
-    .sub-value-anchor strong { color: #22c55e; font-weight: 600; }
-    .sub-value-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.6rem 1.25rem;
-      background: var(--accent);
-      color: #fff;
       font-family: var(--mono);
-      font-weight: 600;
-      font-size: 0.78rem;
-      text-decoration: none;
-      border-radius: 0;
-      letter-spacing: 0.04em;
-      transition: all var(--transition);
-      white-space: nowrap;
-      flex-shrink: 0;
+      font-size: 0.7rem;
     }
-    .sub-value-cta:hover {
-      background: #ff1a1a;
-      box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
-    }
-    .sub-value-cta-arrow { transition: transform 0.2s; }
-    .sub-value-cta:hover .sub-value-cta-arrow { transform: translateX(3px); }
-    @media (max-width: 768px) {
-      .sub-value-inner { flex-direction: column; align-items: flex-start; }
-      .sub-value-cta { width: 100%; justify-content: center; }
-    }
+    .hero-cta-meta strong { color: #22c55e; font-weight: 600; }
 
     /* ============================================================
        Section common
@@ -755,8 +649,6 @@ export function generateHomePage(options = {}) {
       .hero-statusbar { gap: 0.5rem; }
       .section { padding: 2.25rem 0; }
       .section-inner { padding: 0 1rem; }
-      .sub-value-inner { flex-direction: column; align-items: flex-start; }
-      .sub-value-cta { width: 100%; justify-content: center; }
     }
     @media (max-width: 480px) {
       .hero-stats-grid { grid-template-columns: 1fr; }
@@ -807,6 +699,7 @@ export function generateHomePage(options = {}) {
         <span class="status-badge">Last updated: today</span>
         <span class="status-badge">150+ countries indexed</span>
         <span class="status-badge">Trusted by 240,000+ viewers</span>
+        <span class="status-badge">endpoint: /premium</span>
         <span class="status-feed"><span class="accent">&gt;</span> live-feed: active</span>
       </div>
       <div class="hero-headline reveal stagger-1">
@@ -840,51 +733,11 @@ export function generateHomePage(options = {}) {
       </div>
       <div class="hero-cta-row reveal stagger-4">
         <a href="/subscription" class="hero-cta">GET_VIP_ACCESS &rarr;</a>
+        <span class="hero-cta-meta">from &yen;20/mo &middot; yearly plan <strong>saves 40%</strong></span>
         <a href="#popular-topics" class="hero-cta-secondary">$ browse channels</a>
       </div>
     </div>
   </section>
-
-
-
-
-
-  <div class="sub-value-banner reveal" id="subValueBanner">
-    <div class="sub-value-inner">
-      <div class="sub-value-left">
-        <div class="sub-value-eyebrow" id="bannerEyebrow">api/v1/premium</div>
-        <h2 class="sub-value-title" id="bannerTitle">Your Full Channel<br><span>Playlist Awaits</span></h2>
-        <p class="sub-value-desc" id="bannerDesc">Register now and get instant access to 8,000+ IPTV channels. One click to your personal M3U subscription link.</p>
-        <div class="sub-value-trust-box">
-          <ul class="sub-value-trust" aria-label="Why try it">
-            <li><span class="trust-check" aria-hidden="true">[OK]</span> No credit card required</li>
-            <li><span class="trust-check" aria-hidden="true">[OK]</span> 7 days free, then from &yen;20/mo</li>
-            <li><span class="trust-check" aria-hidden="true">[OK]</span> 7-day money-back &middot; cancel anytime</li>
-            <li><span class="trust-check" aria-hidden="true">[OK]</span> Secure payment: Alipay / WeChat / USDT</li>
-          </ul>
-        </div>
-        <div class="sub-value-anchor">Yearly plan <strong>saves 40%</strong> &mdash; only &yen;9.9/mo</div>
-      </div>
-      <a href="/subscription" class="sub-value-cta" id="bannerCta">GET_ACCESS<span class="sub-value-cta-arrow"> &rarr;</span></a>
-    </div>
-  </div>
-
-  <script>
-    (function() {
-      var hasAuth = false;
-      try {
-        hasAuth = !!localStorage.getItem('auth_token') ||
-                  document.cookie.indexOf('auth_token=') !== -1;
-      } catch (e) {}
-      if (!hasAuth) return;
-      var el;
-      if ((el = document.getElementById('bannerEyebrow'))) el.textContent = 'api/v1/upgrade';
-      if ((el = document.getElementById('bannerTitle'))) el.innerHTML = 'Unlock All Features<br><span>VIP Access</span>';
-      if ((el = document.getElementById('bannerDesc'))) el.textContent = 'Upgrade to VIP for unlimited searches, downloads, multi-device sync, and priority support.';
-      var cta = document.getElementById('bannerCta');
-      if (cta) { cta.href = '/subscription'; cta.innerHTML = 'UPGRADE_NOW<span class="sub-value-cta-arrow"> &rarr;</span>'; }
-    })();
-  </script>
 
   <section class="section hot-topics" id="popular-topics">
     <div class="section-inner">

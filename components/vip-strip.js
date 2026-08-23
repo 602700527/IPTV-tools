@@ -100,7 +100,7 @@ export const VIP_STRIP_HTML = `
     <div class="vip-strip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M5 17l-2-9 4 3 5-7 5 7 4-3-2 9H5zm0 2h14v2H5v-2z"/></svg></div>
     <div class="vip-strip-text notranslate" translate="no">
       <strong class="notranslate" translate="no">7 days free VIP</strong>
-      <span class="vip-strip-meta notranslate" translate="no"><span class="vip-strip-check">&check;</span> No credit card · <span class="vip-strip-check">&check;</span> 7-day refund · <span class="vip-strip-check">&check;</span> Cancel anytime</span>
+      <span class="vip-strip-meta notranslate" translate="no"><span class="vip-strip-check">&check;</span> No credit card · <span class="vip-strip-check">&check;</span> 7-day refund · <span class="vip-strip-check">&check;</span> Cancel anytime · <span class="vip-strip-check">&check;</span> Secure pay</span>
     </div>
     <a href="/subscription" class="vip-strip-cta notranslate" id="vipStripCta" translate="no">Get Free VIP &rarr;</a>
     <button class="vip-strip-close notranslate" aria-label="Dismiss offer" type="button" translate="no">&times;</button>
