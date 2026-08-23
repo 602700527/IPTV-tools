@@ -877,7 +877,7 @@ export function generateHomePage(options = {}) {
       if (navigator.share) {
         navigator.share({ title: 'My IPTV Favorites', text: text, url: window.location.origin + '/favorites' });
       } else {
-        navigator.clipboard.writeText(text + '\n' + window.location.origin + '/favorites');
+        navigator.clipboard.writeText(text + '\\n' + window.location.origin + '/favorites');
         alert('Favorites copied to clipboard!');
       }
     }
