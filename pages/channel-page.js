@@ -111,14 +111,15 @@ export function generateChannelPage(options = {}) {
   let relatedChannelsHtml = '';
   if (relatedChannels.length > 0) {
     relatedChannelsHtml = '<section class="related-section">' +
-      '<h2>More from ' + escapeHtml(channel.group || 'This Category') + '</h2>' +
+      '<div class="account-card">' +
+      '<div class="section-header"><h3>More from ' + escapeHtml(channel.group || 'This Category') + '</h3></div>' +
       '<div class="related-grid">' +
       relatedChannels.map(ch => {
-        const chLogo = ch.logo 
-          ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">' +
+        const chLogo = ch.logo
+          ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '" loading="lazy" decoding="async" onerror="this.style.display=\'none\">' +
             '<div class="placeholder" style="display:none">📺</div>'
           : '<div class="placeholder">📺</div>';
-        return '<div class="related-card" onclick="location.href=\'' + origin + '/channel/' + buildChannelSlug(ch.name) + '\'">' +
+        return '<div class="related-card" onclick="location.href=\'' + origin + '/channel/' + buildChannelSlug(ch.name) + '\">' +
           chLogo +
           '<div class="related-card-info">' +
             '<div class="related-card-name">' + escapeHtml(ch.name) + '</div>' +
@@ -126,7 +127,7 @@ export function generateChannelPage(options = {}) {
           '</div>' +
         '</div>';
       }).join('') +
-      '</div></section>';
+      '</div></div></section>';;
   }
 
   // 占位图 SVG (方案E: 深灰背景 + 频道名大字居中)
@@ -280,24 +281,59 @@ export function generateChannelPage(options = {}) {
     /* Main Content */
     .main-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
 
-    /* Channel Hero */
-    .channel-hero { display: grid; grid-template-columns: 300px 1fr; gap: 2rem; margin-bottom: 2rem; }
-    .channel-poster-large { aspect-ratio: 16/10; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    .channel-poster-large img { width: 100%; height: 100%; object-fit: contain; padding: 2rem; }
-    .channel-poster-large .placeholder { font-size: 4rem; opacity: 0.3; background: var(--bg-hover); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); }
-    .channel-details { display: flex; flex-direction: column; justify-content: center; }
-    .channel-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-    .channel-badge { padding: 0.3rem 0.8rem; background: var(--accent); border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
-    .channel-source { font-size: 0.85rem; color: var(--text-muted); }
-    .channel-title { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .channel-subtitle { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 1rem; }
-    .channel-stats { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; }
-    .stat { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-secondary); }
-    .stat-icon { font-size: 1rem; }
+    /* Account-card - tight visual containment from /account */
+    .account-card {
+      background: #111111 !important;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .account-section { display: flex; flex-direction: column; gap: 5px; padding: 14px 0 !important; }
+    .account-section:last-child { padding-bottom: 14px !important; }
 
-    /* Action Buttons */
-    .action-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.8rem 1.5rem; border-radius: var(--radius); font-size: 1rem; font-weight: 600; border: none; transition: all var(--transition); }
+    /* Channel Hero - compact side-by-side flex */
+    .channel-hero {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      margin-bottom: 0;
+    }
+    .channel-poster-large {
+      flex-shrink: 0;
+      width: 200px;
+      aspect-ratio: 16/10;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .channel-poster-large img { width: 100%; height: 100%; object-fit: contain; padding: 1.25rem; }
+    .channel-poster-large .placeholder { font-size: 3rem; opacity: 0.3; background: var(--bg-hover); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); }
+    .channel-details { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+    .channel-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+    /* Badge tokens */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: var(--radius); font-size: 10px; font-weight: 600; letter-spacing: 0.2px; }
+    .badge-live { background: rgba(229, 9, 20, 0.15); color: var(--accent); border: 1px solid rgba(229, 9, 20, 0.3); }
+    .badge-live::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    .badge-free { background: rgba(34, 197, 94, 0.12); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .badge-format { background: var(--bg-hover); color: var(--text-secondary); border: 1px solid var(--border); }
+
+    .channel-title { font-size: 1.125rem; font-weight: 700; margin: 2px 0 4px; line-height: 1.3; }
+    .channel-subtitle { font-size: 0.85rem; color: var(--text-secondary); }
+    .channel-stats { display: flex; gap: 6px; flex-wrap: wrap; }
+    .stat { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); padding: 4px 8px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius); }
+    .stat-icon { font-size: 0.85rem; }
+
+    /* Action Buttons - compact */
+    .action-buttons { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: var(--radius); font-size: 11px; font-weight: 600; border: none; transition: all var(--transition); cursor: pointer; }
     .btn-primary { background: var(--accent); color: white; }
     .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
     .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
@@ -307,53 +343,67 @@ export function generateChannelPage(options = {}) {
     .btn-favorited svg { fill: var(--accent); }
 
     /* Spinner */
-    .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* Section header */
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .section-header h3 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0; }
+    .section-action { font-size: 11px; color: var(--text-muted); }
+
     /* Info Card */
-    .info-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; }
-    .info-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-secondary); }
-    .info-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+    .info-card { background: #111111 !important; border: 1px solid rgba(255,255,255,0.15); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; }
+    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); gap: 1rem; }
     .info-row:last-child { border-bottom: none; }
-    .info-label { color: var(--text-muted); font-size: 0.9rem; }
-    .info-value { font-weight: 500; font-size: 0.9rem; }
-    .description-row { flex-direction: column; gap: 0.5rem; }
-    .description-value { font-weight: 400; color: var(--text-secondary); line-height: 1.6; font-size: 0.85rem; }
+    .info-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; white-space: nowrap; }
+    .info-value { font-size: 13px; color: var(--text-primary); font-weight: 500; text-align: right; }
 
     /* How to Watch */
-    .how-to-watch { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; }
-    .how-to-watch h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
-    .watch-option { margin-bottom: 1.5rem; }
+    .how-to-watch { background: #111111 !important; border: 1px solid rgba(255,255,255,0.15); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; }
+    .how-to-watch .section-header { margin-bottom: 16px; }
+    .watch-option { margin-bottom: 1rem; }
     .watch-option:last-child { margin-bottom: 0; }
     .option-header { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--bg-secondary); border-radius: 8px; margin-bottom: 1rem; }
     .option-icon { font-size: 1.25rem; }
-    .option-header h4 { font-size: 1rem; font-weight: 600; margin: 0; }
+    .option-header h4 { font-size: 0.95rem; font-weight: 600; margin: 0; }
     .option-steps { padding-left: 0.5rem; }
-    .step { display: flex; gap: 1rem; margin-bottom: 0.75rem; align-items: flex-start; }
+    .step { display: flex; gap: 0.75rem; margin-bottom: 0.75rem; align-items: flex-start; }
     .step:last-child { margin-bottom: 0; }
-    .step-number { width: 24px; height: 24px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
-    .step-content h4 { font-size: 0.9rem; margin-bottom: 0.2rem; }
+    .step-number { width: 22px; height: 22px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; }
+    .step-content h4 { font-size: 0.85rem; margin-bottom: 0.15rem; }
     .step-content h4 a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
     .step-content h4 a:hover { text-decoration: none; }
-    .step-content p { font-size: 0.8rem; color: var(--text-secondary); }
-    .step-content p a { color: var(--accent); font-weight: 500; }
-    .step-content p a:hover { text-decoration: underline; }
+    .step-content p { font-size: 0.78rem; color: var(--text-secondary); }
 
-    /* Related Channels */
-    .related-section { margin-top: 3rem; }
-    .related-section h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
-    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
-    .related-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.75rem; display: flex; gap: 0.75rem; align-items: center; transition: all var(--transition); cursor: pointer; }
-    .related-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-    .related-card img { width: 48px; height: 48px; object-fit: contain; border-radius: 4px; }
-    .related-card .placeholder { width: 48px; height: 48px; background: var(--bg-secondary); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; opacity: 0.3; }
-    .related-card-info { flex: 1; min-width: 0; }
-    .related-card-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .related-card-group { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* Perk items grid */
+    .perks-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .perk-item { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius); font-size: 11px; color: var(--text-secondary); }
+    .perk-icon { font-size: 0.85rem; }
 
-    /* Copy Toast */
-    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; padding: 1rem 2rem; border-radius: var(--radius); font-weight: 600; opacity: 0; transition: all 0.3s ease; z-index: 1000; }
+    /* Related Section */
+    .related-section { margin-top: 1.5rem; }
+    .related-section .account-card { margin-bottom: 0; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.75rem; }
+    .related-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all var(--transition); text-decoration: none; color: inherit; }
+    .related-card:hover { border-color: var(--border-hover); background: var(--bg-hover); transform: translateY(-1px); }
+    .related-card img, .related-card .placeholder { width: 36px; height: 36px; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
+    .related-card .placeholder { background: var(--bg-hover); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; opacity: 0.4; }
+    .related-card-info { min-width: 0; flex: 1; }
+    .related-card-name { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .related-card-group { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Toast - glass card, top-centered */
+    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-80px); background: rgba(17, 17, 17, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15); color: var(--text-primary); padding: 10px 20px; border-radius: var(--radius); font-size: 0.85rem; font-weight: 500; z-index: 10000; opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.toast-success { border-color: rgba(34, 197, 94, 0.3); color: #22c55e; }
+    .toast.toast-warning { border-color: rgba(234, 179, 8, 0.3); color: #eab308; }
+    .toast.toast-error { border-color: rgba(229, 9, 20, 0.3); color: var(--accent); }
+
+    /* Guest gift animation */
+    .guest-gift { animation: giftPulse 2s ease-in-out infinite; }
+    @keyframes giftPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    .gift-icon { display: inline-block; animation: giftBounce 1s ease-in-out infinite; }
+    @keyframes giftBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 
     /* Responsive */
     @media (max-width: 768px) {
@@ -379,59 +429,51 @@ export function generateChannelPage(options = {}) {
       .breadcrumb-current { font-size: 0.8rem; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .breadcrumb-cat { max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .main-container { padding: 1rem; }
-      .channel-hero { grid-template-columns: 1fr; gap: 1.5rem; }
-      .channel-poster-large { aspect-ratio: 16/10; }
-      .channel-poster-large img { padding: 1.5rem; }
-      .channel-details { text-align: center; }
-      .channel-meta { justify-content: center; flex-wrap: wrap; gap: 0.5rem; }
-      .channel-title { font-size: 1.5rem; }
-      .channel-subtitle { font-size: 1rem; }
-      .channel-stats { justify-content: center; flex-wrap: wrap; gap: 1rem; }
-      .action-buttons { flex-direction: column; gap: 0.75rem; }
-      .action-buttons .btn { width: 100%; justify-content: center; padding: 0.75rem 1rem; }
-      .info-card { padding: 1rem; }
-      .info-row { padding: 0.5rem 0; font-size: 0.85rem; }
-      .how-to-watch { padding: 1rem; }
+      .channel-hero { flex-direction: column; align-items: stretch; }
+      .channel-poster-large { width: 100%; }
+      .channel-details { text-align: left; }
+      .channel-meta { justify-content: flex-start; }
+      .channel-title { font-size: 1.25rem; }
+      .channel-subtitle { font-size: 0.9rem; }
+      .channel-stats { justify-content: flex-start; }
+      .action-buttons { flex-direction: row; }
+      .action-buttons .btn { flex: 1; justify-content: center; }
+      .info-card { padding: 14px 16px; }
+      .info-row { padding: 6px 0; font-size: 0.82rem; }
+      .info-label { font-size: 10px; }
+      .info-value { font-size: 12px; }
+      .how-to-watch { padding: 14px 16px; }
       .option-header { flex-direction: column; text-align: center; gap: 0.5rem; padding: 0.75rem; }
       .option-steps { padding-left: 0; }
       .step { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
-      .step-number { width: 28px; height: 28px; font-size: 0.8rem; }
-      .related-section { margin-top: 2rem; }
-      .related-section h2 { font-size: 1.1rem; }
-      .related-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
+      .step-number { width: 26px; height: 26px; font-size: 0.75rem; }
+      .related-section { margin-top: 1.5rem; }
+      .related-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.6rem; }
       .related-card { padding: 0.5rem; gap: 0.5rem; }
-      .related-card img, .related-card .placeholder { width: 36px; height: 36px; }
-      .related-card-name { font-size: 0.8rem; }
-      .related-card-group { font-size: 0.7rem; }
-      .toast { bottom: 1rem; padding: 0.75rem 1.5rem; font-size: 0.85rem; }
+      .related-card img, .related-card .placeholder { width: 32px; height: 32px; }
+      .related-card-name { font-size: 0.78rem; }
+      .related-card-group { font-size: 0.68rem; }
+      .toast { top: 12px; bottom: auto; padding: 8px 16px; font-size: 0.82rem; }
       .page-footer { padding: 1.5rem 0.75rem; }
       .footer-links { font-size: 0.7rem; gap: 0.75rem; }
     }
 
-    /* SEO Content & FAQ */
-    .seo-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; }
-    .seo-content h2 { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.75rem; }
-    .seo-content p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 0.5rem; }
-    .faq-section { margin-bottom: 2rem; }
-    .faq-section h2 { font-size: 1.15rem; font-weight: 600; margin-bottom: 1rem; }
-    .faq-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 0.75rem; }
-    .faq-item h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent); }
-    .faq-item p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    /* SEO & FAQ - account-card styled */
+    .seo-content { background: #111111 !important; border: 1px solid rgba(255,255,255,0.15); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; }
+    .seo-content .section-header { margin-bottom: 12px; }
+    .seo-content p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 0.5rem; }
+    .faq-section { background: #111111 !important; border: 1px solid rgba(255,255,255,0.15); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; }
+    .faq-section .section-header { margin-bottom: 12px; }
+    .faq-item { background: transparent; border: none; border-radius: 0; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .faq-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .faq-item h3 { font-size: 0.88rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--accent); }
+    .faq-item p { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.55; }
 
-    @media (max-width: 480px) {
-      .logo-text { display: none; }
-      .search-box { width: 100%; order: 3; margin-top: 0; }
-      .channel-hero { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-      .channel-poster-large { width: 80px; height: 80px; }
-      .channel-poster-large .placeholder { font-size: 2rem; }
-      .channel-title { font-size: 1.25rem; }
-      .channel-subtitle { font-size: 0.85rem; }
-      .channel-badge { font-size: 0.7rem; padding: 0.25rem 0.6rem; }
-      .action-buttons .btn { padding: 0.65rem 0.75rem; font-size: 0.85rem; }
-      .info-card h3 { font-size: 0.9rem; }
-      .how-to-watch h3 { font-size: 0.95rem; }
-      .option-header h4 { font-size: 0.9rem; }
-      .related-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+@media (max-width: 480px) {
+      .channel-poster-large { width: 100%; aspect-ratio: 16/9; }
+      .channel-title { font-size: 1.05rem; }
+      .action-buttons .btn { padding: 6px 10px; font-size: 10px; }
+      .related-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
   <a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;z-index:99999;">Skip to main content</a>
@@ -455,41 +497,45 @@ export function generateChannelPage(options = {}) {
     <span class="breadcrumb-current">${escapeHtml(channel.name)}</span>
   </nav>
 
-  <main class="main-container" id="main-content">
-    <!-- Channel Hero -->
-    <div class="channel-hero">
+  <main class="main-container main-stack" id="main-content">
+    <!-- Channel Hero - account-card wrapped -->
+    <div class="channel-hero account-card">
       <div class="channel-poster-large">
         ${logoHtml}
       </div>
       <div class="channel-details">
         <div class="channel-meta">
-          <span class="channel-badge">LIVE</span>
-    
+          <span class="badge badge-live">LIVE</span>
+          <span class="badge badge-free">Free</span>
+          <span class="badge badge-format">${escapeHtml(channel.format || 'M3U8')}</span>
         </div>
         <h1 class="channel-title">${escapeHtml(channel.name)}</h1>
         <p class="channel-subtitle">${escapeHtml(channel.group || 'General Channel')}</p>
-        
         <div class="channel-stats">
           ${statsHtml}
         </div>
-
         <div class="action-buttons">
           ${actionButtonsHtml}
         </div>
       </div>
     </div>
 
-    <!-- Info Card -->
+    <!-- Info Card - account-card wrapped -->
     <div class="info-card">
-      <h3>Channel Information</h3>
+      <div class="section-header">
+        <h3>Channel Information</h3>
+        <span class="section-action">Updated ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+      </div>
       ${infoRowsHtml}
     </div>
 
-    <!-- How to Watch -->
+    <!-- How to Watch - account-card wrapped -->
     <div class="how-to-watch">
-      <h3>How to Watch</h3>
+      <div class="section-header">
+        <h3>How to Watch</h3>
+        <span class="section-action">Select your player</span>
+      </div>
       
-      <!-- Option 1: Subscription (Primary) -->
       <div class="watch-option">
         <div class="option-header">
           <span class="option-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span>
@@ -546,15 +592,23 @@ export function generateChannelPage(options = {}) {
     </div>
 
     <!-- SEO Content Section -->
-    <section class="seo-content">
-      <h2>About ${escapeHtml(channel.name)}</h2>
-      <p>${escapeHtml(channel.description || 'Watch ' + channel.name + ' live online for free on IPTV Search. ' + (channel.group || 'This channel') + ' streaming is available in HD quality with M3U and M3U8 playlist support. No registration or subscription required for free access.')}</p>
-      <p>Access ${escapeHtml(channel.name)} via our direct stream link, or download the M3U playlist for use in VLC, IPTV Smarters, TiviMate, and other IPTV players. Updated daily to ensure reliable playback.</p>
+        <!-- About - account-card -->
+    <section class="seo-content account-card">
+      <div class="section-header">
+        <h3>About ${escapeHtml(channel.name)}</h3>
+      </div>
+      <div class="account-section">
+        <p>${escapeHtml(channel.description || 'Watch ' + channel.name + ' live online for free on IPTV Search. ' + (channel.group || 'This channel') + ' streaming is available in HD quality with M3U and M3U8 playlist support. No registration or subscription required for free access.')}</p>
+        <p>Access ${escapeHtml(channel.name)} via our direct stream link, or download the M3U playlist for use in VLC, IPTV Smarters, TiviMate, and other IPTV players. Updated daily to ensure reliable playback.</p>
+      </div>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="faq-section">
-      <h2>Frequently Asked Questions</h2>
+    <!-- FAQ - account-card -->
+    <section class="faq-section account-card">
+      <div class="section-header">
+        <h3>Frequently Asked Questions</h3>
+      </div>
+      <div class="account-section">
       <div class="faq-item">
         <h3>How do I watch ${escapeHtml(channel.name)}?</h3>
         <p>Click the "Try Free" button above to get instant access, or copy the play link and paste it into any IPTV player like VLC, GSE Smart IPTV, or TiviMate.</p>
@@ -570,6 +624,7 @@ export function generateChannelPage(options = {}) {
       <div class="faq-item">
         <h3>Why is the stream buffering or not loading?</h3>
         <p>Free streams may experience intermittent connectivity. Try refreshing the page, switching to a different player, or using the VIP subscription for a more stable HD connection.</p>
+      </div>
       </div>
     </section>
 
