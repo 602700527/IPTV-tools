@@ -11,14 +11,14 @@ export const PLANS_HTML = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title data-i18n-title="pageTitle">Cheap IPTV Service 2026 - Affordable Live TV Streaming Plans</title>
-  <meta name="description" content="Looking for cheap IPTV? Get budget-friendly IPTV plans with 8000+ live channels starting from $9.99/month. No hidden fees, cancel anytime. Best value IPTV service.">
+  <meta name="description" content="Looking for cheap IPTV? Get budget-friendly IPTV plans with thousands of live channels starting from $9.99/month. No hidden fees, cancel anytime. Best value IPTV service.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://iptv-search.com/plans">
   <link rel="alternate" hreflang="zh-CN" href="https://iptv-search.com/plans">
   <link rel="alternate" hreflang="en" href="https://iptv-search.com/plans?lang=en">
   <link rel="alternate" hreflang="x-default" href="https://iptv-search.com/plans?lang=en">
   <meta property="og:title" content="Cheap IPTV Service 2024 - Affordable Live TV Streaming Plans">
-  <meta property="og:description" content="Looking for cheap IPTV? Get budget-friendly IPTV plans with 8000+ live channels starting from $9.99/month.">
+  <meta property="og:description" content="Looking for cheap IPTV? Get budget-friendly IPTV plans with thousands of live channels starting from $9.99/month.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://iptv-search.com/plans">
   <meta property="og:image" content="https://iptv-search.com/og-image.jpg">

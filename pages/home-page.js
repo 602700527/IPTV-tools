@@ -59,14 +59,14 @@ export function generateHomePage(options = {}) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IPTV Search &mdash; Free IPTV Channels from 150+ Countries (2026)</title>
-  <meta name="description" content="Browse 8,000+ free IPTV channels from 150+ countries. Search live sports, news, movies in HD &mdash; no signup, updated daily. Start streaming now.">
+  <meta name="description" content="Browse ${totalChannels.toLocaleString()}+ free IPTV channels from 150+ countries. Search live sports, news, movies in HD &mdash; no signup, updated daily. Start streaming now.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="${origin}/">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" href="/favicon.svg">
   <meta name="theme-color" content="#e50914">
   <meta property="og:title" content="IPTV Search &mdash; Free IPTV Channels from 150+ Countries (2026)">
-  <meta property="og:description" content="Browse 8,000+ free IPTV channels from 150+ countries. Search live sports, news, movies in HD &mdash; no signup, updated daily. Start streaming now.">
+  <meta property="og:description" content="Browse ${totalChannels.toLocaleString()}+ free IPTV channels from 150+ countries. Search live sports, news, movies in HD &mdash; no signup, updated daily. Start streaming now.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${origin}/">
   <meta property="og:locale" content="en">
@@ -74,7 +74,7 @@ export function generateHomePage(options = {}) {
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="${origin}/og-image.svg">
   <meta name="twitter:title" content="IPTV Search &mdash; Free IPTV Channels from 150+ Countries (2026)">
-  <meta name="twitter:description" content="Browse 8,000+ free IPTV channels from 150+ countries. Search live sports, news, movies in HD &mdash; no signup, updated daily. Start streaming now.">
+  <meta name="twitter:description" content="Browse ${totalChannels.toLocaleString()}+ free IPTV channels from 150+ countries. Search live sports, news, movies in HD &mdash; no signup, updated daily. Start streaming now.">
 
 
 
@@ -107,7 +107,7 @@ export function generateHomePage(options = {}) {
     "name": "IPTV Search",
     "url": "${origin}",
     "logo": "${origin}/favicon.svg",
-    "description": "Free IPTV Channel Directory and Search Engine with 8,000+ live TV channels from 150+ countries."
+    "description": "Free IPTV Channel Directory and Search Engine with ${totalChannels.toLocaleString()}+ live TV channels from 150+ countries."
   }
   </script>
 
@@ -118,7 +118,7 @@ export function generateHomePage(options = {}) {
     "mainEntity": [
       {"@type": "Question", "name": "How can I watch IPTV channels for free?", "acceptedAnswer": {"@type": "Answer", "text": "IPTV Search provides free access to watch live TV channels. Simply browse our directory, select a channel, and start watching. No registration or subscription required for basic access."}},
       {"@type": "Question", "name": "What devices support IPTV streaming?", "acceptedAnswer": {"@type": "Answer", "text": "Our IPTV streams work on most devices including Smart TVs (Samsung, LG, Sony), streaming devices (Roku, Firestick, Apple TV), computers, smartphones, and tablets. Use VLC player or any IPTV-compatible app."}},
-      {"@type": "Question", "name": "How many channels are available?", "acceptedAnswer": {"@type": "Answer", "text": "We offer over 8000+ live TV channels from around the world, covering news, sports, entertainment, movies, and more. New channels are added regularly."}},
+      {"@type": "Question", "name": "How many channels are available?", "acceptedAnswer": {"@type": "Answer", "text": "We offer ${totalChannels.toLocaleString()}+ live TV channels from around the world, covering news, sports, entertainment, movies, and more. New channels are added regularly."}},
       {"@type": "Question", "name": "Is IPTV legal?", "acceptedAnswer": {"@type": "Answer", "text": "IPTV Search only indexes publicly available streaming links. We do not host or produce any content. Users are responsible for ensuring compliance with their local laws and the content provider's terms of service."}},
       {"@type": "Question", "name": "What are the subscription plans?", "acceptedAnswer": {"@type": "Answer", "text": "We offer free basic access with ads. Premium subscription removes ads, provides HD/4K quality, and allows simultaneous connections. Visit our /subscription page for current pricing."}},
       {"@type": "Question", "name": "Why is my channel not playing?", "acceptedAnswer": {"@type": "Answer", "text": "If a channel won't play, try: 1) Refresh the page, 2) Use a different player, 3) Check your internet connection, 4) Try a different channel. Some links may be temporary."}},
@@ -700,7 +700,7 @@ export function generateHomePage(options = {}) {
         <span class="status-feed"><span class="accent">&gt;</span> live-feed: active</span>
       </div>
       <div class="hero-headline reveal stagger-1">
-        <h1>8,000+ IPTV Channels<br><span class="accent">Worldwide</span></h1>
+        <h1>${totalChannels.toLocaleString()}+ IPTV Channels<br><span class="accent">Worldwide</span></h1>
       </div>
       <p class="hero-sub reveal stagger-2">
         Real-time IPTV directory. Search, filter, and stream from 150+ countries. Updated daily. No signup required.
