@@ -5162,16 +5162,16 @@ export function generateCategoryPage(options = {}) {
 <!-- Hero Stats Band — SEO/FAQ as chip row in the page header (Option A from designer review) -->
     <div class="cat-info-row" role="tablist">
       <button class="cat-info-chip" type="button" role="tab" data-panel="about" aria-selected="false">
-        <span class="cat-info-chip__prefix">//</span> About <span class="cat-info-chip__num">IPTV</span>
+        About <span class="cat-info-chip__num">IPTV</span>
       </button>
       <button class="cat-info-chip" type="button" role="tab" data-panel="faq" aria-selected="false">
-        <span class="cat-info-chip__prefix">//</span> FAQ <span class="cat-info-chip__num">· 4</span>
+        FAQ <span class="cat-info-chip__num">· 4</span>
       </button>
       <button class="cat-info-chip" type="button" role="tab" data-panel="players" aria-selected="false">
-        <span class="cat-info-chip__prefix">//</span> Players <span class="cat-info-chip__num">: 5</span>
+        Players <span class="cat-info-chip__num">: 5</span>
       </button>
       <button class="cat-info-chip" type="button" role="tab" data-panel="playlist" aria-selected="false">
-        <span class="cat-info-chip__prefix">//</span> M3U/M3U8
+        M3U/M3U8
       </button>
     </div>
 
@@ -10249,7 +10249,6 @@ export function generateCategoryPage(options = {}) {
       height: 1.5px;
       background: var(--accent);
     }
-    .cat-info-chip__prefix { color: var(--accent); margin-right: 0.35rem; }
     .cat-info-chip__num {
       margin-left: 0.3rem;
       color: var(--text-muted);
