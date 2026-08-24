@@ -148,44 +148,44 @@ export const PAGE_FOOTER = `
       background: var(--bg-primary);
       border-top: var(--border);
       padding: 0;
-      margin-top: 2rem;
+      margin-top: 1.5rem;
     }
     .footer-inner {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 0 2rem;
+      padding: 0 1rem;
     }
     .footer-grid {
       display: grid;
       grid-template-columns: 1.5fr repeat(3, 1fr);
-      gap: 2.5rem;
-      padding: 3rem 0;
+      gap: 1.5rem;
+      padding: 1.5rem 0;
     }
 
     .footer-brand { }
     .footer-logo {
       display: inline-flex;
       align-items: center;
-      gap: 0.75rem;
-      font-size: 1.1rem;
+      gap: 0.5rem;
+      font-size: 1rem;
       font-weight: 700;
       letter-spacing: -0.02em;
       text-decoration: none;
       color: var(--text-primary);
     }
-    .footer-logo svg { width: 32px; height: 32px; }
+    .footer-logo svg { width: 24px; height: 24px; }
     .footer-logo span span { color: var(--accent); }
     .footer-tagline {
-      font-size: 0.85rem;
+      font-size: 0.78rem;
       color: var(--text-secondary);
-      line-height: 1.6;
-      margin-top: 0.75rem;
+      line-height: 1.5;
+      margin-top: 0.5rem;
     }
     .footer-brand-bottom {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
-      margin-top: 1.25rem;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
     }
     .footer-brand .footer-disclaimer {
       display: flex;
@@ -207,28 +207,28 @@ export const PAGE_FOOTER = `
     .footer-brand .footer-badges span { font-size: 0.75rem; color: var(--text-muted); }
 
     .footer-brand .footer-copyright {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
-      margin-top: 0.5rem;
+      margin-top: 0.25rem;
     }
 
     .footer-col { }
     .footer-col-title {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 700;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--text-primary);
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
     }
     .footer-faq-col .footer-col-title { text-align: center; }
     .footer-col-links {
       display: flex;
       flex-direction: column;
-      gap: 0.65rem;
+      gap: 0.4rem;
     }
     .footer-col-links a {
-      font-size: 0.9rem;
+      font-size: 0.82rem;
       color: var(--text-secondary);
       text-decoration: none;
       transition: color 0.2s;
