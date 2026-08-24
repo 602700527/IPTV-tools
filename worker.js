@@ -3,7 +3,7 @@ import { initDB, createTables, isMallEnabled, getDB } from './database.js';
 import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest, handleSubRequestTxt } from './handlers/sub.js';
 import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
-import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache, refreshStaticPages } from './handlers/scheduler.js';
+import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } from './handlers/scheduler.js';
 import { handleUserActivate, handleUserChangeTopic, handleUserChangeSubMode } from './handlers/user.js';
 import { handlePublicPlay, handleChannelDebug, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings, handleFavoritesM3U, handleChannelsM3U } from './handlers/public.js';
 import { handleGetPlans } from './handlers/plans-api.js';
@@ -1385,6 +1385,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       const authKey = request.headers.get('x-admin-key');
       if (authKey !== env.ADMIN_KEY) {
         return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), {
+          status: 401,
           headers: { 'Content-Type': 'application/json; charset=utf-8' }
         });
       }
