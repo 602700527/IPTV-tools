@@ -651,18 +651,6 @@ export function generateCategoryPage(options = {}) {
 
 
 
-            '<div class="ch-group">' + escapeHtml(ch.group || category) + '</div>' +
-
-
-
-
-
-
-
-
-
-
-
           '</div>' +
 
 
@@ -6911,18 +6899,6 @@ export function generateCategoryPage(options = {}) {
 
 
               '<div class="ch-name">' + escapeHtml(ch.name) + '</div>' +
-
-
-
-
-
-
-
-
-
-
-
-              '<div class="ch-group">' + escapeHtml(ch.group || category) + '</div>' +
 
 
 
