@@ -728,7 +728,7 @@ export function generateHomePage(options = {}) {
       <div class="hero-cta-row reveal stagger-4">
         <a href="/subscription" class="hero-cta">GET_VIP_ACCESS &rarr;</a>
         <span class="hero-cta-meta">from &yen;20/mo &middot; yearly plan <strong>saves 40%</strong></span>
-        <a href="#popular-topics" class="hero-cta-secondary">$ browse channels</a>
+        <a href="#popular-topics" class="hero-cta-secondary">$ browse free IPTV channels</a>
       </div>
     </div>
   </section>

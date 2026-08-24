@@ -78,7 +78,7 @@ export const PAGE_FOOTER = `
           <h4 class="footer-col-title">Support</h4>
           <div class="footer-col-links">
             <a href="/subscription">Subscription Plans</a>
-            <a href="/favorites">My Favorites</a>
+            <a href="/favorites" title="My IPTV Favorites — Cloud Synced">My Favorites</a>
             <a href="/account">My Account</a>
             <a href="/search">Search Channels</a>
           </div>

@@ -1,5 +1,5 @@
 // Asia IPTV Landing Page
-export const pageTitle = 'Asia IPTV Free - Live Asian TV Channels Streaming';
+export const pageTitle = 'Asian IPTV Channels - Live TV from China, Japan, Korea (2026)';
 export const pageDescription = 'Watch free Asian IPTV channels from Japan, Korea, China, India, Philippines, Vietnam and more. Live TV streaming for Asia - no signup required.';
 
 export const styles = `

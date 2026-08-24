@@ -1,6 +1,6 @@
 // Tutorial Page - Minimal Line Style
-export const pageTitle = 'How to Watch IPTV - Setup Guide for Smart TV, Android, iOS & More';
-export const pageDescription = 'Step-by-step tutorial on how to set up IPTV on Apple TV, Android phones, Smart TVs, and desktop players. Install apps and add your M3U subscription.';
+export const pageTitle = 'How to Watch IPTV on Firestick, Smart TV, Android & iOS (2026 Setup Guide)';
+export const pageDescription = 'Step-by-step guide: how to watch IPTV on Firestick, Apple TV, Android phones, Smart TVs. Install IPTV apps, add your M3U playlist URL, and stream 8,000+ live channels in minutes.';
 
 export const styles = `
 *{margin:0;padding:0;box-sizing:border-box}
@@ -528,12 +528,18 @@ export const content = `
           <div class="section-header">
             <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="13" r="1"/><circle cx="17" cy="15" r="1"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
             <div class="section-title">
-              <h2>More Players</h2>
-              <p>Support for more devices</p>
+              <h2>More Players &amp; Firestick</h2>
+              <p>Support for Firestick and other M3U playlist URL devices</p>
             </div>
           </div>
 
           <div class="device-grid">
+            <div class="device-card">
+              <div class="device-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 17 12"/></svg></div>
+              <div class="device-name">Amazon Firestick</div>
+              <div class="device-desc">Best IPTV app for Firestick — sideload via Downloader</div>
+              <span class="device-tag">Top Pick</span>
+            </div>
             <div class="device-card">
               <div class="device-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
               <div class="device-name">IPTVX</div>

@@ -1,5 +1,5 @@
 // Europe IPTV Landing Page
-export const pageTitle = 'Europe IPTV Free - Live European TV Channels Streaming';
+export const pageTitle = 'European IPTV Channels - Live TV from UK, Germany, France (2026)';
 export const pageDescription = 'Watch free European IPTV channels from UK, France, Germany, Italy, Spain and more. Live TV streaming for all European countries - no signup required.';
 
 export const styles = `

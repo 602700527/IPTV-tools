@@ -1,5 +1,5 @@
 // Middle East IPTV Landing Page
-export const pageTitle = 'Middle East IPTV Free - Arabic Live TV Channels & Sports Streaming';
+export const pageTitle = 'Arabic IPTV Channels - Middle East Live TV & Sports Streaming';
 export const pageDescription = 'Watch free Middle East IPTV channels. Arabic live TV including beIN Sports, MBC, OSN, and more. Free IPTV streaming for Dubai, Saudi Arabia, UAE, Qatar and all MENA regions.';
 
 export const styles = `

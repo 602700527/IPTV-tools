@@ -1,5 +1,5 @@
 // Oceania IPTV Landing Page
-export const pageTitle = 'Oceania IPTV Free - Live Australian & New Zealand TV Channels';
+export const pageTitle = 'Australian & NZ IPTV Channels - Live Oceania TV Streaming';
 export const pageDescription = 'Watch free Oceania IPTV channels from Australia and New Zealand. Live TV streaming for Aussie and NZ channels - no signup required.';
 
 export const styles = `

@@ -1,5 +1,5 @@
 // Americas IPTV Landing Page
-export const pageTitle = 'Americas IPTV Free - Live North & South American TV Channels';
+export const pageTitle = 'Americas IPTV Channels - USA, Canada, Brazil, LATAM Live TV (2026)';
 export const pageDescription = 'Watch free American IPTV channels from USA, Canada, Brazil, Mexico and more. Live TV streaming for North and South America - no signup required.';
 
 export const styles = `
