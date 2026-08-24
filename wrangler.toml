@@ -2,6 +2,11 @@ name = "cf-tv-service"
 main = "worker.js"
 compatibility_date = "2023-05-18"
 
+# R2 静态文件存储
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "static-assets"
+
 # =====================================================
 # 本地开发环境（wrangler dev 默认使用）
 # KV / D1 用占位 ID，wrangler dev 会自动创建本地模拟器
