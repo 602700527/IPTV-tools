@@ -700,7 +700,7 @@ export function generateHomePage(options = {}) {
         <span class="status-feed"><span class="accent">&gt;</span> live-feed: active</span>
       </div>
       <div class="hero-headline reveal stagger-1">
-        <h1>${totalChannels.toLocaleString()}+ IPTV Channels<br><span class="accent">Worldwide · 海外电视搜索</span></h1>
+        <h1>Free IPTV Channel Directory<br><span class="accent">Worldwide · 海外电视直播</span></h1>
       </div>
       <p class="hero-sub reveal stagger-2">
         Real-time IPTV directory. Search, filter, and stream from 150+ countries. Updated daily. No signup required.
