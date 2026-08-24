@@ -3,7 +3,7 @@ import { initDB, createTables, isMallEnabled, getDB } from './database.js';
 import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest, handleSubRequestTxt } from './handlers/sub.js';
 import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
-import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache } from './handlers/scheduler.js';
+import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache, refreshStaticPages } from './handlers/scheduler.js';
 import { handleUserActivate, handleUserChangeTopic, handleUserChangeSubMode } from './handlers/user.js';
 import { handlePublicPlay, handleChannelDebug, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings, handleFavoritesM3U, handleChannelsM3U } from './handlers/public.js';
 import { handleGetPlans } from './handlers/plans-api.js';
