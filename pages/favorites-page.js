@@ -552,8 +552,8 @@ export function generateFavoritesPage(options = {}) {
         // 1) 登录提示
         showToast({
           type: 'warning',
-          title: '请先登录',
-          message: '下载收藏需要登录账户。登录后即可同步收藏到任意设备。<br><a href="/login?redirect=/favorites" style="color:#e50914;font-weight:600;">立即登录 →</a>',
+          title: 'Please log in',
+          message: 'Downloading favorites requires an account. Log in to sync favorites across devices.<br><a href="/login?redirect=/favorites" style="color:#e50914;font-weight:600;">Log in →</a>',
           duration: 5000
         });
         // 2) VIP 营销（FOMO + 价值主张）

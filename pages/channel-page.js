@@ -815,8 +815,8 @@ export function generateChannelPage(options = {}) {
       if (!token) {
         showToast({
           type: 'warning',
-          title: '请先登录',
-          message: '收藏功能需要登录账号，登录后即可云同步。<br><a href="/login?redirect=/favorites" style="color:var(--accent);font-weight:600;">立即登录 / 注册 →</a>'
+          title: 'Please log in',
+          message: 'Favorites require an account. Log in to sync across devices.<br><a href="/login?redirect=/favorites" style="color:var(--accent);font-weight:600;">Log in / Sign up →</a>'
         });
         return;
       }
