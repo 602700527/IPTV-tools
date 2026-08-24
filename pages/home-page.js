@@ -208,16 +208,6 @@ export function generateHomePage(options = {}) {
       border-bottom: var(--border);
       overflow: hidden;
     }
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-    }
     .hero::after {
       content: '';
       position: absolute;
