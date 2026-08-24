@@ -1382,8 +1382,11 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       return await handleAdminRequest(request, env, ctx);
     } else if (path === '/api/admin/refresh-static') {
       // 手动触发静态页面生成
-      const authKey = request.headers.get('x-admin-key');
-      if (authKey !== env.ADMIN_KEY) {
+      const cookies = request.headers.get('cookie') || '';
+      const adminKey = request.headers.get('x-admin-key') ||
+                       cookies.split(';').map(c => c.trim()).find(c => c.startsWith('admin_key='))?.split('=')[1] ||
+                       null;
+      if (adminKey !== env.ADMIN_KEY) {
         return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), {
           status: 401,
           headers: { 'Content-Type': 'application/json; charset=utf-8' }
