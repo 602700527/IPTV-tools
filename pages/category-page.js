@@ -5170,9 +5170,6 @@ export function generateCategoryPage(options = {}) {
       <button class="cat-info-chip" type="button" role="tab" data-panel="players" aria-selected="false">
         Players <span class="cat-info-chip__num">: 5</span>
       </button>
-      <button class="cat-info-chip" type="button" role="tab" data-panel="playlist" aria-selected="false">
-        M3U/M3U8
-      </button>
     </div>
 
     <div class="cat-info-panels">
@@ -5225,15 +5222,10 @@ export function generateCategoryPage(options = {}) {
           <li>Kodi</li>
         </ul>
       </div>
-
-      <div class="cat-info-panel cat-info-panel--playlist" data-panel="playlist" hidden>
-        <code class="cat-info-playlist-url">${origin}/api/channels/m3u</code>
-        <button class="cat-info-playlist-copy" type="button" data-copy="${origin}/api/channels/m3u">Copy URL</button>
-      </div>
     </div>
 
     <script>
-      // Hero band — chip switching + clipboard copy
+      // Hero band — chip switching
       (function() {
         document.querySelectorAll('.cat-info-row').forEach(function(row) {
           var chips = row.querySelectorAll('.cat-info-chip');
@@ -5261,35 +5253,6 @@ export function generateCategoryPage(options = {}) {
           });
         });
 
-        // Clipboard copy for the playlist URL
-        document.querySelectorAll('.cat-info-playlist-copy').forEach(function(btn) {
-          btn.addEventListener('click', function() {
-            var url = btn.getAttribute('data-copy');
-            if (!url) return;
-            var done = function() {
-              var prev = btn.textContent;
-              btn.textContent = '✓ Copied';
-              btn.classList.add('is-copied');
-              setTimeout(function() {
-                btn.textContent = prev;
-                btn.classList.remove('is-copied');
-              }, 1600);
-            };
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-              navigator.clipboard.writeText(url).then(done, done);
-            } else {
-              // Fallback for older browsers
-              var ta = document.createElement('textarea');
-              ta.value = url;
-              ta.style.position = 'fixed';
-              ta.style.opacity = '0';
-              document.body.appendChild(ta);
-              ta.select();
-              try { document.execCommand('copy'); done(); } catch (e) {}
-              document.body.removeChild(ta);
-            }
-          });
-        });
       })();
     </script>
 
@@ -10299,48 +10262,6 @@ export function generateCategoryPage(options = {}) {
     .cat-info-players-list li { color: var(--accent); }
     .cat-info-players-list li::before { content: '› '; color: var(--text-muted); }
 
-    /* Playlist panel — URL + copy button */
-    .cat-info-panel--playlist {
-      display: none;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-    .cat-info-panel--playlist.is-open { display: flex; }
-    .cat-info-playlist-url {
-      flex: 1;
-      min-width: 200px;
-      font-family: inherit;
-      font-size: 0.78rem;
-      color: var(--text-primary);
-      padding: 0.45rem 0.65rem;
-      background: var(--bg-hover);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .cat-info-playlist-copy {
-      appearance: none;
-      padding: 0.45rem 0.85rem;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      font-family: inherit;
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.15s ease;
-    }
-    .cat-info-playlist-copy:hover { background: #ff1a1a; }
-    .cat-info-playlist-copy.is-copied {
-      background: #16a34a;
-    }
-
     /* FAQ panel — collapsible items */
     .cat-info-faq-item {
       border-top: 1px solid var(--border);
@@ -10412,7 +10333,6 @@ export function generateCategoryPage(options = {}) {
       .cat-info-panel[data-panel="about"] p,
       .cat-info-faq-q { font-size: 0.8rem; }
       .cat-info-faq-a { padding-left: 2.9rem; font-size: 0.78rem; }
-      .cat-info-playlist-url { font-size: 0.72rem; }
     }
   </style>
 
