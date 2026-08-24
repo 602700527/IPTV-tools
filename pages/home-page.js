@@ -461,10 +461,16 @@ export function generateHomePage(options = {}) {
     .topic-card:hover::before { transform: scaleX(1); }
     .topic-card:hover { background: var(--bg-secondary); }
     .topic-icon {
-      font-size: 1.6rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
       margin-bottom: 0.65rem;
-      transition: transform 0.2s ease;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
     }
+    .topic-card:hover .topic-icon { color: var(--accent); }
     .topic-card:hover .topic-icon { transform: scale(1.08); }
     .topic-title {
       font-size: 0.85rem;
@@ -511,10 +517,16 @@ export function generateHomePage(options = {}) {
     .regional-card:hover { background: var(--bg-secondary); }
     .regional-card:hover .regional-icon { transform: translateY(-3px); }
     .regional-icon {
-      font-size: 2rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
       margin-bottom: 0.75rem;
-      transition: transform 0.2s ease;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
     }
+    .regional-card:hover .regional-icon { color: var(--accent); }
     .regional-title {
       font-size: 0.85rem;
       font-weight: 700;
@@ -733,32 +745,32 @@ export function generateHomePage(options = {}) {
       <p class="section-desc reveal" style="margin-bottom:1.5rem">Explore curated content by category</p>
       <div class="hot-topics-grid">
         <a href="/usa-iptv" class="topic-card reveal stagger-1">
-          <span class="topic-icon">🇺🇸</span>
+          <span class="topic-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="3" y="3" width="18" height="18"/><path d="M3 7h18M3 11h18M3 15h18M3 19h18"/><rect x="3" y="3" width="8" height="8" fill="currentColor"/></svg></span>
           <span class="topic-title">USA IPTV</span>
           <span class="topic-desc">US Live TV</span>
         </a>
         <a href="/uk-iptv-plans" class="topic-card reveal stagger-2">
-          <span class="topic-icon">🇬🇧</span>
+          <span class="topic-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="3" y="3" width="18" height="18"/><path d="M3 3l18 18M21 3L3 21"/><path d="M12 3v18M3 12h18"/></svg></span>
           <span class="topic-title">UK IPTV</span>
           <span class="topic-desc">British Channels</span>
         </a>
         <a href="/tutorial" class="topic-card reveal stagger-3">
-          <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
+          <span class="topic-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="3" y="4" width="18" height="13"/><path d="M3 9h18"/><path d="M12 17v3"/><path d="M9 20h6"/><path d="M3 3v2M3 3h2"/><path d="M21 3v2M21 3h-2"/><path d="M3 21v-2M3 21h2"/><path d="M21 21v-2M21 21h-2"/><path d="M14 7h4" stroke-dasharray="1 2"/></svg></span>
           <span class="topic-title">Smart TV</span>
           <span class="topic-desc">Setup Guide</span>
         </a>
         <a href="/android-iptv-app" class="topic-card reveal stagger-4">
-          <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/><path d="M8 6h.01"/><path d="M16 6h.01"/></svg></span>
+          <span class="topic-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="6" y="2" width="12" height="20"/><path d="M6 6h12M6 18h12"/><path d="M11 19h2"/><path d="M3 2v2M3 2h2"/><path d="M21 2v2M21 2h-2"/><path d="M3 22v-2M3 22h2"/><path d="M21 22v-2M21 22h-2"/></svg></span>
           <span class="topic-title">Android</span>
           <span class="topic-desc">IPTV Apps</span>
         </a>
         <a href="/free-iptv-app-review" class="topic-card reveal stagger-5">
-          <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg></span>
+          <span class="topic-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="2" y="2" width="20" height="20"/><polygon points="10 8 16 12 10 16"/><path d="M2 6v0M22 6v0M2 12v0M22 12v0M2 18v0M22 18v0" stroke-width="1"/></svg></span>
           <span class="topic-title">Free IPTV</span>
           <span class="topic-desc">App Reviews</span>
         </a>
         <a href="/carplay-aptv" class="topic-card reveal stagger-6">
-          <span class="topic-icon"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/><path d="M7 2h10"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <span class="topic-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="6" y="2" width="12" height="20"/><circle cx="12" cy="12" r="3"/><path d="M9 5h6M9 19h6"/><path d="M3 2v2M3 2h2"/><path d="M21 2v2M21 2h-2"/><path d="M3 22v-2M3 22h2"/><path d="M21 22v-2M21 22h-2"/></svg></span>
           <span class="topic-title">APTV & CarPlay</span>
           <span class="topic-desc">iOS CarPlay TV</span>
         </a>
@@ -776,27 +788,27 @@ export function generateHomePage(options = {}) {
       <p class="section-desc reveal" style="margin-bottom:1.5rem">Free IPTV channels from around the world</p>
       <div class="regional-grid">
         <a href="/americas-iptv" class="regional-card reveal stagger-1">
-          <span class="regional-icon">🌎</span>
+          <span class="regional-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="3" y="3" width="18" height="18"/><circle cx="12" cy="12" r="7"/><path d="M5 12h14M12 5v14"/><path d="M12 5c2 2 2 12 0 14M12 5c-2 2-2 12 0 14"/><path d="M2 12h1M21 12h1" stroke-width="1"/><path d="M12 2v1M12 21v1" stroke-width="1"/></svg></span>
           <span class="regional-title">Americas</span>
           <span class="regional-desc">USA, Canada, Brazil</span>
         </a>
         <a href="/europe-iptv" class="regional-card reveal stagger-2">
-          <span class="regional-icon">🌍</span>
+          <span class="regional-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="3" y="3" width="18" height="18"/><circle cx="12" cy="12" r="7"/><path d="M5 12h14M12 5v14"/><path d="M12 5c2 2 2 12 0 14M12 5c-2 2-2 12 0 14"/><path d="M2 12h1M21 12h1" stroke-width="1"/><path d="M12 2v1M12 21v1" stroke-width="1"/></svg></span>
           <span class="regional-title">Europe</span>
           <span class="regional-desc">UK, France, Germany</span>
         </a>
         <a href="/asia-iptv" class="regional-card reveal stagger-3">
-          <span class="regional-icon">🌏</span>
+          <span class="regional-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="3" y="3" width="18" height="18"/><circle cx="12" cy="12" r="7"/><path d="M5 12h14M12 5v14"/><path d="M12 5c2 2 2 12 0 14M12 5c-2 2-2 12 0 14"/><path d="M2 12h1M21 12h1" stroke-width="1"/><path d="M12 2v1M12 21v1" stroke-width="1"/></svg></span>
           <span class="regional-title">Asia</span>
           <span class="regional-desc">China, Japan, Korea</span>
         </a>
         <a href="/middle-east-iptv" class="regional-card reveal stagger-4">
-          <span class="regional-icon">🕌</span>
+          <span class="regional-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="3" y="3" width="18" height="18"/><circle cx="12" cy="12" r="7"/><path d="M5 12h14M12 5v14"/><path d="M12 5c2 2 2 12 0 14M12 5c-2 2-2 12 0 14"/><path d="M2 12h1M21 12h1" stroke-width="1"/><path d="M12 2v1M12 21v1" stroke-width="1"/></svg></span>
           <span class="regional-title">Middle East</span>
           <span class="regional-desc">Arabic, Turkish</span>
         </a>
         <a href="/oceania-iptv" class="regional-card reveal stagger-5">
-          <span class="regional-icon">🦘</span>
+          <span class="regional-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="3" y="3" width="18" height="18"/><circle cx="12" cy="12" r="7"/><path d="M5 12h14M12 5v14"/><path d="M12 5c2 2 2 12 0 14M12 5c-2 2-2 12 0 14"/><path d="M2 12h1M21 12h1" stroke-width="1"/><path d="M12 2v1M12 21v1" stroke-width="1"/></svg></span>
           <span class="regional-title">Oceania</span>
           <span class="regional-desc">Australia, NZ</span>
         </a>
@@ -817,11 +829,11 @@ export function generateHomePage(options = {}) {
       <div class="view-toggle reveal">
         <span class="view-toggle-label">view mode:</span>
         <button class="view-toggle-btn active" data-view="region" onclick="window.switchView('region')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><rect x="2" y="2" width="20" height="20"/><circle cx="12" cy="12" r="7"/><path d="M5 12h14M12 5v14"/></svg>
           By Region
         </button>
         <button class="view-toggle-btn" data-view="type" onclick="window.switchView('type')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><rect x="2" y="2" width="20" height="20"/><rect x="5" y="5" width="5" height="5"/><rect x="14" y="5" width="5" height="5"/><rect x="5" y="14" width="5" height="5"/><rect x="14" y="14" width="5" height="5"/></svg>
           By Type
         </button>
       </div>
@@ -1029,8 +1041,8 @@ export function generateHomePage(options = {}) {
   <div id="favoritesModal" class="favorites-modal" style="display:none;">
     <div class="fav-modal-content">
       <div class="fav-modal-header">
-        <h3><span>★</span> Favorites</h3>
-        <button class="fav-close" onclick="closeFavoritesPopup()">×</button>
+        <h3><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M3 3v3M3 3h3M21 3v3M21 3h-3M3 21v-3M3 21h3M21 21v-3M21 21h-3"/><path d="M12 6l2 5h5l-4 3 1.5 5L12 16l-4.5 3L9 14l-4-3h5z"/></svg></span> Favorites</h3>
+        <button class="fav-close" onclick="closeFavoritesPopup()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M3 3v3M3 3h3M21 3v3M21 3h-3M3 21v-3M3 21h3M21 21v-3M21 21h-3"/><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <div class="fav-modal-list" id="favoritesList"></div>
       <div class="fav-modal-actions">
