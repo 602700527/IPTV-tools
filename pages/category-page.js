@@ -2807,7 +2807,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    .page-layout { display: flex; max-width: 1400px; margin: 0 auto; padding: 0 2rem 2rem; gap: 2rem; }
+    .page-layout { display: flex; max-width: 1400px; margin: 0 auto; padding: 0 0 2rem; gap: 1.5rem; }
 
 
 
