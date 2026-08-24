@@ -696,7 +696,7 @@ export function generateHomePage(options = {}) {
       <div class="hero-stats-grid reveal stagger-3">
         <div class="stat-card">
           <div class="stat-label">Total Channels</div>
-          <div class="stat-value">${totalChannels >= 10000 ? '10,000+' : (totalChannels || 8).toLocaleString()}<span class="unit">+</span></div>
+          <div class="stat-value" id="totalChannels">${totalChannels >= 10000 ? '10,000+' : (totalChannels || 8).toLocaleString()}<span class="unit">+</span></div>
           <div class="stat-change">▲ +120 this week</div>
         </div>
         <div class="stat-card">
@@ -960,9 +960,11 @@ export function generateHomePage(options = {}) {
         homeData = data;
 
         // Update stats
-        document.getElementById('totalChannels').textContent =
+        const tcEl = document.getElementById('totalChannels');
+        if (tcEl) tcEl.textContent =
           (data.data?.totalChannels >= 10000 ? '10,000+' : (data.data?.totalChannels || 0).toLocaleString());
-        document.getElementById('totalGroups').textContent =
+        const tgEl = document.getElementById('totalGroups');
+        if (tgEl) tgEl.textContent =
           (data.data?.totalGroups >= 100 ? '100+' : data.data?.totalGroups || 0);
 
         // Render region categories (default view)
