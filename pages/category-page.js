@@ -3431,67 +3431,24 @@ export function generateCategoryPage(options = {}) {
 
 
 
-      .sidebar { 
+      .sidebar { display: none; }
+      .mobile-categories-link { display: inline-flex; align-items: center; gap: 0.4rem; padding: 6px 12px; margin-bottom: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-secondary); font-size: 0.8rem; text-decoration: none; }
+        .category-header { padding: 14px 16px; gap: 6px; }
+        .category-header h1 { font-size: 1.25rem; }
+        .category-header p { font-size: 0.85rem; }
+        .category-stats { gap: 0.75rem; flex-wrap: wrap; font-size: 0.8rem; margin-top: 0.75rem; }
+        .cat-info-row { gap: 0.4rem 0.85rem; margin-top: 0.85rem; padding-top: 0.85rem; font-size: 0.7rem; }
+        .cat-info-panel { padding: 0.85rem 0 0.15rem; font-size: 0.8rem; }
+        .cat-info-faq-q { font-size: 0.82rem; }
+        .cat-info-faq-a { font-size: 0.78rem; padding-left: 2.8rem; }
+        .batch-bar { padding: 8px 12px; gap: 0.4rem; }
+        .batch-actions { flex: 1; justify-content: flex-end; }
+        .channel-list { gap: 0.4rem; }
+        .channel-row { padding: 8px 12px; gap: 0.5rem; }
+        .ch-name { font-size: 0.85rem; }
+        .ch-group { font-size: 0.7rem; }
+        .btn-favorite { width: 32px; height: 32px; }
 
-
-
-
-
-
-
-
-
-
-
-        width: 100%; 
-
-
-
-
-
-
-
-
-
-
-
-        max-height: none; 
-
-
-
-
-
-
-
-
-
-
-
-        position: static; 
-
-
-
-
-
-
-
-
-
-
-
-        overflow-y: visible;
-
-
-
-
-
-
-
-
-
-
-
-      }
 
 
 
@@ -4788,18 +4745,16 @@ export function generateCategoryPage(options = {}) {
 
 
     @media (max-width: 480px) {
-
-
-
-
-
-
-
-
-
-
-
-      .batch-actions { flex-direction: column; }
+      .batch-actions { flex-direction: row; flex-wrap: wrap; gap: 0.35rem; }
+      .batch-actions .btn { flex: 1; min-width: 0; padding: 0.5rem 0.4rem; font-size: 0.7rem; }
+      .batch-actions .btn svg { width: 13px; height: 13px; }
+      .batch-actions .btn .btn-text { display: none; }
+      .batch-select-all { font-size: 0.75rem; }
+      .selected-count { font-size: 0.7rem; }
+      .category-header h1 { font-size: 1.05rem; }
+      .cat-info-row { gap: 0.3rem 0.7rem; font-size: 0.65rem; }
+      .batch-bar { padding: 6px 10px; gap: 0.35rem; }
+    }
 
 
 
@@ -5308,7 +5263,11 @@ export function generateCategoryPage(options = {}) {
 
 
 
-      <div class="batch-bar">
+            <a href="/" class="mobile-categories-link" aria-label="Browse all categories">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        Browse all categories
+      </a>
+<div class="batch-bar">
 
 
 
