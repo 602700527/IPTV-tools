@@ -10105,14 +10105,70 @@ export function generateCategoryPage(options = {}) {
 
 
     /* SEO Content & FAQ */
-    .seo-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; }
-    .seo-content h2 { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.75rem; }
-    .seo-content p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 0.5rem; }
+    .seo-content {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .seo-content::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: var(--accent);
+      border-radius: var(--radius) 0 0 var(--radius);
+    }
+    .seo-content h2 {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    .seo-content p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 0.6rem;
+    }
+    .seo-content p:last-child { margin-bottom: 0; }
     .faq-section { margin-bottom: 2rem; }
-    .faq-section h2 { font-size: 1.15rem; font-weight: 600; margin-bottom: 1rem; }
-    .faq-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 0.75rem; }
-    .faq-item h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent); }
-    .faq-item p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    .faq-section h2 {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .faq-item:hover {
+      border-color: rgba(229, 9, 20, 0.45);
+      background: var(--bg-hover);
+    }
+    .faq-item h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+    .faq-item p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
   </style>
 
 

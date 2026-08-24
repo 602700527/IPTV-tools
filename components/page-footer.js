@@ -221,6 +221,7 @@ export const PAGE_FOOTER = `
       color: var(--text-primary);
       margin-bottom: 1rem;
     }
+    .footer-faq-col .footer-col-title { text-align: center; }
     .footer-col-links {
       display: flex;
       flex-direction: column;
