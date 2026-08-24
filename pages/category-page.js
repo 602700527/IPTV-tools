@@ -5159,6 +5159,140 @@ export function generateCategoryPage(options = {}) {
 
     </div>
 
+<!-- Hero Stats Band — SEO/FAQ as chip row in the page header (Option A from designer review) -->
+    <div class="cat-info-row" role="tablist">
+      <button class="cat-info-chip" type="button" role="tab" data-panel="about" aria-selected="false">
+        <span class="cat-info-chip__prefix">//</span> About <span class="cat-info-chip__num">IPTV</span>
+      </button>
+      <button class="cat-info-chip" type="button" role="tab" data-panel="faq" aria-selected="false">
+        <span class="cat-info-chip__prefix">//</span> FAQ <span class="cat-info-chip__num">· 4</span>
+      </button>
+      <button class="cat-info-chip" type="button" role="tab" data-panel="players" aria-selected="false">
+        <span class="cat-info-chip__prefix">//</span> Players <span class="cat-info-chip__num">: 5</span>
+      </button>
+      <button class="cat-info-chip" type="button" role="tab" data-panel="playlist" aria-selected="false">
+        <span class="cat-info-chip__prefix">//</span> M3U/M3U8
+      </button>
+    </div>
+
+    <div class="cat-info-panels">
+      <div class="cat-info-panel" data-panel="about" hidden>
+        <p>Watch free ${escapeHtml(category)} IPTV channels live online on IPTV Search. Browse ${escapeHtml(category)} live TV streams in HD quality with <code>M3U</code> and <code>M3U8</code> playlist support. No registration or subscription required for basic access. Our ${escapeHtml(category)} channel directory is updated daily to ensure reliable playback.</p>
+        <p>Access all ${escapeHtml(category)} channels via direct stream links, or download the M3U playlist for use in <code>VLC</code>, <code>IPTV Smarters</code>, <code>TiviMate</code>, <code>GSE Smart IPTV</code>, <code>Kodi</code>, and other popular IPTV players.</p>
+      </div>
+
+      <div class="cat-info-panel" data-panel="faq" hidden>
+        <details class="cat-info-faq-item">
+          <summary>
+            <span class="cat-info-faq-num">Q.01</span>
+            <span class="cat-info-faq-q">How do I watch ${escapeHtml(category)} channels?</span>
+            <span class="cat-info-faq-icon" aria-hidden="true"></span>
+          </summary>
+          <div class="cat-info-faq-a"><p>Browse the channel list below, click on any channel to get its stream link, or copy the M3U playlist URL to import into your preferred IPTV player.</p></div>
+        </details>
+        <details class="cat-info-faq-item">
+          <summary>
+            <span class="cat-info-faq-num">Q.02</span>
+            <span class="cat-info-faq-q">Are ${escapeHtml(category)} channels free to watch?</span>
+            <span class="cat-info-faq-icon" aria-hidden="true"></span>
+          </summary>
+          <div class="cat-info-faq-a"><p>Yes, you can watch ${escapeHtml(category)} channels for free with basic access. For ad-free HD streaming and multiple simultaneous connections, consider upgrading to a VIP subscription.</p></div>
+        </details>
+        <details class="cat-info-faq-item">
+          <summary>
+            <span class="cat-info-faq-num">Q.03</span>
+            <span class="cat-info-faq-q">What IPTV players work with ${escapeHtml(category)} streams?</span>
+            <span class="cat-info-faq-icon" aria-hidden="true"></span>
+          </summary>
+          <div class="cat-info-faq-a"><p>Our ${escapeHtml(category)} streams are compatible with VLC Media Player, IPTV Smarters Pro, TiviMate, GSE Smart IPTV, Kodi, and any player that supports M3U8 playlist URLs.</p></div>
+        </details>
+        <details class="cat-info-faq-item">
+          <summary>
+            <span class="cat-info-faq-num">Q.04</span>
+            <span class="cat-info-faq-q">Why is a ${escapeHtml(category)} stream not loading?</span>
+            <span class="cat-info-faq-icon" aria-hidden="true"></span>
+          </summary>
+          <div class="cat-info-faq-a"><p>Free streams may occasionally be unavailable due to source changes. Try refreshing the page, switching to a different player, or checking our ${escapeHtml(category)} channel list for alternative streams.</p></div>
+        </details>
+      </div>
+
+      <div class="cat-info-panel" data-panel="players" hidden>
+        <ul class="cat-info-players-list">
+          <li>VLC</li>
+          <li>IPTV Smarters</li>
+          <li>TiviMate</li>
+          <li>GSE Smart IPTV</li>
+          <li>Kodi</li>
+        </ul>
+      </div>
+
+      <div class="cat-info-panel cat-info-panel--playlist" data-panel="playlist" hidden>
+        <code class="cat-info-playlist-url">${origin}/api/channels/m3u</code>
+        <button class="cat-info-playlist-copy" type="button" data-copy="${origin}/api/channels/m3u">Copy URL</button>
+      </div>
+    </div>
+
+    <script>
+      // Hero band — chip switching + clipboard copy
+      (function() {
+        document.querySelectorAll('.cat-info-row').forEach(function(row) {
+          var chips = row.querySelectorAll('.cat-info-chip');
+          // Find the sibling panels container (next element after row in the same .category-header)
+          var container = row.parentElement;
+          var panels = container.querySelectorAll('.cat-info-panel');
+          chips.forEach(function(chip) {
+            chip.addEventListener('click', function() {
+              var target = chip.getAttribute('data-panel');
+              var wasActive = chip.classList.contains('is-active');
+              chips.forEach(function(c) {
+                c.classList.remove('is-active');
+                c.setAttribute('aria-selected', 'false');
+              });
+              panels.forEach(function(p) {
+                var on = !wasActive && p.getAttribute('data-panel') === target;
+                p.classList.toggle('is-open', on);
+                if (on) p.removeAttribute('hidden'); else p.setAttribute('hidden', '');
+              });
+              if (!wasActive) {
+                chip.classList.add('is-active');
+                chip.setAttribute('aria-selected', 'true');
+              }
+            });
+          });
+        });
+
+        // Clipboard copy for the playlist URL
+        document.querySelectorAll('.cat-info-playlist-copy').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var url = btn.getAttribute('data-copy');
+            if (!url) return;
+            var done = function() {
+              var prev = btn.textContent;
+              btn.textContent = '✓ Copied';
+              btn.classList.add('is-copied');
+              setTimeout(function() {
+                btn.textContent = prev;
+                btn.classList.remove('is-copied');
+              }, 1600);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(url).then(done, done);
+            } else {
+              // Fallback for older browsers
+              var ta = document.createElement('textarea');
+              ta.value = url;
+              ta.style.position = 'fixed';
+              ta.style.opacity = '0';
+              document.body.appendChild(ta);
+              ta.select();
+              try { document.execCommand('copy'); done(); } catch (e) {}
+              document.body.removeChild(ta);
+            }
+          });
+        });
+      })();
+    </script>
+
 
 
 
@@ -5649,92 +5783,7 @@ export function generateCategoryPage(options = {}) {
 
 
     <!-- SEO + FAQ — single container, tab-switched to save vertical space -->
-    <section class="doc-tabs" aria-label="About and FAQ">
-      <div class="doc-tabs__bar" role="tablist">
-        <button class="doc-tabs__tab is-active" role="tab" aria-selected="true" aria-controls="doc-panel-about" id="doc-tab-about" data-tab="about" type="button">
-          <span class="doc-tabs__prefix">//</span> About
-        </button>
-        <button class="doc-tabs__tab" role="tab" aria-selected="false" aria-controls="doc-panel-faq" id="doc-tab-faq" data-tab="faq" type="button">
-          <span class="doc-tabs__prefix">//</span> FAQ
-        </button>
-      </div>
-
-      <div class="doc-tabs__panel is-active" role="tabpanel" id="doc-panel-about" aria-labelledby="doc-tab-about">
-        <h2 class="doc-tabs__title">About ${escapeHtml(category)} IPTV Channels</h2>
-        <span class="doc-tabs__rule" aria-hidden="true"></span>
-        <div class="doc-tabs__prose">
-          <p>Watch free ${escapeHtml(category)} IPTV channels live online on IPTV Search. Browse ${escapeHtml(category)} live TV streams in HD quality with <code>M3U</code> and <code>M3U8</code> playlist support. No registration or subscription required for basic access. Our ${escapeHtml(category)} channel directory is updated daily to ensure reliable playback.</p>
-          <p>Access all ${escapeHtml(category)} channels via direct stream links, or download the M3U playlist for use in <code>VLC</code>, <code>IPTV Smarters</code>, <code>TiviMate</code>, <code>GSE Smart IPTV</code>, <code>Kodi</code>, and other popular IPTV players.</p>
-        </div>
-      </div>
-
-      <div class="doc-tabs__panel" role="tabpanel" id="doc-panel-faq" aria-labelledby="doc-tab-faq" hidden>
-        <h2 class="doc-tabs__title">Frequently Asked Questions about ${escapeHtml(category)} Channels</h2>
-        <span class="doc-tabs__rule" aria-hidden="true"></span>
-        <div class="doc-tabs__list">
-          <details class="doc-tabs__item">
-            <summary>
-              <span class="doc-tabs__num">Q.01</span>
-              <span class="doc-tabs__q">How do I watch ${escapeHtml(category)} channels?</span>
-              <span class="doc-tabs__icon" aria-hidden="true"></span>
-            </summary>
-            <div class="doc-tabs__a"><p>Browse the channel list above, click on any channel to get its stream link, or copy the M3U playlist URL to import into your preferred IPTV player.</p></div>
-          </details>
-          <details class="doc-tabs__item">
-            <summary>
-              <span class="doc-tabs__num">Q.02</span>
-              <span class="doc-tabs__q">Are ${escapeHtml(category)} channels free to watch?</span>
-              <span class="doc-tabs__icon" aria-hidden="true"></span>
-            </summary>
-            <div class="doc-tabs__a"><p>Yes, you can watch ${escapeHtml(category)} channels for free with basic access. For ad-free HD streaming and multiple simultaneous connections, consider upgrading to a VIP subscription.</p></div>
-          </details>
-          <details class="doc-tabs__item">
-            <summary>
-              <span class="doc-tabs__num">Q.03</span>
-              <span class="doc-tabs__q">What IPTV players work with ${escapeHtml(category)} streams?</span>
-              <span class="doc-tabs__icon" aria-hidden="true"></span>
-            </summary>
-            <div class="doc-tabs__a"><p>Our ${escapeHtml(category)} streams are compatible with VLC Media Player, IPTV Smarters Pro, TiviMate, GSE Smart IPTV, Kodi, and any player that supports M3U8 playlist URLs.</p></div>
-          </details>
-          <details class="doc-tabs__item">
-            <summary>
-              <span class="doc-tabs__num">Q.04</span>
-              <span class="doc-tabs__q">Why is a ${escapeHtml(category)} stream not loading?</span>
-              <span class="doc-tabs__icon" aria-hidden="true"></span>
-            </summary>
-            <div class="doc-tabs__a"><p>Free streams may occasionally be unavailable due to source changes. Try refreshing the page, switching to a different player, or checking our ${escapeHtml(category)} channel list for alternative streams.</p></div>
-          </details>
-        </div>
-      </div>
-    </section>
-
-    <script>
-      // Tab switching — only one panel visible at a time
-      (function() {
-        var tabs = document.querySelectorAll('.doc-tabs__tab');
-        var panels = {
-          about: document.getElementById('doc-panel-about'),
-          faq: document.getElementById('doc-panel-faq')
-        };
-        tabs.forEach(function(tab) {
-          tab.addEventListener('click', function() {
-            var target = tab.getAttribute('data-tab');
-            tabs.forEach(function(t) {
-              var on = (t === tab);
-              t.classList.toggle('is-active', on);
-              t.setAttribute('aria-selected', on ? 'true' : 'false');
-            });
-            Object.keys(panels).forEach(function(k) {
-              var p = panels[k];
-              if (!p) return;
-              var on = (k === target);
-              p.classList.toggle('is-active', on);
-              if (on) p.removeAttribute('hidden'); else p.setAttribute('hidden', '');
-            });
-          });
-        });
-      })();
-    </script>
+    
 
     <script type="application/ld+json">
     {
@@ -10164,155 +10213,207 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    /* Doc Tabs — single container, About/FAQ switchable, FAQ items collapsible */
-    .doc-tabs {
-      max-width: 760px;
-      margin: 3rem auto 0;
-      padding: 0 1rem;
-    }
-
-    /* tab bar */
-    .doc-tabs__bar {
+    /* Hero Stats Band — SEO/FAQ as chip row inside .category-header
+       (Option A from designer review). 4 chips (About / FAQ / Players /
+       M3U/M3U8), click any to expand its inline panel below. */
+    .cat-info-row {
       display: flex;
-      gap: 0;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 0.4rem 1.25rem;
+      align-items: center;
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
     }
-    .doc-tabs__tab {
+    .cat-info-chip {
       appearance: none;
       background: transparent;
       border: none;
-      padding: 0.6rem 1.1rem 0.7rem;
+      padding: 0.4rem 0.2rem;
       margin: 0;
-      cursor: pointer;
-      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      font-family: inherit;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
       color: var(--text-muted);
+      cursor: pointer;
       position: relative;
       transition: color 0.15s ease;
     }
-    .doc-tabs__tab + .doc-tabs__tab { margin-left: 0.25rem; }
-    .doc-tabs__tab:hover { color: var(--text-secondary); }
-    .doc-tabs__tab.is-active { color: var(--text-primary); }
-    .doc-tabs__tab.is-active::after {
+    .cat-info-chip:hover { color: var(--text-secondary); }
+    .cat-info-chip.is-active { color: var(--accent); }
+    .cat-info-chip.is-active::after {
       content: '';
       position: absolute;
-      left: 0.5rem; right: 0.5rem; bottom: -1px;
+      left: 0; right: 0; bottom: -1.25rem;
       height: 1.5px;
       background: var(--accent);
     }
-    .doc-tabs__prefix { color: var(--accent); margin-right: 0.4rem; }
-
-    /* panel */
-    .doc-tabs__panel { padding: 0.25rem 0 2rem; }
-    .doc-tabs__panel[hidden] { display: none; }
-
-    .doc-tabs__title {
-      font-size: 1.05rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      color: var(--text-primary);
-      margin: 0;
-      line-height: 1.35;
+    .cat-info-chip__prefix { color: var(--accent); margin-right: 0.35rem; }
+    .cat-info-chip__num {
+      margin-left: 0.3rem;
+      color: var(--text-muted);
+      font-size: 0.68rem;
     }
-    .doc-tabs__rule {
-      display: block;
-      width: 28px; height: 1px;
-      background: var(--accent);
-      margin: 0.7rem 0 1rem;
-    }
+    .cat-info-chip.is-active .cat-info-chip__num { color: var(--accent); }
 
-    /* About prose */
-    .doc-tabs__prose p {
-      font-size: 0.9rem;
+    /* Panel container */
+    .cat-info-panels { margin-top: 0.5rem; }
+    .cat-info-panel {
+      display: none;
+      margin-top: 0.75rem;
+      padding: 1.25rem 0 0.25rem;
+      border-top: 1px dashed var(--border);
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .cat-info-panel.is-open { display: block; }
+
+    /* About panel — prose with inline code keywords */
+    .cat-info-panel[data-panel="about"] p {
+      font-size: 0.82rem;
       line-height: 1.7;
       color: var(--text-secondary);
-      margin: 0 0 0.8rem;
-      text-align: left;
+      margin: 0 0 0.7rem;
       max-width: 64ch;
     }
-    .doc-tabs__prose p:last-child { margin-bottom: 0; }
-    .doc-tabs__prose code {
-      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 0.82em;
+    .cat-info-panel[data-panel="about"] p:last-child { margin-bottom: 0; }
+    .cat-info-panel[data-panel="about"] code {
+      font-family: inherit;
+      font-size: inherit;
+      color: var(--accent);
+      background: transparent;
+      border: none;
+      padding: 0;
       font-weight: 500;
-      color: var(--text-primary);
-      background: var(--bg-hover);
-      border: 1px solid var(--border);
-      padding: 0.05em 0.4em;
-      border-radius: 3px;
-      white-space: nowrap;
     }
 
-    /* FAQ collapsible list — recessed, hairlines between items */
-    .doc-tabs__list { margin-top: 0.25rem; }
-    .doc-tabs__item {
+    /* Players panel */
+    .cat-info-players-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem 1rem;
+      font-size: 0.82rem;
+    }
+    .cat-info-players-list li { color: var(--accent); }
+    .cat-info-players-list li::before { content: '› '; color: var(--text-muted); }
+
+    /* Playlist panel — URL + copy button */
+    .cat-info-panel--playlist {
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .cat-info-panel--playlist.is-open { display: flex; }
+    .cat-info-playlist-url {
+      flex: 1;
+      min-width: 200px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      color: var(--text-primary);
+      padding: 0.45rem 0.65rem;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .cat-info-playlist-copy {
+      appearance: none;
+      padding: 0.45rem 0.85rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .cat-info-playlist-copy:hover { background: #ff1a1a; }
+    .cat-info-playlist-copy.is-copied {
+      background: #16a34a;
+    }
+
+    /* FAQ panel — collapsible items */
+    .cat-info-faq-item {
       border-top: 1px solid var(--border);
     }
-    .doc-tabs__item:last-child { border-bottom: 1px solid var(--border); }
-    .doc-tabs__item summary {
+    .cat-info-faq-item:last-child { border-bottom: 1px solid var(--border); }
+    .cat-info-faq-item summary {
       display: flex;
       align-items: center;
       gap: 0.7rem;
-      padding: 0.85rem 0.25rem;
+      padding: 0.75rem 0.25rem;
       cursor: pointer;
       list-style: none;
       user-select: none;
     }
-    .doc-tabs__item summary::-webkit-details-marker { display: none; }
-    .doc-tabs__item summary::marker { display: none; content: ''; }
-    .doc-tabs__num {
-      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 0.7rem;
+    .cat-info-faq-item summary::-webkit-details-marker { display: none; }
+    .cat-info-faq-item summary::marker { display: none; content: ''; }
+    .cat-info-faq-num {
       color: var(--text-muted);
+      min-width: 2.6rem;
+      font-size: 0.7rem;
       letter-spacing: 0.04em;
       flex-shrink: 0;
-      min-width: 2.6rem;
     }
-    .doc-tabs__q {
+    .cat-info-faq-q {
       flex: 1;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 500;
       color: var(--text-primary);
       line-height: 1.45;
     }
-    .doc-tabs__item summary:hover .doc-tabs__q { color: var(--accent); }
-    .doc-tabs__icon {
+    .cat-info-faq-item summary:hover .cat-info-faq-q { color: var(--accent); }
+    .cat-info-faq-icon {
       width: 12px; height: 12px;
       position: relative;
       flex-shrink: 0;
       transition: transform 0.18s ease;
     }
-    .doc-tabs__icon::before,
-    .doc-tabs__icon::after {
+    .cat-info-faq-icon::before,
+    .cat-info-faq-icon::after {
       content: '';
       position: absolute;
       background: var(--text-muted);
       transition: transform 0.18s ease, opacity 0.18s ease;
     }
-    .doc-tabs__icon::before { top: 50%; left: 0; width: 100%; height: 1.5px; transform: translateY(-50%); }
-    .doc-tabs__icon::after  { top: 0; left: 50%; width: 1.5px; height: 100%; transform: translateX(-50%); }
-    .doc-tabs__item[open] .doc-tabs__icon::after { transform: translateX(-50%) rotate(90deg); opacity: 0; }
-    .doc-tabs__item[open] summary .doc-tabs__q { color: var(--accent); }
+    .cat-info-faq-icon::before { top: 50%; left: 0; width: 100%; height: 1.5px; transform: translateY(-50%); }
+    .cat-info-faq-icon::after  { top: 0; left: 50%; width: 1.5px; height: 100%; transform: translateX(-50%); }
+    .cat-info-faq-item[open] .cat-info-faq-icon::after { transform: translateX(-50%) rotate(90deg); opacity: 0; }
+    .cat-info-faq-item[open] summary .cat-info-faq-q { color: var(--accent); }
 
-    .doc-tabs__a {
-      padding: 0 0.25rem 1rem 3.3rem;
+    .cat-info-faq-a {
+      padding: 0 0.25rem 0.85rem 3.3rem;
       color: var(--text-secondary);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       line-height: 1.65;
     }
-    .doc-tabs__a p { margin: 0; }
+    .cat-info-faq-a p { margin: 0; }
 
-    /* responsive */
+    /* responsive — chip row horizontal scroll on mobile */
     @media (max-width: 640px) {
-      .doc-tabs { margin-top: 2rem; padding: 0 1rem; }
-      .doc-tabs__title { font-size: 0.95rem; }
-      .doc-tabs__prose p,
-      .doc-tabs__q { font-size: 0.85rem; }
-      .doc-tabs__a { padding-left: 2.9rem; font-size: 0.82rem; }
-      .doc-tabs__num { min-width: 2.2rem; }
+      .cat-info-row {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .cat-info-row::-webkit-scrollbar { display: none; }
+      .cat-info-chip { flex-shrink: 0; font-size: 0.7rem; }
+      .cat-info-panel[data-panel="about"] p,
+      .cat-info-faq-q { font-size: 0.8rem; }
+      .cat-info-faq-a { padding-left: 2.9rem; font-size: 0.78rem; }
+      .cat-info-playlist-url { font-size: 0.72rem; }
     }
   </style>
 
