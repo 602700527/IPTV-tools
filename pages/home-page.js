@@ -611,12 +611,12 @@ export function generateHomePage(options = {}) {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--accent);
+      color: var(--text-secondary);
       font-size: 1rem;
-      transition: transform 0.2s ease;
+      transition: all 0.2s ease;
     }
     .category-card:hover .category-icon,
-    .type-card:hover .type-icon { transform: scale(1.12); }
+    .type-card:hover .type-icon { transform: scale(1.12); color: var(--accent); }
     .category-icon svg, .type-icon svg { width: 100%; height: 100%; }
     .category-name, .type-name {
       font-size: 0.75rem;
