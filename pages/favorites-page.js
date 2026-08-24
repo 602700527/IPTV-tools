@@ -75,19 +75,19 @@ export function generateFavoritesPage(options = {}) {
     #translate:hover::after { border-top-color: var(--accent); }
 
     /* Main Content */
-    .page-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    .page-container { max-width: 1400px; margin: 0 auto; padding: 1rem; }
     
-    .page-header { margin-bottom: 2rem; }
-    .page-header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .page-header p { color: var(--text-secondary); font-size: 1rem; }
+    .page-header { margin-bottom: 1rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.2; }
+    .page-header p { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.4; }
 
     /* Batch actions bar */
-    .batch-bar { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1rem; flex-wrap: wrap; }
-    .batch-bar label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem; color: var(--text-secondary); }
+    .batch-bar { display: flex; align-items: center; gap: 0.5rem; padding: 8px 12px; background: #111111 !important; border: 1px solid rgba(255,255,255,0.15); border-radius: var(--radius); margin-bottom: 12px; flex-wrap: wrap; }
+    .batch-bar label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); }
     .batch-bar input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
-    .selected-count { font-size: 0.9rem; color: var(--text-secondary); margin-left: auto; }
+    .selected-count { font-size: 0.8rem; color: var(--text-secondary); margin-left: auto; }
     .selected-count strong { color: var(--accent); }
-    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-primary); font-size: 0.85rem; cursor: pointer; transition: all var(--transition); }
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 7px 14px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-primary); font-size: 11px; font-weight: 600; cursor: pointer; transition: all var(--transition); }
     .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
     .btn svg { width: 16px; height: 16px; }
     .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
@@ -96,19 +96,19 @@ export function generateFavoritesPage(options = {}) {
     .btn-share:hover { background: #2563eb; border-color: #2563eb; }
 
     /* Channel list */
-    .channel-list { display: flex; flex-direction: column; gap: 0.5rem; }
-    .channel-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); transition: all var(--transition); }
+    .channel-list { display: flex; flex-direction: column; gap: 0.3rem; }
+    .channel-row { display: flex; align-items: center; gap: 0.5rem; padding: 6px 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); transition: all var(--transition); margin-bottom: 3px; min-height: 36px; }
     .channel-row:hover { border-color: var(--border-hover); background: var(--bg-hover); }
     .channel-row.selected { border-color: var(--accent); background: rgba(229, 9, 20, 0.1); }
     .channel-checkbox { display: flex; align-items: center; cursor: pointer; }
     .channel-checkbox input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
     .channel-link { display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0; }
-    .ch-logo { width: 48px; height: 32px; object-fit: contain; background: var(--bg-secondary); border-radius: 4px; padding: 0.25rem; }
-    .ch-logo-placeholder { width: 48px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); border-radius: 4px; font-size: 1.25rem; opacity: 0.5; }
-    .ch-info { flex: 1; min-width: 0; }
-    .ch-name { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ch-group { font-size: 0.75rem; color: var(--text-muted); }
-    .btn-remove { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: none; color: var(--text-muted); border-radius: var(--radius); transition: all var(--transition); }
+    .ch-logo { width: 40px; height: 28px; object-fit: contain; background: var(--bg-secondary); border-radius: 4px; padding: 0.2rem; }
+    .ch-logo-placeholder { width: 40px; height: 28px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); border-radius: 4px; font-size: 1rem; opacity: 0.5; }
+    .ch-info { flex: 1; min-width: 0; line-height: 1.2; }
+    .ch-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ch-group { font-size: 0.7rem; color: var(--text-muted); }
+    .btn-remove { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: transparent; border: none; color: var(--text-muted); border-radius: var(--radius); transition: all var(--transition); }
     .btn-remove:hover { color: var(--accent); background: var(--bg-hover); }
     .btn-remove.active { color: var(--accent); }
     .btn-remove.active svg { fill: var(--accent); }
