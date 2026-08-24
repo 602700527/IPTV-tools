@@ -8,7 +8,7 @@ import { handleUserActivate, handleUserChangeTopic, handleUserChangeSubMode } fr
 import { handlePublicPlay, handleChannelDebug, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings, handleFavoritesM3U, handleChannelsM3U } from './handlers/public.js';
 import { handleGetPlans } from './handlers/plans-api.js';
 import { ALIPAY_PNG_DATA, WECHAT_PAY_PNG_DATA } from './image-data.js';
-import { generateAndCacheSitemap, getAllChannels, getAllGroups, clearChannelCache } from './utils/channel-cache.js';
+import { generateAndCacheSitemap, getAllChannels, getAllGroups, clearChannelCache, cacheChannelsToKV } from './utils/channel-cache.js';
 
 // ： URL  slug
 function slugify(text) {
@@ -1394,8 +1394,15 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         });
       }
       try {
+        // 先刷新 KV 频道缓存
+        const cacheResult = await cacheChannelsToKV(env);
+        // 再生成静态页面
         await refreshStaticPages(env);
-        return new Response(JSON.stringify({ success: true, message: 'Static pages regenerated' }), {
+        return new Response(JSON.stringify({
+          success: true,
+          message: 'Static pages regenerated',
+          cache: cacheResult
+        }), {
           headers: { 'Content-Type': 'application/json; charset=utf-8' }
         });
       } catch (error) {
