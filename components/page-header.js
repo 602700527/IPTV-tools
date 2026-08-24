@@ -246,16 +246,17 @@ export const PAGE_HEADER = `
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--accent);
-      border: none;
-      color: #fff;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
       font-size: 0;
       padding: 0.5rem 0.75rem;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
       flex-shrink: 0;
+      border-left: none;
     }
-    .header-search-submit:hover { background: var(--accent-hover); }
+    .header-search-submit:hover { background: var(--bg-card); border-color: var(--border-hover); color: var(--text-primary); }
 
     /* 图标按钮 - 极简 */
     .pill-btn, .account-btn {
