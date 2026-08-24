@@ -5648,33 +5648,93 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    <!-- SEO Content Section -->
-    <section class="seo-content">
-      <h2>About ${escapeHtml(category)} IPTV Channels</h2>
-      <p>Watch free ${escapeHtml(category)} IPTV channels live online on IPTV Search. Browse ${escapeHtml(category)} live TV streams in HD quality with M3U and M3U8 playlist support. No registration or subscription required for basic access. Our ${escapeHtml(category)} channel directory is updated daily to ensure reliable playback.</p>
-      <p>Access all ${escapeHtml(category)} channels via direct stream links, or download the M3U playlist for use in VLC, IPTV Smarters, TiviMate, GSE Smart IPTV, and other popular IPTV players.</p>
+    <!-- SEO + FAQ — single container, tab-switched to save vertical space -->
+    <section class="doc-tabs" aria-label="About and FAQ">
+      <div class="doc-tabs__bar" role="tablist">
+        <button class="doc-tabs__tab is-active" role="tab" aria-selected="true" aria-controls="doc-panel-about" id="doc-tab-about" data-tab="about" type="button">
+          <span class="doc-tabs__prefix">//</span> About
+        </button>
+        <button class="doc-tabs__tab" role="tab" aria-selected="false" aria-controls="doc-panel-faq" id="doc-tab-faq" data-tab="faq" type="button">
+          <span class="doc-tabs__prefix">//</span> FAQ
+        </button>
+      </div>
+
+      <div class="doc-tabs__panel is-active" role="tabpanel" id="doc-panel-about" aria-labelledby="doc-tab-about">
+        <h2 class="doc-tabs__title">About ${escapeHtml(category)} IPTV Channels</h2>
+        <span class="doc-tabs__rule" aria-hidden="true"></span>
+        <div class="doc-tabs__prose">
+          <p>Watch free ${escapeHtml(category)} IPTV channels live online on IPTV Search. Browse ${escapeHtml(category)} live TV streams in HD quality with <code>M3U</code> and <code>M3U8</code> playlist support. No registration or subscription required for basic access. Our ${escapeHtml(category)} channel directory is updated daily to ensure reliable playback.</p>
+          <p>Access all ${escapeHtml(category)} channels via direct stream links, or download the M3U playlist for use in <code>VLC</code>, <code>IPTV Smarters</code>, <code>TiviMate</code>, <code>GSE Smart IPTV</code>, <code>Kodi</code>, and other popular IPTV players.</p>
+        </div>
+      </div>
+
+      <div class="doc-tabs__panel" role="tabpanel" id="doc-panel-faq" aria-labelledby="doc-tab-faq" hidden>
+        <h2 class="doc-tabs__title">Frequently Asked Questions about ${escapeHtml(category)} Channels</h2>
+        <span class="doc-tabs__rule" aria-hidden="true"></span>
+        <div class="doc-tabs__list">
+          <details class="doc-tabs__item">
+            <summary>
+              <span class="doc-tabs__num">Q.01</span>
+              <span class="doc-tabs__q">How do I watch ${escapeHtml(category)} channels?</span>
+              <span class="doc-tabs__icon" aria-hidden="true"></span>
+            </summary>
+            <div class="doc-tabs__a"><p>Browse the channel list above, click on any channel to get its stream link, or copy the M3U playlist URL to import into your preferred IPTV player.</p></div>
+          </details>
+          <details class="doc-tabs__item">
+            <summary>
+              <span class="doc-tabs__num">Q.02</span>
+              <span class="doc-tabs__q">Are ${escapeHtml(category)} channels free to watch?</span>
+              <span class="doc-tabs__icon" aria-hidden="true"></span>
+            </summary>
+            <div class="doc-tabs__a"><p>Yes, you can watch ${escapeHtml(category)} channels for free with basic access. For ad-free HD streaming and multiple simultaneous connections, consider upgrading to a VIP subscription.</p></div>
+          </details>
+          <details class="doc-tabs__item">
+            <summary>
+              <span class="doc-tabs__num">Q.03</span>
+              <span class="doc-tabs__q">What IPTV players work with ${escapeHtml(category)} streams?</span>
+              <span class="doc-tabs__icon" aria-hidden="true"></span>
+            </summary>
+            <div class="doc-tabs__a"><p>Our ${escapeHtml(category)} streams are compatible with VLC Media Player, IPTV Smarters Pro, TiviMate, GSE Smart IPTV, Kodi, and any player that supports M3U8 playlist URLs.</p></div>
+          </details>
+          <details class="doc-tabs__item">
+            <summary>
+              <span class="doc-tabs__num">Q.04</span>
+              <span class="doc-tabs__q">Why is a ${escapeHtml(category)} stream not loading?</span>
+              <span class="doc-tabs__icon" aria-hidden="true"></span>
+            </summary>
+            <div class="doc-tabs__a"><p>Free streams may occasionally be unavailable due to source changes. Try refreshing the page, switching to a different player, or checking our ${escapeHtml(category)} channel list for alternative streams.</p></div>
+          </details>
+        </div>
+      </div>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="faq-section">
-      <h2>Frequently Asked Questions about ${escapeHtml(category)} Channels</h2>
-      <div class="faq-item">
-        <h3>How do I watch ${escapeHtml(category)} channels?</h3>
-        <p>Browse the channel list above, click on any channel to get its stream link, or copy the M3U playlist URL to import into your preferred IPTV player.</p>
-      </div>
-      <div class="faq-item">
-        <h3>Are ${escapeHtml(category)} channels free to watch?</h3>
-        <p>Yes, you can watch ${escapeHtml(category)} channels for free with basic access. For ad-free HD streaming and multiple simultaneous connections, consider upgrading to a VIP subscription.</p>
-      </div>
-      <div class="faq-item">
-        <h3>What IPTV players work with ${escapeHtml(category)} streams?</h3>
-        <p>Our ${escapeHtml(category)} streams are compatible with VLC Media Player, IPTV Smarters Pro, TiviMate, GSE Smart IPTV, Kodi, and any player that supports M3U8 playlist URLs.</p>
-      </div>
-      <div class="faq-item">
-        <h3>Why is a ${escapeHtml(category)} stream not loading?</h3>
-        <p>Free streams may occasionally be unavailable due to source changes. Try refreshing the page, switching to a different player, or checking our ${escapeHtml(category)} channel list for alternative streams.</p>
-      </div>
-    </section>
+    <script>
+      // Tab switching — only one panel visible at a time
+      (function() {
+        var tabs = document.querySelectorAll('.doc-tabs__tab');
+        var panels = {
+          about: document.getElementById('doc-panel-about'),
+          faq: document.getElementById('doc-panel-faq')
+        };
+        tabs.forEach(function(tab) {
+          tab.addEventListener('click', function() {
+            var target = tab.getAttribute('data-tab');
+            tabs.forEach(function(t) {
+              var on = (t === tab);
+              t.classList.toggle('is-active', on);
+              t.setAttribute('aria-selected', on ? 'true' : 'false');
+            });
+            Object.keys(panels).forEach(function(k) {
+              var p = panels[k];
+              if (!p) return;
+              var on = (k === target);
+              p.classList.toggle('is-active', on);
+              if (on) p.removeAttribute('hidden'); else p.setAttribute('hidden', '');
+            });
+          });
+        });
+      })();
+    </script>
 
     <script type="application/ld+json">
     {
@@ -10104,74 +10164,155 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    /* SEO Content & FAQ */
-    .seo-content {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem 1.75rem;
-      margin: 0 auto 2rem;
-      max-width: 780px;
-      position: relative;
-      overflow: hidden;
-      text-align: center;
+    /* Doc Tabs — single container, About/FAQ switchable, FAQ items collapsible */
+    .doc-tabs {
+      max-width: 760px;
+      margin: 3rem auto 0;
+      padding: 0 1rem;
     }
-    .seo-content::before {
+
+    /* tab bar */
+    .doc-tabs__bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+    .doc-tabs__tab {
+      appearance: none;
+      background: transparent;
+      border: none;
+      padding: 0.6rem 1.1rem 0.7rem;
+      margin: 0;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    .doc-tabs__tab + .doc-tabs__tab { margin-left: 0.25rem; }
+    .doc-tabs__tab:hover { color: var(--text-secondary); }
+    .doc-tabs__tab.is-active { color: var(--text-primary); }
+    .doc-tabs__tab.is-active::after {
       content: '';
       position: absolute;
-      top: 0; left: 0;
-      width: 3px; height: 100%;
+      left: 0.5rem; right: 0.5rem; bottom: -1px;
+      height: 1.5px;
       background: var(--accent);
-      border-radius: var(--radius) 0 0 var(--radius);
     }
-    .seo-content h2 {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 1rem;
-    }
-    .seo-content p {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      line-height: 1.7;
-      margin-bottom: 0.6rem;
-    }
-    .seo-content p:last-child { margin-bottom: 0; }
-    .faq-section { margin: 0 auto 2rem; max-width: 780px; }
-    .faq-section h2 {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-    .faq-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 0.75rem;
-      transition: border-color 0.2s, background 0.2s;
-      text-align: center;
-    }
-    .faq-item:hover {
-      border-color: rgba(229, 9, 20, 0.45);
-      background: var(--bg-hover);
-    }
-    .faq-item h3 {
-      font-size: 0.95rem;
+    .doc-tabs__prefix { color: var(--accent); margin-right: 0.4rem; }
+
+    /* panel */
+    .doc-tabs__panel { padding: 0.25rem 0 2rem; }
+    .doc-tabs__panel[hidden] { display: none; }
+
+    .doc-tabs__title {
+      font-size: 1.05rem;
       font-weight: 600;
-      margin-bottom: 0.5rem;
+      letter-spacing: -0.01em;
       color: var(--text-primary);
+      margin: 0;
+      line-height: 1.35;
     }
-    .faq-item p {
-      font-size: 0.85rem;
+    .doc-tabs__rule {
+      display: block;
+      width: 28px; height: 1px;
+      background: var(--accent);
+      margin: 0.7rem 0 1rem;
+    }
+
+    /* About prose */
+    .doc-tabs__prose p {
+      font-size: 0.9rem;
+      line-height: 1.7;
       color: var(--text-secondary);
+      margin: 0 0 0.8rem;
+      text-align: left;
+      max-width: 64ch;
+    }
+    .doc-tabs__prose p:last-child { margin-bottom: 0; }
+    .doc-tabs__prose code {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.82em;
+      font-weight: 500;
+      color: var(--text-primary);
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      padding: 0.05em 0.4em;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    /* FAQ collapsible list — recessed, hairlines between items */
+    .doc-tabs__list { margin-top: 0.25rem; }
+    .doc-tabs__item {
+      border-top: 1px solid var(--border);
+    }
+    .doc-tabs__item:last-child { border-bottom: 1px solid var(--border); }
+    .doc-tabs__item summary {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.85rem 0.25rem;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+    .doc-tabs__item summary::-webkit-details-marker { display: none; }
+    .doc-tabs__item summary::marker { display: none; content: ''; }
+    .doc-tabs__num {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+      min-width: 2.6rem;
+    }
+    .doc-tabs__q {
+      flex: 1;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.45;
+    }
+    .doc-tabs__item summary:hover .doc-tabs__q { color: var(--accent); }
+    .doc-tabs__icon {
+      width: 12px; height: 12px;
+      position: relative;
+      flex-shrink: 0;
+      transition: transform 0.18s ease;
+    }
+    .doc-tabs__icon::before,
+    .doc-tabs__icon::after {
+      content: '';
+      position: absolute;
+      background: var(--text-muted);
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+    .doc-tabs__icon::before { top: 50%; left: 0; width: 100%; height: 1.5px; transform: translateY(-50%); }
+    .doc-tabs__icon::after  { top: 0; left: 50%; width: 1.5px; height: 100%; transform: translateX(-50%); }
+    .doc-tabs__item[open] .doc-tabs__icon::after { transform: translateX(-50%) rotate(90deg); opacity: 0; }
+    .doc-tabs__item[open] summary .doc-tabs__q { color: var(--accent); }
+
+    .doc-tabs__a {
+      padding: 0 0.25rem 1rem 3.3rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
       line-height: 1.65;
+    }
+    .doc-tabs__a p { margin: 0; }
+
+    /* responsive */
+    @media (max-width: 640px) {
+      .doc-tabs { margin-top: 2rem; padding: 0 1rem; }
+      .doc-tabs__title { font-size: 0.95rem; }
+      .doc-tabs__prose p,
+      .doc-tabs__q { font-size: 0.85rem; }
+      .doc-tabs__a { padding-left: 2.9rem; font-size: 0.82rem; }
+      .doc-tabs__num { min-width: 2.2rem; }
     }
   </style>
 
