@@ -10110,9 +10110,11 @@ export function generateCategoryPage(options = {}) {
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 1.5rem 1.75rem;
-      margin-bottom: 2rem;
+      margin: 0 auto 2rem;
+      max-width: 780px;
       position: relative;
       overflow: hidden;
+      text-align: center;
     }
     .seo-content::before {
       content: '';
@@ -10137,7 +10139,7 @@ export function generateCategoryPage(options = {}) {
       margin-bottom: 0.6rem;
     }
     .seo-content p:last-child { margin-bottom: 0; }
-    .faq-section { margin-bottom: 2rem; }
+    .faq-section { margin: 0 auto 2rem; max-width: 780px; }
     .faq-section h2 {
       font-size: 0.72rem;
       font-weight: 700;
@@ -10145,6 +10147,7 @@ export function generateCategoryPage(options = {}) {
       text-transform: uppercase;
       color: var(--accent);
       margin-bottom: 1rem;
+      text-align: center;
     }
     .faq-item {
       background: var(--bg-card);
@@ -10153,6 +10156,7 @@ export function generateCategoryPage(options = {}) {
       padding: 1.25rem 1.5rem;
       margin-bottom: 0.75rem;
       transition: border-color 0.2s, background 0.2s;
+      text-align: center;
     }
     .faq-item:hover {
       border-color: rgba(229, 9, 20, 0.45);
