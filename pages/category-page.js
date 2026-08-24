@@ -4658,20 +4658,6 @@ export function generateCategoryPage(options = {}) {
 
 
 
-      .batch-actions .btn { width: 100%; }
-
-
-
-
-
-
-
-
-
-
-
-      .btn-text { display: inline; }
-
 
 
 
