@@ -2819,91 +2819,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    .sidebar { 
-
-
-
-
-
-
-
-
-
-
-
-      width: 220px; 
-
-
-
-
-
-
-
-
-
-
-
-      flex-shrink: 0; 
-
-
-
-
-
-
-
-
-
-
-
-      max-height: calc(100vh - 180px); 
-
-
-
-
-
-
-
-
-
-
-
-      overflow-y: auto; 
-
-
-
-
-
-
-
-
-
-
-
-      position: sticky; 
-
-
-
-
-
-
-
-
-
-
-
-      top: 100px;
-
-
-
-
-
-
-
-
-
-
-
-    }
+    .sidebar { width: 220px; flex-shrink: 0; max-height: calc(100vh - 180px); overflow-y: auto; position: sticky; top: 80px; padding: 16px 18px; }
 
 
 
@@ -3071,7 +2987,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    .batch-bar { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1rem; flex-wrap: wrap; }
+    .batch-bar { display: flex; align-items: center; gap: 0.5rem; padding: 10px 14px; background: #111111 !important; border: 1px solid rgba(255,255,255,0.15); border-radius: var(--radius); margin-bottom: 12px; flex-wrap: wrap; }
 
 
 
@@ -3707,7 +3623,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    .channel-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); transition: all var(--transition); }
+    .channel-row { display: flex; align-items: center; gap: 0.6rem; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); transition: all var(--transition); margin-bottom: 6px; }
 
 
 
@@ -5168,13 +5084,13 @@ export function generateCategoryPage(options = {}) {
 <!-- Hero Stats Band — SEO/FAQ as chip row in the page header (Option A from designer review) -->
     <div class="cat-info-row" role="tablist">
       <button class="cat-info-chip" type="button" role="tab" data-panel="about" aria-selected="false">
-        About <span class="cat-info-chip__num">IPTV</span>
+        About
       </button>
       <button class="cat-info-chip" type="button" role="tab" data-panel="faq" aria-selected="false">
         FAQ <span class="cat-info-chip__num">· 4</span>
       </button>
       <button class="cat-info-chip" type="button" role="tab" data-panel="players" aria-selected="false">
-        Players <span class="cat-info-chip__num">: 5</span>
+        Players <span class="cat-info-chip__num">· 5</span>
       </button>
     </div>
 
@@ -5308,7 +5224,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    <aside class="sidebar">
+    <aside class="sidebar account-card">
 
 
 
