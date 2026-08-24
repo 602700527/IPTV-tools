@@ -170,8 +170,7 @@ export const PAGE_HEADER = `
       margin: 0 auto;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 2rem;
+      gap: 1rem;
       padding: 0.75rem 0;
     }
     .logo {
@@ -185,10 +184,10 @@ export const PAGE_HEADER = `
     }
     .logo-icon svg { width: 28px; height: 28px; }
     .logo-text span { color: var(--accent); }
-    .header-actions { display: flex; align-items: center; gap: 1.5rem; }
+    .header-actions { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }
 
     /* 搜索栏 - 极简线条 */
-    .header-search-wrapper { flex: 1; max-width: 480px; margin: 0 1rem; }
+    .header-search-wrapper { flex: 1; max-width: 360px; min-width: 200px; margin: 0 0.5rem; }
     .header-search-form {
       display: flex;
       align-items: center;
@@ -263,8 +262,8 @@ export const PAGE_HEADER = `
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 44px;
-      height: 44px;
+      width: 36px;
+      height: 36px;
       color: var(--text-secondary);
       text-decoration: none;
       transition: color 0.2s;
