@@ -4372,67 +4372,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-      .batch-bar { 
-
-
-
-
-
-
-
-
-
-
-
-        padding: 0.6rem 0.75rem; 
-
-
-
-
-
-
-
-
-
-
-
-        gap: 0.5rem;
-
-
-
-
-
-
-
-
-
-
-
-        flex-direction: column;
-
-
-
-
-
-
-
-
-
-
-
-        align-items: stretch;
-
-
-
-
-
-
-
-
-
-
-
-      }
+      .batch-bar { padding: 8px 12px; gap: 0.5rem; }
 
 
 
@@ -4456,55 +4396,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-      .batch-actions { 
-
-
-
-
-
-
-
-
-
-
-
-        display: flex; 
-
-
-
-
-
-
-
-
-
-
-
-        gap: 0.5rem; 
-
-
-
-
-
-
-
-
-
-
-
-        width: 100%;
-
-
-
-
-
-
-
-
-
-
-
-      }
+      .batch-actions { display: flex; gap: 0.5rem; }
 
 
 
