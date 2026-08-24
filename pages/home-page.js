@@ -219,7 +219,7 @@ export function generateHomePage(options = {}) {
       pointer-events: none;
     }
     .hero-inner {
-      max-width: 1280px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 0 2rem;
       position: relative;
@@ -379,7 +379,7 @@ export function generateHomePage(options = {}) {
       border-bottom: var(--border);
     }
     .section-inner {
-      max-width: 1280px;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 0 2rem;
     }
