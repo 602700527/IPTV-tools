@@ -3568,7 +3568,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    .channel-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .channel-list { display: flex; flex-direction: column; gap: 0.3rem; }
 
 
 
@@ -3580,7 +3580,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    .channel-row { display: flex; align-items: center; gap: 0.5rem; padding: 7px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); transition: all var(--transition); margin-bottom: 4px; }
+    .channel-row { display: flex; align-items: center; gap: 0.5rem; padding: 6px 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); transition: all var(--transition); margin-bottom: 3px; min-height: 36px; }
 
 
 
@@ -3676,7 +3676,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    .ch-info { flex: 1; min-width: 0; }
+    .ch-info { flex: 1; min-width: 0; line-height: 1.2; }
 
 
 
