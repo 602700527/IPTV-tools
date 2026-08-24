@@ -58,23 +58,23 @@ export function generateHomePage(options = {}) {
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IPTV Search &mdash; Free IPTV Channels from 150+ Countries (2026)</title>
-  <meta name="description" content="Browse ${totalChannels.toLocaleString()}+ free IPTV channels from 150+ countries. Search live sports, news, movies in HD &mdash; no signup, updated daily. Start streaming now.">
+  <title>IPTV Search &mdash; Free Channel Directory &amp; 海外电视直播 (2026)</title>
+  <meta name="description" content="Search ${totalChannels.toLocaleString()}+ free IPTV channels worldwide. Live sports, news &amp; 海外电视直播 (Chinese overseas TV). Browse by country or category — no signup required. Updated daily.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="${origin}/">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" href="/favicon.svg">
   <meta name="theme-color" content="#e50914">
-  <meta property="og:title" content="IPTV Search &mdash; Free IPTV Channels from 150+ Countries (2026)">
-  <meta property="og:description" content="Browse ${totalChannels.toLocaleString()}+ free IPTV channels from 150+ countries. Search live sports, news, movies in HD &mdash; no signup, updated daily. Start streaming now.">
+  <meta property="og:title" content="IPTV Search &mdash; Free Channel Directory &amp; 海外电视直播 (2026)">
+  <meta property="og:description" content="Search ${totalChannels.toLocaleString()}+ free IPTV channels worldwide. Live sports, news &amp; 海外电视直播 (Chinese overseas TV). Browse by country or category — no signup required. Updated daily.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${origin}/">
   <meta property="og:locale" content="en">
   <meta property="og:image" content="${origin}/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="${origin}/og-image.svg">
-  <meta name="twitter:title" content="IPTV Search &mdash; Free IPTV Channels from 150+ Countries (2026)">
-  <meta name="twitter:description" content="Browse ${totalChannels.toLocaleString()}+ free IPTV channels from 150+ countries. Search live sports, news, movies in HD &mdash; no signup, updated daily. Start streaming now.">
+  <meta name="twitter:title" content="IPTV Search &mdash; Free Channel Directory &amp; 海外电视直播 (2026)">
+  <meta name="twitter:description" content="Search ${totalChannels.toLocaleString()}+ free IPTV channels worldwide. Live sports, news &amp; 海外电视直播 (Chinese overseas TV). Browse by country or category — no signup required. Updated daily.">
 
 
 
@@ -107,7 +107,7 @@ export function generateHomePage(options = {}) {
     "name": "IPTV Search",
     "url": "${origin}",
     "logo": "${origin}/favicon.svg",
-    "description": "Free IPTV Channel Directory and Search Engine with ${totalChannels.toLocaleString()}+ live TV channels from 150+ countries."
+    "description": "Free IPTV Channel Directory and Search Engine with ${totalChannels.toLocaleString()}+ live TV channels. Free IPTV search, 海外电视直播 for Chinese overseas."
   }
   </script>
 
@@ -125,7 +125,7 @@ export function generateHomePage(options = {}) {
       {"@type": "Question", "name": "Do you offer technical support?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, premium subscribers get 24/7 technical support. Free users can find help in our tutorial section and FAQ."}},
       {"@type": "Question", "name": "How often are channels updated?", "acceptedAnswer": {"@type": "Answer", "text": "We update our channel database daily. Dead links are removed and new channels are added regularly to maintain quality."}},
       {"@type": "Question", "name": "Can I record live TV?", "acceptedAnswer": {"@type": "Answer", "text": "Recording functionality is not available on our free service. Some third-party players support DVR features for IPTV streams."}},
-      {"@type": "Question", "name": "What countries channels are available?", "acceptedAnswer": {"@type": "Answer", "text": "We have channels from 150+ countries including USA, UK, Canada, Australia, India, China, Brazil, and many more. Browse by category or country on our homepage."}}
+      {"@type": "Question", "name": "What countries channels are available?", "acceptedAnswer": {"@type": "Answer", "text": "We have channels from 150+ countries including USA, UK, Canada, Australia, India, China, Brazil, and many more. Special selection of 海外电视直播 (Chinese overseas TV) for 海外华人. Browse by category or country on our homepage."}}
     ]
   }
   </script>
@@ -700,7 +700,7 @@ export function generateHomePage(options = {}) {
         <span class="status-feed"><span class="accent">&gt;</span> live-feed: active</span>
       </div>
       <div class="hero-headline reveal stagger-1">
-        <h1>${totalChannels.toLocaleString()}+ IPTV Channels<br><span class="accent">Worldwide</span></h1>
+        <h1>${totalChannels.toLocaleString()}+ IPTV Channels<br><span class="accent">Worldwide · 海外电视搜索</span></h1>
       </div>
       <p class="hero-sub reveal stagger-2">
         Real-time IPTV directory. Search, filter, and stream from 150+ countries. Updated daily. No signup required.
@@ -740,7 +740,7 @@ export function generateHomePage(options = {}) {
       <div class="section-meta reveal">
         <span class="section-label">endpoint: popular</span>
         <h2 class="section-title">Popular Topics</h2>
-        <span class="section-count">6 endpoints</span>
+        <span class="section-count">7 endpoints</span>
       </div>
       <p class="section-desc reveal" style="margin-bottom:1.5rem">Explore curated content by category</p>
       <div class="hot-topics-grid">
@@ -768,6 +768,11 @@ export function generateHomePage(options = {}) {
           <span class="topic-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="2" y="2" width="20" height="20"/><polygon points="10 8 16 12 10 16"/><path d="M2 6v0M22 6v0M2 12v0M22 12v0M2 18v0M22 18v0" stroke-width="1"/></svg></span>
           <span class="topic-title">Free IPTV</span>
           <span class="topic-desc">App Reviews</span>
+        </a>
+        <a href="/asia-iptv" class="topic-card reveal stagger-7" style="border-color:var(--accent-border);background:var(--accent-dim)">
+          <span class="topic-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="3" y="3" width="18" height="18"/><path d="M3 7h18M3 11h18M3 15h18M3 19h18"/><circle cx="9" cy="5.5" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="5.5" r="1" fill="currentColor" stroke="none"/><circle cx="9" cy="18.5" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="18.5" r="1" fill="currentColor" stroke="none"/></svg></span>
+          <span class="topic-title">海外华人电视</span>
+          <span class="topic-desc">Chinese Overseas TV · CCTV · 凤凰卫视</span>
         </a>
         <a href="/carplay-aptv" class="topic-card reveal stagger-6">
           <span class="topic-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="6" y="2" width="12" height="20"/><circle cx="12" cy="12" r="3"/><path d="M9 5h6M9 19h6"/><path d="M3 2v2M3 2h2"/><path d="M21 2v2M21 2h-2"/><path d="M3 22v-2M3 22h2"/><path d="M21 22v-2M21 22h-2"/></svg></span>
