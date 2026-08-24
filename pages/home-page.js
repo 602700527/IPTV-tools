@@ -723,7 +723,7 @@ export function generateHomePage(options = {}) {
         </div>
         <div class="stat-card">
           <div class="stat-label">Quality</div>
-          <div class="stat-value">最高 4K<span class="unit"></span></div>
+          <div class="stat-value">Up to 4K<span class="unit"></span></div>
           <div class="stat-change neutral">● no ads · daily refresh</div>
         </div>
       </div>
