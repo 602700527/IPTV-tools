@@ -2729,7 +2729,13 @@ export function generateCategoryPage(options = {}) {
 
 
 
-    .category-header { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .account-card {
+      background: #111111 !important;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius);
+      gap: 0;
+    }
+.category-header { max-width: 1400px; margin: 0 auto 1rem; padding: 16px 18px; gap: 8px; }
 
 
 
@@ -5085,7 +5091,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-  <div class="category-header">
+  <div class="category-header account-card">
 
 
 
@@ -5422,7 +5428,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-          <span class="batch-select-text">全选</span>
+          <span class="batch-select-text">Select all</span>
 
 
 
@@ -5458,7 +5464,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-          <button class="btn btn-favorite-batch" onclick="addSelectedToFavorites()" title="添加收藏">
+          <button class="btn btn-favorite-batch" onclick="addSelectedToFavorites()" title="Add to Favorites">
 
 
 
@@ -5482,7 +5488,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-            <span class="btn-text">收藏</span>
+            <span class="btn-text">Favorite</span>
 
 
 
@@ -5506,7 +5512,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-          <button class="btn btn-primary" onclick="downloadSelectedM3U()" title="下载M3U">
+          <button class="btn btn-primary" onclick="downloadSelectedM3U()" title="Download M3U">
 
 
 
@@ -5530,7 +5536,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-            <span class="btn-text">下载M3U</span>
+            <span class="btn-text">Download</span>
 
 
 
@@ -5554,7 +5560,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-          <button class="btn btn-shuffle" onclick="shuffleChannels()" title="换一批">
+          <button class="btn btn-shuffle" onclick="shuffleChannels()" title="Shuffle">
 
 
 
@@ -5578,7 +5584,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-            <span class="btn-text">换一批</span>
+            <span class="btn-text">Shuffle</span>
 
 
 
@@ -5614,7 +5620,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-        <span class="selected-count"><strong id="selectedCount">0</strong> 已选</span>
+        <span class="selected-count"><strong id="selectedCount">0</strong> selected</span>
 
 
 
