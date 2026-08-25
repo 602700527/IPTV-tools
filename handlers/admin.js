@@ -834,63 +834,64 @@ export async function handleAdminRequest(request, env, ctx) {
           });
         }
 
-        let channelsQuery = 'SELECT c.id, c.source_id, c.channel_name, c.group_title, c.type, c.description, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active, c.original, s.name as source_name, s.is_active as source_active FROM channels c LEFT JOIN sources s ON c.source_id = s.id';
-        const countQuery = 'SELECT COUNT(*) as total FROM channels c LEFT JOIN sources s ON c.source_id = s.id';
-        const params = [];
-        const whereConditions = [];
+        // 复用带内存缓存的 getAllChannels，避免每次分页请求都全表扫 D1
+        const { getAllChannels } = await import('../utils/channel-cache.js');
+        const { channels: allChannels } = await getAllChannels(env);
 
-        if (sourceIdFilter) {
-          whereConditions.push('c.source_id = ?');
-          params.push(sourceIdFilter);
-        }
+        // 应用过滤器（内存过滤，1804 条数据完全可行）
+        let filtered = allChannels.filter(ch => {
+          if (sourceIdFilter && String(ch.source_id) !== String(sourceIdFilter)) return false;
+          if (groupTitleFilter && ch.group_title !== groupTitleFilter) return false;
+          if (typeFilter && ch.type) {
+            const types = ch.type.split(',').map(t => t.trim());
+            if (!types.some(t => t.includes(typeFilter) || typeFilter.includes(t))) return false;
+          }
+          if (search) {
+            const pattern = search.toLowerCase();
+            if (!(ch.channel_name || '').toLowerCase().includes(pattern) &&
+                !(ch.group_title || '').toLowerCase().includes(pattern)) return false;
+          }
+          return true;
+        });
 
-        if (groupTitleFilter) {
-          whereConditions.push('c.group_title = ?');
-          params.push(groupTitleFilter);
-        }
+        const total = filtered.length;
 
-        if (typeFilter) {
-          whereConditions.push("(c.type LIKE ? OR c.type LIKE ? OR c.type LIKE ? OR c.type = ?)");
-          const typePattern = '%' + typeFilter + '%';
-          const typePatternStart = typeFilter + ',%';
-          const typePatternEnd = '%,' + typeFilter + ',%';
-          params.push(typePattern, typePatternStart, typePatternEnd, typeFilter);
-        }
+        // 排序（与 D1 ORDER BY 保持一致）
+        filtered.sort((a, b) => {
+          const gA = a.group_title || '';
+          const gB = b.group_title || '';
+          if (gA !== gB) return gA.localeCompare(gB, 'zh-CN', { numeric: true });
+          const nA = a.channel_name || '';
+          const nB = b.channel_name || '';
+          const mA = nA.match(/^([A-Za-z]+)(\d+)/);
+          const mB = nB.match(/^([A-Za-z]+)(\d+)/);
+          if (mA && mB && mA[1].toUpperCase() === mB[1].toUpperCase()) {
+            const dA = parseInt(mA[2]), dB = parseInt(mB[2]);
+            if (dA !== dB) return dA - dB;
+            const sA = nA.substring(mA[1].length + mA[2].length).trim();
+            const sB = nB.substring(mB[1].length + mB[2].length).trim();
+            return sA.localeCompare(sB, 'zh-CN', { numeric: true });
+          }
+          return nA.localeCompare(nB, 'zh-CN', { numeric: true });
+        });
 
-        if (search) {
-          whereConditions.push('(c.channel_name LIKE ? OR c.group_title LIKE ?)');
-          const searchPattern = `%${search}%`;
-          params.push(searchPattern, searchPattern);
-        }
-
-        if (whereConditions.length > 0) {
-          const whereClause = ' WHERE ' + whereConditions.join(' AND ');
-          channelsQuery += whereClause;
-        }
-
-        // 
-        const totalResult = await getDB().prepare(countQuery + (whereConditions.length > 0 ? ' WHERE ' + whereConditions.join(' AND ') : '')).bind(...params).first();
-        const total = totalResult.total;
-
-        // 
+        // 分页
         const offset = (page - 1) * pageSize;
-        channelsQuery += ' ORDER BY c.group_title, c.channel_name LIMIT ? OFFSET ?';
-        const channels = await getDB().prepare(channelsQuery).bind(...params, pageSize, offset).all();
+        const paged = filtered.slice(offset, offset + pageSize);
 
-        // ，
-        const formattedResults = channels.results.map(channel => ({
-          id: channel.id,
-          source_id: channel.source_id,
-          channel_name: channel.channel_name,
-          group_title: channel.group_title,
-          type: channel.type || '',
-          logo: channel.logo,
-          play_url: channel.play_url,
-          headers: channel.headers,
-          channel_hash: channel.channel_hash,
-          is_active: channel.is_active,
-          source_name: channel.source_name,
-          description: channel.description || ''
+        const formattedResults = paged.map(ch => ({
+          id: ch.id,
+          source_id: ch.source_id,
+          channel_name: ch.channel_name,
+          group_title: ch.group_title,
+          type: ch.type || '',
+          logo: ch.logo,
+          play_url: ch.play_url,
+          headers: ch.headers,
+          channel_hash: ch.channel_hash,
+          is_active: ch.is_active,
+          source_name: ch.source_name,
+          description: ch.description || ''
         }));
 
         // （ ->  -> ）

@@ -529,7 +529,7 @@ import {
 
 // 
 // ， KV (dev)  R2 (production)
-import { getStaticFile, detectEnvironment } from './utils/static-storage.js';
+import { getStaticFile } from './utils/static-storage.js';
 
 async function serveStaticFile(filePath, env) {
   try {
@@ -559,11 +559,11 @@ async function serveStaticFile(filePath, env) {
       contentType = 'image/x-icon';
     }
 
-    const envType = detectEnvironment(env);
+    // 静态页（homepage/category/channel）内容稳定，给 24h CDN 缓存
     return new Response(content, {
       headers: {
         'Content-Type': contentType,
-        'Cache-Control': envType === 'production' ? 'public, max-age=86400' : 'public, max-age=3600'
+        'Cache-Control': 'public, max-age=86400'
       }
     });
   } catch (error) {
@@ -876,31 +876,19 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         return staticResponse;
       }
       
-      // （ SSR）
-      const db = await initDB(env);
-      const allChannelsResult = await db.prepare(`
-        SELECT c.id, c.channel_name, c.group_title, c.type, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active, c.source_id, s.name as source_name
-        FROM channels c
-        INNER JOIN sources s ON c.source_id = s.id
-        WHERE c.is_active = 1 AND s.is_active = 1
-      `).all();
-      const allChannels = allChannelsResult.results || [];
+      // （ SSR）— 复用带内存缓存的 getAllChannels，避免每请求全表扫 D1
+      const { getAllChannels, getAllGroups } = await import('./utils/channel-cache.js');
+      const { channels: allChannels, fromCache: homeFromCache } = await getAllChannels(env);
+      if (!homeFromCache) console.log('[HomeFallback] D1 cache miss, loaded', allChannels.length, 'channels');
 
-      // Region categories
+      // Region categories — groups 从 channels 数据派生，不再另查 D1
       const groupCounts = {};
       allChannels.forEach(ch => {
         const group = ch.group_title || 'Other';
         groupCounts[group] = (groupCounts[group] || 0) + 1;
       });
-      const groupsResult = await db.prepare(`
-        SELECT DISTINCT c.group_title
-        FROM channels c
-        INNER JOIN sources s ON c.source_id = s.id
-        WHERE c.group_title IS NOT NULL AND c.group_title != ''
-          AND c.is_active = 1 AND s.is_active = 1
-        ORDER BY c.group_title
-      `).all();
-      const groups = (groupsResult.results || []).map(r => r.group_title);
+      const groupsResult = await getAllGroups(env);
+      const groups = groupsResult.groups || Object.keys(groupCounts);
 
       const categorySVGs = {
         'cctv': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 19h10M12 19v-3"/></svg>',
@@ -951,7 +939,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           };
         }).sort((a, b) => b.count - a.count);
 
-      //  HTML  + 
+      //  HTML  +
       const { generateHomePage } = await import('./pages/home-page.js');
       const html = generateHomePage({
         origin: url.origin,
@@ -983,11 +971,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         return staticResponse;
       }
       
-      // Fallback: 
-      //  slug  category name（）
-      const db = await initDB(env);
-      
-      // slugify ： seo-handler.js （、emoji）
+      // Fallback: slug 频道列表（内存缓存，不再打 D1）
       const slugify = (str) => {
         if (!str) return '';
         return str
@@ -998,41 +982,29 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           .replace(/^-+|-+$/g, '');
       };
       
-      // （）
-      const allChannelsResult = await db.prepare(`
-        SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active, c.source_id, s.name as source_name
-        FROM channels c
-        INNER JOIN sources s ON c.source_id = s.id
-        WHERE c.is_active = 1 AND s.is_active = 1
-      `).all();
-      
-      const allChannels = allChannelsResult.results || [];
-      
-      // 
+      // （）— 复用内存缓存，不再全表扫 D1
+      const { getAllChannels: getCategoryChannels, getAllGroups } = await import('./utils/channel-cache.js');
+      const { channels: allChannels } = await getCategoryChannels(env);
+
+      //
       const groupCounts = {};
       allChannels.forEach(ch => {
         const group = ch.group_title || 'Other';
         groupCounts[group] = (groupCounts[group] || 0) + 1;
       });
+
+      // 从缓存取分组列表，不再另查 D1
+      const groupsResult = await getAllGroups(env);
+      const groupsList = groupsResult.groups || Object.keys(groupCounts);
       
-      // 
-      const groupsResult = await db.prepare(`
-        SELECT DISTINCT c.group_title
-        FROM channels c
-        INNER JOIN sources s ON c.source_id = s.id
-        WHERE c.is_active = 1 AND s.is_active = 1
-          AND c.group_title IS NOT NULL AND c.group_title != ''
-        ORDER BY c.group_title
-      `).all();
-      
-      // （）
-      const matchedGroup = (groupsResult.results || []).find(g => slugify(g.group_title).toLowerCase() === slug.toLowerCase());
-      console.log('[CategoryPage] Looking for slug:', slug, ', Available groups:', groupsResult.results?.map(g => ({name: g.group_title, slug: slugify(g.group_title)})));
+      // （）— groupsList 是字符串数组，不是 {group_title} 对象
+      const matchedGroup = groupsList.find(g => slugify(g).toLowerCase() === slug.toLowerCase());
+      console.log('[CategoryPage] Looking for slug:', slug, ', Available groups:', groupsList.map(g => ({name: g, slug: slugify(g)})));
 
       if (!matchedGroup) {
         return await generate404Page(request, env);
       }
-      
+
       // （）
       const categorySVGs = {
         'cctv': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 19h10M12 19v-3"/></svg>',
@@ -1044,31 +1016,31 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         'kids': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>',
         'other': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 19h10M12 19v-3"/></svg>'
       };
-      
-      const categories = groupsResult.results.map(g => {
-        const catSlug = slugify(g.group_title);
+
+      const categories = groupsList.map(g => {
+        const catSlug = slugify(g);
         return {
-          name: g.group_title,
+          name: g,
           slug: catSlug,
-          count: groupCounts[g.group_title] || 0,
+          count: groupCounts[g] || 0,
           icon: categorySVGs[catSlug.toLowerCase()] || categorySVGs['other']
         };
       });
       
-      // 
+      //
       const categoryChannels = allChannels
-        .filter(ch => ch.group_title === matchedGroup.group_title)
+        .filter(ch => ch.group_title === matchedGroup)
         .map(ch => ({
           name: ch.channel_name,
           hash: ch.channel_hash,
           logo: ch.logo,
           group: ch.group_title
         }));
-      
+
       const { generateCategoryPage } = await import('./pages/category-page.js');
-      const html = generateCategoryPage({ 
-        origin: url.origin, 
-        category: matchedGroup.group_title,
+      const html = generateCategoryPage({
+        origin: url.origin,
+        category: matchedGroup,
         slug: slug,
         categories: categories,
         channels: categoryChannels
@@ -1116,17 +1088,9 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         return await generate404Page(request, env);
       }
 
-      const db = await initDB(env);
-
-      // （type）
-      const allChannelsResult = await db.prepare(`
-        SELECT c.id, c.channel_name, c.group_title, c.type, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active, c.source_id, s.name as source_name
-        FROM channels c
-        INNER JOIN sources s ON c.source_id = s.id
-        WHERE c.is_active = 1 AND s.is_active = 1
-      `).all();
-
-      const allChannels = allChannelsResult.results || [];
+      // 复用内存缓存，不再全表扫 D1
+      const { getAllChannels: getTypeChannels } = await import('./utils/channel-cache.js');
+      const { channels: allChannels } = await getTypeChannels(env);
 
       // （）
       const typeCounts = {};
@@ -1200,19 +1164,10 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         return staticResponse;
       }
 
-      //  - 
+      //  - 复用内存缓存，不再全表扫 D1
       const { generateChannelPage } = await import('./pages/channel-page.js');
-      const db = await initDB(env);
-
-      // （ slug ）
-      const allChannelsResult = await db.prepare(`
-        SELECT c.id, c.channel_name, c.group_title, c.logo, c.play_url, c.headers, c.channel_hash, c.is_active, c.source_id, c.description, s.name as source_name
-        FROM channels c
-        INNER JOIN sources s ON c.source_id = s.id
-        WHERE c.is_active = 1 AND s.is_active = 1
-      `).all();
-
-      const allChannels = allChannelsResult.results || [];
+      const { getAllChannels: getChChannels } = await import('./utils/channel-cache.js');
+      const { channels: allChannels } = await getChChannels(env);
 
       // Slugify （）
       const slugify = (str) => {
@@ -1394,14 +1349,26 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         });
       }
       try {
-        // 先刷新 KV 频道缓存
-        const cacheResult = await cacheChannelsToKV(env);
-        // 再生成静态页面
-        await refreshStaticPages(env);
+        // refreshCache=1 才写 KV 频道缓存（默认不写，避免配额爆掉）
+        // 分批调用时，第一批设 refreshCache=1，后续批次都设 refreshCache=0
+        const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+        const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+        const includeHomepage = url.searchParams.get('includeHomepage') !== '0';
+        const refreshCache = url.searchParams.get('refreshCache') === '1';
+
+        let cacheResult = null;
+        if (refreshCache) {
+          cacheResult = await cacheChannelsToKV(env);
+        }
+        const staticResult = await refreshStaticPages(env, {
+          offset, limit, includeHomepage,
+          forceAll: url.searchParams.get('forceAll') === '1'
+        });
         return new Response(JSON.stringify({
           success: true,
           message: 'Static pages regenerated',
-          cache: cacheResult
+          cache: cacheResult,
+          static: staticResult
         }), {
           headers: { 'Content-Type': 'application/json; charset=utf-8' }
         });
@@ -1417,6 +1384,35 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       } else if (path === '/api/channels/m3u') {
         // M3U  API（， token）
         return await handleChannelsM3U(request, env, ctx);
+    } else if (path === '/api/admin/r2-status') {
+      // 调试：直接尝试 R2 操作
+      const hasR2 = !!env.R2_BUCKET;
+      const result = { hasR2 };
+      if (hasR2) {
+        try {
+          await env.R2_BUCKET.put('meta/_health.txt', 'ok');
+          const obj = await env.R2_BUCKET.get('meta/_health.txt');
+          result.writeTest = obj ? 'OK' : 'no_obj';
+          // 列出所有 meta 文件 + 分类文件
+          const allList = await env.R2_BUCKET.list({ prefix: 'meta/' });
+          const catList = await env.R2_BUCKET.list({ prefix: 'category/' });
+          result.metaFiles = allList.objects.map(o => o.key);
+          result.categoryCount = catList.objects.length;
+          result.categorySample = catList.objects.slice(0, 5).map(o => o.key);
+          // 读取 category_counts.json
+          const counts = await env.R2_BUCKET.get('meta/category_counts.json');
+          if (counts) {
+            const c = await counts.json();
+            result.categoryCountsSample = Object.entries(c).slice(0, 5);
+            result.totalCountEntries = Object.keys(c).length;
+          }
+        } catch (e) {
+          result.writeError = e.message;
+        }
+      }
+      return new Response(JSON.stringify(result), {
+        headers: { 'Content-Type': 'application/json' }
+      });
     } else if (path.startsWith('/api/play/')) {
       // API（）
       return await handlePublicPlay(request, env, ctx);
