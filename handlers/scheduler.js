@@ -5,6 +5,8 @@ import { saveStaticFile } from '../utils/static-storage.js';
 import { generateTokenAndAddresses } from '../utils/token-manager.js';
 import { classifyEmptyTypeChannels } from './ai-classify.js';
 import { sendEmail, generateVipExpiringHtml, generateVipExpiredHtml, generateReEngagementHtml } from '../utils/email.js';
+import { PAGE_HEADER } from '../components/page-header.js';
+import { PAGE_FOOTER } from '../components/page-footer.js';
 
 // KV 分布式锁配置
 const LOCK_TTL_SECONDS = 7200; // 锁自动过期时间 2小时
@@ -768,9 +770,10 @@ async function cleanupExpiredFreeSubscriptions(db) {
 }
 
 // 刷新静态页面（在缓存刷新后执行，确保 R2/KV 有最新内容）
-async function refreshStaticPages(env) {
+async function refreshStaticPages(env, options = {}) {
+  const { offset = 0, limit = 20, includeHomepage = true, forceAll = false } = options;
   try {
-    console.log('[Scheduler] Refreshing static pages...');
+    console.log(`[Scheduler] Refreshing static pages (offset=${offset}, limit=${limit})...`);
 
     const { getChannelsFromCache, getAllGroups } = await import('../utils/channel-cache.js');
     const { slugify: slugifyUtils } = await import('../utils/search-utils.js');
@@ -779,7 +782,7 @@ async function refreshStaticPages(env) {
     const cacheData = await getChannelsFromCache(env);
     if (!cacheData || !cacheData.channels || cacheData.channels.length === 0) {
       console.warn('[Scheduler] No cached channels available for static page generation');
-      return;
+      return { success: false, error: 'No cached channels' };
     }
 
     const origin = env.APP_URL || 'https://iptv-search.com';
@@ -810,30 +813,57 @@ async function refreshStaticPages(env) {
     }
 
     // ── 1. Homepage ──────────────────────────────────────────────────────────
-    try {
+    if (includeHomepage) {
+      try {
       const { generateHomePage } = await import('../pages/home-page.js');
       const regionCats = Object.keys(grouped).sort((a, b) => grouped[b].length - grouped[a].length).map(g => ({
         name: g, slug: slugify(g), count: grouped[g].length
       }));
       const html = generateHomePage({
         origin,
-        regionCategories: regionCats.slice(0, 50),
+        header: PAGE_HEADER,
+        footer: PAGE_FOOTER,
+        regionCategories: regionCats,
         typeCategories: [],
         totalChannels: channels.length,
         totalGroups: groups.length
       });
       await saveStaticFile(env, '/index.html', html);
       console.log(`[StaticPages] Homepage: ${channels.length} channels`);
-    } catch (e) {
-      console.error('[StaticPages] Homepage failed:', e.message);
+      } catch (e) {
+        console.error('[StaticPages] Homepage failed:', e.message);
+      }
     }
 
     // ── 2. Top 20 category pages ────────────────────────────────────────────
-    const topGroups = Object.keys(grouped)
-      .sort((a, b) => grouped[b].length - grouped[a].length)
-      .slice(0, 20);
+    const allGroupsSorted = Object.keys(grouped)
+      .sort((a, b) => grouped[b].length - grouped[a].length);
+    const totalGroups = allGroupsSorted.length;
 
-    for (const group of topGroups) {
+    // 读旧的 category_counts（脏标记）
+    let prevCounts = {};
+    if (!forceAll) {
+      if (env.R2_BUCKET) {
+        try {
+          const obj = await env.R2_BUCKET.get('meta/category_counts.json');
+          if (obj) prevCounts = await obj.json();
+        } catch (e) { /* 首次运行 */ }
+      } else if (env.KV) {
+        try {
+          prevCounts = (await env.KV.get('meta:category_counts', { type: 'json' })) || {};
+        } catch (e) { /* 读失败 */ }
+      }
+    }
+
+    // 计算新 counts，挑出变化的（前 limit 个）
+    const newCounts = {};
+    for (const group of allGroupsSorted) newCounts[group] = grouped[group].length;
+    const changedGroups = allGroupsSorted
+      .filter(g => prevCounts[g] !== newCounts[g])
+      .slice(offset, offset + limit);
+
+    let catCount = 0;
+    for (const group of changedGroups) {
       try {
         const catChannels = grouped[group];
         const { generateCategoryPage } = await import('../pages/category-page.js');
@@ -847,9 +877,23 @@ async function refreshStaticPages(env) {
           totalChannels: catChannels.length
         });
         await saveStaticFile(env, `/category/${slugify(group)}.html`, html);
+        catCount++;
       } catch (e) {
         console.error(`[StaticPages] Category ${group} failed:`, e.message);
       }
+    }
+
+    // 保存新 counts（1 次写）
+    try {
+      if (env.R2_BUCKET) {
+        await env.R2_BUCKET.put('meta/category_counts.json', JSON.stringify(newCounts), {
+          httpMetadata: { contentType: 'application/json' }
+        });
+      } else if (env.KV) {
+        await env.KV.put('meta:category_counts', JSON.stringify(newCounts));
+      }
+    } catch (e) {
+      console.warn('[StaticPages] Failed to save category_counts:', e.message);
     }
 
     // ── 3. Top 100 channel pages (by group size) ────────────────────────────
@@ -883,9 +927,20 @@ async function refreshStaticPages(env) {
       }
     }
 
-    console.log(`[StaticPages] Done: ${channelCount} channel pages + ${topGroups.length} category pages`);
+    console.log(`[StaticPages] Done: ${channelCount} channel pages + ${catCount}/${totalGroups} category pages (batch ${offset}+${limit})`);
+    return {
+      success: true,
+      channels: channelCount,
+      categories: catCount,
+      totalCategories: totalGroups,
+      offset,
+      limit,
+      hasMore: offset + limit < totalGroups,
+      nextOffset: offset + limit < totalGroups ? offset + limit : null
+    };
   } catch (error) {
     console.error('[Scheduler] refreshStaticPages failed:', error);
+    return { success: false, error: error.message };
   }
 }
 
