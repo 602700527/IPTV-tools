@@ -306,8 +306,10 @@ export function generateSearchPage(options = {}) {
     
     // Initialize theme icons on page load
     (function() {
+      const saved = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const isDark = saved ? saved === 'dark' : prefersDark;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
     })();
     
     
