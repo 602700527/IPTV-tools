@@ -900,6 +900,12 @@ function switchTab(tab) {
 
 
 
+
+  // URL 参数 ?tab=register 直接打开注册表单
+  if (new URLSearchParams(window.location.search).get('tab') === 'register') {
+    switchTab('register');
+  }
+
 function showToast(message, type) {
   type = type || 'info';
   const container = document.getElementById('toastContainer');
@@ -1395,6 +1401,9 @@ async function handleLogin(event) {
 
 
       localStorage.setItem('auth_token', data.token);
+
+      // 首次登录标记（home-page 检测到后会展示欢迎弹窗）
+      sessionStorage.setItem('show_welcome_after_redirect', '1');
 
 
 

@@ -13,6 +13,20 @@ function escapeHtml(text) {
     .replace(/'/g, '&#039;');
 }
 
+// 每周变化一次的"本周新增/减少"数字（同周所有人看到同一数字）
+// 70% 概率为正（新增），30% 概率为负（清理/失效）
+function getWeeklyAddedText() {
+  const weekNumber = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+  const seed = (weekNumber * 9301 + 49297) % 233280;
+  const magnitude = Math.floor(50 + (seed / 233280) * 150); // 50-200
+  const signSeed = (weekNumber * 6151 + 104729) % 100;
+  const isPositive = signSeed < 70;
+  return {
+    text: (isPositive ? '▲' : '▼') + ' ' + (isPositive ? '+' : '-') + magnitude + ' this week',
+    isPositive
+  };
+}
+
 export function generateHomePage(options = {}) {
   const {
     origin = 'https://iptv-search.com',
@@ -23,6 +37,9 @@ export function generateHomePage(options = {}) {
     totalChannels = 0,
     totalGroups = 0
   } = options;
+
+  // 一次性计算本周增减值（避免模板里多次调用结果不一致）
+  const weeklyAdded = getWeeklyAddedText();
 
   // 如果传入了header和footer，直接使用；否则使用内嵌的
   const pageHeader = header || `<header class="header">...</header>`;
@@ -372,6 +389,161 @@ export function generateHomePage(options = {}) {
     .hero-cta-meta strong { color: #22c55e; font-weight: 600; }
 
     /* ============================================================
+       Welcome modal (first login celebration)
+       ============================================================ */
+    .welcome-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 30%, rgba(229, 9, 20, 0.18), rgba(0, 0, 0, 0.85));
+      backdrop-filter: blur(12px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: welcomeFadeIn 0.4s ease-out;
+      padding: 1rem;
+    }
+    @keyframes welcomeFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes welcomePop { 0% { transform: scale(0.7) translateY(20px); opacity: 0; } 60% { transform: scale(1.05) translateY(-4px); opacity: 1; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+    @keyframes welcomeConfetti { 0% { transform: translateY(-20px) rotate(0deg); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+    @keyframes welcomeShimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+
+    .welcome-card {
+      position: relative;
+      max-width: 520px;
+      width: 100%;
+      background: linear-gradient(165deg, #1a0508 0%, #0a0a0a 60%, #14060a 100%);
+      border: 1px solid rgba(229, 9, 20, 0.4);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 40px rgba(229, 9, 20, 0.2);
+      padding: 2.5rem 2rem 2rem;
+      text-align: center;
+      animation: welcomePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      overflow: hidden;
+    }
+    .welcome-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #e50914, transparent);
+      animation: welcomeShimmer 2s linear infinite;
+      background-size: 200% 100%;
+    }
+    .welcome-confetti {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .welcome-confetti span {
+      position: absolute;
+      top: -10%;
+      font-size: 1.4rem;
+      animation: welcomeConfetti 3s linear infinite;
+    }
+    .welcome-emoji {
+      font-size: 3.6rem;
+      margin-bottom: 0.4rem;
+      display: inline-block;
+      animation: welcomePop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+    }
+    .welcome-title {
+      font-family: var(--mono);
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 0.4rem 0 0.6rem;
+      background: linear-gradient(90deg, #fff 0%, #e50914 50%, #fff 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: welcomeShimmer 3s linear infinite;
+    }
+    .welcome-subtitle {
+      color: rgba(255, 255, 255, 0.7);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
+      margin: 0 0 1.5rem;
+    }
+    .welcome-benefits {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.6rem;
+      margin: 1.2rem 0 1.6rem;
+    }
+    .welcome-benefit {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 0.8rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+    .welcome-benefit:hover {
+      background: rgba(229, 9, 20, 0.08);
+      border-color: rgba(229, 9, 20, 0.3);
+      color: var(--text-primary);
+    }
+    .welcome-benefit-icon {
+      font-size: 1.2rem;
+    }
+    .welcome-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.8rem 2rem;
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: none;
+      border-radius: 0;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(229, 9, 20, 0.4);
+    }
+    .welcome-cta:hover {
+      background: #ff1a1a;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 30px rgba(229, 9, 20, 0.6);
+    }
+    .welcome-footer {
+      margin-top: 1.2rem;
+      color: rgba(255, 255, 255, 0.45);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.03em;
+    }
+    .welcome-dismiss {
+      position: absolute;
+      top: 0.8rem;
+      right: 0.8rem;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.4rem;
+      line-height: 1;
+    }
+    .welcome-dismiss:hover { color: #fff; }
+
+    @media (max-width: 540px) {
+      .welcome-card { padding: 2rem 1.4rem 1.6rem; }
+      .welcome-title { font-size: 1.3rem; }
+      .welcome-benefits { grid-template-columns: 1fr; }
+    }
+
+    /* ============================================================
        Section common
        ============================================================ */
     .section {
@@ -709,7 +881,7 @@ export function generateHomePage(options = {}) {
         <div class="stat-card">
           <div class="stat-label">Total Channels</div>
           <div class="stat-value" id="totalChannels">${totalChannels >= 10000 ? '10,000+' : (totalChannels || 8).toLocaleString()}<span class="unit">+</span></div>
-          <div class="stat-change">▲ +120 this week</div>
+          <div class="stat-change ${weeklyAdded.isPositive ? '' : 'negative'}">${weeklyAdded.text}</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Countries</div>
@@ -727,10 +899,9 @@ export function generateHomePage(options = {}) {
           <div class="stat-change neutral">● no ads · daily refresh</div>
         </div>
       </div>
-      <div class="hero-cta-row reveal stagger-4">
-        <a href="/subscription" class="hero-cta">GET_VIP_ACCESS &rarr;</a>
-        <span class="hero-cta-meta">from &yen;20/mo &middot; yearly plan <strong>saves 40%</strong></span>
-        <a href="#popular-topics" class="hero-cta-secondary">$ browse free IPTV channels</a>
+      <div class="hero-cta-row reveal stagger-4" id="heroCtaRow" style="display:none">
+        <a href="/login?tab=register" class="hero-cta">Register Free - Get VIP Access →</a>
+        <span class="hero-cta-meta">No credit card · instant access · <strong>100% free trial</strong></span>
       </div>
     </div>
   </section>
@@ -1127,7 +1298,64 @@ export function generateHomePage(options = {}) {
         translate.execute();
       } else { setTimeout(initTranslate, 100); }
     }
-    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initTranslate); } else { initTranslate(); }</script>
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initTranslate); } else { initTranslate(); }
+
+    // ============================================================
+    // 客户端逻辑：CTA banner 只对未登录用户显示 + 首次登录欢迎弹窗
+    // ============================================================
+    (function() {
+      // 1. CTA banner：未登录用户才显示
+      var ctaRow = document.getElementById('heroCtaRow');
+      if (ctaRow && !localStorage.getItem('user_token')) {
+        ctaRow.style.display = '';
+      }
+
+      // 2. 首次登录欢迎弹窗（仅第一次登录后展示一次）
+      var pendingWelcome = sessionStorage.getItem('show_welcome_after_redirect');
+      var welcomeSeen = localStorage.getItem('welcome_seen');
+      if (pendingWelcome && !welcomeSeen) {
+        sessionStorage.removeItem('show_welcome_after_redirect');
+        localStorage.setItem('welcome_seen', '1');
+
+        var emojis = ['🎉','🎊','✨','⭐','🌟','💫','🎈','🎆','🎇','💎'];
+        var confettiHtml = '';
+        for (var i = 0; i < 24; i++) {
+          confettiHtml += '<span style="' + 'left:' + Math.random()*100 + '%;animation-delay:' + Math.random()*2 + 's;animation-duration:' + (2 + Math.random()*2) + 's;">' + emojis[i % emojis.length] + '</span>';
+        }
+
+        var overlay = document.createElement('div');
+        overlay.className = 'welcome-overlay';
+        overlay.id = 'welcomeOverlay';
+        overlay.innerHTML =
+          '<div class="welcome-card">' +
+            '<div class="welcome-confetti">' + confettiHtml + '</div>' +
+            '<button class="welcome-dismiss" onclick="document.getElementById(\'welcomeOverlay\').remove()" aria-label="Close">×</button>' +
+            '<div class="welcome-emoji">🎉</div>' +
+            '<h2 class="welcome-title">Welcome to the VIP Family!</h2>' +
+            '<p class="welcome-subtitle">Your free VIP access is now active — enjoy the show ✨</p>' +
+            '<div class="welcome-benefits">' +
+              '<div class="welcome-benefit"><span class="welcome-benefit-icon">📺</span><span>8,700+ Live Channels</span></div>' +
+              '<div class="welcome-benefit"><span class="welcome-benefit-icon">🚫</span><span>Zero Ads, Pure Stream</span></div>' +
+              '<div class="welcome-benefit"><span class="welcome-benefit-icon">🎬</span><span>Up to 4K Ultra HD</span></div>' +
+              '<div class="welcome-benefit"><span class="welcome-benefit-icon">⚡</span><span>Priority 24/7 Support</span></div>' +
+            '</div>' +
+            '<button class="welcome-cta" onclick="window.location.href=\'/search\'">Start Watching Now 🚀</button>' +
+            '<p class="welcome-footer">Enjoy every your premium moment · IPTV Search</p>' +
+          '</div>';
+
+        // 8 秒后自动关闭
+        setTimeout(function() {
+          if (document.getElementById('welcomeOverlay')) overlay.remove();
+        }, 8000);
+        // 点击背景关闭
+        overlay.addEventListener('click', function(e) {
+          if (e.target === overlay) overlay.remove();
+        });
+
+        document.body.appendChild(overlay);
+      }
+    })();
+  </script>
 </body>
 </html>`;
 }
