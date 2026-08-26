@@ -81,6 +81,10 @@ export function generateChannelPage(options = {}) {
     '<button class="btn btn-secondary" onclick="copyPlayLink()">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
       'Copy Link' +
+    '</button>' +
+    '<button class="btn btn-secondary" onclick="openInVLC()">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polygon points="5 3 19 12 5 21 5 3"/></svg>' +
+      'Play in VLC' +
     '</button>';
 
   // Build info card rows
@@ -698,6 +702,39 @@ export function generateChannelPage(options = {}) {
       } catch (error) {
         console.error('copyPlayLink error:', error);
         showToast('Network error - please check your connection');
+      } finally {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+      }
+    }
+
+    // Get proxy URL and copy to clipboard (for VLC or any player)
+    async function openInVLC() {
+      const btn = document.querySelector('[onclick="openInVLC()"]');
+      const originalContent = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span>';
+      btn.disabled = true;
+
+      try {
+        const fingerprint = await getFingerprint();
+        const token = localStorage.getItem('auth_token');
+        const headers = { 'X-Fingerprint': fingerprint };
+        if (token) {
+          headers['Authorization'] = 'Bearer ' + token;
+        }
+
+        const response = await fetch('/api/play/link?hash=' + encodeURIComponent(CURRENT_CHANNEL_HASH), { headers });
+        const data = await response.json();
+
+        if (data.success && data.play_link) {
+          await copyToClipboardWithFallback(data.play_link);
+          showToast('URL copied! Open VLC → Media → Open Network Stream, then paste.');
+        } else {
+          showToast(data.error || 'Channel unavailable');
+        }
+      } catch (error) {
+        console.error('openInVLC error:', error);
+        showToast('Network error - please try again');
       } finally {
         btn.innerHTML = originalContent;
         btn.disabled = false;

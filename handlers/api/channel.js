@@ -8,6 +8,7 @@ import { getChannelByHash } from '../../utils/channel-cache.js';
 export async function handleApiChannel(request, env) {
   try {
     const url = new URL(request.url);
+    const origin = url.origin;
     const pathParts = url.pathname.split('/');
     const hash = pathParts[pathParts.length - 1] || '';
 
@@ -34,7 +35,7 @@ export async function handleApiChannel(request, env) {
       });
     }
 
-    const channelUrl = `${env.APP_URL || 'https://iptv-search.com'}/channel/${hash}`;
+    const channelUrl = `${origin}/channel/${hash}`;
 
     const response = {
       '@context': 'https://schema.org',
@@ -60,7 +61,8 @@ export async function handleApiChannel(request, env) {
     return new Response(JSON.stringify(response), {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=3600'
+        'Cache-Control': 'public, max-age=3600',
+        'Access-Control-Allow-Origin': '*'
       }
     });
   } catch (error) {
@@ -70,7 +72,7 @@ export async function handleApiChannel(request, env) {
       error: 'Failed to fetch channel data'
     }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
   }
 }

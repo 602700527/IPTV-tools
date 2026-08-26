@@ -75,6 +75,7 @@ async function checkUserVipStatus(token) {
 export async function handleApiSearch(request, env, ctx) {
   try {
     const url = new URL(request.url);
+    const origin = url.origin;
     const query = (url.searchParams.get('q') || '').trim();
 
     if (!query) {
@@ -187,7 +188,7 @@ export async function handleApiSearch(request, env, ctx) {
       '@type': 'ListItem',
       'position': index + 1,
       'name': ch.channel_name,
-      'url': `${env.APP_URL || 'https://iptv-search.com'}/channel/${slugify(ch.channel_name)}`,
+      'url': `${origin}/channel/${slugify(ch.channel_name)}`,
       'image': ch.logo || null,
       'description': ch.group_title || 'Other'
     }));
@@ -235,7 +236,8 @@ export async function handleApiSearch(request, env, ctx) {
     return new Response(JSON.stringify(response), {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=60'
+        'Cache-Control': 'public, max-age=60',
+        'Access-Control-Allow-Origin': '*'
       }
     });
   } catch (error) {
@@ -245,7 +247,7 @@ export async function handleApiSearch(request, env, ctx) {
       error: 'Search failed'
     }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
   }
 }

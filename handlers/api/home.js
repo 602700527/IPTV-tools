@@ -81,6 +81,7 @@ const typeColors = {
  */
 export async function handleApiHome(request, env) {
   try {
+    const origin = new URL(request.url).origin;
     // Get all channels and groups from KV cache
     const [channelsResult, groupsResult] = await Promise.all([
       getAllChannels(env),
@@ -142,7 +143,7 @@ export async function handleApiHome(request, env) {
       '@type': 'WebSite',
       name: 'IPTV Search',
       description: 'Free IPTV Channel Directory and Search Engine',
-      url: env.APP_URL || 'https://iptv-search.com',
+      url: origin,
       data: {
         totalChannels: channels.length,
         totalGroups: groups.length,
@@ -155,7 +156,8 @@ export async function handleApiHome(request, env) {
     return new Response(JSON.stringify(response), {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=300'
+        'Cache-Control': 'public, max-age=300',
+        'Access-Control-Allow-Origin': '*'
       }
     });
   } catch (error) {
@@ -166,7 +168,8 @@ export async function handleApiHome(request, env) {
     }), {
       status: 500,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
       }
     });
   }
