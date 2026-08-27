@@ -8857,7 +8857,7 @@ export function generateCategoryPage(options = {}) {
 
 
 
-        const response = await fetch('/api/channels/m3u', {
+        const response = await fetch(origin + '/api/channels/m3u', {
 
 
 

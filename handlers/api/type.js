@@ -44,7 +44,6 @@ function slugify(str) {
 export async function handleApiType(request, env) {
   try {
     const url = new URL(request.url);
-    const origin = url.origin;
     const pathParts = url.pathname.split('/');
     const slug = decodeURIComponent(pathParts[pathParts.length - 1] || '');
 
@@ -83,7 +82,7 @@ export async function handleApiType(request, env) {
       '@type': 'ListItem',
       'position': index + 1,
       'name': ch.channel_name,
-      'url': `${origin}/channel/${slugify(ch.channel_name)}`,
+      'url': `${env.APP_URL || 'https://iptv-search.com'}/channel/${slugify(ch.channel_name)}`,
       'image': ch.logo || null,
       'description': ch.type || 'Other'
     }));
@@ -112,8 +111,7 @@ export async function handleApiType(request, env) {
     return new Response(JSON.stringify(response), {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=300',
-        'Access-Control-Allow-Origin': '*'
+        'Cache-Control': 'public, max-age=300'
       }
     });
   } catch (error) {
@@ -123,7 +121,7 @@ export async function handleApiType(request, env) {
       error: 'Failed to fetch type data'
     }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 }

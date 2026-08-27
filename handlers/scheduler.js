@@ -915,7 +915,6 @@ async function refreshStaticPages(env, options = {}) {
               group: ch.group_title,
               description: ch.description || '',
               logo: ch.logo,
-              playUrl: ch.play_url || '',
               sourceName: ch.source_name || ''
             },
             relatedChannels: []

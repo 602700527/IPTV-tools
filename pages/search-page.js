@@ -333,7 +333,7 @@ export function generateSearchPage(options = {}) {
         const userToken = localStorage.getItem('user_token');
         const headers = userToken ? { 'Authorization': 'Bearer ' + userToken } : {};
         
-        const response = await fetch('/api/search?q=' + encodeURIComponent(query), { headers });
+        const response = await fetch(origin + '/api/search?q=' + encodeURIComponent(query), { headers });
         const data = await response.json();
         const results = data.data?.results || [];
         const totalResults = data.data?.totalResults || 0;

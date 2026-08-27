@@ -1139,11 +1139,12 @@ export function generateHomePage(options = {}) {
     // Load home data from API
     async function loadHomeData() {
       try {
-        const response = await fetch('/api/home');
+        const origin = '${origin}';
+        const response = await fetch(origin + '/api/home');
         const data = await response.json();
 
         // Attach origin for URL generation
-        data._origin = window.location.origin;
+        data._origin = origin;
         homeData = data;
 
         // Update stats
