@@ -865,6 +865,61 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           'Cache-Control': 'public, max-age=86400'
         }
       });
+    } else if (path === '/robots.txt') {
+      const robotsContent = `User-agent: *
+Allow: /
+
+Sitemap: https://iptv-search.com/sitemap.xml
+
+Crawl-delay: 1
+
+Disallow: /admin/
+Disallow: /api/
+Disallow: /account/
+Disallow: /subscription/
+Disallow: /favorites/
+Disallow: /*?utm_
+Disallow: /*?fbclid=`;
+      return new Response(robotsContent, {
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Cache-Control': 'public, max-age=3600'
+        }
+      });
+    } else if (path === '/sitemap.xml') {
+      const baseUrl = 'https://iptv-search.com';
+      const today = new Date().toISOString().split('T')[0];
+      let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n';
+      sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+      
+      const pages = [
+        { loc: '/', p: '1.0', c: 'daily' },
+        { loc: '/tutorial', p: '0.8', c: 'weekly' },
+        { loc: '/usa-iptv', p: '0.8', c: 'weekly' },
+        { loc: '/uk-iptv-plans', p: '0.8', c: 'weekly' },
+        { loc: '/asia-iptv', p: '0.8', c: 'weekly' },
+        { loc: '/europe-iptv', p: '0.7', c: 'weekly' },
+        { loc: '/middle-east-iptv', p: '0.7', c: 'weekly' },
+        { loc: '/americas-iptv', p: '0.7', c: 'weekly' },
+        { loc: '/oceania-iptv', p: '0.7', c: 'weekly' },
+        { loc: '/android-iptv-app', p: '0.7', c: 'monthly' },
+        { loc: '/free-iptv-app-review', p: '0.7', c: 'monthly' },
+        { loc: '/carplay-aptv', p: '0.7', c: 'monthly' },
+        { loc: '/privacy-policy', p: '0.5', c: 'yearly' },
+        { loc: '/terms', p: '0.5', c: 'yearly' }
+      ];
+      
+      pages.forEach(pg => {
+        sitemap += `  <url>\n    <loc>${baseUrl}${pg.loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${pg.c}</changefreq>\n    <priority>${pg.p}</priority>\n  </url>\n`;
+      });
+      
+      sitemap += '</urlset>';
+      return new Response(sitemap, {
+        headers: {
+          'Content-Type': 'application/xml',
+          'Cache-Control': 'public, max-age=3600'
+        }
+      });
     }
 
     // 
