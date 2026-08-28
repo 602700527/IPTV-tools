@@ -36,6 +36,20 @@
         console.warn("[StreamPlugin] Relay failed (extension context lost?):", err && err.message);
         window.dispatchEvent(new CustomEvent("IPTV_SEARCH_TEST_PLAY_FAIL", {detail: {url: url, error: err && err.message}}));
       });
+
+      // 1.5 秒后读 storage 看 background 到底做了什么（Edge service worker console
+      // 经常抓不到/打不开，从页面端用 storage 跨上下文查 state）
+      setTimeout(function() {
+        chrome.storage.local.get("lastDebugEvent", function(items) {
+          var ev = items.lastDebugEvent;
+          if (!ev) {
+            console.warn("[StreamPlugin] Background state: <no events recorded> (background 未启动或没收到消息)");
+          } else {
+            var ago = Math.round((Date.now() - ev.ts) / 100) / 10;
+            console.log("[StreamPlugin] Background state (" + ago + "s ago):", ev.type, ev.url || ev.tabId || ev.error || "");
+          }
+        });
+      }, 1500);
     });
   }
 
