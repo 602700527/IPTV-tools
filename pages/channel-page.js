@@ -716,31 +716,20 @@ export function generateChannelPage(options = {}) {
       const originalContent = btn.innerHTML;
       btn.innerHTML = "<span class=\"spinner\"></span>";
       btn.disabled = true;
-      
+
       try {
-        const fingerprint = await getFingerprint();
-        const token = localStorage.getItem("auth_token");
-        const headers = { "X-Fingerprint": fingerprint };
-        if (token) headers["Authorization"] = "Bearer " + token;
-        
-        const response = await fetch('${origin}/api/play/link?hash=' + encodeURIComponent(CURRENT_CHANNEL_HASH), { headers });
-        const data = await response.json();
-        
-        if (!data.success || !data.play_link) {
-          showToast(data.error || "Channel unavailable");
-          return;
-        }
-        
-        const playLink = data.play_link;
-        console.log("[TestPlay] Play link:", playLink);
-        
+        // 使用公共测试流地址（Mux 提供的 HLS 测试流），不暴露真实频道播放地址
+        // 目的：演示 chrome-stream-plugin 播放功能，不消耗真实 IPTV 配额
+        const testStreamUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+        console.log("[TestPlay] Using test stream:", testStreamUrl);
+
         let extId = null;
         try { extId = chrome.runtime.id; } catch(e) {}
-        
-        const playerUrl = "chrome-extension://" + (extId || "stream-player") + "/pages/player.html?url=" + encodeURIComponent(playLink);
-        
+
+        const playerUrl = "chrome-extension://" + (extId || "stream-player") + "/pages/player.html?url=" + encodeURIComponent(testStreamUrl);
+
         if (extId) {
-          chrome.runtime.sendMessage({ type: "PLAY_CLIPBOARD_URL", url: playLink }, function(resp) {
+          chrome.runtime.sendMessage({ type: "PLAY_CLIPBOARD_URL", url: testStreamUrl }, function(resp) {
             if (chrome.runtime.lastError) {
               window.open(playerUrl, "_blank");
             }
@@ -748,8 +737,8 @@ export function generateChannelPage(options = {}) {
         } else {
           window.open(playerUrl, "_blank");
         }
-        
-        showToast("Opening player...");
+
+        showToast("Opening player (test stream)...");
       } catch (error) {
         console.error("testPlayChannel error:", error);
         showToast("Network error");
