@@ -863,6 +863,27 @@ async function refreshStaticPages(env, options = {}) {
       .slice(offset, offset + limit);
 
     let catCount = 0;
+    // 构造 sidebar categories（与 worker.js 路由 /category/{slug} 动态生成路径一致）
+    const categorySVGs = {
+      'cctv': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 19h10M12 19v-3"/></svg>',
+      'sports': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2c5 0 9 4 9 9s-4 9-9 9-9-4-9-9 4-9 9-9z"/></svg>',
+      'news': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2zm0 0a2 2 0 01-2-2v-9c0-1.1.9-2 2-2h2"/></svg>',
+      'movie': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2.5"/><path d="M2 7l5 3-5 3V7zM12 4v13M22 7l-5 3 5 3V7z"/></svg>',
+      'entertainment': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20M10 4v4M14 4v4"/></svg>',
+      'music': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+      'kids': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>',
+      'other': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 19h10M12 19v-3"/></svg>'
+    };
+    const sidebarCategories = allGroupsSorted.map(g => {
+      const catSlug = slugify(g);
+      return {
+        name: g,
+        slug: catSlug,
+        count: grouped[g].length,
+        icon: categorySVGs[catSlug.toLowerCase()] || categorySVGs['other']
+      };
+    });
+
     for (const group of changedGroups) {
       try {
         const catChannels = grouped[group];
@@ -874,6 +895,7 @@ async function refreshStaticPages(env, options = {}) {
           channels: catChannels.map(ch => ({
             name: ch.channel_name, hash: ch.channel_hash, logo: ch.logo, group: ch.group_title
           })),
+          categories: sidebarCategories,
           totalChannels: catChannels.length
         });
         await saveStaticFile(env, `/category/${slugify(group)}.html`, html);

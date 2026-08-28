@@ -20,6 +20,33 @@ function generateTrialCode() {
 }
 
 /**
+ * 为新用户创建 7 天 VIP 试用（codes + user_orders）
+ * 注册和 Google OAuth 两条新用户路径都调这个。
+ * 失败仅记录日志——试用失败不应阻塞登录/注册主流程。
+ * @returns {{trialCode:string, trialExpiredAt:string} | null}
+ */
+export async function createNewUserTrial(userId, db) {
+  const trialCode = generateTrialCode();
+  const now = new Date();
+  const trialExpiredAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  try {
+    await db.prepare(`
+      INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, remark)
+      VALUES (?, 'active', ?, ?, ?, ?, ?)
+    `).bind(trialCode, 7, now.toISOString(), trialExpiredAt.toISOString(), 3, 'New user 7-day VIP trial').run();
+    await db.prepare(`
+      INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, status)
+      VALUES (?, ?, ?, ?, ?, 'completed')
+    `).bind(userId, 'TRIAL_' + Date.now(), trialCode, 7, 0).run();
+    console.log('[Trial] 7-day VIP created for user:', userId, 'code:', trialCode);
+    return { trialCode, trialExpiredAt: trialExpiredAt.toISOString() };
+  } catch (e) {
+    console.error('[Trial] failed for user', userId, ':', e.message);
+    return null;
+  }
+}
+
+/**
  * 密码哈希函数（使用 Web Crypto API）
  */
 async function hashPassword(password) {
@@ -133,26 +160,7 @@ export async function handleRegister(request, env, ctx) {
 
     // 自动赠送7天VIP体验订单
     const userId = result.meta.last_row_id;
-    const trialCode = generateTrialCode();
-    const trialExpiredAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    
-    try {
-      // 插入codes表（active状态，已设置过期时间）
-      await db.prepare(`
-        INSERT INTO codes (code, status, duration_days, activated_at, expired_at, max_ips, remark)
-        VALUES (?, 'active', ?, ?, ?, ?, ?)
-      `).bind(trialCode, 7, now.toISOString(), trialExpiredAt.toISOString(), 3, 'New user 7-day VIP trial').run();
-      
-      // 插入user_orders表
-      await db.prepare(`
-        INSERT INTO user_orders (user_id, order_id, code, duration_days, amount, status)
-        VALUES (?, ?, ?, ?, ?, 'completed')
-      `).bind(userId, 'TRIAL_' + Date.now(), trialCode, 7, 0).run();
-      
-      console.log('[Register] 7-day VIP trial created for user:', userId, 'code:', trialCode);
-    } catch (trialError) {
-      console.error('[Register] Failed to create trial order:', trialError.message);
-    }
+    const trial = await createNewUserTrial(userId, db);
 
     // 获取用户信息
     const user = await db.prepare('SELECT * FROM users WHERE id = ?').bind(userId).first();
@@ -161,8 +169,8 @@ export async function handleRegister(request, env, ctx) {
       success: true,
       message: '注册成功',
       token: token,
-      trialCode: trialCode,
-      trialExpiredAt: trialExpiredAt.toISOString(),
+      trialCode: trial ? trial.trialCode : null,
+      trialExpiredAt: trial ? trial.trialExpiredAt : null,
       user: {
         id: user.id,
         email: user.email,
@@ -1008,7 +1016,7 @@ export async function handleGoogleOAuthCallback(request, env, ctx) {
     
     if (!user) {
       const existingEmailUser = await db.prepare('SELECT * FROM users WHERE email = ?').bind(payload.email).first();
-      
+
       if (existingEmailUser) {
         await db.prepare('UPDATE users SET google_id = ?, avatar_url = ? WHERE id = ?').bind(payload.sub, payload.picture, existingEmailUser.id);
         user = await db.prepare('SELECT * FROM users WHERE id = ?').bind(existingEmailUser.id).first();
@@ -1018,8 +1026,11 @@ export async function handleGoogleOAuthCallback(request, env, ctx) {
           INSERT INTO users (email, password_hash, google_id, avatar_url, is_verified, created_at, updated_at)
           VALUES (?, '', ?, ?, 1, datetime('now'), datetime('now'))
         `).bind(payload.email, payload.sub, payload.picture).run();
-        
-        user = await db.prepare('SELECT * FROM users WHERE id = ?').bind(result.meta.last_row_id).first();
+
+        const newUserId = result.meta.last_row_id;
+        user = await db.prepare('SELECT * FROM users WHERE id = ?').bind(newUserId).first();
+        // 新 Google 用户同样赠 7 天 VIP 试用，与邮箱注册路径对齐
+        await createNewUserTrial(newUserId, db);
       }
     }
     

@@ -52,6 +52,7 @@ METADATA=$(cat <<'EOF'
     {"type": "ai", "name": "AI"},
     {"type": "plain_text", "name": "TIMEZONE", "text": "Asia/Shanghai"},
     {"type": "plain_text", "name": "FROM_EMAIL", "text": "support@iptv-search.com"},
+    {"type": "plain_text", "name": "GOOGLE_CLIENT_ID", "text": "1070165774283-e75bs3en213p81iaq3g5dmpt15e6te9l.apps.googleusercontent.com"},
     {"type": "plain_text", "name": "APP_URL", "text": "https://iptv-search.com"},
     {"type": "plain_text", "name": "XUNHUPAY_GATEWAY", "text": "https://api.xunhuweb.com/payment/do.html"},
     {"type": "plain_text", "name": "STATIC_SOURCE", "text": "local"},

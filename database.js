@@ -310,7 +310,7 @@ export async function createTables(env) {
     )
   `).run();
 
-  // Щ?topic_id ?codes ?
+  // 添加 topic_id 列到 codes 表
   try {
     await db.prepare('ALTER TABLE codes ADD COLUMN topic_id INTEGER REFERENCES topics(id)').run();
     console.log('Migrated codes table: added topic_id column');
@@ -320,7 +320,37 @@ export async function createTables(env) {
     }
   }
 
-  // ら
+  // 添加 sub_mode 列到 codes 表（migrations/001 — worker 启动自动跑）
+  // 修复：handleGetOrderHistory + handleSubRequest 的 SELECT 引用此列，缺失时 /api/auth/orders 和 /sub/{code} 全部 500
+  try {
+    await db.prepare('ALTER TABLE codes ADD COLUMN sub_mode TEXT DEFAULT NULL').run();
+    console.log('Migrated codes table: added sub_mode column');
+  } catch (e) {
+    if (!e.message.includes('duplicate column name')) {
+      console.error('Migration error:', e);
+    }
+  }
+
+  // 添加 last_fetched_at / last_fetch_ip 列到 codes 表（migrations/014）
+  // 修复：handleSubRequest UPDATE 引用此列，缺失时 IPTV 活跃信号追踪静默失败
+  try {
+    await db.prepare('ALTER TABLE codes ADD COLUMN last_fetched_at DATETIME').run();
+    console.log('Migrated codes table: added last_fetched_at column');
+  } catch (e) {
+    if (!e.message.includes('duplicate column name')) {
+      console.error('Migration error:', e);
+    }
+  }
+  try {
+    await db.prepare('ALTER TABLE codes ADD COLUMN last_fetch_ip TEXT').run();
+    console.log('Migrated codes table: added last_fetch_ip column');
+  } catch (e) {
+    if (!e.message.includes('duplicate column name')) {
+      console.error('Migration error:', e);
+    }
+  }
+
+  // 默认设置
   const defaultSettings = {
     'channel_daily_limit': '100',
     'ban_duration_days': '7',
