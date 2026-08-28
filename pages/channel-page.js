@@ -714,7 +714,7 @@ export function generateChannelPage(options = {}) {
     async function testPlayChannel() {
       const btn = document.querySelector(".btn-test-play");
       const originalContent = btn.innerHTML;
-      btn.innerHTML = "<span class=\"spinner\"></span>";
+      btn.innerHTML = '<span class="spinner"></span>';
       btn.disabled = true;
 
       try {
