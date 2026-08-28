@@ -21,8 +21,9 @@
   // 站内 test-play 按钮打的 postMessage，中转给 background 打开 player
   function relayTestPlay() {
     window.addEventListener("message", function(event) {
-      // 同源消息过滤：只接受 window 自己 post 的（content script 共用 window）
-      if (event.source !== window) return;
+      // 不能用 event.source !== window 过滤：content script 在 isolated world，
+      // 有自己的 window 对象，event.source 永远是 page window（不等于）。
+      // 改靠 data.type 严格验证（自定义消息类型，外部页面不会触发）。
       var data = event.data;
       if (!data || data.type !== "IPTV_SEARCH_TEST_PLAY") return;
       var url = data.url;
@@ -30,7 +31,6 @@
 
       console.log("[StreamPlugin] Relaying test-play to background:", url);
       chrome.runtime.sendMessage({type: "PLAY_CLIPBOARD_URL", url: url}).then(function() {
-        // 通知页面端成功，让它清理 toast（页面用 CustomEvent 而非 postMessage 回传）
         window.dispatchEvent(new CustomEvent("IPTV_SEARCH_TEST_PLAY_OK", {detail: {url: url}}));
       }).catch(function(err) {
         console.warn("[StreamPlugin] Relay failed (extension context lost?):", err && err.message);
