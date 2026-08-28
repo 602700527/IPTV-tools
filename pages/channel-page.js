@@ -723,20 +723,17 @@ export function generateChannelPage(options = {}) {
         const testStreamUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
         console.log("[TestPlay] Using test stream:", testStreamUrl);
 
-        let extId = null;
-        try { extId = chrome.runtime.id; } catch(e) {}
-
-        const playerUrl = "chrome-extension://" + (extId || "stream-player") + "/pages/player.html?url=" + encodeURIComponent(testStreamUrl);
-
-        if (extId) {
-          chrome.runtime.sendMessage({ type: "PLAY_CLIPBOARD_URL", url: testStreamUrl }, function(resp) {
-            if (chrome.runtime.lastError) {
-              window.open(playerUrl, "_blank");
-            }
-          });
-        } else {
-          window.open(playerUrl, "_blank");
-        }
+        // 页面拿不到 chrome.runtime.id（只扩展上下文才有），
+        // 不能直接 chrome.runtime.sendMessage 也不能构造有效的
+        // chrome-extension://<id>/... URL（ID 随机）。
+        // 正确路径：postMessage 给已注入的 content-iptv.js，
+        // 它再转发给 background 打开 player 标签。
+        // 未装扩展时 content-iptv.js 不存在，消息无人接收，安静失败。
+        window.postMessage({
+          type: "IPTV_SEARCH_TEST_PLAY",
+          url: testStreamUrl,
+          source: "channel-page"
+        }, "*");
 
         showToast("Opening player (test stream)...");
       } catch (error) {

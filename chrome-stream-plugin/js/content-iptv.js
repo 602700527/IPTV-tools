@@ -4,8 +4,9 @@
 // 设计原则：
 // - 不注入通用 content.js 的 test-play 按钮（站内已有专用按钮）
 // - 不抢剪贴板、不弹窗干扰用户
-// - 通过 chrome.runtime.sendMessage 复用 background 的 PLAY_CLIPBOARD_URL 路径
-//   （站内 testPlayChannel() 已经直接调用，无需 content 脚本中转）
+// - 监听页面 postMessage('IPTV_SEARCH_TEST_PLAY') → 转发给 background
+//   页面拿不到 chrome.runtime.id（只扩展上下文有），所以走 postMessage
+//   中转是唯一的跨上下文通信路径
 
 (function() {
   "use strict";
@@ -17,18 +18,39 @@
     console.log("[StreamPlugin] IPTV Search site detected — env:", env, location.pathname);
   }
 
+  // 站内 test-play 按钮打的 postMessage，中转给 background 打开 player
+  function relayTestPlay() {
+    window.addEventListener("message", function(event) {
+      // 同源消息过滤：只接受 window 自己 post 的（content script 共用 window）
+      if (event.source !== window) return;
+      var data = event.data;
+      if (!data || data.type !== "IPTV_SEARCH_TEST_PLAY") return;
+      var url = data.url;
+      if (!url || typeof url !== "string" || url.indexOf("http") !== 0) return;
+
+      console.log("[StreamPlugin] Relaying test-play to background:", url);
+      chrome.runtime.sendMessage({type: "PLAY_CLIPBOARD_URL", url: url}).then(function() {
+        // 通知页面端成功，让它清理 toast（页面用 CustomEvent 而非 postMessage 回传）
+        window.dispatchEvent(new CustomEvent("IPTV_SEARCH_TEST_PLAY_OK", {detail: {url: url}}));
+      }).catch(function(err) {
+        console.warn("[StreamPlugin] Relay failed (extension context lost?):", err && err.message);
+        window.dispatchEvent(new CustomEvent("IPTV_SEARCH_TEST_PLAY_FAIL", {detail: {url: url, error: err && err.message}}));
+      });
+    });
+  }
+
   // 检测站内 test-play 按钮是否就绪，注入一个视觉指示器（可选）
   function enhanceExistingButton() {
     var btn = document.querySelector(".btn-test-play");
     if (!btn) return;
 
-    // 给按钮加一个"扩展已连接"的视觉提示（不影响站内逻辑）
     btn.setAttribute("title", btn.title || "测试播放");
     btn.dataset.streamPluginBound = "1";
   }
 
   function init() {
     logSite();
+    relayTestPlay();
     enhanceExistingButton();
 
     // 监听 DOM 变化，按钮可能是 SPA 动态注入的
