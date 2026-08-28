@@ -30,12 +30,12 @@ export function generateChannelPage(options = {}) {
   // Slugify function - must match the one in worker.js for consistent URLs
   function slugify(str) {
     if (!str) return '';
-    return str
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-zA-Z0-9\u4e00-\u9fff\uff00-\uffef\ufe00-\ufeff\u3000-\u303f\u2000-\u206f\ufe30-\ufe4f\u2600-\u26ff-]/g, '')
-      .replace(/-+/g, '-')
-      var ws = String.fromCharCode(9, 10, 11, 12, 13, 32); var reWs = new RegExp('[' + ws + ']+', 'g'); var reKeep = new RegExp('[^a-zA-Z0-9' + String.fromCharCode(0x4e00) + '-' + String.fromCharCode(0x9fff) + String.fromCharCode(0xff00) + '-' + String.fromCharCode(0xffef) + String.fromCharCode(0xfe00) + '-' + String.fromCharCode(0xfeff) + String.fromCharCode(0x3000) + '-' + String.fromCharCode(0x303f) + String.fromCharCode(0x2000) + '-' + String.fromCharCode(0x206f) + String.fromCharCode(0xfe30) + '-' + String.fromCharCode(0xfe4f) + String.fromCharCode(0x2600) + '-' + String.fromCharCode(0x26ff) + '-]', 'g'); var reDash = /-+/g; var reEdge = /^-+|-+$/g; return str.trim().replace(reWs, '-').replace(reKeep, '').replace(reDash, '-').replace(reEdge, '');
+    var ws = String.fromCharCode(9, 10, 11, 12, 13, 32);
+    var reWs = new RegExp('[' + ws + ']+', 'g');
+    var reKeep = new RegExp('[^a-zA-Z0-9' + String.fromCharCode(0x4e00) + '-' + String.fromCharCode(0x9fff) + String.fromCharCode(0xff00) + '-' + String.fromCharCode(0xffef) + String.fromCharCode(0xfe00) + '-' + String.fromCharCode(0xfeff) + String.fromCharCode(0x3000) + '-' + String.fromCharCode(0x303f) + String.fromCharCode(0x2000) + '-' + String.fromCharCode(0x206f) + String.fromCharCode(0xfe30) + '-' + String.fromCharCode(0xfe4f) + String.fromCharCode(0x2600) + '-' + String.fromCharCode(0x26ff) + '-]', 'g');
+    var reDash = /-+/g;
+    var reEdge = /^-+|-+$/g;
+    return str.trim().replace(reWs, '-').replace(reKeep, '').replace(reDash, '-').replace(reEdge, '');
   }
 
   // Build category slug for breadcrumb
@@ -81,6 +81,11 @@ export function generateChannelPage(options = {}) {
     '<button class="btn btn-secondary" onclick="copyPlayLink()">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>' +
       'Copy Link' +
+    '</button>' +
+
+    '<button class="btn btn-secondary btn-test-play" onclick="testPlayChannel()">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polygon points="5 3 19 12 5 21 5 3"/></svg>' +
+      'Test Play' +
     '</button>';
 
   // Build info card rows
@@ -250,7 +255,6 @@ export function generateChannelPage(options = {}) {
     .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: 700; flex-shrink: 0; }
     .logo-icon svg { width: 36px; height: 36px; }
     .logo-text span { color: var(--accent); }
-    .header-actions { display: flex; align-items: center; gap: 1rem; }
     .search-box { position: relative; width: 300px; }
     .search-box form { display: flex; }
     .search-box input { width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: border-color var(--transition); }
@@ -341,6 +345,9 @@ export function generateChannelPage(options = {}) {
     .btn:disabled { opacity: 0.7; cursor: not-allowed; }
     .btn-favorited { border-color: var(--accent) !important; }
     .btn-favorited svg { fill: var(--accent); }
+    .btn-test-play { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; box-shadow: 0 2px 8px rgba(99,102,241,0.3); }
+    .btn-test-play:hover { background: linear-gradient(135deg, #4f46e5, #4338ca); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.5); }
+
 
     /* Spinner */
     .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -704,6 +711,54 @@ export function generateChannelPage(options = {}) {
       }
     }
 
+    async function testPlayChannel() {
+      const btn = document.querySelector(".btn-test-play");
+      const originalContent = btn.innerHTML;
+      btn.innerHTML = "<span class=\"spinner\"></span>";
+      btn.disabled = true;
+      
+      try {
+        const fingerprint = await getFingerprint();
+        const token = localStorage.getItem("auth_token");
+        const headers = { "X-Fingerprint": fingerprint };
+        if (token) headers["Authorization"] = "Bearer " + token;
+        
+        const response = await fetch('${origin}/api/play/link?hash=' + encodeURIComponent(CURRENT_CHANNEL_HASH), { headers });
+        const data = await response.json();
+        
+        if (!data.success || !data.play_link) {
+          showToast(data.error || "Channel unavailable");
+          return;
+        }
+        
+        const playLink = data.play_link;
+        console.log("[TestPlay] Play link:", playLink);
+        
+        let extId = null;
+        try { extId = chrome.runtime.id; } catch(e) {}
+        
+        const playerUrl = "chrome-extension://" + (extId || "stream-player") + "/pages/player.html?url=" + encodeURIComponent(playLink);
+        
+        if (extId) {
+          chrome.runtime.sendMessage({ type: "PLAY_CLIPBOARD_URL", url: playLink }, function(resp) {
+            if (chrome.runtime.lastError) {
+              window.open(playerUrl, "_blank");
+            }
+          });
+        } else {
+          window.open(playerUrl, "_blank");
+        }
+        
+        showToast("Opening player...");
+      } catch (error) {
+        console.error("testPlayChannel error:", error);
+        showToast("Network error");
+      } finally {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+      }
+    }
+
     // 统一的复制函数，同时尝试 Clipboard API 和降级方案
     async function copyToClipboardWithFallback(text) {
       // 优先尝试 Modern Clipboard API
@@ -931,5 +986,4 @@ export function generateChannelPage(options = {}) {
     initDetailStarButton();
   </script>
 </body>
-</html>`;
-}
+</html>`}

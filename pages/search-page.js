@@ -60,7 +60,6 @@ export function generateSearchPage(options = {}) {
     .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: 700; flex-shrink: 0; }
     .logo-icon svg { width: 36px; height: 36px; }
     .logo-text span { color: var(--accent); }
-    .header-actions { display: flex; align-items: center; gap: 1rem; }
     .search-box { position: relative; width: 300px; }
     .search-box form { display: flex; }
     .search-box input {

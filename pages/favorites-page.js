@@ -54,7 +54,6 @@ export function generateFavoritesPage(options = {}) {
     .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: 700; flex-shrink: 0; }
     .logo-icon svg { width: 36px; height: 36px; }
     .logo-text span { color: var(--accent); }
-    .header-actions { display: flex; align-items: center; gap: 1rem; }
     .search-box { position: relative; width: 300px; }
     .search-box form { display: flex; }
     .search-box input { width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: border-color var(--transition); }
