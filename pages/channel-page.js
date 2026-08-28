@@ -718,24 +718,25 @@ export function generateChannelPage(options = {}) {
       btn.disabled = true;
 
       try {
-        // 使用公共测试流地址（Mux 提供的 HLS 测试流），不暴露真实频道播放地址
-        // 目的：演示 chrome-stream-plugin 播放功能，不消耗真实 IPTV 配额
-        const testStreamUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
-        console.log("[TestPlay] Using test stream:", testStreamUrl);
-
-        // 页面拿不到 chrome.runtime.id（只扩展上下文才有），
-        // 不能直接 chrome.runtime.sendMessage 也不能构造有效的
-        // chrome-extension://<id>/... URL（ID 随机）。
-        // 正确路径：postMessage 给已注入的 content-iptv.js，
-        // 它再转发给 background 打开 player 标签。
-        // 未装扩展时 content-iptv.js 不存在，消息无人接收，安静失败。
-        window.postMessage({
-          type: "IPTV_SEARCH_TEST_PLAY",
-          url: testStreamUrl,
-          source: "channel-page"
-        }, "*");
-
-        showToast("Opening player (test stream)...");
+        // 间接触发：点击页面的「复制链接」按钮 → 真实流 URL 写到剪贴板 →
+        // content-iptv.js 监听到复制按钮 click，300ms 后读剪贴板 → 匹配 stream URL
+        // → 自动 window.open(data:text/html) 开简易 HLS 播放器
+        //
+        // 优点：
+        // - 不暴露真实频道 URL 给任何第三方
+        // - 不依赖 background / chrome-extension://（这些在 Edge 都有问题）
+        // - 完全靠监听剪贴板，跟 chrome-stream-plugin 原生 UX 一致
+        const copyBtn = document.querySelector('[onclick="copyPlayLink()"]');
+        if (copyBtn) {
+          copyBtn.click();
+          showToast("Copying link & opening player...");
+        } else {
+          // 找不到复制按钮 → fallback 直接拷贝公共测试流到剪贴板，让插件检测
+          const testStreamUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+          await navigator.clipboard.writeText(testStreamUrl);
+          console.log("[TestPlay] Copy fallback test stream:", testStreamUrl);
+          showToast("Copying test stream & opening player...");
+        }
       } catch (error) {
         console.error("testPlayChannel error:", error);
         showToast("Network error");
