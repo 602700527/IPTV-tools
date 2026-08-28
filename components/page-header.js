@@ -184,10 +184,10 @@ export const PAGE_HEADER = `
     }
     .logo-icon svg { width: 28px; height: 28px; }
     .logo-text span { color: var(--accent); }
-    .header-actions { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; margin-left: auto; }
+    .header-actions { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }
 
     /* 搜索栏 - 极简线条 */
-    .header-search-wrapper { max-width: 360px; min-width: 200px; margin: 0 0.5rem; }
+    .header-search-wrapper { max-width: 360px; min-width: 200px; margin: 0 0.5rem; margin-left: auto; }
     .header-search-form {
       display: flex;
       align-items: center;
