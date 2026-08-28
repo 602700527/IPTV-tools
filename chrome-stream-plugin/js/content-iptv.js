@@ -29,27 +29,25 @@
       var url = data.url;
       if (!url || typeof url !== "string" || url.indexOf("http") !== 0) return;
 
-      console.log("[StreamPlugin] Relaying test-play to background:", url);
-      chrome.runtime.sendMessage({type: "PLAY_CLIPBOARD_URL", url: url}).then(function() {
-        window.dispatchEvent(new CustomEvent("IPTV_SEARCH_TEST_PLAY_OK", {detail: {url: url}}));
-      }).catch(function(err) {
-        console.warn("[StreamPlugin] Relay failed (extension context lost?):", err && err.message);
-        window.dispatchEvent(new CustomEvent("IPTV_SEARCH_TEST_PLAY_FAIL", {detail: {url: url, error: err && err.message}}));
+      console.log("[StreamPlugin] Relaying test-play:", url);
+
+      // 优先：直接用 chrome.tabs.create 开标签（content script 上下文，有 tabs 权限即可）
+      // 不依赖 background service worker 启动状态
+      var playerUrl = chrome.runtime.getURL("pages/player.html") + "?url=" + encodeURIComponent(url);
+      chrome.tabs.create({url: playerUrl, active: true}, function(tab) {
+        if (chrome.runtime.lastError) {
+          console.warn("[StreamPlugin] tabs.create failed:", chrome.runtime.lastError.message);
+          // fallback：发给 background
+          chrome.runtime.sendMessage({type: "PLAY_CLIPBOARD_URL", url: url}).catch(function(){});
+          window.dispatchEvent(new CustomEvent("IPTV_SEARCH_TEST_PLAY_FAIL", {detail: {url: url, error: chrome.runtime.lastError.message}}));
+        } else {
+          console.log("[StreamPlugin] Opened player tab:", tab && tab.id);
+          window.dispatchEvent(new CustomEvent("IPTV_SEARCH_TEST_PLAY_OK", {detail: {url: url, tabId: tab && tab.id}}));
+        }
       });
 
-      // 1.5 秒后读 storage 看 background 到底做了什么（Edge service worker console
-      // 经常抓不到/打不开，从页面端用 storage 跨上下文查 state）
-      setTimeout(function() {
-        chrome.storage.local.get("lastDebugEvent", function(items) {
-          var ev = items.lastDebugEvent;
-          if (!ev) {
-            console.warn("[StreamPlugin] Background state: <no events recorded> (background 未启动或没收到消息)");
-          } else {
-            var ago = Math.round((Date.now() - ev.ts) / 100) / 10;
-            console.log("[StreamPlugin] Background state (" + ago + "s ago):", ev.type, ev.url || ev.tabId || ev.error || "");
-          }
-        });
-      }, 1500);
+      // 也走 background 让它记 storage 历史（fire-and-forget，不影响主路径）
+      chrome.runtime.sendMessage({type: "PLAY_CLIPBOARD_URL", url: url}).catch(function(){});
     });
   }
 
