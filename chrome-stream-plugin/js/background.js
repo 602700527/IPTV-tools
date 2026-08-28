@@ -62,6 +62,8 @@ async function handlePlayClipboardUrl(url) {
 // 打开播放器页面（复用已有标签或新建）
 function openPlayerTab(url) {
   console.log("[StreamPlugin-bg] openPlayerTab called with:", url);
+  // 同时写 storage 作为"signal log"，DevTools 看不到时也能通过 storage 验证
+  chrome.storage.local.set({lastDebugEvent: {ts: Date.now(), type: "openPlayerTab_called", url: url}});
   return new Promise(function(resolve) {
     var playerUrl = chrome.runtime.getURL("pages/player.html") + "?url=" + encodeURIComponent(url);
     console.log("[StreamPlugin-bg] playerUrl:", playerUrl);
@@ -73,21 +75,21 @@ function openPlayerTab(url) {
         // 复用已有标签
         chrome.tabs.update(tabs[0].id, {url: playerUrl, active: true}, function() {
           console.log("[StreamPlugin-bg] Reused tab:", tabs[0].id);
+          chrome.storage.local.set({lastDebugEvent: {ts: Date.now(), type: "reused_tab", tabId: tabs[0].id}});
           resolve();
         });
-        console.log("[StreamPlugin] Reusing player tab:", tabs[0].id);
-        resolve();
       } else {
-        // 新建标签
+        // 新建标签 — 必须传 callback 才能知道成功/失败
         chrome.tabs.create({url: playerUrl, active: true}, function(tab) {
           if (chrome.runtime.lastError) {
             console.error("[StreamPlugin-bg] tabs.create error:", chrome.runtime.lastError.message);
+            chrome.storage.local.set({lastDebugEvent: {ts: Date.now(), type: "tabs_create_error", error: chrome.runtime.lastError.message}});
           } else {
             console.log("[StreamPlugin-bg] Created new tab:", tab && tab.id);
+            chrome.storage.local.set({lastDebugEvent: {ts: Date.now(), type: "created_tab", tabId: tab && tab.id}});
           }
           resolve();
         });
-        console.log("[StreamPlugin] Opened new player tab");
       }
     });
   });
