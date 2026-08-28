@@ -158,8 +158,8 @@ export const PAGE_FOOTER = `
     .footer-grid {
       display: grid;
       grid-template-columns: 1.5fr repeat(3, 1fr);
-      gap: 1.5rem;
-      padding: 1.5rem 0;
+      gap: 1rem;
+      padding: 1rem 0;
     }
 
     .footer-brand { }
@@ -178,14 +178,14 @@ export const PAGE_FOOTER = `
     .footer-tagline {
       font-size: 0.78rem;
       color: var(--text-secondary);
-      line-height: 1.5;
-      margin-top: 0.5rem;
+      line-height: 1.4;
+      margin-top: 0.3rem;
     }
     .footer-brand-bottom {
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
-      margin-top: 0.75rem;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
     }
     .footer-brand .footer-disclaimer {
       display: flex;
@@ -219,7 +219,7 @@ export const PAGE_FOOTER = `
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--text-primary);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
     }
     .footer-faq-col .footer-col-title { text-align: center; }
     .footer-col-links {
@@ -240,7 +240,7 @@ export const PAGE_FOOTER = `
     .footer-faq-list {
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
+      gap: 0.2rem;
     }
     .footer-faq-item {
       background: transparent;
@@ -361,8 +361,8 @@ export const PAGE_FOOTER = `
       .footer-inner { padding: 0 1.5rem; }
       .footer-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 2rem;
-        padding: 2.5rem 0;
+        gap: 1.5rem;
+        padding: 1.5rem 0;
       }
       .footer-brand {
         grid-column: 1 / -1;
@@ -392,8 +392,8 @@ export const PAGE_FOOTER = `
       .footer-inner { padding: 0 1rem; }
       .footer-grid {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
-        padding: 2rem 0;
+        gap: 1rem;
+        padding: 1.25rem 0;
       }
       .footer-brand { grid-column: 1; text-align: center; }
       .footer-logo { justify-content: center; }
