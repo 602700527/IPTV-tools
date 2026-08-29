@@ -30,8 +30,8 @@ export const VIP_STRIP_STYLES = `
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
     color: #ff5566;
   }
   .vip-strip-text { flex: 1; min-width: 0; line-height: 1.3; }
@@ -45,6 +45,7 @@ export const VIP_STRIP_STYLES = `
   .vip-strip-meta {
     font-size: 0.78rem;
     color: rgba(255,255,255,0.6);
+    text-align: center;
   }
   .vip-strip-check {
     color: #22c55e;
@@ -92,10 +93,10 @@ export const VIP_STRIP_STYLES = `
 
 export const VIP_STRIP_HTML = `
   <div class="vip-strip notranslate" id="vipStrip" role="region" aria-label="VIP offer" translate="no" hidden>
-    <div class="vip-strip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M21 3H3c-1.11 0-2 .89-2 2v12c0 1.1.89 2 2 2h7v2H8v2h8v-2h-2v-2h7c1.1 0 2-.9 2-2V5c0-1.11-.9-2-2-2zm0 14H3V5h18v12z"/></svg></div>
+    <div class="vip-strip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M5 18 L3 7 L7 11 L12 4 L17 11 L21 7 L19 18 Z M5 19 H19 V21 H5 Z"/></svg></div>
     <div class="vip-strip-text notranslate" translate="no">
-      <strong class="notranslate" translate="no">Watch on the Big Screen</strong>
-      <span class="vip-strip-meta notranslate" translate="no"><span class="vip-strip-check">&check;</span> Stream 8,000+ channels &middot; <span class="vip-strip-check">&check;</span> No credit card &middot; <span class="vip-strip-check">&check;</span> Cancel anytime</span>
+      <strong class="notranslate" translate="no">7 days free VIP</strong>
+      <span class="vip-strip-meta notranslate" translate="no"><span class="vip-strip-check">&check;</span> No credit card · <span class="vip-strip-check">&check;</span> 7-day refund · <span class="vip-strip-check">&check;</span> Cancel anytime · <span class="vip-strip-check">&check;</span> Secure pay</span>
     </div>
     <a href="/subscription" class="vip-strip-cta notranslate" id="vipStripCta" translate="no">Get Free VIP &rarr;</a>
     <button class="vip-strip-close notranslate" aria-label="Dismiss offer" type="button" translate="no">&times;</button>
