@@ -70,8 +70,9 @@ export function generateHomePage(options = {}) {
     : '<p>No types found</p>';
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="home-page">
 <head>
+  <script>document.documentElement.classList.add('js-enabled');</script>
   ${HEAD_SCRIPTS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -172,7 +173,7 @@ export function generateHomePage(options = {}) {
        "Information density meets precision"
        Aesthetic: Linear / Vercel / Stripe dashboard
        ============================================================ */
-    :root {
+    :root.home-page {
       --accent: #e50914;
       --accent-dim: rgba(229, 9, 20, 0.08);
       --accent-border: rgba(229, 9, 20, 0.25);
@@ -203,9 +204,12 @@ export function generateHomePage(options = {}) {
 
     /* Scroll-reveal (motion-safe so crawlers see content) */
     .reveal { opacity: 1; transform: none; transition: opacity 0.5s ease, transform 0.5s ease; }
-    @media (prefers-reduced-motion: no-preference) {
-      .reveal { opacity: 0; transform: translateY(20px); }
-      .reveal.visible { opacity: 1; transform: translateY(0); }
+    /* Only hide reveal when JS is enabled (no-JS users always see content) */
+    .js-enabled .reveal { opacity: 0; transform: translateY(20px); }
+    .js-enabled .reveal.visible { opacity: 1; transform: translateY(0); }
+    /* Respect prefers-reduced-motion even when JS is on */
+    @media (prefers-reduced-motion: reduce) {
+      .js-enabled .reveal { opacity: 1; transform: none; transition: none; }
     }
     .stagger-1 { transition-delay: 0.04s !important; }
     .stagger-2 { transition-delay: 0.08s !important; }
@@ -585,7 +589,30 @@ export function generateHomePage(options = {}) {
       font-size: 0.8rem;
       color: var(--text-secondary);
       margin-top: 0.5rem;
+      margin-bottom: 1.5rem;
       max-width: 520px;
+    }
+    .section-desc--narrow { margin-bottom: 1.25rem; }
+
+    /* Accessibility */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: -9999px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      z-index: 99999;
+    }
+    .skip-link:focus {
+      left: 0;
+      top: 0;
+      width: auto;
+      height: auto;
+      padding: 0.5rem 1rem;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: underline;
     }
     .section-count {
       font-family: var(--mono);
@@ -828,7 +855,7 @@ export function generateHomePage(options = {}) {
   </style>
 </head>
 <body>
-  <a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;z-index:99999;">Skip to main content</a>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
   <script>
     // Make switchView globally accessible BEFORE any other scripts
     window.switchView = function(view) {
@@ -913,7 +940,7 @@ export function generateHomePage(options = {}) {
         <h2 class="section-title">Popular Topics</h2>
         <span class="section-count">7 endpoints</span>
       </div>
-      <p class="section-desc reveal" style="margin-bottom:1.5rem">Explore curated content by category</p>
+      <p class="section-desc reveal">Explore curated content by category</p>
       <div class="hot-topics-grid">
         <a href="/usa-iptv" class="topic-card reveal stagger-1">
           <span class="topic-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="3" y="3" width="18" height="18"/><path d="M3 7h18M3 11h18M3 15h18M3 19h18"/><rect x="3" y="3" width="8" height="8" fill="currentColor"/></svg></span>
@@ -961,7 +988,7 @@ export function generateHomePage(options = {}) {
         <h2 class="section-title">Explore by Region</h2>
         <span class="section-count">5 regions</span>
       </div>
-      <p class="section-desc reveal" style="margin-bottom:1.5rem">Free IPTV channels from around the world</p>
+      <p class="section-desc reveal">Free IPTV channels from around the world</p>
       <div class="regional-grid">
         <a href="/americas-iptv" class="regional-card reveal stagger-1">
           <span class="regional-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><rect x="3" y="3" width="18" height="18"/><circle cx="12" cy="12" r="7"/><path d="M5 12h14M12 5v14"/><path d="M12 5c2 2 2 12 0 14M12 5c-2 2-2 12 0 14"/><path d="M2 12h1M21 12h1" stroke-width="1"/><path d="M12 2v1M12 21v1" stroke-width="1"/></svg></span>
@@ -999,7 +1026,7 @@ export function generateHomePage(options = {}) {
         <h2 class="section-title">Browse by Category</h2>
         <span class="section-count">8 types loaded</span>
       </div>
-      <p class="section-desc reveal" style="margin-bottom:1.25rem">Discover thousands of free live TV channels &mdash; CCTV, Sports, Movies, News and more</p>
+      <p class="section-desc reveal section-desc--narrow">Discover thousands of free live TV channels &mdash; CCTV, Sports, Movies, News and more</p>
 
       <!-- View Mode Toggle -->
       <div class="view-toggle reveal">
