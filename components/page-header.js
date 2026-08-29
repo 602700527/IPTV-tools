@@ -31,7 +31,7 @@ export const PAGE_HEADER = `
           </div>
           <div class="header-search-divider"></div>
           <input type="text" name="q" class="header-search-input" placeholder="Search channels..." aria-label="Search">
-          <button type="submit" class="header-search-submit">
+          <button type="submit" class="header-search-submit" aria-label="Search">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
             </svg>
@@ -170,7 +170,7 @@ export const PAGE_HEADER = `
       margin: 0 auto;
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 1.5rem;
       padding: 0.75rem 0;
     }
     .logo {
@@ -182,12 +182,12 @@ export const PAGE_HEADER = `
       letter-spacing: -0.02em;
       flex-shrink: 0;
     }
-    .logo-icon svg { width: 28px; height: 28px; }
+    .logo-icon svg { width: 36px; height: 36px; }
     .logo-text span { color: var(--accent); }
     .header-actions { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }
 
     /* 搜索栏 - 极简线条 */
-    .header-search-wrapper { max-width: 360px; min-width: 200px; margin: 0 0.5rem; margin-left: auto; }
+    .header-search-wrapper { max-width: 360px; min-width: 200px; margin-left: auto; }
     .header-search-form {
       display: flex;
       align-items: center;
@@ -218,6 +218,11 @@ export const PAGE_HEADER = `
       min-width: 60px;
       appearance: none;
       -webkit-appearance: none;
+      padding-right: 0.85rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.4rem center;
+      background-size: 10px 10px;
     }
     .header-search-type:hover, .header-search-type:focus { color: var(--text-primary); }
     .header-search-type option { background: var(--bg-primary); color: var(--text-primary); }
@@ -251,7 +256,7 @@ export const PAGE_HEADER = `
       font-size: 0;
       padding: 0.5rem 0.75rem;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
       flex-shrink: 0;
       border-left: none;
     }
@@ -262,8 +267,8 @@ export const PAGE_HEADER = `
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
       color: var(--text-secondary);
       text-decoration: none;
       transition: color 0.2s;
@@ -271,6 +276,10 @@ export const PAGE_HEADER = `
       background: transparent;
     }
     .pill-btn:hover, .account-btn:hover { color: var(--accent); }
+    .pill-btn:focus-visible, .account-btn:focus-visible, .header-search-submit:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
     .account-btn svg, .pill-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
     
     /* Gift animation for unauthenticated users */
@@ -333,6 +342,7 @@ export const PAGE_HEADER = `
         gap: 0.75rem;
       }
       .logo { flex-shrink: 0; }
+      .logo-icon svg { width: 32px; height: 32px; }
       .logo-text { display: none; }
       .header-actions { flex-shrink: 0; gap: 0.75rem; }
       .pill-btn, .account-btn { width: 44px; height: 44px; }
@@ -360,7 +370,7 @@ export const PAGE_HEADER = `
 
     /* 平板尺寸断点（768px-1024px） */
     @media (min-width: 769px) and (max-width: 1024px) {
-      .header-inner { gap: 1rem; padding: 0.5rem 1rem; }
+      .header-inner { gap: 1.5rem; padding: 0.5rem 1rem; }
       .header-search-wrapper { max-width: 360px; }
     }
 

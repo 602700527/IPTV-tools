@@ -55,36 +55,6 @@ export function generateSearchPage(options = {}) {
     a { color: inherit; text-decoration: none; }
     button { cursor: pointer; font-family: inherit; }
 
-    .header { background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; }
-    .header-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
-    .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: 700; flex-shrink: 0; }
-    .logo-icon svg { width: 36px; height: 36px; }
-    .logo-text span { color: var(--accent); }
-    .search-box { position: relative; width: 300px; }
-    .search-box form { display: flex; }
-    .search-box input {
-      width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 20px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: border-color var(--transition);
-    }
-    .search-box input:focus { border-color: var(--accent); }
-    .search-box::before {
-      content: '🔍'; position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%);
-      font-size: 0.9rem; pointer-events: none;
-    }
-    .pill-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
-    .pill-btn:hover { color: var(--accent); }
-    .account-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
-    .account-btn:hover { color: var(--accent); }
-    .account-btn svg, .pill-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
-    .theme-toggle { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: transparent; color: var(--text-secondary); cursor: pointer; transition: color var(--transition); border: none; }
-    .theme-toggle:hover { color: var(--accent); }
-    #translate { position: relative; display: inline-flex; align-items: center; }
-    #translateSelectLanguage { appearance: none; -webkit-appearance: none; padding: 0.5rem 2rem 0.5rem 0.75rem; background: transparent; border: none; border-radius: 6px; color: var(--text-secondary); font-size: 0.85rem; cursor: pointer; outline: none; transition: color var(--transition); min-width: 80px; }
-    #translateSelectLanguage:focus { color: var(--accent); }
-    #translateSelectLanguage:hover { color: var(--accent); }
-    #translate::after { content: ""; position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--text-secondary); pointer-events: none; }
-    #translate:hover::after { border-top-color: var(--accent); }
-
     .main-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
     .search-results-header { margin-bottom: 2rem; }
     .search-results-header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
@@ -205,19 +175,6 @@ export function generateSearchPage(options = {}) {
     }
 
     @media (max-width: 768px) {
-      .header { padding: 0.5rem 0.75rem; }
-      .header-inner { flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; }
-      .logo { flex-shrink: 0; }
-      .logo-icon svg { width: 32px; height: 32px; }
-      .logo-text { display: none; }
-      .search-box { width: 100%; order: 3; margin-top: 0.5rem; }
-      .search-box input { padding: 0.5rem 1rem 0.5rem 2.5rem; font-size: 0.9rem; }
-      .search-box::before { font-size: 0.9rem; left: 0.8rem; }
-      .header-actions { gap: 0.25rem; flex-shrink: 0; }
-      .header-actions .pill-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
-      .header-actions .pill-btn span { display: none; }
-      .theme-toggle { width: 32px; height: 32px; background: transparent; border: none; padding: 0; flex-shrink: 0; }
-      .account-btn { width: 32px; height: 32px; padding: 0; flex-shrink: 0; }
       .main-container { padding: 1rem; }
       .channel-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
     }
