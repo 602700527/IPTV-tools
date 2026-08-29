@@ -78,8 +78,8 @@ RESPONSE=$(curl -sS --tls-max 1.2 --max-time 180 -X PUT \
   -F "metadata=${METADATA}" \
   -F "main_module=@${WORKER_FILE};type=application/javascript+module")
 
-# Check result
-if echo "$RESPONSE" | grep -q '"success":true'; then
+# Check result (allow optional whitespace after colon — CF API returns JSON with spaces)
+if echo "$RESPONSE" | grep -q '"success":\s*true'; then
   echo "✅ Deployed successfully"
   echo "$RESPONSE" | head -c 200
   echo
@@ -87,6 +87,43 @@ else
   echo "❌ Deploy failed:"
   echo "$RESPONSE"
   exit 1
+fi
+
+# Purge CDN cache so the new code is visible immediately (cache TTL is 1h on homepage)
+ZONE_ID="d59d3242de0a6aee90f84a242f4228dc"
+echo "==> Purging CDN cache for iptv-search.com..."
+PURGE_RESPONSE=$(curl -sS --tls-max 1.2 --max-time 60 -X POST \
+  "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache" \
+  -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{"files":["https://iptv-search.com/","https://iptv-search.com"]}')
+
+if echo "$PURGE_RESPONSE" | grep -q '"success":\s*true'; then
+  echo "✅ Cache purged"
+else
+  echo "⚠️  Cache purge failed (non-fatal — deploy still succeeded):"
+  echo "$PURGE_RESPONSE" | head -c 300
+  echo
+fi
+
+# Trigger static page regeneration so R2 bucket has fresh HTML
+# (worker code changed → need to re-render static pages, otherwise stale HTML is served)
+if [ -n "${ADMIN_KEY:-}" ]; then
+  echo "==> Regenerating static pages..."
+  REFRESH_RESPONSE=$(curl -sS --tls-max 1.2 --max-time 300 -X POST \
+    "https://iptv-search.com/api/admin/refresh-static?includeHomepage=1&limit=5" \
+    -H "x-admin-key: ${ADMIN_KEY}")
+  if echo "$REFRESH_RESPONSE" | grep -q '"success":true'; then
+    echo "✅ Static pages regenerated"
+    echo "$REFRESH_RESPONSE" | head -c 200
+    echo
+  else
+    echo "⚠️  Static refresh failed (non-fatal — CDN cache still purged):"
+    echo "$REFRESH_RESPONSE" | head -c 300
+    echo
+  fi
+else
+  echo "ℹ️  ADMIN_KEY not set — skipping static refresh (set ADMIN_KEY env var to enable)"
 fi
 
 # Cleanup
