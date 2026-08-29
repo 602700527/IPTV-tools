@@ -10,14 +10,16 @@ console.log("[StreamPlugin-bg] Background script loaded at", new Date().toISOStr
 function drainQueue() {
   chrome.storage.local.get(QUEUE_KEY, function(items) {
     var queue = items[QUEUE_KEY] || [];
+    // 兼容旧数据：过滤掉字符串，只保留对象（带 url + channelName）
+    queue = queue.filter(function(q) { return q && typeof q === "object" && q.url; });
     if (queue.length === 0) return;
     console.log("[StreamPlugin-bg] Draining queue:", queue.length, "pending URLs");
     // 清空队列
     chrome.storage.local.set({[QUEUE_KEY]: []}, function() {
-      // 播放第一个（最新的）
-      var url = queue.pop();
-      handlePlayClipboardUrl(url).then(function() {
-        console.log("[StreamPlugin-bg] Queue drained, played:", url.slice(0, 60));
+      // 播放最新的（队列最后一个）
+      var item = queue.pop();
+      handlePlayClipboardUrl(item.url, item.channelName).then(function() {
+        console.log("[StreamPlugin-bg] Queue drained, played:", item.url.slice(0, 60));
       }).catch(function(err) {
         console.error("[StreamPlugin-bg] Failed to play queued URL:", err.message);
       });
@@ -49,7 +51,7 @@ chrome.storage.onChanged.addListener(function(changes, area) {
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   console.log("[StreamPlugin-bg] Message received:", message.type, message.url || message.title || "");
   if (message.type === "STREAM_URL_FOUND") {
-    handleStreamUrl(message.url, message.title, message.tabId);
+    handleStreamUrl(message.url, message.title, message.tabId, message.channelName);
     sendResponse({success:true});
   } else if (message.type === "PLAY_CLIPBOARD_URL") {
     handlePlayClipboardUrl(message.url).then(function(resp) {
@@ -72,31 +74,39 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   return false;
 });
 
-// 从剪贴板读取URL并打开新标签页播放
-async function handlePlayClipboardUrl(url) {
+// 从剪贴板读取URL并打开新标签页播放（channelName 可选，会作为 ?name= 参数带到 player.html）
+async function handlePlayClipboardUrl(url, channelName) {
   var cleanUrl = cleanStreamUrl(url);
   if (!cleanUrl) throw new Error("无效的播放地址");
-  
+
   // 保存到最近和歷史
   await chrome.storage.local.set({lastStreamUrl: cleanUrl});
   var history = (await chrome.storage.local.get(STREAM_HISTORY_KEY)).streamHistory || [];
-  var entry = {url: cleanUrl, title: (typeof document !== 'undefined' ? document.title : '') || cleanUrl, timestamp: Date.now(), type: detectStreamType(cleanUrl)};
+  var entry = {
+    url: cleanUrl,
+    channelName: channelName || "",
+    title: (typeof document !== 'undefined' ? document.title : '') || cleanUrl,
+    timestamp: Date.now(),
+    type: detectStreamType(cleanUrl)
+  };
   history.unshift(entry);
   if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
   await chrome.storage.local.set({streamHistory: history});
-  
-  // 打开新标签页播放
-  await openPlayerTab(cleanUrl);
+
+  // 打开新标签页播放（带上频道名）
+  await openPlayerTab(cleanUrl, channelName);
   return {success:true};
 }
 
 // 打开播放器页面（复用已有标签或新建）
-function openPlayerTab(url) {
-  console.log("[StreamPlugin-bg] openPlayerTab called with:", url);
+// channelName 可选；传入后会作为 ?name= 参数带到 player.html
+function openPlayerTab(url, channelName) {
+  console.log("[StreamPlugin-bg] openPlayerTab called with:", url, "name:", channelName);
   // 同时写 storage 作为"signal log"，DevTools 看不到时也能通过 storage 验证
   chrome.storage.local.set({lastDebugEvent: {ts: Date.now(), type: "openPlayerTab_called", url: url}});
   return new Promise(function(resolve) {
     var playerUrl = chrome.runtime.getURL("pages/player.html") + "?url=" + encodeURIComponent(url);
+    if (channelName) playerUrl += "&name=" + encodeURIComponent(channelName);
     console.log("[StreamPlugin-bg] playerUrl:", playerUrl);
 
     // 先查找已有的player标签页
@@ -126,13 +136,19 @@ function openPlayerTab(url) {
   });
 }
 
-function handleStreamUrl(url, title, tabId) {
+function handleStreamUrl(url, title, tabId, channelName) {
   var cleanUrl = cleanStreamUrl(url);
   if (!cleanUrl) return;
   chrome.storage.local.set({lastStreamUrl: cleanUrl});
   chrome.storage.local.get(STREAM_HISTORY_KEY, function(items) {
     var history = items[STREAM_HISTORY_KEY] || [];
-    var entry = {url: cleanUrl, title: title||cleanUrl, timestamp: Date.now(), type: detectStreamType(cleanUrl)};
+    var entry = {
+      url: cleanUrl,
+      channelName: channelName || "",
+      title: title || cleanUrl,
+      timestamp: Date.now(),
+      type: detectStreamType(cleanUrl)
+    };
     history.unshift(entry);
     if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
     chrome.storage.local.set({streamHistory: history});

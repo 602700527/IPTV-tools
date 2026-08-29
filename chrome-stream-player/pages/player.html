@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" style="color-scheme: dark;">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0a0a0a">
   <title>Stream Player</title>
   <link rel="icon" type="image/svg+xml" href="../icons/icon16.svg">
   <style>
@@ -22,6 +24,7 @@
       --mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
       --sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
       --transition: 0.15s ease;
+      --sidebar-w: 320px;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,86 +34,150 @@
       background: var(--bg-primary);
       color: var(--text-primary);
       height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr var(--sidebar-w);
+      grid-template-rows: 1fr;
+      overflow: hidden;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ===== Main column (video + URL bar) ===== */
+    .main {
       display: flex;
       flex-direction: column;
+      min-width: 0;
+      background: var(--bg-primary);
       overflow: hidden;
     }
 
-    /* Header */
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.75rem 1.25rem;
-      background: var(--bg-secondary);
-      border-bottom: var(--border);
-      flex-shrink: 0;
-    }
-
-    .header-brand {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      letter-spacing: -0.01em;
-    }
-
-    .header-brand-icon {
-      width: 20px;
-      height: 20px;
-      background: linear-gradient(135deg, var(--accent), #b81d24);
-      border-radius: 3px;
+    .video-wrap {
+      flex: 1;
+      position: relative;
+      background: #000;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10px;
-      color: #fff;
+      min-height: 0;
     }
 
-    .header-divider {
-      width: 1px;
-      height: 16px;
-      background: var(--border-strong);
-      margin: 0 0.25rem;
+    video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: #000;
     }
 
-    .status-badge {
-      display: inline-flex;
+    video::-webkit-media-controls-panel { background: rgba(15,15,15,0.85); }
+
+    /* Empty state */
+    .empty {
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 0.35rem;
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-label);
-      padding: 0.2rem 0.5rem;
-      background: var(--bg-primary);
-      border: var(--border);
-      border-radius: 0;
+      justify-content: center;
+      gap: 1rem;
+      color: var(--text-muted);
+      padding: 2rem;
+      text-align: center;
     }
 
-    .badge-hls { color: #60a5fa !important; border-color: rgba(96,165,250,0.3) !important; background: rgba(96,165,250,0.08) !important; }
-    .badge-flv { color: #a78bfa !important; border-color: rgba(167,139,250,0.3) !important; background: rgba(167,139,250,0.08) !important; }
-    .badge-rtmp { color: #f87171 !important; border-color: rgba(248,113,113,0.3) !important; background: rgba(248,113,113,0.08) !important; }
-    .badge-dash { color: #34d399 !important; border-color: rgba(52,211,153,0.3) !important; background: rgba(52,211,153,0.08) !important; }
-    .badge-other { color: var(--text-muted); }
-    .badge-live { color: #22c55e !important; border-color: rgba(34,197,94,0.3) !important; background: rgba(34,197,94,0.08) !important; }
-    .badge-loading { color: #fbbf24 !important; border-color: rgba(251,191,36,0.3) !important; background: rgba(251,191,36,0.08) !important; }
-    .badge-error { color: var(--accent) !important; border-color: rgba(229,9,20,0.4) !important; background: var(--accent-dim) !important; animation: pulse 2s infinite; }
+    .empty-icon {
+      width: 56px;
+      height: 56px;
+      border: var(--border-strong);
+      border-radius: 8px;
+      background: var(--accent-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: var(--accent);
+    }
 
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .empty-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: -0.01em;
+    }
 
-    /* URL Bar */
+    .empty-desc {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      padding: 0 1rem;
+    }
+
+    /* Error state */
+    .error-page {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .error-icon {
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(229, 9, 20, 0.3);
+      border-radius: 8px;
+      background: var(--accent-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--accent);
+    }
+
+    .error-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: -0.01em;
+    }
+
+    .error-desc {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      max-width: 360px;
+      line-height: 1.6;
+    }
+
+    .direct-link {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      text-decoration: none;
+      padding: 0.5rem 0.85rem;
+      border: 1px solid var(--accent-border);
+      border-radius: 4px;
+      transition: background var(--transition), color var(--transition), border-color var(--transition);
+      margin-top: 0.5rem;
+    }
+    .direct-link:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .direct-link:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* URL Bar — at bottom of main column */
     .url-bar {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      padding: 0.6rem 1.25rem;
+      gap: 0.6rem;
+      padding: 0.7rem 1rem;
       background: var(--bg-secondary);
-      border-bottom: var(--border);
+      border-top: var(--border);
       flex-shrink: 0;
     }
 
@@ -120,12 +187,12 @@
       align-items: center;
       background: var(--bg-primary);
       border: var(--border);
-      border-radius: 0;
+      border-radius: 6px;
       padding: 0 0.75rem;
       height: 36px;
-      transition: border-color var(--transition);
+      transition: border-color var(--transition), box-shadow var(--transition);
+      cursor: text;
     }
-
     .url-input-wrap:focus-within {
       border-color: var(--accent);
       box-shadow: 0 0 0 1px var(--accent);
@@ -147,9 +214,10 @@
       font-size: 0.75rem;
       font-family: var(--mono);
       letter-spacing: 0.02em;
+      min-width: 0;
     }
-
     .url-input::placeholder { color: var(--text-muted); }
+    .url-input:focus-visible { outline: none; }
 
     .btn-play {
       height: 36px;
@@ -162,179 +230,143 @@
       text-transform: uppercase;
       letter-spacing: 0.08em;
       border: none;
-      border-radius: 0;
+      border-radius: 6px;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      transition: background var(--transition);
+      transition: background var(--transition), transform var(--transition);
       white-space: nowrap;
+      flex-shrink: 0;
     }
-
     .btn-play:hover { background: #ff1a1a; }
     .btn-play:active { transform: scale(0.98); }
+    .btn-play:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
     .btn-play:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-    /* Main layout */
-    .main {
-      flex: 1;
+    /* ===== Right Sidebar ===== */
+    .right-sidebar {
+      background: var(--bg-secondary);
+      border-left: var(--border);
       display: flex;
+      flex-direction: column;
       overflow: hidden;
     }
 
-    .player-area {
-      flex: 1;
+    /* Marketing card (was banner) — hidden until 30s of playback */
+    .marketing-card {
+      padding: 1rem;
+      background: linear-gradient(135deg, var(--accent-dim) 0%, transparent 80%);
+      border-bottom: 1px solid var(--accent-border);
       display: flex;
       flex-direction: column;
-      min-width: 0;
-      background: #000;
+      gap: 0.6rem;
+      flex-shrink: 0;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: max-height 0.6s ease, opacity 0.5s ease 0.1s, padding 0.5s ease;
+      padding-top: 0;
+      padding-bottom: 0;
+      border-bottom-color: transparent;
     }
-
-    .video-wrap {
-      flex: 1;
-      position: relative;
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 0;
+    .marketing-card.show {
+      max-height: 300px;
+      opacity: 1;
+      pointer-events: auto;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+      border-bottom-color: var(--accent-border);
     }
-
-    video {
-      width: 100%;
-      height: 100%;
-      display: block;
-      background: #000;
-    }
-
-    /* Empty state */
-    .empty {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      color: var(--text-muted);
-      padding: 2rem;
-    }
-
-    .empty-icon {
-      width: 48px;
-      height: 48px;
-      border: 1px solid var(--border-strong);
-      border-radius: 4px;
+    .marketing-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
       background: var(--accent-dim);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      color: var(--accent);
-    }
-
-    .empty-title {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      letter-spacing: -0.01em;
-    }
-
-    .empty-desc {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      text-align: center;
-      line-height: 1.8;
-      padding: 0 1rem;
-    }
-
-    /* Error state */
-    .error-page {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      padding: 2rem;
-      text-align: center;
-    }
-
-    .error-icon {
-      width: 40px;
-      height: 40px;
-      border: 1px solid rgba(229, 9, 20, 0.3);
-      border-radius: 4px;
-      background: var(--accent-dim);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      color: var(--accent);
-    }
-
-    .error-title {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--accent);
-      letter-spacing: -0.01em;
-    }
-
-    .error-desc {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      max-width: 320px;
-      line-height: 1.6;
-    }
-
-    .direct-link {
-      color: var(--accent);
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      text-decoration: none;
-      padding: 0.4rem 0.75rem;
       border: 1px solid var(--accent-border);
-      border-radius: 0;
-      transition: all var(--transition);
-      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      animation: mktPulse 2.4s ease-in-out infinite;
     }
-
-    .direct-link:hover {
+    @keyframes mktPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(229, 9, 20, 0); }
+    }
+    .marketing-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+    .marketing-sub {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+      line-height: 1.5;
+    }
+    .marketing-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px 14px;
       background: var(--accent);
       color: #fff;
-      border-color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      transition: background var(--transition), border-color var(--transition);
+      align-self: flex-start;
+      margin-top: 0.2rem;
+    }
+    .marketing-cta:hover { background: #ff1a1a; border-color: #ff1a1a; }
+    .marketing-cta:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
 
-    /* Sidebar */
-    .sidebar {
-      width: 240px;
-      flex-shrink: 0;
-      border-left: var(--border);
-      background: var(--bg-secondary);
+    /* History section */
+    .history-section {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
-    }
-
-    .sidebar-section {
+      min-height: 0;
       padding: 1rem;
-      border-bottom: var(--border);
     }
 
-    .sidebar-section:last-child { border-bottom: none; }
+    .sidebar-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+      flex-shrink: 0;
+    }
 
     .sidebar-label {
       font-family: var(--mono);
-      font-size: 0.6rem;
-      font-weight: 600;
+      font-size: 0.65rem;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.15em;
       color: var(--text-muted);
-      margin-bottom: 0.75rem;
       display: flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.5rem;
     }
-
     .sidebar-label::before {
       content: '';
       width: 6px;
@@ -343,61 +375,114 @@
       display: inline-block;
     }
 
-    /* Meta rows */
-    .meta-row {
+    .sidebar-clear-btn {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      background: transparent;
+      border: var(--border-strong);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color var(--transition), color var(--transition);
+      border-radius: 4px;
+    }
+    .sidebar-clear-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .sidebar-clear-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .sidebar-clear-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .history-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      flex: 1;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-strong) transparent;
+    }
+
+    .history-item-btn {
+      width: 100%;
+      padding: 0.65rem 0;
+      border: 0;
+      border-bottom: var(--border);
+      background: transparent;
+      cursor: pointer;
+      transition: background var(--transition);
+      text-align: left;
+      font-family: inherit;
+      color: inherit;
+    }
+    .history-item-btn:last-child { border-bottom: none; }
+    .history-item-btn:hover { background: var(--bg-elevated); }
+    .history-item-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+    .history-item-btn.active {
+      background: var(--accent-dim);
+      border-left: 2px solid var(--accent);
+      padding-left: calc(0.5rem - 2px);
+    }
+    .history-item-btn.active .history-name { color: var(--accent); }
+
+    .history-name {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-bottom: 3px;
+    }
+    .history-item-btn:hover .history-name { color: var(--accent); }
+
+    .history-url {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-bottom: 4px;
+    }
+
+    .history-meta {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.5rem 0;
-      border-bottom: var(--border);
-      font-size: 0.75rem;
-    }
-
-    .meta-row:last-child { border-bottom: none; }
-
-    .meta-label {
+      font-family: var(--mono);
+      font-size: 0.6rem;
       color: var(--text-muted);
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
     }
+    .history-time { letter-spacing: 0.04em; }
 
-    .meta-value {
-      color: var(--text-primary);
+    .history-empty {
       font-family: var(--mono);
-      font-size: 0.7rem;
-      font-weight: 500;
-    }
-
-    .meta-value.accent { color: var(--accent); }
-    .meta-value.success { color: #22c55e; }
-
-    /* Tips */
-    .tips {
-      font-family: var(--mono);
-      font-size: 0.65rem;
+      font-size: 0.68rem;
       color: var(--text-muted);
-      line-height: 1.8;
-      padding: 0;
-      list-style: none;
+      text-align: center;
+      padding: 2rem 1rem;
+      line-height: 1.7;
     }
-
-    .tips li {
-      padding: 0.35rem 0;
-      padding-left: 1rem;
-      position: relative;
-      border-bottom: var(--border);
-    }
-
-    .tips li:last-child { border-bottom: none; }
-
-    .tips li::before {
-      content: '>';
-      position: absolute;
-      left: 0;
+    .history-empty a {
       color: var(--accent);
-      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid var(--accent-border);
     }
 
     /* Toast */
@@ -408,92 +493,126 @@
       transform: translateX(-50%) translateY(20px);
       padding: 0.5rem 1rem;
       background: var(--bg-elevated);
-      border: var(--border);
+      border: var(--border-strong);
       color: var(--text-primary);
       font-family: var(--mono);
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       z-index: 100;
       opacity: 0;
-      transition: all 0.25s;
+      transition: opacity var(--transition), transform var(--transition);
       pointer-events: none;
       letter-spacing: 0.02em;
+      border-radius: 4px;
     }
-
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .toast.error { border-color: rgba(229, 9, 20, 0.4); color: var(--accent); }
 
     /* Scrollbar */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: var(--bg-primary); }
-    ::-webkit-scrollbar-thumb { background: var(--border-strong); }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* Visually-hidden utility (a11y-only) */
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ===== Responsive: narrow viewport stacks columns ===== */
+    @media (max-width: 720px) {
+      body {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+        height: 100dvh;
+      }
+      .right-sidebar {
+        border-left: none;
+        border-top: var(--border);
+        max-height: 45vh;
+        flex-direction: row;
+      }
+      .marketing-card {
+        flex: 0 0 50%;
+        border-bottom: none;
+        border-right: var(--accent-border);
+      }
+      .history-section { flex: 1; }
+    }
+
+    /* ===== Global reduced motion ===== */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- Header -->
-  <div class="header">
-    <div class="header-brand">
-      <div class="header-brand-icon">▶</div>
-      <span>Stream Player</span>
-    </div>
-    <div class="header-divider"></div>
-    <span class="status-badge badge-other" id="typeBadge">—</span>
-    <span class="status-badge badge-loading" id="statusBadge">READY</span>
-  </div>
+  <!-- ===== Main: video + URL bar ===== -->
+  <main class="main">
+    <h1 class="visually-hidden">Stream Player — IPTV Test Play</h1>
+    <div class="video-wrap" id="videoWrap">
+      <video id="video" controls preload="metadata" style="display:none"></video>
 
-  <!-- URL Input Bar -->
-  <div class="url-bar">
-    <div class="url-input-wrap">
-      <span class="url-input-icon">⧉</span>
-      <input class="url-input" id="urlInput" type="text" placeholder="paste stream url (m3u8 / flv / mp4)…" autocomplete="off" spellcheck="false">
-    </div>
-    <button class="btn-play" id="playBtn" onclick="handlePlayClick()">
-      <span>▶</span> PLAY
-    </button>
-  </div>
+      <div class="empty" id="emptyState">
+        <div class="empty-icon" aria-hidden="true">▶</div>
+        <h2 class="empty-title">Waiting for Stream</h2>
+        <p class="empty-desc">paste a stream url below and press enter<br>or click Play<br><br>supports: m3u8 · flv · mp4</p>
+      </div>
 
-  <!-- Main -->
-  <div class="main">
-    <div class="player-area">
-      <div class="video-wrap" id="videoWrap">
-        <video id="video" controls style="display:none"></video>
-        <!-- Empty -->
-        <div class="empty" id="emptyState">
-          <div class="empty-icon">▶</div>
-          <p class="empty-title">Waiting for stream</p>
-          <p class="empty-desc">paste a stream url below and press enter<br>or click PLAY<br><br>supports: m3u8 · flv · mp4</p>
-        </div>
-        <!-- Error -->
-        <div class="error-page" id="errorState">
-          <div class="error-icon">!</div>
-          <p class="error-title">PLAY FAILED</p>
-          <p class="error-desc" id="errorDesc">format unsupported or network error</p>
-          <a id="directLink" href="#" target="_blank" class="direct-link">open in new tab →</a>
-        </div>
+      <div class="error-page" id="errorState">
+        <div class="error-icon" aria-hidden="true">!</div>
+        <h2 class="error-title">Play Failed</h2>
+        <p class="error-desc" id="errorDesc">format unsupported or network error</p>
+        <a id="directLink" href="#" target="_blank" class="direct-link">Open in New Tab →</a>
       </div>
     </div>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="sidebar-section">
-        <div class="sidebar-label">Stream Info</div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-value" id="metaType">—</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="meta-value" id="metaStatus">—</span></div>
-        <div class="meta-row"><span class="meta-label">Source</span><span class="meta-value" id="metaSource">—</span></div>
-      </div>
-      <div class="sidebar-section">
-        <div class="sidebar-label">Quick Tips</div>
-        <ul class="tips">
-          <li>copy link from channel page</li>
-          <li>press test play to auto-fill</li>
-          <li>supports m3u8 / flv / mp4</li>
-          <li>rtmp requires vlc/player</li>
-        </ul>
-      </div>
+    <div class="url-bar">
+      <label class="url-input-wrap">
+        <span class="url-input-icon" aria-hidden="true">⧉</span>
+        <input class="url-input" id="urlInput" name="streamUrl" type="url" inputmode="url"
+          placeholder="paste stream url (m3u8 / flv / mp4)…"
+          aria-label="Stream URL"
+          autocomplete="off" spellcheck="false"
+          autofocus>
+      </label>
+      <button class="btn-play" id="playBtn" onclick="handlePlayClick()">
+        <span aria-hidden="true">▶</span> Play
+      </button>
     </div>
-  </div>
+  </main>
 
-  <div class="toast" id="toast"></div>
+  <!-- ===== Right Sidebar: marketing + history ===== -->
+  <aside class="right-sidebar" aria-label="Marketing and history">
+    <div class="marketing-card">
+      <div class="marketing-icon" aria-hidden="true">📺</div>
+      <div class="marketing-title">Want This on Your TV?</div>
+      <div class="marketing-sub">8,000+ channels on the big screen · 7-day free VIP trial</div>
+      <a href="https://iptv-search.com/subscription" target="_blank" rel="noopener noreferrer" class="marketing-cta">Get VIP Free →</a>
+    </div>
+
+    <div class="history-section">
+      <div class="sidebar-header-row">
+        <div class="sidebar-label">History</div>
+        <button id="clearHistoryBtn" class="sidebar-clear-btn" disabled>Clear</button>
+      </div>
+      <ul class="history-list" id="historyList"></ul>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="../lib/hls.min.js"></script>
   <script src="../lib/flv.min.js"></script>

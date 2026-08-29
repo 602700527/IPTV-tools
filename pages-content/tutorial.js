@@ -143,11 +143,87 @@ export const content = `
 
     <div class="tabs-container">
       <div class="tabs-nav">
-        <button class="tab-btn active" onclick="switchTab('ios')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> iOS / Apple TV</button>
-        <button class="tab-btn" onclick="switchTab('android')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Android</button>
-        <button class="tab-btn" onclick="switchTab('tv')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 17 12"/></svg> Smart TV</button>
-        <button class="tab-btn" onclick="switchTab('desktop')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Desktop Player</button>
-        <button class="tab-btn" onclick="switchTab('other')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="13" r="1"/><circle cx="17" cy="15" r="1"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> Other Devices</button>
+        <button class="tab-btn" onclick="switchTab('browser-extension', this)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg> Browser Extension</button>
+        <button class="tab-btn active" onclick="switchTab('ios', this)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> iOS / Apple TV</button>
+        <button class="tab-btn" onclick="switchTab('android', this)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Android</button>
+        <button class="tab-btn" onclick="switchTab('tv', this)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 17 12"/></svg> Smart TV</button>
+        <button class="tab-btn" onclick="switchTab('desktop', this)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Desktop Player</button>
+        <button class="tab-btn" onclick="switchTab('other', this)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><circle cx="15" cy="13" r="1"/><circle cx="17" cy="15" r="1"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> Other Devices</button>
+      </div>
+
+      <div id="tab-browser-extension" class="tab-content">
+        <div class="tutorial-section" style="margin-bottom:0;">
+          <div class="section-header">
+            <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg></div>
+            <div class="section-title">
+              <h2>Chrome Extension — Required for Test Play</h2>
+              <p>One-click stream capture on any channel page</p>
+            </div>
+          </div>
+
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number">1</div>
+              <div class="step-header">
+                <div class="step-title">Download the Extension</div>
+                <div class="step-desc">Chrome / Brave / Edge (Chromium-based)</div>
+              </div>
+              <div class="step-content">
+                <p><a href="/chrome-stream-plugin.zip" download style="color:var(--accent);font-weight:600;font-size:15px;">⬇ Download chrome-stream-plugin.zip</a></p>
+                <p style="font-size:13px;color:var(--text-secondary);">After downloading, unzip it to a folder you can find later (e.g., <code>~/Downloads/chrome-stream-plugin</code>).</p>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-number">2</div>
+              <div class="step-header">
+                <div class="step-title">Open Chrome Extensions Page</div>
+              </div>
+              <div class="step-content">
+                <p>Navigate to <code>chrome://extensions/</code> in your browser address bar.</p>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-number">3</div>
+              <div class="step-header">
+                <div class="step-title">Enable Developer Mode</div>
+                <div class="step-desc">Top-right toggle</div>
+              </div>
+              <div class="step-content">
+                <p>Turn on the <strong>Developer mode</strong> switch in the top-right corner of the extensions page.</p>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-number">4</div>
+              <div class="step-header">
+                <div class="step-title">Load Unpacked Extension</div>
+              </div>
+              <div class="step-content">
+                <p>Click <strong>Load unpacked</strong>, then select the unzipped <code>chrome-stream-plugin</code> folder.</p>
+                <div class="tip-box">
+                  <h4><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg> Tip</h4>
+                  <p>Select the <strong>folder itself</strong>, not files inside it. Chrome reads <code>manifest.json</code> from the root.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-number">5</div>
+              <div class="step-header">
+                <div class="step-title">Test It</div>
+              </div>
+              <div class="step-content">
+                <p>Go back to any channel page (e.g., this site's channel pages) and click <strong>Test Play</strong>. The extension will auto-detect the stream URL and open an inline player in a new tab.</p>
+                <div class="warning-box">
+                  <h4><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg> Not Working?</h4>
+                  <p>If the Test Play button still says "Plugin not installed", refresh the channel page once after installing.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="tab-ios" class="tab-content active">
@@ -619,14 +695,39 @@ export const content = `
 </div>
 
 <script>
-function switchTab(tabName) {
+function switchTab(tabName, btn) {
   const contents = document.querySelectorAll('.tab-content');
   contents.forEach(content => content.classList.remove('active'));
 
   const buttons = document.querySelectorAll('.tab-btn');
-  buttons.forEach(btn => btn.classList.remove('active'));
+  buttons.forEach(b => b.classList.remove('active'));
 
-  document.getElementById('tab-' + tabName).classList.add('active');
-  event.target.closest('.tab-btn').classList.add('active');
+  const panel = document.getElementById('tab-' + tabName);
+  if (panel) panel.classList.add('active');
+  // 显式传按钮就直接用；点击触发时 fallback 从 event 取
+  const target = btn || (window.event && window.event.target && window.event.target.closest('.tab-btn'));
+  if (target) target.classList.add('active');
 }
+
+// URL hash 自动跳到对应 tab（如 /tutorial#browser-extension）
+(function() {
+  if (!location.hash) return;
+  var name = location.hash.replace(/^#/, '');
+  if (!name) return;
+  function trySwitch() {
+    var panel = document.getElementById('tab-' + name);
+    if (!panel) return;
+    panel.classList.add('active');
+    // 遍历 tab 按钮，用 indexOf 匹配 onclick 里的 tab 名（避开外层 template literal 的转义陷阱）
+    document.querySelectorAll('.tab-btn').forEach(function(b) {
+      var oc = b.getAttribute('onclick') || '';
+      if (oc.indexOf("'" + name + "'") !== -1) b.classList.add('active');
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', trySwitch);
+  } else {
+    trySwitch();
+  }
+})();
 </script>`;

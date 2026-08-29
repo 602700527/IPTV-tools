@@ -43,6 +43,7 @@
   }
 
   // 读取剪贴板并写入存储队列（background 醒来会自动消费）
+  // 同时从页面 DOM 抓频道名（.channel-title 元素 — iptv-search.com 频道页专用）
   function enqueueFromClipboard() {
     if (!navigator.clipboard || !navigator.clipboard.readText) {
       console.warn("[StreamPlugin] clipboard.readText unavailable");
@@ -55,16 +56,24 @@
         console.log("[StreamPlugin] not a stream URL, skipping");
         return;
       }
-      // 写入持久化队列
+      // 从页面 DOM 抓频道名（仅在频道页存在；其他页面留空）
+      var channelName = "";
+      try {
+        var titleEl = document.querySelector(".channel-title");
+        if (titleEl) channelName = (titleEl.textContent || "").trim();
+      } catch (e) { /* DOM access 失败无所谓 */ }
+      // 写入持久化队列（item 是 {url, channelName} 对象）
       chrome.storage.local.get(QUEUE_KEY, function(items) {
         var queue = items[QUEUE_KEY] || [];
+        // 兼容旧数据：过滤掉字符串（老 queue item），只保留对象
+        queue = queue.filter(function(q) { return q && typeof q === "object"; });
         // 去重：避免重复入队相同 URL
-        if (queue.indexOf(t) === -1) {
-          queue.push(t);
-          // 限制队列长度
+        var dup = queue.some(function(q) { return q.url === t; });
+        if (!dup) {
+          queue.push({ url: t, channelName: channelName, ts: Date.now() });
           if (queue.length > 10) queue = queue.slice(-10);
-          chrome.storage.local.set({[QUEUE_KEY]: queue}, function() {
-            console.log("[StreamPlugin] URL enqueued to storage (queue length:", queue.length + ")");
+          chrome.storage.local.set({ [QUEUE_KEY]: queue }, function() {
+            console.log("[StreamPlugin] URL enqueued (channelName:", channelName, ")");
           });
         } else {
           console.log("[StreamPlugin] URL already in queue, skipping");
@@ -111,6 +120,13 @@
         // 如果当前有活跃的 background，它会自动处理；否则等下次交互
       }
     });
+
+    // 响应页面 ping：告诉页面"插件已安装"，用于频道页检测
+    // 用 window.postMessage —— 跨 isolated world 通信唯一可靠的方式
+    window.addEventListener("message", function(e) {
+      if (!e.data || e.data.type !== 'stream-plugin-ping') return;
+      window.postMessage({ type: 'stream-plugin-pong' }, '*');
+    }, true);
   }
 
   if (document.readyState === "loading") {

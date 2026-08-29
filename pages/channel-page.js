@@ -405,6 +405,11 @@ export function generateChannelPage(options = {}) {
     .toast.toast-success { border-color: rgba(34, 197, 94, 0.3); color: #22c55e; }
     .toast.toast-warning { border-color: rgba(234, 179, 8, 0.3); color: #eab308; }
     .toast.toast-error { border-color: rgba(229, 9, 20, 0.3); color: var(--accent); }
+    /* Actionable toast: 带链接的提示，可点击 + 不自动消失 + 有关闭按钮 */
+    .toast.toast-actionable { pointer-events: auto; max-width: 360px; text-align: left; padding: 14px 40px 14px 18px; line-height: 1.4; }
+    .toast.toast-actionable a { display: inline-block; margin-top: 8px; }
+    .toast-close-x { position: absolute; top: 6px; right: 8px; background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px 8px; font-size: 18px; line-height: 1; border-radius: 4px; font-family: inherit; }
+    .toast-close-x:hover { background: var(--bg-hover); color: var(--text-primary); }
 
     /* Guest gift animation */
     .guest-gift { animation: giftPulse 2s ease-in-out infinite; }
@@ -661,11 +666,72 @@ export function generateChannelPage(options = {}) {
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
-    function showToast(message) {
+    function showToast(message, options) {
       const toast = document.getElementById('toast');
-      toast.textContent = message;
+      // 兼容两种调用：showToast(string) 或 showToast(string, {type, action})
+      if (typeof message === 'object' && message !== null) {
+        options = message;
+        message = '';
+      }
+      const opts = options || {};
+      const type = opts.type || '';
+      const isActionable = !!opts.action;
+      if (message) {
+        toast.innerHTML = '<span>' + escapeHtml(message) + '</span>';
+      } else if (opts.title || opts.message) {
+        toast.innerHTML =
+          (opts.title ? '<div style="font-weight:700;margin-bottom:4px;">' + escapeHtml(opts.title) + '</div>' : '') +
+          '<div style="font-size:0.82rem;line-height:1.4;">' + (opts.message || '') + '</div>' +
+          (opts.action ? '<a href="' + escapeHtml(opts.action.href) + '" style="color:var(--accent);font-weight:600;text-decoration:none;">' + escapeHtml(opts.action.text) + ' →</a>' : '');
+      } else {
+        toast.innerHTML = '';
+      }
+      // 可交互 toast：加关闭按钮，不会自动消失（用户关闭或点链接走人）
+      if (isActionable) {
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'toast-close-x';
+        closeBtn.setAttribute('aria-label', 'Close');
+        closeBtn.textContent = '×';
+        closeBtn.onclick = function() { toast.classList.remove('show'); };
+        toast.appendChild(closeBtn);
+      }
+      toast.className = 'toast' + (type ? ' toast-' + type : '') + (isActionable ? ' toast-actionable' : '');
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2500);
+      if (!isActionable) {
+        const ttl = opts.duration || 2500;
+        setTimeout(() => toast.classList.remove('show'), ttl);
+      }
+    }
+
+    // 检测插件是否安装：用 window.postMessage（Chrome 官方推荐的跨 isolated world 通信方式）
+    // page main world 发 'stream-plugin-ping' → content-iptv.js 收到 → 回 'stream-plugin-pong'
+    function detectPlugin(timeout) {
+      return new Promise(resolve => {
+        const ms = timeout || 250;
+        let done = false;
+        const onMsg = function(e) {
+          if (!e.data || e.data.type !== 'stream-plugin-pong') return;
+          if (done) return;
+          done = true;
+          window.removeEventListener('message', onMsg);
+          resolve(true);
+        };
+        window.addEventListener('message', onMsg);
+        try {
+          window.postMessage({ type: 'stream-plugin-ping' }, '*');
+        } catch (e) {
+          done = true;
+          window.removeEventListener('message', onMsg);
+          resolve(false);
+          return;
+        }
+        setTimeout(function() {
+          if (done) return;
+          done = true;
+          window.removeEventListener('message', onMsg);
+          resolve(false);
+        }, ms);
+      });
     }
 
     function playChannel() {
@@ -718,6 +784,20 @@ export function generateChannelPage(options = {}) {
       btn.disabled = true;
 
       try {
+        // 先检测插件：发 ping，等 content-iptv.js 回应 pong
+        const installed = await detectPlugin(250);
+        if (!installed) {
+          // 插件没装 → toast 提示 + 教程链接（含插件下载）
+          showToast({
+            type: 'warning',
+            title: 'Plugin not installed',
+            message: 'Test Play requires our Chrome extension to capture the stream URL.',
+            action: { href: '${origin}/tutorial#browser-extension', text: 'Install extension (with download)' }
+          });
+          return;
+        }
+
+        // 插件已装 → 走原流程：点击复制按钮触发插件捕获剪贴板并开播放器
         // 间接触发：点击页面的「复制链接」按钮 → 真实流 URL 写到剪贴板 →
         // content-iptv.js 监听到复制按钮 click，300ms 后读剪贴板 → 匹配 stream URL
         // → 自动 window.open(data:text/html) 开简易 HLS 播放器
