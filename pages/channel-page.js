@@ -68,7 +68,7 @@ export function generateChannelPage(options = {}) {
   const actionButtonsHtml =
     '<a href="' + origin + '/subscription" class="btn btn-primary">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>' +
-      'Get VIP Subscription' +
+      'Watch on Big Screen' +
     '</a>' +
     '<a href="' + origin + '/subscription" class="btn btn-secondary" style="margin-left:10px;">' +
       'Try Free' +
@@ -85,7 +85,7 @@ export function generateChannelPage(options = {}) {
 
     '<button class="btn btn-secondary btn-test-play" onclick="testPlayChannel()">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polygon points="5 3 19 12 5 21 5 3"/></svg>' +
-      'Watch on Big Screen' +
+      'Test Play' +
     '</button>';
 
   // Build info card rows
@@ -345,8 +345,8 @@ export function generateChannelPage(options = {}) {
     .btn:disabled { opacity: 0.7; cursor: not-allowed; }
     .btn-favorited { border-color: var(--accent) !important; }
     .btn-favorited svg { fill: var(--accent); }
-    .btn-test-play { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(229,9,20,0.25); }
-    .btn-test-play:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(229,9,20,0.4); }
+    .btn-test-play { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; box-shadow: 0 2px 8px rgba(99,102,241,0.3); }
+    .btn-test-play:hover { background: linear-gradient(135deg, #4f46e5, #4338ca); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.5); }
 
 
     /* Spinner */
