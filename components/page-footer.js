@@ -48,7 +48,7 @@ export const PAGE_FOOTER = `
             </svg>
             <span>IPTV<span>Search</span></span>
           </a>
-          <p class="footer-tagline">Free IPTV Channel Directory<br>Search & Watch Instantly</p>
+          <p class="footer-tagline"><span>Free IPTV Channel Directory</span><span>Search &amp; Watch Instantly</span></p>
           <div class="footer-brand-bottom">
             <div class="footer-disclaimer">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
@@ -165,7 +165,7 @@ export const PAGE_FOOTER = `
       display: grid;
       grid-template-columns: 1.5fr repeat(3, 1fr);
       gap: 1rem;
-      padding: 1rem 0;
+      padding: 2rem 0 2.5rem;
     }
 
     .footer-brand { }
@@ -187,6 +187,7 @@ export const PAGE_FOOTER = `
       line-height: 1.4;
       margin-top: 0.3rem;
     }
+    .footer-tagline span { display: block; }
     .footer-brand-bottom {
       display: flex;
       flex-direction: column;
@@ -227,7 +228,6 @@ export const PAGE_FOOTER = `
       color: var(--text-primary);
       margin-bottom: 0.4rem;
     }
-    .footer-faq-col .footer-col-title { text-align: center; }
     .footer-col-links {
       display: flex;
       flex-direction: column;
@@ -260,7 +260,6 @@ export const PAGE_FOOTER = `
       color: var(--text-secondary);
       font-size: 0.85rem;
       list-style: none;
-      text-align: center;
       position: relative;
     }
     .footer-faq-item summary::-webkit-details-marker { display: none; }
@@ -278,10 +277,9 @@ export const PAGE_FOOTER = `
     }
     .footer-faq-item summary:hover::after { opacity: 1; }
     .footer-faq-item[open] summary::after {
-      content: '2'; /* minus sign */
-      transform: rotate(0);
+      content: '−'; /* U+2212 minus sign */
+      opacity: 0.7;
     }
-    .footer-faq-answer { text-align: center; }
     .footer-faq-item summary:hover {
       color: var(--text-primary);
       background: var(--bg-hover);
@@ -311,7 +309,7 @@ export const PAGE_FOOTER = `
       align-items: center;
       justify-content: center;
       position: relative;
-      transition: all 0.2s ease;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
       background: transparent;
     }
     .sidebar-btn:hover {
@@ -327,6 +325,10 @@ export const PAGE_FOOTER = `
     }
     .sidebar-btn:active {
       transform: scale(0.98);
+    }
+    .sidebar-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
     .sidebar-btn svg {
       width: 20px;
@@ -393,8 +395,8 @@ export const PAGE_FOOTER = `
         bottom: 16px;
       }
       .sidebar-btn {
-        width: 42px;
-        height: 42px;
+        width: 44px;
+        height: 44px;
       }
       .sidebar-tooltip {
         display: none;
@@ -424,7 +426,7 @@ export const PAGE_FOOTER = `
     ${VIP_NOTIFICATION_STYLES}
   </style>
 
-  <!-- Translate.js 自动翻译 (仅非英文浏览器加载，避免隐私外发 + ~80KB) -->
+  <!-- Translate.js 自动翻译 (仅非英文浏览器加载，避免隐私外发 + ~200KB) -->
   <script>
     function initTranslate() {
       if (typeof translate !== 'undefined' && !window.translate) {
