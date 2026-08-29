@@ -6,13 +6,12 @@
   var directLink = document.getElementById("directLink");
   var urlInput = document.getElementById("urlInput");
   var playBtn = document.getElementById("playBtn");
-  var clearBtn = document.getElementById("clearBtn");
   var typeBadge = document.getElementById("typeBadge");
   var statusBadge = document.getElementById("statusBadge");
   var metaType = document.getElementById("metaType");
   var metaStatus = document.getElementById("metaStatus");
   var metaSource = document.getElementById("metaSource");
-  var closeBtn = document.getElementById("closeBtn");
+  playBtn.onclick = handlePlayClick;
 
   var hlsInst = null;
   var flvInst = null;
@@ -38,8 +37,6 @@
   });
 
   playBtn.onclick = handlePlayClick;
-  clearBtn.onclick = handleClear;
-  closeBtn.onclick = function(){ window.close(); };
 
   function handlePlayClick() {
     var url = urlInput.value.trim();

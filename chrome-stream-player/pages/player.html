@@ -6,103 +6,450 @@
   <title>Stream Player</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23e50914'/%3E%3Cstop offset='100%25' stop-color='%23b81d24'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='6' fill='url(%23g)'/%3E%3Cg transform='translate(5,4)'%3E%3Crect x='1' y='1' width='20' height='15' rx='2' fill='%230a0a0a'/%3E%3Cpath d='M9 5 L16 9 L9 13 Z' fill='%23e50914'/%3E%3Crect x='5' y='18' width='4' height='2' rx='1' fill='%230a0a0a'/%3E%3Crect x='12' y='18' width='4' height='2' rx='1' fill='%230a0a0a'/%3E%3C/g%3E%3C/svg%3E">
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#08090e;color:#e2e8f0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+    :root {
+      --accent: #e50914;
+      --accent-dim: rgba(229, 9, 20, 0.08);
+      --accent-border: rgba(229, 9, 20, 0.25);
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #0f0f0f;
+      --bg-elevated: #141414;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #555555;
+      --text-label: #71717a;
+      --border: 1px solid rgba(255, 255, 255, 0.06);
+      --border-strong: 1px solid rgba(255, 255, 255, 0.12);
+      --mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      --sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --transition: 0.15s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
     /* Header */
-    .header{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#0d1117;border-bottom:1px solid #21262d;flex-shrink:0}
-    .header-title{font-size:15px;font-weight:600;color:#f0f6fc;display:flex;align-items:center;gap:6px}
-    .header-title span{font-size:16px}
-    .badge{font-size:10px;padding:2px 8px;border-radius:20px;background:#1f2937;color:#8b949e;border:1px solid #30363d;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-    .badge-hls{background:#0c2d6b;color:#60a5fa;border-color:#1e40af}
-    .badge-flv{background:#2d0c6b;color:#a78bfa;border-color:#7c3aed}
-    .badge-rtmp{background:#6b0c0c;color:#f87171;border-color:#dc2626}
-    .badge-dash{background:#0c6b2d;color:#34d399;border-color:#16a34a}
-    .badge-other{background:#1f2937;color:#6b7280;border-color:#374151}
-    .badge-live{background:#0c2d1a;color:#4ade80;border-color:#16a34a;animation:pulse 2s infinite}
-    .badge-loading{background:#2d1a0c;color:#fbbf24;border-color:#d97706}
-    .badge-error{background:#2d0c0c;color:#f87171;border-color:#dc2626}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
-    .spacer{flex:1}
-    .btn-close{width:28px;height:28px;border-radius:6px;border:1px solid #30363d;background:#161b22;color:#8b949e;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
-    .btn-close:hover{border-color:#6366f1;color:#e2e8f0;background:rgba(99,102,241,.15)}
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--bg-secondary);
+      border-bottom: var(--border);
+      flex-shrink: 0;
+    }
 
-    /* URL bar */
-    .url-bar{display:flex;align-items:center;gap:8px;padding:8px 16px;background:#0d1117;border-bottom:1px solid #21262d;flex-shrink:0}
-    .url-input-wrap{flex:1;display:flex;align-items:center;background:#161b22;border:1px solid #21262d;border-radius:6px;padding:0 10px;height:32px;transition:border-color .15s}
-    .url-input-wrap:focus-within{border-color:#6366f1}
-    .url-input-icon{color:#484f58;font-size:13px;margin-right:8px;flex-shrink:0}
-    .url-input{flex:1;background:none;border:none;outline:none;color:#e2e8f0;font-size:12px;font-family:ui-monospace,"SF Mono",Monaco,monospace}
-    .url-input::placeholder{color:#484f58}
-    .btn-play{height:32px;padding:0 14px;border-radius:6px;border:1px solid #6366f1;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
-    .btn-play:hover{opacity:.85;transform:translateY(-1px)}
-    .btn-play:active{transform:translateY(0)}
-    .btn-play:disabled{opacity:.5;cursor:not-allowed;transform:none}
-    .btn-clear{width:28px;height:28px;border-radius:6px;border:1px solid #30363d;background:#161b22;color:#8b949e;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
-    .btn-clear:hover{border-color:#ef4444;color:#f87171}
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .header-brand-icon {
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(135deg, var(--accent), #b81d24);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #fff;
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 16px;
+      background: var(--border-strong);
+      margin: 0 0.25rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-label);
+      padding: 0.2rem 0.5rem;
+      background: var(--bg-primary);
+      border: var(--border);
+      border-radius: 0;
+    }
+
+    .badge-hls { color: #60a5fa !important; border-color: rgba(96,165,250,0.3) !important; background: rgba(96,165,250,0.08) !important; }
+    .badge-flv { color: #a78bfa !important; border-color: rgba(167,139,250,0.3) !important; background: rgba(167,139,250,0.08) !important; }
+    .badge-rtmp { color: #f87171 !important; border-color: rgba(248,113,113,0.3) !important; background: rgba(248,113,113,0.08) !important; }
+    .badge-dash { color: #34d399 !important; border-color: rgba(52,211,153,0.3) !important; background: rgba(52,211,153,0.08) !important; }
+    .badge-other { color: var(--text-muted); }
+    .badge-live { color: #22c55e !important; border-color: rgba(34,197,94,0.3) !important; background: rgba(34,197,94,0.08) !important; }
+    .badge-loading { color: #fbbf24 !important; border-color: rgba(251,191,36,0.3) !important; background: rgba(251,191,36,0.08) !important; }
+    .badge-error { color: var(--accent) !important; border-color: rgba(229,9,20,0.4) !important; background: var(--accent-dim) !important; animation: pulse 2s infinite; }
+
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    /* URL Bar */
+    .url-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 1.25rem;
+      background: var(--bg-secondary);
+      border-bottom: var(--border);
+      flex-shrink: 0;
+    }
+
+    .url-input-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: var(--bg-primary);
+      border: var(--border);
+      border-radius: 0;
+      padding: 0 0.75rem;
+      height: 36px;
+      transition: border-color var(--transition);
+    }
+
+    .url-input-wrap:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    .url-input-icon {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-right: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .url-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-size: 0.75rem;
+      font-family: var(--mono);
+      letter-spacing: 0.02em;
+    }
+
+    .url-input::placeholder { color: var(--text-muted); }
+
+    .btn-play {
+      height: 36px;
+      padding: 0 1.25rem;
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: none;
+      border-radius: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-play:hover { background: #ff1a1a; }
+    .btn-play:active { transform: scale(0.98); }
+    .btn-play:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
     /* Main layout */
-    .main{flex:1;display:flex;overflow:hidden}
-    .player-area{flex:1;display:flex;flex-direction:column;min-width:0}
-    .video-wrap{flex:1;position:relative;background:#000;display:flex;align-items:center;justify-content:center;min-height:0}
-    video{width:100%;height:100%;display:block;background:#000}
+    .main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .player-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background: #000;
+    }
+
+    .video-wrap {
+      flex: 1;
+      position: relative;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: #000;
+    }
 
     /* Empty state */
-    .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#4b5563}
-    .empty-icon{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;box-shadow:0 0 24px rgba(99,102,241,.3)}
-    .empty-title{font-size:16px;font-weight:600;color:#9ca3af}
-    .empty-desc{font-size:12px;color:#4b5563;text-align:center;padding:0 24px;line-height:1.6}
+    .empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      color: var(--text-muted);
+      padding: 2rem;
+    }
+
+    .empty-icon {
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--border-strong);
+      border-radius: 4px;
+      background: var(--accent-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--accent);
+    }
+
+    .empty-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: -0.01em;
+    }
+
+    .empty-desc {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.8;
+      padding: 0 1rem;
+    }
 
     /* Error state */
-    .error-page{display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center}
-    .error-icon{font-size:32px}
-    .error-title{font-size:15px;font-weight:600;color:#f87171}
-    .error-desc{font-size:12px;color:#6b7280;max-width:320px;line-height:1.6}
-    .direct-link{color:#818cf8;font-size:12px;text-decoration:none;padding:6px 14px;border:1px solid #4f46e5;border-radius:6px;transition:all .2s;margin-top:4px}
-    .direct-link:hover{background:#4f46e5;color:#fff}
+    .error-page {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .error-icon {
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(229, 9, 20, 0.3);
+      border-radius: 4px;
+      background: var(--accent-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--accent);
+    }
+
+    .error-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: -0.01em;
+    }
+
+    .error-desc {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      max-width: 320px;
+      line-height: 1.6;
+    }
+
+    .direct-link {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      text-decoration: none;
+      padding: 0.4rem 0.75rem;
+      border: 1px solid var(--accent-border);
+      border-radius: 0;
+      transition: all var(--transition);
+      margin-top: 0.5rem;
+    }
+
+    .direct-link:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
 
     /* Sidebar */
-    .sidebar{width:260px;flex-shrink:0;border-left:1px solid #21262d;background:#0d1117;display:flex;flex-direction:column;overflow-y:auto}
-    .sidebar-section{padding:12px 14px;border-bottom:1px solid #21262d}
-    .sidebar-label{font-size:10px;color:#484f58;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;font-weight:600}
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      border-left: var(--border);
+      background: var(--bg-secondary);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .sidebar-section {
+      padding: 1rem;
+      border-bottom: var(--border);
+    }
+
+    .sidebar-section:last-child { border-bottom: none; }
+
+    .sidebar-label {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .sidebar-label::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      display: inline-block;
+    }
 
     /* Meta rows */
-    .meta-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #161b22;font-size:12px}
-    .meta-row:last-child{border-bottom:none}
-    .meta-label{color:#484f58}
-    .meta-value{color:#c9d1d9;font-weight:500}
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: var(--border);
+      font-size: 0.75rem;
+    }
+
+    .meta-row:last-child { border-bottom: none; }
+
+    .meta-label {
+      color: var(--text-muted);
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .meta-value {
+      color: var(--text-primary);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+
+    .meta-value.accent { color: var(--accent); }
+    .meta-value.success { color: #22c55e; }
 
     /* Tips */
-    .tips{font-size:11px;color:#484f58;line-height:1.8;padding:0 2px}
-    .tips li{list-style:none;padding-left:12px;position:relative}
-    .tips li::before{content:'›';position:absolute;left:0;color:#30363d}
+    .tips {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tips li {
+      padding: 0.35rem 0;
+      padding-left: 1rem;
+      position: relative;
+      border-bottom: var(--border);
+    }
+
+    .tips li:last-child { border-bottom: none; }
+
+    .tips li::before {
+      content: '>';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 600;
+    }
 
     /* Toast */
-    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);padding:8px 16px;border-radius:8px;background:#161b22;border:1px solid #30363d;color:#c9d1d9;font-size:12px;z-index:100;opacity:0;transition:all .25s;pointer-events:none}
-    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    .toast.error{border-color:#ef4444;color:#f87171}
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      padding: 0.5rem 1rem;
+      background: var(--bg-elevated);
+      border: var(--border);
+      color: var(--text-primary);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      z-index: 100;
+      opacity: 0;
+      transition: all 0.25s;
+      pointer-events: none;
+      letter-spacing: 0.02em;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.error { border-color: rgba(229, 9, 20, 0.4); color: var(--accent); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
   </style>
 </head>
 <body>
   <!-- Header -->
   <div class="header">
-    <div class="header-title"><span>▶</span> Stream Player</div>
-    <span class="badge badge-other" id="typeBadge">—</span>
-    <span class="badge badge-loading" id="statusBadge">就绪</span>
-    <div class="spacer"></div>
-    <button class="btn-close" id="closeBtn" title="关闭">✕</button>
+    <div class="header-brand">
+      <div class="header-brand-icon">▶</div>
+      <span>Stream Player</span>
+    </div>
+    <div class="header-divider"></div>
+    <span class="status-badge badge-other" id="typeBadge">—</span>
+    <span class="status-badge badge-loading" id="statusBadge">READY</span>
   </div>
 
   <!-- URL Input Bar -->
   <div class="url-bar">
     <div class="url-input-wrap">
-      <span class="url-input-icon">🔗</span>
-      <input class="url-input" id="urlInput" type="text" placeholder="粘贴 M3U8 / FLV / MP4 播放地址…" autocomplete="off" spellcheck="false">
+      <span class="url-input-icon">⧉</span>
+      <input class="url-input" id="urlInput" type="text" placeholder="paste stream url (m3u8 / flv / mp4)…" autocomplete="off" spellcheck="false">
     </div>
     <button class="btn-play" id="playBtn" onclick="handlePlayClick()">
-      <span>▶</span> 播放
+      <span>▶</span> PLAY
     </button>
-    <button class="btn-clear" id="clearBtn" onclick="handleClear()" title="清空">✕</button>
   </div>
 
   <!-- Main -->
@@ -113,15 +460,15 @@
         <!-- Empty -->
         <div class="empty" id="emptyState">
           <div class="empty-icon">▶</div>
-          <p class="empty-title">等待播放</p>
-          <p class="empty-desc">粘贴播放地址后按回车或点击「播放」<br>支持 M3U8 / FLV / MP4</p>
+          <p class="empty-title">Waiting for stream</p>
+          <p class="empty-desc">paste a stream url below and press enter<br>or click PLAY<br><br>supports: m3u8 · flv · mp4</p>
         </div>
         <!-- Error -->
         <div class="error-page" id="errorState">
-          <div class="error-icon">⚠</div>
-          <p class="error-title">播放失败</p>
-          <p class="error-desc" id="errorDesc">格式不支持或网络错误</p>
-          <a id="directLink" href="#" target="_blank" class="direct-link">在新标签页打开 →</a>
+          <div class="error-icon">!</div>
+          <p class="error-title">PLAY FAILED</p>
+          <p class="error-desc" id="errorDesc">format unsupported or network error</p>
+          <a id="directLink" href="#" target="_blank" class="direct-link">open in new tab →</a>
         </div>
       </div>
     </div>
@@ -129,17 +476,18 @@
     <!-- Sidebar -->
     <div class="sidebar">
       <div class="sidebar-section">
-        <div class="sidebar-label">流媒体信息</div>
-        <div class="meta-row"><span class="meta-label">类型</span><span class="meta-value" id="metaType">—</span></div>
-        <div class="meta-row"><span class="meta-label">状态</span><span class="meta-value" id="metaStatus">就绪</span></div>
-        <div class="meta-row"><span class="meta-label">来源</span><span class="meta-value" id="metaSource">—</span></div>
+        <div class="sidebar-label">Stream Info</div>
+        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-value" id="metaType">—</span></div>
+        <div class="meta-row"><span class="meta-label">Status</span><span class="meta-value" id="metaStatus">—</span></div>
+        <div class="meta-row"><span class="meta-label">Source</span><span class="meta-value" id="metaSource">—</span></div>
       </div>
       <div class="sidebar-section">
-        <div class="sidebar-label">提示</div>
+        <div class="sidebar-label">Quick Tips</div>
         <ul class="tips">
-          <li>频道页「复制链接」→「测试播放」</li>
-          <li>支持 M3U8 / FLV / MP4</li>
-          <li>RTMP 需 VLC 等本地播放器</li>
+          <li>copy link from channel page</li>
+          <li>press test play to auto-fill</li>
+          <li>supports m3u8 / flv / mp4</li>
+          <li>rtmp requires vlc/player</li>
         </ul>
       </div>
     </div>
