@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>流媒体播放器</title>
+  <link rel="stylesheet" href="../css/popup.css">
+</head>
+<body>
+  <div class="app">
+
+    <!-- 顶部状态栏 -->
+    <div class="status-bar">
+      <div class="status-left">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-text" id="statusText">就绪</span>
+      </div>
+      <div class="status-right">
+        <span id="tabBadge" class="tab-badge">当前标签</span>
+      </div>
+    </div>
+
+    <!-- 播放区域 -->
+    <div class="player-card">
+      <div class="player-container" id="playerContainer">
+        <video id="videoPlayer" class="video-player" controls style="display:none;"></video>
+        
+        <!-- 空状态 -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">▶</div>
+          <p class="empty-title">流媒体播放器</p>
+          <p class="empty-desc">输入地址或从页面捕获</p>
+        </div>
+        
+        <!-- 错误状态 -->
+        <div class="error-state" id="errorState" style="display:none;">
+          <div class="error-icon">⚠</div>
+          <p class="error-title">播放失败</p>
+          <p class="error-desc" id="errorDesc">不支持的格式或网络错误</p>
+          <a id="directLink" href="#" target="_blank" class="direct-link">直接打开链接 →</a>
+        </div>
+      </div>
+      
+      <!-- 播放状态指示器 -->
+      <div class="player-status" id="playerStatus" style="display:none;">
+        <span class="status-pill" id="statusPill">
+          <span class="pill-dot" id="pillDot"></span>
+          <span id="pillText">准备中...</span>
+        </span>
+        <button id="stopBtn" class="btn-icon" title="停止">✕</button>
+      </div>
+    </div>
+
+    <!-- URL 输入区 -->
+    <div class="input-card">
+      <div class="input-row">
+        <input type="text" id="streamUrl" class="url-input" 
+          placeholder="粘贴 M3U8 / FLV / MP4 播放地址..." 
+          autocomplete="off" spellcheck="false">
+        <button id="playBtn" class="btn-play">
+          <span class="btn-play-icon">▶</span> 播放
+        </button>
+      </div>
+      
+      <!-- 快捷测试地址 -->
+      <div class="quick-links">
+        <span class="quick-label">快速测试：</span>
+        <button class="chip chip-hls" onclick="testUrl('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')">HLS 测试</button>
+        <button class="chip chip-flv" onclick="testUrl('http://pull-test.e.qq.com/live/flv/1023_182621317513.flv?sign=abc123')">FLV 测试</button>
+        <button class="chip chip-m3u8" onclick="testUrl('https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8')">Apple HLS</button>
+      </div>
+    </div>
+
+    <!-- 操作按钮区 -->
+    <div class="action-card">
+      <button id="captureBtn" class="btn-action">
+        <span class="btn-action-icon">📌</span>
+        <span class="btn-action-text">捕获当前页播放地址</span>
+      </button>
+      <div class="action-hint">点击后将自动检测页面中的流媒体 URL 并播放</div>
+    </div>
+
+    <!-- 剪贴板播放 -->
+    <div class="action-card clipboard-card">
+      <button id="clipboardBtn" class="btn-clipboard">
+        <span class="btn-clipboard-icon">📋</span>
+        <span class="btn-clipboard-text">从剪贴板播放</span>
+        <span class="btn-clipboard-hint">复制频道地址后点击</span>
+      </button>
+      <div class="action-hint">在频道页复制播放地址后，点击此处在新标签页打开播放器</div>
+    </div>
+
+    <!-- 历史记录 -->
+    <div class="history-card" id="historyCard" style="display:none;">
+      <div class="card-header">
+        <h3>📋 播放历史</h3>
+        <button id="clearHistory" class="btn-clear">清空</button>
+      </div>
+      <ul id="historyList" class="history-list"></ul>
+    </div>
+
+  </div>
+
+  <script src="../lib/hls.min.js"></script>
+  <script src="../lib/flv.min.js"></script>
+  <script src="../js/popup.js"></script>
+</body>
+</html>

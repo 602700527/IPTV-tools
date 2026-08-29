@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stream Player</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23e50914'/%3E%3Cstop offset='100%25' stop-color='%23b81d24'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='6' fill='url(%23g)'/%3E%3Cg transform='translate(5,4)'%3E%3Crect x='1' y='1' width='20' height='15' rx='2' fill='%230a0a0a'/%3E%3Cpath d='M9 5 L16 9 L9 13 Z' fill='%23e50914'/%3E%3Crect x='5' y='18' width='4' height='2' rx='1' fill='%230a0a0a'/%3E%3Crect x='12' y='18' width='4' height='2' rx='1' fill='%230a0a0a'/%3E%3C/g%3E%3C/svg%3E">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#08090e;color:#e2e8f0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+    /* Header */
+    .header{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#0d1117;border-bottom:1px solid #21262d;flex-shrink:0}
+    .header-title{font-size:15px;font-weight:600;color:#f0f6fc;display:flex;align-items:center;gap:6px}
+    .header-title span{font-size:16px}
+    .badge{font-size:10px;padding:2px 8px;border-radius:20px;background:#1f2937;color:#8b949e;border:1px solid #30363d;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+    .badge-hls{background:#0c2d6b;color:#60a5fa;border-color:#1e40af}
+    .badge-flv{background:#2d0c6b;color:#a78bfa;border-color:#7c3aed}
+    .badge-rtmp{background:#6b0c0c;color:#f87171;border-color:#dc2626}
+    .badge-dash{background:#0c6b2d;color:#34d399;border-color:#16a34a}
+    .badge-other{background:#1f2937;color:#6b7280;border-color:#374151}
+    .badge-live{background:#0c2d1a;color:#4ade80;border-color:#16a34a;animation:pulse 2s infinite}
+    .badge-loading{background:#2d1a0c;color:#fbbf24;border-color:#d97706}
+    .badge-error{background:#2d0c0c;color:#f87171;border-color:#dc2626}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+    .spacer{flex:1}
+    .btn-close{width:28px;height:28px;border-radius:6px;border:1px solid #30363d;background:#161b22;color:#8b949e;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+    .btn-close:hover{border-color:#6366f1;color:#e2e8f0;background:rgba(99,102,241,.15)}
+
+    /* URL bar */
+    .url-bar{display:flex;align-items:center;gap:8px;padding:8px 16px;background:#0d1117;border-bottom:1px solid #21262d;flex-shrink:0}
+    .url-input-wrap{flex:1;display:flex;align-items:center;background:#161b22;border:1px solid #21262d;border-radius:6px;padding:0 10px;height:32px;transition:border-color .15s}
+    .url-input-wrap:focus-within{border-color:#6366f1}
+    .url-input-icon{color:#484f58;font-size:13px;margin-right:8px;flex-shrink:0}
+    .url-input{flex:1;background:none;border:none;outline:none;color:#e2e8f0;font-size:12px;font-family:ui-monospace,"SF Mono",Monaco,monospace}
+    .url-input::placeholder{color:#484f58}
+    .btn-play{height:32px;padding:0 14px;border-radius:6px;border:1px solid #6366f1;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
+    .btn-play:hover{opacity:.85;transform:translateY(-1px)}
+    .btn-play:active{transform:translateY(0)}
+    .btn-play:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .btn-clear{width:28px;height:28px;border-radius:6px;border:1px solid #30363d;background:#161b22;color:#8b949e;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+    .btn-clear:hover{border-color:#ef4444;color:#f87171}
+
+    /* Main layout */
+    .main{flex:1;display:flex;overflow:hidden}
+    .player-area{flex:1;display:flex;flex-direction:column;min-width:0}
+    .video-wrap{flex:1;position:relative;background:#000;display:flex;align-items:center;justify-content:center;min-height:0}
+    video{width:100%;height:100%;display:block;background:#000}
+
+    /* Empty state */
+    .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#4b5563}
+    .empty-icon{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;box-shadow:0 0 24px rgba(99,102,241,.3)}
+    .empty-title{font-size:16px;font-weight:600;color:#9ca3af}
+    .empty-desc{font-size:12px;color:#4b5563;text-align:center;padding:0 24px;line-height:1.6}
+
+    /* Error state */
+    .error-page{display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center}
+    .error-icon{font-size:32px}
+    .error-title{font-size:15px;font-weight:600;color:#f87171}
+    .error-desc{font-size:12px;color:#6b7280;max-width:320px;line-height:1.6}
+    .direct-link{color:#818cf8;font-size:12px;text-decoration:none;padding:6px 14px;border:1px solid #4f46e5;border-radius:6px;transition:all .2s;margin-top:4px}
+    .direct-link:hover{background:#4f46e5;color:#fff}
+
+    /* Sidebar */
+    .sidebar{width:260px;flex-shrink:0;border-left:1px solid #21262d;background:#0d1117;display:flex;flex-direction:column;overflow-y:auto}
+    .sidebar-section{padding:12px 14px;border-bottom:1px solid #21262d}
+    .sidebar-label{font-size:10px;color:#484f58;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;font-weight:600}
+
+    /* Meta rows */
+    .meta-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #161b22;font-size:12px}
+    .meta-row:last-child{border-bottom:none}
+    .meta-label{color:#484f58}
+    .meta-value{color:#c9d1d9;font-weight:500}
+
+    /* Tips */
+    .tips{font-size:11px;color:#484f58;line-height:1.8;padding:0 2px}
+    .tips li{list-style:none;padding-left:12px;position:relative}
+    .tips li::before{content:'›';position:absolute;left:0;color:#30363d}
+
+    /* Toast */
+    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);padding:8px 16px;border-radius:8px;background:#161b22;border:1px solid #30363d;color:#c9d1d9;font-size:12px;z-index:100;opacity:0;transition:all .25s;pointer-events:none}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .toast.error{border-color:#ef4444;color:#f87171}
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-title"><span>▶</span> Stream Player</div>
+    <span class="badge badge-other" id="typeBadge">—</span>
+    <span class="badge badge-loading" id="statusBadge">就绪</span>
+    <div class="spacer"></div>
+    <button class="btn-close" id="closeBtn" title="关闭">✕</button>
+  </div>
+
+  <!-- URL Input Bar -->
+  <div class="url-bar">
+    <div class="url-input-wrap">
+      <span class="url-input-icon">🔗</span>
+      <input class="url-input" id="urlInput" type="text" placeholder="粘贴 M3U8 / FLV / MP4 播放地址…" autocomplete="off" spellcheck="false">
+    </div>
+    <button class="btn-play" id="playBtn" onclick="handlePlayClick()">
+      <span>▶</span> 播放
+    </button>
+    <button class="btn-clear" id="clearBtn" onclick="handleClear()" title="清空">✕</button>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="player-area">
+      <div class="video-wrap" id="videoWrap">
+        <video id="video" controls style="display:none"></video>
+        <!-- Empty -->
+        <div class="empty" id="emptyState">
+          <div class="empty-icon">▶</div>
+          <p class="empty-title">等待播放</p>
+          <p class="empty-desc">粘贴播放地址后按回车或点击「播放」<br>支持 M3U8 / FLV / MP4</p>
+        </div>
+        <!-- Error -->
+        <div class="error-page" id="errorState">
+          <div class="error-icon">⚠</div>
+          <p class="error-title">播放失败</p>
+          <p class="error-desc" id="errorDesc">格式不支持或网络错误</p>
+          <a id="directLink" href="#" target="_blank" class="direct-link">在新标签页打开 →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">流媒体信息</div>
+        <div class="meta-row"><span class="meta-label">类型</span><span class="meta-value" id="metaType">—</span></div>
+        <div class="meta-row"><span class="meta-label">状态</span><span class="meta-value" id="metaStatus">就绪</span></div>
+        <div class="meta-row"><span class="meta-label">来源</span><span class="meta-value" id="metaSource">—</span></div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">提示</div>
+        <ul class="tips">
+          <li>频道页「复制链接」→「测试播放」</li>
+          <li>支持 M3U8 / FLV / MP4</li>
+          <li>RTMP 需 VLC 等本地播放器</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="../lib/hls.min.js"></script>
+  <script src="../lib/flv.min.js"></script>
+  <script src="../js/player.js"></script>
+</body>
+</html>
