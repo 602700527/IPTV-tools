@@ -82,17 +82,19 @@ export const PAGE_HEADER = `
         adContainer.appendChild(script2);
       }
 
-      fetch('/api/member/status')
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-          if (data.isMember && data.adFreeEnabled) {
-            return;
-          }
-          loadAd();
-        })
-        .catch(function() {
-          loadAd();
-        });
+      // Timeout race: 1.5s 后无论 API 是否返回都按非会员加载广告，避免 API hang 时广告永远不出现
+      var apiTimeout = new Promise(function(resolve) {
+        setTimeout(function() { resolve({ isMember: false }); }, 1500);
+      });
+      var memberCheck = fetch('/api/member/status')
+        .then(function(r) { return r.json(); })
+        .catch(function() { return { isMember: false }; });
+
+      Promise.race([memberCheck, apiTimeout]).then(function(data) {
+        if (data.isMember && data.adFreeEnabled) return;
+        // 延迟 150ms 让 LCP 先 paint，再注入广告脚本
+        setTimeout(loadAd, 150);
+      });
     })();
   </script>
 
@@ -332,6 +334,7 @@ export const PAGE_HEADER = `
       max-width: 1400px;
       margin: 0 auto;
       padding: 8px 0;
+      min-height: 90px; /* CLS reservation for Google AdSense horizontal unit */
     }
 
     @media (max-width: 768px) {
