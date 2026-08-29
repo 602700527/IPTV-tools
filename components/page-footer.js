@@ -11,8 +11,14 @@ import {
 } from './vip-strip.js';
 
 export const PAGE_FOOTER = `
-  <!-- Floating Sidebar - Back to Top Only -->
+  <!-- Floating Sidebar - Telegram + Back to Top -->
   <div class="floating-sidebar">
+    <a href="https://t.me/gotoplaytom" target="_blank" rel="noopener noreferrer" class="sidebar-btn telegram-btn" title="Contact us on Telegram">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/>
+      </svg>
+      <span class="sidebar-tooltip">Contact on Telegram</span>
+    </a>
     <button class="sidebar-btn back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Back to Top">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="18 15 12 9 6 15"></polyline>
@@ -311,6 +317,13 @@ export const PAGE_FOOTER = `
     .sidebar-btn:hover {
       border-color: var(--accent);
       background: var(--bg-hover);
+    }
+    .sidebar-btn.telegram-btn:hover {
+      border-color: #229ed9;
+      background: rgba(34, 158, 217, 0.08);
+    }
+    .sidebar-btn.telegram-btn:hover svg {
+      color: #229ed9;
     }
     .sidebar-btn:active {
       transform: scale(0.98);
