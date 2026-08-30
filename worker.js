@@ -5,7 +5,7 @@ import { handleSubRequest, handleSubRequestTxt } from './handlers/sub.js';
 import { handleAdminRequest, handleAdTsFile } from './handlers/admin.js';
 import { handleScheduledEvent, manualSyncAll, syncAllSources, refreshCache, refreshStaticPages } from './handlers/scheduler.js';
 import { handleUserActivate, handleUserChangeTopic, handleUserChangeSubMode } from './handlers/user.js';
-import { handlePublicPlay, handleChannelDebug, handlePublicConfig, handlePublicAnnouncement, handlePublicMallSettings, handleFavoritesM3U, handleChannelsM3U } from './handlers/public.js';
+import { handlePublicPlay, handleChannelDebug, handlePublicConfig, handlePublicMallSettings, handleFavoritesM3U, handleChannelsM3U } from './handlers/public.js';
 import { handleGetPlans } from './handlers/plans-api.js';
 import { ALIPAY_PNG_DATA, WECHAT_PAY_PNG_DATA } from './image-data.js';
 import { generateAndCacheSitemap, getAllChannels, getAllGroups, clearChannelCache, cacheChannelsToKV } from './utils/channel-cache.js';
