@@ -145,6 +145,14 @@ export async function handleScheduledEvent(event, env, ctx) {
         await syncAllSources(db, env, ctx);
         // 数据源同步完成后，清理过期90天的免费订阅
         await cleanupExpiredFreeSubscriptions(db);
+        // 同步完成 → 立即重建 KV 频道缓存（一次性 D1 批读 + ~175 KV 写入）
+        // 这样用户在 3 AM - 9 AM 之间也能搜到新增频道，不用等下次 9 AM 自动刷新
+        const cacheResult = await cacheChannelsToKV(env);
+        if (cacheResult.success) {
+          console.log(`[Scheduler] Post-sync cache rebuild: ${cacheResult.channels} channels, ${cacheResult.groups} groups`);
+        } else {
+          console.error('[Scheduler] Post-sync cache rebuild failed:', cacheResult.error);
+        }
       } finally {
         await releaseKVLock(env, LOCK_KEY_SYNC);
         console.log('[Scheduler] Sync lock released');
@@ -169,8 +177,8 @@ export async function handleScheduledEvent(event, env, ctx) {
       console.log('[Scheduler] Starting cache refresh (cache refresh lock acquired)');
 
       try {
-        await refreshCache(db, env);
-        // Regenerate static pages so R2/KV has fresh content for bots
+        // KV 频道缓存只在 3 AM 同步后重建（避免重复消耗 KV 写入配额）
+        // 这里只生成静态 HTML 供爬虫，搜索查询读 KV 即可
         await refreshStaticPages(env);
       } finally {
         await releaseKVLock(env, LOCK_KEY_CACHE_REFRESH);
