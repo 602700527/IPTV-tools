@@ -250,15 +250,15 @@ export function generateChannelPage(options = {}) {
     button { cursor: pointer; font-family: inherit; }
 
     /* Breadcrumb */
-    .breadcrumb { max-width: 1400px; margin: 0 auto; padding: 1rem 2rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); overflow-x: auto; white-space: nowrap; scrollbar-width: none; -ms-overflow-style: none; }
+    .breadcrumb { max-width: 1400px; margin: 0 auto; padding: 1rem 2rem; display: flex; flex-wrap: nowrap; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); overflow-x: auto; white-space: nowrap; scrollbar-width: none; -ms-overflow-style: none; }
     .breadcrumb::-webkit-scrollbar { display: none; }
-    .breadcrumb a { color: var(--accent); display: flex; align-items: center; gap: 0.25rem; }
+    .breadcrumb a { color: var(--accent); display: inline-flex; align-items: center; gap: 0.25rem; flex-shrink: 0; white-space: nowrap; }
     .breadcrumb a:hover { text-decoration: underline; }
     .breadcrumb-sep { opacity: 0.5; margin: 0 0.1rem; }
     .breadcrumb-icon { width: 14px; height: 14px; }
 
     /* Main Content */
-    .main-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    .main-container { max-width: 1400px; margin: 0 auto; padding: 0 0 2rem; }
 
     /* Account-card - tight visual containment from /account */
     .account-card {

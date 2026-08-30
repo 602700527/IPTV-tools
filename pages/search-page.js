@@ -55,7 +55,7 @@ export function generateSearchPage(options = {}) {
     a { color: inherit; text-decoration: none; }
     button { cursor: pointer; font-family: inherit; }
 
-    .main-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    .main-container { max-width: 1400px; margin: 0 auto; padding: 0 0 2rem; }
     .search-results-header { margin-bottom: 2rem; }
     .search-results-header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
     .search-results-header p { color: var(--text-secondary); font-size: 1rem; }

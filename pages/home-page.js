@@ -242,7 +242,7 @@ export function generateHomePage(options = {}) {
     .hero-inner {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 0 2rem;
+      padding: 0;
       position: relative;
       z-index: 1;
     }
@@ -557,7 +557,7 @@ export function generateHomePage(options = {}) {
     .section-inner {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 0 2rem;
+      padding: 0;
     }
     .section-meta {
       display: flex;
@@ -840,11 +840,11 @@ export function generateHomePage(options = {}) {
     }
     @media (max-width: 768px) {
       .hero { padding: 2rem 0 1.5rem; }
-      .hero-inner { padding: 0 1rem; }
+      .hero-inner { padding: 0; }
       .hero-stats-grid { grid-template-columns: repeat(2, 1fr); }
       .hero-statusbar { gap: 0.5rem; }
       .section { padding: 2.25rem 0; }
-      .section-inner { padding: 0 1rem; }
+      .section-inner { padding: 0; }
     }
     @media (max-width: 480px) {
       .hero-stats-grid { grid-template-columns: 1fr; }
