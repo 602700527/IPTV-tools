@@ -532,22 +532,22 @@ export function generateCategoryPage(options = {}) {
     }
 
 
-    .breadcrumb { max-width: 1400px; margin: 0 auto; padding: 1rem 2rem; display: flex; flex-wrap: nowrap; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); overflow-x: auto; white-space: nowrap; scrollbar-width: none; -ms-overflow-style: none; }
+    nav.breadcrumb { max-width: 1400px; margin: 0 auto; padding: 1rem 2rem; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); }
 
 
     .breadcrumb::-webkit-scrollbar { display: none; }
 
 
-    .breadcrumb a { color: var(--accent); display: inline-flex; align-items: center; gap: 0.25rem; flex-shrink: 0; white-space: nowrap; }
+    nav.breadcrumb a { color: var(--accent); display: inline-flex !important; align-items: center; gap: 0.25rem; flex-shrink: 0; white-space: nowrap; text-decoration: none; }
 
 
     .breadcrumb a:hover { text-decoration: underline; }
 
 
-    .breadcrumb-sep { opacity: 0.5; margin: 0 0.1rem; flex-shrink: 0; }
+    .breadcrumb-sep { opacity: 0.5; margin: 0 0.1rem; flex-shrink: 0; display: inline-block; }
 
 
-    .breadcrumb-icon { width: 14px; height: 14px; flex-shrink: 0; }
+    .breadcrumb-icon { width: 14px; height: 14px; flex-shrink: 0; display: inline-block; }
 
 
         .account-card {
@@ -987,27 +987,13 @@ export function generateCategoryPage(options = {}) {
   ${header}
 
 
-  <nav class="breadcrumb">
-
-
-    <a href="${origin}/">
-
-
-      <svg class="breadcrumb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-
-
-      <span class="breadcrumb-text">Home</span>
-
-
+  <nav class="breadcrumb" style="max-width:1400px;margin:0 auto;padding:1rem 2rem;display:flex;flex-direction:row;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);">
+    <a href="${origin}/" style="color:var(--accent);display:inline-flex;align-items:center;gap:0.25rem;text-decoration:none;white-space:nowrap;flex-shrink:0;">
+      <svg class="breadcrumb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;flex-shrink:0;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="breadcrumb-text" style="white-space:nowrap;">Home</span>
     </a>
-
-
-    <span class="breadcrumb-sep">›</span>
-
-
-    <span class="breadcrumb-current">${escapeHtml(category)}</span>
-
-
+    <span class="breadcrumb-sep" style="opacity:0.5;margin:0 0.1rem;flex-shrink:0;display:inline-block;">›</span>
+    <span class="breadcrumb-current" style="white-space:nowrap;flex-shrink:0;">${escapeHtml(category)}</span>
   </nav>
 
 
@@ -2615,4 +2601,4 @@ function escapeHtml(str) {
 
 }
 
-
+
