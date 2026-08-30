@@ -2241,7 +2241,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
     function startUsdtOrderCheck(orderId, token) {
       if (checkPaymentInterval) clearInterval(checkPaymentInterval);
       let checkCount = 0;
-      const maxChecks = 90; // ~7.5 min (every 5 seconds)
+      const maxChecks = 90; // ~15 min (every 10 seconds)
       checkPaymentInterval = setInterval(async () => {
         checkCount++;
         if (checkCount > maxChecks) {
@@ -2269,7 +2269,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         } catch (e) {
           console.error('USDT check error:', e);
         }
-      }, 5000);
+      }, 10000);
     }
 
     async function handleSubscribe() {
@@ -2401,7 +2401,7 @@ export const SUBSCRIPTION_HTML = `<!DOCTYPE html>
         } catch (error) {
           console.error('Check order error:', error);
         }
-      }, 5000);
+      }, 10000);
     }
 
     async function simulatePaymentSuccess() {
