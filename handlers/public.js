@@ -340,20 +340,18 @@ export async function handleChannelDebug(request, env, ctx) {
   }
 
   try {
-    const db = getDB();
-    const channel = await db.prepare(`
-      SELECT channel_name, group_title, logo, play_url, headers, id, source_id
-      FROM channels
-      WHERE channel_hash = ? AND is_active = 1
-    `).bind(hash).first();
+    // 从 KV 缓存读（避免每次打 D1）。KV miss 时回退 D1。
+    const { getChannelByHash } = await import('../utils/channel-cache.js');
+    const channel = await getChannelByHash(env, hash);
 
     if (!channel) {
       return new Response('Channel not found', { status: 404 });
     }
 
-    // 检查数据源是否激活
-    if (channel.source_active === 0) {
-      return new Response('Channel source is inactive', { status: 404 });
+    // 缓存里只存 is_active=1 的频道（cacheChannelsToKV SQL 已过滤），
+    // 这里再做一次防御性检查
+    if (channel.is_active === 0) {
+      return new Response('Channel is inactive', { status: 404 });
     }
 
     // 解析headers
