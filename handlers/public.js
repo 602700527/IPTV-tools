@@ -104,56 +104,6 @@ function determineCacheTime(search, group, fromCache) {
   return 300; // 5分钟
 }
 
-// 公开公告API
-export async function handlePublicAnnouncement(request, env, ctx) {
-  try {
-    const db = getDB();
-
-    // 获取最新的启用的公告
-    const announcementResult = await db.prepare(`
-      SELECT * FROM announcements
-      WHERE enabled = 1
-      ORDER BY updated_at DESC
-      LIMIT 1
-    `).first();
-
-    if (!announcementResult) {
-      return new Response(JSON.stringify({
-        success: false,
-        message: 'No active announcement'
-      }), {
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-
-    // 构建响应体
-    const responseBody = JSON.stringify({
-      success: true,
-      data: announcementResult
-    });
-
-    // 生成ETag
-    const etag = await generateETag(responseBody);
-
-    return new Response(responseBody, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=300', // 5分钟缓存
-        'ETag': etag
-      }
-    });
-  } catch (error) {
-    console.error('[Announcement] 获取公告失败:', error);
-    return new Response(JSON.stringify({
-      success: false,
-      error: 'Internal server error'
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-}
-
 /**
  * 公开商城设置API - 获取商城和订阅功能开关状态
  */

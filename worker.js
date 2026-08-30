@@ -1372,9 +1372,6 @@ Disallow: /*?fbclid=`;
     } else if (path === '/api/config') {
       // API - （）
       return await handlePublicConfig(request, env, ctx);
-    } else if (path === '/api/announcement') {
-      // API
-      return await handlePublicAnnouncement(request, env, ctx);
     } else if (path === '/api/mall/settings') {
       // API
       return await handlePublicMallSettings(request, env, ctx);
