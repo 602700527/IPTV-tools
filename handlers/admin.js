@@ -789,28 +789,25 @@ export async function handleAdminRequest(request, env, ctx) {
         const pageSize = parseInt(url.searchParams.get('page_size')) || 100;
         const search = url.searchParams.get('search') || '';
 
-        // 
+        // 从 KV 缓存取 groups（避免每次过滤都打 D1）
         if (action === 'get_groups') {
-          const db = getDB();
-          let query = 'SELECT DISTINCT c.group_title FROM channels c';
-          const params = [];
-          const conditions = [];
+          const { getAllChannels, getAllGroups } = await import('../utils/channel-cache.js');
+          const { groups: allGroups } = await getAllGroups(env);
 
-          // ：
-          conditions.push('c.group_title IS NOT NULL');
-          conditions.push('c.group_title != ""');
-
-          // source_id，JOIN
+          // 按 source_id 过滤：从 channels 缓存按 source_id 找出对应 group 集合
+          let filteredGroups = allGroups;
           if (sourceIdFilter) {
-            query += ' INNER JOIN sources s ON c.source_id = s.id';
-            conditions.push('s.id = ?');
-            params.push(sourceIdFilter);
+            const { channels } = await getAllChannels(env);
+            const groupSet = new Set();
+            for (const ch of channels) {
+              if (String(ch.source_id) === String(sourceIdFilter) && ch.group_title) {
+                groupSet.add(ch.group_title);
+              }
+            }
+            filteredGroups = Array.from(groupSet).sort((a, b) => a.localeCompare(b, 'zh-CN', { numeric: true }));
           }
 
-          query += ' WHERE ' + conditions.join(' AND ') + ' ORDER BY c.group_title';
-
-          const groups = await db.prepare(query).bind(...params).all();
-          return new Response(JSON.stringify({ groups: groups.results.map(g => g.group_title) }), {
+          return new Response(JSON.stringify({ groups: filteredGroups }), {
             headers: { 'Content-Type': 'application/json' }
           });
         }
@@ -1058,15 +1055,20 @@ export async function handleAdminRequest(request, env, ctx) {
           }
 
           const db = getDB();
-          let updated = 0;
-
-          for (const id of ids) {
-            if (!id) continue;
-            const result = await db.prepare('UPDATE channels SET type = ? WHERE id = ?').bind(type || '', id).run();
-            if (result.meta.changes > 0) {
-              updated++;
-            }
+          // 过滤空 id，避免无效参数
+          const validIds = ids.filter(id => id != null && id !== '');
+          if (validIds.length === 0) {
+            return new Response(JSON.stringify({ success: true, updated: 0, message: 'No valid ids' }), {
+              headers: { 'Content-Type': 'application/json' }
+            });
           }
+
+          // 单条 SQL 批量更新：N 次 UPDATE → 1 次 UPDATE
+          const placeholders = validIds.map(() => '?').join(',');
+          const result = await db.prepare(
+            `UPDATE channels SET type = ? WHERE id IN (${placeholders})`
+          ).bind(type || '', ...validIds).run();
+          const updated = result.meta?.changes || 0;
 
           return new Response(JSON.stringify({
             success: true,
