@@ -69,7 +69,7 @@ export function generateSearchPage(options = {}) {
     .channel-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
     .channel-poster { aspect-ratio: 16/10; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
     .channel-poster img { width: 100%; height: 100%; object-fit: contain; padding: 1rem; }
-    .channel-poster .placeholder { width: 48px; height: 32px; opacity: 0.3; flex-shrink: 0; }
+    .channel-poster .placeholder { width: 72px; height: 48px; opacity: 0.4; flex-shrink: 0; }
     .channel-info { padding: 0.75rem; }
     .channel-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .channel-group { font-size: 0.75rem; color: var(--text-muted); }
@@ -303,7 +303,7 @@ export function generateSearchPage(options = {}) {
 
         if (results.length > 0) {
           resultsContainer.innerHTML = '<div class="channel-grid">' + results.map(ch => {
-            const logoHtml = ch.logo ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '">' : '<div class="placeholder" style="width:48px;height:32px;flex-shrink:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="100%" height="100%"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>';
+            const logoHtml = ch.logo ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '">' : '<div class="placeholder" style="width:72px;height:48px;flex-shrink:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" width="64" height="64"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>';
             const channelUrl = '/channel/' + (ch.slug || slugify(ch.name));  // 使用API返回的slug
             return '<a href="' + origin + channelUrl + '" class="channel-card">' +
               '<div class="channel-poster">' + logoHtml + '</div>' +
