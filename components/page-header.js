@@ -347,7 +347,7 @@ export const PAGE_HEADER = `
       .logo { flex-shrink: 0; }
       .logo-icon svg { width: 32px; height: 32px; }
       .logo-text { display: none; }
-      .header-actions { flex-shrink: 0; gap: 0.75rem; }
+      .header-actions { flex-shrink: 0; margin-left: auto; gap: 0.75rem; }
       .pill-btn, .account-btn { width: 44px; height: 44px; }
       .account-btn svg, .pill-btn svg { width: 14px; height: 14px; }
       #translateSelectLanguage { min-width: 40px; font-size: 0.7rem; }

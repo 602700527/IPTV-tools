@@ -221,9 +221,7 @@ function startCooldown() {
   }
 }
 
-let codeCooldown = 0;
-  event.preventDefault();
-  const btn = document.getElementById('submitBtn');
+function handleSubmit(event) {
   const originalContent = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span><span>Resetting...</span>';
