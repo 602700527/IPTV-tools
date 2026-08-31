@@ -280,34 +280,40 @@ export function enhancedChannelMatch(channel, searchTerms) {
   if (!channel || !searchTerms || searchTerms.length === 0) {
     return { matches: false, score: 0, matchType: null };
   }
-  
+
   const name = (channel.channel_name || '').toLowerCase();
   const group = (channel.group_title || '').toLowerCase();
-  
+  const namePinyin = (channel.name_pinyin || '').toLowerCase();
+  const groupPinyin = (channel.group_pinyin || '').toLowerCase();
+
   let bestScore = 0;
   let matchType = null;
-  
+
   for (const term of searchTerms) {
-    if (name.includes(term)) {
-      if (term.length > bestScore) {
-        bestScore = term.length;
-        matchType = 'name_exact';
+    const termLower = term.toLowerCase();
+
+    // 直接包含匹配（大小写不敏感）
+    if (name.includes(termLower)) {
+      if (term.length > bestScore) { bestScore = term.length; matchType = 'name_exact'; }
+    }
+    if (group.includes(termLower)) {
+      if (term.length > bestScore) { bestScore = term.length; matchType = 'group_exact'; }
+    }
+
+    // 拼音首字母匹配
+    if (namePinyin && termLower.length <= namePinyin.length) {
+      if (namePinyin.includes(termLower)) {
+        if (term.length > bestScore) { bestScore = term.length; matchType = 'name_pinyin'; }
       }
     }
-    
-    if (group.includes(term)) {
-      if (term.length > bestScore) {
-        bestScore = term.length;
-        matchType = 'group_exact';
+    if (groupPinyin && termLower.length <= groupPinyin.length) {
+      if (groupPinyin.includes(termLower)) {
+        if (term.length > bestScore) { bestScore = term.length; matchType = 'group_pinyin'; }
       }
     }
   }
-  
-  return {
-    matches: bestScore > 0,
-    score: bestScore,
-    matchType
-  };
+
+  return { matches: bestScore > 0, score: bestScore, matchType };
 }
 
 /**
