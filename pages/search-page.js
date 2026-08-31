@@ -69,7 +69,7 @@ export function generateSearchPage(options = {}) {
     .channel-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
     .channel-poster { aspect-ratio: 16/10; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
     .channel-poster img { width: 100%; height: 100%; object-fit: contain; padding: 1rem; }
-    .channel-poster .placeholder { opacity: 0.3; }
+    .channel-poster .placeholder { width: 48px; height: 32px; opacity: 0.3; flex-shrink: 0; }
     .channel-info { padding: 0.75rem; }
     .channel-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .channel-group { font-size: 0.75rem; color: var(--text-muted); }
@@ -195,7 +195,7 @@ export function generateSearchPage(options = {}) {
 
   <main class="main-container" id="main-content">
     <div class="search-results-header">
-      <h1>🔍 Search Results</h1>
+      <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg> Search Results</h1>
       <p id="resultText">Loading...</p>
     </div>
 
@@ -303,7 +303,7 @@ export function generateSearchPage(options = {}) {
 
         if (results.length > 0) {
           resultsContainer.innerHTML = '<div class="channel-grid">' + results.map(ch => {
-            const logoHtml = ch.logo ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '">' : '<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="100%" height="100%"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>';
+            const logoHtml = ch.logo ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '">' : '<div class="placeholder" style="width:48px;height:32px;flex-shrink:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="100%" height="100%"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>';
             const channelUrl = '/channel/' + (ch.slug || slugify(ch.name));  // 使用API返回的slug
             return '<a href="' + origin + channelUrl + '" class="channel-card">' +
               '<div class="channel-poster">' + logoHtml + '</div>' +
