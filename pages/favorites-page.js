@@ -632,6 +632,7 @@ export function generateFavoritesPage(options = {}) {
     // Initialize theme icons on page load
     (function() {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const saved = localStorage.getItem('theme');
       const isDark = saved ? saved === 'dark' : prefersDark;
     })();
     
