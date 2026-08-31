@@ -9,7 +9,7 @@ import { getDB } from '../../database.js';
 
 const SEARCH_CACHE_KEY = 'search_cache:';
 const SEARCH_CACHE_TTL = 300; // 5分钟缓存
-const FREE_SEARCH_LIMIT = 10; // 免费用户搜索结果限制数量
+const SEARCH_LIMIT = 10000; // 搜索结果上限（无限制）
 
 function slugify(str) {
   if (!str) return '';
@@ -70,7 +70,7 @@ async function checkUserVipStatus(token) {
 /**
  * Handle /api/search
  * Returns search results for the given query
- * VIP用户无限制，免费用户限制前5条
+ * VIP用户无限制，免费用户无限制
  */
 export async function handleApiSearch(request, env, ctx) {
   try {
@@ -99,31 +99,6 @@ export async function handleApiSearch(request, env, ctx) {
       isVip = vipStatus.isVip;
       userId = vipStatus.userId;
       userEmail = vipStatus.userEmail;
-    }
-
-    // 尝试从缓存获取搜索结果
-    const cacheKey = getSearchCacheKey(query, isVip);
-    try {
-      const cached = await env.KV.get(cacheKey, { type: 'json' });
-      if (cached) {
-        console.log('[API Search] Cache hit for query:', query, 'isVip:', isVip);
-        // 添加元信息
-        cached.meta = {
-          isVip,
-          isLimited: !isVip && cached.data?.totalResults > FREE_SEARCH_LIMIT,
-          freeLimit: FREE_SEARCH_LIMIT,
-          userId: userId,
-          userEmail: userEmail
-        };
-        return new Response(JSON.stringify(cached), {
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'public, max-age=300'
-          }
-        });
-      }
-    } catch (e) {
-      console.warn('[API Search] Cache read failed:', e.message);
     }
 
     // 缓存未命中，执行搜索
@@ -176,11 +151,11 @@ export async function handleApiSearch(request, env, ctx) {
     // 智能排序
     matchedChannels.sort((a, b) => smartSort(a.channel, b.channel, a.score, b.score));
     
-    // 计算实际返回数量
-    const maxResults = isVip ? 100 : FREE_SEARCH_LIMIT;
+    // 计算实际返回数量（无限制）
+    const maxResults = SEARCH_LIMIT;
     const results = matchedChannels.slice(0, maxResults).map(m => m.channel);
     const totalResults = matchedChannels.length;
-    const isLimited = !isVip && totalResults > FREE_SEARCH_LIMIT;
+    const isLimited = totalResults > maxResults;
 
     // Build JSON-LD ItemList
     const itemListElement = results.map((ch, index) => ({
@@ -221,7 +196,7 @@ export async function handleApiSearch(request, env, ctx) {
         // 新增元信息
         isVip: isVip,
         isLimited: isLimited,
-        freeLimit: FREE_SEARCH_LIMIT,
+        freeLimit: maxResults,
         userId: userId,
         userEmail: userEmail
       }
@@ -250,4 +225,4 @@ export async function handleApiSearch(request, env, ctx) {
   }
 }
 
-export { FREE_SEARCH_LIMIT };
+export { SEARCH_LIMIT };

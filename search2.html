@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  <!-- 预连接到第三方资源 -->
+  <link rel="preconnect" href="https://www.googletagmanager.com">
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  
+  
+  <!-- Outfit 字体 preload（避免 FOIT） -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+  <style type="text/css">@font-face {font-family:'Outfit';font-style:normal;font-weight:400;src:url(/cf-fonts/v/outfit/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Outfit';font-style:normal;font-weight:400;src:url(/cf-fonts/v/outfit/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Outfit';font-style:normal;font-weight:500;src:url(/cf-fonts/v/outfit/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Outfit';font-style:normal;font-weight:500;src:url(/cf-fonts/v/outfit/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Outfit';font-style:normal;font-weight:600;src:url(/cf-fonts/v/outfit/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Outfit';font-style:normal;font-weight:600;src:url(/cf-fonts/v/outfit/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Outfit';font-style:normal;font-weight:700;src:url(/cf-fonts/v/outfit/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Outfit';font-style:normal;font-weight:700;src:url(/cf-fonts/v/outfit/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Outfit';font-style:normal;font-weight:800;src:url(/cf-fonts/v/outfit/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Outfit';font-style:normal;font-weight:800;src:url(/cf-fonts/v/outfit/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:400;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:400;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:400;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:400;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:400;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:400;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:500;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:600;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:600;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:600;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:600;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:600;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:600;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:700;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:700;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:700;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/vietnamese/wght/normal.woff2);unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:700;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/cyrillic/wght/normal.woff2);unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:700;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/cyrillic-ext/wght/normal.woff2);unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;font-display:swap;}@font-face {font-family:'JetBrains Mono';font-style:normal;font-weight:700;src:url(/cf-fonts/v/jetbrains-mono/5.2.8/greek/wght/normal.woff2);unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;font-display:swap;}</style>
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"></noscript>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MB15P52H01"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MB15P52H01');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <meta name="theme-color" content="#e50914">
+  <title>Search test IPTV Channels - Free test M3U M3U8 Stream Online</title>
+  <meta name="description" content="Find free test live TV channels online. No signup required.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Search test IPTV Channels - Free test Stream">
+  <meta property="og:description" content="Stream free test live TV channels. Instant M3U M3U8 links - works with all IPTV players. No registration.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Search test IPTV Channels Free Online">
+  <meta name="twitter:description" content="Stream free test live TV. M3U M3U8 links for all IPTV players.">
+
+  <script>
+    
+  </script>
+  
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-card: #1a1a1a;
+      --bg-hover: #252525;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #8b8b8b;
+      --accent: #e50914;
+      --accent-hover: #f6121d;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.15);
+      --shadow: 0 4px 20px rgba(0,0,0,0.5);
+      --radius: 8px;
+      --transition: 0.2s ease;
+    }
+
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-padding-top: 60px; }
+    body { font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; }
+
+    .main-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    .search-results-header { margin-bottom: 2rem; }
+    .search-results-header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .search-results-header p { color: var(--text-secondary); font-size: 1rem; }
+    .search-results-header strong { color: var(--accent); }
+
+    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+    .channel-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; transition: all var(--transition); cursor: pointer; position: relative;
+    }
+    .channel-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+    .channel-poster { aspect-ratio: 16/10; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .channel-poster img { width: 100%; height: 100%; object-fit: contain; padding: 1rem; }
+    .channel-poster .placeholder { font-size: 3rem; opacity: 0.3; }
+    .channel-info { padding: 0.75rem; }
+    .channel-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .channel-group { font-size: 0.75rem; color: var(--text-muted); }
+
+    .empty-state { text-align: center; padding: 4rem 2rem; }
+    .empty-state-icon { font-size: 4rem; opacity: 0.3; margin-bottom: 1rem; }
+    .empty-state h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .empty-state p { color: var(--text-secondary); margin-bottom: 1.5rem; }
+    .empty-state .category-list { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 1.5rem; }
+    .empty-state .category-tag {
+      display: inline-block; padding: 0.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 20px; font-size: 0.85rem; color: var(--text-secondary); transition: all var(--transition);
+    }
+    .empty-state .category-tag:hover { background: var(--bg-hover); color: var(--accent); border-color: var(--accent); }
+
+    .search-tips { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 1.5rem; font-size: 0.85rem; }
+    .search-tips h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary); }
+    .search-tips ul { list-style: none; color: var(--text-secondary); }
+    .search-tips li { margin-bottom: 0.25rem; padding-left: 1.5rem; position: relative; }
+    .search-tips li::before { content: '💡'; position: absolute; left: 0; }
+    .search-tips code { background: var(--bg-secondary); padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.8rem; color: var(--accent); }
+
+    .page-footer { background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 2.5rem 1.25rem; margin-top: 3rem; }
+    .footer-content { max-width: 1000px; margin: 0 auto; text-align: center; }
+    .footer-copyright { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.25rem; }
+    .footer-links { display: flex; justify-content: center; align-items: center; gap: 1.25rem; flex-wrap: wrap; margin-top: 1rem; font-size: 0.75rem; }
+    .footer-links a { color: var(--text-secondary); text-decoration: none; transition: color var(--transition); }
+    .footer-links a:hover { color: var(--text-primary); }
+    .footer-badges { display: flex; align-items: center; justify-content: center; gap: 0.625rem; margin-top: 1.25rem; }
+    .footer-badges img { height: 12px; width: auto; opacity: 0.8; transition: opacity var(--transition); }
+    .footer-badges img:hover { opacity: 1; }
+    .footer-badges span { font-size: 0.75rem; color: var(--text-secondary); }
+    .footer-disclaimer { margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; max-width: 600px; margin-left: auto; margin-right: auto; }
+    .loading { text-align: center; padding: 4rem; color: var(--text-secondary); }
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .skeleton-loader {
+      background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius);
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .channel-grid.loading-state {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    /* VIP Limit Notice */
+    .vip-perks {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .main-container { padding: 1rem; }
+      .channel-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
+    }
+    @media (max-width: 480px) {
+      .logo-text { display: none; }
+      .channel-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    }
+  </style>
+  <a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;z-index:99999;">Skip to main content</a>
+  <style>.skip-link:focus{position:fixed;left:0;top:0;width:auto;height:auto;padding:0.5rem 1rem;background:#e50914;color:#fff;z-index:99999;font-weight:600;}
+    @media (prefers-reduced-motion: reduce) {
+      .guest-gift, .gift-icon { animation: none !important; }
+      * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }</style>
+</head>
+<body>
+  
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <div class="logo-icon">
+          <svg width="28" height="28" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="tvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#e50914;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="36" height="36" fill="url(#tvGradient)" />
+            <rect x="4" y="8" width="28" height="18" fill="#0a0a0a" />
+            <path d="M14 12 L24 17 L14 22 Z" fill="#fff" />
+            <rect x="10" y="28" width="6" height="3" fill="#0a0a0a" />
+            <rect x="20" y="28" width="6" height="3" fill="#0a0a0a" />
+          </svg>
+        </div>
+        <div class="logo-text">IPTV<span>Search</span></div>
+      </a>
+      <div class="header-search-wrapper">
+        <form action="/search" method="get" class="header-search-form">
+          <div class="header-search-type-wrap">
+            <select name="type" class="header-search-type" aria-label="Search type">
+              <option value="channel">Channel</option>
+              <option value="group">Region</option>
+              <option value="type">Type</option>
+            </select>
+          </div>
+          <div class="header-search-divider"></div>
+          <input type="text" name="q" class="header-search-input" placeholder="Search channels..." aria-label="Search">
+          <button type="submit" class="header-search-submit" aria-label="Search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+      <div class="header-actions">
+        <a href="/favorites" class="pill-btn" aria-label="Favorites">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </a>
+        <a href="/subscription" class="pill-btn" aria-label="Subscription Plans">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </a>
+        <a href="/account" class="account-btn guest-gift" aria-label="Get 7 Days Free VIP" id="giftAccountBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </a>
+        <div id="translate"></div>
+      </div>
+    </div>
+  </header>
+
+  <div id="ad-container"></div>
+
+  <script>
+    // 广告延迟加载：先检查会员状态，是会员则不加载广告
+    (function() {
+      var adContainer = document.getElementById('ad-container');
+      if (!adContainer) return;
+
+      function loadAd() {
+        var ins = document.createElement('ins');
+        ins.className = 'adsbygoogle';
+        ins.style.cssText = 'display:block';
+        ins.dataset.adClient = 'ca-pub-2205598928191137';
+        ins.dataset.adSlot = '9663554756';
+        ins.dataset.adFormat = 'auto';
+        ins.dataset.fullWidthResponsive = 'true';
+        adContainer.appendChild(ins);
+
+        var script1 = document.createElement('script');
+        script1.async = true;
+        script1.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2205598928191137';
+        script1.crossOrigin = 'anonymous';
+        adContainer.appendChild(script1);
+
+        var script2 = document.createElement('script');
+        script2.text = '(adsbygoogle = window.adsbygoogle || []).push({});';
+        adContainer.appendChild(script2);
+      }
+
+      // Timeout race: 1.5s 后无论 API 是否返回都按非会员加载广告，避免 API hang 时广告永远不出现
+      var apiTimeout = new Promise(function(resolve) {
+        setTimeout(function() { resolve({ isMember: false }); }, 1500);
+      });
+      var memberCheck = fetch('/api/member/status')
+        .then(function(r) { return r.json(); })
+        .catch(function() { return { isMember: false }; });
+
+      Promise.race([memberCheck, apiTimeout]).then(function(data) {
+        if (data.isMember && data.adFreeEnabled) return;
+        // 延迟 150ms 让 LCP 先 paint，再注入广告脚本
+        setTimeout(loadAd, 150);
+      });
+    })();
+  </script>
+
+  <script>
+    // Gift animation for unauthenticated users
+    (function() {
+      var btn = document.getElementById('giftAccountBtn');
+      if (!btn) return;
+      
+      // 检查是否已登录（Cookie或localStorage）
+      var token = document.cookie.split('; ').find(row => row.startsWith('auth_token='))?.split('=')[1] || localStorage.getItem('auth_token');
+      if (token) {
+        btn.classList.remove('guest-gift');
+        var icon = btn.querySelector('.gift-icon');
+        if (icon) icon.remove();
+      } else {
+        btn.classList.add('guest-gift');
+        var giftIcon = document.createElement('span');
+        giftIcon.className = 'gift-icon';
+        giftIcon.textContent = '🎁';
+        btn.appendChild(giftIcon);
+      }
+    })();
+  </script>
+
+  <style>
+    :root {
+      /* 背景层次 - 纯色极简 */
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #0f0f0f;
+      --bg-card: transparent;
+      --bg-hover: transparent;
+      --bg-elevated: transparent;
+
+      /* 文字层次 */
+      --text-primary: #ffffff;
+      --text-secondary: #888888;
+      --text-muted: #8b8b8b;
+
+      /* 主色调 - 纯红强调 */
+      --accent: #e50914;
+      --accent-hover: #ff1a1a;
+
+      /* 辅助色系 */
+      --premium-red: #e50914;
+      --success-green: #22c55e;
+      --trust-blue: #3b82f6;
+      --alert-orange: #f59e0b;
+
+      /* 边框与阴影 - 极简线条 */
+      --border: 1px solid rgba(255,255,255,0.08);
+      --border-hover: 1px solid rgba(229,9,20,0.4);
+      --border-accent: 1px solid var(--accent);
+      --shadow: none;
+      --radius: 0;
+      --transition: 0.2s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-padding-top: 60px; }
+    body { font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; }
+
+    .header {
+      background: var(--bg-primary);
+      border-bottom: var(--border);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 0.75rem 0;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+    }
+    .logo-icon svg { width: 36px; height: 36px; }
+    .logo-text span { color: var(--accent); }
+    .header-actions { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }
+
+    /* 搜索栏 - 极简线条 */
+    .header-search-wrapper { max-width: 360px; min-width: 200px; margin-left: auto; }
+    .header-search-form {
+      display: flex;
+      align-items: center;
+      background: transparent;
+      border: var(--border);
+      padding: 0;
+      gap: 0;
+      transition: border-color 0.2s;
+    }
+    .header-search-form:focus-within {
+      border-color: var(--accent);
+    }
+
+    .header-search-type-wrap {
+      display: flex;
+      align-items: center;
+      padding: 0 0.75rem;
+      flex-shrink: 0;
+    }
+    .header-search-type {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      outline: none;
+      min-width: 60px;
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 0.85rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.4rem center;
+      background-size: 10px 10px;
+    }
+    .header-search-type:hover, .header-search-type:focus { color: var(--text-primary); }
+    .header-search-type option { background: var(--bg-primary); color: var(--text-primary); }
+
+    .header-search-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .header-search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      padding: 0.5rem 0.75rem;
+      outline: none;
+      min-width: 0;
+    }
+    .header-search-input::placeholder { color: var(--text-muted); }
+
+    .header-search-submit {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 0;
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      flex-shrink: 0;
+      border-left: none;
+    }
+    .header-search-submit:hover { background: var(--bg-card); border-color: var(--border-hover); color: var(--text-primary); }
+
+    /* 图标按钮 - 极简 */
+    .pill-btn, .account-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+      border: none;
+      background: transparent;
+    }
+    .pill-btn:hover, .account-btn:hover { color: var(--accent); }
+    .pill-btn:focus-visible, .account-btn:focus-visible, .header-search-submit:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .account-btn svg, .pill-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    
+    /* Gift animation for unauthenticated users */
+    .guest-gift {
+      position: relative;
+      animation: giftPulse 2s ease-in-out infinite;
+    }
+    .gift-icon {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      font-size: 12px;
+      animation: giftBounce 1s ease-in-out infinite;
+      filter: drop-shadow(0 2px 4px rgba(229, 9, 20, 0.5));
+    }
+    @keyframes giftPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @keyframes giftBounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-3px) rotate(-10deg); }
+    }
+    .guest-gift:hover .gift-icon {
+      animation: giftSpin 0.5s ease-out;
+    }
+    @keyframes giftSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    #translate { position: relative; display: inline-flex; align-items: center; }
+    #translateSelectLanguage {
+      appearance: none;
+      -webkit-appearance: none;
+      padding: 0 0.5rem;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      cursor: pointer;
+      outline: none;
+      transition: color 0.2s;
+      min-width: 50px;
+    }
+    #translateSelectLanguage:focus { color: var(--accent); }
+    #translateSelectLanguage:hover { color: var(--accent); }
+
+    #ad-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 8px 0;
+      min-height: 90px; /* CLS reservation for Google AdSense horizontal unit */
+    }
+
+    @media (max-width: 768px) {
+      #ad-container { padding: 4px 1rem; }
+      .header-inner {
+        flex-wrap: wrap;
+        padding: 0.5rem 1rem;
+        gap: 0.75rem;
+      }
+      .logo { flex-shrink: 0; }
+      .logo-icon svg { width: 32px; height: 32px; }
+      .logo-text { display: none; }
+      .header-actions { flex-shrink: 0; gap: 0.75rem; }
+      .pill-btn, .account-btn { width: 44px; height: 44px; }
+      .account-btn svg, .pill-btn svg { width: 14px; height: 14px; }
+      #translateSelectLanguage { min-width: 40px; font-size: 0.7rem; }
+      /* 搜索栏下移到第二行 */
+      .header-search-wrapper {
+        order: 3;
+        width: 100%;
+        max-width: none;
+        margin: 0.5rem 0 0 0;
+        flex: none;
+      }
+      .header-search-type { min-width: 50px; font-size: 0.7rem; }
+      .header-search-input { font-size: 0.75rem; padding: 0.4rem 0.5rem; }
+    }
+
+    @media (max-width: 480px) {
+      #ad-container { padding: 4px 1rem; }
+      .header-search-type-wrap { padding: 0 0.5rem; }
+      .header-search-divider { display: none; }
+      .header-search-type { min-width: 40px; }
+      .header-search-input { padding: 0.4rem 0.5rem; }
+    }
+
+    /* 平板尺寸断点（768px-1024px） */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .header-inner { gap: 1.5rem; padding: 0.5rem 1rem; }
+      .header-search-wrapper { max-width: 360px; }
+    }
+
+    /* 减少动画偏好：尊重用户系统设置，禁用脉冲/弹跳动画 */
+    @media (prefers-reduced-motion: reduce) {
+      .guest-gift,
+      .gift-icon {
+        animation: none !important;
+      }
+    }
+
+    /* 翻译下拉菜单触摸目标优化 */
+    #translateSelectLanguage {
+      padding: 0.3rem 0.5rem;
+      min-height: 32px;
+    }
+  </style>
+
+
+  <main class="main-container" id="main-content">
+    <div class="search-results-header">
+      <h1>🔍 Search Results</h1>
+      <p id="resultText">Loading...</p>
+    </div>
+
+    <div id="searchTips" class="search-tips" style="display: none;">
+      <h3>✨ Smart Search Tips</h3>
+      <ul>
+        <li>Search in <code>Pinyin</code> like <code>YANGZI</code> for 央视 Yangtze River</li>
+        <li>Use synonyms like <code>CCTV</code> or <code>Phoenix</code></li>
+        <li>Try both Chinese and English names</li>
+      </ul>
+    </div>
+
+    <div id="resultsContainer">
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <div>Searching channels...</div>
+      </div>
+    </div>
+  </main>
+
+  
+  <!-- Floating Sidebar - Telegram + Back to Top -->
+  <div class="floating-sidebar">
+    <a href="https://t.me/gotoplaytom" target="_blank" rel="noopener noreferrer" class="sidebar-btn telegram-btn" title="Contact us on Telegram">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/>
+      </svg>
+      <span class="sidebar-tooltip">Contact on Telegram</span>
+    </a>
+    <button class="sidebar-btn back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Back to Top">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+      <span class="sidebar-tooltip">Back to Top</span>
+    </button>
+  </div>
+
+  <footer class="page-footer">
+    <div class="footer-inner">
+
+      <!-- Main Footer Grid - 5 columns -->
+      <div class="footer-grid">
+        <!-- Brand Column -->
+        <div class="footer-brand">
+          <a href="/" class="footer-logo">
+            <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
+              <defs>
+                <linearGradient id="footerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#e50914"/>
+                  <stop offset="100%" style="stop-color:#ff3b30"/>
+                </linearGradient>
+              </defs>
+              <rect x="0" y="0" width="36" height="36" fill="url(#footerGradient)"/>
+              <rect x="4" y="8" width="28" height="18" fill="#0a0a0a"/>
+              <path d="M14 12 L24 17 L14 22 Z" fill="#fff"/>
+            </svg>
+            <span>IPTV<span>Search</span></span>
+          </a>
+          <p class="footer-tagline"><span>Free IPTV Channel Directory</span><span>Search &amp; Watch Instantly</span></p>
+          <div class="footer-brand-bottom">
+            <div class="footer-disclaimer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span>This site does not host any IPTV streams. All channels are sourced from publicly available M3U playlists. Channels may go offline at any time.</span>
+            </div>
+            <div class="footer-badges">
+              <a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">
+                <img src="https://cf-assets.www.cloudflare.com/slt3lc6tev37/CHOl0sUhrumCxOXfRotGt/081f81d52274080b2d026fdf163e3009/cloudflare-icon-color_3x.png" alt="Cloudflare">
+              </a>
+              <span>Powered by Cloudflare</span>
+            </div>
+          </div>
+          <div class="footer-copyright">&copy; 2026 IPTV Search. All rights reserved.</div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="footer-col">
+          <h4 class="footer-col-title">Quick Links</h4>
+          <div class="footer-col-links">
+            <a href="/tutorial">How to Watch on TV</a>
+            <a href="/carplay-aptv">APTV & CarPlay Guide</a>
+            <a href="/sitemap.xml">Sitemap</a>
+            <a href="/privacy-policy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+            <a href="mailto:support@iptv-search.com">Contact Us</a>
+          </div>
+        </div>
+
+        <!-- Support -->
+        <div class="footer-col">
+          <h4 class="footer-col-title">Support</h4>
+          <div class="footer-col-links">
+            <a href="/subscription">Subscription Plans</a>
+            <a href="/favorites" title="My IPTV Favorites — Cloud Synced">My Favorites</a>
+            <a href="/account">My Account</a>
+            <a href="/search">Search Channels</a>
+          </div>
+        </div>
+
+        <!-- FAQ Column -->
+        <div class="footer-col footer-faq-col">
+          <h4 class="footer-col-title">FAQ</h4>
+          <div class="footer-faq-list">
+            <details class="footer-faq-item">
+              <summary>How to watch for free?</summary>
+              <div class="footer-faq-answer">Browse our directory, select a channel, and start watching instantly. No registration required.</div>
+            </details>
+            <details class="footer-faq-item">
+              <summary>What devices supported?</summary>
+              <div class="footer-faq-answer">Smart TVs, Roku, Firestick, Apple TV, computers, smartphones & tablets.</div>
+            </details>
+            <details class="footer-faq-item">
+              <summary>Is IPTV legal?</summary>
+              <div class="footer-faq-answer">We index public links. Users must comply with local laws in their region.</div>
+            </details>
+            <details class="footer-faq-item">
+              <summary>Channel not playing?</summary>
+              <div class="footer-faq-answer">Try refreshing, different player, or check your internet connection.</div>
+            </details>
+            <details class="footer-faq-item">
+              <summary>How often updated?</summary>
+              <div class="footer-faq-answer">Daily updates - dead links removed & new channels added regularly.</div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div id="footer-ad-container"></div>
+
+  <script>
+    // 页脚广告延迟加载：先检查会员状态，是会员则不加载广告
+    (function() {
+      var footerAdContainer = document.getElementById('footer-ad-container');
+      if (!footerAdContainer) return;
+
+      fetch('/api/member/status')
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+          if (data.isMember && data.adFreeEnabled) {
+            return;
+          }
+          var script = document.createElement('script');
+          script.src = 'https://nap5k.com/tag.min.js';
+          script.dataset.zone = '10621634';
+          footerAdContainer.appendChild(script);
+        })
+        .catch(function() {
+          var script = document.createElement('script');
+          script.src = 'https://nap5k.com/tag.min.js';
+          script.dataset.zone = '10621634';
+          footerAdContainer.appendChild(script);
+        });
+    })();
+  </script>
+
+  <style>
+    /* Footer - 极简线条风格 */
+    .page-footer {
+      background: var(--bg-primary);
+      border-top: var(--border);
+      padding: 0;
+      margin-top: 1.5rem;
+    }
+    .footer-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr repeat(3, 1fr);
+      gap: 1rem;
+      padding: 2rem 0 2.5rem;
+    }
+
+    .footer-brand { }
+    .footer-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+    .footer-logo svg { width: 24px; height: 24px; }
+    .footer-logo span span { color: var(--accent); }
+    .footer-tagline {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      margin-top: 0.3rem;
+    }
+    .footer-tagline span { display: block; }
+    .footer-brand-bottom {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+    .footer-brand .footer-disclaimer {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .footer-brand .footer-disclaimer svg { flex-shrink: 0; opacity: 0.6; }
+
+    .footer-brand .footer-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .footer-brand .footer-badges img { height: 14px; width: auto; opacity: 0.7; transition: opacity 0.2s; }
+    .footer-brand .footer-badges img:hover { opacity: 1; }
+    .footer-brand .footer-badges span { font-size: 0.75rem; color: var(--text-muted); }
+
+    .footer-brand .footer-copyright {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .footer-col { }
+    .footer-col-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-bottom: 0.4rem;
+    }
+    .footer-col-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .footer-col-links a {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-col-links a:hover { color: var(--accent); }
+
+    /* FAQ Column - Compact */
+    .footer-faq-col { }
+    .footer-faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .footer-faq-item {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+    }
+    .footer-faq-item summary {
+      display: block;
+      padding: 0.4rem 0.5rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      list-style: none;
+      position: relative;
+    }
+    .footer-faq-item summary::-webkit-details-marker { display: none; }
+    .footer-faq-item summary::marker { display: none; content: ''; }
+    /* Custom open/close indicator (the default browser triangle
+       is suppressed above so we provide our own) */
+    .footer-faq-item summary::after {
+      content: '+';
+      display: inline-block;
+      margin-left: 0.4rem;
+      font-size: 0.9em;
+      opacity: 0.5;
+      transition: transform 0.2s, opacity 0.2s;
+      vertical-align: middle;
+    }
+    .footer-faq-item summary:hover::after { opacity: 1; }
+    .footer-faq-item[open] summary::after {
+      content: '−'; /* U+2212 minus sign */
+      opacity: 0.7;
+    }
+    .footer-faq-item summary:hover {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+    }
+    .footer-faq-item[open] summary { color: var(--accent); }
+    .footer-faq-answer {
+      padding: 0.5rem 0.5rem 0.5rem 1rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Floating Sidebar - 极简线条 */
+    .floating-sidebar {
+      position: fixed;
+      right: 20px;
+      bottom: 30px;
+      z-index: 9999;
+    }
+    .sidebar-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 0;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+      background: transparent;
+    }
+    .sidebar-btn:hover {
+      border-color: var(--accent);
+      background: var(--bg-hover);
+    }
+    .sidebar-btn.telegram-btn:hover {
+      border-color: #229ed9;
+      background: rgba(34, 158, 217, 0.08);
+    }
+    .sidebar-btn.telegram-btn:hover svg {
+      color: #229ed9;
+    }
+    .sidebar-btn:active {
+      transform: scale(0.98);
+    }
+    .sidebar-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .sidebar-btn svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text-primary);
+      transition: transform 0.2s ease;
+    }
+    .sidebar-btn:hover svg {
+      transform: translateY(-2px);
+    }
+    .sidebar-tooltip {
+      position: absolute;
+      right: 60px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .sidebar-tooltip::after {
+      content: '';
+      position: absolute;
+      right: -5px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 5px solid transparent;
+      border-left-color: var(--border);
+    }
+    .sidebar-btn:hover .sidebar-tooltip {
+      opacity: 1;
+      transform: translateY(-50%) translateX(-4px);
+    }
+
+    @media (max-width: 768px) {
+      .page-footer {
+        padding: 0;
+      }
+      .footer-inner { padding: 0 1.5rem; }
+      .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        padding: 1.5rem 0;
+      }
+      .footer-brand {
+        grid-column: 1 / -1;
+      }
+      .footer-brand-bottom { align-items: center; }
+      .footer-disclaimer { flex-direction: column; text-align: center; gap: 0.75rem; }
+      .footer-badges { justify-content: center; }
+      /* Center column content at this breakpoint too — was only at 480 */
+      .footer-tagline,
+      .footer-col-title,
+      .footer-col-links { text-align: center; align-items: center; }
+      .footer-col-links a { text-align: center; }
+      .floating-sidebar {
+        right: 10px;
+        bottom: 16px;
+      }
+      .sidebar-btn {
+        width: 44px;
+        height: 44px;
+      }
+      .sidebar-tooltip {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .footer-inner { padding: 0 1rem; }
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1.25rem 0;
+      }
+      .footer-brand { grid-column: 1; text-align: center; }
+      .footer-logo { justify-content: center; }
+      .footer-brand-bottom { align-items: center; }
+      .footer-disclaimer { flex-direction: column; text-align: center; gap: 0.5rem; }
+      .footer-badges { justify-content: center; }
+      /* FAQ items: tighter padding on tiny phones */
+      .footer-faq-item summary { padding: 0.5rem 0.25rem; font-size: 0.82rem; }
+      .footer-faq-answer { font-size: 0.78rem; padding: 0.4rem 0.5rem 0.5rem; }
+    }
+
+    /* VIP Sticky Strip — persistent bottom offer */
+    
+  .vip-strip {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9997;
+    background: rgba(15, 15, 15, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(229, 9, 20, 0.4);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transform: translateY(100%);
+    opacity: 0;
+    transition: transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.4s ease;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.4);
+  }
+  .vip-strip.vip-strip-visible { transform: translateY(0); opacity: 1; }
+  .vip-strip-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    color: #ff5566;
+  }
+  .vip-strip-text { flex: 1; min-width: 0; line-height: 1.3; }
+  .vip-strip-text strong {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .vip-strip-meta {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+  }
+  .vip-strip-check {
+    color: #22c55e;
+    font-weight: 700;
+    margin-right: 0.2rem;
+  }
+  .vip-strip-cta {
+    flex-shrink: 0;
+    padding: 0.6rem 1.5rem;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-decoration: none;
+    border-radius: 0;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .vip-strip-cta:hover { background: #ff1a1a; }
+  .vip-strip-close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    padding: 6px 8px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .vip-strip-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
+  @media (prefers-reduced-motion: reduce) {
+    .vip-strip { transition: opacity 0.01ms; transform: none; }
+  }
+  @media (max-width: 768px) {
+    .vip-strip { padding: 10px 12px; gap: 10px; }
+    .vip-strip-text strong { font-size: 0.85rem; }
+    .vip-strip-meta { font-size: 0.7rem; }
+    .vip-strip-cta { padding: 0.5rem 1rem; font-size: 0.78rem; }
+  }
+  @media (max-width: 380px) {
+    .vip-strip-meta { display: none; }
+  }
+
+    /* VIP Notification Toast — FOMO nudge */
+    
+  /* VIP Notification Toast — fixed bottom-right, slides up over sidebar */
+  .vip-toast {
+    position: fixed;
+    right: 24px;
+    bottom: 150px;
+    z-index: 9998;
+    max-width: 320px;
+    min-width: 260px;
+    background: rgba(15, 15, 15, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(229, 9, 20, 0.28);
+    border-radius: 12px;
+    padding: 14px 38px 14px 14px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.55), 0 0 24px rgba(229,9,20,0.18);
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transform: translateY(140%);
+    opacity: 0;
+    transition: transform 0.55s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.4s ease;
+    pointer-events: auto;
+  }
+  .vip-toast.vip-toast-visible { transform: translateY(0); opacity: 1; }
+  .vip-toast-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e50914, #b81d24);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-shadow: 0 0 18px rgba(229,9,20,0.55);
+  }
+  .vip-toast-icon svg { width: 20px; height: 20px; }
+  .vip-toast-body { flex: 1; min-width: 0; line-height: 1.4; }
+  .vip-toast-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+  .vip-toast-name { color: #ff5566; font-weight: 700; }
+  .vip-toast-msg {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.78);
+  }
+  .vip-toast-meta {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+    line-height: 1.35;
+  }
+  .vip-toast-cta {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #ff5566;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .vip-toast-cta:hover { color: #ff8a99; text-decoration: underline; }
+  .vip-toast-close {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .vip-toast-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
+  @media (prefers-reduced-motion: reduce) {
+    .vip-toast { transition: opacity 0.01ms; transform: none; }
+  }
+  @media (max-width: 768px) {
+    .vip-toast { right: 12px; left: 12px; bottom: 90px; max-width: none; min-width: 0; }
+  }
+  @media (max-width: 480px) {
+    .vip-toast { bottom: 16px; }
+  }
+
+  </style>
+
+  <!-- Translate.js 自动翻译 (仅非英文浏览器加载，避免隐私外发 + ~200KB) -->
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && !window.translate) {
+        window.translate = translate;
+      }
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.language.setLocal('english');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else {
+        setTimeout(initTranslate, 100);
+      }
+    }
+
+    // 仅在浏览器语言非英文时加载 translate.js（页面本身就是英文）
+    (function() {
+      var lang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+      if (lang.indexOf('en') === 0) return;
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js';
+      s.onload = initTranslate;
+      document.head.appendChild(s);
+    })();
+
+    function changeLanguage(lang) {
+      var t = window.translate || translate;
+      if (t && t.changeLanguage) {
+        t.changeLanguage(lang);
+      }
+    }
+  </script>
+  <script>
+    // Floating sidebar back-to-top functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const backToTopBtn = document.querySelector('.back-to-top');
+      if (backToTopBtn) {
+        const toggleVisibility = () => {
+          if (window.scrollY > 300) {
+            backToTopBtn.style.opacity = '1';
+            backToTopBtn.style.pointerEvents = 'auto';
+          } else {
+            backToTopBtn.style.opacity = '0';
+            backToTopBtn.style.pointerEvents = 'none';
+          }
+        };
+        window.addEventListener('scroll', toggleVisibility, { passive: true });
+        toggleVisibility();
+      }
+    });
+  </script>
+
+  <!-- VIP Notification Toast — FOMO social-proof nudge -->
+  
+  <div class="vip-toast notranslate" id="vipToast" role="status" aria-live="polite" translate="no" hidden>
+    <button class="vip-toast-close notranslate" aria-label="Close notification" type="button" translate="no">×</button>
+    <div class="vip-toast-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm0 2h14v2H5v-2z"/>
+      </svg>
+    </div>
+    <div class="vip-toast-body notranslate" translate="no">
+      <div class="vip-toast-title"><span class="vip-toast-name notranslate" id="vipToastName" translate="no"></span></div>
+      <div class="vip-toast-msg notranslate" id="vipToastMsg" translate="no"></div>
+      <div class="vip-toast-meta notranslate" id="vipToastMeta" translate="no"></div>
+      <a href="/subscription" class="vip-toast-cta notranslate" id="vipToastCta" translate="no">View VIP Plans →</a>
+    </div>
+  </div>
+
+  <script>
+    
+(function() {
+  if (window.__vipToastInited) return;
+  window.__vipToastInited = true;
+
+  // Locale-aware pools — real-sounding personas, no fake-looking ***N@domain pattern.
+  var POOLS = {
+    en: [
+      { name: 'James from Manchester',    msg: '🎉 just unlocked VIP',          meta: '5,000+ channels · 4K · no ads' },
+      { name: 'Sarah from New York',      msg: '🎉 activated VIP access',       meta: 'now watching Premier League live' },
+      { name: 'Priya from Mumbai',        msg: '🎉 just unlocked VIP',          meta: '5,000+ channels · multi-device sync' },
+      { name: 'Lukas from Berlin',        msg: '🎉 signed up for yearly VIP',   meta: 'saving 40% · priority support' },
+      { name: 'Carlos from Toronto',      msg: '🎉 renewed VIP membership',     meta: '4K quality · 7-day refund' },
+      { name: 'Yuki from Sydney',         msg: '🎉 upgraded to VIP',            meta: 'now watching Australian Open live' },
+      { name: 'Aisha from Dubai',         msg: '🎉 just unlocked VIP',          meta: '8,000+ channels · no ads · 4K' }
+    ],
+    zh: [
+      { name: '北京 张先生',   msg: '🎉 刚刚开通了 VIP',     meta: '8,000+ 频道 · 4K · 无广告' },
+      { name: '上海 李女士',   msg: '🎉 解锁了全部 VIP 权益', meta: '正在观看英超直播' },
+      { name: '深圳 王先生',   msg: '🎉 续费了年度 VIP',     meta: '享 6 折优惠 · 多设备同步' },
+      { name: '广州 陈女士',   msg: '🎉 刚刚开通了 VIP',     meta: '正在观看央视春晚' },
+      { name: '杭州 周先生',   msg: '🎉 升级到了 VIP',       meta: '正在观看 NBA 总决赛' },
+      { name: '成都 黄女士',   msg: '🎉 刚刚续费了 VIP',     meta: '7 天免费 · 享终身客服' },
+      { name: '武汉 徐先生',   msg: '🎉 解锁了全部 VIP 权益', meta: '正在观看欧冠决赛' }
+    ],
+    pt: [
+      { name: 'Carlos de São Paulo',   msg: '🎉 acabou de liberar VIP',         meta: '5.000+ canais · 4K · sem anúncios' },
+      { name: 'Ana do Rio de Janeiro', msg: '🎉 ativou acesso VIP',            meta: 'sincronização em vários dispositivos' },
+      { name: 'Pedro de Lisboa',       msg: '🎉 acabou de assinar VIP anual',  meta: 'economize 40% · suporte prioritário' },
+      { name: 'Luís do Porto',         msg: '🎉 renovou o VIP',                meta: 'reembolso em 7 dias · cancele a qualquer momento' }
+    ],
+    es: [
+      { name: 'Miguel de Madrid',      msg: '🎉 acaba de activar VIP',         meta: '5.000+ canales · 4K · sin anuncios' },
+      { name: 'Sofía de Buenos Aires', msg: '🎉 renovó el VIP anual',          meta: 'ahorra 40% · soporte prioritario' },
+      { name: 'Pablo de Barcelona',    msg: '🎉 acaba de desbloquear VIP',     meta: 'sincronización multi-dispositivo' }
+    ]
+  };
+
+  function pickPool() {
+    var lang = (navigator.language || 'en').toLowerCase();
+    if (lang.indexOf('zh') === 0) return POOLS.zh;
+    if (lang.indexOf('pt') === 0) return POOLS.pt;
+    if (lang.indexOf('es') === 0) return POOLS.es;
+    return POOLS.en;
+  }
+
+  // --- Context guards ------------------------------------------------------
+  var path = window.location.pathname;
+  var DENY_PATHS = ['/subscription', '/plans', '/login', '/account', '/admin'];
+  for (var i = 0; i < DENY_PATHS.length; i++) {
+    if (path.indexOf(DENY_PATHS[i]) === 0) return;
+  }
+
+  // Logged-in user: skip nudge entirely
+  try {
+    var hasAuth = !!localStorage.getItem('auth_token') ||
+                  document.cookie.indexOf('auth_token=') !== -1;
+    if (hasAuth) return;
+  } catch (e) { /* localStorage may be blocked */ }
+
+  // 24h suppression after × close
+  try {
+    var lastClose = parseInt(localStorage.getItem('vip_toast_last_close') || '0', 10);
+    if (lastClose && (Date.now() - lastClose) < 24 * 60 * 60 * 1000) return;
+  } catch (e) { /* ignore */ }
+
+  // Session cap (3 per session)
+  var SESSION_CAP = 3;
+  var shown = parseInt(sessionStorage.getItem('vip_toasts_shown') || '0', 10);
+  if (shown >= SESSION_CAP) return;
+
+  var toast      = document.getElementById('vipToast');
+  var nameEl     = document.getElementById('vipToastName');
+  var msgEl      = document.getElementById('vipToastMsg');
+  var metaEl     = document.getElementById('vipToastMeta');
+  var closeBtn   = toast ? toast.querySelector('.vip-toast-close') : null;
+  var hideTimer  = null;
+  var nextTimer  = null;
+
+  if (!toast) return;
+
+  var pool = pickPool();
+
+  function pickTemplate() {
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function showToast() {
+    if (!toast || !toast.isConnected) return;
+    if (shown >= SESSION_CAP) return;
+    // Defer if vip-strip is currently visible (mutual exclusion)
+    if (window.__vipStripVisible) {
+      setTimeout(showToast, 60000);
+      return;
+    }
+    var t = pickTemplate();
+    nameEl.textContent = t.name;
+    msgEl.textContent  = t.msg;
+    metaEl.textContent = t.meta;
+    toast.hidden = false;
+    void toast.offsetWidth; // force reflow for transition
+    toast.classList.add('vip-toast-visible');
+    window.__vipToastVisible = true;
+    shown++;
+    try { sessionStorage.setItem('vip_toasts_shown', String(shown)); } catch (e) {}
+    // Display ~15s (slight variation for natural feel)
+    var displayMs = 14000 + Math.floor(Math.random() * 2000);
+    hideTimer = setTimeout(hideToast, displayMs);
+  }
+
+  function hideToast() {
+    if (!toast) return;
+    toast.classList.remove('vip-toast-visible');
+    window.__vipToastVisible = false;
+    setTimeout(function() {
+      if (toast) toast.hidden = true;
+    }, 550);
+    if (shown < SESSION_CAP) scheduleNext();
+  }
+
+  function scheduleNext() {
+    // 90s – 5min after dismissal (was 30s – 5min; 30s trained users to ignore)
+    var ms = 90000 + Math.floor(Math.random() * 210000);
+    nextTimer = setTimeout(showToast, ms);
+  }
+
+  function userClose() {
+    try { localStorage.setItem('vip_toast_last_close', String(Date.now())); } catch (e) {}
+    if (hideTimer) clearTimeout(hideTimer);
+    if (nextTimer) clearTimeout(nextTimer);
+    hideToast();
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', userClose);
+  }
+
+  // Pause auto-hide while user is reading / about to click CTA
+  toast.addEventListener('mouseenter', function() {
+    if (hideTimer) clearTimeout(hideTimer);
+  });
+  toast.addEventListener('mouseleave', function() {
+    if (!toast.classList.contains('vip-toast-visible')) return;
+    hideTimer = setTimeout(hideToast, 7000);
+  });
+
+  // First show after 25–80s (let the page settle, avoid first-paint clash)
+  var firstDelay = 25000 + Math.floor(Math.random() * 55000);
+  setTimeout(showToast, firstDelay);
+})();
+
+  </script>
+
+  <!-- VIP Sticky Strip — persistent bottom offer (deconflicted from FOMO) -->
+  
+  <div class="vip-strip notranslate" id="vipStrip" role="region" aria-label="VIP offer" translate="no" hidden>
+    <div class="vip-strip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M5 18 L3 7 L7 11 L12 4 L17 11 L21 7 L19 18 Z M5 19 H19 V21 H5 Z"/></svg></div>
+    <div class="vip-strip-text notranslate" translate="no">
+      <strong class="notranslate" translate="no">7 days free VIP</strong>
+      <span class="vip-strip-meta notranslate" translate="no"><span class="vip-strip-check">&check;</span> No credit card · <span class="vip-strip-check">&check;</span> 7-day refund · <span class="vip-strip-check">&check;</span> Cancel anytime · <span class="vip-strip-check">&check;</span> Secure pay</span>
+    </div>
+    <a href="/subscription" class="vip-strip-cta notranslate" id="vipStripCta" translate="no">Get Free VIP &rarr;</a>
+    <button class="vip-strip-close notranslate" aria-label="Dismiss offer" type="button" translate="no">&times;</button>
+  </div>
+
+  <script>
+    
+(function() {
+  if (window.__vipStripInited) return;
+  window.__vipStripInited = true;
+
+  var DEBUG = /[?&]vipdebug=1/.test(window.location.search);
+
+  // Path denylist
+  var DENY = ['/subscription', '/plans', '/login', '/account', '/admin'];
+  var path = window.location.pathname;
+  for (var i = 0; i < DENY.length; i++) {
+    if (path.indexOf(DENY[i]) === 0) {
+      console.info('[vip-strip] skipped: path=' + path);
+      return;
+    }
+  }
+
+  // Logged-in user: skip (already converted or higher funnel)
+  try {
+    var hasAuth = !!localStorage.getItem('auth_token') ||
+                  document.cookie.indexOf('auth_token=') !== -1;
+    if (hasAuth && !DEBUG) {
+      console.info('[vip-strip] skipped: logged in (add ?vipdebug=1 to force)');
+      return;
+    }
+  } catch (e) {}
+
+  // 7-day suppression after × close
+  try {
+    var lastClose = parseInt(localStorage.getItem('vip_strip_last_close') || '0', 10);
+    if (lastClose && (Date.now() - lastClose) < 7 * 24 * 60 * 60 * 1000 && !DEBUG) {
+      var hoursAgo = Math.round((Date.now() - lastClose) / 3600000);
+      console.info('[vip-strip] skipped: closed ' + hoursAgo + 'h ago (add ?vipdebug=1 to force)');
+      return;
+    }
+  } catch (e) {}
+
+  var strip    = document.getElementById('vipStrip');
+  var cta      = strip ? strip.querySelector('.vip-strip-cta') : null;
+  var closeBtn = strip ? strip.querySelector('.vip-strip-close') : null;
+  if (!strip) return;
+
+  window.__vipStripVisible = false;
+
+  function show() {
+    if (!strip || strip.hidden === false) return;
+    // Defer if FOMO toast is currently visible
+    if (window.__vipToastVisible) {
+      setTimeout(show, 30000);
+      return;
+    }
+    strip.hidden = false;
+    void strip.offsetWidth; // force reflow
+    strip.classList.add('vip-strip-visible');
+    window.__vipStripVisible = true;
+  }
+
+  function dismiss(reason) {
+    try {
+      localStorage.setItem('vip_strip_last_close', String(Date.now()));
+    } catch (e) {}
+    strip.classList.remove('vip-strip-visible');
+    setTimeout(function() { strip.hidden = true; }, 500);
+    window.__vipStripVisible = false;
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', function() { dismiss('close'); });
+  if (cta) cta.addEventListener('click', function() { dismiss('cta'); });
+
+  // First show after 30s (let page settle, hero gets the spotlight first).
+  // In debug mode (?), show after 5s.
+  var firstDelay = DEBUG ? 5000 : 30000;
+  console.info('[vip-strip] init OK; first show in ' + (firstDelay/1000) + 's' + (DEBUG ? ' [DEBUG]' : ''));
+  setTimeout(show, firstDelay);
+})();
+
+  </script>
+
+
+  <!-- Static base JSON-LD (SSR) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "IPTV Search",
+    "url": "https://iptv-search.com",
+    "description": "Free IPTV Channel Directory and Search Engine",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://iptv-search.com/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "IPTV Search",
+      "url": "https://iptv-search.com"
+    }
+  }
+  </script>
+  <script id="json-ld" type="application/ld+json"></script>
+
+  <script>
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    // Slugify function for SEO-friendly URLs
+    function slugify(str) {
+      if (!str) return '';
+      return str.trim().replace(/s+/g, '-').replace(/[^a-zA-Z0-9一-鿿＀-￯︀-﻿　-〿 -⁯︰-﹏☀-⛿-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    // Build SEO-friendly channel URL (pure slug, no hash)
+    function buildChannelUrl(name) {
+      return '/channel/' + slugify(name);
+    }
+
+    // Theme toggle with icon update
+    
+    
+    // Initialize theme icons on page load
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = saved ? saved === 'dark' : prefersDark;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    })();
+    
+    
+
+    // Load search results from API
+    async function loadSearchResults() {
+      const url = new URL(window.location.href);
+      const query = url.searchParams.get('q') || '';
+      const origin = 'https://iptv-search.com';
+      const resultsContainer = document.getElementById('resultsContainer');
+      const resultText = document.getElementById('resultText');
+
+      if (!query) {
+        resultText.innerHTML = 'Enter a search term to find channels';
+        resultsContainer.innerHTML = '';
+        return;
+      }
+
+      try {
+        // 获取用户token（如果已登录）
+        const userToken = localStorage.getItem('user_token');
+        const headers = userToken ? { 'Authorization': 'Bearer ' + userToken } : {};
+        
+        const response = await fetch(origin + '/api/search?q=' + encodeURIComponent(query), { headers });
+        const data = await response.json();
+        const results = data.data?.results || [];
+        const totalResults = data.data?.totalResults || 0;
+        const isVip = data.data?.isVip || false;
+
+        if (totalResults > 0) {
+          resultText.innerHTML = 'Found <strong>' + totalResults + '</strong> channels for "<strong>' + escapeHtml(query) + '</strong>"';
+        } else {
+          resultText.innerHTML = 'No channels found for "<strong>' + escapeHtml(query) + '</strong>"';
+        }
+
+        if (results.length > 0) {
+          resultsContainer.innerHTML = '<div class="channel-grid">' + results.map(ch => {
+            const logoHtml = ch.logo ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '">' : '<div class="placeholder">📺</div>';
+            const channelUrl = '/channel/' + (ch.slug || slugify(ch.name));  // 使用API返回的slug
+            return '<a href="' + origin + channelUrl + '" class="channel-card">' +
+              '<div class="channel-poster">' + logoHtml + '</div>' +
+              '<div class="channel-info">' +
+                '<div class="channel-name">' + escapeHtml(ch.name) + '</div>' +
+                '<div class="channel-group">' + escapeHtml(ch.group || 'Other') + '</div>' +
+              '</div>' +
+            '</a>';
+          }).join('') + '</div>';
+
+
+          // Hide tips if we have results
+          document.getElementById('searchTips').style.display = 'none';
+
+          // Inject JSON-LD
+          const jsonLd = {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "numberOfItems": results.length,
+            "itemListElement": results.map((ch, i) => ({
+              "@type": "ListItem",
+              "position": i + 1,
+              "name": ch.name,
+              "url": origin + '/channel/' + (ch.slug || slugify(ch.name))
+            }))
+          };
+          document.getElementById('json-ld').textContent = JSON.stringify(jsonLd);
+        } else {
+          // Show search tips when no results
+          document.getElementById('searchTips').style.display = 'block';
+          
+          // Use suggested categories from API (randomly selected from available groups)
+          const suggestedCategories = data.data?.suggestedCategories || [];
+          let categoryLinks;
+          
+          if (suggestedCategories.length > 0) {
+            categoryLinks = suggestedCategories.map(c => '<a href="' + origin + '/category/' + encodeURIComponent(c.slug) + '" class="category-tag">' + escapeHtml(c.name) + '</a>').join('');
+          } else {
+            // Fallback to hardcoded categories only if API returns none (e.g., no groups available)
+            categoryLinks = [
+              { name: '央视', slug: '央视' },
+              { name: '体育', slug: '体育' },
+              { name: '电影', slug: '电影' }
+            ].map(c => '<a href="' + origin + '/category/' + encodeURIComponent(c.slug) + '" class="category-tag">' + c.name + '</a>').join('');
+          }
+          
+          resultsContainer.innerHTML = 
+            '<div class="empty-state">' +
+              '<div class="empty-state-icon">📺</div>' +
+              '<h2>No channels found</h2>' +
+              '<p>Try a different search term or browse by category</p>' +
+              '<div class="category-list">' + categoryLinks + '</div>' +
+            '</div>';
+        }
+      } catch (error) {
+        console.error('Search failed:', error);
+        resultText.innerHTML = 'Search failed. Please try again.';
+        resultsContainer.innerHTML = '';
+      }
+    }
+
+    loadSearchResults();
+  </script>
+  <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@4.0.0/translate.js/translate.js"></script>
+  <script>
+    function initTranslate() {
+      if (typeof translate !== 'undefined' && translate.language) {
+        translate.selectLanguageTag.show = true;
+        translate.selectLanguageTag.documentId = 'translate';
+        translate.language.setLocal('english');
+        translate.service.use('client.edge');
+        translate.listener.start();
+        translate.setAutoDiscriminateLocalLanguage();
+        translate.execute();
+      } else { setTimeout(initTranslate, 100); }
+    }
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initTranslate); } else { initTranslate(); }
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a332d891ab74d437',t:'MTc4ODA4Mjk1MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

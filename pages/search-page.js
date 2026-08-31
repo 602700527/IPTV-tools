@@ -293,17 +293,10 @@ export function generateSearchPage(options = {}) {
         const data = await response.json();
         const results = data.data?.results || [];
         const totalResults = data.data?.totalResults || 0;
-        const isLimited = data.data?.isLimited || false;
-        const freeLimit = data.data?.freeLimit || 5;
         const isVip = data.data?.isVip || false;
 
         if (totalResults > 0) {
-          let resultTextContent = 'Found <strong>' + totalResults + '</strong> channels for "<strong>' + escapeHtml(query) + '</strong>"';
-          // 如果结果被限制，添加提示
-          if (isLimited && !isVip) {
-            resultTextContent += ' <span style="color: var(--accent); font-size: 0.9em;">(Showing top ' + freeLimit + ' - <a href="' + origin + '/subscription" style="color: var(--accent); text-decoration: underline;">Upgrade to VIP</a> to see all)</span>';
-          }
-          resultText.innerHTML = resultTextContent;
+          resultText.innerHTML = 'Found <strong>' + totalResults + '</strong> channels for "<strong>' + escapeHtml(query) + '</strong>"';
         } else {
           resultText.innerHTML = 'No channels found for "<strong>' + escapeHtml(query) + '</strong>"';
         }
@@ -320,17 +313,6 @@ export function generateSearchPage(options = {}) {
               '</div>' +
             '</a>';
           }).join('') + '</div>';
-
-          // 如果结果被限制，显示升级提示
-          if (isLimited && !isVip) {
-            resultsContainer.innerHTML += '<div class="vip-limit-notice">' +
-              '<div>' +
-                '<p>Showing <strong>' + results.length + '</strong> of <strong>' + totalResults + '</strong> channels</p>' +
-                '<p class="vip-perks">Upgrade to VIP for unlimited search + no ads + cloud sync</p>' +
-              '</div>' +
-              '<a href="' + origin + '/subscription" class="vip-upgrade-btn">Upgrade Now →</a>' +
-            '</div>';
-          }
 
           // Hide tips if we have results
           document.getElementById('searchTips').style.display = 'none';
