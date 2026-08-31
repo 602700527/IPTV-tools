@@ -75,7 +75,8 @@ async function checkUserVipStatus(token) {
 export async function handleApiSearch(request, env, ctx) {
   try {
     const url = new URL(request.url);
-    const query = (url.searchParams.get('q') || '').trim();
+    // 正确获取查询参数，处理URL编码
+    const query = decodeURIComponent(url.searchParams.get('q') || '').trim();
 
     if (!query) {
       return new Response(JSON.stringify({
@@ -131,8 +132,10 @@ export async function handleApiSearch(request, env, ctx) {
         console.log(`[API Search] Group cache miss, falling back to full search`);
       }
     } else {
-      console.log(`[API Search] No group matched for query "${query}", returning empty results`);
-      channelsToSearch = [];
+      // 分组未匹配时， fallback 到全量搜索（不直接返回空）
+      const allChannelsResult = await getAllChannels(env);
+      channelsToSearch = allChannelsResult.channels;
+      console.log(`[API Search] No group matched for query "${query}", falling back to full search`);
     }
 
     // 增强搜索匹配
