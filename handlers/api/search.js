@@ -102,6 +102,7 @@ export async function handleApiSearch(request, env, ctx) {
     }
 
     // 缓存未命中，执行搜索
+    const cacheKey = getSearchCacheKey(query, isVip);
     const [{ groups }] = await Promise.all([
       getAllGroups(env)
     ]);
