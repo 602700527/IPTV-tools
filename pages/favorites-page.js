@@ -53,6 +53,10 @@ export function generateFavoritesPage(options = {}) {
     
     .page-header { margin-bottom: 1rem; }
     .page-header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.2; }
+    .help-tooltip-wrap:hover .help-tooltip,
+    .help-tooltip-wrap:focus .help-tooltip,
+    .help-tooltip-wrap:focus-within .help-tooltip { opacity: 1; }
+    .help-tooltip-wrap:hover { border-color: var(--accent); color: var(--accent); }
     .page-header p { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.4; }
 
     /* Batch actions bar */
@@ -116,8 +120,15 @@ export function generateFavoritesPage(options = {}) {
 
   <main class="page-container" id="main-content">
     <div class="page-header">
-      <h1><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" width="28" height="28" style="vertical-align:middle;margin-right:0.3em;color:var(--accent)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>My Favorites</h1>
-      <p>Your saved channels. Select channels to download M3U or remove from favorites.</p>
+      <h1 style="display:flex;align-items:center;gap:0.5rem;">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" width="28" height="28" style="color:var(--accent)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        My Favorites
+        <span class="help-tooltip-wrap" tabindex="0" role="button" aria-label="More info" style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:1px solid var(--text-muted);color:var(--text-muted);font-size:0.75rem;font-weight:700;cursor:help;user-select:none;transition:all 0.2s ease;">
+          ?
+          <span class="help-tooltip" style="position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 14px;border-radius:6px;font-size:0.82rem;font-weight:400;line-height:1.5;width:280px;text-align:left;opacity:0;pointer-events:none;transition:opacity 0.2s ease;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:100;white-space:normal;">VIP users can switch favorites to subscription data in the <a href="/account" style="color:#ff6b6b;text-decoration:underline;">Account</a> page, syncing across devices.<span style="display:block;width:0;height:0;border:6px solid transparent;border-top-color:#1a1a1a;position:absolute;left:50%;top:100%;transform:translateX(-50%);"></span></span>
+        </span>
+      </h1>
+      <p style="color:var(--text-secondary);font-size:0.88rem;margin-top:0.5rem;">Select channels to download M3U or remove from favorites.</p>
     </div>
 
     <div id="batchBar" class="batch-bar" style="display:none;">
