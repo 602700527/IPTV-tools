@@ -122,8 +122,8 @@ export function generateChannelPage(options = {}) {
       relatedChannels.map(ch => {
         const chLogo = ch.logo
           ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '" loading="lazy" decoding="async" onerror="this.style.display=\'none\">' +
-            '<div class="placeholder" style="display:none">📺</div>'
-          : '<div class="placeholder">📺</div>';
+            '<div class="placeholder" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="100%" height="100%"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>'
+          : '<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="100%" height="100%"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>';
         return '<div class="related-card" onclick="location.href=\'' + origin + '/channel/' + buildChannelSlug(ch.name) + '\">' +
           chLogo +
           '<div class="related-card-info">' +
@@ -369,7 +369,7 @@ export function generateChannelPage(options = {}) {
     .related-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all var(--transition); text-decoration: none; color: inherit; }
     .related-card:hover { border-color: var(--border-hover); background: var(--bg-hover); transform: translateY(-1px); }
     .related-card img, .related-card .placeholder { width: 36px; height: 36px; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
-    .related-card .placeholder { background: var(--bg-hover); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; opacity: 0.4; }
+    .related-card .placeholder { background: var(--bg-hover); display: flex; align-items: center; justify-content: center; opacity: 0.4; }
     .related-card-info { min-width: 0; flex: 1; }
     .related-card-name { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .related-card-group { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

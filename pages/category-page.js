@@ -121,7 +121,7 @@ export function generateCategoryPage(options = {}) {
         ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '" class="ch-logo">' 
 
 
-        : '<div class="ch-logo-placeholder">📺</div>';
+        : '<div class="ch-logo-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="100%" height="100%"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>';
 
 
       return '<div class="channel-row" data-hash="' + escapeHtml(ch.hash) + '" data-name="' + escapeHtml(ch.name) + '" data-logo="' + escapeHtml(ch.logo || '') + '" data-group="' + escapeHtml(ch.group || category) + '">' +
@@ -785,7 +785,7 @@ export function generateCategoryPage(options = {}) {
     .ch-logo { width: 40px; height: 28px; object-fit: contain; background: var(--bg-secondary); border-radius: 4px; padding: 0.2rem; }
 
 
-    .ch-logo-placeholder { width: 48px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); border-radius: 4px; font-size: 1.25rem; opacity: 0.5; }
+    .ch-logo-placeholder { width: 48px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); border-radius: 4px; opacity: 0.5; }
 
 
     .ch-info { flex: 1; min-width: 0; line-height: 1.2; }
@@ -949,7 +949,7 @@ export function generateCategoryPage(options = {}) {
       .ch-logo { width: 40px; height: 28px; }
 
 
-      .ch-logo-placeholder { width: 40px; height: 28px; font-size: 1rem; }
+      .ch-logo-placeholder { width: 40px; height: 28px; }
 
 
       .btn-favorite { width: 32px; height: 32px; }
@@ -1605,7 +1605,7 @@ export function generateCategoryPage(options = {}) {
             ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '" class="ch-logo" loading="lazy" decoding="async">' 
 
 
-            : '<div class="ch-logo-placeholder">📺</div>';
+            : '<div class="ch-logo-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="100%" height="100%"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>';
 
 
           var row = document.createElement('div');

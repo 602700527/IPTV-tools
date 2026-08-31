@@ -519,8 +519,8 @@ export function generateShowcasePage(options = {}) {
       const html = channels.map(ch => {
         const logoHtml = ch.logo
           ? '<img src="' + escapeHtml(ch.logo) + '" alt="' + escapeHtml(ch.name) + '" class="ch-logo" onerror="this.style.display=\\'none\\';this.nextElementSibling.style.display=\\'flex\\'">' +
-            '<div class="ch-logo-placeholder" style="display:none">📺</div>'
-          : '<div class="ch-logo-placeholder">📺</div>';
+            '<div class="ch-logo-placeholder" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="100%" height="100%"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>'
+          : '<div class="ch-logo-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="100%" height="100%"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>';
         return '<div class="channel-card">' +
           '<div class="channel-logo">' + logoHtml + '</div>' +
           '<div class="channel-name">' + escapeHtml(ch.name) + '</div>' +

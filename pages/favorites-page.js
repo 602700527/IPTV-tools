@@ -78,7 +78,7 @@ export function generateFavoritesPage(options = {}) {
     .channel-checkbox input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
     .channel-link { display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0; }
     .ch-logo { width: 40px; height: 28px; object-fit: contain; background: var(--bg-secondary); border-radius: 4px; padding: 0.2rem; }
-    .ch-logo-placeholder { width: 40px; height: 28px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); border-radius: 4px; font-size: 1rem; opacity: 0.5; }
+    .ch-logo-placeholder { width: 40px; height: 28px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); border-radius: 4px; opacity: 0.5; }
     .ch-info { flex: 1; min-width: 0; line-height: 1.2; }
     .ch-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ch-group { font-size: 0.7rem; color: var(--text-muted); }
@@ -142,7 +142,7 @@ export function generateFavoritesPage(options = {}) {
       .batch-bar { padding: 0.75rem; gap: 0.5rem; }
       .btn { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
       .ch-logo { width: 40px; height: 28px; }
-      .ch-logo-placeholder { width: 40px; height: 28px; font-size: 1rem; }
+      .ch-logo-placeholder { width: 40px; height: 28px; }
       .btn-remove { width: 32px; height: 32px; }
     }
   </style>
@@ -413,8 +413,8 @@ export function generateFavoritesPage(options = {}) {
         const SQ = String.fromCharCode(39);
         const logoHtml = ch.logo
           ? '<img src=' + DQ + logo + DQ + ' alt=' + DQ + name + DQ + ' class=' + DQ + 'ch-logo' + DQ + ' onerror=' + DQ + 'this.style.display=' + SQ + 'none' + SQ + ';this.nextElementSibling.style.display=' + SQ + 'flex' + SQ + DQ + '>'
-            + '<div class="ch-logo-placeholder" style="display:none">📺</div>'
-          : '<div class="ch-logo-placeholder">📺</div>';
+            + '<div class="ch-logo-placeholder" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="100%" height="100%"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>'
+          : '<div class="ch-logo-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="100%" height="100%"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>';
         const channelUrl = buildChannelUrl(ch.name);
         return '<div class="channel-row" data-name="' + name + '" data-hash="' + (ch.hash || '') + '" data-logo="' + logo + '" data-group="' + group + '">'
           + '<label class="channel-checkbox">'
