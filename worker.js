@@ -2448,7 +2448,7 @@ async function addMultipleDomainsToBlacklist(domains) {
       results.push({
         domain: domain.domain,
         success: false,
-        error: e.message
+        error: safeError(e)
       });
     }
   }
@@ -3881,7 +3881,7 @@ async function cacheChannelsToKV(env) {
     console.error("[ChannelCache] Failed to cache channels:", error);
     return {
       success: false,
-      error: error.message
+      error: safeError(error)
     };
   }
 }
@@ -4328,7 +4328,7 @@ async function generateAndCacheSitemap(env) {
     return { success: true };
   } catch (error) {
     console.error("[ChannelCache] Failed to generate sitemap:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: safeError(error) };
   }
 }
 async function getSitemapFromCache(env) {
@@ -4434,7 +4434,7 @@ async function handleGetTopics(request, env, ctx) {
     console.error("[Topics] Error:", error);
     return new Response(JSON.stringify({
       success: false,
-      error: error.message
+      error: safeError(error)
     }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }
@@ -14637,7 +14637,7 @@ async function handleSimulatePaymentSuccess(request, env, ctx) {
     console.error("[SimulatePayment] Error:", error);
     return new Response(JSON.stringify({
       success: false,
-      error: error.message
+      error: safeError(error)
     }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
@@ -15136,7 +15136,7 @@ async function handleClassifyChannelsAI(request, env, ctx) {
           controller.close();
         } catch (e) {
           console.error("[AI-Classify] SSE Error:", e);
-          const errorMsg = JSON.stringify({ type: "error", error: e.message });
+          const errorMsg = JSON.stringify({ type: "error", error: safeError(e) });
           controller.enqueue("data: " + errorMsg + "\n\n");
           controller.close();
         }
@@ -15183,7 +15183,7 @@ async function handleClassifyChannelsAI(request, env, ctx) {
         console.error("[AI-Classify] Error:", e);
         return new Response(JSON.stringify({
           success: false,
-          error: e.message
+          error: safeError(e)
         }), {
           status: 500,
           headers: { "Content-Type": "application/json" }
@@ -15474,7 +15474,7 @@ async function syncAllSources(db, env, ctx = null) {
           success: false,
           deleted_channels: 0,
           new_channels: 0,
-          error: error.message
+          error: safeError(error)
         });
       }
     }
@@ -15741,7 +15741,7 @@ async function manualSyncAll(env, filter = null) {
           success: false,
           deleted_channels: 0,
           new_channels: 0,
-          error: error.message
+          error: safeError(error)
         });
       }
     }
@@ -15805,7 +15805,7 @@ async function manualSyncAll(env, filter = null) {
     return returnResult;
   } catch (error) {
     console.error("[Scheduler] Error in manualSyncAll:", error);
-    const returnResult = { success: false, error: error.message };
+    const returnResult = { success: false, error: safeError(error) };
     await env.KV.put("sync:last_result", JSON.stringify(returnResult), { expirationTtl: 3600 });
     return returnResult;
   } finally {
@@ -16005,7 +16005,7 @@ async function refreshStaticPages(env, options = {}) {
     };
   } catch (error) {
     console.error("[Scheduler] refreshStaticPages failed:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: safeError(error) };
   }
 }
 __name(refreshStaticPages, "refreshStaticPages");
@@ -16137,7 +16137,7 @@ async function handleAdminRequest(request, env, ctx) {
             headers: { "Content-Type": "application/json" }
           });
         } catch (error) {
-          return new Response(JSON.stringify({ success: false, error: error.message }), {
+          return new Response(JSON.stringify({ success: false, error: safeError(error) }), {
             status: 500,
             headers: { "Content-Type": "application/json" }
           });
@@ -17847,7 +17847,7 @@ async function handleAdminRequest(request, env, ctx) {
             });
           } catch (error) {
             console.error("[admin/at-risk-vips] error:", error);
-            return new Response(JSON.stringify({ success: false, error: error.message }), {
+            return new Response(JSON.stringify({ success: false, error: safeError(error) }), {
               status: 500,
               headers: { "Content-Type": "application/json" }
             });
@@ -17998,7 +17998,7 @@ async function handleAdminRequest(request, env, ctx) {
             } catch (e) {
               return new Response(JSON.stringify({
                 success: false,
-                error: e.message.includes("UNIQUE constraint") ? "" : e.message
+                error: safeError(e).includes("UNIQUE constraint") ? "" : e.message
               }), {
                 status: 400,
                 headers: { "Content-Type": "application/json" }
@@ -18039,7 +18039,7 @@ async function handleAdminRequest(request, env, ctx) {
           } catch (e) {
             return new Response(JSON.stringify({
               success: false,
-              error: e.message
+              error: safeError(e)
             }), {
               status: 500,
               headers: { "Content-Type": "application/json" }
@@ -18072,7 +18072,7 @@ async function handleAdminRequest(request, env, ctx) {
           } catch (error) {
             return new Response(JSON.stringify({
               success: false,
-              error: error.message
+              error: safeError(error)
             }), {
               status: 500,
               headers: { "Content-Type": "application/json" }
@@ -18088,7 +18088,7 @@ async function handleAdminRequest(request, env, ctx) {
           } catch (error) {
             return new Response(JSON.stringify({
               success: false,
-              error: error.message
+              error: safeError(error)
             }), {
               status: 500,
               headers: { "Content-Type": "application/json" }
@@ -18105,7 +18105,7 @@ async function handleAdminRequest(request, env, ctx) {
           } catch (error) {
             return new Response(JSON.stringify({
               success: false,
-              error: error.message
+              error: safeError(error)
             }), {
               status: 500,
               headers: { "Content-Type": "application/json" }
@@ -18120,7 +18120,7 @@ async function handleAdminRequest(request, env, ctx) {
     }
   } catch (error) {
     console.error("Admin API error:", error);
-    return new Response(JSON.stringify({ success: false, error: error.message }), {
+    return new Response(JSON.stringify({ success: false, error: safeError(error) }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
@@ -18517,7 +18517,7 @@ async function handleAdminTickets(request, env, ctx) {
     });
   } catch (error) {
     console.error("[Admin Tickets] Error:", error);
-    return new Response(JSON.stringify({ success: false, error: error.message }), {
+    return new Response(JSON.stringify({ success: false, error: safeError(error) }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
@@ -18960,7 +18960,7 @@ async function handleChannelDebug(request, env, ctx) {
       try {
         headersObj = JSON.parse(channel.headers);
       } catch (e) {
-        headersObj = { error: e.message };
+        headersObj = { error: safeError(e) };
       }
     }
     if (test) {
@@ -19059,7 +19059,7 @@ async function handleChannelDebug(request, env, ctx) {
             url: testConfig.url,
             method: testConfig.method,
             headers: testConfig.headers,
-            error: e.message,
+            error: safeError(e),
             success: false
           });
         }
@@ -19713,7 +19713,7 @@ async function handleSendVerificationCode(request, env, ctx) {
     });
   } catch (error) {
     console.error("\u53D1\u9001\u9A8C\u8BC1\u7801\u5931\u8D25:", error);
-    return new Response(JSON.stringify({ success: false, error: error.message || "\u670D\u52A1\u5668\u9519\u8BEF" }), {
+    return new Response(JSON.stringify({ success: false, error: safeError(error) || "\u670D\u52A1\u5668\u9519\u8BEF" }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
@@ -20339,7 +20339,7 @@ async function handleGoogleOAuthCallback(request, env, ctx) {
   } catch (error) {
     console.error("Google OAuth Error:", error);
     console.error("Error details:", error.message, error.stack);
-    return new Response(JSON.stringify({ success: false, error: error.message || "OAuth callback processing failed" }), { status: 500, headers: { "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ success: false, error: safeError(error) || "OAuth callback processing failed" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }
 __name(handleGoogleOAuthCallback, "handleGoogleOAuthCallback");
@@ -20439,7 +20439,7 @@ async function handleGetUserFavorites(request, env, ctx) {
     });
   } catch (error) {
     console.error("[handleGetUserFavorites] Error:", error);
-    return new Response(JSON.stringify({ success: false, error: error.message || "Server error" }), {
+    return new Response(JSON.stringify({ success: false, error: safeError(error) || "Server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
@@ -20490,7 +20490,7 @@ async function handleSaveUserFavorites(request, env, ctx) {
     });
   } catch (error) {
     console.error("[handleSaveUserFavorites] Error:", error);
-    return new Response(JSON.stringify({ success: false, error: error.message || "Server error" }), {
+    return new Response(JSON.stringify({ success: false, error: safeError(error) || "Server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
@@ -20582,7 +20582,7 @@ async function handleGoogleAuthDebug(request, env, ctx) {
     console.error("Diagnostics failed:", error);
     return new Response(JSON.stringify({
       summary: ["\u274C \u8BCA\u65AD\u811A\u672C\u6267\u884C\u5931\u8D25"],
-      error: error.message,
+      error: safeError(error),
       stack: error.stack
     }, null, 2), {
       status: 500,
@@ -39936,7 +39936,7 @@ Disallow: /*?fbclid=`;
             headers: { "Content-Type": "application/json; charset=utf-8" }
           });
         } catch (error) {
-          return new Response(JSON.stringify({ success: false, error: error.message }), {
+          return new Response(JSON.stringify({ success: false, error: safeError(error) }), {
             status: 500,
             headers: { "Content-Type": "application/json; charset=utf-8" }
           });
@@ -40028,7 +40028,7 @@ Disallow: /*?fbclid=`;
             headers: { "Content-Type": "application/json" }
           });
         } catch (e) {
-          return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+          return new Response(JSON.stringify({ error: safeError(e) }), { status: 500 });
         }
       } else if (path === "/api/auth/register") {
         return await handleRegister(request, env, ctx);
@@ -40083,7 +40083,7 @@ Disallow: /*?fbclid=`;
             headers: { "Content-Type": "application/json" }
           });
         } catch (e) {
-          return new Response(JSON.stringify({ success: false, error: e.message }), {
+          return new Response(JSON.stringify({ success: false, error: safeError(e) }), {
             status: 500,
             headers: { "Content-Type": "application/json" }
           });
@@ -40476,7 +40476,7 @@ Disallow: /*?fbclid=`;
             headers: { "Content-Type": "application/json; charset=utf-8" }
           });
         } catch (error) {
-          return new Response(JSON.stringify({ success: false, error: error.message }), {
+          return new Response(JSON.stringify({ success: false, error: safeError(error) }), {
             status: 500,
             headers: { "Content-Type": "application/json; charset=utf-8" }
           });
@@ -40500,7 +40500,7 @@ Disallow: /*?fbclid=`;
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
           } catch (error) {
-            return new Response(JSON.stringify({ success: false, error: error.message }), {
+            return new Response(JSON.stringify({ success: false, error: safeError(error) }), {
               status: 500,
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
@@ -40522,7 +40522,7 @@ Disallow: /*?fbclid=`;
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
           } catch (error) {
-            return new Response(JSON.stringify({ success: false, error: error.message }), {
+            return new Response(JSON.stringify({ success: false, error: safeError(error) }), {
               status: 500,
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
@@ -40535,7 +40535,7 @@ Disallow: /*?fbclid=`;
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
           } catch (error) {
-            return new Response(JSON.stringify({ success: false, error: error.message }), {
+            return new Response(JSON.stringify({ success: false, error: safeError(error) }), {
               status: 500,
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
@@ -40548,7 +40548,7 @@ Disallow: /*?fbclid=`;
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
           } catch (error) {
-            return new Response(JSON.stringify({ success: false, error: error.message }), {
+            return new Response(JSON.stringify({ success: false, error: safeError(error) }), {
               status: 500,
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
@@ -40562,7 +40562,7 @@ Disallow: /*?fbclid=`;
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
           } catch (error) {
-            return new Response(JSON.stringify({ success: false, error: error.message }), {
+            return new Response(JSON.stringify({ success: false, error: safeError(error) }), {
               status: 500,
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
@@ -40574,7 +40574,7 @@ Disallow: /*?fbclid=`;
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
           } catch (error) {
-            return new Response(JSON.stringify({ success: false, error: error.message }), {
+            return new Response(JSON.stringify({ success: false, error: safeError(error) }), {
               status: 500,
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
@@ -40585,7 +40585,7 @@ Disallow: /*?fbclid=`;
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
           } catch (error) {
-            return new Response(JSON.stringify({ success: false, error: error.message }), {
+            return new Response(JSON.stringify({ success: false, error: safeError(error) }), {
               status: 500,
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
@@ -40652,7 +40652,7 @@ Disallow: /*?fbclid=`;
               });
             }
           } catch (error) {
-            return new Response(JSON.stringify({ success: false, error: error.message }), {
+            return new Response(JSON.stringify({ success: false, error: safeError(error) }), {
               status: 500,
               headers: { "Content-Type": "application/json; charset=utf-8" }
             });
