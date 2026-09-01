@@ -6938,6 +6938,16 @@ function generateHomePage(options = {}) {
       color: var(--text-muted);
     }
     .loading { text-align: center; padding: 3rem; color: var(--text-secondary); font-family: var(--mono); }
+    .tools-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: var(--border); border-radius: 0; overflow: hidden; }
+    .tool-card { display: flex; align-items: flex-start; gap: 1rem; padding: 1.25rem 1.5rem; background: var(--bg-primary); text-decoration: none; transition: background var(--transition); cursor: pointer; }
+    .tool-card:hover { background: var(--bg-secondary); }
+    .tool-icon { width: 40px; height: 40px; border: var(--border); border-radius: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--accent); }
+    .tool-icon svg { width: 100%; height: 100%; }
+    .tool-info { flex: 1; min-width: 0; }
+    .tool-name { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem; letter-spacing: -0.01em; }
+    .tool-desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.5; }
+    .tool-tag { display: inline-block; font-family: var(--mono); font-size: 0.6rem; color: var(--text-muted); border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 0; white-space: nowrap; flex-shrink: 0; align-self: center; }
+    @media (max-width: 640px) { .tools-grid { grid-template-columns: 1fr; } }
 
     /* ============================================================
        Responsive
@@ -7088,6 +7098,22 @@ function generateHomePage(options = {}) {
       </div>
     </div>
   </section>
+
+  <section class="section tools-section" id="tools">
+    <div class="section-inner">
+      <div class="section-meta reveal">
+        <span class="section-label">endpoint: tools</span>
+        <h2 class="section-title">Free Tools &amp; Extensions</h2>
+        <span class="section-count">open source</span>
+      </div>
+      <p class="section-desc reveal section-desc--narrow">Enhance your IPTV experience with our open-source tools — stream capture, channel management, and more.</p>
+
+      <div style="padding: 1rem 0;">
+        <a href="/tools" class="tool-btn tool-btn-primary" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.65rem 1.5rem;font-size:0.85rem;font-weight:600;border-radius:var(--radius);text-decoration:none;background:var(--accent);color:#fff;border:none;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#ff1a1a'" onmouseout="this.style.background='var(--accent)'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          查看工具
+        </a>
+      </div>
 
   <section class="section regional-topics">
     <div class="section-inner">
@@ -32059,10 +32085,6 @@ var content3 = `
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div id="tab-ios" class="tab-content active">
         <div class="tutorial-section">
           <div class="section-header">
             <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
@@ -36741,6 +36763,102 @@ var content16 = `
 </div>
 `;
 
+// pages-content/tools-page.js
+var pageTitle17 = "IPTV Tools & Extensions — Free Open Source";
+var pageDescription17 = "IPTV tools and utilities for channel management, stream validation, and playlist parsing. All open source on GitHub.";
+var styles17 = `
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--accent:#e50914;--bg:#0a0a0a;--bg-card:#141414;--border:1px solid rgba(255,255,255,0.08);--text:#fff;--text-secondary:rgba(255,255,255,0.6);--text-muted:rgba(255,255,255,0.35);--radius:0}
+html{scroll-padding-top:70px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;color:var(--text)}
+.main-content{flex:1;width:100%;margin-top:70px;padding:20px 0}
+.container{max-width:960px;margin:0 auto;padding:0 20px}
+.page-header{text-align:center;padding:3rem 0 2rem}
+.page-header h1{font-size:2.25rem;font-weight:800;margin-bottom:0.75rem;letter-spacing:-0.02em}
+.page-header p{font-size:1rem;color:var(--text-secondary);max-width:520px;margin:0 auto 2rem}
+.tools-grid{display:flex;flex-direction:column;gap:0}
+.tool-card{background:transparent;border:var(--border);padding:2rem;border-radius:var(--radius)}
+.tool-card+.tool-card{border-top:none}
+.tool-card:first-child{border-top:var(--border)}
+.tool-top{display:flex;align-items:flex-start;gap:1rem;margin-bottom:1rem}
+.tool-icon{width:48px;height:48px;border:var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent)}
+.tool-icon svg{width:24px;height:24px}
+.tool-title-area{flex:1}
+.tool-title{font-size:1.15rem;font-weight:700;color:var(--text);margin-bottom:0.25rem;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap}
+.tool-badge{display:inline-block;font-family:monospace;font-size:0.65rem;color:var(--text-muted);border:1px solid var(--border);padding:0.1rem 0.4rem;border-radius:var(--radius)}
+.tool-desc{color:var(--text-secondary);font-size:0.85rem;line-height:1.7;margin-bottom:1.25rem}
+.tool-features{list-style:none;margin-bottom:1.5rem}
+.tool-features li{color:var(--text-secondary);font-size:0.8rem;padding:0.3rem 0;padding-left:1.25rem;position:relative}
+.tool-features li::before{content:"▸";position:absolute;left:0;color:var(--accent)}
+.tool-actions{display:flex;gap:0.75rem;flex-wrap:wrap}
+.tool-btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.65rem 1.25rem;font-size:0.8rem;font-weight:600;border-radius:var(--radius);text-decoration:none;transition:all 0.2s;cursor:pointer;border:none}
+.tool-btn-primary{background:var(--accent);color:#fff}
+.tool-btn-primary:hover{background:#ff1a1a;transform:translateY(-1px)}
+.tool-btn-secondary{background:transparent;color:var(--text);border:var(--border)}
+.tool-btn-secondary:hover{border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.04)}
+.tool-meta{margin-top:1.5rem;padding-top:1rem;border-top:var(--border);display:flex;gap:1.5rem;flex-wrap:wrap}
+.tool-meta-item{font-family:monospace;font-size:0.7rem;color:var(--text-muted)}
+.tool-meta-item span{color:var(--text-secondary)}
+.cta-banner{margin-top:3rem;padding:2rem;border:var(--border);text-align:center}
+.cta-banner h2{font-size:1.25rem;font-weight:700;margin-bottom:0.5rem}
+.cta-banner p{color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.25rem}
+@media(max-width:640px){.container{padding:0 12px}.main-content{margin-top:80px;padding:16px 0 0}.page-header{padding:2rem 0 1.5rem}.page-header h1{font-size:1.6rem}.tool-card{padding:1.5rem}.tool-top{gap:0.75rem}.tool-icon{width:40px;height:40px}.tool-actions{flex-direction:column}.tool-btn{justify-content:center}}
+`;
+var content17 = `
+<div class="main-content">
+  <div class="container">
+    <div class="page-header">
+      <h1>IPTV 工具与资源</h1>
+      <p>收录 IPTV 相关的开源工具和资源，涵盖播放列表管理、流媒体验证、频道数据处理等。</p>
+    </div>
+
+    <div class="tools-grid">
+
+      <div class="tool-card">
+        <div class="tool-top">
+          <div class="tool-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div class="tool-title-area">
+            <div class="tool-title">IPTV Tools <span class="tool-badge">GitHub</span></div>
+          </div>
+        </div>
+        <p class="tool-desc">一个面向 IPTV 开发者和用户的开源工具集合，提供 M3U/M3U8 播放列表处理、流媒体地址检测、频道列表管理等实用功能。</p>
+        <ul class="tool-features">
+          <li>M3U/M3U8 播放列表解析与格式化输出</li>
+          <li>流媒体地址存活检测与质量验证</li>
+          <li>频道列表去重、排序与分类管理</li>
+          <li>频道数据库自动生成与同步脚本</li>
+          <li>REST API 与命令行工具，支持自动化集成</li>
+          <li>多语言频道元数据提取（名称、台标、分组）</li>
+        </ul>
+        <div class="tool-actions">
+          <a href="https://github.com/goplay-source/IPTV-tools" target="_blank" rel="noopener" class="tool-btn tool-btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+            GitHub 仓库
+          </a>
+        </div>
+        <div class="tool-meta">
+          <div class="tool-meta-item"><span>授权:</span> MIT</div>
+          <div class="tool-meta-item"><span>类型:</span> 开源工具</div>
+          <div class="tool-meta-item"><span>平台:</span> Web / CLI</div>
+        </div>
+      </div>
+
+    </div>
+
+      <div class="cta-banner">
+      <h2>有想推荐的好工具？</h2>
+      <p>如果你发现其他不错的 IPTV 相关工具，欢迎在 GitHub 上留言或提 issue。</p>
+      <a href="https://github.com/goplay-source/IPTV-tools/issues" target="_blank" rel="noopener" class="tool-btn tool-btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        提交推荐
+      </a>
+    </div>
+  </div>
+</div>
+`;
+
 // pages-content/llms-txt.js
 var llmsTxt = `# IPTV Search
 
@@ -39363,6 +39481,7 @@ Disallow: /*?fbclid=`;
           { loc: "/android-iptv-app", p: "0.7", c: "monthly" },
           { loc: "/free-iptv-app-review", p: "0.7", c: "monthly" },
           { loc: "/carplay-aptv", p: "0.7", c: "monthly" },
+          { loc: "/tools", p: "0.8", c: "monthly" },
           { loc: "/privacy-policy", p: "0.5", c: "yearly" },
           { loc: "/terms", p: "0.5", c: "yearly" }
         ];
@@ -39890,6 +40009,10 @@ Disallow: /*?fbclid=`;
         return new Response(llmsTxt, {
           headers: { "Content-Type": "text/plain; charset=utf-8" }
         });
+      } else if (path === "/tools" || path === "/tools/" || path === "/tools/index" || path === "/tools/index.html") {
+        return new Response(generateStaticPage(pageTitle17, pageDescription17, styles17, content17), {
+          headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
       } else if (path === "/api/activate") {
         return await handleUserActivate(request, env, ctx);
       } else if (path === "/api/change-topic") {
@@ -40205,6 +40328,7 @@ Disallow: /*?fbclid=`;
             { loc: "/android-iptv-app", priority: "0.8", changefreq: "weekly" },
             { loc: "/free-iptv-app-review", priority: "0.8", changefreq: "weekly" },
             { loc: "/carplay-aptv", priority: "0.7", changefreq: "monthly" },
+            { loc: "/tools", priority: "0.8", changefreq: "monthly" },
             { loc: "/middle-east-iptv", priority: "0.8", changefreq: "weekly" },
             { loc: "/asia-iptv", priority: "0.8", changefreq: "weekly" },
             { loc: "/europe-iptv", priority: "0.8", changefreq: "weekly" },
@@ -40274,6 +40398,7 @@ Disallow: /*?fbclid=`;
   <url><loc>${baseUrl}/android-iptv-app</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>${baseUrl}/free-iptv-app-review</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>${baseUrl}/carplay-aptv</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>${baseUrl}/tools</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>`;
         console.log("Sitemap: All fallbacks failed, returning minimal static sitemap");
         return new Response(staticSitemap, {

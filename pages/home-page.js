@@ -158,7 +158,8 @@ export function generateHomePage(options = {}) {
       { "@type": "ListItem", "position": 3, "name": "Smart TV IPTV Setup", "description": "How to watch IPTV on Samsung, LG, Sony Smart TVs step by step", "url": "${origin}/tutorial" },
       { "@type": "ListItem", "position": 4, "name": "Android IPTV Apps", "description": "Best IPTV player apps for Android phones, tablets, and TV boxes", "url": "${origin}/android-iptv-app" },
       { "@type": "ListItem", "position": 5, "name": "Free IPTV App Reviews", "description": "Reviewed free IPTV apps for Firestick, Android, iOS, and Smart TV", "url": "${origin}/free-iptv-app-review" },
-      { "@type": "ListItem", "position": 6, "name": "APTV & CarPlay IPTV", "description": "Watch IPTV on Apple TV and CarPlay while driving", "url": "${origin}/carplay-aptv" }
+      { "@type": "ListItem", "position": 6, "name": "APTV & CarPlay IPTV", "description": "Watch IPTV on Apple TV and CarPlay while driving", "url": "${origin}/carplay-aptv" },
+      { "@type": "ListItem", "position": 7, "name": "Free IPTV Tools", "description": "Open-source Chrome extension and curated IPTV tool collection", "url": "${origin}/tools" }
     ]
   }
   </script>
@@ -831,6 +832,18 @@ export function generateHomePage(options = {}) {
     }
     .loading { text-align: center; padding: 3rem; color: var(--text-secondary); font-family: var(--mono); }
 
+    /* Tools section */
+    .tools-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: var(--border); border-radius: 0; overflow: hidden; }
+    .tool-card { display: flex; align-items: flex-start; gap: 1rem; padding: 1.25rem 1.5rem; background: var(--bg-primary); text-decoration: none; transition: background var(--transition); cursor: pointer; }
+    .tool-card:hover { background: var(--bg-secondary); }
+    .tool-icon { width: 40px; height: 40px; border: var(--border); border-radius: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--accent); }
+    .tool-icon svg { width: 100%; height: 100%; }
+    .tool-info { flex: 1; min-width: 0; }
+    .tool-name { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem; letter-spacing: -0.01em; }
+    .tool-desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.5; }
+    .tool-tag { display: inline-block; font-family: var(--mono); font-size: 0.6rem; color: var(--text-muted); border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 0; white-space: nowrap; flex-shrink: 0; align-self: center; }
+    @media (max-width: 640px) { .tools-grid { grid-template-columns: 1fr; } }
+
     /* ============================================================
        Responsive
        ============================================================ */
@@ -977,6 +990,11 @@ export function generateHomePage(options = {}) {
           <span class="topic-title">APTV & CarPlay</span>
           <span class="topic-desc">iOS CarPlay TV</span>
         </a>
+        <a href="/tools" class="topic-card reveal stagger-8">
+          <span class="topic-icon"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+          <span class="topic-title">Free Tools</span>
+          <span class="topic-desc">Open Source Extensions</span>
+        </a>
       </div>
     </div>
   </section>
@@ -1063,6 +1081,40 @@ export function generateHomePage(options = {}) {
       <!-- Type-based Categories (hidden by default) -->
       <div class="type-grid" id="typeGrid" style="display: none;">
         ${typeGridHtml}
+      </div>
+    </div>
+  </section>
+
+  <section class="section tools-section" id="tools">
+    <div class="section-inner">
+      <div class="section-meta reveal">
+        <span class="section-label">endpoint: tools</span>
+        <h2 class="section-title">Free Tools &amp; Extensions</h2>
+        <span class="section-count">open source</span>
+      </div>
+      <p class="section-desc reveal section-desc--narrow">Enhance your IPTV experience with our open-source tools — stream capture, channel management, and more.</p>
+
+      <div class="tools-grid reveal">
+        <a href="https://github.com/goplay-source/IPTV-tools" target="_blank" rel="noopener" class="tool-card">
+          <div class="tool-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" width="24" height="24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-name">Chrome Stream Player</div>
+            <div class="tool-desc">Browser extension for one-click M3U8/FLV stream capture and playback on any page.</div>
+          </div>
+          <div class="tool-tag">Chromium</div>
+        </a>
+        <a href="https://github.com/goplay-source/IPTV-tools" target="_blank" rel="noopener" class="tool-card">
+          <div class="tool-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" width="24" height="24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div class="tool-info">
+            <div class="tool-name">Awesome IPTV Tools</div>
+            <div class="tool-desc">Curated collection of open-source IPTV tools, M3U parsers, stream validators, and channel resources.</div>
+          </div>
+          <div class="tool-tag">Open Source</div>
+        </a>
       </div>
     </div>
   </section>
