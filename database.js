@@ -2902,3 +2902,52 @@ export async function removeFavoriteFromUser(userId, channelName) {
     throw error;
   }
 }
+
+
+export async function validateDiscountCode(code, orderAmount, env) {
+  if (!code || typeof code !== "string") {
+    return { success: false, error: "无效的优惠码" };
+  }
+  try {
+    const db = getDB();
+    const row = await db.prepare(
+      "SELECT * FROM discount_codes WHERE code = ? AND status = ?"
+    ).bind(code.toUpperCase(), "active").first();
+    if (!row) {
+      return { success: false, error: "优惠码不存在或已失效" };
+    }
+    const now = new Date().toISOString();
+    if (row.expires_at && row.expires_at < now) {
+      return { success: false, error: "优惠码已过期" };
+    }
+    if (row.min_amount && orderAmount < row.min_amount) {
+      return { success: false, error: "订单金额未达到最低要求" };
+    }
+    if (row.usage_limit > 0) {
+      const used = row.used_count || 0;
+      if (used >= row.usage_limit) {
+        return { success: false, error: "优惠码已达使用上限" };
+      }
+    }
+    let discountAmount = 0;
+    let finalAmount = orderAmount;
+    if (row.type === "percent") {
+      discountAmount = orderAmount * (row.value / 100);
+      finalAmount = orderAmount - discountAmount;
+    } else if (row.type === "fixed") {
+      discountAmount = parseFloat(row.value);
+      finalAmount = Math.max(0, orderAmount - discountAmount);
+    }
+    return {
+      success: true,
+      code: row.code,
+      type: row.type,
+      value: row.value,
+      discountAmount: parseFloat(discountAmount.toFixed(2)),
+      finalAmount: parseFloat(finalAmount.toFixed(2))
+    };
+  } catch (e) {
+    console.error("[validateDiscountCode] DB error:", e);
+    return { success: false, error: "系统错误，请稍后重试" };
+  }
+}

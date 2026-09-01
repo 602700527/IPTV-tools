@@ -57,6 +57,7 @@ __export(database_exports, {
   parseM3UContentOnly: () => parseM3UContentOnly,
   removeDomainFromBlacklist: () => removeDomainFromBlacklist,
   removeFavoriteFromUser: () => removeFavoriteFromUser,
+  validateDiscountCode: () => validateDiscountCode,
   saveUserFavorites: () => saveUserFavorites,
   updateAdBinding: () => updateAdBinding,
   updateHomepageDisplayConfig: () => updateHomepageDisplayConfig,
@@ -2063,7 +2064,7 @@ async function fetchAndParseM3UOnly(sourceUrl, sourceId, filter = null) {
     };
   } catch (error) {
     console.error(`[Sync] Error fetching and parsing M3U: ${error.message}`);
-    return { success: false, error: error.message, channelCount: 0, channels: [], adBindings: [] };
+    return { success: false, error: "加载频道数据失败", channelCount: 0, channels: [], adBindings: [] };
   }
 }
 async function fetchAndParseM3U(sourceUrl, sourceId, filter = null) {
