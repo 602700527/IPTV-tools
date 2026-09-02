@@ -49,6 +49,100 @@ tests/*.html
 .opencode/
 .trae/
 .playwright-mcp/
+.agents/
+.dsh/
+.omo/
+.cursor/
+.aider*
+
+# Cloudflare Workers logs
+wrangler.log
+wrangler_err.log
+.wrangler.log
+err.log
+
+# Personal planning notes (项目用 docs/ 目录管理正式文档)
+*-PLAN.md
+*-STRATEGY.md
+*-CHECKLIST.md
+*-REPORT.md
+*-TASK-TRACKER.md
+TASK-LIST.md
+DEPLOYMENT-CHECKLIST.md
+AEO-OPTIMIZATION-PLAN.md
+IPTV-SEARCH-BACKLINK-STRATEGY.md
+SEO-OPTIMIZATION-PLAN.md
+SEO-EXECUTION-REPORT.md
+SEO-TASK-TRACKER.md
+
+# Runtime data dumps (临时数据，不是源代码)
+channels.json
+channels_data.json
+channels_full.json
+channels_prod.json
+fresh_channels.json
+kv_cache.json
+alldns.json
+analytics.json
+counts.json
+dns.json
+routes.json
+zone.json
+zones.json
+tables.json
+insights.json
+drop_result.json
+purge.json
+refresh.json
+refresh2.json
+payload.json
+bigquery.sql
+
+# 一次性脚本
+add_tools_vars.cjs
+fix_tools_page.cjs
+create-extension-zip.js
+.tmp-*
+
+# 旧 bundle（worker.js 是当前在用的）
+deployed-worker.js
+worker-restored.js
+
+# Wrangler 备份和类型
+wrangler.toml.bak
+worker-configuration.d.ts
+
+# HTML 测试/设计稿（不是项目页面）
+home*.html
+home2.html
+home3.html
+home4.html
+home5.html
+home6.html
+home7.html
+home8.html
+cat*.html
+ch*.html
+showcase.html
+index.html.bak
+sketches/
+
+# 视频帧 / 素材
+verify_frames/
+verify_frames_ts/
+verify_refresh_frames/
+cta_last_frame.png
+scene1_warning.png
+scene2_benefits.png
+scene3_cta.png
+refresh_scene*.png
+marketing_retention_*.mp4
+marketing_retention_*.ts
+refresh_reminder_video.mp4
+refresh_reminder_video.ts
+
+# Sibling project (separate repo)
+awesome-iptv-tools/
 
 # OS files
 .DS_Store
