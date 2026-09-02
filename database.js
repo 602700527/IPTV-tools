@@ -397,12 +397,10 @@ export async function createTables(env) {
     })
   };
 
-  for (const [key, value] of Object.entries(defaultSettings)) {
-    const existing = await db.prepare('SELECT value FROM settings WHERE key = ?').bind(key).first();
-    if (!existing) {
-      await db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').bind(key, value).run();
-    }
-  }
+  // ponytail: defaultSettings 种子已移到 seedDefaultRows。
+  // createTables 在 worker fetch handler 里被每个请求调用（即使有 tablesCreated guard），
+  // 新 isolate 的第一次请求会跑这个循环 = 15 次 D1 SELECT。
+  // 移到 seedDefaultRows 后，只在 admin init/migrate 跑一次（之后 KV/缓存接管）。
 
   // Pㄤ€10ㄦ
   await db.prepare(`
@@ -950,6 +948,34 @@ export async function createTables(env) {
 // 硬规矩：每个 isolate 跑一次 createTables 会触发 8 条 COUNT 查询 — D1 不该被打。
 export async function seedDefaultRows(env) {
   const db = getDB();
+
+  // ponytail: 默认 settings 种子（从 createTables 移出，避免每个新 isolate 都查 D1 15 次）
+  try {
+    const defaultSettings = {
+      'channel_daily_limit': '100',
+      'ban_duration_days': '7',
+      'auto_ban_on_exceed': 'true',
+      'sub_rate_min': '1',
+      'sub_rate_hour': '60',
+      'sub_rate_day': '500',
+      'live_rate_min': '5',
+      'live_rate_hour': '300',
+      'live_rate_day': '2000',
+      'admin_rate_hour': '10',
+      'homepage_display_config': '{}',
+      'enable_ip_play': 'true',
+      'm3u_ttl_hours': '72',
+      'play_limit_per_ip': '100'
+    };
+    for (const [key, value] of Object.entries(defaultSettings)) {
+      const existing = await db.prepare('SELECT value FROM settings WHERE key = ?').bind(key).first();
+      if (!existing) {
+        await db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').bind(key, value).run();
+      }
+    }
+  } catch (e) {
+    console.error('Database: Failed to seed default settings:', e);
+  }
 
   try {
     const alipayCount = await db.prepare('SELECT COUNT(*) as count FROM payment_methods WHERE type = ?').bind('alipay').first();
