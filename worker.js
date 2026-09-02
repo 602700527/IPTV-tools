@@ -30126,7 +30126,9 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + ' days'));
         document.getElementById('paymentPlanName').textContent = planLabel;
         document.getElementById('paymentIPCount').textContent = selectedIPs + ' device(s)';
-        document.getElementById('paymentAmount').textContent = '\xA5' + (data.amount_cny != null ? data.amount_cny.toFixed(2) : '-');
+        // Use frontend price so the modal matches the order summary the user just saw
+        const frontendPrice = calculatePrice();
+        document.getElementById('paymentAmount').textContent = '\xA5' + frontendPrice.discounted.toFixed(2);
         document.getElementById('paymentMethodIndicator').innerHTML = 'Using <strong>USDT (TRC20)</strong>';
         document.getElementById('modalQrcodeTip').textContent = 'Scan with a TRC20-compatible wallet';
 
@@ -30244,6 +30246,10 @@ var SUBSCRIPTION_HTML = `<!DOCTYPE html>
         if (result.success && result.payment_data) {
           const price = calculatePrice();
           const planLabel = (selectedDuration.days === 30 ? 'Monthly' : selectedDuration.days === 90 ? 'Quarterly' : selectedDuration.days === 365 ? 'Yearly' : (selectedDuration.days + ' days'));
+
+          // Reset USDT-only fields so Alipay modal does not show leftover USDT content
+          const usdtBox = document.getElementById('usdtAddressBox');
+          if (usdtBox) usdtBox.style.display = 'none';
 
           document.getElementById('paymentPlanName').textContent = planLabel;
           document.getElementById('paymentIPCount').textContent = selectedIPs + ' device(s)';

@@ -1,5 +1,5 @@
 // API
-import { getDB, initDB, createTables, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, getSyncFilterConfig, updateSyncFilterConfig, getTypeMappingConfig, updateTypeMappingConfig, getDomainBlacklist, addDomainToBlacklist, removeDomainFromBlacklist, addMultipleDomainsToBlacklist, getTopics, getTopic, createTopic, updateTopic, deleteTopic, applyTopicFilter } from '../database.js';
+import { getDB, initDB, createTables, seedDefaultRows, fetchAndParseM3U, getSecurityConfig, updateSecurityConfig, getIPBlacklistConfig, updateIPBlacklistConfig, getHomepageDisplayConfig, updateHomepageDisplayConfig, getSystemConfig, updateSystemConfig, getSyncFilterConfig, updateSyncFilterConfig, getTypeMappingConfig, updateTypeMappingConfig, getDomainBlacklist, addDomainToBlacklist, removeDomainFromBlacklist, addMultipleDomainsToBlacklist, getTopics, getTopic, createTopic, updateTopic, deleteTopic, applyTopicFilter } from '../database.js';
 import {
   handleGetPaymentMethods,
   handleCreatePaymentMethod,
@@ -14,6 +14,7 @@ import { manualSyncAll } from './scheduler.js';
 import { getBlacklistedIPs, unbanIP, getIPAccessStats, banIP } from '../security/ip-blacklist.js';
 import { getBannedCodesFromCache, removeBannedCodeFromCache, syncBannedCodesToCache } from '../security/code-ban-cache.js';
 import { cacheChannelsToKV, clearChannelCache, getCacheStatus } from '../utils/channel-cache.js';
+import { setCachedSetting } from '../utils/setting-cache.js';
 import { getAllTokens, generateTokenAndAddresses, invalidateToken, extendToken } from '../utils/token-manager.js';
 
 export async function handleAdminRequest(request, env, ctx) {
@@ -35,6 +36,7 @@ export async function handleAdminRequest(request, env, ctx) {
       case 'init':
         // 
         await createTables(env);
+        await seedDefaultRows(env);
         return new Response(JSON.stringify({ success: true, message: 'Database tables initialized' }), {
           headers: { 'Content-Type': 'application/json' }
         });
@@ -43,11 +45,12 @@ export async function handleAdminRequest(request, env, ctx) {
         // 
         try {
           await createTables(env);
+          await seedDefaultRows(env);
           return new Response(JSON.stringify({ success: true, message: 'Database migration completed' }), {
             headers: { 'Content-Type': 'application/json' }
           });
         } catch (error) {
-          return new Response(JSON.stringify({ success: false, error: error.message }), {
+          return new Response(JSON.stringify({ success: false, error: "操作失败，请稍后重试" }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
           });
@@ -105,34 +108,41 @@ export async function handleAdminRequest(request, env, ctx) {
           const data = await request.json();
           const isActive = data.is_active !== undefined ? (data.is_active ? 1 : 0) : null;
           
+          let newStatus;
           if (isActive === null) {
-            // ，
             const source = await getDB().prepare('SELECT is_active FROM sources WHERE id = ?').bind(sourceId).first();
             if (!source) {
               return new Response('Source not found', { status: 404 });
             }
-            const newStatus = source.is_active ? 0 : 1;
-            await getDB().prepare('UPDATE sources SET is_active = ? WHERE id = ?').bind(newStatus, sourceId).run();
-            
-            return new Response(JSON.stringify({ 
-              success: true, 
-              is_active: newStatus === 1,
-              message: newStatus === 1 ? '' : ''
-            }), {
-              headers: { 'Content-Type': 'application/json' }
-            });
+            newStatus = source.is_active ? 0 : 1;
           } else {
-            // 
-            await getDB().prepare('UPDATE sources SET is_active = ? WHERE id = ?').bind(isActive, sourceId).run();
-            
-            return new Response(JSON.stringify({ 
-              success: true, 
-              is_active: isActive === 1,
-              message: isActive === 1 ? '' : ''
-            }), {
-              headers: { 'Content-Type': 'application/json' }
-            });
+            newStatus = isActive;
           }
+          await getDB().prepare('UPDATE sources SET is_active = ? WHERE id = ?').bind(newStatus, sourceId).run();
+
+          // 级联：禁用源时直接 DELETE 该源的所有 channels（不软标志，释放存储）
+          // 重新启用源时 channels 保持空，admin 需要手动触发 sync 从 M3U 重新拉取
+          let deletedChannels = 0;
+          if (newStatus === 0) {
+            const result = await getDB().prepare(
+              'DELETE FROM channels WHERE source_id = ? AND is_active = 1'
+            ).bind(sourceId).run();
+            deletedChannels = result.meta?.changes || 0;
+            console.log('[Admin] Source ' + sourceId + ' disabled, deleted ' + deletedChannels + ' channels');
+
+            if (deletedChannels > 0 && typeof cacheChannelsToKV === 'function') {
+              ctx?.waitUntil(cacheChannelsToKV(env));
+            }
+          }
+
+          return new Response(JSON.stringify({
+            success: true,
+            is_active: newStatus === 1,
+            deleted_channels: deletedChannels,
+            message: newStatus === 1 ? '' : ''
+          }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
         } else if (request.method === 'DELETE') {
           // 
           const sourceId = pathParts[3];
@@ -1253,6 +1263,11 @@ export async function handleAdminRequest(request, env, ctx) {
 
           await updateSystemConfig(config);
 
+          // 同步写 KV，让热路径立即看到新值（不打 D1 读）
+          if (data.member_ad_free_enabled !== undefined) {
+            await setCachedSetting(env, 'member_ad_free_enabled', String(data.member_ad_free_enabled));
+          }
+
           return new Response(JSON.stringify({
             success: true,
             message: '',
@@ -1877,7 +1892,7 @@ export async function handleAdminRequest(request, env, ctx) {
         if (request.method === 'GET' && !adTsSubAction) {
           // TS
           const db = getDB();
-          const adTsFiles = await db.prepare('SELECT * FROM ad_ts_files ORDER BY created_at DESC').all();
+          const adTsFiles = await db.prepare('SELECT * FROM ad_ts_files ORDER BY created_at DESC LIMIT 100').all();
 
           return new Response(JSON.stringify({
             success: true,
@@ -2186,7 +2201,7 @@ export async function handleAdminRequest(request, env, ctx) {
             });
           } catch (error) {
             console.error('[admin/at-risk-vips] error:', error);
-            return new Response(JSON.stringify({ success: false, error: error.message }), {
+            return new Response(JSON.stringify({ success: false, error: "操作失败，请稍后重试" }), {
               status: 500,
               headers: { 'Content-Type': 'application/json' }
             });
@@ -2372,7 +2387,7 @@ export async function handleAdminRequest(request, env, ctx) {
             } catch (e) {
               return new Response(JSON.stringify({
                 success: false,
-                error: e.message.includes('UNIQUE constraint') ? '' : e.message
+                error: '操作失败，请稍后重试'
               }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' }
@@ -2415,7 +2430,7 @@ export async function handleAdminRequest(request, env, ctx) {
           } catch (e) {
             return new Response(JSON.stringify({
               success: false,
-              error: e.message
+              error: "操作失败，请稍后重试"
             }), {
               status: 500,
               headers: { 'Content-Type': 'application/json' }
@@ -2455,7 +2470,7 @@ export async function handleAdminRequest(request, env, ctx) {
           } catch (error) {
             return new Response(JSON.stringify({
               success: false,
-              error: error.message
+              error: "操作失败，请稍后重试"
             }), {
               status: 500,
               headers: { 'Content-Type': 'application/json' }
@@ -2472,7 +2487,7 @@ export async function handleAdminRequest(request, env, ctx) {
           } catch (error) {
             return new Response(JSON.stringify({
               success: false,
-              error: error.message
+              error: "操作失败，请稍后重试"
             }), {
               status: 500,
               headers: { 'Content-Type': 'application/json' }
@@ -2490,7 +2505,7 @@ export async function handleAdminRequest(request, env, ctx) {
           } catch (error) {
             return new Response(JSON.stringify({
               success: false,
-              error: error.message
+              error: "操作失败，请稍后重试"
             }), {
               status: 500,
               headers: { 'Content-Type': 'application/json' }
@@ -2508,7 +2523,7 @@ export async function handleAdminRequest(request, env, ctx) {
     }
   } catch (error) {
     console.error('Admin API error:', error);
-    return new Response(JSON.stringify({ success: false, error: error.message }), {
+    return new Response(JSON.stringify({ success: false, error: "操作失败，请稍后重试" }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -3007,7 +3022,7 @@ export async function handleAdminTickets(request, env, ctx) {
     });
   } catch (error) {
     console.error('[Admin Tickets] Error:', error);
-    return new Response(JSON.stringify({ success: false, error: error.message }), {
+    return new Response(JSON.stringify({ success: false, error: "操作失败，请稍后重试" }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });

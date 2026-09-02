@@ -1,6 +1,7 @@
 // 用户认证 API 处理器
 import { getDB } from '../database.js';
 import { sendEmail, generateVerificationEmailHtml } from '../utils/email.js';
+import { getCachedSetting } from '../utils/setting-cache.js';
 
 /**
  * 生成 6 位数字验证码
@@ -268,7 +269,7 @@ export async function handleSendVerificationCode(request, env, ctx) {
 
   } catch (error) {
     console.error('发送验证码失败:', error);
-    return new Response(JSON.stringify({ success: false, error: error.message || '服务器错误' }), {
+    return new Response(JSON.stringify({ success: false, error: '操作失败，请稍后重试' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -1067,7 +1068,7 @@ export async function handleGoogleOAuthCallback(request, env, ctx) {
   } catch (error) {
     console.error('Google OAuth Error:', error);
     console.error('Error details:', error.message, error.stack);
-    return new Response(JSON.stringify({ success: false, error: error.message || 'OAuth callback processing failed' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ success: false, error: '操作失败，请稍后重试' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 }
 
@@ -1127,8 +1128,9 @@ export async function handleGetMemberStatus(request, env, ctx) {
     const isMember = await checkMemberStatus(session.user_id, db);
 
     // 获取系统配置检查功能开关
-    const systemConfig = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('member_ad_free_enabled').first();
-    const adFreeEnabled = systemConfig && systemConfig.value === 'true';
+    // 硬规矩：配置项只走 KV + in-isolate memo，不打 D1
+    const adFreeValue = await getCachedSetting(env, 'member_ad_free_enabled', 'false');
+    const adFreeEnabled = adFreeValue === 'true';
 
     return new Response(JSON.stringify({
       success: true,
@@ -1195,7 +1197,7 @@ export async function handleGetUserFavorites(request, env, ctx) {
     });
   } catch (error) {
     console.error('[handleGetUserFavorites] Error:', error);
-    return new Response(JSON.stringify({ success: false, error: error.message || 'Server error' }), {
+    return new Response(JSON.stringify({ success: false, error: '操作失败，请稍后重试' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -1255,7 +1257,7 @@ export async function handleSaveUserFavorites(request, env, ctx) {
     });
   } catch (error) {
     console.error('[handleSaveUserFavorites] Error:', error);
-    return new Response(JSON.stringify({ success: false, error: error.message || 'Server error' }), {
+    return new Response(JSON.stringify({ success: false, error: '操作失败，请稍后重试' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });

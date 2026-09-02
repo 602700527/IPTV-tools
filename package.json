@@ -6,7 +6,7 @@
   "main": "worker.js",
   "scripts": {
     "dev": "wrangler dev",
-    "build": "esbuild worker.js --bundle --outfile=dist/worker.js --platform=node --target=node20 --format=esm",
+    "build": "esbuild worker-entry.js --bundle --outfile=dist/worker.js --platform=neutral --target=es2022 --format=esm",
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
     "init-db": "wrangler d1 execute tv-service-db --file=./schema.sql",

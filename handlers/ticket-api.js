@@ -165,6 +165,7 @@ export async function handleGetTickets(request, env) {
       FROM tickets
       WHERE user_id = ?
       ORDER BY created_at DESC
+      LIMIT 100
     `).bind(user.id).all();
 
     return new Response(JSON.stringify({
