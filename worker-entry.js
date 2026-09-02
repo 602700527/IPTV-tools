@@ -1863,6 +1863,16 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
 
         console.log(`Sitemap: Generated ${allGroups.length} categories and ${channelsToInclude.length} channels from KV cache`);
 
+        // ponytail: 把生成的 sitemap 写回 KV，避免下次再 miss 重生成（8190 个 URL 字符串拼接）
+        // 失败静默，不影响响应
+        try {
+          ctx?.waitUntil(env.KV.put('sitemap_xml', sitemap, { expirationTtl: 86400 }).catch(e => {
+            console.error('Sitemap: KV write-back failed:', e.message);
+          }));
+        } catch (e) {
+          console.error('Sitemap: KV write-back sync failed:', e.message);
+        }
+
         return new Response(sitemap, {
           headers: {
             'Content-Type': 'application/xml; charset=utf-8',
