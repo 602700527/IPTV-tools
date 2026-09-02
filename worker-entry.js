@@ -1,4 +1,4 @@
-﻿// Cloudflare Worker 
+// Cloudflare Worker 
 import { initDB, createTables, isMallEnabled, getDB } from './database.js';
 import { handleLiveRequest } from './handlers/live.js';
 import { handleSubRequest, handleSubRequestTxt } from './handlers/sub.js';
@@ -493,7 +493,7 @@ import { USER_ACTIVATE_HTML } from './user-activate.js';
 import { SUBSCRIPTION_HTML } from './subscription-page.js';
 import { PLANS_HTML } from './plans-page.js';
 import { RESET_PASSWORD_HTML } from './reset-password-page.js';
-import { generateRobotsTxt } from './legal-pages.js';
+import { handleRobotsRequest } from './handlers/robots-handler.js';
 import { PAGE_HEADER } from './components/page-header.js';
 import { PAGE_FOOTER } from './components/page-footer.js';
 import { pageTitle as privacyTitle, pageDescription as privacyDesc, styles as privacyStyles, content as privacyContent } from './pages-content/privacy-policy.js';
@@ -512,6 +512,8 @@ import { pageTitle as asiaIptvTitle, pageDescription as asiaIptvDesc, styles as 
 import { pageTitle as europeIptvTitle, pageDescription as europeIptvDesc, styles as europeIptvStyles, content as europeIptvContent } from './pages-content/europe-iptv.js';
 import { pageTitle as americasIptvTitle, pageDescription as americasIptvDesc, styles as americasIptvStyles, content as americasIptvContent } from './pages-content/americas-iptv.js';
 import { pageTitle as oceaniaIptvTitle, pageDescription as oceaniaIptvDesc, styles as oceaniaIptvStyles, content as oceaniaIptvContent } from './pages-content/oceania-iptv.js';
+import { pageTitle as worldCupTitle, pageDescription as worldCupDesc, styles as worldCupStyles, content as worldCupContent } from './pages-content/world-cup.js';
+import { pageTitle as toolsPageTitle, pageDescription as toolsPageDesc, styles as toolsPageStyles, content as toolsPageContent } from './pages/tools-page.js';
 import { llmsTxt } from './pages-content/llms-txt.js';
 import { generateShowcasePage } from './pages/showcase-page.js';
 import { getSystemConfig } from './database.js';
@@ -611,6 +613,12 @@ function generateStaticPage(pageTitle, pageDescription, styles, content) {
   } else if (pageTitle.toLowerCase().includes('free iptv app')) {
     pagePath = '/free-iptv-app-review';
     schemaType = 'Article';
+  } else if (pageTitle.toLowerCase().includes('tools') && pageTitle.toLowerCase().includes('iptv')) {
+    pagePath = '/tools';
+    schemaType = 'CollectionPage';
+  } else if (pageTitle.toLowerCase().includes('world cup')) {
+    pagePath = '/world-cup';
+    schemaType = 'CollectionPage';
   } else if (pageTitle.includes('Tutorial') || pageTitle.includes('How to')) {
     pagePath = '/tutorial';
     schemaType = 'HowTo';
@@ -1825,7 +1833,9 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
           { loc: '/asia-iptv', priority: '0.8', changefreq: 'weekly' },
           { loc: '/europe-iptv', priority: '0.8', changefreq: 'weekly' },
           { loc: '/americas-iptv', priority: '0.8', changefreq: 'weekly' },
-          { loc: '/oceania-iptv', priority: '0.8', changefreq: 'weekly' }
+          { loc: '/oceania-iptv', priority: '0.8', changefreq: 'weekly' },
+          { loc: '/world-cup', priority: '0.8', changefreq: 'weekly' },
+          { loc: '/tools', priority: '0.8', changefreq: 'weekly' }
         ];
 
         staticPages.forEach(page => {
@@ -1901,6 +1911,8 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
   <url><loc>${baseUrl}/android-iptv-app</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>${baseUrl}/free-iptv-app-review</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>${baseUrl}/carplay-aptv</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>${baseUrl}/world-cup</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>${baseUrl}/tools</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>`;
 
       console.log('Sitemap: All fallbacks failed, returning minimal static sitemap');
@@ -1912,7 +1924,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       });
     } else if (path === '/robots.txt') {
       // Robots.txt
-      return new Response(generateRobotsTxt(), {
+      return new Response(handleRobotsRequest(), {
         headers: { 'Content-Type': 'text/plain; charset=utf-8' }
       });
     } else if (path === '/ads.txt') {
@@ -1971,8 +1983,18 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     } else if (path === '/oceania-iptv') {
-      // Oceania IPTV 
+      // Oceania IPTV
       return new Response(generateStaticPage(oceaniaIptvTitle, oceaniaIptvDesc, oceaniaIptvStyles, oceaniaIptvContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/world-cup') {
+      // World Cup 2026 IPTV landing page
+      return new Response(generateStaticPage(worldCupTitle, worldCupDesc, worldCupStyles, worldCupContent), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    } else if (path === '/tools') {
+      // IPTV tools & extensions landing page
+      return new Response(generateStaticPage(toolsPageTitle, toolsPageDesc, toolsPageStyles, toolsPageContent), {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     } else if (path.startsWith('/api/ads/')) {
