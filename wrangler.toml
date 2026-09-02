@@ -1,5 +1,5 @@
 name = "cf-tv-service"
-main = "worker.js"
+main = "worker-entry.js"
 compatibility_date = "2023-05-18"
 account_id = "83bc7552e54dd94303f04ef8d7429066"
 

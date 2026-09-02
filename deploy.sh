@@ -1,6 +1,6 @@
 #!/bin/bash
 # =================================================================
-# Production deploy script — bypasses wrangler, preserves R2 binding
+# Production deploy script - bypasses wrangler, preserves R2 binding
 # =================================================================
 # Usage:
 #   CLOUDFLARE_API_TOKEN=cfut_xxx ./deploy.sh
@@ -21,30 +21,40 @@ else
   OUT_DIR="/tmp/cf-deploy-$$"
 fi
 
+# Parse main filename from wrangler.toml (wrangler outputs to that name, not fixed worker.js)
+MAIN_FILE=$(grep -E '^main[[:space:]]*=' wrangler.toml | head -1 | sed -E 's/^main[[:space:]]*=[[:space:]]*"?([^"]+)"?$/\1/' | xargs basename)
+if [ -z "$MAIN_FILE" ]; then
+  MAIN_FILE="worker.js"
+fi
+echo "    Main file (from wrangler.toml): $MAIN_FILE"
+
 # 1. Build bundled worker
 echo "==> Building worker..."
 mkdir -p "$OUT_DIR"
-npx wrangler deploy --env production --outdir="$OUT_DIR" --dry-run > /dev/null 2>&1 || true
+# ponytail: --config wrangler.toml 让 wrangler 找到 main=worker-entry.js
+# 不传 --config 会忽略 wrangler.toml 的 main，强制找 worker.js
+npx wrangler deploy --config wrangler.toml --env production --outdir="$OUT_DIR" --dry-run > /dev/null 2>&1 || true
 # --dry-run exits early but writes the bundle. Fall back to regular build if needed.
-if [ ! -f "$OUT_DIR/worker.js" ]; then
+if [ ! -f "$OUT_DIR/$MAIN_FILE" ]; then
   echo "    dry-run didn't produce bundle, building for real..."
-  npx wrangler deploy --env production --outdir="$OUT_DIR" > /dev/null 2>&1
+  npx wrangler deploy --config wrangler.toml --env production --outdir="$OUT_DIR" > /dev/null 2>&1
 fi
 
-if [ ! -f "$OUT_DIR/worker.js" ]; then
-  echo "❌ Build failed — no $OUT_DIR/worker.js"
+if [ ! -f "$OUT_DIR/$MAIN_FILE" ]; then
+  echo "Build failed - no $OUT_DIR/$MAIN_FILE"
   exit 1
 fi
 
-echo "    Bundle: $(wc -c < "$OUT_DIR/worker.js") bytes"
+echo "    Bundle: $(wc -c < "$OUT_DIR/$MAIN_FILE") bytes"
 echo "    OUT_DIR=$OUT_DIR"
 ls -la "$OUT_DIR/"
 
 # 2. Build metadata with ALL bindings (including R2)
+# ponytail: main_module 跟 wrangler.toml 的 main 文件名一致
 echo "==> Uploading with bindings..."
-METADATA=$(cat <<'EOF'
+METADATA=$(cat <<EOF
 {
-  "main_module": "worker.js",
+  "main_module": "$MAIN_FILE",
   "bindings": [
     {"type": "r2_bucket", "name": "R2_BUCKET", "bucket_name": "static-assets"},
     {"type": "kv_namespace", "name": "KV", "namespace_id": "d5e943d023d0474382b04b3c15c47ffb"},
@@ -67,9 +77,9 @@ EOF
 # 3. PUT to Cloudflare API (use main_module for ES module worker)
 # Convert Unix path to Windows path for curl (Cygwin/MSYS/Git Bash on Windows)
 if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
-  WORKER_FILE="$(cygpath -w "$OUT_DIR/worker.js")"
+  WORKER_FILE="$(cygpath -w "$OUT_DIR/$MAIN_FILE")"
 else
-  WORKER_FILE="$OUT_DIR/worker.js"
+  WORKER_FILE="$OUT_DIR/$MAIN_FILE"
 fi
 echo "    Uploading: $WORKER_FILE"
 RESPONSE=$(curl -sS --tls-max 1.2 --max-time 180 -X PUT \
@@ -78,13 +88,13 @@ RESPONSE=$(curl -sS --tls-max 1.2 --max-time 180 -X PUT \
   -F "metadata=${METADATA}" \
   -F "main_module=@${WORKER_FILE};type=application/javascript+module")
 
-# Check result (allow optional whitespace after colon — CF API returns JSON with spaces)
+# Check result (allow optional whitespace after colon - CF API returns JSON with spaces)
 if echo "$RESPONSE" | grep -q '"success":\s*true'; then
-  echo "✅ Deployed successfully"
+  echo "Deployed successfully"
   echo "$RESPONSE" | head -c 200
   echo
 else
-  echo "❌ Deploy failed:"
+  echo "Deploy failed:"
   echo "$RESPONSE"
   exit 1
 fi
@@ -99,32 +109,22 @@ PURGE_RESPONSE=$(curl -sS --tls-max 1.2 --max-time 60 -X POST \
   -d '{"files":["https://iptv-search.com/","https://iptv-search.com"]}')
 
 if echo "$PURGE_RESPONSE" | grep -q '"success":\s*true'; then
-  echo "✅ Cache purged"
+  echo "Cache purged"
 else
-  echo "⚠️  Cache purge failed (non-fatal — deploy still succeeded):"
+  echo "Cache purge failed (non-fatal - deploy still succeeded):"
   echo "$PURGE_RESPONSE" | head -c 300
   echo
 fi
 
-# Trigger static page regeneration so R2 bucket has fresh HTML
-# (worker code changed → need to re-render static pages, otherwise stale HTML is served)
-if [ -n "${ADMIN_KEY:-}" ]; then
-  echo "==> Regenerating static pages..."
-  REFRESH_RESPONSE=$(curl -sS --tls-max 1.2 --max-time 300 -X POST \
-    "https://iptv-search.com/api/admin/refresh-static?includeHomepage=1&limit=5" \
-    -H "x-admin-key: ${ADMIN_KEY}")
-  if echo "$REFRESH_RESPONSE" | grep -q '"success":true'; then
-    echo "✅ Static pages regenerated"
-    echo "$REFRESH_RESPONSE" | head -c 200
-    echo
-  else
-    echo "⚠️  Static refresh failed (non-fatal — CDN cache still purged):"
-    echo "$REFRESH_RESPONSE" | head -c 300
-    echo
-  fi
-else
-  echo "ℹ️  ADMIN_KEY not set — skipping static refresh (set ADMIN_KEY env var to enable)"
-fi
+# Purge sitemap too (cache TTL is 1h on sitemap)
+curl -sS --tls-max 1.2 --max-time 60 -X POST \
+  "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache" \
+  -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{"files":["https://iptv-search.com/sitemap.xml"]}' > /dev/null 2>&1 || true
+
+# Static pages are regenerated by the production scheduler - do not trigger manually here
+# (was previously calling /api/admin/refresh-static with ADMIN_KEY, removed per request)
 
 # Cleanup
 rm -rf "$OUT_DIR"
