@@ -1924,9 +1924,7 @@ importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')`;
       });
     } else if (path === '/robots.txt') {
       // Robots.txt — handleRobotsRequest 是 async，必须 await
-      return new Response(await handleRobotsRequest(), {
-        headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=3600' }
-      });
+      return await handleRobotsRequest();
     } else if (path === '/ads.txt') {
       // AdSense 
       return new Response('google.com, pub-2205598928191137, DIRECT, f08c47fec0942fa0', {
